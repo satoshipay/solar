@@ -1,0 +1,20 @@
+{
+  "name": "@zaster/web-wallet",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "private": true,
+  "author": "Andy Wermke (https://github.com/andywer)",
+  "scripts": {
+    "build": "NODE_ENV=production parcel build src/app.js",
+    "dev": "NODE_ENV=development parcel src/index.html -p 3000"
+  },
+  "devDependencies": {
+    "babel-preset-react-app": "^3.1.0",
+    "parcel-bundler": "^1.0.3",
+    "styled-components": "^2.2.4"
+  },
+  "dependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  }
+}
