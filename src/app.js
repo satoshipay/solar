@@ -5,12 +5,15 @@ import {
   Route
 } from 'react-router-dom'
 import { withProps } from 'recompose'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import HomePage from './pages/home'
 import wallets from './stores/wallets'
 
 const App = () => (
   <Router>
-    <Route exact path='/' component={withProps({ wallets })(HomePage)}/>
+    <MuiThemeProvider>
+      <Route exact path='/' component={withProps({ wallets })(HomePage)}/>
+    </MuiThemeProvider>
   </Router>
 )
 

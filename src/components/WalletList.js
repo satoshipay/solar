@@ -1,13 +1,14 @@
 import React from 'react'
+import { List, ListItem } from 'material-ui/List'
+import Subheader from 'material-ui/Subheader'
 
 const WalletList = ({ wallets }) => (
-  <ul>
+  <List>
+    <Subheader>Wallets</Subheader>
     {wallets.map(wallet => (
-      <li key={wallet.id}>
-        {wallet.name}
-      </li>
+      <ListItem key={wallet.id} primaryText={wallet.name} />
     ))}
-  </ul>
+  </List>
 )
 
 export default WalletList
