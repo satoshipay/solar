@@ -7,12 +7,16 @@ import {
 import { withProps } from 'recompose'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import HomePage from './pages/home'
+import WalletPage from './pages/wallet'
 import wallets from './stores/wallets'
 
 const App = () => (
   <Router>
     <MuiThemeProvider>
-      <Route exact path='/' component={withProps({ wallets })(HomePage)}/>
+      <div>
+        <Route exact path='/' component={withProps({ wallets })(HomePage)}/>
+        <Route path='/wallet/:id' component={withProps({ wallets })(WalletPage)}/>
+      </div>
     </MuiThemeProvider>
   </Router>
 )
