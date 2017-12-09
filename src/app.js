@@ -1,13 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import styled from 'styled-components'
+import {
+  BrowserRouter as Router,
+  Route
+} from 'react-router-dom'
+import { withProps } from 'recompose'
+import HomePage from './pages/home'
+import wallets from './stores/wallets'
 
-const MainSection = styled.main`
-  margin: 25% auto;
-  text-align: center;
-`
-
-const App = () => <MainSection>Zaster web wallet</MainSection>
+const App = () => (
+  <Router>
+    <Route exact path='/' component={withProps({ wallets })(HomePage)}/>
+  </Router>
+)
 
 ReactDOM.render(<App />, document.getElementById('app'))
 

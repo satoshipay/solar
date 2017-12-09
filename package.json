@@ -10,11 +10,14 @@
   },
   "devDependencies": {
     "babel-preset-react-app": "^3.1.0",
-    "parcel-bundler": "^1.0.3",
-    "styled-components": "^2.2.4"
+    "parcel-bundler": "^1.0.3"
   },
   "dependencies": {
+    "mobx": "^3.4.1",
+    "mobx-react": "^4.3.5",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "react-router-dom": "^4.2.2",
+    "recompose": "^0.26.0"
   }
 }
