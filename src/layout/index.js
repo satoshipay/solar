@@ -12,15 +12,18 @@ export const VerticalLayout = ({ children }) => {
   )
 }
 
-export const Box = ({ children, grow, fixed }) => {
-  const styleGrow = {
+export const Box = ({ children, grow, fixed, padding = 0 }) => {
+  const baseStyle = {
+    padding
+  }
+  const growStyle = {
     flexGrow: 1
   }
-  const styleFixed = {
+  const fixedStyle = {
     flexGrow: 0,
     flexShrink: 0
   }
-  const style = Object.assign({}, grow && styleGrow, fixed && styleFixed)
+  const style = Object.assign(baseStyle, grow ? growStyle : null, fixed ? fixedStyle : null)
   return (
     <div style={style}>{children}</div>
   )
