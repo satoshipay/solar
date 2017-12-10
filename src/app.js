@@ -7,6 +7,7 @@ import {
 import { withProps } from 'recompose'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import AppBottomNavigation from './components/BottomNavigation'
+import { Box, VerticalLayout } from './layout'
 import HomePage from './pages/home'
 import QRScannerPage from './pages/qr-scanner'
 import WalletPage from './pages/wallet'
@@ -15,14 +16,16 @@ import wallets from './stores/wallets'
 const App = () => (
   <Router>
     <MuiThemeProvider>
-      <div>
-        <div>
+      <VerticalLayout>
+        <Box grow>
           <Route exact path='/' component={withProps({ wallets })(HomePage)}/>
           <Route path='/wallet/:id' component={withProps({ wallets })(WalletPage)}/>
           <Route path='/qr-scanner' component={QRScannerPage}/>
-        </div>
-        <AppBottomNavigation />
-      </div>
+        </Box>
+        <Box fixed>
+          <AppBottomNavigation />
+        </Box>
+      </VerticalLayout>
     </MuiThemeProvider>
   </Router>
 )
