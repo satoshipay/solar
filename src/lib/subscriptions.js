@@ -1,16 +1,30 @@
-import Observable from 'zen-observable'
+import { observable } from 'mobx'
+
+const accountObservableCache = new Map()
+
+function createAccountObservable (horizon, accountPubKey) {
+  const accountObservable = observable({
+    balances: []
+  })
+  horizon.accounts().accountId(accountPubKey).cursor('now').stream({
+    onmessage (accountData) {
+      Object.assign(accountObservable, accountData)
+    },
+    onerror (error) {
+      console.error(error)
+    }
+  })
+  return accountObservable
+}
 
 // TODO: Memoize (!)
 export function subscribeToAccount (horizon, accountPubKey) {
-  return new Observable(observer => {
-    const unsubscribe = horizon.accounts().accountId(accountPubKey).cursor('now').stream({
-      onmessage (accountData) {
-        observer.next(accountData)
-      },
-      onerror (error) {
-        observer.error(error)
-      }
-    })
-    return () => unsubscribe()
-  })
+  const cacheKey = horizon.serverURL + accountPubKey
+
+  if (!accountObservableCache.has(cacheKey)) {
+    accountObservableCache.set(cacheKey, createAccountObservable(horizon, accountPubKey))
+  }
+
+  const accountObservable = accountObservableCache.get(cacheKey)
+  return accountObservable
 }
