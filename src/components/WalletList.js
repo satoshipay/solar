@@ -3,13 +3,20 @@ import Divider from 'material-ui/Divider'
 import { List, ListItem } from 'material-ui/List'
 import Subheader from 'material-ui/Subheader'
 import { withRouter } from 'react-router-dom'
+import Balance from '../components/Balance'
+import { derivePublicKey } from '../lib/key'
 
 const WalletList = ({ history, wallets }) => {
   const pubnetWallets = wallets.filter(wallet => !wallet.testnet)
   const testnetWallets = wallets.filter(wallet => wallet.testnet)
 
   const WalletListItem = wallet => (
-    <ListItem key={wallet.id} primaryText={wallet.name} onClick={() => history.push(`/wallet/${wallet.id}`)} />
+    <ListItem
+      key={wallet.id}
+      primaryText={wallet.name}
+      secondaryText={<small><Balance publicKey={derivePublicKey(wallet.privateKey)} testnet={wallet.testnet} /></small>}
+      onClick={() => history.push(`/wallet/${wallet.id}`)}
+    />
   )
 
   const renderedPubnetWallets = pubnetWallets.length === 0 ? null : (
