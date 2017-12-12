@@ -11,7 +11,7 @@ const getBalance = accountData => {
   return balanceObject ? parseFloat(balanceObject.balance) : balanceUnknown
 }
 
-const StatlessBalance = observer(({ accountDataObservable }) => {
+const StatelessBalance = observer(({ accountDataObservable }) => {
   const balance = getBalance(accountDataObservable)
 
   if (balance === balanceUnknown) {
@@ -21,9 +21,10 @@ const StatlessBalance = observer(({ accountDataObservable }) => {
   }
 })
 
-const Balance = ({ horizon, horizonTestnet, publicKey, testnet }) => {
-  const accountDataObservable = subscribeToAccount(testnet ? horizonTestnet : horizon, publicKey)
-  return <StatlessBalance accountDataObservable={accountDataObservable} />
+const Balance = ({ horizonLivenet, horizonTestnet, publicKey, testnet }) => {
+  const horizon = testnet ? horizonTestnet : horizonLivenet
+  const accountDataObservable = subscribeToAccount(horizon, publicKey)
+  return <StatelessBalance accountDataObservable={accountDataObservable} />
 }
 
 export default withHorizon(observer(Balance))
