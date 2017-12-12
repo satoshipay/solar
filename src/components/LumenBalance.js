@@ -21,10 +21,10 @@ const StatelessBalance = observer(({ accountDataObservable }) => {
   }
 })
 
-const Balance = ({ horizonLivenet, horizonTestnet, publicKey, testnet }) => {
+const LumenBalance = ({ horizonLivenet, horizonTestnet, publicKey, testnet }) => {
   const horizon = testnet ? horizonTestnet : horizonLivenet
   const accountDataObservable = subscribeToAccount(horizon, publicKey)
   return <StatelessBalance accountDataObservable={accountDataObservable} />
 }
 
-export default withHorizon(observer(Balance))
+export default withHorizon(observer(LumenBalance))
