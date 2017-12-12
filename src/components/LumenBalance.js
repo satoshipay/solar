@@ -1,30 +1,20 @@
 import React from 'react'
-import { lifecycle } from 'recompose'
-import { observer } from 'mobx-react'
-import { withHorizon } from '../hocs'
-import { subscribeToAccount } from '../lib/subscriptions'
+import { withBalance } from '../hocs'
 
-const balanceUnknown = -1
-
-const getBalance = accountData => {
-  const balanceObject = accountData.balances.find(balance => balance.asset_type === 'native')
-  return balanceObject ? parseFloat(balanceObject.balance) : balanceUnknown
-}
-
-const StatelessBalance = observer(({ accountDataObservable }) => {
-  const balance = getBalance(accountDataObservable)
-
-  if (balance === balanceUnknown) {
+const LumenBalance = ({ balance }) => {
+  if (balance < 0) {
     return ''
   } else {
     return `XLM ${balance.toFixed(7).replace(/00$/, '')}`
   }
-})
-
-const LumenBalance = ({ horizonLivenet, horizonTestnet, publicKey, testnet }) => {
-  const horizon = testnet ? horizonTestnet : horizonLivenet
-  const accountDataObservable = subscribeToAccount(horizon, publicKey)
-  return <StatelessBalance accountDataObservable={accountDataObservable} />
 }
 
-export default withHorizon(observer(LumenBalance))
+const AccountBalance = ({ publicKey, testnet = false }) => {
+  const Component = withBalance({ publicKey, testnet })(LumenBalance)
+  return <Component />
+}
+
+export {
+  AccountBalance,
+  LumenBalance
+}

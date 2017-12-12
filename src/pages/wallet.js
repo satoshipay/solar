@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import LumenBalance from '../components/LumenBalance'
+import { AccountBalance } from '../components/LumenBalance'
 import { derivePublicKey } from '../lib/key'
 
 const WalletPage = ({ match: { params }, wallets }) => {
@@ -10,7 +10,7 @@ const WalletPage = ({ match: { params }, wallets }) => {
   return (
     <div>
       <h1>{wallet.name}{wallet.testnet ? ' (Testnet)' : ''}</h1>
-      <LumenBalance publicKey={derivePublicKey(wallet.privateKey)} testnet={wallet.testnet} />
+      <AccountBalance publicKey={derivePublicKey(wallet.privateKey)} testnet={wallet.testnet} />
       {/* TODO: Add "edit" icon button */}
       {/* TODO: Show recent transactions */}
       {/* TODO: Add action buttons (send payment, ...) */}

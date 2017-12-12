@@ -3,7 +3,7 @@ import Divider from 'material-ui/Divider'
 import { List, ListItem } from 'material-ui/List'
 import Subheader from 'material-ui/Subheader'
 import { withRouter } from 'react-router-dom'
-import LumenBalance from '../components/LumenBalance'
+import { AccountBalance } from '../components/LumenBalance'
 import { derivePublicKey } from '../lib/key'
 
 const WalletList = ({ history, wallets }) => {
@@ -14,7 +14,7 @@ const WalletList = ({ history, wallets }) => {
     <ListItem
       key={wallet.id}
       primaryText={wallet.name}
-      secondaryText={<small><LumenBalance publicKey={derivePublicKey(wallet.privateKey)} testnet={wallet.testnet} /></small>}
+      secondaryText={<small><AccountBalance publicKey={derivePublicKey(wallet.privateKey)} testnet={wallet.testnet} /></small>}
       onClick={() => history.push(`/wallet/${wallet.id}`)}
     />
   )
