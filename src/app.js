@@ -18,9 +18,9 @@ const App = () => (
     <MuiThemeProvider>
       <VerticalLayout>
         <Box grow padding={16}>
-          <Route exact path='/' component={withProps({ wallets })(HomePage)}/>
-          <Route path='/wallet/:id' component={withProps({ wallets })(WalletPage)}/>
-          <Route path='/qr-scanner' component={QRScannerPage}/>
+          <Route exact path='/' component={withProps({ wallets })(HomePage)} />
+          <Route path='/wallet/:id' component={withProps({ wallets })(WalletPage)} />
+          <Route path='/qr-scanner' component={QRScannerPage} />
         </Box>
         <Box fixed>
           <AppBottomNavigation />
