@@ -1,6 +1,8 @@
 import { observable } from 'mobx'
+import { Transaction } from 'stellar-sdk'
 
 const accountObservableCache = new Map()
+const accountRecentTxsCache = new Map()
 
 function createAccountObservable (horizon, accountPubKey) {
   const accountObservable = observable({
@@ -8,6 +10,7 @@ function createAccountObservable (horizon, accountPubKey) {
   })
   horizon.accounts().accountId(accountPubKey).cursor('now').stream({
     onmessage (accountData) {
+      // TODO: Deduplicate messages. Every few seconds there is a new message with an unchanged value.
       Object.assign(accountObservable, accountData)
     },
     onerror (error) {
@@ -17,7 +20,31 @@ function createAccountObservable (horizon, accountPubKey) {
   return accountObservable
 }
 
-// TODO: Memoize (!)
+async function setUpRecentTxsObservable (recentTxs, horizon, accountPubKey) {
+  const maxTxsToLoadCount = 30
+  const deserializeTx = txResponse => new Transaction(txResponse.envelope_xdr)
+
+  const loadRecentTxs = async () => {
+    const { records } = await horizon.transactions().forAccount(accountPubKey).limit(maxTxsToLoadCount).order('desc').call()
+    records.forEach(txResponse => recentTxs.push(deserializeTx(txResponse)))
+  }
+  const subscribeToTxs = () => {
+    horizon.transactions().forAccount(accountPubKey).cursor('now').stream({
+      onmessage (txResponse) {
+        recentTxs.push(deserializeTx(txResponse))
+      },
+      onerror (error) {
+        console.error(error)
+      }
+    })
+  }
+
+  await loadRecentTxs()
+  subscribeToTxs()
+
+  return recentTxs
+}
+
 export function subscribeToAccount (horizon, accountPubKey) {
   const cacheKey = horizon.serverURL + accountPubKey
 
@@ -26,5 +53,18 @@ export function subscribeToAccount (horizon, accountPubKey) {
   }
 
   const accountObservable = accountObservableCache.get(cacheKey)
+  return accountObservable
+}
+
+export function subscribeToRecentTxs (horizon, accountPubKey) {
+  const cacheKey = horizon.serverURL + accountPubKey
+
+  if (!accountRecentTxsCache.has(cacheKey)) {
+    const recentTxs = observable([])
+    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey)
+    accountRecentTxsCache.set(cacheKey, recentTxs)
+  }
+
+  const accountObservable = accountRecentTxsCache.get(cacheKey)
   return accountObservable
 }

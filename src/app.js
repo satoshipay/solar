@@ -6,12 +6,15 @@ import {
 } from 'react-router-dom'
 import { withProps } from 'recompose'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import { Network } from 'stellar-sdk'
 import AppBottomNavigation from './components/BottomNavigation'
 import { Box, VerticalLayout } from './layout'
 import HomePage from './pages/home'
 import QRScannerPage from './pages/qr-scanner'
 import WalletPage from './pages/wallet'
 import wallets from './stores/wallets'
+
+Network.usePublicNetwork()
 
 const App = () => (
   <Router>
