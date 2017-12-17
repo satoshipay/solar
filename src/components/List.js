@@ -15,7 +15,7 @@ const ListItem = ({ primaryText, secondaryText = null, heading = null, leftIcon 
   const content = (
     <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-between', alignItems: 'center' }}>
       {leftIcon ? <LeftIconDiv>{leftIcon}</LeftIconDiv> : null}
-      <div style={{ flexGrow: 1 }}>
+      <div style={{ flexGrow: 1, overflow: 'hidden' }}>
         {heading ? <div>{heading}</div> : null}
         <div>{primaryText}</div>
         {secondaryText ? <div>{secondaryText}</div> : null}
