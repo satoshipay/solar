@@ -21,7 +21,7 @@ function createAccountObservable (horizon, accountPubKey) {
 }
 
 async function setUpRecentTxsObservable (recentTxs, horizon, accountPubKey) {
-  const maxTxsToLoadCount = 30
+  const maxTxsToLoadCount = 15
   const deserializeTx = txResponse => new Transaction(txResponse.envelope_xdr)
 
   const loadRecentTxs = async () => {
