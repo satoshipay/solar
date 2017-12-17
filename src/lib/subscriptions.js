@@ -8,10 +8,16 @@ function createAccountObservable (horizon, accountPubKey) {
   const accountObservable = observable({
     balances: []
   })
+  let lastMessageJson = ''
+
   horizon.accounts().accountId(accountPubKey).cursor('now').stream({
     onmessage (accountData) {
-      // TODO: Deduplicate messages. Every few seconds there is a new message with an unchanged value.
-      Object.assign(accountObservable, accountData)
+      const serialized = JSON.stringify(accountData)
+      if (serialized !== lastMessageJson) {
+        // Deduplicate messages. Every few seconds there is a new message with an unchanged value.
+        lastMessageJson = serialized
+        Object.assign(accountObservable, accountData)
+      }
     },
     onerror (error) {
       console.error(error)
