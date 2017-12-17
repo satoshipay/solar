@@ -26,12 +26,13 @@ async function setUpRecentTxsObservable (recentTxs, horizon, accountPubKey) {
 
   const loadRecentTxs = async () => {
     const { records } = await horizon.transactions().forAccount(accountPubKey).limit(maxTxsToLoadCount).order('desc').call()
-    records.forEach(txResponse => recentTxs.push(deserializeTx(txResponse)))
+    records.forEach(txResponse => recentTxs.transactions.push(deserializeTx(txResponse)))
+    recentTxs.loading = false
   }
   const subscribeToTxs = () => {
     horizon.transactions().forAccount(accountPubKey).cursor('now').stream({
       onmessage (txResponse) {
-        recentTxs.push(deserializeTx(txResponse))
+        recentTxs.transactions.push(deserializeTx(txResponse))
       },
       onerror (error) {
         console.error(error)
@@ -60,7 +61,10 @@ export function subscribeToRecentTxs (horizon, accountPubKey) {
   const cacheKey = horizon.serverURL + accountPubKey
 
   if (!accountRecentTxsCache.has(cacheKey)) {
-    const recentTxs = observable([])
+    const recentTxs = observable({
+      loading: true,
+      transactions: []
+    })
     setUpRecentTxsObservable(recentTxs, horizon, accountPubKey)
     accountRecentTxsCache.set(cacheKey, recentTxs)
   }

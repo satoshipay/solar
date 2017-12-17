@@ -1,4 +1,5 @@
 import React from 'react'
+import { PulseLoader } from 'halogenium'
 import { observer } from 'mobx-react'
 import { Server } from 'stellar-sdk'
 import { subscribeToAccount, subscribeToRecentTxs } from './lib/subscriptions'
@@ -30,18 +31,40 @@ const getBalance = accountData => {
 
 export const withBalance = ({ publicKey, testnet = false }) => Component => {
   const mapAccountDataToBalance = SubComponent => {
-    return observer(props => <SubComponent {...props} balance={getBalance(props.accountData)} />)
+    const WithBalance = props => <SubComponent {...props} balance={getBalance(props.accountData)} />
+    return observer(WithBalance)
   }
   return withAccountData({ publicKey, testnet })(mapAccountDataToBalance(Component))
 }
 
 export const withTransactions = ({ publicKey, testnet = false }) => Component => {
   const mapToTransactions = SubComponent => {
-    return props => {
+    const DestructureRecentTxsObject = observer(({ recentTxs, ...props }) => {
+      return <SubComponent {...props} loading={recentTxs.loading} transactions={recentTxs.transactions} />
+    })
+    const WithTransactions = props => {
       const horizon = testnet ? props.horizonTestnet : props.horizonLivenet
-      const observableTransactions = subscribeToRecentTxs(horizon, publicKey)
-      return <SubComponent {...props} transactions={observableTransactions} />
+      const observableRecentTransactions = subscribeToRecentTxs(horizon, publicKey)
+      return <DestructureRecentTxsObject {...props} recentTxs={observableRecentTransactions} />
     }
+    return WithTransactions
   }
   return withHorizon(mapToTransactions(observer(Component)))
+}
+
+export const withSpinner = Component => {
+  const ObservingComponent = observer(Component)
+  const Spinner = () => (
+    <div style={{ margin: '16px', textAlign: 'center' }}>
+      <PulseLoader color='#00bcd4' size='16px' />
+    </div>
+  )
+  const WithLoader = props => {
+    if (props.loading) {
+      return <Spinner />
+    } else {
+      return <ObservingComponent {...props} />
+    }
+  }
+  return WithLoader
 }

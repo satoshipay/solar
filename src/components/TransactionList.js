@@ -1,13 +1,12 @@
 import React from 'react'
 import BigNumber from 'big.js'
-import { List, ListItem } from './List'
 import Subheader from 'material-ui/Subheader'
 import HumanTime from 'react-human-time'
 import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left'
 import ArrowRightIcon from 'react-icons/lib/fa/arrow-right'
 import SquareIcon from 'react-icons/lib/fa/square'
-import { derivePublicKey } from '../lib/key'
-import { withTransactions } from '../hocs'
+import { List, ListItem } from './List'
+import { withSpinner, withTransactions } from '../hocs'
 
 const sumOperationAmountsBig = ops => (
   ops
@@ -65,9 +64,9 @@ const TransactionList = ({ publicKey, title, transactions }) => {
   )
 }
 
-const AccountTransactionList = ({ publicKey, testnet = false }) => {
-  const Component = withTransactions({ publicKey, testnet })(TransactionList)
-  return <Component publicKey={publicKey} />
+const AccountTransactionList = ({ publicKey, testnet = false, title }) => {
+  const Component = withTransactions({ publicKey, testnet })(withSpinner(TransactionList))
+  return <Component publicKey={publicKey} title={title} />
 }
 
 export default AccountTransactionList
