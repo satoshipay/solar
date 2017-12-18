@@ -1,5 +1,5 @@
 import React from 'react'
-import { PulseLoader } from 'halogenium'
+import CircularProgress from 'material-ui/CircularProgress'
 import { observer } from 'mobx-react'
 import { Server } from 'stellar-sdk'
 import { subscribeToAccount, subscribeToRecentTxs } from './lib/subscriptions'
@@ -55,8 +55,8 @@ export const withTransactions = ({ publicKey, testnet = false }) => Component =>
 export const withSpinner = Component => {
   const ObservingComponent = observer(Component)
   const Spinner = () => (
-    <div style={{ margin: '16px', textAlign: 'center' }}>
-      <PulseLoader color='#00bcd4' size='16px' />
+    <div style={{ padding: '16px', textAlign: 'center' }}>
+      <CircularProgress />
     </div>
   )
   const WithLoader = props => {
