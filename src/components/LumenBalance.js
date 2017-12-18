@@ -5,7 +5,8 @@ const LumenBalance = ({ balance }) => {
   if (balance < 0) {
     return ''
   } else {
-    return `XLM ${balance.toFixed(7).replace(/00$/, '')}`
+    const trimmedBalance = balance.toFixed(7).replace(/00$/, '')
+    return <span><small style={{ fontSize: '85%' }}>XLM</small> {trimmedBalance}</span>
   }
 }
 

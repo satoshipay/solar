@@ -1,6 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import { Card, CardText, CardTitle } from 'material-ui/Card'
+import { DetailData, DetailDataSet } from '../components/Data'
 import { AccountBalance } from '../components/LumenBalance'
 import TransactionList from '../components/TransactionList'
 import { derivePublicKey } from '../lib/key'
@@ -15,7 +16,10 @@ const WalletPage = ({ match: { params }, wallets }) => {
     <Card>
       <CardTitle title={wallet.name} subtitle={wallet.testnet ? 'Testnet' : null} />
       <CardText>
-        <AccountBalance publicKey={publicKey} testnet={wallet.testnet} />
+        <DetailDataSet>
+          <DetailData label='Balance' value={<AccountBalance publicKey={publicKey} testnet={wallet.testnet} />} />
+          <DetailData label='Public Key' value={publicKey} />
+        </DetailDataSet>
       </CardText>
       {/* TODO: Add "edit" icon button */}
       {/* TODO: Add action buttons (send payment, ...) (in <CardActions>) */}
