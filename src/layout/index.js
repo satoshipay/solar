@@ -12,9 +12,10 @@ export const VerticalLayout = ({ children }) => {
   )
 }
 
-export const Box = ({ children, grow, fixed, padding = 0 }) => {
+export const Box = ({ children, grow, fixed, padding = 0, overflow = 'visible' }) => {
   const baseStyle = {
-    padding
+    padding,
+    overflow
   }
   const growStyle = {
     flexGrow: 1

@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom'
 import { withProps } from 'recompose'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import Paper from 'material-ui/Paper'
 import { Network } from 'stellar-sdk'
 import AppBottomNavigation from './components/BottomNavigation'
 import { Box, VerticalLayout } from './layout'
@@ -20,14 +21,14 @@ const App = () => (
   <Router>
     <MuiThemeProvider>
       <VerticalLayout>
-        <Box grow padding={16}>
+        <Box grow padding={16} overflow='auto'>
           <Route exact path='/' component={withProps({ wallets })(HomePage)} />
           <Route path='/wallet/:id' component={withProps({ wallets })(WalletPage)} />
           <Route path='/qr-scanner' component={QRScannerPage} />
         </Box>
-        <Box fixed>
+        <Paper style={{ flexGrow: 0, flexShrink: 0, zIndex: 1 }}>
           <AppBottomNavigation />
-        </Box>
+        </Paper>
       </VerticalLayout>
     </MuiThemeProvider>
   </Router>
