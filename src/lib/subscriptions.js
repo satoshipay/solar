@@ -9,6 +9,7 @@ function createAccountObservable (horizon, accountPubKey) {
     balances: []
   })
   let lastMessageJson = ''
+  let lastErrorJson = ''
 
   horizon.accounts().accountId(accountPubKey).cursor('now').stream({
     onmessage (accountData) {
@@ -20,7 +21,12 @@ function createAccountObservable (horizon, accountPubKey) {
       }
     },
     onerror (error) {
-      console.error(error)
+      const serialized = JSON.stringify(error)
+      if (serialized !== lastErrorJson) {
+        // Deduplicate errors. Every few seconds there is a new useless error with the same data as the previous.
+        lastErrorJson = serialized
+        console.error(error)
+      }
     }
   })
   return accountObservable
