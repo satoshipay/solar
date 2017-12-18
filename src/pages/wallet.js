@@ -13,16 +13,14 @@ const WalletPage = ({ match: { params }, wallets }) => {
 
   return (
     <Card>
-      <CardTitle title={wallet.name} subtitle={wallet.testnet ? 'Testnet' : ''} />
+      <CardTitle title={wallet.name} subtitle={wallet.testnet ? 'Testnet' : null} />
       <CardText>
         <AccountBalance publicKey={publicKey} testnet={wallet.testnet} />
       </CardText>
       {/* TODO: Add "edit" icon button */}
       {/* TODO: Add action buttons (send payment, ...) (in <CardActions>) */}
       {/* TODO: Add advanced actions (backup, delete, merge, ...) */}
-      <div style={{ height: '80%', overflowY: 'auto' }}>
-        <TransactionList title='Recent transactions' publicKey={publicKey} testnet={wallet.testnet} />
-      </div>
+      <TransactionList title='Recent transactions' publicKey={publicKey} testnet={wallet.testnet} />
     </Card>
   )
 }
