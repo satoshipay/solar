@@ -1,7 +1,8 @@
 import React from 'react'
 import Divider from 'material-ui/Divider'
-import { List, ListItem } from 'material-ui/List'
+import { List, ListItem } from '../components/List'
 import Subheader from 'material-ui/Subheader'
+import ArrowCircleRightIcon from 'react-icons/lib/fa/arrow-circle-right'
 import { withRouter } from 'react-router-dom'
 import { AccountBalance } from '../components/LumenBalance'
 
@@ -15,6 +16,7 @@ const WalletList = ({ history, wallets }) => {
       primaryText={wallet.name}
       secondaryText={<small><AccountBalance publicKey={wallet.publicKey} testnet={wallet.testnet} /></small>}
       onClick={() => history.push(`/wallet/${wallet.id}`)}
+      rightIcon={<ArrowCircleRightIcon style={{ width: 32, height: 32 }} />}
     />
   )
 
