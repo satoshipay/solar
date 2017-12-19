@@ -20,7 +20,7 @@ Network.usePublicNetwork()
 const App = () => (
   <Router>
     <MuiThemeProvider>
-      <VerticalLayout>
+      <VerticalLayout width='100%' height='100%'>
         <Box grow padding={16} overflow='auto'>
           <Route exact path='/' component={withProps({ wallets })(AllWalletsPage)} />
           <Route path='/wallet/:id' component={withProps({ wallets })(WalletPage)} />
