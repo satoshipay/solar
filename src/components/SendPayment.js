@@ -14,8 +14,43 @@ const CloseButton = ({ children, onClick = null }) => (
   </div>
 )
 
-const PaymentCreationForm = ({ amount, destination, setAmount, setDestination, onSubmit = () => {} }) => {
-  const triggerSubmit = () => onSubmit({ amount, destination })
+const validatePublicKey = (value, { clearError, setError }) => {
+  if (!value.match(/^G[A-Z0-9]{55}$/)) {
+    setError(new Error(`Invalid stellar public key.`))
+  } else {
+    clearError()
+  }
+}
+const validateAmount = (value, { clearError, setError }) => {
+  if (!value.match(/^[0-9]+(\.[0-9]+)?$/)) {
+    setError(new Error(`Invalid number.`))
+  } else {
+    // TODO: Check if amount <= balance
+    clearError()
+  }
+}
+
+const showError = error => {
+  if (error) {
+    return error instanceof Error ? error.message : error
+  } else {
+    return error
+  }
+}
+
+const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValues, onSubmit = () => {} }) => {
+  const bindErrorCallbacks = fieldName => ({
+    clearError: () => setErrors(prevErrors => ({ ...prevErrors, [fieldName]: null })),
+    setError: error => setErrors(prevErrors => ({ ...prevErrors, [fieldName]: error }))
+  })
+  const validate = () => {
+    validateAmount(formValues.amount, bindErrorCallbacks('amount'))
+    validatePublicKey(formValues.destination, bindErrorCallbacks('destination'))
+  }
+  const triggerSubmit = () => {
+    const { amount, destination } = formValues
+    if (validate()) onSubmit({ amount, destination })
+  }
   const handleSubmitEvent = event => {
     event.preventDefault()
     triggerSubmit()
@@ -27,12 +62,19 @@ const PaymentCreationForm = ({ amount, destination, setAmount, setDestination, o
         hintText='GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS'
         fullWidth
         autoFocus
-        value={destination}
-        onChange={(event, newValue) => setDestination(newValue)}
-        />
+        value={formValues.destination}
+        onChange={(event, newValue) => setFormValues({ destination: newValue })}
+        errorText={showError(errors.destination)}
+      />
       <HorizontalLayout>
         <Box shrink>
-          <TextField floatingLabelText='Amount' fullWidth value={amount} onChange={(event, newValue) => setAmount(newValue)} />
+          <TextField
+            floatingLabelText='Amount'
+            fullWidth
+            value={formValues.amount}
+            onChange={(event, newValue) => setFormValues({ amount: newValue })}
+            errorText={showError(errors.amount)}
+          />
         </Box>
         <Box fixed alignSelf='flex-end' padding='0 0 12px' margin='0 0 0 8px'>
           XLM
@@ -46,8 +88,11 @@ const PaymentCreationForm = ({ amount, destination, setAmount, setDestination, o
 }
 
 const StatefulPaymentCreationForm = compose(
-  withState('destination', 'setDestination', ''),
-  withState('amount', 'setAmount', '')
+  withState('formValues', 'setFormValues', {
+    amount: '',
+    destination: ''
+  }),
+  withState('errors', 'setErrors', {})
 )(PaymentCreationForm)
 
 const SendPaymentDrawer = ({ wallet, open = false, hide = () => {} }) => {
