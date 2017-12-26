@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField'
 import CloseIcon from 'react-icons/lib/md/close'
 import SendIcon from 'react-icons/lib/md/send'
 import { Box, HorizontalLayout } from '../layout'
+import { addFormState, renderError } from '../lib/formHandling'
 
 const CloseButton = ({ children, onClick = null }) => (
   <div style={{ position: 'absolute', top: 16, right: 24, cursor: 'pointer', lineHeight: 0 }} onClick={onClick}>
@@ -14,42 +15,21 @@ const CloseButton = ({ children, onClick = null }) => (
   </div>
 )
 
-const validatePublicKey = (value, { clearError, setError }) => {
+const validatePublicKey = value => {
   if (!value.match(/^G[A-Z0-9]{55}$/)) {
-    setError(new Error(`Invalid stellar public key.`))
-  } else {
-    clearError()
+    return new Error(`Invalid stellar public key.`)
   }
 }
-const validateAmount = (value, { clearError, setError }) => {
+const validateAmount = value => {
   if (!value.match(/^[0-9]+(\.[0-9]+)?$/)) {
-    setError(new Error(`Invalid number.`))
-  } else {
-    // TODO: Check if amount <= balance
-    clearError()
+    return new Error(`Invalid number.`)
   }
+  // TODO: Check if amount <= balance
 }
 
-const showError = error => {
-  if (error) {
-    return error instanceof Error ? error.message : error
-  } else {
-    return error
-  }
-}
-
-const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValues, onSubmit = () => {} }) => {
-  const bindErrorCallbacks = fieldName => ({
-    clearError: () => setErrors(prevErrors => ({ ...prevErrors, [fieldName]: null })),
-    setError: error => setErrors(prevErrors => ({ ...prevErrors, [fieldName]: error }))
-  })
-  const validate = () => {
-    validateAmount(formValues.amount, bindErrorCallbacks('amount'))
-    validatePublicKey(formValues.destination, bindErrorCallbacks('destination'))
-  }
+const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValue, validate, onSubmit = () => {} }) => {
   const triggerSubmit = () => {
-    const { amount, destination } = formValues
-    if (validate()) onSubmit({ amount, destination })
+    if (validate(formValues)) onSubmit(formValues)
   }
   const handleSubmitEvent = event => {
     event.preventDefault()
@@ -63,8 +43,8 @@ const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValues, onS
         fullWidth
         autoFocus
         value={formValues.destination}
-        onChange={(event, newValue) => setFormValues({ destination: newValue })}
-        errorText={showError(errors.destination)}
+        onChange={(event, newValue) => setFormValue('destination', newValue)}
+        errorText={renderError(errors.destination)}
       />
       <HorizontalLayout>
         <Box shrink>
@@ -72,8 +52,8 @@ const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValues, onS
             floatingLabelText='Amount'
             fullWidth
             value={formValues.amount}
-            onChange={(event, newValue) => setFormValues({ amount: newValue })}
-            errorText={showError(errors.amount)}
+            onChange={(event, newValue) => setFormValue('amount', newValue)}
+            errorText={renderError(errors.amount)}
           />
         </Box>
         <Box fixed alignSelf='flex-end' padding='0 0 12px' margin='0 0 0 8px'>
@@ -87,13 +67,16 @@ const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValues, onS
   )
 }
 
-const StatefulPaymentCreationForm = compose(
-  withState('formValues', 'setFormValues', {
-    amount: '',
-    destination: ''
-  }),
-  withState('errors', 'setErrors', {})
-)(PaymentCreationForm)
+const StatefulPaymentCreationForm = addFormState({
+  defaultValues: {
+    destination: '',
+    amount: ''
+  },
+  validators: {
+    destination: validatePublicKey,
+    amount: validateAmount
+  }
+})(PaymentCreationForm)
 
 const SendPaymentDrawer = ({ wallet, open = false, hide = () => {} }) => {
   const hideIfOpen = () => {
@@ -106,7 +89,7 @@ const SendPaymentDrawer = ({ wallet, open = false, hide = () => {} }) => {
         <CloseButton onClick={hideIfOpen} />
         <CardText>
           <StatefulPaymentCreationForm />
-          {/* TODO: onSubmit trigger tx creation, display to user to confirm and eventually submit tx to network */}
+          {/* TODO: onSubmit trigger tx creation, make user confirm account creation if destination account does not exist yet and eventually submit tx to network */}
         </CardText>
       </Card>
     </Drawer>
