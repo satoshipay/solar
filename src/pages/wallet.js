@@ -7,11 +7,8 @@ import SendIcon from 'react-icons/lib/md/send'
 import { DetailData, DetailDataSet } from '../components/Data'
 import { AccountBalance } from '../components/LumenBalance'
 import TransactionList from '../components/TransactionList'
-import { withSendPaymentTrigger } from '../components/SendPayment'
-
-const SendPaymentButton = withSendPaymentTrigger(({ onCreatePayment }) => (
-  <RaisedButton primary label='Send payment' icon={<SendIcon />} onClick={onCreatePayment} />
-))
+import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
+import { openOverlay } from '../stores/overlays'
 
 const WalletPage = ({ match: { params }, wallets }) => {
   const wallet = wallets.find(wallet => wallet.id === params.id)
@@ -26,7 +23,12 @@ const WalletPage = ({ match: { params }, wallets }) => {
           <DetailData label='Public Key' value={wallet.publicKey} />
         </DetailDataSet>
         <div style={{ marginTop: 24 }}>
-          <SendPaymentButton wallet={wallet} />
+          <RaisedButton
+            primary
+            label='Send payment'
+            icon={<SendIcon />}
+            onClick={() => openOverlay(createPaymentOverlay(wallet))}
+          />
         </div>
       </CardText>
       {/* TODO: Add "edit" icon button */}

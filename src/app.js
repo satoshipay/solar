@@ -9,10 +9,12 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import Paper from 'material-ui/Paper'
 import { Network } from 'stellar-sdk'
 import AppBottomNavigation from './components/BottomNavigation'
+import Overlays from './components/Overlays'
 import { Box, VerticalLayout } from './layout'
 import AllWalletsPage from './pages/all-wallets'
 import QRScannerPage from './pages/qr-scanner'
 import WalletPage from './pages/wallet'
+import overlays from './stores/overlays'
 import wallets from './stores/wallets'
 
 Network.usePublicNetwork()
@@ -29,6 +31,7 @@ const App = () => (
         <Paper style={{ flexGrow: 0, flexShrink: 0, zIndex: 1 }}>
           <AppBottomNavigation />
         </Paper>
+        <Overlays overlays={overlays} />
       </VerticalLayout>
     </MuiThemeProvider>
   </Router>
