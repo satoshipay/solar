@@ -17,6 +17,25 @@ const createSizingStyle = ({ width = null, height = null, padding = 0 }) => {
   }
 }
 
+const createFlexParentStyle = ({ justifyContent = null, alignItems = null }) => {
+  if (justifyContent === 'start') {
+    justifyContent = 'flex-start'
+  }
+  if (justifyContent === 'end') {
+    justifyContent = 'flex-end'
+  }
+  if (alignItems === 'start') {
+    alignItems = 'flex-start'
+  }
+  if (alignItems === 'end') {
+    alignItems = 'flex-end'
+  }
+  return {
+    alignItems,
+    justifyContent
+  }
+}
+
 const createFlexChildStyle = ({ grow = false, shrink = false, fixed = false, alignSelf = false }) => {
   const style = {}
   if (grow) {
@@ -42,9 +61,11 @@ const createBoxStyle = styleProps => {
   } = styleProps
 
   const style = {
+    boxSizing: 'border-box',
     margin,
     overflow,
     ...createSizingStyle(styleProps),
+    ...createFlexParentStyle(styleProps),
     ...createFlexChildStyle(styleProps)
   }
   return removeNullValueProps(style)
