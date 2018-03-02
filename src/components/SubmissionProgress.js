@@ -1,7 +1,7 @@
 import React from 'react'
 import Async from 'react-promise'
 import Paper from 'material-ui/Paper'
-import { Box, AspectRatioBox, FloatingBox, VerticalLayout } from '../layout'
+import { AspectRatioBox, FloatingBox, VerticalLayout } from '../layout'
 
 const FloatingStatusBox = ({ children }) => {
   return (

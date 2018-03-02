@@ -51,7 +51,7 @@ const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValue, vali
         </Box>
       </HorizontalLayout>
       <Box margin='32px 0 0'>
-        <RaisedButton primary label='Confirm payment' icon={<SendIcon />} onClick={triggerSubmit} />
+        <RaisedButton primary label='Create Payment' icon={<SendIcon />} onClick={triggerSubmit} />
       </Box>
     </form>
   )

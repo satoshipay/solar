@@ -8,7 +8,7 @@ import { subscribeToAccount, subscribeToRecentTxs } from './lib/subscriptions'
 const horizonLivenet = new Server('https://horizon.stellar.org/')
 const horizonTestnet = new Server('https://horizon-testnet.stellar.org/')
 
-const withHorizon = Component => {
+export const withHorizon = Component => {
   return props => <Component {...props} horizonLivenet={horizonLivenet} horizonTestnet={horizonTestnet} />
 }
 
