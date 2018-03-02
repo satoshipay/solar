@@ -44,7 +44,8 @@ async function setUpRecentTxsObservable (recentTxs, horizon, accountPubKey) {
   const subscribeToTxs = () => {
     horizon.transactions().forAccount(accountPubKey).cursor('now').stream({
       onmessage (txResponse) {
-        recentTxs.transactions.push(deserializeTx(txResponse))
+        // Important: Insert new transactions in the front, since order is descending
+        recentTxs.transactions.unshift(deserializeTx(txResponse))
       },
       onerror (error) {
         console.error(error)
