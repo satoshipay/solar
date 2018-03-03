@@ -8,8 +8,8 @@ import SuccessIcon from './Icon/Success'
 
 const FloatingStatusBox = ({ children }) => {
   return (
-    <FloatingBox width='50%'>
-      <AspectRatioBox width='100%' ratio='1:1'>
+    <FloatingBox width='50%' maxWidth='40vw'>
+      <AspectRatioBox width='100%' ratio='3:2'>
         <Paper zDepth={2} style={{ height: '100%' }}>
           <VerticalLayout padding={10} height='100%' justifyContent='center'>
             <span style={{ textAlign: 'center' }}>
