@@ -7,9 +7,11 @@
   "scripts": {
     "build": "NODE_ENV=production parcel build src/app.js",
     "dev": "NODE_ENV=development parcel src/index.html -p 3000",
+    "storybook": "start-storybook -p 9001 -c .storybook",
     "test": "standard"
   },
   "devDependencies": {
+    "@storybook/react": "^3.3.14",
     "babel-preset-react-app": "^3.1.0",
     "parcel-bundler": "^1.6.2",
     "standard": "^10.0.3"
