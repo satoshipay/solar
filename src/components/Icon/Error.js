@@ -2,6 +2,7 @@ import React from 'react'
 import './animated-icons.css'
 
 // From <https://github.com/Kamonlojn/svg-icons-animate>
+// TODO: Crop SVGs to remove surrounding whitespace
 
 const AnimatedErrorIcon = ({ size = 100 }) => (
   <div className='svg-box-u5GqHV' style={{ width: size, height: size }}>
