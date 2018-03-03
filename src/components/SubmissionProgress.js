@@ -1,12 +1,15 @@
 import React from 'react'
 import Async from 'react-promise'
 import Paper from 'material-ui/Paper'
+import CircularProgress from 'material-ui/CircularProgress'
 import { AspectRatioBox, FloatingBox, VerticalLayout } from '../layout'
+import ErrorIcon from './Icon/Error'
+import SuccessIcon from './Icon/Success'
 
 const FloatingStatusBox = ({ children }) => {
   return (
-    <FloatingBox width='50%'>
-      <AspectRatioBox width='100%' ratio='1:1'>
+    <FloatingBox width='50%' maxWidth='40vw'>
+      <AspectRatioBox width='100%' ratio='3:2'>
         <Paper zDepth={2} style={{ height: '100%' }}>
           <VerticalLayout padding={10} height='100%' justifyContent='center'>
             <span style={{ textAlign: 'center' }}>
@@ -20,25 +23,33 @@ const FloatingStatusBox = ({ children }) => {
 }
 
 const SubmissionProgress = ({ promise }) => (
-  // TODO: Proper UX
   <Async
     promise={promise}
     pending={
       <FloatingStatusBox>
-        Sending transaction...
+        <CircularProgress size={70} style={{ marginTop: 10, marginBottom: 20 }} />
+        <div>
+          Sending transaction...
+        </div>
       </FloatingStatusBox>
     }
     then={
       () => (
         <FloatingStatusBox>
-          Transaction successfully sent
+          <SuccessIcon size={100} />
+          <div>
+            Transaction successful
+          </div>
         </FloatingStatusBox>
       )
     }
     catch={
       error => (
         <FloatingStatusBox>
-          Transaction failed: {error.message || JSON.stringify(error)}
+          <ErrorIcon size={100} />
+          <div>
+            Transaction failed: {error.message || JSON.stringify(error)}
+          </div>
         </FloatingStatusBox>
       )
     }

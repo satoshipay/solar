@@ -9,11 +9,13 @@ const removeNullValueProps = object => {
   }, {})
 }
 
-const createSizingStyle = ({ width = null, height = null, padding = 0 }) => {
+const createSizingStyle = ({ width = null, height = null, maxWidth = null, maxHeight = null, padding = 0 }) => {
   return {
     padding,
     width,
-    height
+    height,
+    maxWidth,
+    maxHeight
   }
 }
 
