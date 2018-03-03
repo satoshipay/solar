@@ -1,0 +1,67 @@
+.svg-box {
+    display:inline-block;
+    position: relative;
+    width:150px;
+}
+
+.green-stroke {
+    stroke:#7CB342;
+}
+
+.circular {
+    stroke-dasharray: 330;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    opacity: 0.4;
+    animation: 0.7s draw-circle ease-out;
+}
+
+/*------- Checkmark ---------*/
+.checkmark {
+	position: absolute;
+    top: 0;
+    left: 0;
+	stroke-width: 6.25;
+    stroke-linecap: round;
+}
+
+.checkmark__check {
+    animation: 1s draw-check ease-out;
+}
+
+@keyframes draw-circle {
+  0% {
+      stroke-dasharray: 0,330;
+      stroke-dashoffset: 0;
+      opacity: 1;
+  }
+
+  80% {
+      stroke-dasharray: 330,330;
+      stroke-dashoffset: 0;
+      opacity: 1;
+  }
+
+  100%{
+      opacity: 0.4;
+  }
+}
+
+@keyframes draw-check {
+  0% {
+      stroke-dasharray: 49,80;
+      stroke-dashoffset: 48;
+      opacity: 0;
+  }
+
+  50% {
+      stroke-dasharray: 49,80;
+      stroke-dashoffset: 48;
+      opacity: 1;
+  }
+
+  100% {
+      stroke-dasharray: 130,80;
+      stroke-dashoffset: 48;
+  }
+}

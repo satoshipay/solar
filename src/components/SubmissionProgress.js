@@ -2,6 +2,7 @@ import React from 'react'
 import Async from 'react-promise'
 import Paper from 'material-ui/Paper'
 import { AspectRatioBox, FloatingBox, VerticalLayout } from '../layout'
+import SuccessIcon from './Icon/Success'
 
 const FloatingStatusBox = ({ children }) => {
   return (
@@ -31,7 +32,10 @@ const SubmissionProgress = ({ promise }) => (
     then={
       () => (
         <FloatingStatusBox>
-          Transaction successfully sent
+          <SuccessIcon />
+          <div>
+            Transaction successful
+          </div>
         </FloatingStatusBox>
       )
     }
