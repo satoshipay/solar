@@ -2,6 +2,7 @@ import React from 'react'
 import Async from 'react-promise'
 import Paper from 'material-ui/Paper'
 import { AspectRatioBox, FloatingBox, VerticalLayout } from '../layout'
+import ErrorIcon from './Icon/Error'
 import SuccessIcon from './Icon/Success'
 
 const FloatingStatusBox = ({ children }) => {
@@ -42,7 +43,10 @@ const SubmissionProgress = ({ promise }) => (
     catch={
       error => (
         <FloatingStatusBox>
-          Transaction failed: {error.message || JSON.stringify(error)}
+          <ErrorIcon />
+          <div>
+            Transaction failed: {error.message || JSON.stringify(error)}
+          </div>
         </FloatingStatusBox>
       )
     }
