@@ -10,8 +10,8 @@ import { withSpinner, withTransactions } from '../hocs'
 
 const sumOperationAmountsBig = ops => (
   ops
-    .filter(op => op.type === 'payment')
-    .reduce((total, op) => total.add(BigNumber(op.amount)), BigNumber(0))
+    .filter(op => op.type === 'payment' || op.type === 'createAccount')
+    .reduce((total, op) => total.add(BigNumber(op.amount || op.startingBalance)), BigNumber(0))
 )
 
 const TransactionIcon = ({ balanceChangeBig }) => {
@@ -39,7 +39,7 @@ const TitleText = ({ balanceChangeBig, incomingPaymentOps, outgoingPaymentOps, t
 }
 
 const TransactionListItem = ({ publicKey, tx }) => {
-  const paymentOps = tx.operations.filter(op => op.type === 'payment')
+  const paymentOps = tx.operations.filter(op => op.type === 'payment' || op.type === 'createAccount')
   const incomingPaymentOps = paymentOps.filter(op => op.destination === publicKey)
   const outgoingPaymentOps = paymentOps.filter(op => op.source === publicKey || (!op.source && tx.source === publicKey))
 
@@ -60,7 +60,7 @@ const TransactionList = ({ publicKey, title, transactions }) => {
   return (
     <List>
       <Subheader>{title}</Subheader>
-      {transactions.map(tx => <TransactionListItem key={tx.hash()} publicKey={publicKey} tx={tx} />)}
+      {transactions.map(tx => <TransactionListItem key={tx.hash().toString('base64')} publicKey={publicKey} tx={tx} />)}
     </List>
   )
 }

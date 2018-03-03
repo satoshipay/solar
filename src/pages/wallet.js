@@ -2,9 +2,13 @@ import React from 'react'
 import { observer } from 'mobx-react'
 import { Card, CardText, CardTitle } from 'material-ui/Card'
 import Divider from 'material-ui/Divider'
+import RaisedButton from 'material-ui/RaisedButton'
+import SendIcon from 'react-icons/lib/md/send'
 import { DetailData, DetailDataSet } from '../components/Data'
 import { AccountBalance } from '../components/LumenBalance'
 import TransactionList from '../components/TransactionList'
+import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
+import { openOverlay } from '../stores/overlays'
 
 const WalletPage = ({ match: { params }, wallets }) => {
   const wallet = wallets.find(wallet => wallet.id === params.id)
@@ -18,6 +22,14 @@ const WalletPage = ({ match: { params }, wallets }) => {
           <DetailData label='Balance' value={<AccountBalance publicKey={wallet.publicKey} testnet={wallet.testnet} />} />
           <DetailData label='Public Key' value={wallet.publicKey} />
         </DetailDataSet>
+        <div style={{ marginTop: 24 }}>
+          <RaisedButton
+            primary
+            label='Send payment'
+            icon={<SendIcon />}
+            onClick={() => openOverlay(createPaymentOverlay(wallet))}
+          />
+        </div>
       </CardText>
       {/* TODO: Add "edit" icon button */}
       {/* TODO: Add action buttons (send payment, ...) (in <CardActions>) */}

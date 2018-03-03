@@ -23,6 +23,7 @@
     "react-dom": "^16.2.0",
     "react-human-time": "^1.1.0",
     "react-icons": "^2.2.7",
+    "react-promise": "^2.0.1",
     "react-router-dom": "^4.2.2",
     "recompose": "^0.26.0",
     "stellar-sdk": "^0.7.7"
