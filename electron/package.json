@@ -1,0 +1,16 @@
+{
+  "name": "stellar-wallet-desktop-app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently 'npm run dev:server' 'sleep 1 && npm run dev:app'",
+    "dev:app": "NODE_ENV=development electron .",
+    "dev:server": "cd .. && npm run dev"
+  },
+  "dependencies": {
+    "electron": "^1.8.2"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.1"
+  }
+}
