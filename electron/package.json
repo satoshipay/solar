@@ -3,14 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "prebuild:linux": "cp -r ../dist/ ./app/",
+    "prebuild:mac": "cp -r ../dist/ ./app/",
+    "prebuild:win": "cp -r ../dist/ ./app/",
+    "build:linux": "build --linux --x64",
+    "build:mac": "build --mac --x64",
+    "build:win": "build --win --x64",
     "dev": "concurrently 'npm run dev:server' 'sleep 1 && npm run dev:app'",
     "dev:app": "NODE_ENV=development electron .",
     "dev:server": "cd .. && npm run dev"
   },
-  "dependencies": {
-    "electron": "^1.8.2"
-  },
   "devDependencies": {
-    "concurrently": "^3.5.1"
+    "concurrently": "^3.5.1",
+    "electron": "^1.8.2",
+    "electron-builder": "^20.2.0"
   }
 }
