@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@storybook/react": "^3.3.14",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-react-app": "^3.1.1",
     "parcel-bundler": "^1.8.1",
     "standard": "^10.0.3"
