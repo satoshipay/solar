@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "UNLICENSED",
   "private": true,
-  "author": "Andy Wermke (https://github.com/andywer)",
+  "author": "SatoshiPay Ltd",
+  "repository": "github:satoshipay/wallet",
   "scripts": {
     "build": "NODE_ENV=production parcel build --public-url=./ src/index.html",
     "dev": "NODE_ENV=development parcel src/index.html -p 3000",
