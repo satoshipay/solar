@@ -1,0 +1,44 @@
+version: 2
+
+# Set up some defaults to make things cleaner
+# Note that "defaults" is *not* magic
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:8
+
+jobs:
+  setup:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run: npm ci
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+      - save_cache:
+          key: repo-cache-{{ .Revision }}
+          paths:
+            - ~/repo
+
+  test:
+    <<: *defaults
+    steps:
+      - restore_cache:
+          key: repo-cache-{{ .Revision }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run: npm test
+
+workflows:
+  version: 2
+  setup_and_test:
+    jobs:
+      - setup:
+        context: org-global
+      - test:
+        requires:
+          - setup
