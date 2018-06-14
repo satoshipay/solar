@@ -1,6 +1,14 @@
-import { observable } from 'mobx'
+import { observable, IObservableArray } from 'mobx'
 
-const WalletStore = observable([
+export interface Wallet {
+  id: string,
+  name: string,
+  testnet: boolean,
+  publicKey: string,
+  getPrivateKey (password: string | null): Promise<string>
+}
+
+const WalletStore: Wallet[] & IObservableArray<Wallet> = observable([
   // Mock data:
   {
     id: '1',
