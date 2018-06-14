@@ -8,7 +8,7 @@ defaults: &defaults
     - image: circleci/node:8
 
 jobs:
-  setup:
+  build:
     <<: *defaults
     steps:
       - checkout
@@ -35,10 +35,10 @@ jobs:
 
 workflows:
   version: 2
-  setup_and_test:
+  build_and_test:
     jobs:
-      - setup:
-        context: org-global
+      - build:
+          context: org-global
       - test:
-        requires:
-          - setup
+          requires:
+            - build
