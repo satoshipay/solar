@@ -14,6 +14,7 @@
   "devDependencies": {
     "@storybook/react": "^3.3.14",
     "@types/material-ui": "^0.21.2",
+    "@types/react": "^16.3.17",
     "@types/storybook__react": "^3.0.7",
     "awesome-typescript-loader": "^3.5.0",
     "parcel-bundler": "^1.8.1",

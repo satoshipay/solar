@@ -1,15 +1,15 @@
 import React from 'react'
-import createBoxStyle from './createBoxStyle'
+import createBoxStyle, { BoxStyles } from './createBoxStyle'
 
-export const Box = ({ children, ...styleProps }) => {
+export const Box = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style = createBoxStyle(styleProps)
   return (
     <div style={style}>{children}</div>
   )
 }
 
-export const HorizontalLayout = ({ children, ...styleProps }) => {
-  const style = {
+export const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+  const style: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'row',
     ...createBoxStyle(styleProps)
@@ -19,8 +19,8 @@ export const HorizontalLayout = ({ children, ...styleProps }) => {
   )
 }
 
-export const VerticalLayout = ({ children, ...styleProps }) => {
-  const style = {
+export const VerticalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+  const style: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     ...createBoxStyle(styleProps)
@@ -30,11 +30,11 @@ export const VerticalLayout = ({ children, ...styleProps }) => {
   )
 }
 
-export const AspectRatioBox = ({ children, ratio, ...styleProps }) => {
+export const AspectRatioBox = ({ children, ratio, ...styleProps }: BoxStyles & { children: React.ReactNode, ratio: string }) => {
   let heightOfWidthPercentage = 100
 
   try {
-    const [ hratio, vratio ] = String(ratio).split(':')
+    const [ hratio, vratio ] = ratio.split(':')
     heightOfWidthPercentage = parseFloat(vratio) / parseFloat(hratio) * 100
 
     if (heightOfWidthPercentage <= 0 || isNaN(heightOfWidthPercentage)) throw new Error(`Invalid ratio numbers.`)
@@ -42,13 +42,13 @@ export const AspectRatioBox = ({ children, ratio, ...styleProps }) => {
     throw new Error(`AspectRatioBox: Bad ratio given: "${ratio}". Expected something like "1:2".`)
   }
 
-  const outerStyle = {
+  const outerStyle: React.CSSProperties = {
     position: 'relative',
     width: '100%',
     ...createBoxStyle(styleProps),
     paddingTop: `${heightOfWidthPercentage}%`
   }
-  const fillCompleteContainerStyle = {
+  const fillCompleteContainerStyle: React.CSSProperties = {
     position: 'absolute',
     width: '100%',
     height: '100%',
@@ -62,8 +62,8 @@ export const AspectRatioBox = ({ children, ratio, ...styleProps }) => {
   )
 }
 
-export const FloatingBox = ({ children, ...styleProps }) => {
-  const style = {
+export const FloatingBox = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+  const style: React.CSSProperties = {
     position: 'absolute',
     top: '50%',
     left: '50%',

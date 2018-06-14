@@ -1,4 +1,6 @@
-const removeNullValueProps = object => {
+import React from 'react'
+
+const removeNullValueProps = (object: { [key: string]: any }) => {
   return Object.keys(object).reduce((result, propKey) => {
     const propValue = object[propKey]
     if (propValue !== null) {
@@ -9,7 +11,15 @@ const removeNullValueProps = object => {
   }, {})
 }
 
-const createSizingStyle = ({ width = null, height = null, maxWidth = null, maxHeight = null, padding = 0 }) => {
+type SizingStyles = {
+  width?: React.CSSProperties['width'],
+  height?: React.CSSProperties['height'],
+  maxWidth?: React.CSSProperties['maxWidth'],
+  maxHeight?: React.CSSProperties['maxHeight'],
+  padding?: React.CSSProperties['padding']
+}
+
+const createSizingStyle = ({ width = null, height = null, maxWidth = null, maxHeight = null, padding = 0 }: SizingStyles) => {
   return {
     padding,
     width,
@@ -19,7 +29,12 @@ const createSizingStyle = ({ width = null, height = null, maxWidth = null, maxHe
   }
 }
 
-const createFlexParentStyle = ({ justifyContent = null, alignItems = null }) => {
+type FlexParentStyles = {
+  justifyContent?: string,
+  alignItems?: string
+}
+
+const createFlexParentStyle = ({ justifyContent, alignItems }: FlexParentStyles) => {
   if (justifyContent === 'start') {
     justifyContent = 'flex-start'
   }
@@ -38,8 +53,16 @@ const createFlexParentStyle = ({ justifyContent = null, alignItems = null }) => 
   }
 }
 
-const createFlexChildStyle = ({ grow = false, shrink = false, fixed = false, alignSelf = false }) => {
-  const style = {}
+type FlexChildStyles = {
+  grow?: boolean,
+  shrink?: boolean,
+  fixed?: boolean,
+  alignSelf?: React.CSSProperties['alignSelf']
+}
+
+const createFlexChildStyle = ({ grow, shrink, fixed, alignSelf }: FlexChildStyles) => {
+  const style: React.CSSProperties = {}
+
   if (grow) {
     style.flexGrow = 1
   }
@@ -56,7 +79,12 @@ const createFlexChildStyle = ({ grow = false, shrink = false, fixed = false, ali
   return style
 }
 
-const createBoxStyle = styleProps => {
+export type BoxStyles = SizingStyles & FlexParentStyles & FlexChildStyles & {
+  margin?: React.CSSProperties['margin'],
+  overflow?: React.CSSProperties['overflow']
+}
+
+const createBoxStyle = (styleProps: BoxStyles) => {
   const {
     margin = 0,
     overflow = 'visible'
