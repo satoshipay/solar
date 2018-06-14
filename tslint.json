@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "tslint:latest",
+    "tslint-config-prettier",
+    "tslint-config-standard"
+  ],
+  "rules": {
+    "semicolon": false,
+    "no-submodule-imports": false,
+    "no-implicit-dependencies": [
+      true,
+      "dev"
+    ]
+  }
+}

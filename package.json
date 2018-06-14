@@ -9,14 +9,17 @@
     "build": "NODE_ENV=production parcel build --public-url=./ --detailed-report src/index.html",
     "dev": "NODE_ENV=development parcel src/index.html -p 3000",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "test": "standard"
+    "test": "tslint --project ."
   },
   "devDependencies": {
     "@storybook/react": "^3.3.14",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react-app": "^3.1.1",
     "parcel-bundler": "^1.8.1",
-    "standard": "^10.0.3"
+    "parcel-plugin-typescript": "^0.7.1",
+    "standard": "^10.0.3",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^2.9.2"
   },
   "dependencies": {
     "big.js": "^5.0.3",
