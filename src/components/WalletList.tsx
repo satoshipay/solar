@@ -1,7 +1,6 @@
 import React from 'react'
 import { History, Location } from 'history'
 import Divider from '@material-ui/core/Divider'
-import Typography from '@material-ui/core/Typography'
 import ArrowCircleRightIcon from 'react-icons/lib/fa/arrow-circle-right'
 import { withRouter } from 'react-router-dom'
 import { List, ListItem, ListSubheader } from '../components/List'
