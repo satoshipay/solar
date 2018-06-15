@@ -1,8 +1,9 @@
 import { observable, IObservableArray } from 'mobx'
 
-interface Overlay {
+export interface Overlay {
   id: number,
   open: boolean,
+  type: string,
   [key: string]: any    // TODO: Instead of allowing dump of custom props here, have `data: any` prop
 }
 

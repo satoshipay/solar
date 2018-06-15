@@ -3,25 +3,36 @@ import RaisedButton from 'material-ui/RaisedButton'
 import TextField from 'material-ui/TextField'
 import SendIcon from 'react-icons/lib/md/send'
 import { Box, HorizontalLayout } from '../../layout'
-import { addFormState, renderError } from '../../lib/formHandling'
+import { addFormState, renderError, InnerFormProps } from '../../lib/formHandling'
 
-const validatePublicKey = value => {
+const validatePublicKey = (value: string) => {
   if (!value.match(/^G[A-Z0-9]{55}$/)) {
     return new Error(`Invalid stellar public key.`)
   }
 }
-const validateAmount = value => {
+const validateAmount = (value: string) => {
   if (!value.match(/^[0-9]+(\.[0-9]+)?$/)) {
     return new Error(`Invalid number.`)
   }
   // TODO: Check if amount <= balance
 }
 
-const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValue, validate, onSubmit = () => {} }) => {
+export type PaymentCreationValues = {
+  amount: string,
+  destination: string
+}
+
+type PaymentCreationFormProps = {
+  onSubmit?: (formValues: PaymentCreationValues) => any
+}
+
+const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & PaymentCreationFormProps) => {
+  const { errors, formValues, setFormValue, validate, onSubmit = () => {} } = props
+
   const triggerSubmit = () => {
     if (validate(formValues)) onSubmit(formValues)
   }
-  const handleSubmitEvent = event => {
+  const handleSubmitEvent = (event: React.SyntheticEvent) => {
     event.preventDefault()
     triggerSubmit()
   }
@@ -57,7 +68,7 @@ const PaymentCreationForm = ({ errors, formValues, setErrors, setFormValue, vali
   )
 }
 
-const StatefulPaymentCreationForm = addFormState({
+const StatefulPaymentCreationForm = addFormState<PaymentCreationValues, PaymentCreationFormProps>({
   defaultValues: {
     destination: '',
     amount: ''

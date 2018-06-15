@@ -8,7 +8,7 @@ import { subscribeToAccount, subscribeToRecentTxs, AccountObservable, RecentTxsO
 const horizonLivenet = new Server('https://horizon.stellar.org/')
 const horizonTestnet = new Server('https://horizon-testnet.stellar.org/')
 
-type HorizonProps = {
+export type HorizonProps = {
   horizonLivenet: Server,
   horizonTestnet: Server
 }

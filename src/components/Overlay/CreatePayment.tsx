@@ -3,19 +3,45 @@ import { compose, withHandlers, withState } from 'recompose'
 import Drawer from 'material-ui/Drawer'
 import { Card, CardText, CardTitle } from 'material-ui/Card'
 import CloseIcon from 'react-icons/lib/md/close'
+import { Server, Transaction } from 'stellar-sdk'
 import { createTransaction } from '../../lib/transaction'
-import { withHorizon } from '../../hocs'
-import CreatePaymentForm from '../Form/CreatePayment'
+import { Wallet } from '../../stores/wallets'
+import { withHorizon, HorizonProps } from '../../hocs'
+import CreatePaymentForm, { PaymentCreationValues } from '../Form/CreatePayment'
 import TxConfirmationForm from '../Form/TxConfirmation'
 import SubmissionProgress from '../SubmissionProgress'
+import { overlayTypes } from './types'
 
-const CloseButton = ({ children, onClick = null }) => (
-  <div style={{ position: 'absolute', top: 16, right: 24, cursor: 'pointer', lineHeight: 0 }} onClick={onClick}>
-    <CloseIcon style={{ width: 32, height: 32 }} />
-  </div>
-)
+const CloseButton = (props: { onClick: (event: React.MouseEvent) => any }) => {
+  const style: React.CSSProperties = {
+    position: 'absolute',
+    top: 16,
+    right: 24,
+    cursor: 'pointer',
+    lineHeight: 0
+  }
+  return (
+    <div style={style} onClick={props.onClick}>
+      <CloseIcon style={{ width: 32, height: 32 }} />
+    </div>
+  )
+}
 
-const CreatePaymentDrawer = (props) => {
+type CreatePaymentDrawerProps = {
+  wallet: Wallet,
+  open: boolean,
+  onClose: () => any
+}
+
+type CreatePaymentDrawerStateProps = {
+  transaction: Transaction,
+  clearTransaction: () => any,
+  setTransaction: (tx: Transaction) => any,
+  submissionPromise: Promise<any> | null,
+  setSubmissionPromise: (promise: Promise<any>) => any
+}
+
+const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDrawerStateProps & HorizonProps) => {
   const {
     horizonLivenet,
     horizonTestnet,
@@ -31,12 +57,12 @@ const CreatePaymentDrawer = (props) => {
 
   const horizon = wallet.testnet ? horizonTestnet : horizonLivenet
 
-  const handleCreationFormSubmit = async formValues => {
+  const handleCreationFormSubmit = async (formValues: PaymentCreationValues) => {
     const tx = await createTransaction({ ...formValues, horizon, wallet, testnet: wallet.testnet })
     setTransaction(tx)
     // TODO: Error handling
   }
-  const submitSignedTx = tx => {
+  const submitSignedTx = (tx: Transaction) => {
     const promise = horizon.submitTransaction(tx)
     setSubmissionPromise(promise)
 
@@ -76,19 +102,19 @@ const CreatePaymentDrawer = (props) => {
   )
 }
 
-const StatefulCreatePaymentDrawer = compose(
+const StatefulCreatePaymentDrawer = compose<CreatePaymentDrawerProps & CreatePaymentDrawerStateProps & HorizonProps, CreatePaymentDrawerProps & HorizonProps>(
   withState('transaction', 'setTransaction', null),
   withState('submissionPromise', 'setSubmissionPromise', null),
-  withHandlers({
+  withHandlers<{ setTransaction: (tx: Transaction | null) => any }, {}>({
     clearTransaction: ({ setTransaction }) => () => setTransaction(null)
   })
 )(CreatePaymentDrawer)
 
 export default withHorizon(StatefulCreatePaymentDrawer)
 
-export function create (wallet) {
+export function create (wallet: Wallet) {
   return {
-    type: 'CreatePayment',
+    type: overlayTypes.CreatePayment,
     wallet
   }
 }

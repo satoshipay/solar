@@ -1,38 +1,46 @@
 import { compose, withHandlers, withState } from 'recompose'
 
-type ErrorValidationResult = any
-type Errors = { [fieldName: string]: ErrorValidationResult }
-type Values = { [fieldName: string]: any }
+type ErrorValidationResult = Error | null | undefined
 type Validator = (value: any) => ErrorValidationResult
 type Validators = { [fieldName: string]: Validator }
 
-export function addFormState (options: { defaultValues?: Values, validators?: Validators } = {}) {
-  type ErrorState = { [fieldName: string]: ErrorValidationResult }
+export type InnerFormProps<Values> = {
+  errors: {
+    [key in keyof Values]: ErrorValidationResult
+  },
+  formValues: Values,
+  onSubmit: (formValues: Values) => any,
+  setFormValue: (fieldName: string, newValue: string) => any,
+  validate: (formValues: Values) => boolean
+}
+
+export function addFormState<Values, Props = {}> (options: { defaultValues?: Values, validators?: Validators } = {}) {
+  type ErrorState = { [fieldName in keyof Values]: ErrorValidationResult }
   type ErrorStateUpdater = (prevErrors: ErrorState) => ErrorState
 
-  const defaultValues: Values = options.defaultValues || {}
+  const defaultValues = options.defaultValues || {} as any as Values
   const validators: Validators = options.validators || {}
 
   const validate = (values: Values, { setErrors }: { setErrors: (updater: ErrorStateUpdater) => any }) => {
     let successful = true
     Object.keys(validators).forEach((fieldName: string) => {
       const validator = validators[fieldName] as Validator
-      const result = validator(values[fieldName])
+      const result = validator((values as any)[fieldName])
       if (result) {
-        setErrors(prevErrors => ({ ...prevErrors, [fieldName]: result }))
+        setErrors((prevErrors: any) => ({ ...prevErrors, [fieldName]: result }))
         successful = false
       } else {
-        setErrors(prevErrors => ({ ...prevErrors, [fieldName]: null }))
+        setErrors((prevErrors: any) => ({ ...prevErrors, [fieldName]: null }))
       }
     })
     return successful
   }
 
-  return compose(
+  return compose<Props & InnerFormProps<Values>, Props>(
     withState('formValues', 'setFormValues', defaultValues),
     withState('errors', 'setErrors', {}),
-    withHandlers<{ formValues: Values, setErrors: (errors: Errors) => any, setFormValues: (values: Values) => any }, { }>({
-      setFormValue: ({ formValues, setFormValues }) => (key: string, value: any) => setFormValues({ ...formValues, [key]: value }),
+    withHandlers<{ formValues: Values, setErrors: (errors: ErrorStateUpdater) => any, setFormValues: (values: Values) => any }, { }>({
+      setFormValue: ({ formValues, setFormValues }) => (key: string, value: any) => setFormValues({ ...(formValues as any), [key]: value }),
       validate: ({ formValues, setErrors }) => (values = formValues) => validate(values, { setErrors })
     })
   )
