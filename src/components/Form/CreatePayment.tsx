@@ -1,6 +1,6 @@
 import React from 'react'
-import RaisedButton from 'material-ui/RaisedButton'
-import TextField from 'material-ui/TextField'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
 import SendIcon from 'react-icons/lib/md/send'
 import { Box, HorizontalLayout } from '../../layout'
 import { addFormState, renderError, InnerFormProps } from '../../lib/formHandling'
@@ -39,22 +39,24 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
   return (
     <form onSubmit={handleSubmitEvent}>
       <TextField
-        floatingLabelText='Destination address'
-        hintText='GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS'
+        error={Boolean(errors.destination)}
+        label={errors.destination ? renderError(errors.destination) : 'Destination address'}
+        placeholder='GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS'
         fullWidth
         autoFocus
+        margin='dense'
         value={formValues.destination}
-        onChange={(event, newValue) => setFormValue('destination', newValue)}
-        errorText={renderError(errors.destination)}
+        onChange={event => setFormValue('destination', event.target.value)}
       />
       <HorizontalLayout>
         <Box shrink>
           <TextField
-            floatingLabelText='Amount'
+            error={Boolean(errors.amount)}
+            label={errors.amount ? renderError(errors.amount) : 'Amount'}
             fullWidth
+            margin='dense'
             value={formValues.amount}
-            onChange={(event, newValue) => setFormValue('amount', newValue)}
-            errorText={renderError(errors.amount)}
+            onChange={event => setFormValue('amount', event.target.value)}
           />
         </Box>
         <Box fixed alignSelf='flex-end' padding='0 0 12px' margin='0 0 0 8px'>
@@ -62,7 +64,10 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
         </Box>
       </HorizontalLayout>
       <Box margin='32px 0 0'>
-        <RaisedButton primary label='Create Payment' icon={<SendIcon />} onClick={triggerSubmit} />
+        <Button variant='contained' color='primary' onClick={triggerSubmit}>
+          <SendIcon style={{ marginRight: 8 }} />
+          Create Payment
+        </Button>
       </Box>
     </form>
   )

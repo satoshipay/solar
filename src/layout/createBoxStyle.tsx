@@ -30,11 +30,12 @@ const createSizingStyle = ({ width = null, height = null, maxWidth = null, maxHe
 }
 
 interface FlexParentStyles {
-  justifyContent?: string,
-  alignItems?: string
+  alignItems?: string,
+  justifyContent?: React.CSSProperties['justifyContent'] | 'start' | 'end',
+  wrap?: React.CSSProperties['flexWrap']
 }
 
-const createFlexParentStyle = ({ justifyContent, alignItems }: FlexParentStyles) => {
+const createFlexParentStyle = ({ alignItems, justifyContent, wrap }: FlexParentStyles) => {
   if (justifyContent === 'start') {
     justifyContent = 'flex-start'
   }
@@ -49,7 +50,8 @@ const createFlexParentStyle = ({ justifyContent, alignItems }: FlexParentStyles)
   }
   return {
     alignItems,
-    justifyContent
+    justifyContent,
+    flexWrap: wrap
   }
 }
 
