@@ -1,7 +1,8 @@
 import React from 'react'
 import Async from 'react-promise'
-import Paper from 'material-ui/Paper'
-import CircularProgress from 'material-ui/CircularProgress'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
 import { AspectRatioBox, FloatingBox, VerticalLayout } from '../layout'
 import ErrorIcon from './Icon/Error'
 import SuccessIcon from './Icon/Success'
@@ -10,11 +11,11 @@ const FloatingStatusBox = (props: { children: React.ReactNode }) => {
   return (
     <FloatingBox width='50%' maxWidth='40vw'>
       <AspectRatioBox width='100%' ratio='3:2'>
-        <Paper zDepth={2} style={{ height: '100%' }}>
+        <Paper elevation={2} style={{ height: '100%' }}>
           <VerticalLayout padding={10} height='100%' justifyContent='center'>
-            <span style={{ textAlign: 'center' }}>
+            <Typography align='center' variant='subheading'>
               {props.children}
-            </span>
+            </Typography>
           </VerticalLayout>
         </Paper>
       </AspectRatioBox>

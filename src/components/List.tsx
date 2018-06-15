@@ -18,7 +18,8 @@ interface ListItemProps {
   heading?: React.ReactNode | null,
   leftIcon?: React.ReactNode | null,
   rightIcon?: React.ReactNode | null,
-  onClick?: React.MouseEventHandler<{}>
+  onClick?: React.MouseEventHandler<{}>,
+  style?: React.CSSProperties
 }
 
 const ListItem = (props: ListItemProps) => {
@@ -34,7 +35,7 @@ const ListItem = (props: ListItemProps) => {
     </div>
   )
   return (
-    <MaterialListItem button={props.button} onClick={props.onClick || noop}>
+    <MaterialListItem button={props.button} onClick={props.onClick || noop} style={props.style}>
       <MaterialListItemText primary={content} />
     </MaterialListItem>
   )
