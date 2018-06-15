@@ -1,11 +1,11 @@
 import { observable } from 'mobx'
 import { AccountRecord, Server, Transaction, TransactionRecord } from 'stellar-sdk'
 
-type AccountObservable = {
+export type AccountObservable = {
   balances: AccountRecord['balances']
 }
 
-type RecentTxsObservable = {
+export type RecentTxsObservable = {
   loading: boolean,
   transactions: Transaction[]
 }
