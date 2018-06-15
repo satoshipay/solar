@@ -1,7 +1,8 @@
 import React from 'react'
 import { History, Location } from 'history'
-import { BottomNavigation, BottomNavigationItem } from 'material-ui/BottomNavigation'
-import Paper from 'material-ui/Paper'
+import BottomNavigation from '@material-ui/core/BottomNavigation'
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction'
+import Paper from '@material-ui/core/Paper'
 import QRCodeIcon from 'react-icons/lib/fa/qrcode'
 import HomeIcon from 'react-icons/lib/md/home'
 import { withRouter } from 'react-router-dom'
@@ -17,14 +18,14 @@ const getSelectedIndexByPath = (path: string) => {
 
 const AppBottomNavigation = (props: { history: History, location: Location }) => {
   return (
-    <Paper zDepth={1}>
-      <BottomNavigation selectedIndex={getSelectedIndexByPath(props.location.pathname)}>
-        <BottomNavigationItem
+    <Paper elevation={1}>
+      <BottomNavigation showLabels value={getSelectedIndexByPath(props.location.pathname)}>
+        <BottomNavigationAction
           label='Wallets'
           icon={<HomeIcon style={{ fontSize: '200%' }} />}
           onClick={() => props.history.push('/')}
         />
-        <BottomNavigationItem
+        <BottomNavigationAction
           label='QR scanner'
           icon={<QRCodeIcon style={{ fontSize: '200%' }} />}
           onClick={() => props.history.push('/qr-scanner')}

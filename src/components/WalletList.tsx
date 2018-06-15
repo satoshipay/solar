@@ -1,12 +1,20 @@
 import React from 'react'
 import { History, Location } from 'history'
-import Divider from 'material-ui/Divider'
-import { List, ListItem } from '../components/List'
-import Subheader from 'material-ui/Subheader'
+import Divider from '@material-ui/core/Divider'
+import Typography from '@material-ui/core/Typography'
 import ArrowCircleRightIcon from 'react-icons/lib/fa/arrow-circle-right'
 import { withRouter } from 'react-router-dom'
+import { List, ListItem } from '../components/List'
 import { AccountBalance } from '../components/LumenBalance'
 import WalletStore, { Wallet } from '../stores/wallets'
+
+const Subheader = (props: { children: React.ReactNode }) => {
+  return (
+    <Typography gutterBottom variant='subheading' component='h3' style={{ padding: '0 16px' }}>
+      {props.children}
+    </Typography>
+  )
+}
 
 interface WalletListProps {
   history: History,
