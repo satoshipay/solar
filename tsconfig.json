@@ -10,10 +10,12 @@
       "es6",
       "dom"
     ],
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": [ "./types", "./node_modules/@types"]
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./node_modules/@types/**/*"
   ],
   "rules": {
     "no-submodule-imports": false
