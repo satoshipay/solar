@@ -1,4 +1,5 @@
 import React from 'react'
+import { match } from 'react-router'
 import { observer } from 'mobx-react'
 import { Card, CardText, CardTitle } from 'material-ui/Card'
 import Divider from 'material-ui/Divider'
@@ -9,9 +10,11 @@ import { AccountBalance } from '../components/LumenBalance'
 import TransactionList from '../components/TransactionList'
 import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
 import { openOverlay } from '../stores/overlays'
+import WalletStore from '../stores/wallets'
 
-const WalletPage = ({ match: { params }, wallets }) => {
-  const wallet = wallets.find(wallet => wallet.id === params.id)
+const WalletPage = (props: { match: match<{ id: string }>, wallets: typeof WalletStore }) => {
+  const { params } = props.match
+  const wallet = props.wallets.find(someWallet => someWallet.id === params.id)
   if (!wallet) throw new Error(`Wallet not found. ID: ${params.id}`)
 
   return (

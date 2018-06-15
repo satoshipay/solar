@@ -5,8 +5,8 @@ import {
   Route
 } from 'react-router-dom'
 import { withProps } from 'recompose'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import Paper from 'material-ui/Paper'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import { Network } from 'stellar-sdk'
 import AppBottomNavigation from './components/BottomNavigation'
 import Overlays from './components/Overlays'

@@ -9,17 +9,33 @@
     "build": "NODE_ENV=production parcel build --public-url=./ --detailed-report src/index.html",
     "dev": "NODE_ENV=development parcel src/index.html -p 3000",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "test": "standard"
+    "test": "tslint --project ."
   },
   "devDependencies": {
     "@storybook/react": "^3.3.14",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react-app": "^3.1.1",
+    "@types/big.js": "^4.0.5",
+    "@types/history": "^4.6.2",
+    "@types/material-ui": "^0.21.2",
+    "@types/react": "^16.3.17",
+    "@types/react-dom": "^16.0.6",
+    "@types/react-icons": "^2.2.5",
+    "@types/react-router": "^4.0.26",
+    "@types/react-router-dom": "^4.2.7",
+    "@types/recompose": "^0.26.1",
+    "@types/stellar-sdk": "^0.8.3",
+    "@types/storybook__react": "^3.0.7",
+    "awesome-typescript-loader": "^3.5.0",
     "parcel-bundler": "^1.8.1",
-    "standard": "^10.0.3"
+    "parcel-plugin-typescript": "^0.7.1",
+    "standard": "^10.0.3",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^2.9.2"
   },
   "dependencies": {
     "big.js": "^5.0.3",
+    "history": "^4.7.2",
     "material-ui": "^0.20.0",
     "mobx": "^3.4.1",
     "mobx-react": "^4.3.5",
@@ -28,6 +44,7 @@
     "react-human-time": "^1.1.0",
     "react-icons": "^2.2.7",
     "react-promise": "^2.0.1",
+    "react-router": "^4.3.1",
     "react-router-dom": "^4.2.2",
     "recompose": "^0.26.0",
     "stellar-sdk": "^0.8.2"

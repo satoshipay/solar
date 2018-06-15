@@ -1,7 +1,7 @@
 import React from 'react'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
-const ProvidersDecorator = storyFn => (
+const ProvidersDecorator = (storyFn: Function) => (
   <MuiThemeProvider>
     {storyFn()}
   </MuiThemeProvider>

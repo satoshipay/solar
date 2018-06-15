@@ -1,13 +1,14 @@
 import React from 'react'
 import Subheader from 'material-ui/Subheader'
+import { Memo, Transaction, TransactionOperation } from 'stellar-sdk'
 import { List, ListItem } from './List'
 
-const TransactionMemo = ({ memo }) => (
+const TransactionMemo = (props: { memo: Memo }) => (
   null  // TODO: Render something useful if `memo.type` !== `none`
 )
 
-const TransactionOperation = ({ operation }) => {
-  const Content = ({ children }) => (
+const TransactionOperation = (props: { operation: TransactionOperation }) => {
+  const Content = ({ children }: { children: React.ReactNode }) => (
     <div style={{ fontSize: '80%', marginTop: 8 }}>
       {children}
     </div>
@@ -15,25 +16,25 @@ const TransactionOperation = ({ operation }) => {
 
   // TODO: Add more operation types!
 
-  if (operation.type === 'payment') {
-    const { amount, asset, destination } = operation
+  if (props.operation.type === 'payment') {
+    const { amount, asset, destination } = props.operation
     const content = (
       <Content>
         <div>{amount} {asset.code}</div>
         <div>
           <div>to <small>{destination}</small></div>
-          {operation.source ? <div>from <small>{operation.source}</small></div> : null}
+          {props.operation.source ? <div>from <small>{props.operation.source}</small></div> : null}
         </div>
       </Content>
     )
     return <ListItem heading='Payment' primaryText={content} />
   } else {
-    const operationPropNames = Object.keys(operation).filter(key => key !== 'type')
+    const operationPropNames = Object.keys(props.operation).filter(key => key !== 'type')
     const content = (
       <Content>
         {operationPropNames.map(
           propName => {
-            const value = JSON.stringify(operation[propName])
+            const value = JSON.stringify((props.operation as any)[propName])
             return <div key={propName}>{propName}: {value}</div>
           }
         )}
@@ -43,12 +44,12 @@ const TransactionOperation = ({ operation }) => {
   }
 }
 
-const TransactionSummary = ({ transaction }) => {
+const TransactionSummary = (props: { transaction: Transaction }) => {
   return (
     <List>
       <Subheader>Transaction summary</Subheader>
-      <TransactionMemo memo={transaction.memo} />
-      {transaction.operations.map(
+      <TransactionMemo memo={props.transaction.memo} />
+      {props.transaction.operations.map(
         (operation, index) => <TransactionOperation key={index} operation={operation} />
       )}
     </List>

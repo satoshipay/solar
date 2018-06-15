@@ -1,12 +1,27 @@
 import React from 'react'
 import RaisedButton from 'material-ui/RaisedButton'
 import SendIcon from 'react-icons/lib/md/send'
+import { Transaction } from 'stellar-sdk'
 import TransactionSummary from '../TransactionSummary'
 import { VerticalLayout } from '../../layout'
-import { addFormState } from '../../lib/formHandling'
+import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { signTransaction } from '../../lib/transaction'
+import { Wallet } from '../../stores/wallets'
 
-const TxConfirmationForm = ({ formValues, setFormValue, transaction, wallet, onConfirm = () => {}, onCancel = () => {} }) => {
+interface TxConfirmationValues {
+  password: string | null
+}
+
+interface TxConfirmationFormProps {
+  transaction: Transaction,
+  wallet: Wallet,
+  onConfirm?: (signedTx: Transaction) => any,
+  onCancel?: () => any
+}
+
+const TxConfirmationForm = (props: InnerFormProps<TxConfirmationValues> & TxConfirmationFormProps) => {
+  const { transaction, wallet, onConfirm = () => undefined, onCancel = () => undefined } = props
+
   const onConfirmationClick = async () => {
     // TODO: Show password input if wallet requires password
     const password = null
@@ -15,7 +30,7 @@ const TxConfirmationForm = ({ formValues, setFormValue, transaction, wallet, onC
     // TODO: Error handling
   }
   return (
-    <form onSubmit={onConfirm}>
+    <form onSubmit={onConfirmationClick}>
       <VerticalLayout>
         <TransactionSummary transaction={transaction} />
         <RaisedButton primary label='Sign and submit' icon={<SendIcon />} onClick={onConfirmationClick} />
@@ -25,7 +40,7 @@ const TxConfirmationForm = ({ formValues, setFormValue, transaction, wallet, onC
   )
 }
 
-const StatefulTxConfirmationForm = addFormState({
+const StatefulTxConfirmationForm = addFormState<TxConfirmationValues, TxConfirmationFormProps>({
   defaultValues: {
     password: null
   }
