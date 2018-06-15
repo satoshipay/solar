@@ -1,5 +1,5 @@
 import React from 'react'
-import CircularProgress from 'material-ui/CircularProgress'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import { observer } from 'mobx-react'
 import { Server, Transaction } from 'stellar-sdk'
 import { subscribeToAccount, subscribeToRecentTxs, AccountObservable, RecentTxsObservable } from './lib/subscriptions'

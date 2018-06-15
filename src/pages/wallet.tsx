@@ -1,9 +1,11 @@
 import React from 'react'
 import { match } from 'react-router'
 import { observer } from 'mobx-react'
-import { Card, CardText, CardTitle } from 'material-ui/Card'
-import Divider from 'material-ui/Divider'
-import RaisedButton from 'material-ui/RaisedButton'
+import Button from '@material-ui/core/Button'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import Divider from '@material-ui/core/Divider'
+import Typography from '@material-ui/core/Typography'
 import SendIcon from 'react-icons/lib/md/send'
 import { DetailData, DetailDataSet } from '../components/Data'
 import { AccountBalance } from '../components/LumenBalance'
@@ -19,21 +21,28 @@ const WalletPage = (props: { match: match<{ id: string }>, wallets: typeof Walle
 
   return (
     <Card style={{ boxShadow: 'none' }}>
-      <CardTitle title={wallet.name} subtitle={wallet.testnet ? 'Testnet' : null} />
-      <CardText>
+      <CardContent>
+        <Typography variant='headline' component='h2'>
+          {wallet.name}
+        </Typography>
+        <Typography gutterBottom variant='subheading' component='h3'>
+          {wallet.testnet ? 'Testnet' : null}
+        </Typography>
         <DetailDataSet>
           <DetailData label='Balance' value={<AccountBalance publicKey={wallet.publicKey} testnet={wallet.testnet} />} />
           <DetailData label='Public Key' value={wallet.publicKey} />
         </DetailDataSet>
         <div style={{ marginTop: 24 }}>
-          <RaisedButton
-            primary
-            label='Send payment'
-            icon={<SendIcon />}
+          <Button
+            variant='contained'
+            color='primary'
             onClick={() => openOverlay(createPaymentOverlay(wallet))}
-          />
+          >
+            <SendIcon style={{ marginRight: 8 }} />
+            Send payment
+          </Button>
         </div>
-      </CardText>
+      </CardContent>
       {/* TODO: Add "edit" icon button */}
       {/* TODO: Add action buttons (send payment, ...) (in <CardActions>) */}
       {/* TODO: Add advanced actions (backup, delete, merge, ...) */}

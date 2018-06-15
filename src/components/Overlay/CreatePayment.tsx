@@ -1,7 +1,9 @@
 import React from 'react'
 import { compose, withHandlers, withState } from 'recompose'
-import Drawer from 'material-ui/Drawer'
-import { Card, CardText, CardTitle } from 'material-ui/Card'
+import Drawer from '@material-ui/core/Drawer'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import Typography from '@material-ui/core/Typography'
 import CloseIcon from 'react-icons/lib/md/close'
 import { Transaction } from 'stellar-sdk'
 import { createTransaction } from '../../lib/transaction'
@@ -77,25 +79,33 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
 
   return (
     <div>
-      <Drawer open={open} openSecondary docked={false} onRequestChange={onClose} width='90%'>
-        <Card style={{ position: 'relative', height: '100%', padding: '0 12px' }}>
-          <CardTitle title='Send payment' subtitle={wallet.testnet ? 'Testnet' : null} />
+      <Drawer open={open} anchor='right' onClose={onClose}>
+        <Card style={{ position: 'relative', height: '100%', padding: '0 12px', width: '90vw' }}>
           <CloseButton onClick={onClose} />
-          <CardText>
-            <CreatePaymentForm onSubmit={handleCreationFormSubmit} />
-          </CardText>
+          <CardContent>
+            <Typography variant='headline' component='h2'>Send payment</Typography>
+            <Typography gutterBottom variant='subheading' component='h3'>
+              {wallet.testnet ? 'Testnet' : null}
+            </Typography>
+            <div style={{ marginTop: 32 }}>
+              <CreatePaymentForm onSubmit={handleCreationFormSubmit} />
+            </div>
+          </CardContent>
         </Card>
       </Drawer>
-      <Drawer open={Boolean(open && transaction)} openSecondary docked={false} onRequestChange={clearTransaction} width='90%'>
+      <Drawer open={Boolean(open && transaction)} anchor='right' onClose={clearTransaction}>
         <Card style={{ position: 'relative', height: '100%', padding: '0 12px' }}>
-          <CardTitle title='Confirm payment' subtitle={wallet.testnet ? 'Testnet' : null} />
-          <CardText>
+          <CardContent>
+            <Typography variant='headline' component='h2'>Confirm payment</Typography>
+            <Typography gutterBottom variant='subheading' component='h3'>
+              {wallet.testnet ? 'Testnet' : null}
+            </Typography>
             {
               transaction
               ? <TxConfirmationForm transaction={transaction} wallet={wallet} onConfirm={submitSignedTx} onCancel={clearTransaction} />
               : null
             }
-          </CardText>
+          </CardContent>
         </Card>
         {submissionPromise ? <SubmissionProgress promise={submissionPromise} /> : null}
       </Drawer>

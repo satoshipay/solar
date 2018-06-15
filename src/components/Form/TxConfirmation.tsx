@@ -1,9 +1,9 @@
 import React from 'react'
-import RaisedButton from 'material-ui/RaisedButton'
+import Button from '@material-ui/core/Button'
 import SendIcon from 'react-icons/lib/md/send'
 import { Transaction } from 'stellar-sdk'
 import TransactionSummary from '../TransactionSummary'
-import { VerticalLayout } from '../../layout'
+import { HorizontalLayout, VerticalLayout } from '../../layout'
 import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { signTransaction } from '../../lib/transaction'
 import { Wallet } from '../../stores/wallets'
@@ -33,8 +33,15 @@ const TxConfirmationForm = (props: InnerFormProps<TxConfirmationValues> & TxConf
     <form onSubmit={onConfirmationClick}>
       <VerticalLayout>
         <TransactionSummary transaction={transaction} />
-        <RaisedButton primary label='Sign and submit' icon={<SendIcon />} onClick={onConfirmationClick} />
-        <RaisedButton label='Cancel' onClick={onCancel} />
+        <HorizontalLayout justifyContent='center' wrap='wrap'>
+          <Button variant='contained' color='primary' onClick={onConfirmationClick} style={{ marginRight: 32 }}>
+            <SendIcon style={{ marginRight: 8 }} />
+            Sign and submit
+          </Button>
+          <Button variant='contained' onClick={onCancel}>
+            Cancel
+          </Button>
+        </HorizontalLayout>
       </VerticalLayout>
     </form>
   )
