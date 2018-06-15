@@ -15,7 +15,8 @@
   },
   "include": [
     "./src/**/*",
-    "./node_modules/@types/**/*"
+    "./node_modules/@types/**/*",
+    "./node_modules/material-ui/**/*"
   ],
   "rules": {
     "no-submodule-imports": false
