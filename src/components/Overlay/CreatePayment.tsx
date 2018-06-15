@@ -87,7 +87,9 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
             <Typography gutterBottom variant='subheading' component='h3'>
               {wallet.testnet ? 'Testnet' : null}
             </Typography>
-            <CreatePaymentForm onSubmit={handleCreationFormSubmit} />
+            <div style={{ marginTop: 32 }}>
+              <CreatePaymentForm onSubmit={handleCreationFormSubmit} />
+            </div>
           </CardContent>
         </Card>
       </Drawer>
