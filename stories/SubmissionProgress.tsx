@@ -1,10 +1,8 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import ProvidersDecorator from './decorators/ProvidersDecorator'
 import SubmissionProgress from '../src/components/SubmissionProgress'
 
 storiesOf('SubmissionProgress', module)
-  .addDecorator(ProvidersDecorator)
   .add('pending', () => (
     <SubmissionProgress promise={new Promise(resolve => {})} />
   ))
