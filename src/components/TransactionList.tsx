@@ -1,6 +1,6 @@
 import React from 'react'
 import BigNumber from 'big.js'
-import Subheader from 'material-ui/Subheader'
+import ListSubheader from '@material-ui/core/ListSubheader'
 import HumanTime from 'react-human-time'
 import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left'
 import ArrowRightIcon from 'react-icons/lib/fa/arrow-right'
@@ -90,7 +90,7 @@ const TransactionListItem = (props: { publicKey: string, tx: Transaction }) => {
 const TransactionList = (props: { publicKey: string, title: React.ReactNode, transactions: Transaction[] }) => {
   return (
     <List>
-      <Subheader>{props.title}</Subheader>
+      <ListSubheader>{props.title}</ListSubheader>
       {props.transactions.map(
         (tx: Transaction) => <TransactionListItem key={tx.hash().toString('base64')} publicKey={props.publicKey} tx={tx} />
       )}

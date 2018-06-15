@@ -1,8 +1,8 @@
 import React from 'react'
-import {
-  List as MaterialList,
-  ListItem as MaterialListItem
-} from 'material-ui/List'
+import MaterialList from '@material-ui/core/List'
+import MaterialListItem from '@material-ui/core/ListItem'
+import MaterialListItemText from '@material-ui/core/ListItemText'
+import MaterialListSubheader from '@material-ui/core/ListSubheader'
 
 const noop = () => undefined
 
@@ -14,6 +14,7 @@ const IconDiv = (props: { children: React.ReactNode }) => {
 interface ListItemProps {
   primaryText: React.ReactNode,
   secondaryText?: React.ReactNode | null,
+  button?: boolean,
   heading?: React.ReactNode | null,
   leftIcon?: React.ReactNode | null,
   rightIcon?: React.ReactNode | null,
@@ -32,10 +33,15 @@ const ListItem = (props: ListItemProps) => {
       {props.rightIcon ? <IconDiv>{props.rightIcon}</IconDiv> : null}
     </div>
   )
-  return <MaterialListItem primaryText={content} onClick={props.onClick || noop} disabled={!props.onClick} />
+  return (
+    <MaterialListItem button={props.button} onClick={props.onClick || noop}>
+      <MaterialListItemText primary={content} />
+    </MaterialListItem>
+  )
 }
 
 export {
   MaterialList as List,
+  MaterialListSubheader as ListSubheader,
   ListItem
 }
