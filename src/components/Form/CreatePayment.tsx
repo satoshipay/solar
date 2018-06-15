@@ -17,17 +17,17 @@ const validateAmount = (value: string) => {
   // TODO: Check if amount <= balance
 }
 
-export type PaymentCreationValues = {
+export interface PaymentCreationValues {
   amount: string,
   destination: string
 }
 
-type PaymentCreationFormProps = {
+interface PaymentCreationFormProps {
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 
 const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & PaymentCreationFormProps) => {
-  const { errors, formValues, setFormValue, validate, onSubmit = () => {} } = props
+  const { errors, formValues, setFormValue, validate, onSubmit = () => undefined } = props
 
   const triggerSubmit = () => {
     if (validate(formValues)) onSubmit(formValues)
@@ -70,12 +70,12 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
 
 const StatefulPaymentCreationForm = addFormState<PaymentCreationValues, PaymentCreationFormProps>({
   defaultValues: {
-    destination: '',
-    amount: ''
+    amount: '',
+    destination: ''
   },
   validators: {
-    destination: validatePublicKey,
-    amount: validateAmount
+    amount: validateAmount,
+    destination: validatePublicKey
   }
 })(PaymentCreationForm)
 

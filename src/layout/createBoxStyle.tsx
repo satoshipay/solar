@@ -4,14 +4,14 @@ const removeNullValueProps = (object: { [key: string]: any }) => {
   return Object.keys(object).reduce((result, propKey) => {
     const propValue = object[propKey]
     if (propValue !== null) {
-      return Object.assign(result, { [propKey]: propValue })
+      return { ...result, [propKey]: propValue }
     } else {
       return result
     }
   }, {})
 }
 
-type SizingStyles = {
+interface SizingStyles {
   width?: React.CSSProperties['width'],
   height?: React.CSSProperties['height'],
   maxWidth?: React.CSSProperties['maxWidth'],
@@ -29,7 +29,7 @@ const createSizingStyle = ({ width = null, height = null, maxWidth = null, maxHe
   }
 }
 
-type FlexParentStyles = {
+interface FlexParentStyles {
   justifyContent?: string,
   alignItems?: string
 }
@@ -53,7 +53,7 @@ const createFlexParentStyle = ({ justifyContent, alignItems }: FlexParentStyles)
   }
 }
 
-type FlexChildStyles = {
+interface FlexChildStyles {
   grow?: boolean,
   shrink?: boolean,
   fixed?: boolean,

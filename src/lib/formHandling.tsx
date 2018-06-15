@@ -2,9 +2,9 @@ import { compose, withHandlers, withState } from 'recompose'
 
 type ErrorValidationResult = Error | null | undefined
 type Validator = (value: any) => ErrorValidationResult
-type Validators = { [fieldName: string]: Validator }
+interface Validators { [fieldName: string]: Validator }
 
-export type InnerFormProps<Values> = {
+export interface InnerFormProps<Values> {
   errors: {
     [key in keyof Values]: ErrorValidationResult
   },
@@ -24,7 +24,7 @@ export function addFormState<Values, Props = {}> (options: { defaultValues?: Val
   const validate = (values: Values, { setErrors }: { setErrors: (updater: ErrorStateUpdater) => any }) => {
     let successful = true
     Object.keys(validators).forEach((fieldName: string) => {
-      const validator = validators[fieldName] as Validator
+      const validator = validators[fieldName]
       const result = validator((values as any)[fieldName])
       if (result) {
         setErrors((prevErrors: any) => ({ ...prevErrors, [fieldName]: result }))

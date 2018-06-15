@@ -29,7 +29,7 @@ const TransactionIcon = (props: { balanceChangeBig: BigNumber }) => {
   }
 }
 
-type TitleTextProps = {
+interface TitleTextProps {
   balanceChangeBig: BigNumber,
   incomingPaymentOps: TransactionOperation[],
   outgoingPaymentOps: TransactionOperation[],
@@ -99,7 +99,7 @@ const TransactionList = (props: { publicKey: string, title: React.ReactNode, tra
 }
 
 const AccountTransactionList = (props: { publicKey: string, title: React.ReactNode, testnet?: boolean }) => {
-  type PassThroughProps = { publicKey: string, title: React.ReactNode }
+  interface PassThroughProps { publicKey: string, title: React.ReactNode }
 
   const ListOrSpinner = withSpinner<PassThroughProps & { transactions: Transaction[] }>(TransactionList)
   const ObservingList = withTransactions<PassThroughProps>(props)(ListOrSpinner)

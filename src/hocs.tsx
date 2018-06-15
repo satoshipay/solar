@@ -8,7 +8,7 @@ import { subscribeToAccount, subscribeToRecentTxs, AccountObservable, RecentTxsO
 const horizonLivenet = new Server('https://horizon.stellar.org/')
 const horizonTestnet = new Server('https://horizon-testnet.stellar.org/')
 
-export type HorizonProps = {
+export interface HorizonProps {
   horizonLivenet: Server,
   horizonTestnet: Server
 }
@@ -17,7 +17,7 @@ export const withHorizon = <Props extends {}>(Component: React.ComponentType<Pro
   return (props: Props) => <Component {...props} horizonLivenet={horizonLivenet} horizonTestnet={horizonTestnet} />
 }
 
-type AccountDataProps = {
+interface AccountDataProps {
   accountData: AccountObservable
 }
 
@@ -77,7 +77,7 @@ export const withTransactions = <Props extends {}>(options: { publicKey: string,
   }
 }
 
-type SpinnerProps = {
+interface SpinnerProps {
   loading?: boolean
 }
 

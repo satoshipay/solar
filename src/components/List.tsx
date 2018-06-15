@@ -4,14 +4,14 @@ import {
   ListItem as MaterialListItem
 } from 'material-ui/List'
 
-const noop = () => {}
+const noop = () => undefined
 
 const IconDiv = (props: { children: React.ReactNode }) => {
   const marginSize = 12
   return <div style={{ flexGrow: 0, flexShrink: 0, marginRight: marginSize }}>{props.children}</div>
 }
 
-type ListItemProps = {
+interface ListItemProps {
   primaryText: React.ReactNode,
   secondaryText?: React.ReactNode | null,
   heading?: React.ReactNode | null,

@@ -8,11 +8,11 @@ import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { signTransaction } from '../../lib/transaction'
 import { Wallet } from '../../stores/wallets'
 
-type TxConfirmationValues = {
+interface TxConfirmationValues {
   password: string | null
 }
 
-type TxConfirmationFormProps = {
+interface TxConfirmationFormProps {
   transaction: Transaction,
   wallet: Wallet,
   onConfirm?: (signedTx: Transaction) => any,
@@ -20,7 +20,7 @@ type TxConfirmationFormProps = {
 }
 
 const TxConfirmationForm = (props: InnerFormProps<TxConfirmationValues> & TxConfirmationFormProps) => {
-  const { transaction, wallet, onConfirm = () => {}, onCancel = () => {} } = props
+  const { transaction, wallet, onConfirm = () => undefined, onCancel = () => undefined } = props
 
   const onConfirmationClick = async () => {
     // TODO: Show password input if wallet requires password

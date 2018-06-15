@@ -14,7 +14,7 @@ import WalletStore from '../stores/wallets'
 
 const WalletPage = (props: { match: match<{ id: string }>, wallets: typeof WalletStore }) => {
   const { params } = props.match
-  const wallet = props.wallets.find(wallet => wallet.id === params.id)
+  const wallet = props.wallets.find(someWallet => someWallet.id === params.id)
   if (!wallet) throw new Error(`Wallet not found. ID: ${params.id}`)
 
   return (

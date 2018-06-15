@@ -1,16 +1,16 @@
 import { observable } from 'mobx'
 import { AccountRecord, Server, Transaction, TransactionRecord } from 'stellar-sdk'
 
-export type AccountObservable = {
+export interface AccountObservable {
   balances: AccountRecord['balances']
 }
 
-export type RecentTxsObservable = {
+export interface RecentTxsObservable {
   loading: boolean,
   transactions: Transaction[]
 }
 
-type URI = { toString: () => string }
+interface URI { toString: () => string }
 type HorizonWithUndocumentedProps = Server & { serverURL: URI }
 
 const accountObservableCache = new Map<string, AccountObservable>()
@@ -37,6 +37,7 @@ function createAccountObservable (horizon: Server, accountPubKey: string) {
       if (serialized !== lastErrorJson) {
         // Deduplicate errors. Every few seconds there is a new useless error with the same data as the previous.
         lastErrorJson = serialized
+        // tslint:disable-next-line:no-console
         console.error(error)
       }
     }
@@ -60,6 +61,7 @@ async function setUpRecentTxsObservable (recentTxs: RecentTxsObservable, horizon
         recentTxs.transactions.unshift(deserializeTx(txResponse))
       },
       onerror (error: any) {
+        // tslint:disable-next-line:no-console
         console.error(error)
       }
     } as any)
@@ -93,7 +95,10 @@ export function subscribeToRecentTxs (horizon: Server, accountPubKey: string): R
       loading: true,
       transactions: []
     })
-    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey)
+    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey).catch(error => {
+      // TODO: Better error handling
+      throw error
+    })
     accountRecentTxsCache.set(cacheKey, recentTxs)
     return recentTxs
   }

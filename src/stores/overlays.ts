@@ -23,6 +23,6 @@ export function openOverlay<OverlayProps extends { type: string }> (overlayProps
 }
 
 export function closeOverlay (id: number) {
-  const overlay = OverlayStore.find(overlay => overlay.id === id)
+  const overlay = OverlayStore.find(someOverlay => someOverlay.id === id)
   OverlayStore.remove(overlay)
 }

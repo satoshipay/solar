@@ -2,8 +2,8 @@ import React from 'react'
 import { History, Location } from 'history'
 import { BottomNavigation, BottomNavigationItem } from 'material-ui/BottomNavigation'
 import Paper from 'material-ui/Paper'
-import HomeIcon from 'react-icons/lib/md/home'
 import QRCodeIcon from 'react-icons/lib/fa/qrcode'
+import HomeIcon from 'react-icons/lib/md/home'
 import { withRouter } from 'react-router-dom'
 
 const getSelectedIndexByPath = (path: string) => {
@@ -12,8 +12,7 @@ const getSelectedIndexByPath = (path: string) => {
   } else if (path.startsWith('/qr-scanner')) {
     return 1
   }
-  console.error(`Don't know what icon to show as selected in bottom navigation. Path is: ${path}`)
-  return 0
+  throw new Error(`Don't know what icon to show as selected in bottom navigation. Path is: ${path}`)
 }
 
 const AppBottomNavigation = (props: { history: History, location: Location }) => {

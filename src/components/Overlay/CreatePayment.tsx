@@ -3,7 +3,7 @@ import { compose, withHandlers, withState } from 'recompose'
 import Drawer from 'material-ui/Drawer'
 import { Card, CardText, CardTitle } from 'material-ui/Card'
 import CloseIcon from 'react-icons/lib/md/close'
-import { Server, Transaction } from 'stellar-sdk'
+import { Transaction } from 'stellar-sdk'
 import { createTransaction } from '../../lib/transaction'
 import { Wallet } from '../../stores/wallets'
 import { withHorizon, HorizonProps } from '../../hocs'
@@ -27,13 +27,13 @@ const CloseButton = (props: { onClick: (event: React.MouseEvent) => any }) => {
   )
 }
 
-type CreatePaymentDrawerProps = {
+interface CreatePaymentDrawerProps {
   wallet: Wallet,
   open: boolean,
   onClose: () => any
 }
 
-type CreatePaymentDrawerStateProps = {
+interface CreatePaymentDrawerStateProps {
   transaction: Transaction,
   clearTransaction: () => any,
   setTransaction: (tx: Transaction) => any,
@@ -52,7 +52,7 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
     setTransaction,
     submissionPromise,
     setSubmissionPromise,
-    onClose = () => {}
+    onClose = () => undefined
   } = props
 
   const horizon = wallet.testnet ? horizonTestnet : horizonLivenet
@@ -69,9 +69,10 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
     promise.then(() => {
       // Close automatically a second after successful submission
       setTimeout(() => onClose(), 1000)
+    }).catch(error => {
+      throw error
+      // TODO: Error handling
     })
-
-    // TODO: Error handling
   }
 
   return (

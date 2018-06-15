@@ -8,7 +8,7 @@ import { withRouter } from 'react-router-dom'
 import { AccountBalance } from '../components/LumenBalance'
 import WalletStore, { Wallet } from '../stores/wallets'
 
-type WalletListProps = {
+interface WalletListProps {
   history: History,
   location: Location,
   match: any,

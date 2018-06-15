@@ -13,8 +13,8 @@ const WalletStore: Wallet[] & IObservableArray<Wallet> = observable([
   {
     id: '1',
     name: 'Test wallet',
-    testnet: true,
     publicKey: 'GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W',
+    testnet: true,
     async getPrivateKey () {
       return 'SCVD32GWIQAVBZZDH4F4ROF2TJMTTAEI762DFMEU64BMOHWXFMI3S5CD'
     }
