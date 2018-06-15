@@ -6,7 +6,7 @@
   "author": "SatoshiPay Ltd",
   "repository": "github:satoshipay/wallet",
   "scripts": {
-    "build": "NODE_ENV=production parcel build --public-url=./ src/index.html",
+    "build": "NODE_ENV=production parcel build --public-url=./ --detailed-report src/index.html",
     "dev": "NODE_ENV=development parcel src/index.html -p 3000",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "test": "standard"
