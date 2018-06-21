@@ -5,7 +5,11 @@ import WalletStore from '../stores/wallets'
 
 const HomePage = (props: { wallets: typeof WalletStore }) => (
   <div>
-    <WalletList wallets={props.wallets} />
+    <WalletList
+      onCreatePubnetWallet={() => { /* FIXME */ }}
+      onCreateTestnetWallet={() => { /* FIXME */ }}
+      wallets={props.wallets}
+    />
   </div>
 )
 
