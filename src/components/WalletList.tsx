@@ -34,9 +34,9 @@ const AddWalletItem = (props: { label: React.ReactNode, onClick: () => any }) =>
   return (
     <ListItem
       button
-      primaryText={props.label}
+      primaryText={<span style={{ opacity: 0.87 }}>{props.label}</span>}
       onClick={props.onClick}
-      leftIcon={<AddIcon />}
+      leftIcon={<AddIcon style={{ marginTop: -4, opacity: 0.87 }} />}
       style={{ minHeight: 60 }}
     />
   )
