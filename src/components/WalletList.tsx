@@ -30,6 +30,18 @@ const WalletListItem = (props: { history: History, wallet: Wallet }) => {
   )
 }
 
+const AddWalletItem = (props: { label: React.ReactNode, onClick: () => any }) => {
+  return (
+    <ListItem
+      button
+      primaryText={props.label}
+      onClick={props.onClick}
+      leftIcon={<AddIcon />}
+      style={{ minHeight: 60 }}
+    />
+  )
+}
+
 interface WalletListProps {
   history: History,
   location: Location,
@@ -46,24 +58,17 @@ const WalletList = ({ history, wallets, onCreatePubnetWallet, onCreateTestnetWal
 
   return (
     <List>
-      <WalletListHeader>Wallets</WalletListHeader>
+      <WalletListHeader>
+        Wallets
+      </WalletListHeader>
       {...pubnetWallets.map(wallet => <WalletListItem key={wallet.id} history={history} wallet={wallet} />)}
-      <ListItem
-        primaryText='Add wallet...'
-        onClick={onCreatePubnetWallet}
-        leftIcon={<AddIcon />}
-        style={{ minHeight: 60 }}
-      />
+      <AddWalletItem label='Add wallet…' onClick={onCreatePubnetWallet} />
       <Divider style={{ margin: '16px 0' }} />
-      <WalletListHeader>Testnet Wallets</WalletListHeader>
+      <WalletListHeader>
+        Testnet Wallets
+      </WalletListHeader>
       {...testnetWallets.map(wallet => <WalletListItem key={wallet.id} history={history} wallet={wallet} />)}
-      <ListItem
-        button
-        primaryText='Add testnet wallet...'
-        onClick={onCreateTestnetWallet}
-        leftIcon={<AddIcon />}
-        style={{ minHeight: 60 }}
-      />
+      <AddWalletItem label='Add testnet wallet…' onClick={onCreateTestnetWallet} />
     </List>
   )
 }

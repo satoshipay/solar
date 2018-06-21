@@ -1,10 +1,19 @@
 import { observable, IObservableArray } from 'mobx'
+import { Wallet } from './wallets'
 
-export interface Overlay {
+export enum OverlayTypes {
+  CreatePayment = 'CreatePayment'
+}
+
+export type Overlay = CreatePaymentOverlay  // concatenate with '|'  when adding more overlay types
+
+export interface CreatePaymentOverlay {
   id: number,
   open: boolean,
-  type: string,
-  [key: string]: any    // TODO: Instead of allowing dump of custom props here, have `data: any` prop
+  type: OverlayTypes.CreatePayment,
+  props: {
+    wallet: Wallet
+  }
 }
 
 const OverlayStore: IObservableArray<Overlay> = observable([])
@@ -13,13 +22,17 @@ export default OverlayStore
 
 let nextID = 1
 
-export function openOverlay<OverlayProps extends { type: string }> (overlayProps: OverlayProps) {
-  OverlayStore.push({
-    // Reason for `any`: https://stackoverflow.com/q/45268289
-    ...(overlayProps as any),
+export function createOverlay<Props extends {}> (type: OverlayTypes, props: Props) {
+  return {
     id: nextID++,
-    open: true
-  })
+    open: true,
+    props,
+    type
+  }
+}
+
+export function openOverlay<OverlayProps extends { type: string }> (overlay: Overlay) {
+  OverlayStore.push(overlay)
 }
 
 export function closeOverlay (id: number) {
