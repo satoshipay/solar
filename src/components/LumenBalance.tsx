@@ -1,5 +1,5 @@
 import React from 'react'
-import { withBalance } from '../hocs'
+import { Balance } from '../data'
 
 const LumenBalance = (props: { balance: number }) => {
   if (props.balance < 0) {
@@ -10,9 +10,12 @@ const LumenBalance = (props: { balance: number }) => {
   }
 }
 
-const AccountBalance = (props: { publicKey: string, testnet?: boolean }) => {
-  const Component = withBalance(props)(LumenBalance)
-  return <Component />
+const AccountBalance = (props: { publicKey: string, testnet: boolean }) => {
+  return (
+    <Balance publicKey={props.publicKey} testnet={props.testnet}>
+      {balance => <LumenBalance balance={balance} />}
+    </Balance>
+  )
 }
 
 export {

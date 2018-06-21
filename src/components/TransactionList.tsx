@@ -7,7 +7,8 @@ import ArrowRightIcon from 'react-icons/lib/fa/arrow-right'
 import SquareIcon from 'react-icons/lib/fa/square'
 import { Operation, Transaction, TransactionOperation } from 'stellar-sdk'
 import { List, ListItem } from './List'
-import { withSpinner, withTransactions } from '../hocs'
+import { Transactions } from '../data'
+import { withSpinner } from '../hocs'
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -98,12 +99,14 @@ const TransactionList = (props: { publicKey: string, title: React.ReactNode, tra
   )
 }
 
-const AccountTransactionList = (props: { publicKey: string, title: React.ReactNode, testnet?: boolean }) => {
-  interface PassThroughProps { publicKey: string, title: React.ReactNode }
+const AccountTransactionList = (props: { publicKey: string, title: React.ReactNode, testnet: boolean }) => {
+  const ListOrSpinner = withSpinner(TransactionList)
 
-  const ListOrSpinner = withSpinner<PassThroughProps & { transactions: Transaction[] }>(TransactionList)
-  const ObservingList = withTransactions<PassThroughProps>(props)(ListOrSpinner)
-  return <ObservingList publicKey={props.publicKey} title={props.title} />
+  return (
+    <Transactions publicKey={props.publicKey} testnet={props.testnet}>
+      {({ transactions }) => <ListOrSpinner publicKey={props.publicKey} title={props.title} transactions={transactions} />}
+    </Transactions>
+  )
 }
 
 export default AccountTransactionList
