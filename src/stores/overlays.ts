@@ -2,17 +2,30 @@ import { observable, IObservableArray } from 'mobx'
 import { Wallet } from './wallets'
 
 export enum OverlayTypes {
-  CreatePayment = 'CreatePayment'
+  CreatePayment = 'CreatePayment',
+  CreateWallet = 'CreateWallet'
 }
 
-export type Overlay = CreatePaymentOverlay  // concatenate with '|'  when adding more overlay types
+export type Overlay = CreatePaymentOverlay | CreateWalletOverlay
 
-export interface CreatePaymentOverlay {
+interface OverlayBase {
   id: number,
   open: boolean,
+  type: OverlayTypes,
+  props: any
+}
+
+export interface CreatePaymentOverlay extends OverlayBase {
   type: OverlayTypes.CreatePayment,
   props: {
     wallet: Wallet
+  }
+}
+
+export interface CreateWalletOverlay extends OverlayBase {
+  type: OverlayTypes.CreateWallet,
+  props: {
+    testnet: boolean
   }
 }
 
@@ -27,7 +40,7 @@ export function createOverlay<Props extends {}> (type: OverlayTypes, props: Prop
     id: nextID++,
     open: true,
     props,
-    type
+    type: type as any     // To prevent type error that is due to inprecise type inference
   }
 }
 

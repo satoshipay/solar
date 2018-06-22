@@ -1,13 +1,16 @@
 import React from 'react'
 import { closeOverlay, Overlay, OverlayTypes } from '../../stores/overlays'
 import CreatePaymentOverlay from './CreatePayment'
+import CreateWalletDialog from './CreateWallet'
 
-const Overlay = ({ id, open, props, type }: Overlay) => {
-  switch (type) {
+const Overlay = (overlay: Overlay) => {
+  switch (overlay.type) {
     case OverlayTypes.CreatePayment:
-      return <CreatePaymentOverlay {...props} open={open} onClose={() => closeOverlay(id)} />
+      return <CreatePaymentOverlay {...overlay.props} open={overlay.open} onClose={() => closeOverlay(overlay.id)} />
+    case OverlayTypes.CreateWallet:
+      return <CreateWalletDialog {...overlay.props} open={overlay.open} onClose={() => closeOverlay(overlay.id)} />
     default:
-      throw new Error(`Overlay: Cannot render overlay with unknown type "${type}".`)
+      throw new Error(`Overlay: Cannot render overlay with unknown type "${(overlay as any).type}".`)
   }
 }
 
