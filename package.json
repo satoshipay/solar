@@ -12,6 +12,7 @@
     "test": "tslint --project ."
   },
   "devDependencies": {
+    "@storybook/addon-centered": "^3.4.8",
     "@storybook/react": "^3.3.14",
     "@types/big.js": "^4.0.5",
     "@types/history": "^4.6.2",
