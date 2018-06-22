@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography'
 import SendIcon from 'react-icons/lib/md/send'
 import { DetailData, DetailDataSet } from '../components/Details'
 import { AccountBalance } from '../components/Balance'
+import { Transactions } from '../components/Subscribers'
 import TransactionList from '../components/TransactionList'
 import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
 import { openOverlay } from '../stores/overlays'
@@ -47,7 +48,9 @@ const WalletPage = (props: { match: match<{ id: string }>, wallets: typeof Walle
       {/* TODO: Add action buttons (send payment, ...) (in <CardActions>) */}
       {/* TODO: Add advanced actions (backup, delete, merge, ...) */}
       <Divider style={{ marginTop: 20, marginBottom: 20 }} />
-      <TransactionList title='Recent transactions' publicKey={wallet.publicKey} testnet={wallet.testnet} />
+      <Transactions publicKey={wallet.publicKey} testnet={wallet.testnet}>
+        {({ transactions }) => <TransactionList title='Recent transactions' accountPublicKey={wallet.publicKey} transactions={transactions} />}
+      </Transactions>
     </Card>
   )
 }

@@ -74,7 +74,7 @@ type TransactionsRenderProp = (data: { loading: boolean, transactions: Transacti
 /**
  * @example
  * <Transactions publicKey='GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W' testnet>
- *   {transactions => transactions.map(
+ *   {({ loading, transactions }) => transactions.map(
  *     tx => <TransactionSummary key={tx.hash().toString('hex')} tx={tx} />
  *   )}
  * </Transactions>

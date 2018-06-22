@@ -34,7 +34,7 @@ interface TitleTextProps {
   balanceChangeBig: BigNumber,
   incomingPaymentOps: TransactionOperation[],
   outgoingPaymentOps: TransactionOperation[],
-  tx: Transaction
+  transaction: Transaction
 }
 
 const TitleText = (props: TitleTextProps) => {
@@ -42,10 +42,10 @@ const TitleText = (props: TitleTextProps) => {
     return <small style={{ opacity: 0.8, fontSize: '75%' }}>{children}</small>
   }
 
-  const { balanceChangeBig, incomingPaymentOps, outgoingPaymentOps, tx } = props
+  const { balanceChangeBig, incomingPaymentOps, outgoingPaymentOps, transaction } = props
 
   if (balanceChangeBig.gt(0)) {
-    const source = (incomingPaymentOps[0] as any).source || tx.source
+    const source = (incomingPaymentOps[0] as any).source || transaction.source
     return <span>Received XLM {balanceChangeBig.toString()} <DetailedInfo>from {source}</DetailedInfo></span>
   } else if (balanceChangeBig.lt(0)) {
     const { destination } = outgoingPaymentOps[0] as any
@@ -55,16 +55,16 @@ const TitleText = (props: TitleTextProps) => {
   }
 }
 
-const TransactionListItem = (props: { publicKey: string, tx: Transaction }) => {
-  const { publicKey, tx } = props
+const TransactionListItem = (props: { accountPublicKey: string, transaction: Transaction }) => {
+  const { accountPublicKey, transaction } = props
 
-  const paymentOps = tx.operations.filter(op => op.type === 'payment' || op.type === 'createAccount') as any as Operation.Payment[]
-  const incomingPaymentOps = paymentOps.filter(op => op.destination === publicKey)
-  const outgoingPaymentOps = paymentOps.filter(op => op.source === publicKey || (!op.source && tx.source === publicKey))
+  const paymentOps = transaction.operations.filter(op => op.type === 'payment' || op.type === 'createAccount') as any as Operation.Payment[]
+  const incomingPaymentOps = paymentOps.filter(op => op.destination === accountPublicKey)
+  const outgoingPaymentOps = paymentOps.filter(op => op.source === accountPublicKey || (!op.source && transaction.source === accountPublicKey))
 
   const balanceChangeBig = sumOperationAmountsBig(incomingPaymentOps).sub(sumOperationAmountsBig(outgoingPaymentOps))
-  const primaryText = <TitleText balanceChangeBig={balanceChangeBig} incomingPaymentOps={incomingPaymentOps} outgoingPaymentOps={outgoingPaymentOps} tx={tx} />
-  const createdAt = new Date((tx as TransactionWithUndocumentedProps).created_at)
+  const primaryText = <TitleText balanceChangeBig={balanceChangeBig} incomingPaymentOps={incomingPaymentOps} outgoingPaymentOps={outgoingPaymentOps} transaction={transaction} />
+  const createdAt = new Date((transaction as TransactionWithUndocumentedProps).created_at)
 
   return (
     <ListItem
@@ -84,29 +84,25 @@ const TransactionListItem = (props: { publicKey: string, tx: Transaction }) => {
         </div>
       }
     />
-    // TODO: Open tx details on click
+    // TODO: Open transaction details on click
   )
 }
 
-const TransactionList = (props: { publicKey: string, title: React.ReactNode, transactions: Transaction[] }) => {
+const TransactionList = (props: { accountPublicKey: string, title: React.ReactNode, transactions: Transaction[] }) => {
   return (
     <List>
       <ListSubheader>{props.title}</ListSubheader>
       {props.transactions.map(
-        (tx: Transaction) => <TransactionListItem key={tx.hash().toString('base64')} publicKey={props.publicKey} tx={tx} />
+        transaction => (
+          <TransactionListItem
+            key={transaction.hash().toString('base64')}
+            accountPublicKey={props.accountPublicKey}
+            transaction={transaction}
+          />
+        )
       )}
     </List>
   )
 }
 
-const AccountTransactionList = (props: { publicKey: string, title: React.ReactNode, testnet: boolean }) => {
-  const ListOrSpinner = withSpinner(TransactionList)
-
-  return (
-    <Transactions publicKey={props.publicKey} testnet={props.testnet}>
-      {({ transactions }) => <ListOrSpinner publicKey={props.publicKey} title={props.title} transactions={transactions} />}
-    </Transactions>
-  )
-}
-
-export default AccountTransactionList
+export default TransactionList
