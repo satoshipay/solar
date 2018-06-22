@@ -40,7 +40,7 @@ const TransactionOperation = (props: { operation: TransactionOperation, style?: 
         )}
       </Content>
     )
-    return <ListItem heading={<span style={{ color: 'red' }}>operation.type</span>} primaryText={content} style={props.style} />
+    return <ListItem heading={<span style={{ color: 'red' }}>{props.operation.type}</span>} primaryText={content} style={props.style} />
   }
 }
 

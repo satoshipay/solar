@@ -2,11 +2,11 @@ import React from 'react'
 import { Balance } from '../data'
 
 const LumenBalance = (props: { balance: number }) => {
-  if (props.balance < 0) {
-    return <>''</>
+  if (props.balance <= 0) {
+    return <></>
   } else {
     const trimmedBalance = props.balance.toFixed(7).replace(/00$/, '')
-    return <span><small style={{ fontSize: '85%' }}>XLM</small> {trimmedBalance}</span>
+    return <span><small style={{ fontSize: '85%' }}>XLM</small>&nbsp;{trimmedBalance}</span>
   }
 }
 

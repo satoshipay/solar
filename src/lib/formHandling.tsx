@@ -9,7 +9,6 @@ export interface InnerFormProps<Values> {
     [key in keyof Values]: ErrorValidationResult
   },
   formValues: Values,
-  onSubmit: (formValues: Values) => any,
   setFormValue: (fieldName: string, newValue: string) => any,
   validate: (formValues: Values) => boolean
 }

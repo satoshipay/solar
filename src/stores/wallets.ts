@@ -1,4 +1,5 @@
 import { observable, IObservableArray } from 'mobx'
+import { Keypair } from 'stellar-sdk'
 
 export interface Wallet {
   id: string,
@@ -22,3 +23,23 @@ const WalletStore: Wallet[] & IObservableArray<Wallet> = observable([
 ])
 
 export default WalletStore
+
+export function createWallet (walletData: { id?: string, name: string, keypair: Keypair, testnet: boolean }) {
+  const createID = () => {
+    const highestID = WalletStore.reduce(
+      (id, someWallet) => parseInt(someWallet.id, 10) > id ? parseInt(someWallet.id, 10) : id,
+      0
+    )
+    return String(highestID + 1)
+  }
+
+  const wallet: Wallet = {
+    id: walletData.id || createID(),
+    name: walletData.name,
+    publicKey: walletData.keypair.publicKey(),
+    testnet: walletData.testnet,
+    getPrivateKey: async () => walletData.keypair.secret()
+  }
+  WalletStore.push(wallet)
+  return wallet
+}
