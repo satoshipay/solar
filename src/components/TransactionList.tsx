@@ -91,11 +91,11 @@ const TransactionListItem = (props: { accountPublicKey: string, transaction: Tra
 const TransactionList = (props: { accountPublicKey: string, title: React.ReactNode, transactions: Transaction[] }) => {
   return (
     <List>
-      <ListSubheader>{props.title}</ListSubheader>
+      <ListSubheader style={{ background: 'rgba(255, 255, 255, 0.8)' }}>{props.title}</ListSubheader>
       {props.transactions.map(
-        transaction => (
+        (transaction, index) => (
           <TransactionListItem
-            key={transaction.hash().toString('base64')}
+            key={index}
             accountPublicKey={props.accountPublicKey}
             transaction={transaction}
           />
