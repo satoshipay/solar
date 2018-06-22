@@ -35,8 +35,8 @@ export async function createTransaction (options: TxBlueprint) {
   const account = await horizon.loadAccount(wallet.publicKey)
   const tx = new TransactionBuilder(account).addOperation(
     await accountExists(horizon, destination)
-      ? Operation.createAccount({ destination, startingBalance: amount })
-      : Operation.payment({ destination, amount, asset: Asset.native() })
+      ? Operation.payment({ destination, amount, asset: Asset.native() })
+      : Operation.createAccount({ destination, startingBalance: amount })
   ).build()
 
   return tx

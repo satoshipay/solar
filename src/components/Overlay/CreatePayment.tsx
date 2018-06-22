@@ -7,12 +7,12 @@ import Typography from '@material-ui/core/Typography'
 import CloseIcon from 'react-icons/lib/md/close'
 import { Transaction } from 'stellar-sdk'
 import { createTransaction } from '../../lib/transaction'
+import { createOverlay, CreatePaymentOverlay, OverlayTypes } from '../../stores/overlays'
 import { Wallet } from '../../stores/wallets'
 import { withHorizon, HorizonProps } from '../../hocs'
 import CreatePaymentForm, { PaymentCreationValues } from '../Form/CreatePayment'
 import TxConfirmationForm from '../Form/TxConfirmation'
 import SubmissionProgress from '../SubmissionProgress'
-import { overlayTypes } from './types'
 
 const CloseButton = (props: { onClick: (event: React.MouseEvent) => any }) => {
   const style: React.CSSProperties = {
@@ -123,9 +123,6 @@ const StatefulCreatePaymentDrawer = compose<CreatePaymentDrawerProps & CreatePay
 
 export default withHorizon(StatefulCreatePaymentDrawer)
 
-export function create (wallet: Wallet) {
-  return {
-    type: overlayTypes.CreatePayment,
-    wallet
-  }
+export function create (wallet: Wallet): CreatePaymentOverlay {
+  return createOverlay(OverlayTypes.CreatePayment, { wallet })
 }
