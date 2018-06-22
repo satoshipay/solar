@@ -2,8 +2,8 @@ import React from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import AddIcon from 'react-icons/lib/md/add'
-import { HorizontalLayout } from '../../layout'
 import { addFormState, InnerFormProps } from '../../lib/formHandling'
+import { HorizontalLayout } from '../Layout'
 
 const validatePrivateKey = (privateKey: string) => {
   if (!privateKey.match(/^S[A-Z0-9]{55}$/)) {

@@ -3,9 +3,9 @@ import Async from 'react-promise'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-import { AspectRatioBox, FloatingBox, VerticalLayout } from '../layout'
 import ErrorIcon from './Icon/Error'
 import SuccessIcon from './Icon/Success'
+import { AspectRatioBox, FloatingBox, VerticalLayout } from './Layout'
 
 const FloatingStatusBox = (props: { children: React.ReactNode }) => {
   return (

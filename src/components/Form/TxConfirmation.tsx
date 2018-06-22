@@ -2,11 +2,11 @@ import React from 'react'
 import Button from '@material-ui/core/Button'
 import SendIcon from 'react-icons/lib/md/send'
 import { Transaction } from 'stellar-sdk'
-import TransactionSummary from '../TransactionSummary'
-import { HorizontalLayout, VerticalLayout } from '../../layout'
 import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { signTransaction } from '../../lib/transaction'
 import { Wallet } from '../../stores/wallets'
+import { HorizontalLayout, VerticalLayout } from '../Layout'
+import TransactionSummary from '../TransactionSummary'
 
 interface TxConfirmationValues {
   password: string | null

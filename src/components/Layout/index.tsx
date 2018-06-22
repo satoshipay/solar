@@ -1,14 +1,14 @@
 import React from 'react'
 import createBoxStyle, { BoxStyles } from './createBoxStyle'
 
-export const Box = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+const Box = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style = createBoxStyle(styleProps)
   return (
     <div style={style}>{children}</div>
   )
 }
 
-export const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'row',
@@ -19,7 +19,7 @@ export const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { chil
   )
 }
 
-export const VerticalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+const VerticalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
@@ -30,7 +30,7 @@ export const VerticalLayout = ({ children, ...styleProps }: BoxStyles & { childr
   )
 }
 
-export const AspectRatioBox = ({ children, ratio, ...styleProps }: BoxStyles & { children: React.ReactNode, ratio: string }) => {
+const AspectRatioBox = ({ children, ratio, ...styleProps }: BoxStyles & { children: React.ReactNode, ratio: string }) => {
   let heightOfWidthPercentage = 100
 
   try {
@@ -62,7 +62,7 @@ export const AspectRatioBox = ({ children, ratio, ...styleProps }: BoxStyles & {
   )
 }
 
-export const FloatingBox = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+const FloatingBox = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style: React.CSSProperties = {
     position: 'absolute',
     top: '50%',
@@ -74,4 +74,13 @@ export const FloatingBox = ({ children, ...styleProps }: BoxStyles & { children:
   return (
     <div style={style}>{children}</div>
   )
+}
+
+// To circumvent TypeScript name inference bug: <https://github.com/Microsoft/TypeScript/issues/14127>
+export {
+  AspectRatioBox,
+  Box,
+  FloatingBox,
+  HorizontalLayout,
+  VerticalLayout
 }

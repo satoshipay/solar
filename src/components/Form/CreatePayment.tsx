@@ -2,7 +2,7 @@ import React from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import SendIcon from 'react-icons/lib/md/send'
-import { Box, HorizontalLayout } from '../../layout'
+import { Box, HorizontalLayout } from '../Layout'
 import { addFormState, renderError, InnerFormProps } from '../../lib/formHandling'
 
 const validatePublicKey = (value: string) => {
