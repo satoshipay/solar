@@ -4,6 +4,7 @@ import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import ArrowCircleRightIcon from 'react-icons/lib/fa/arrow-circle-right'
 import AddIcon from 'react-icons/lib/md/add'
+import { observer } from 'mobx-react'
 import { withRouter } from 'react-router-dom'
 import { List, ListItem, ListSubheader } from '../components/List'
 import { AccountBalance } from '../components/LumenBalance'
@@ -73,4 +74,4 @@ const WalletList = ({ history, wallets, onCreatePubnetWallet, onCreateTestnetWal
   )
 }
 
-export default withRouter<WalletListProps>(WalletList)
+export default withRouter<WalletListProps>(observer(WalletList))
