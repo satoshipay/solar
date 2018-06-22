@@ -1,8 +1,8 @@
 import React from 'react'
 import { Server, Transaction } from 'stellar-sdk'
 import { observer } from 'mobx-react'
-import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from './lib/subscriptions'
-import { withHorizon } from './hocs'
+import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from '../lib/subscriptions'
+import { withHorizon } from '../hocs'
 
 interface HorizonProps {
   horizonLivenet: Server,
