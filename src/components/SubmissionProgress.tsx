@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import ErrorIcon from './Icon/Error'
 import SuccessIcon from './Icon/Success'
-import { AspectRatioBox, FloatingBox, VerticalLayout } from './Layout'
+import { AspectRatioBox, FloatingBox, VerticalLayout } from './Layout/Box'
 
 const FloatingStatusBox = (props: { children: React.ReactNode }) => {
   return (

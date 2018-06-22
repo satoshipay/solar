@@ -9,7 +9,7 @@ import Paper from '@material-ui/core/Paper'
 import { Network } from 'stellar-sdk'
 import AppBottomNavigation from './components/BottomNavigation'
 import Overlays from './components/Overlays'
-import { Box, VerticalLayout } from './components/Layout'
+import { Box, VerticalLayout } from './components/Layout/Box'
 import AllWalletsPage from './pages/all-wallets'
 import QRScannerPage from './pages/qr-scanner'
 import WalletPage from './pages/wallet'
@@ -21,7 +21,7 @@ Network.usePublicNetwork()
 const App = () => (
   <Router>
     <VerticalLayout width='100%' height='100%'>
-      <Box grow padding={16} overflow='auto'>
+      <Box grow overflow='auto'>
         <Route exact path='/' component={withProps({ wallets })(AllWalletsPage)} />
         <Route path='/wallet/:id' component={withProps({ wallets })(WalletPage)} />
         <Route path='/qr-scanner' component={QRScannerPage} />

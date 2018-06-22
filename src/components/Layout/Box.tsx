@@ -1,10 +1,11 @@
 import React from 'react'
 import createBoxStyle, { BoxStyles } from './createBoxStyle'
 
-const Box = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
-  const style = createBoxStyle(styleProps)
+const Box = ({ children, component, style, ...styleProps }: BoxStyles & { children: React.ReactNode, component?: string, style?: React.CSSProperties }) => {
+  const _style = { ...createBoxStyle(styleProps), ...style }
+  const Component = component || 'div'
   return (
-    <div style={style}>{children}</div>
+    <Component style={_style}>{children}</Component>
   )
 }
 
