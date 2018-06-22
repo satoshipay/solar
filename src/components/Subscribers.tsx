@@ -83,15 +83,15 @@ export const Transactions = (props: { children: TransactionsRenderProp, publicKe
   return (
     <Horizon testnet={props.testnet}>
       {horizon => {
-        const recentTransactions = subscribeToRecentTxs(horizon, props.publicKey)
-        const RecentTxsObserver = observer<React.StatelessComponent<{ recentTransactions: typeof recentTransactions }>>(
+        const recentTxs = subscribeToRecentTxs(horizon, props.publicKey)
+        const RecentTxsObserver = observer<React.StatelessComponent<{ recentTransactions: typeof recentTxs }>>(
           ({ recentTransactions }) => {
             // Had a weird issue with mobx: Didn't properly update when just passing down `recentTransactions`; destructuring solves the issue
             return props.children({ loading: recentTransactions.loading, transactions: recentTransactions.transactions })
           }
         )
 
-        return <RecentTxsObserver recentTransactions={recentTransactions} />
+        return <RecentTxsObserver recentTransactions={recentTxs} />
       }}
     </Horizon>
   )
