@@ -6,9 +6,9 @@ import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left'
 import ArrowRightIcon from 'react-icons/lib/fa/arrow-right'
 import SquareIcon from 'react-icons/lib/fa/square'
 import { Operation, Transaction, TransactionOperation } from 'stellar-sdk'
-import { List, ListItem } from './List'
-import { Transactions } from '../data'
 import { withSpinner } from '../hocs'
+import { List, ListItem } from './List'
+import { Transactions } from './Subscribers'
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Balance } from '../data'
+import { Balance } from './Subscribers'
 
 const LumenBalance = (props: { balance: number }) => {
   if (props.balance <= 0) {

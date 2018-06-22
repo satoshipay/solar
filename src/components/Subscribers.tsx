@@ -1,8 +1,16 @@
+/**
+ * This file contains reactive components that subscribe to data (like an account balance) and
+ * re-render their contents whenever the data changes.
+ *
+ * These components do not render any UI by themselves. Wrap your representational components in
+ * them to obtain some data and receive live updates.
+ */
+
 import React from 'react'
 import { Server, Transaction } from 'stellar-sdk'
 import { observer } from 'mobx-react'
-import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from './lib/subscriptions'
-import { withHorizon } from './hocs'
+import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from '../lib/subscriptions'
+import { withHorizon } from '../hocs'
 
 interface HorizonProps {
   horizonLivenet: Server,
@@ -11,6 +19,14 @@ interface HorizonProps {
 
 type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
 
+/**
+ * @example
+ * <Horizon testnet={false}>
+ *   {horizon => (
+ *     <div>Currently used horizon server: {horizon.serverURL}</div>
+ *   )}
+ * </Horizon>
+ */
 const Horizon = withHorizon<{ children: HorizonRenderProp, testnet: boolean }>(
   (props: { children: HorizonRenderProp, horizonLivenet: Server, horizonTestnet: Server, testnet: boolean }) => {
     const horizon = props.testnet ? props.horizonTestnet : props.horizonLivenet
@@ -37,6 +53,14 @@ const getBalance = (accountData: AccountObservable): number => {
   return balanceObject ? parseFloat(balanceObject.balance) : balanceUnknown
 }
 
+/**
+ * @example
+ * <Balance publicKey='GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W' testnet>
+ *   {balance => (
+ *     <div>Current balance: XLM {balance}</div>
+ *   )}
+ * </Balance>
+ */
 export const Balance = (props: { children: (balance: number) => React.ReactElement<any>, publicKey: string, testnet: boolean }) => {
   return (
     <AccountData publicKey={props.publicKey} testnet={props.testnet}>
@@ -47,6 +71,14 @@ export const Balance = (props: { children: (balance: number) => React.ReactEleme
 
 type TransactionsRenderProp = (data: { loading: boolean, transactions: Transaction[] }) => React.ReactElement<any>
 
+/**
+ * @example
+ * <Transactions publicKey='GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W' testnet>
+ *   {transactions => transactions.map(
+ *     tx => <TransactionSummary key={tx.hash().toString('hex')} tx={tx} />
+ *   )}
+ * </Transactions>
+ */
 export const Transactions = (props: { children: TransactionsRenderProp, publicKey: string, testnet: boolean }) => {
   return (
     <Horizon testnet={props.testnet}>

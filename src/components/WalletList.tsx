@@ -7,7 +7,7 @@ import AddIcon from 'react-icons/lib/md/add'
 import { observer } from 'mobx-react'
 import { withRouter } from 'react-router-dom'
 import { List, ListItem, ListSubheader } from '../components/List'
-import { AccountBalance } from '../components/LumenBalance'
+import { AccountBalance } from '../components/Balance'
 import WalletStore, { Wallet } from '../stores/wallets'
 
 const WalletListHeader = (props: { children: React.ReactNode }) => {
