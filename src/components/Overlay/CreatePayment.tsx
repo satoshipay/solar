@@ -80,7 +80,7 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
   return (
     <div>
       <Drawer open={open} anchor='right' onClose={onClose}>
-        <Card style={{ position: 'relative', height: '100%', padding: '0 12px', width: '90vw' }}>
+        <Card style={{ position: 'relative', height: '100%', padding: '0 12px', width: '90vw', maxWidth: '700px' }}>
           <CloseButton onClick={onClose} />
           <CardContent>
             <Typography variant='headline' component='h2'>Send payment</Typography>
