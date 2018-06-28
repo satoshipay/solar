@@ -5,7 +5,7 @@ import { Transaction } from 'stellar-sdk'
 import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { signTransaction } from '../../lib/transaction'
 import { Wallet } from '../../stores/wallets'
-import { HorizontalLayout, VerticalLayout } from '../Layout'
+import { HorizontalLayout, VerticalLayout } from '../Layout/Box'
 import TransactionSummary from '../TransactionSummary'
 
 interface TxConfirmationValues {
