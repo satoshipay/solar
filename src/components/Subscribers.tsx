@@ -12,11 +12,6 @@ import { observer } from 'mobx-react'
 import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from '../lib/subscriptions'
 import { withHorizon } from '../hocs'
 
-interface HorizonProps {
-  horizonLivenet: Server,
-  horizonTestnet: Server
-}
-
 type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
 
 /**
@@ -34,24 +29,26 @@ const Horizon = withHorizon<{ children: HorizonRenderProp, testnet: boolean }>(
   }
 )
 
-type AccountDataRenderProp = (accountData: AccountObservable) => React.ReactElement<any>
+type AccountDataRenderProp = (accountData: AccountObservable, activated: boolean) => React.ReactElement<any>
 
-const AccountData = withHorizon((props: HorizonProps & { children: AccountDataRenderProp, publicKey: string, testnet: boolean }) => {
+const AccountData = (props: { children: AccountDataRenderProp, publicKey: string, testnet: boolean }) => {
   const AccountDataObserver = observer<React.StatelessComponent<{ accountData: AccountObservable }>>(
-    (subProps) => props.children(subProps.accountData)
+    ({ accountData }) => props.children(accountData, accountData.activated)
   )
   return (
     <Horizon testnet={props.testnet}>
       {(horizon: Server) => <AccountDataObserver accountData={subscribeToAccount(horizon, props.publicKey)} />}
     </Horizon>
   )
-})
+}
 
 const getBalance = (accountData: AccountObservable): number => {
   const balanceUnknown = -1
   const balanceObject = accountData.balances.find(balance => balance.asset_type === 'native')
   return balanceObject ? parseFloat(balanceObject.balance) : balanceUnknown
 }
+
+type BalanceRenderProp = (balance: number, activated: boolean) => React.ReactElement<any>
 
 /**
  * @example
@@ -61,15 +58,15 @@ const getBalance = (accountData: AccountObservable): number => {
  *   )}
  * </Balance>
  */
-export const Balance = (props: { children: (balance: number) => React.ReactElement<any>, publicKey: string, testnet: boolean }) => {
+export const Balance = (props: { children: BalanceRenderProp, publicKey: string, testnet: boolean }) => {
   return (
     <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {accountData => props.children(getBalance(accountData))}
+      {(accountData, activated) => props.children(getBalance(accountData), activated)}
     </AccountData>
   )
 }
 
-type TransactionsRenderProp = (data: { loading: boolean, transactions: Transaction[] }) => React.ReactElement<any>
+type TransactionsRenderProp = (data: { activated: boolean, loading: boolean, transactions: Transaction[] }) => React.ReactElement<any>
 
 /**
  * @example
@@ -87,7 +84,11 @@ export const Transactions = (props: { children: TransactionsRenderProp, publicKe
         const RecentTxsObserver = observer<React.StatelessComponent<{ recentTransactions: typeof recentTxs }>>(
           ({ recentTransactions }) => {
             // Had a weird issue with mobx: Didn't properly update when just passing down `recentTransactions`; destructuring solves the issue
-            return props.children({ loading: recentTransactions.loading, transactions: recentTransactions.transactions })
+            return props.children({
+              activated: recentTransactions.activated,
+              loading: recentTransactions.loading,
+              transactions: recentTransactions.transactions
+            })
           }
         )
 

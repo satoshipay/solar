@@ -53,14 +53,18 @@ const WalletPage = (props: { match: match<{ id: string }>, wallets: typeof Walle
       </Section>
       <Section>
         <Transactions publicKey={wallet.publicKey} testnet={wallet.testnet}>
-          {({ loading, transactions }) => (
+          {({ activated, loading, transactions }) => (
             loading
             ? <Spinner />
-            : <TransactionList
-                accountPublicKey={wallet.publicKey}
-                title='Recent transactions'
-                transactions={transactions}
-              />
+            : (
+              activated
+                ? <TransactionList
+                    accountPublicKey={wallet.publicKey}
+                    title='Recent transactions'
+                    transactions={transactions}
+                  />
+                : <Typography align='center' color='textSecondary' style={{ margin: '30px auto' }}>Account does not exist on the network</Typography>
+            )
           )}
         </Transactions>
       </Section>
