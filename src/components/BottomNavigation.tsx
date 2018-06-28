@@ -6,11 +6,12 @@ import Paper from '@material-ui/core/Paper'
 import QRCodeIcon from 'react-icons/lib/fa/qrcode'
 import HomeIcon from 'react-icons/lib/md/home'
 import { withRouter } from 'react-router-dom'
+import * as routes from '../lib/routes'
 
 const getSelectedIndexByPath = (path: string) => {
-  if (path === '/' || path.startsWith('/wallet')) {
+  if (path === routes.allWallets() || routes.isWalletRoutePath(path)) {
     return 0
-  } else if (path.startsWith('/qr-scanner')) {
+  } else if (path === routes.qrScanner()) {
     return 1
   }
   throw new Error(`Don't know what icon to show as selected in bottom navigation. Path is: ${path}`)
@@ -23,12 +24,12 @@ const AppBottomNavigation = (props: { history: History, location: Location }) =>
         <BottomNavigationAction
           label='Wallets'
           icon={<HomeIcon style={{ fontSize: '200%' }} />}
-          onClick={() => props.history.push('/')}
+          onClick={() => props.history.push(routes.allWallets())}
         />
         <BottomNavigationAction
           label='QR scanner'
           icon={<QRCodeIcon style={{ fontSize: '200%' }} />}
-          onClick={() => props.history.push('/qr-scanner')}
+          onClick={() => props.history.push(routes.qrScanner())}
         />
       </BottomNavigation>
     </Paper>
