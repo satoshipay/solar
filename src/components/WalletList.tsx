@@ -8,6 +8,7 @@ import { observer } from 'mobx-react'
 import { withRouter } from 'react-router-dom'
 import { List, ListItem, ListSubheader } from '../components/List'
 import { AccountBalance } from '../components/Balance'
+import * as routes from '../lib/routes'
 import WalletStore, { Wallet } from '../stores/wallets'
 
 const WalletListHeader = (props: { children: React.ReactNode }) => {
@@ -25,7 +26,7 @@ const WalletListItem = (props: { history: History, wallet: Wallet }) => {
       button
       primaryText={wallet.name}
       secondaryText={<small><AccountBalance publicKey={wallet.publicKey} testnet={wallet.testnet} /></small>}
-      onClick={() => history.push(`/wallet/${wallet.id}`)}
+      onClick={() => history.push(routes.wallet(wallet.id))}
       rightIcon={<ArrowCircleRightIcon style={{ width: 32, height: 32 }} />}
     />
   )

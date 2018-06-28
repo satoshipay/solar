@@ -19,12 +19,13 @@ import TransactionList from '../components/TransactionList'
 import { VerticalMargin } from '../components/Layout/Spacing'
 import { Section } from '../components/Layout/Page'
 import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
+import * as routes from '../lib/routes'
 import { openOverlay } from '../stores/overlays'
 import WalletStore from '../stores/wallets'
 
 const BackButton = withRouter((props: { history: History }) => {
   return (
-    <IconButton color='inherit' onClick={() => props.history.push('/')} style={{ marginTop: -8, marginLeft: -8, fontSize: 32 }}>
+    <IconButton color='inherit' onClick={() => props.history.push(routes.allWallets())} style={{ marginTop: -8, marginLeft: -8, fontSize: 32 }}>
       <ChevronLeftIcon />
     </IconButton>
   )
