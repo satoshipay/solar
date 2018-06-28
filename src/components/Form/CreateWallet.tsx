@@ -49,7 +49,7 @@ const WalletCreationForm = (props: InnerFormProps<WalletCreationValues> & Wallet
         onChange={event => setFormValue('privateKey', event.target.value)}
       />
       <HorizontalLayout margin='32px 0 0' justifyContent='end'>
-        <Button variant='contained' color='primary' onClick={triggerSubmit}>
+        <Button variant='contained' color='primary' onClick={triggerSubmit} type='submit'>
           <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
           Add wallet
         </Button>

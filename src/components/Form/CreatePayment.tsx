@@ -64,7 +64,7 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
         </Box>
       </HorizontalLayout>
       <Box margin='32px 0 0'>
-        <Button variant='contained' color='primary' onClick={triggerSubmit}>
+        <Button variant='contained' color='primary' onClick={triggerSubmit} type='submit'>
           <SendIcon style={{ marginRight: 8 }} />
           Create Payment
         </Button>
