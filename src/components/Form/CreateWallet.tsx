@@ -2,18 +2,20 @@ import React from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import AddIcon from 'react-icons/lib/md/add'
+import { Keypair } from 'stellar-sdk'
 import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { HorizontalLayout } from '../Layout/Box'
 
-const validatePrivateKey = (privateKey: string) => {
-  if (!privateKey.match(/^S[A-Z0-9]{55}$/)) {
+const validatePrivateKey = (privateKey: string, values: WalletCreationValues) => {
+  if (!values.createNewKey && !privateKey.match(/^S[A-Z0-9]{55}$/)) {
     return new Error(`Invalid stellar public key.`)
   }
 }
 
 export interface WalletCreationValues {
   name: string,
-  privateKey: string
+  privateKey: string,
+  createNewKey: boolean
 }
 
 interface WalletCreationFormProps {
@@ -21,9 +23,12 @@ interface WalletCreationFormProps {
 }
 
 const WalletCreationForm = (props: InnerFormProps<WalletCreationValues> & WalletCreationFormProps) => {
-  const { onSubmit, setFormValue, validate } = props
+  const { formValues, onSubmit, setFormValue, validate } = props
   const triggerSubmit = () => {
-    if (validate(props.formValues)) onSubmit(props.formValues)
+    if (!validate(props.formValues)) return
+
+    const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey
+    onSubmit({ ...formValues, privateKey })
   }
   const handleSubmitEvent = (event: React.SyntheticEvent) => {
     event.preventDefault()
@@ -32,23 +37,27 @@ const WalletCreationForm = (props: InnerFormProps<WalletCreationValues> & Wallet
   return (
     <form onSubmit={handleSubmitEvent}>
       <TextField
-        label={'Wallet name'}
+        label='Wallet name'
         placeholder='Enter custom name here'
         fullWidth
         autoFocus
         margin='dense'
-        value={props.formValues.name}
+        value={formValues.name}
         onChange={event => setFormValue('name', event.target.value)}
       />
       <TextField
-        label={'Private key'}
+        label='Private key'
         placeholder='SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS'
         fullWidth
         margin='dense'
-        value={props.formValues.privateKey}
+        value={formValues.createNewKey ? '' : formValues.privateKey}
         onChange={event => setFormValue('privateKey', event.target.value)}
+        style={{ display: formValues.createNewKey ? 'none' : 'block' }}
       />
       <HorizontalLayout margin='32px 0 0' justifyContent='end'>
+        <Button onClick={() => setFormValue('createNewKey', false as any)} variant='contained' style={{ marginRight: 16 }}>
+          Import key
+        </Button>
         <Button variant='contained' color='primary' onClick={triggerSubmit} type='submit'>
           <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
           Add wallet
@@ -61,7 +70,8 @@ const WalletCreationForm = (props: InnerFormProps<WalletCreationValues> & Wallet
 const StatefulWalletCreationForm = addFormState<WalletCreationValues, WalletCreationFormProps>({
   defaultValues: {
     name: '',
-    privateKey: ''
+    privateKey: '',
+    createNewKey: true
   },
   validators: {
     privateKey: validatePrivateKey
