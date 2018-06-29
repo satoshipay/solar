@@ -6,6 +6,7 @@ interface AnchorRenderPropArgument {
 
 interface MenuRenderPropArgument {
   anchorEl: HTMLElement | null,
+  closeAndCall: (fn: () => void) => () => void,
   open: boolean,
   onClose: () => void
 }
@@ -34,13 +35,20 @@ class ContextMenu extends React.Component<Props, State> {
     this.setState({ open: false })
   }
 
+  closeAndCall = (fn: () => void) => {
+    return () => {
+      this.hide()
+      fn()
+    }
+  }
+
   render () {
     const { anchor, menu } = this.props
 
     return (
       <>
          {anchor({ onOpen: this.show })}
-         {menu({ anchorEl: this.state.anchorEl, open: this.state.open, onClose: this.hide })}
+         {menu({ anchorEl: this.state.anchorEl, open: this.state.open, onClose: this.hide, closeAndCall: this.closeAndCall })}
       </>
     )
   }
