@@ -1,11 +1,27 @@
 import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
+import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ContextMenu from '../ContextMenu'
 
-const AccountContextMenu = (props: { onRename: () => void }) => {
+const AccountContextMenuItem = (props: { icon: React.ReactElement<any>, label: string, onClick: () => void }) => {
+  return (
+    <MenuItem onClick={props.onClick}>
+      <ListItemIcon style={{ marginRight: 8 }}>{props.icon}</ListItemIcon>
+      <ListItemText>{props.label}</ListItemText>
+    </MenuItem>
+  )
+}
+
+interface MenuProps {
+  onRename: () => void
+}
+
+const AccountContextMenu = (props: MenuProps) => {
   return (
     <ContextMenu
       anchor={({ onOpen }) => (
@@ -17,7 +33,7 @@ const AccountContextMenu = (props: { onRename: () => void }) => {
       )}
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
         <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
-          <MenuItem onClick={closeAndCall(props.onRename)}>Rename</MenuItem>
+          <AccountContextMenuItem icon={<EditIcon />} label='Rename' onClick={closeAndCall(props.onRename)} />
         </Menu>
       )}
     />
