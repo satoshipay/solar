@@ -2,6 +2,7 @@
   "name": "stellar-wallet-desktop-app",
   "version": "0.0.0",
   "private": true,
+  "author": "SatoshiPay Ltd",
   "scripts": {
     "prebuild:linux": "cp -r ../dist/ ./app/",
     "prebuild:mac": "cp -r ../dist/ ./app/",
@@ -12,6 +13,10 @@
     "dev": "concurrently 'npm run dev:server' 'sleep 1 && npm run dev:app'",
     "dev:app": "NODE_ENV=development electron .",
     "dev:server": "cd .. && npm run dev"
+  },
+  "build": {
+    "appId": "io.satoshipay.wallet",
+    "productName": "SatoshiPay Wallet"
   },
   "devDependencies": {
     "concurrently": "^3.5.1",
