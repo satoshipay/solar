@@ -1,5 +1,5 @@
-export const allWallets = () => '/'
+export const allAccounts = () => '/'
 export const qrScanner = () => '/qr-scanner'
-export const wallet = (walletID: string) => `/wallet/${walletID}`
+export const account = (accountID: string) => `/account/${accountID}`
 
-export const isWalletRoutePath = (routePath: string) => routePath.startsWith('/wallet/')
+export const isAccountRoutePath = (routePath: string) => routePath.startsWith('/account/')

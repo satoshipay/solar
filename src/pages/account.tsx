@@ -28,19 +28,19 @@ import WalletStore, { renameWallet } from '../stores/wallets'
 
 const BackButton = withRouter((props: { history: History }) => {
   return (
-    <IconButton color='inherit' onClick={() => props.history.push(routes.allWallets())} style={{ marginTop: -8, marginLeft: -8, fontSize: 32 }}>
+    <IconButton color='inherit' onClick={() => props.history.push(routes.allAccounts())} style={{ marginTop: -8, marginLeft: -8, fontSize: 32 }}>
       <ChevronLeftIcon />
     </IconButton>
   )
 })
 
-const WalletPage = (props: { history: History, match: match<{ id: string }>, wallets: typeof WalletStore }) => {
+const AccountPage = (props: { history: History, match: match<{ id: string }>, wallets: typeof WalletStore }) => {
   const { params } = props.match
-  const wallet = props.wallets.find(someWallet => someWallet.id === params.id)
-  if (!wallet) throw new Error(`Wallet not found. ID: ${params.id}`)
+  const account = props.wallets.find(someWallet => someWallet.id === params.id)
+  if (!account) throw new Error(`Wallet not found. ID: ${params.id}`)
 
   const onRename = () => {
-    openOverlay(createRenameDialog('Rename wallet', wallet.name, (newName: string) => renameWallet(wallet.id, newName)))
+    openOverlay(createRenameDialog('Rename account', account.name, (newName: string) => renameWallet(account.id, newName)))
   }
 
   return (
@@ -53,7 +53,7 @@ const WalletPage = (props: { history: History, match: match<{ id: string }>, wal
                 <BackButton />
               </Box>
               <Typography align='center' color='inherit' variant='headline' component='h2' gutterBottom>
-                {wallet.name}
+                {account.name}
               </Typography>
               <Box grow style={{ textAlign: 'right' }}>
                 <WalletContextMenu onRename={onRename} />
@@ -61,15 +61,15 @@ const WalletPage = (props: { history: History, match: match<{ id: string }>, wal
             </HorizontalLayout>
             <VerticalMargin size={28} />
             <DetailDataSet>
-              <DetailData label='Balance' value={<AccountBalance publicKey={wallet.publicKey} testnet={wallet.testnet} />} />
-              <DetailData label='Public Key' value={wallet.publicKey} />
-              {wallet.testnet ? <DetailData label='Network' value='Testnet' /> : null}
+              <DetailData label='Balance' value={<AccountBalance publicKey={account.publicKey} testnet={account.testnet} />} />
+              <DetailData label='Public Key' value={account.publicKey} />
+              {account.testnet ? <DetailData label='Network' value='Testnet' /> : null}
             </DetailDataSet>
             <div style={{ marginTop: 24 }}>
               <Button
                 variant='contained'
                 color='default'
-                onClick={() => openOverlay(createPaymentOverlay(wallet))}
+                onClick={() => openOverlay(createPaymentOverlay(account))}
               >
                 <SendIcon style={{ marginRight: 8 }} />
                 Send payment
@@ -82,14 +82,14 @@ const WalletPage = (props: { history: History, match: match<{ id: string }>, wal
         </Card>
       </Section>
       <Section>
-        <Transactions publicKey={wallet.publicKey} testnet={wallet.testnet}>
+        <Transactions publicKey={account.publicKey} testnet={account.testnet}>
           {({ activated, loading, transactions }) => (
             loading
             ? <Spinner />
             : (
               activated
                 ? <TransactionList
-                    accountPublicKey={wallet.publicKey}
+                    accountPublicKey={account.publicKey}
                     title='Recent transactions'
                     transactions={transactions}
                   />
@@ -102,4 +102,4 @@ const WalletPage = (props: { history: History, match: match<{ id: string }>, wal
   )
 }
 
-export default observer(WalletPage)
+export default observer(AccountPage)

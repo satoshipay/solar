@@ -24,7 +24,7 @@ const CreateWalletDialog = (props: DialogProps & { history: History }) => {
       testnet: props.testnet
     })
     props.onClose()
-    props.history.push(routes.wallet(wallet.id))
+    props.history.push(routes.account(wallet.id))
   }
   return (
     <Dialog open={props.open} onClose={props.onClose}>

@@ -26,7 +26,7 @@ const WalletListItem = (props: { history: History, wallet: Wallet }) => {
       button
       primaryText={wallet.name}
       secondaryText={<small><AccountBalance publicKey={wallet.publicKey} testnet={wallet.testnet} /></small>}
-      onClick={() => history.push(routes.wallet(wallet.id))}
+      onClick={() => history.push(routes.account(wallet.id))}
       rightIcon={<ArrowCircleRightIcon style={{ width: 32, height: 32 }} />}
     />
   )
