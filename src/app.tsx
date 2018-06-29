@@ -1,3 +1,5 @@
+/// <reference types="parcel-env" />
+
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {

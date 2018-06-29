@@ -18,6 +18,9 @@
     "./node_modules/@types/**/*",
     "./node_modules/material-ui/**/*"
   ],
+  "exclude": [
+    "./node_modules"
+  ],
   "rules": {
     "no-submodule-imports": false
   }
