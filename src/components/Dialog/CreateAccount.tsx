@@ -7,7 +7,6 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { Keypair } from 'stellar-sdk'
 import * as routes from '../../lib/routes'
 import { createAccount as createAccountInStore } from '../../stores/accounts'
-import { createOverlay, CreateAccountOverlay, OverlayTypes } from '../../stores/overlays'
 import AccountCreationForm, { AccountCreationValues } from '../Form/CreateAccount'
 
 interface DialogProps {
@@ -37,7 +36,3 @@ const CreateAccountDialog = (props: DialogProps & { history: History }) => {
 }
 
 export default withRouter<any>(CreateAccountDialog)
-
-export function create (testnet: boolean): CreateAccountOverlay {
-  return createOverlay(OverlayTypes.CreateAccount, { testnet })
-}

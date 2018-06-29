@@ -5,7 +5,6 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import { HorizontalLayout } from '../Layout/Box'
-import { createOverlay, RenameOverlay, OverlayTypes } from '../../stores/overlays'
 
 interface UIProps {
   open: boolean,
@@ -74,7 +73,3 @@ class RenameDialog extends React.Component<Props, State> {
 }
 
 export default RenameDialog
-
-export function create (title: string, prevValue: string, performRenaming: (newValue: string) => void): RenameOverlay {
-  return createOverlay(OverlayTypes.Rename, { performRenaming, prevValue, title })
-}

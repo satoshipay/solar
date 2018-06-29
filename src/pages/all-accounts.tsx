@@ -1,17 +1,17 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import { Section } from '../components/Layout/Page'
-import { create as createAccountCreationDialog } from '../components/Overlay/CreateAccount'
+import { createAccountCreationDialog } from '../components/Dialog/index'
 import AccountList from '../components/AccountList'
-import { openOverlay } from '../stores/overlays'
 import AccountStore from '../stores/accounts'
+import { openDialog } from '../stores/dialogs'
 
 const HomePage = (props: { accounts: typeof AccountStore }) => (
   <Section>
     <AccountList
       accounts={props.accounts}
-      onCreatePubnetAccount={() => openOverlay(createAccountCreationDialog(false))}
-      onCreateTestnetAccount={() => openOverlay(createAccountCreationDialog(true))}
+      onCreatePubnetAccount={() => openDialog(createAccountCreationDialog(false))}
+      onCreateTestnetAccount={() => openDialog(createAccountCreationDialog(true))}
     />
   </Section>
 )
