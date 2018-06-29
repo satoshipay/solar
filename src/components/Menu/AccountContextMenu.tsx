@@ -4,6 +4,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
+import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ContextMenu from '../ContextMenu'
@@ -18,6 +19,7 @@ const AccountContextMenuItem = (props: { icon: React.ReactElement<any>, label: s
 }
 
 interface MenuProps {
+  onDelete: () => void,
   onRename: () => void
 }
 
@@ -34,6 +36,7 @@ const AccountContextMenu = (props: MenuProps) => {
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
         <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
           <AccountContextMenuItem icon={<EditIcon />} label='Rename' onClick={closeAndCall(props.onRename)} />
+          <AccountContextMenuItem icon={<DeleteIcon />} label='Delete' onClick={closeAndCall(props.onDelete)} />
         </Menu>
       )}
     />

@@ -4,16 +4,25 @@ import { Account } from './accounts'
 export enum OverlayTypes {
   CreateAccount = 'CreateAccount',
   CreatePayment = 'CreatePayment',
+  DeleteAccount = 'DeleteAccount',
   Rename = 'Rename'
 }
 
-export type Overlay = CreateAccountOverlay | CreatePaymentOverlay | RenameOverlay
+export type Overlay = AccountDeletionOverlay | CreateAccountOverlay | CreatePaymentOverlay | RenameOverlay
 
 interface OverlayBase {
   id: number,
   open: boolean,
   type: OverlayTypes,
   props: any
+}
+
+export interface AccountDeletionOverlay extends OverlayBase {
+  type: OverlayTypes.DeleteAccount,
+  props: {
+    account: Account,
+    onDeleted: () => void
+  }
 }
 
 export interface CreatePaymentOverlay extends OverlayBase {

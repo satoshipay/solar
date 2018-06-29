@@ -53,3 +53,8 @@ export function renameAccount (accountID: string, newName: string) {
     name: newName
   })
 }
+
+export function deleteAccount (accountID: string) {
+  const accountIndex = AccountStore.findIndex(account => account.id === accountID)
+  AccountStore.splice(accountIndex, 1)
+}

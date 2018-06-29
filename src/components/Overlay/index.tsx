@@ -1,5 +1,6 @@
 import React from 'react'
 import { closeOverlay, Overlay, OverlayTypes } from '../../stores/overlays'
+import AccountDeletionDialog from './AccountDeletion'
 import CreateAccountDialog from './CreateAccount'
 import CreatePaymentOverlay from './CreatePayment'
 import RenameDialog from './Rename'
@@ -10,6 +11,8 @@ const Overlay = (overlay: Overlay) => {
       return <CreateAccountDialog {...overlay.props} open={overlay.open} onClose={() => closeOverlay(overlay.id)} />
     case OverlayTypes.CreatePayment:
       return <CreatePaymentOverlay {...overlay.props} open={overlay.open} onClose={() => closeOverlay(overlay.id)} />
+    case OverlayTypes.DeleteAccount:
+      return <AccountDeletionDialog {...overlay.props} open={overlay.open} onClose={() => closeOverlay(overlay.id)} />
     case OverlayTypes.Rename:
       return <RenameDialog {...overlay.props} open={overlay.open} onClose={() => closeOverlay(overlay.id)} />
     default:
