@@ -7,7 +7,6 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { AccountBalance } from '../Balance'
 import { deleteAccount, Account } from '../../stores/accounts'
-import { createOverlay, AccountDeletionOverlay, OverlayTypes } from '../../stores/overlays'
 
 interface Props {
   account: Account,
@@ -47,7 +46,3 @@ const AccountDeletionDialog = (props: Props) => {
 }
 
 export default AccountDeletionDialog
-
-export function create (account: Account, onDeleted: () => void): AccountDeletionOverlay {
-  return createOverlay(OverlayTypes.DeleteAccount, { account, onDeleted })
-}

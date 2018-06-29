@@ -8,13 +8,13 @@ import { withProps } from 'recompose'
 import Paper from '@material-ui/core/Paper'
 import { Network } from 'stellar-sdk'
 import AppBottomNavigation from './components/BottomNavigation'
-import Overlays from './components/Overlays'
+import OpenDialogs from './components/OpenDialogs'
 import { Box, VerticalLayout } from './components/Layout/Box'
 import AllAccountsPage from './pages/all-accounts'
 import QRScannerPage from './pages/qr-scanner'
 import AccountPage from './pages/account'
 import accounts from './stores/accounts'
-import overlays from './stores/overlays'
+import DialogStore from './stores/dialogs'
 
 Network.usePublicNetwork()
 
@@ -29,7 +29,7 @@ const App = () => (
       <Paper style={{ flexGrow: 0, flexShrink: 0, zIndex: 1 }}>
         <AppBottomNavigation />
       </Paper>
-      <Overlays overlays={overlays} />
+      <OpenDialogs dialogs={DialogStore} />
     </VerticalLayout>
   </Router>
 )

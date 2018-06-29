@@ -8,7 +8,6 @@ import CloseIcon from 'react-icons/lib/md/close'
 import { Transaction } from 'stellar-sdk'
 import { createTransaction } from '../../lib/transaction'
 import { Account } from '../../stores/accounts'
-import { createOverlay, CreatePaymentOverlay, OverlayTypes } from '../../stores/overlays'
 import { withHorizon, HorizonProps } from '../../hocs'
 import CreatePaymentForm, { PaymentCreationValues } from '../Form/CreatePayment'
 import TxConfirmationForm from '../Form/TxConfirmation'
@@ -122,7 +121,3 @@ const StatefulCreatePaymentDrawer = compose<CreatePaymentDrawerProps & CreatePay
 )(CreatePaymentDrawer)
 
 export default withHorizon(StatefulCreatePaymentDrawer)
-
-export function create (account: Account): CreatePaymentOverlay {
-  return createOverlay(OverlayTypes.CreatePayment, { account })
-}

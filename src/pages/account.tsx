@@ -20,12 +20,10 @@ import { Box, HorizontalLayout } from '../components/Layout/Box'
 import { VerticalMargin } from '../components/Layout/Spacing'
 import { Section } from '../components/Layout/Page'
 import AccountContextMenu from '../components/Menu/AccountContextMenu'
-import { create as createAccountDeletionDialog } from '../components/Overlay/AccountDeletion'
-import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
-import { create as createRenameDialog } from '../components/Overlay/Rename'
+import { createAccountDeletionDialog, createPaymentDialog, createRenamingDialog } from '../components/Dialog/index'
 import * as routes from '../lib/routes'
 import AccountStore, { renameAccount } from '../stores/accounts'
-import { openOverlay } from '../stores/overlays'
+import { openDialog } from '../stores/dialogs'
 
 const BackButton = withRouter((props: { history: History }) => {
   return (
@@ -41,13 +39,13 @@ const AccountPage = (props: { accounts: typeof AccountStore, history: History, m
   if (!account) throw new Error(`Wallet account not found. ID: ${params.id}`)
 
   const onDelete = () => {
-    openOverlay(
+    openDialog(
       createAccountDeletionDialog(account, () => props.history.push(routes.allAccounts()))
     )
   }
   const onRename = () => {
-    openOverlay(
-      createRenameDialog('Rename account', account.name, (newName: string) => renameAccount(account.id, newName))
+    openDialog(
+      createRenamingDialog('Rename account', account.name, (newName: string) => renameAccount(account.id, newName))
     )
   }
 
@@ -77,7 +75,7 @@ const AccountPage = (props: { accounts: typeof AccountStore, history: History, m
               <Button
                 variant='contained'
                 color='default'
-                onClick={() => openOverlay(createPaymentOverlay(account))}
+                onClick={() => openDialog(createPaymentDialog(account))}
               >
                 <SendIcon style={{ marginRight: 8 }} />
                 Send payment
