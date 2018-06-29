@@ -6,8 +6,8 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { Keypair } from 'stellar-sdk'
 import * as routes from '../../lib/routes'
+import { createAccount as createAccountInStore } from '../../stores/accounts'
 import { createOverlay, CreateAccountOverlay, OverlayTypes } from '../../stores/overlays'
-import { createWallet as createWalletInStore } from '../../stores/wallets'
 import AccountCreationForm, { AccountCreationValues } from '../Form/CreateAccount'
 
 interface DialogProps {
@@ -18,13 +18,13 @@ interface DialogProps {
 
 const CreateAccountDialog = (props: DialogProps & { history: History }) => {
   const createAccount = (formValues: AccountCreationValues) => {
-    const wallet = createWalletInStore({
+    const account = createAccountInStore({
       name: formValues.name,
       keypair: Keypair.fromSecret(formValues.privateKey),
       testnet: props.testnet
     })
     props.onClose()
-    props.history.push(routes.account(wallet.id))
+    props.history.push(routes.account(account.id))
   }
   return (
     <Dialog open={props.open} onClose={props.onClose}>

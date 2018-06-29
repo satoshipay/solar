@@ -19,12 +19,12 @@ import TransactionList from '../components/TransactionList'
 import { Box, HorizontalLayout } from '../components/Layout/Box'
 import { VerticalMargin } from '../components/Layout/Spacing'
 import { Section } from '../components/Layout/Page'
-import WalletContextMenu from '../components/Menu/WalletContextMenu'
+import AccountContextMenu from '../components/Menu/AccountContextMenu'
 import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
 import { create as createRenameDialog } from '../components/Overlay/Rename'
 import * as routes from '../lib/routes'
+import AccountStore, { renameAccount } from '../stores/accounts'
 import { openOverlay } from '../stores/overlays'
-import WalletStore, { renameWallet } from '../stores/wallets'
 
 const BackButton = withRouter((props: { history: History }) => {
   return (
@@ -34,13 +34,13 @@ const BackButton = withRouter((props: { history: History }) => {
   )
 })
 
-const AccountPage = (props: { history: History, match: match<{ id: string }>, wallets: typeof WalletStore }) => {
+const AccountPage = (props: { accounts: typeof AccountStore, history: History, match: match<{ id: string }> }) => {
   const { params } = props.match
-  const account = props.wallets.find(someWallet => someWallet.id === params.id)
-  if (!account) throw new Error(`Wallet not found. ID: ${params.id}`)
+  const account = props.accounts.find(someAccount => someAccount.id === params.id)
+  if (!account) throw new Error(`Wallet account not found. ID: ${params.id}`)
 
   const onRename = () => {
-    openOverlay(createRenameDialog('Rename account', account.name, (newName: string) => renameWallet(account.id, newName)))
+    openOverlay(createRenameDialog('Rename account', account.name, (newName: string) => renameAccount(account.id, newName)))
   }
 
   return (
@@ -56,7 +56,7 @@ const AccountPage = (props: { history: History, match: match<{ id: string }>, wa
                 {account.name}
               </Typography>
               <Box grow style={{ textAlign: 'right' }}>
-                <WalletContextMenu onRename={onRename} />
+                <AccountContextMenu onRename={onRename} />
               </Box>
             </HorizontalLayout>
             <VerticalMargin size={28} />

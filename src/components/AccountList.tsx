@@ -9,7 +9,7 @@ import { withRouter } from 'react-router-dom'
 import { List, ListItem, ListSubheader } from '../components/List'
 import { AccountBalance } from '../components/Balance'
 import * as routes from '../lib/routes'
-import WalletStore, { Wallet } from '../stores/wallets'
+import AccountStore, { Account } from '../stores/accounts'
 
 const AccountListHeader = (props: { children: React.ReactNode }) => {
   return (
@@ -19,7 +19,7 @@ const AccountListHeader = (props: { children: React.ReactNode }) => {
   )
 }
 
-const AccountListItem = (props: { account: Wallet, history: History }) => {
+const AccountListItem = (props: { account: Account, history: History }) => {
   const { account, history } = props
   return (
     <ListItem
@@ -49,14 +49,14 @@ interface AccountListProps {
   location: Location,
   match: any,
   staticContext: any,
-  wallets: typeof WalletStore,
+  accounts: typeof AccountStore,
   onCreatePubnetAccount: () => any,
   onCreateTestnetAccount: () => any
 }
 
-const AccountList = ({ history, wallets, onCreatePubnetAccount, onCreateTestnetAccount }: AccountListProps) => {
-  const pubnetAccounts = wallets.filter(wallet => !wallet.testnet)
-  const testnetAccounts = wallets.filter(wallet => wallet.testnet)
+const AccountList = ({ accounts, history, onCreatePubnetAccount, onCreateTestnetAccount }: AccountListProps) => {
+  const pubnetAccounts = accounts.filter(account => !account.testnet)
+  const testnetAccounts = accounts.filter(account => account.testnet)
 
   return (
     <List>

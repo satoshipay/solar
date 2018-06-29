@@ -22,7 +22,7 @@ const AppBottomNavigation = (props: { history: History, location: Location }) =>
     <Paper elevation={1}>
       <BottomNavigation showLabels value={getSelectedIndexByPath(props.location.pathname)}>
         <BottomNavigationAction
-          label='Wallets'
+          label='Accounts'
           icon={<HomeIcon style={{ fontSize: '200%' }} />}
           onClick={() => props.history.push(routes.allAccounts())}
         />

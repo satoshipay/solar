@@ -1,5 +1,5 @@
 import { observable, IObservableArray } from 'mobx'
-import { Wallet } from './wallets'
+import { Account } from './accounts'
 
 export enum OverlayTypes {
   CreateAccount = 'CreateAccount',
@@ -19,7 +19,7 @@ interface OverlayBase {
 export interface CreatePaymentOverlay extends OverlayBase {
   type: OverlayTypes.CreatePayment,
   props: {
-    wallet: Wallet
+    account: Account
   }
 }
 

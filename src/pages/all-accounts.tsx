@@ -4,14 +4,14 @@ import { Section } from '../components/Layout/Page'
 import { create as createAccountCreationDialog } from '../components/Overlay/CreateAccount'
 import AccountList from '../components/AccountList'
 import { openOverlay } from '../stores/overlays'
-import WalletStore from '../stores/wallets'
+import AccountStore from '../stores/accounts'
 
-const HomePage = (props: { wallets: typeof WalletStore }) => (
+const HomePage = (props: { accounts: typeof AccountStore }) => (
   <Section>
     <AccountList
+      accounts={props.accounts}
       onCreatePubnetAccount={() => openOverlay(createAccountCreationDialog(false))}
       onCreateTestnetAccount={() => openOverlay(createAccountCreationDialog(true))}
-      wallets={props.wallets}
     />
   </Section>
 )
