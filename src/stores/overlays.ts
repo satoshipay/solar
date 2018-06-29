@@ -2,12 +2,12 @@ import { observable, IObservableArray } from 'mobx'
 import { Wallet } from './wallets'
 
 export enum OverlayTypes {
+  CreateAccount = 'CreateAccount',
   CreatePayment = 'CreatePayment',
-  CreateWallet = 'CreateWallet',
   Rename = 'Rename'
 }
 
-export type Overlay = CreatePaymentOverlay | CreateWalletOverlay | RenameOverlay
+export type Overlay = CreateAccountOverlay | CreatePaymentOverlay | RenameOverlay
 
 interface OverlayBase {
   id: number,
@@ -23,8 +23,8 @@ export interface CreatePaymentOverlay extends OverlayBase {
   }
 }
 
-export interface CreateWalletOverlay extends OverlayBase {
-  type: OverlayTypes.CreateWallet,
+export interface CreateAccountOverlay extends OverlayBase {
+  type: OverlayTypes.CreateAccount,
   props: {
     testnet: boolean
   }

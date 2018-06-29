@@ -6,23 +6,23 @@ import { Keypair } from 'stellar-sdk'
 import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { HorizontalLayout } from '../Layout/Box'
 
-const validatePrivateKey = (privateKey: string, values: WalletCreationValues) => {
+const validatePrivateKey = (privateKey: string, values: AccountCreationValues) => {
   if (!values.createNewKey && !privateKey.match(/^S[A-Z0-9]{55}$/)) {
     return new Error(`Invalid stellar public key.`)
   }
 }
 
-export interface WalletCreationValues {
+export interface AccountCreationValues {
   name: string,
   privateKey: string,
   createNewKey: boolean
 }
 
-interface WalletCreationFormProps {
-  onSubmit (formValues: WalletCreationValues): void
+interface AccountCreationFormProps {
+  onSubmit (formValues: AccountCreationValues): void
 }
 
-const WalletCreationForm = (props: InnerFormProps<WalletCreationValues> & WalletCreationFormProps) => {
+const AccountCreationForm = (props: InnerFormProps<AccountCreationValues> & AccountCreationFormProps) => {
   const { formValues, onSubmit, setFormValue, validate } = props
   const triggerSubmit = () => {
     if (!validate(props.formValues)) return
@@ -37,7 +37,7 @@ const WalletCreationForm = (props: InnerFormProps<WalletCreationValues> & Wallet
   return (
     <form onSubmit={handleSubmitEvent}>
       <TextField
-        label='Wallet name'
+        label='Account name'
         placeholder='Enter custom name here'
         fullWidth
         autoFocus
@@ -60,14 +60,14 @@ const WalletCreationForm = (props: InnerFormProps<WalletCreationValues> & Wallet
         </Button>
         <Button variant='contained' color='primary' onClick={triggerSubmit} type='submit'>
           <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
-          Add wallet
+          Add account
         </Button>
       </HorizontalLayout>
     </form>
   )
 }
 
-const StatefulWalletCreationForm = addFormState<WalletCreationValues, WalletCreationFormProps>({
+const StatefulAccountCreationForm = addFormState<AccountCreationValues, AccountCreationFormProps>({
   defaultValues: {
     name: '',
     privateKey: '',
@@ -76,6 +76,6 @@ const StatefulWalletCreationForm = addFormState<WalletCreationValues, WalletCrea
   validators: {
     privateKey: validatePrivateKey
   }
-})(WalletCreationForm)
+})(AccountCreationForm)
 
-export default StatefulWalletCreationForm
+export default StatefulAccountCreationForm

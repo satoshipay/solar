@@ -6,9 +6,9 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { Keypair } from 'stellar-sdk'
 import * as routes from '../../lib/routes'
-import { createOverlay, CreateWalletOverlay, OverlayTypes } from '../../stores/overlays'
+import { createOverlay, CreateAccountOverlay, OverlayTypes } from '../../stores/overlays'
 import { createWallet as createWalletInStore } from '../../stores/wallets'
-import WalletCreationForm, { WalletCreationValues } from '../Form/CreateWallet'
+import AccountCreationForm, { AccountCreationValues } from '../Form/CreateAccount'
 
 interface DialogProps {
   open: boolean,
@@ -16,8 +16,8 @@ interface DialogProps {
   testnet: boolean
 }
 
-const CreateWalletDialog = (props: DialogProps & { history: History }) => {
-  const createWallet = (formValues: WalletCreationValues) => {
+const CreateAccountDialog = (props: DialogProps & { history: History }) => {
+  const createAccount = (formValues: AccountCreationValues) => {
     const wallet = createWalletInStore({
       name: formValues.name,
       keypair: Keypair.fromSecret(formValues.privateKey),
@@ -28,16 +28,16 @@ const CreateWalletDialog = (props: DialogProps & { history: History }) => {
   }
   return (
     <Dialog open={props.open} onClose={props.onClose}>
-      <DialogTitle>{props.testnet ? 'Create Testnet Wallet' : 'Create Wallet'}</DialogTitle>
+      <DialogTitle>{props.testnet ? 'Create Testnet Account' : 'Create Account'}</DialogTitle>
       <DialogContent>
-        <WalletCreationForm onSubmit={createWallet} />
+        <AccountCreationForm onSubmit={createAccount} />
       </DialogContent>
     </Dialog>
   )
 }
 
-export default withRouter<any>(CreateWalletDialog)
+export default withRouter<any>(CreateAccountDialog)
 
-export function create (testnet: boolean): CreateWalletOverlay {
-  return createOverlay(OverlayTypes.CreateWallet, { testnet })
+export function create (testnet: boolean): CreateAccountOverlay {
+  return createOverlay(OverlayTypes.CreateAccount, { testnet })
 }
