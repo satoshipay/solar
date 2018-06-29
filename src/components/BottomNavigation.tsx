@@ -9,7 +9,7 @@ import { withRouter } from 'react-router-dom'
 import * as routes from '../lib/routes'
 
 const getSelectedIndexByPath = (path: string) => {
-  if (path === routes.allWallets() || routes.isWalletRoutePath(path)) {
+  if (path === routes.allAccounts() || routes.isAccountRoutePath(path)) {
     return 0
   } else if (path === routes.qrScanner()) {
     return 1
@@ -22,9 +22,9 @@ const AppBottomNavigation = (props: { history: History, location: Location }) =>
     <Paper elevation={1}>
       <BottomNavigation showLabels value={getSelectedIndexByPath(props.location.pathname)}>
         <BottomNavigationAction
-          label='Wallets'
+          label='Accounts'
           icon={<HomeIcon style={{ fontSize: '200%' }} />}
-          onClick={() => props.history.push(routes.allWallets())}
+          onClick={() => props.history.push(routes.allAccounts())}
         />
         <BottomNavigationAction
           label='QR scanner'

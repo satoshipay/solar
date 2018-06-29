@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import ContextMenu from '../ContextMenu'
 
-const WalletContextMenu = (props: { onRename: () => void }) => {
+const AccountContextMenu = (props: { onRename: () => void }) => {
   return (
     <ContextMenu
       anchor={({ onOpen }) => (
@@ -24,4 +24,4 @@ const WalletContextMenu = (props: { onRename: () => void }) => {
   )
 }
 
-export default WalletContextMenu
+export default AccountContextMenu
