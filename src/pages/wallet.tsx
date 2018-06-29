@@ -16,12 +16,15 @@ import { AccountBalance } from '../components/Balance'
 import Spinner from '../components/Spinner'
 import { Transactions } from '../components/Subscribers'
 import TransactionList from '../components/TransactionList'
+import { Box, HorizontalLayout } from '../components/Layout/Box'
 import { VerticalMargin } from '../components/Layout/Spacing'
 import { Section } from '../components/Layout/Page'
+import WalletContextMenu from '../components/Menu/WalletContextMenu'
 import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
+import { create as createRenameDialog } from '../components/Overlay/Rename'
 import * as routes from '../lib/routes'
 import { openOverlay } from '../stores/overlays'
-import WalletStore from '../stores/wallets'
+import WalletStore, { renameWallet } from '../stores/wallets'
 
 const BackButton = withRouter((props: { history: History }) => {
   return (
@@ -36,17 +39,26 @@ const WalletPage = (props: { history: History, match: match<{ id: string }>, wal
   const wallet = props.wallets.find(someWallet => someWallet.id === params.id)
   if (!wallet) throw new Error(`Wallet not found. ID: ${params.id}`)
 
+  const onRename = () => {
+    openOverlay(createRenameDialog('Rename wallet', wallet.name, (newName: string) => renameWallet(wallet.id, newName)))
+  }
+
   return (
     <>
       <Section style={{ background: indigo[500] }}>
         <Card style={{ position: 'relative', background: 'inherit', boxShadow: 'none', color: 'white' }}>
           <CardContent>
-            <div style={{ position: 'absolute' }}>
-              <BackButton />
-            </div>
-            <Typography align='center' color='inherit' variant='headline' component='h2' gutterBottom>
-              {wallet.name}
-            </Typography>
+            <HorizontalLayout alignItems='space-between'>
+              <Box grow>
+                <BackButton />
+              </Box>
+              <Typography align='center' color='inherit' variant='headline' component='h2' gutterBottom>
+                {wallet.name}
+              </Typography>
+              <Box grow style={{ textAlign: 'right' }}>
+                <WalletContextMenu onRename={onRename} />
+              </Box>
+            </HorizontalLayout>
             <VerticalMargin size={28} />
             <DetailDataSet>
               <DetailData label='Balance' value={<AccountBalance publicKey={wallet.publicKey} testnet={wallet.testnet} />} />

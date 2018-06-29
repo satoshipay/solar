@@ -9,10 +9,8 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "semicolon": false,
+    "member-access": [true, "no-public"],
     "no-submodule-imports": false,
-    "no-implicit-dependencies": [
-      true,
-      "dev"
-    ]
+    "no-implicit-dependencies": [true, "dev"]
   }
 }

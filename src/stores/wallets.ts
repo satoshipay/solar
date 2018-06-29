@@ -43,3 +43,13 @@ export function createWallet (walletData: { id?: string, name: string, keypair: 
   WalletStore.push(wallet)
   return wallet
 }
+
+export function renameWallet (walletID: string, newName: string) {
+  const walletIndex = WalletStore.findIndex(wallet => wallet.id === walletID)
+  const prevWallet = WalletStore[walletIndex]
+
+  WalletStore.splice(walletIndex, 1, {
+    ...prevWallet,
+    name: newName
+  })
+}

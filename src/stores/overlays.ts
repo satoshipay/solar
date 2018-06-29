@@ -3,10 +3,11 @@ import { Wallet } from './wallets'
 
 export enum OverlayTypes {
   CreatePayment = 'CreatePayment',
-  CreateWallet = 'CreateWallet'
+  CreateWallet = 'CreateWallet',
+  Rename = 'Rename'
 }
 
-export type Overlay = CreatePaymentOverlay | CreateWalletOverlay
+export type Overlay = CreatePaymentOverlay | CreateWalletOverlay | RenameOverlay
 
 interface OverlayBase {
   id: number,
@@ -26,6 +27,15 @@ export interface CreateWalletOverlay extends OverlayBase {
   type: OverlayTypes.CreateWallet,
   props: {
     testnet: boolean
+  }
+}
+
+export interface RenameOverlay extends OverlayBase {
+  type: OverlayTypes.Rename,
+  props: {
+    performRenaming: (newValue: string) => void,
+    prevValue: string,
+    title: string
   }
 }
 
