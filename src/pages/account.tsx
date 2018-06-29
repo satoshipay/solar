@@ -20,6 +20,7 @@ import { Box, HorizontalLayout } from '../components/Layout/Box'
 import { VerticalMargin } from '../components/Layout/Spacing'
 import { Section } from '../components/Layout/Page'
 import AccountContextMenu from '../components/Menu/AccountContextMenu'
+import { create as createAccountDeletionDialog } from '../components/Overlay/AccountDeletion'
 import { create as createPaymentOverlay } from '../components/Overlay/CreatePayment'
 import { create as createRenameDialog } from '../components/Overlay/Rename'
 import * as routes from '../lib/routes'
@@ -39,8 +40,15 @@ const AccountPage = (props: { accounts: typeof AccountStore, history: History, m
   const account = props.accounts.find(someAccount => someAccount.id === params.id)
   if (!account) throw new Error(`Wallet account not found. ID: ${params.id}`)
 
+  const onDelete = () => {
+    openOverlay(
+      createAccountDeletionDialog(account, () => props.history.push(routes.allAccounts()))
+    )
+  }
   const onRename = () => {
-    openOverlay(createRenameDialog('Rename account', account.name, (newName: string) => renameAccount(account.id, newName)))
+    openOverlay(
+      createRenameDialog('Rename account', account.name, (newName: string) => renameAccount(account.id, newName))
+    )
   }
 
   return (
@@ -56,7 +64,7 @@ const AccountPage = (props: { accounts: typeof AccountStore, history: History, m
                 {account.name}
               </Typography>
               <Box grow style={{ textAlign: 'right' }}>
-                <AccountContextMenu onRename={onRename} />
+                <AccountContextMenu onRename={onRename} onDelete={onDelete} />
               </Box>
             </HorizontalLayout>
             <VerticalMargin size={28} />
