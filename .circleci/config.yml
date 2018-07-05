@@ -35,6 +35,10 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run: npm run build
+      - save_cache:
+          key: build-cache-{{ .Revision }}
+          paths:
+            - dist
 
   test:
     <<: *defaults
@@ -44,6 +48,34 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run: npm test
+
+  setup_electron:
+    <<: *defaults
+    steps:
+      - restore_cache:
+          key: repo-cache-{{ .Revision }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run: cd electron && npm install
+      - save_cache:
+          key: dependency-cache-electron-{{ checksum "electron/package-lock.json" }}
+          paths:
+            - electron/node_modules
+
+  build_electron:
+    <<: *defaults
+    steps:
+      - restore_cache:
+          key: repo-cache-{{ .Revision }}
+      - restore_cache:
+          key: build-cache-{{ .Revision }}
+      - restore_cache:
+          key: dependency-cache-electron-{{ checksum "electron/package-lock.json" }}
+      - run: cd electron && npm run build:mac
+      - run: cd electron && npm run build:win
+      - run: cd electron && npm run build:linux
+      - store_artifacts:
+          path: electron/dist
 
 workflows:
   version: 2
@@ -57,3 +89,8 @@ workflows:
       - test:
           requires:
             - setup
+      - build_electron:
+          requires:
+            - setup_electron
+            - build
+            - test
