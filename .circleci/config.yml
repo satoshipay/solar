@@ -87,5 +87,3 @@ workflows:
           filters:
             tags:
               only: /^v\d+\.\d+\.\d+.*/
-            branches:
-              ignore: /.*/
