@@ -87,7 +87,10 @@ export const Transactions = (props: { children: TransactionsRenderProp, publicKe
             return props.children({
               activated: recentTransactions.activated,
               loading: recentTransactions.loading,
-              transactions: recentTransactions.transactions
+
+              // FIXME: Damn mobx. Will re-render this component on change, but won't
+              // re-render the children components if we just pass down the same observable array without another `observer()`
+              transactions: recentTransactions.transactions.slice()
             })
           }
         )
