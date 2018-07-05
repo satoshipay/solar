@@ -12,9 +12,11 @@
     "test": "tslint --project ."
   },
   "devDependencies": {
+    "@storybook/addon-centered": "^3.4.8",
     "@storybook/react": "^3.3.14",
     "@types/big.js": "^4.0.5",
     "@types/history": "^4.6.2",
+    "@types/parcel-env": "0.0.0",
     "@types/react": "^16.3.17",
     "@types/react-dom": "^16.0.6",
     "@types/react-icons": "^2.2.5",
@@ -34,6 +36,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^1.2.1",
+    "@material-ui/icons": "^1.1.0",
     "big.js": "^5.0.3",
     "history": "^4.7.2",
     "mobx": "^3.4.1",

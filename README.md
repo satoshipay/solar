@@ -1,8 +1,7 @@
 # Stellar Wallet
 
-One wallet to rule them all. Desktop / Mobile app, payment requests, multisignature and more.
+Desktop / Mobile app, payment requests, multisignature and more.
 
-⚠️ Under heavy development 🛠
 
 ## Setup
 
@@ -33,3 +32,8 @@ npm run storybook
 ```
 npm run build
 ```
+
+## See also
+
+- [Roadmap](https://docs.google.com/spreadsheets/d/1XSER-1Mn4qz5DEAS1bo8pA9A-PbBEh-4k4Ed5KjWot8/edit?usp=sharing)
+- [Feature Overlap with potential Publisher App](https://docs.google.com/document/d/16WIGcMW7BQxKVIbdAql20gQvPVxeubHd9UOowUixNXc/edit?usp=sharing)

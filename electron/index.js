@@ -29,7 +29,9 @@ app.on('activate', () => {
 function createWindow () {
   const window = new BrowserWindow({
     width: 800,
-    height: 600
+    height: 600,
+    title: 'SatoshiPay Wallet 🚀',
+    icon: path.join(__dirname, 'icon.png')
   })
 
   const productionURL = url.format({

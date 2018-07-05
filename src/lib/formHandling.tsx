@@ -1,8 +1,8 @@
 import { compose, withHandlers, withState } from 'recompose'
 
 type ErrorValidationResult = Error | null | undefined
-type Validator = (value: any) => ErrorValidationResult
-interface Validators { [fieldName: string]: Validator }
+type Validator<Values> = (value: any, values: Values) => ErrorValidationResult
+interface Validators<Values> { [fieldName: string]: Validator<Values> }
 
 export interface InnerFormProps<Values> {
   errors: {
@@ -13,18 +13,18 @@ export interface InnerFormProps<Values> {
   validate: (formValues: Values) => boolean
 }
 
-export function addFormState<Values, Props = {}> (options: { defaultValues?: Values, validators?: Validators } = {}) {
+export function addFormState<Values, Props = {}> (options: { defaultValues?: Values, validators?: Validators<Values> } = {}) {
   type ErrorState = { [fieldName in keyof Values]: ErrorValidationResult }
   type ErrorStateUpdater = (prevErrors: ErrorState) => ErrorState
 
   const defaultValues = options.defaultValues || {} as any as Values
-  const validators: Validators = options.validators || {}
+  const validators: Validators<Values> = options.validators || {}
 
   const validate = (values: Values, { setErrors }: { setErrors: (updater: ErrorStateUpdater) => any }) => {
     let successful = true
     Object.keys(validators).forEach((fieldName: string) => {
       const validator = validators[fieldName]
-      const result = validator((values as any)[fieldName])
+      const result = validator((values as any)[fieldName], values)
       if (result) {
         setErrors((prevErrors: any) => ({ ...prevErrors, [fieldName]: result }))
         successful = false

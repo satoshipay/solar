@@ -1,7 +1,8 @@
 import React from 'react'
+import { Section } from '../components/Layout/Page'
 
 const QRScannerPage = () => (
-  <div>QR scanner goes here.</div>
+  <Section>QR scanner goes here.</Section>
 )
 
 export default QRScannerPage

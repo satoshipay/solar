@@ -7,8 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import CloseIcon from 'react-icons/lib/md/close'
 import { Transaction } from 'stellar-sdk'
 import { createTransaction } from '../../lib/transaction'
-import { createOverlay, CreatePaymentOverlay, OverlayTypes } from '../../stores/overlays'
-import { Wallet } from '../../stores/wallets'
+import { Account } from '../../stores/accounts'
 import { withHorizon, HorizonProps } from '../../hocs'
 import CreatePaymentForm, { PaymentCreationValues } from '../Form/CreatePayment'
 import TxConfirmationForm from '../Form/TxConfirmation'
@@ -30,7 +29,7 @@ const CloseButton = (props: { onClick: (event: React.MouseEvent) => any }) => {
 }
 
 interface CreatePaymentDrawerProps {
-  wallet: Wallet,
+  account: Account,
   open: boolean,
   onClose: () => any
 }
@@ -47,7 +46,7 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
   const {
     horizonLivenet,
     horizonTestnet,
-    wallet,
+    account,
     open = true,
     transaction,
     clearTransaction,
@@ -57,10 +56,10 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
     onClose = () => undefined
   } = props
 
-  const horizon = wallet.testnet ? horizonTestnet : horizonLivenet
+  const horizon = account.testnet ? horizonTestnet : horizonLivenet
 
   const handleCreationFormSubmit = async (formValues: PaymentCreationValues) => {
-    const tx = await createTransaction({ ...formValues, horizon, wallet, testnet: wallet.testnet })
+    const tx = await createTransaction({ ...formValues, horizon, walletAccount: account, testnet: account.testnet })
     setTransaction(tx)
     // TODO: Error handling
   }
@@ -80,12 +79,12 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
   return (
     <div>
       <Drawer open={open} anchor='right' onClose={onClose}>
-        <Card style={{ position: 'relative', height: '100%', padding: '0 12px', width: '90vw' }}>
+        <Card style={{ position: 'relative', height: '100%', padding: '0 12px', width: '90vw', maxWidth: '700px' }}>
           <CloseButton onClick={onClose} />
           <CardContent>
             <Typography variant='headline' component='h2'>Send payment</Typography>
             <Typography gutterBottom variant='subheading' component='h3'>
-              {wallet.testnet ? 'Testnet' : null}
+              {account.testnet ? 'Testnet' : null}
             </Typography>
             <div style={{ marginTop: 32 }}>
               <CreatePaymentForm onSubmit={handleCreationFormSubmit} />
@@ -98,11 +97,11 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
           <CardContent>
             <Typography variant='headline' component='h2'>Confirm payment</Typography>
             <Typography gutterBottom variant='subheading' component='h3'>
-              {wallet.testnet ? 'Testnet' : null}
+              {account.testnet ? 'Testnet' : null}
             </Typography>
             {
               transaction
-              ? <TxConfirmationForm transaction={transaction} wallet={wallet} onConfirm={submitSignedTx} onCancel={clearTransaction} />
+              ? <TxConfirmationForm transaction={transaction} account={account} onConfirm={submitSignedTx} onCancel={clearTransaction} />
               : null
             }
           </CardContent>
@@ -122,7 +121,3 @@ const StatefulCreatePaymentDrawer = compose<CreatePaymentDrawerProps & CreatePay
 )(CreatePaymentDrawer)
 
 export default withHorizon(StatefulCreatePaymentDrawer)
-
-export function create (wallet: Wallet): CreatePaymentOverlay {
-  return createOverlay(OverlayTypes.CreatePayment, { wallet })
-}

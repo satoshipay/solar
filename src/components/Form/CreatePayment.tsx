@@ -2,7 +2,7 @@ import React from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import SendIcon from 'react-icons/lib/md/send'
-import { Box, HorizontalLayout } from '../../layout'
+import { Box, HorizontalLayout } from '../Layout/Box'
 import { addFormState, renderError, InnerFormProps } from '../../lib/formHandling'
 
 const validatePublicKey = (value: string) => {
@@ -64,7 +64,7 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
         </Box>
       </HorizontalLayout>
       <Box margin='32px 0 0'>
-        <Button variant='contained' color='primary' onClick={triggerSubmit}>
+        <Button variant='contained' color='primary' onClick={triggerSubmit} type='submit'>
           <SendIcon style={{ marginRight: 8 }} />
           Create Payment
         </Button>

@@ -2,30 +2,30 @@ import React from 'react'
 import Button from '@material-ui/core/Button'
 import SendIcon from 'react-icons/lib/md/send'
 import { Transaction } from 'stellar-sdk'
-import TransactionSummary from '../TransactionSummary'
-import { HorizontalLayout, VerticalLayout } from '../../layout'
 import { addFormState, InnerFormProps } from '../../lib/formHandling'
 import { signTransaction } from '../../lib/transaction'
-import { Wallet } from '../../stores/wallets'
+import { Account } from '../../stores/accounts'
+import { HorizontalLayout, VerticalLayout } from '../Layout/Box'
+import TransactionSummary from '../TransactionSummary'
 
 interface TxConfirmationValues {
   password: string | null
 }
 
 interface TxConfirmationFormProps {
+  account: Account,
   transaction: Transaction,
-  wallet: Wallet,
   onConfirm?: (signedTx: Transaction) => any,
   onCancel?: () => any
 }
 
 const TxConfirmationForm = (props: InnerFormProps<TxConfirmationValues> & TxConfirmationFormProps) => {
-  const { transaction, wallet, onConfirm = () => undefined, onCancel = () => undefined } = props
+  const { account, transaction, onConfirm = () => undefined, onCancel = () => undefined } = props
 
   const onConfirmationClick = async () => {
-    // TODO: Show password input if wallet requires password
+    // TODO: Show password input if account requires password
     const password = null
-    const signedTx = await signTransaction(transaction, wallet, password)
+    const signedTx = await signTransaction(transaction, account, password)
     onConfirm(signedTx)
     // TODO: Error handling
   }
