@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "concurrently": "^3.5.1",
-    "electron": "^1.8.2",
-    "electron-builder": "^20.2.0"
+    "electron": "^2.0.4",
+    "electron-builder": "^20.19.1"
   }
 }
