@@ -39,6 +39,10 @@ jobs:
       - run: cd electron/ && npm install
       - run: cd electron/ && npm run build:mac -- --mac=zip
       - run: cd electron/ && npm run build:linux -- --linux=deb --linux=rpm
+      - save_cache:
+          key: dist-cache-{{ .Revision }}
+          paths:
+            - ~/repo/electron/dist
       - store_artifacts:
           path: ~/repo/electron/dist
 
@@ -50,6 +54,16 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run: npm test
+
+  release:
+    <<: *defaults
+    docker:
+      - image: circleci/golang:1.9
+    steps:
+      - restore_cache:
+          key: dist-cache-{{ .Revision }}
+      - run: go get github.com/tcnksm/ghr
+      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --draft $CIRCLE_TAG ./electron/dist
 
 workflows:
   version: 2
@@ -66,3 +80,12 @@ workflows:
           filters:
             branches:
               only: master
+      - release:
+          requires:
+            - build
+            - test
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+.*/
+            branches:
+              ignore: /.*/
