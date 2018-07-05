@@ -57,9 +57,12 @@ workflows:
     jobs:
       - setup:
           context: org-global
-      - build:
-          requires:
-            - setup
       - test:
           requires:
             - setup
+      - build:
+          requires:
+            - setup
+          filters:
+            branches:
+              only: master
