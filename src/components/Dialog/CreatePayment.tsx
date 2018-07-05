@@ -1,5 +1,7 @@
 import React from 'react'
 import { compose, withHandlers, withState } from 'recompose'
+import Dialog from '@material-ui/core/Dialog'
+import DialogContent from '@material-ui/core/DialogContent'
 import Drawer from '@material-ui/core/Drawer'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -25,6 +27,16 @@ const CloseButton = (props: { onClick: (event: React.MouseEvent) => any }) => {
     <div style={style} onClick={props.onClick}>
       <CloseIcon style={{ width: 32, height: 32 }} />
     </div>
+  )
+}
+
+const SubmissionProgressOverlay = (props: { open: boolean, submissionPromise: Promise<any> }) => {
+  return (
+    <Dialog open={props.open} PaperProps={{ elevation: 20 }}>
+      <DialogContent>
+        <SubmissionProgress promise={props.submissionPromise} />
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -77,7 +89,7 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
   }
 
   return (
-    <div>
+    <>
       <Drawer open={open} anchor='right' onClose={onClose}>
         <Card style={{ position: 'relative', height: '100%', padding: '0 12px', width: '90vw', maxWidth: '700px' }}>
           <CloseButton onClick={onClose} />
@@ -106,9 +118,13 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps & CreatePaymentDraw
             }
           </CardContent>
         </Card>
-        {submissionPromise ? <SubmissionProgress promise={submissionPromise} /> : null}
       </Drawer>
-    </div>
+      {
+        submissionPromise
+        ? <SubmissionProgressOverlay open submissionPromise={submissionPromise} />
+        : null
+      }
+    </>
   )
 }
 
