@@ -1,14 +1,19 @@
 {
   "name": "stellar-wallet-desktop-app",
+  "description": "SatoshiPay wallet for the Stellar payment network.",
   "version": "0.0.0",
   "private": true,
-  "author": "SatoshiPay Ltd",
+  "author": {
+    "name": "SatoshiPay Ltd",
+    "email": "feedback@satoshipay.io"
+  },
+  "homepage": "https://github.com/satoshipay/wallet",
   "scripts": {
     "prebuild:linux": "cp -r ../dist/ ./app/",
     "prebuild:mac": "cp -r ../dist/ ./app/",
     "prebuild:win": "cp -r ../dist/ ./app/",
     "build:linux": "build --linux --x64",
-    "build:mac": "build --mac=zip --x64",
+    "build:mac": "build --mac --x64",
     "build:win": "build --win --x64",
     "dev": "concurrently 'npm run dev:server' 'sleep 1 && npm run dev:app'",
     "dev:app": "NODE_ENV=development electron .",
