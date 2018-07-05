@@ -35,6 +35,12 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run: npm run build
+      - run: sudo apt-get install rpm
+      - run: cd electron/ && npm install
+      - run: cd electron/ && npm run build:mac -- --mac=zip
+      - run: cd electron/ && npm run build:linux -- --linux=deb --linux=rpm
+      - store_artifacts:
+          path: ~/repo/electron/dist
 
   test:
     <<: *defaults
@@ -51,9 +57,12 @@ workflows:
     jobs:
       - setup:
           context: org-global
-      - build:
-          requires:
-            - setup
       - test:
           requires:
             - setup
+      - build:
+          requires:
+            - setup
+          filters:
+            branches:
+              only: master
