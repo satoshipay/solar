@@ -35,6 +35,12 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run: npm run build
+      - run: cd electron/ && npm install
+      - run: cd electron/ && npm run build:mac
+      - run: cd electron/ && npm run build:win
+      - run: cd electron/ && npm run build:linux
+      - store_artifacts:
+          path: ~/repo/electron/dist
 
   test:
     <<: *defaults
