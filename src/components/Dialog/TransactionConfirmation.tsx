@@ -12,7 +12,10 @@ interface TxConfirmationDrawerProps {
   open: boolean
   transaction: Transaction | null
   onClose: () => void
-  onSubmitTransaction: (tx: Transaction) => void
+  onSubmitTransaction: (
+    tx: Transaction,
+    formValues: { password: string | null }
+  ) => void
 }
 
 const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
@@ -30,7 +33,12 @@ const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
             <TxConfirmationForm
               transaction={props.transaction}
               account={props.account}
-              onConfirm={props.onSubmitTransaction}
+              onConfirm={formValues =>
+                props.onSubmitTransaction(
+                  props.transaction as Transaction,
+                  formValues
+                )
+              }
               onCancel={props.onClose}
             />
           ) : null}

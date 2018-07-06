@@ -2,7 +2,7 @@ import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import { Transaction } from "stellar-sdk"
-import { createTransaction } from "../../lib/transaction"
+import { createTransaction, signTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { withHorizon, HorizonProps } from "../../hocs"
 import { PaymentCreationValues } from "../Form/CreatePayment"
@@ -33,7 +33,10 @@ interface CreatePaymentDrawerProps {
   setSubmissionPromise: (promise: Promise<any>) => void
   onClose: () => void
   onPaymentFormSubmission: (formValues: PaymentCreationValues) => void
-  onSubmitTransaction: (tx: Transaction) => void
+  onSubmitTransaction: (
+    tx: Transaction,
+    formValues: { password: string | null }
+  ) => void
 }
 
 const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => {
@@ -120,10 +123,27 @@ class StatefulCreatePaymentDrawer extends React.Component<
     })
   }
 
-  submitSignedTx = (tx: Transaction) => {
+  submitTransaction = (
+    transaction: Transaction,
+    formValues: { password: string | null }
+  ) => {
+    const { account } = this.props
+
     this.runErrorHandled(async () => {
+      if (account.requiresPassword && !formValues.password) {
+        throw new Error(
+          `Account is password-protected, but no password has been provided.`
+        )
+      }
+
+      const signedTx = await signTransaction(
+        transaction,
+        account,
+        formValues.password
+      )
+
       const horizon = this.getHorizon()
-      const promise = horizon.submitTransaction(tx)
+      const promise = horizon.submitTransaction(signedTx)
       this.setSubmissionPromise(promise)
 
       await promise
@@ -145,7 +165,7 @@ class StatefulCreatePaymentDrawer extends React.Component<
         setTransaction={this.setTransaction}
         transaction={this.state.transaction}
         onPaymentFormSubmission={this.createTransaction}
-        onSubmitTransaction={this.submitSignedTx}
+        onSubmitTransaction={this.submitTransaction}
       />
     )
   }
