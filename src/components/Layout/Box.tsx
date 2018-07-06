@@ -11,9 +11,9 @@ const Box = ({
   component?: string
   style?: React.CSSProperties
 }) => {
-  const _style = { ...createBoxStyle(styleProps), ...style }
+  const inlineStyle = { ...createBoxStyle(styleProps), ...style }
   const Component = component || "div"
-  return <Component style={_style}>{children}</Component>
+  return <Component style={inlineStyle}>{children}</Component>
 }
 
 const HorizontalLayout = ({
@@ -51,8 +51,9 @@ const AspectRatioBox = ({
     const [hratio, vratio] = ratio.split(":")
     heightOfWidthPercentage = (parseFloat(vratio) / parseFloat(hratio)) * 100
 
-    if (heightOfWidthPercentage <= 0 || isNaN(heightOfWidthPercentage))
+    if (heightOfWidthPercentage <= 0 || isNaN(heightOfWidthPercentage)) {
       throw new Error(`Invalid ratio numbers.`)
+    }
   } catch (error) {
     throw new Error(
       `AspectRatioBox: Bad ratio given: "${ratio}". Expected something like "1:2".`

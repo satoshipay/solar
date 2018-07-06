@@ -50,7 +50,9 @@ const AccountPage = (props: {
   const account = props.accounts.find(
     someAccount => someAccount.id === params.id
   )
-  if (!account) throw new Error(`Wallet account not found. ID: ${params.id}`)
+  if (!account) {
+    throw new Error(`Wallet account not found. ID: ${params.id}`)
+  }
 
   const onDelete = () => {
     openDialog(

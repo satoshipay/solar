@@ -4,7 +4,7 @@ import SubmissionProgress from "../src/components/SubmissionProgress"
 
 storiesOf("SubmissionProgress", module)
   .add("pending", () => (
-    <SubmissionProgress promise={new Promise(resolve => {})} />
+    <SubmissionProgress promise={new Promise(resolve => undefined)} />
   ))
   .add("success", () => <SubmissionProgress promise={Promise.resolve()} />)
   .add("failed", () => (
