@@ -4,6 +4,7 @@
     "tslint-config-prettier"
   ],
   "rules": {
+    "curly": [true, "ignore-same-line"],
     "interface-name": [true, "never-prefix"],
     "member-access": [true, "no-public"],
     "no-submodule-imports": false,
