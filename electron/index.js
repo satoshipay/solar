@@ -1,12 +1,14 @@
-const { app, BrowserWindow } = require("electron")
+const { app, BrowserWindow, Menu } = require("electron")
 const path = require("path")
 const url = require("url")
+const { createAppMenu } = require("./lib/menu")
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let globalWindowRef = null
 
 app.on("ready", () => {
+  Menu.setApplicationMenu(createAppMenu())
   globalWindowRef = createWindow()
 })
 
