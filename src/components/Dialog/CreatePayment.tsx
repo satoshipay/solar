@@ -1,5 +1,4 @@
 import React from "react"
-import { compose, withHandlers, withState } from "recompose"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import Drawer from "@material-ui/core/Drawer"
@@ -43,133 +42,201 @@ const SubmissionProgressOverlay = (props: {
   )
 }
 
+interface PaymentFormDrawerProps {
+  account: Account
+  open: boolean
+  onClose: () => void
+  onSubmit: (values: PaymentCreationValues) => void
+}
+
+const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
+  return (
+    <Drawer open={props.open} anchor="right" onClose={props.onClose}>
+      <Card
+        style={{
+          position: "relative",
+          height: "100%",
+          padding: "0 12px",
+          width: "90vw",
+          maxWidth: "700px"
+        }}
+      >
+        <CloseButton onClick={props.onClose} />
+        <CardContent>
+          <Typography variant="headline" component="h2">
+            Send payment
+          </Typography>
+          <Typography gutterBottom variant="subheading" component="h3">
+            {props.account.testnet ? "Testnet" : null}
+          </Typography>
+          <div style={{ marginTop: 32 }}>
+            <CreatePaymentForm onSubmit={props.onSubmit} />
+          </div>
+        </CardContent>
+      </Card>
+    </Drawer>
+  )
+}
+
+interface TxConfirmationDrawerProps {
+  account: Account
+  open: boolean
+  transaction: Transaction | null
+  onClose: () => void
+  onSubmitTransaction: (tx: Transaction) => void
+}
+
+const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
+  return (
+    <Drawer open={props.open} anchor="right" onClose={props.onClose}>
+      <Card style={{ position: "relative", height: "100%", padding: "0 12px" }}>
+        <CardContent>
+          <Typography variant="headline" component="h2">
+            Confirm payment
+          </Typography>
+          <Typography gutterBottom variant="subheading" component="h3">
+            {props.account.testnet ? "Testnet" : null}
+          </Typography>
+          {props.transaction ? (
+            <TxConfirmationForm
+              transaction={props.transaction}
+              account={props.account}
+              onConfirm={props.onSubmitTransaction}
+              onCancel={props.onClose}
+            />
+          ) : null}
+        </CardContent>
+      </Card>
+    </Drawer>
+  )
+}
+
 interface CreatePaymentDrawerProps {
   account: Account
   open: boolean
-  onClose: () => any
-}
-
-interface CreatePaymentDrawerStateProps {
-  transaction: Transaction
+  transaction: Transaction | null
   clearTransaction: () => any
-  setTransaction: (tx: Transaction) => any
+  setTransaction: (tx: Transaction) => void
   submissionPromise: Promise<any> | null
-  setSubmissionPromise: (promise: Promise<any>) => any
+  setSubmissionPromise: (promise: Promise<any>) => void
+  onClose: () => void
+  onPaymentFormSubmission: (formValues: PaymentCreationValues) => void
+  onSubmitTransaction: (tx: Transaction) => void
 }
 
-const CreatePaymentDrawer = (
-  props: CreatePaymentDrawerProps & CreatePaymentDrawerStateProps & HorizonProps
-) => {
-  const {
-    horizonLivenet,
-    horizonTestnet,
-    account,
-    open = true,
-    transaction,
-    clearTransaction,
-    setTransaction,
-    submissionPromise,
-    setSubmissionPromise,
-    onClose = () => undefined
-  } = props
-
-  const horizon = account.testnet ? horizonTestnet : horizonLivenet
-
-  const handleCreationFormSubmit = async (
-    formValues: PaymentCreationValues
-  ) => {
-    const tx = await createTransaction({
-      ...formValues,
-      horizon,
-      walletAccount: account,
-      testnet: account.testnet
-    })
-    setTransaction(tx)
-    // TODO: Error handling
-  }
-  const submitSignedTx = (tx: Transaction) => {
-    const promise = horizon.submitTransaction(tx)
-    setSubmissionPromise(promise)
-
-    promise
-      .then(() => {
-        // Close automatically a second after successful submission
-        setTimeout(() => onClose(), 1000)
-      })
-      .catch(error => {
-        throw error
-        // TODO: Error handling
-      })
-  }
-
+const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => {
   return (
     <>
-      <Drawer open={open} anchor="right" onClose={onClose}>
-        <Card
-          style={{
-            position: "relative",
-            height: "100%",
-            padding: "0 12px",
-            width: "90vw",
-            maxWidth: "700px"
-          }}
-        >
-          <CloseButton onClick={onClose} />
-          <CardContent>
-            <Typography variant="headline" component="h2">
-              Send payment
-            </Typography>
-            <Typography gutterBottom variant="subheading" component="h3">
-              {account.testnet ? "Testnet" : null}
-            </Typography>
-            <div style={{ marginTop: 32 }}>
-              <CreatePaymentForm onSubmit={handleCreationFormSubmit} />
-            </div>
-          </CardContent>
-        </Card>
-      </Drawer>
-      <Drawer
-        open={Boolean(open && transaction)}
-        anchor="right"
-        onClose={clearTransaction}
-      >
-        <Card
-          style={{ position: "relative", height: "100%", padding: "0 12px" }}
-        >
-          <CardContent>
-            <Typography variant="headline" component="h2">
-              Confirm payment
-            </Typography>
-            <Typography gutterBottom variant="subheading" component="h3">
-              {account.testnet ? "Testnet" : null}
-            </Typography>
-            {transaction ? (
-              <TxConfirmationForm
-                transaction={transaction}
-                account={account}
-                onConfirm={submitSignedTx}
-                onCancel={clearTransaction}
-              />
-            ) : null}
-          </CardContent>
-        </Card>
-      </Drawer>
-      {submissionPromise ? (
-        <SubmissionProgressOverlay open submissionPromise={submissionPromise} />
+      <PaymentFormDrawer
+        open={props.open}
+        account={props.account}
+        onClose={props.onClose}
+        onSubmit={props.onPaymentFormSubmission}
+      />
+      <TxConfirmationDrawer
+        open={Boolean(props.open && props.transaction)}
+        account={props.account}
+        transaction={props.transaction}
+        onClose={props.clearTransaction}
+        onSubmitTransaction={props.onSubmitTransaction}
+      />
+      {props.submissionPromise ? (
+        <SubmissionProgressOverlay
+          open
+          submissionPromise={props.submissionPromise}
+        />
       ) : null}
     </>
   )
 }
 
-const StatefulCreatePaymentDrawer = compose<
-  CreatePaymentDrawerProps & CreatePaymentDrawerStateProps & HorizonProps,
-  CreatePaymentDrawerProps & HorizonProps
->(
-  withState("transaction", "setTransaction", null),
-  withState("submissionPromise", "setSubmissionPromise", null),
-  withHandlers<{ setTransaction: (tx: Transaction | null) => any }, {}>({
-    clearTransaction: ({ setTransaction }) => () => setTransaction(null)
-  })
-)(CreatePaymentDrawer)
+interface StatefulCreatePaymentDrawerProps {
+  account: Account
+  open: boolean
+  onClose: () => void
+}
+
+interface State {
+  submissionPromise: Promise<any> | null
+  transaction: Transaction | null
+}
+
+class StatefulCreatePaymentDrawer extends React.Component<
+  StatefulCreatePaymentDrawerProps & HorizonProps,
+  State
+> {
+  state = {
+    submissionPromise: null,
+    transaction: null
+  }
+
+  getHorizon = () => {
+    return this.props.account.testnet
+      ? this.props.horizonTestnet
+      : this.props.horizonLivenet
+  }
+
+  clearTransaction = () => {
+    this.setState({ transaction: null })
+  }
+
+  setTransaction = (transaction: Transaction) => {
+    this.setState({ transaction })
+  }
+
+  setSubmissionPromise = (submissionPromise: Promise<any>) => {
+    this.setState({ submissionPromise })
+  }
+
+  runErrorHandled = async <Result extends any>(fn: () => Result) => {
+    try {
+      await fn()
+    } catch (error) {
+      // TODO: Error handling
+    }
+  }
+
+  createTransaction = (formValues: PaymentCreationValues) => {
+    this.runErrorHandled(async () => {
+      const tx = await createTransaction({
+        ...formValues,
+        horizon: this.getHorizon(),
+        walletAccount: this.props.account,
+        testnet: this.props.account.testnet
+      })
+      this.setTransaction(tx)
+    })
+  }
+
+  submitSignedTx = (tx: Transaction) => {
+    this.runErrorHandled(async () => {
+      const horizon = this.getHorizon()
+      const promise = horizon.submitTransaction(tx)
+      this.setSubmissionPromise(promise)
+
+      await promise
+
+      // Close automatically a second after successful submission
+      setTimeout(() => this.props.onClose(), 1000)
+    })
+  }
+
+  render() {
+    return (
+      <CreatePaymentDrawer
+        account={this.props.account}
+        open={this.props.open}
+        onClose={this.props.onClose}
+        setSubmissionPromise={this.setSubmissionPromise}
+        submissionPromise={this.state.submissionPromise}
+        clearTransaction={this.clearTransaction}
+        setTransaction={this.setTransaction}
+        transaction={this.state.transaction}
+        onPaymentFormSubmission={this.createTransaction}
+        onSubmitTransaction={this.submitSignedTx}
+      />
+    )
+  }
+}
 
 export default withHorizon(StatefulCreatePaymentDrawer)
