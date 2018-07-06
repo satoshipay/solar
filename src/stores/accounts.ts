@@ -1,5 +1,6 @@
 import { observable, IObservableArray } from "mobx"
 import { Keypair } from "stellar-sdk"
+import { createWrongPasswordError } from "../lib/errors"
 
 export interface Account {
   id: string
@@ -29,7 +30,7 @@ const AccountStore: Account[] & IObservableArray<Account> = observable([
     requiresPassword: true,
     testnet: true,
     async getPrivateKey(password: string) {
-      if (password !== "password") throw new Error(`Wrong password.`)
+      if (password !== "password") throw createWrongPasswordError()
       return "SCVD32GWIQAVBZZDH4F4ROF2TJMTTAEI762DFMEU64BMOHWXFMI3S5CD"
     }
   }
@@ -61,7 +62,7 @@ export function createAccount(accountData: {
     testnet: accountData.testnet,
     async getPrivateKey(password: string | null) {
       if (accountData.password && password !== accountData.password) {
-        throw new Error(`Wrong password.`)
+        throw createWrongPasswordError()
       }
       return accountData.keypair.secret()
     }

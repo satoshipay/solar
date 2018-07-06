@@ -2,6 +2,10 @@ import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import { Transaction } from "stellar-sdk"
+import {
+  createWrongPasswordError,
+  isWrongPasswordError
+} from "../../lib/errors"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { withHorizon, HorizonProps } from "../../hocs"
@@ -107,7 +111,13 @@ class StatefulCreatePaymentDrawer extends React.Component<
     try {
       await fn()
     } catch (error) {
-      // TODO: Error handling
+      console.error(error)
+
+      if (isWrongPasswordError(error)) {
+        this.setSubmissionPromise(Promise.reject(error))
+      } else {
+        // TODO: Error handling
+      }
     }
   }
 
@@ -131,7 +141,7 @@ class StatefulCreatePaymentDrawer extends React.Component<
 
     this.runErrorHandled(async () => {
       if (account.requiresPassword && !formValues.password) {
-        throw new Error(
+        throw createWrongPasswordError(
           `Account is password-protected, but no password has been provided.`
         )
       }

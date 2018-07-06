@@ -8,7 +8,7 @@ import { AspectRatioBox, VerticalLayout } from "./Layout/Box"
 
 const FloatingStatusBox = (props: { children: React.ReactNode }) => {
   return (
-    <AspectRatioBox width="200px" maxWidth="40vw" ratio="3:2">
+    <AspectRatioBox width="250px" maxWidth="40vw" ratio="3:2">
       <VerticalLayout padding={10} height="100%" justifyContent="center">
         <Typography align="center" variant="subheading">
           {props.children}
@@ -39,7 +39,7 @@ const SubmissionProgress = (props: { promise: Promise<any> }) => (
     catch={error => (
       <FloatingStatusBox>
         <ErrorIcon size={100} />
-        <div>Transaction failed: {error.message || JSON.stringify(error)}</div>
+        <div>{error.message || JSON.stringify(error)}</div>
       </FloatingStatusBox>
     )}
   />
