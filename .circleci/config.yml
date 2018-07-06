@@ -64,6 +64,7 @@ jobs:
           key: repo-cache-{{ .Revision }}
       - restore_cache:
           key: dist-cache-{{ .Revision }}
+      - run: rm ./electron/dist/*.yml
       - run: go get github.com/tcnksm/ghr
       - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --draft `git describe --tags` ./electron/dist
 
