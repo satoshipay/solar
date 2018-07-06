@@ -88,5 +88,7 @@ workflows:
             - build
             - test
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^v\d+\.\d+\.\d+.*/
