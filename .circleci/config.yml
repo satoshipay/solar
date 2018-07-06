@@ -11,6 +11,12 @@ enable_job_on_tags: &enable_job_on_tags
   filters:
     tags:
       only: /^v\d+\.\d+\.\d+.*/
+enable_job_on_master_or_release: &enable_job_on_master_or_release
+  filters:
+    tags:
+      only: /^v\d+\.\d+\.\d+.*/
+    branches:
+      only: master
 enable_job_on_release_only: &enable_job_on_release_only
   filters:
     tags:
@@ -93,7 +99,7 @@ workflows:
       - build:
           requires:
             - setup
-          <<: *enable_job_on_tags
+          <<: *enable_job_on_master_or_release
       - release:
           requires:
             - build
