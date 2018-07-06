@@ -1,8 +1,13 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
+import TextField from "@material-ui/core/TextField"
 import SendIcon from "react-icons/lib/md/send"
 import { Transaction } from "stellar-sdk"
-import { addFormState, InnerFormProps } from "../../lib/formHandling"
+import {
+  addFormState,
+  renderError,
+  InnerFormProps
+} from "../../lib/formHandling"
 import { Account } from "../../stores/accounts"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import TransactionSummary from "../TransactionSummary"
@@ -24,18 +29,32 @@ const TxConfirmationForm = (
   const {
     account,
     formValues,
+    setFormValue,
     transaction,
     onConfirm = () => undefined,
     onCancel = () => undefined
   } = props
 
-  const onSubmit = () => {
+  const onSubmit = (event: React.SyntheticEvent) => {
+    event.preventDefault()
     onConfirm(formValues)
   }
   return (
     <form onSubmit={onSubmit}>
       <VerticalLayout>
         <TransactionSummary transaction={transaction} />
+        {account.requiresPassword ? (
+          <TextField
+            label="Password"
+            type="password"
+            autoFocus
+            fullWidth
+            margin="dense"
+            value={formValues.password || ""}
+            onChange={event => setFormValue("password", event.target.value)}
+            style={{ marginBottom: 32 }}
+          />
+        ) : null}
         <HorizontalLayout justifyContent="center" wrap="wrap">
           <Button
             variant="contained"
