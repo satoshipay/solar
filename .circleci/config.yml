@@ -61,9 +61,11 @@ jobs:
       - image: circleci/golang:1.9
     steps:
       - restore_cache:
+          key: repo-cache-{{ .Revision }}
+      - restore_cache:
           key: dist-cache-{{ .Revision }}
       - run: go get github.com/tcnksm/ghr
-      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --draft $CIRCLE_TAG ./electron/dist
+      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --draft `git describe --tags` ./electron/dist
 
 workflows:
   version: 2
