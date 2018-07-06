@@ -136,11 +136,8 @@ class StatefulCreatePaymentDrawer extends React.Component<
         )
       }
 
-      const signedTx = await signTransaction(
-        transaction,
-        account,
-        formValues.password
-      )
+      const privateKey = await account.getPrivateKey(formValues.password)
+      const signedTx = signTransaction(transaction, privateKey)
 
       const horizon = this.getHorizon()
       const promise = horizon.submitTransaction(signedTx)

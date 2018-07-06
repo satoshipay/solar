@@ -61,13 +61,7 @@ export async function createTransaction(options: TxBlueprint) {
   return tx
 }
 
-export async function signTransaction(
-  transaction: Transaction,
-  walletAccount: Account,
-  password: string | null = null
-) {
-  transaction.sign(
-    Keypair.fromSecret(await walletAccount.getPrivateKey(password))
-  )
+export function signTransaction(transaction: Transaction, privateKey: string) {
+  transaction.sign(Keypair.fromSecret(privateKey))
   return transaction
 }
