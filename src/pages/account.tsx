@@ -139,6 +139,7 @@ const AccountPage = (props: {
               <TransactionList
                 accountPublicKey={account.publicKey}
                 title="Recent transactions"
+                testnet={account.testnet}
                 transactions={transactions}
               />
             ) : (

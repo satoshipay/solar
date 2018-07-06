@@ -11,6 +11,7 @@ storiesOf("TransactionList", module).add("Recent transactions", () => (
     {({ transactions }) => (
       <TransactionList
         accountPublicKey="GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W"
+        testnet
         title="Recent transactions"
         transactions={transactions}
       />

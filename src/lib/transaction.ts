@@ -9,7 +9,7 @@ import {
 } from "stellar-sdk"
 import { Account } from "../stores/accounts"
 
-function selectNetwork(testnet = false) {
+export function selectNetwork(testnet = false) {
   if (testnet) {
     Network.useTestNetwork()
   } else {

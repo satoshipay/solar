@@ -6,6 +6,7 @@ import ArrowLeftIcon from "react-icons/lib/fa/arrow-left"
 import ArrowRightIcon from "react-icons/lib/fa/arrow-right"
 import SquareIcon from "react-icons/lib/fa/square"
 import { Operation, Transaction, TransactionOperation } from "stellar-sdk"
+import { selectNetwork } from "../lib/transaction"
 import { List, ListItem } from "./List"
 
 type TransactionWithUndocumentedProps = Transaction & {
@@ -127,17 +128,21 @@ const TransactionListItem = (props: {
 
 const TransactionList = (props: {
   accountPublicKey: string
+  testnet: boolean
   title: React.ReactNode
   transactions: Transaction[]
 }) => {
+  // Need to select the right network, because `transaction.hash()` will fail if no network was selected
+  selectNetwork(props.testnet)
+
   return (
     <List>
       <ListSubheader style={{ background: "rgba(255, 255, 255, 0.8)" }}>
         {props.title}
       </ListSubheader>
-      {props.transactions.map((transaction, index) => (
+      {props.transactions.map(transaction => (
         <TransactionListItem
-          key={index}
+          key={transaction.hash().toString("hex")}
           accountPublicKey={props.accountPublicKey}
           transaction={transaction}
         />
