@@ -81,8 +81,11 @@ workflows:
           requires:
             - setup
           filters:
+            # filters are always OR-ed
             branches:
               only: master
+            tags:
+              only: /^v\d+\.\d+\.\d+.*/
       - release:
           requires:
             - build
