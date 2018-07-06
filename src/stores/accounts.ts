@@ -4,8 +4,9 @@ import { Keypair } from "stellar-sdk"
 export interface Account {
   id: string
   name: string
-  testnet: boolean
   publicKey: string
+  requiresPassword: boolean
+  testnet: boolean
   getPrivateKey(password: string | null): Promise<string>
 }
 
@@ -15,8 +16,20 @@ const AccountStore: Account[] & IObservableArray<Account> = observable([
     id: "1",
     name: "Test account",
     publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
+    requiresPassword: false,
     testnet: true,
     async getPrivateKey() {
+      return "SCVD32GWIQAVBZZDH4F4ROF2TJMTTAEI762DFMEU64BMOHWXFMI3S5CD"
+    }
+  },
+  {
+    id: "2",
+    name: "Test account with password",
+    publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
+    requiresPassword: true,
+    testnet: true,
+    async getPrivateKey(password: string) {
+      if (password !== "password") throw new Error(`Wrong password.`)
       return "SCVD32GWIQAVBZZDH4F4ROF2TJMTTAEI762DFMEU64BMOHWXFMI3S5CD"
     }
   }
@@ -28,6 +41,7 @@ export function createAccount(accountData: {
   id?: string
   name: string
   keypair: Keypair
+  password: string | null
   testnet: boolean
 }) {
   const createID = () => {
@@ -43,8 +57,14 @@ export function createAccount(accountData: {
     id: accountData.id || createID(),
     name: accountData.name,
     publicKey: accountData.keypair.publicKey(),
+    requiresPassword: accountData.password !== null,
     testnet: accountData.testnet,
-    getPrivateKey: async () => accountData.keypair.secret()
+    async getPrivateKey(password: string | null) {
+      if (accountData.password && password !== accountData.password) {
+        throw new Error(`Wrong password.`)
+      }
+      return accountData.keypair.secret()
+    }
   }
   AccountStore.push(account)
   return account

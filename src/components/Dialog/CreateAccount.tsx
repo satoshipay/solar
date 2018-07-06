@@ -22,6 +22,7 @@ const CreateAccountDialog = (props: DialogProps & { history: History }) => {
     const account = createAccountInStore({
       name: formValues.name,
       keypair: Keypair.fromSecret(formValues.privateKey),
+      password: null,
       testnet: props.testnet
     })
     props.onClose()
