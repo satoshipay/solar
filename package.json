@@ -15,10 +15,15 @@
     "test": "tslint --project ."
   },
   "lint-staged": {
-    "*": [
-      "prettier --write",
-      "git add"
-    ]
+    "ignore": [
+      "**/*.yml"
+    ],
+    "linters": {
+      "*": [
+        "prettier --write",
+        "git add"
+      ]
+    }
   },
   "devDependencies": {
     "@storybook/addon-centered": "^3.4.8",
