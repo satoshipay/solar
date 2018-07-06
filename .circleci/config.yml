@@ -7,6 +7,17 @@ defaults: &defaults
   docker:
     - image: circleci/node:8
 
+enable_job_on_tags: &enable_job_on_tags
+  filters:
+    tags:
+      only: /^v\d+\.\d+\.\d+.*/
+enable_job_on_release_only: &enable_job_on_release_only
+  filters:
+    tags:
+      only: /^v\d+\.\d+\.\d+.*/
+    branches:
+      ignore: /.*/
+
 jobs:
   setup:
     <<: *defaults
@@ -74,24 +85,17 @@ workflows:
     jobs:
       - setup:
           context: org-global
+          <<: *enable_job_on_tags
       - test:
           requires:
             - setup
+          <<: *enable_job_on_tags
       - build:
           requires:
             - setup
-          filters:
-            # filters are always OR-ed
-            branches:
-              only: master
-            tags:
-              only: /^v\d+\.\d+\.\d+.*/
+          <<: *enable_job_on_tags
       - release:
           requires:
             - build
             - test
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v\d+\.\d+\.\d+.*/
+          <<: *enable_job_on_release_only
