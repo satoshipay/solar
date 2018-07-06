@@ -1,10 +1,10 @@
-import { Server } from 'stellar-sdk'
+import { Server } from "stellar-sdk"
 
-function delay (ms: number) {
+function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-async function loadAccount (horizon: Server, accountPubKey: string) {
+async function loadAccount(horizon: Server, accountPubKey: string) {
   try {
     return await horizon.loadAccount(accountPubKey)
   } catch (error) {
@@ -16,7 +16,10 @@ async function loadAccount (horizon: Server, accountPubKey: string) {
   }
 }
 
-export async function waitForAccountData (horizon: Server, accountPubKey: string) {
+export async function waitForAccountData(
+  horizon: Server,
+  accountPubKey: string
+) {
   let accountData = null
 
   while (true) {

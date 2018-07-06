@@ -1,6 +1,6 @@
-import '../src/base-styles.css'
+import "../src/base-styles.css"
 
-import './Balance'
-import './SubmissionProgress'
-import './TransactionList'
-import './TransactionSummary'
+import "./Balance"
+import "./SubmissionProgress"
+import "./TransactionList"
+import "./TransactionSummary"

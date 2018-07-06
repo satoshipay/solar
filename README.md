@@ -2,7 +2,6 @@
 
 Desktop / Mobile app, payment requests, multisignature and more.
 
-
 ## Setup
 
 ```

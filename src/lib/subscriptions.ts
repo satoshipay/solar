@@ -1,25 +1,32 @@
-import { observable } from 'mobx'
-import { AccountRecord, Server, Transaction, TransactionRecord } from 'stellar-sdk'
-import { waitForAccountData } from './account'
+import { observable } from "mobx"
+import {
+  AccountRecord,
+  Server,
+  Transaction,
+  TransactionRecord
+} from "stellar-sdk"
+import { waitForAccountData } from "./account"
 
 export interface AccountObservable {
-  activated: boolean,
-  balances: AccountRecord['balances']
+  activated: boolean
+  balances: AccountRecord["balances"]
 }
 
 export interface RecentTxsObservable {
-  activated: boolean,
-  loading: boolean,
+  activated: boolean
+  loading: boolean
   transactions: Transaction[]
 }
 
-interface URI { toString: () => string }
+interface URI {
+  toString: () => string
+}
 type HorizonWithUndocumentedProps = Server & { serverURL: URI }
 
 const accountObservableCache = new Map<string, AccountObservable>()
 const accountRecentTxsCache = new Map<string, RecentTxsObservable>()
 
-function createAccountObservable (horizon: Server, accountPubKey: string) {
+function createAccountObservable(horizon: Server, accountPubKey: string) {
   const accountObservable = observable({
     activated: false,
     balances: []
@@ -32,40 +39,53 @@ function createAccountObservable (horizon: Server, accountPubKey: string) {
   }
 
   const subscribeToAccountDataStream = () => {
-    let lastMessageJson = ''
-    let lastErrorJson = ''
+    let lastMessageJson = ""
+    let lastErrorJson = ""
 
-    horizon.accounts().accountId(accountPubKey).cursor('now').stream({
-      onmessage (accountData: AccountRecord) {
-        const serialized = JSON.stringify(accountData)
-        if (serialized !== lastMessageJson) {
-          // Deduplicate messages. Every few seconds there is a new message with an unchanged value.
-          lastMessageJson = serialized
-          Object.assign(accountObservable, accountData)
+    horizon
+      .accounts()
+      .accountId(accountPubKey)
+      .cursor("now")
+      .stream({
+        onmessage(accountData: AccountRecord) {
+          const serialized = JSON.stringify(accountData)
+          if (serialized !== lastMessageJson) {
+            // Deduplicate messages. Every few seconds there is a new message with an unchanged value.
+            lastMessageJson = serialized
+            Object.assign(accountObservable, accountData)
+          }
+        },
+        onerror(error: any) {
+          const serialized = JSON.stringify(error)
+          if (serialized !== lastErrorJson) {
+            // Deduplicate errors. Every few seconds there is a new useless error with the same data as the previous.
+            lastErrorJson = serialized
+            handleError(error)
+          }
         }
-      },
-      onerror (error: any) {
-        const serialized = JSON.stringify(error)
-        if (serialized !== lastErrorJson) {
-          // Deduplicate errors. Every few seconds there is a new useless error with the same data as the previous.
-          lastErrorJson = serialized
-          handleError(error)
-        }
-      }
-    } as any)
+      } as any)
   }
 
-  waitForAccountData(horizon, accountPubKey).then(accountData => {
-    Object.assign(accountObservable, accountData, { activated: true })
-    subscribeToAccountDataStream()
-  }).catch(handleError)
+  waitForAccountData(horizon, accountPubKey)
+    .then(accountData => {
+      Object.assign(accountObservable, accountData, { activated: true })
+      subscribeToAccountDataStream()
+    })
+    .catch(handleError)
 
   return accountObservable
 }
 
-async function setUpRecentTxsObservable (recentTxs: RecentTxsObservable, horizon: Server, accountPubKey: string) {
+async function setUpRecentTxsObservable(
+  recentTxs: RecentTxsObservable,
+  horizon: Server,
+  accountPubKey: string
+) {
   const maxTxsToLoadCount = 15
-  const deserializeTx = (txResponse: TransactionRecord) => Object.assign(new Transaction(txResponse.envelope_xdr), { created_at: txResponse.created_at })
+  const deserializeTx = (txResponse: TransactionRecord) =>
+    Object.assign(new Transaction(txResponse.envelope_xdr), {
+      created_at: txResponse.created_at
+    })
 
   const handleError = (error: any) => {
     // TODO: Proper error handling
@@ -73,17 +93,28 @@ async function setUpRecentTxsObservable (recentTxs: RecentTxsObservable, horizon
     console.error(error)
   }
   const loadRecentTxs = async () => {
-    const { records } = await horizon.transactions().forAccount(accountPubKey).limit(maxTxsToLoadCount).order('desc').call()
-    records.forEach(txResponse => recentTxs.transactions.push(deserializeTx(txResponse)))
+    const { records } = await horizon
+      .transactions()
+      .forAccount(accountPubKey)
+      .limit(maxTxsToLoadCount)
+      .order("desc")
+      .call()
+    records.forEach(txResponse =>
+      recentTxs.transactions.push(deserializeTx(txResponse))
+    )
   }
   const subscribeToTxs = () => {
-    horizon.transactions().forAccount(accountPubKey).cursor('now').stream({
-      onmessage (txResponse: TransactionRecord) {
-        // Important: Insert new transactions in the front, since order is descending
-        recentTxs.transactions.unshift(deserializeTx(txResponse))
-      },
-      onerror: handleError
-    } as any)
+    horizon
+      .transactions()
+      .forAccount(accountPubKey)
+      .cursor("now")
+      .stream({
+        onmessage(txResponse: TransactionRecord) {
+          // Important: Insert new transactions in the front, since order is descending
+          recentTxs.transactions.unshift(deserializeTx(txResponse))
+        },
+        onerror: handleError
+      } as any)
   }
 
   try {
@@ -109,11 +140,15 @@ async function setUpRecentTxsObservable (recentTxs: RecentTxsObservable, horizon
   return recentTxs
 }
 
-export function subscribeToAccount (horizon: Server, accountPubKey: string): AccountObservable {
-  const cacheKey = (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
+export function subscribeToAccount(
+  horizon: Server,
+  accountPubKey: string
+): AccountObservable {
+  const cacheKey =
+    (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
 
   if (accountObservableCache.has(cacheKey)) {
-    return accountObservableCache.get(cacheKey) as any as AccountObservable
+    return (accountObservableCache.get(cacheKey) as any) as AccountObservable
   } else {
     const accountObservable = createAccountObservable(horizon, accountPubKey)
     accountObservableCache.set(cacheKey, accountObservable)
@@ -121,11 +156,15 @@ export function subscribeToAccount (horizon: Server, accountPubKey: string): Acc
   }
 }
 
-export function subscribeToRecentTxs (horizon: Server, accountPubKey: string): RecentTxsObservable {
-  const cacheKey = (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
+export function subscribeToRecentTxs(
+  horizon: Server,
+  accountPubKey: string
+): RecentTxsObservable {
+  const cacheKey =
+    (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
 
   if (accountRecentTxsCache.has(cacheKey)) {
-    return accountRecentTxsCache.get(cacheKey) as any as RecentTxsObservable
+    return (accountRecentTxsCache.get(cacheKey) as any) as RecentTxsObservable
   } else {
     const recentTxs = observable({
       activated: false,

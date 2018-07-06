@@ -1,7 +1,7 @@
-import React from 'react'
-import { observer } from 'mobx-react'
-import { DialogDescriptor } from '../stores/dialogs'
-import OpenDialog from './Dialog/index'
+import React from "react"
+import { observer } from "mobx-react"
+import { DialogDescriptor } from "../stores/dialogs"
+import OpenDialog from "./Dialog/index"
 
 const OpenDialogs = (props: { dialogs: DialogDescriptor[] }) => {
   return (

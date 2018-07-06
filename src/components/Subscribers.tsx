@@ -6,11 +6,15 @@
  * them to obtain some data and receive live updates.
  */
 
-import React from 'react'
-import { Server, Transaction } from 'stellar-sdk'
-import { observer } from 'mobx-react'
-import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from '../lib/subscriptions'
-import { withHorizon } from '../hocs'
+import React from "react"
+import { Server, Transaction } from "stellar-sdk"
+import { observer } from "mobx-react"
+import {
+  subscribeToAccount,
+  subscribeToRecentTxs,
+  AccountObservable
+} from "../lib/subscriptions"
+import { withHorizon } from "../hocs"
 
 type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
 
@@ -22,33 +26,54 @@ type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
  *   )}
  * </Horizon>
  */
-const Horizon = withHorizon<{ children: HorizonRenderProp, testnet: boolean }>(
-  (props: { children: HorizonRenderProp, horizonLivenet: Server, horizonTestnet: Server, testnet: boolean }) => {
+const Horizon = withHorizon<{ children: HorizonRenderProp; testnet: boolean }>(
+  (props: {
+    children: HorizonRenderProp
+    horizonLivenet: Server
+    horizonTestnet: Server
+    testnet: boolean
+  }) => {
     const horizon = props.testnet ? props.horizonTestnet : props.horizonLivenet
     return props.children(horizon)
   }
 )
 
-type AccountDataRenderProp = (accountData: AccountObservable, activated: boolean) => React.ReactElement<any>
+type AccountDataRenderProp = (
+  accountData: AccountObservable,
+  activated: boolean
+) => React.ReactElement<any>
 
-const AccountData = (props: { children: AccountDataRenderProp, publicKey: string, testnet: boolean }) => {
-  const AccountDataObserver = observer<React.StatelessComponent<{ accountData: AccountObservable }>>(
-    ({ accountData }) => props.children(accountData, accountData.activated)
-  )
+const AccountData = (props: {
+  children: AccountDataRenderProp
+  publicKey: string
+  testnet: boolean
+}) => {
+  const AccountDataObserver = observer<
+    React.StatelessComponent<{ accountData: AccountObservable }>
+  >(({ accountData }) => props.children(accountData, accountData.activated))
   return (
     <Horizon testnet={props.testnet}>
-      {(horizon: Server) => <AccountDataObserver accountData={subscribeToAccount(horizon, props.publicKey)} />}
+      {(horizon: Server) => (
+        <AccountDataObserver
+          accountData={subscribeToAccount(horizon, props.publicKey)}
+        />
+      )}
     </Horizon>
   )
 }
 
 const getBalance = (accountData: AccountObservable): number => {
   const balanceUnknown = -1
-  const balanceObject = accountData.balances.find(balance => balance.asset_type === 'native')
+  const balanceObject = accountData.balances.find(
+    balance => balance.asset_type === "native"
+  )
   return balanceObject ? parseFloat(balanceObject.balance) : balanceUnknown
 }
 
-type BalanceRenderProp = (balance: number, activated: boolean) => React.ReactElement<any>
+type BalanceRenderProp = (
+  balance: number,
+  activated: boolean
+) => React.ReactElement<any>
 
 /**
  * @example
@@ -58,15 +83,23 @@ type BalanceRenderProp = (balance: number, activated: boolean) => React.ReactEle
  *   )}
  * </Balance>
  */
-export const Balance = (props: { children: BalanceRenderProp, publicKey: string, testnet: boolean }) => {
+export const Balance = (props: {
+  children: BalanceRenderProp
+  publicKey: string
+  testnet: boolean
+}) => {
   return (
     <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {(accountData, activated) => props.children(getBalance(accountData), activated)}
+      {(accountData, activated) =>
+        props.children(getBalance(accountData), activated)
+      }
     </AccountData>
   )
 }
 
-type TransactionsRenderProp = (data: { activated: boolean, loading: boolean, transactions: Transaction[] }) => React.ReactElement<any>
+type TransactionsRenderProp = (
+  data: { activated: boolean; loading: boolean; transactions: Transaction[] }
+) => React.ReactElement<any>
 
 /**
  * @example
@@ -76,24 +109,28 @@ type TransactionsRenderProp = (data: { activated: boolean, loading: boolean, tra
  *   )}
  * </Transactions>
  */
-export const Transactions = (props: { children: TransactionsRenderProp, publicKey: string, testnet: boolean }) => {
+export const Transactions = (props: {
+  children: TransactionsRenderProp
+  publicKey: string
+  testnet: boolean
+}) => {
   return (
     <Horizon testnet={props.testnet}>
       {horizon => {
         const recentTxs = subscribeToRecentTxs(horizon, props.publicKey)
-        const RecentTxsObserver = observer<React.StatelessComponent<{ recentTransactions: typeof recentTxs }>>(
-          ({ recentTransactions }) => {
-            // Had a weird issue with mobx: Didn't properly update when just passing down `recentTransactions`; destructuring solves the issue
-            return props.children({
-              activated: recentTransactions.activated,
-              loading: recentTransactions.loading,
+        const RecentTxsObserver = observer<
+          React.StatelessComponent<{ recentTransactions: typeof recentTxs }>
+        >(({ recentTransactions }) => {
+          // Had a weird issue with mobx: Didn't properly update when just passing down `recentTransactions`; destructuring solves the issue
+          return props.children({
+            activated: recentTransactions.activated,
+            loading: recentTransactions.loading,
 
-              // FIXME: Damn mobx. Will re-render this component on change, but won't
-              // re-render the children components if we just pass down the same observable array without another `observer()`
-              transactions: recentTransactions.transactions.slice()
-            })
-          }
-        )
+            // FIXME: Damn mobx. Will re-render this component on change, but won't
+            // re-render the children components if we just pass down the same observable array without another `observer()`
+            transactions: recentTransactions.transactions.slice()
+          })
+        })
 
         return <RecentTxsObserver recentTransactions={recentTxs} />
       }}

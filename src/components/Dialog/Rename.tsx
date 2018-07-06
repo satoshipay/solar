@@ -1,17 +1,17 @@
-import React from 'react'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
-import { HorizontalLayout } from '../Layout/Box'
+import React from "react"
+import Button from "@material-ui/core/Button"
+import Dialog from "@material-ui/core/Dialog"
+import DialogContent from "@material-ui/core/DialogContent"
+import DialogTitle from "@material-ui/core/DialogTitle"
+import TextField from "@material-ui/core/TextField"
+import { HorizontalLayout } from "../Layout/Box"
 
 interface UIProps {
-  open: boolean,
-  title: string,
-  value: string,
-  onClose: () => void,
-  onChange: (event: React.SyntheticEvent) => void,
+  open: boolean
+  title: string
+  value: string
+  onClose: () => void
+  onChange: (event: React.SyntheticEvent) => void
   onSubmit: (event: React.SyntheticEvent) => void
 }
 
@@ -22,15 +22,20 @@ const RenameDialogUI = (props: UIProps) => {
       <DialogContent>
         <form style={{ minWidth: 300 }} onSubmit={props.onSubmit}>
           <TextField
-            label='Name'
+            label="Name"
             fullWidth
             autoFocus
-            margin='dense'
+            margin="dense"
             value={props.value}
             onChange={props.onChange}
           />
-          <HorizontalLayout margin='32px 0 0' justifyContent='end'>
-            <Button variant='contained' color='primary' onClick={props.onSubmit} type='submit'>
+          <HorizontalLayout margin="32px 0 0" justifyContent="end">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={props.onSubmit}
+              type="submit"
+            >
               Rename
             </Button>
           </HorizontalLayout>
@@ -41,10 +46,10 @@ const RenameDialogUI = (props: UIProps) => {
 }
 
 interface Props {
-  open: boolean,
-  onClose: () => void,
-  performRenaming: (newValue: string) => void,
-  prevValue: string,
+  open: boolean
+  onClose: () => void
+  performRenaming: (newValue: string) => void
+  prevValue: string
   title: string
 }
 
@@ -67,8 +72,15 @@ class RenameDialog extends React.Component<Props, State> {
     this.props.onClose()
   }
 
-  render () {
-    return <RenameDialogUI {...this.props} onChange={this.handleInput} onSubmit={this.handleSubmit} value={this.state.value} />
+  render() {
+    return (
+      <RenameDialogUI
+        {...this.props}
+        onChange={this.handleInput}
+        onSubmit={this.handleSubmit}
+        value={this.state.value}
+      />
+    )
   }
 }
 
