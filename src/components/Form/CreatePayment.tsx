@@ -1,9 +1,13 @@
-import React from 'react'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import SendIcon from 'react-icons/lib/md/send'
-import { Box, HorizontalLayout } from '../Layout/Box'
-import { addFormState, renderError, InnerFormProps } from '../../lib/formHandling'
+import React from "react"
+import Button from "@material-ui/core/Button"
+import TextField from "@material-ui/core/TextField"
+import SendIcon from "react-icons/lib/md/send"
+import { Box, HorizontalLayout } from "../Layout/Box"
+import {
+  addFormState,
+  renderError,
+  InnerFormProps
+} from "../../lib/formHandling"
 
 const validatePublicKey = (value: string) => {
   if (!value.match(/^G[A-Z0-9]{55}$/)) {
@@ -18,7 +22,7 @@ const validateAmount = (value: string) => {
 }
 
 export interface PaymentCreationValues {
-  amount: string,
+  amount: string
   destination: string
 }
 
@@ -26,8 +30,16 @@ interface PaymentCreationFormProps {
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 
-const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & PaymentCreationFormProps) => {
-  const { errors, formValues, setFormValue, validate, onSubmit = () => undefined } = props
+const PaymentCreationForm = (
+  props: InnerFormProps<PaymentCreationValues> & PaymentCreationFormProps
+) => {
+  const {
+    errors,
+    formValues,
+    setFormValue,
+    validate,
+    onSubmit = () => undefined
+  } = props
 
   const triggerSubmit = () => {
     if (validate(formValues)) onSubmit(formValues)
@@ -40,31 +52,40 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
     <form onSubmit={handleSubmitEvent}>
       <TextField
         error={Boolean(errors.destination)}
-        label={errors.destination ? renderError(errors.destination) : 'Destination address'}
-        placeholder='GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS'
+        label={
+          errors.destination
+            ? renderError(errors.destination)
+            : "Destination address"
+        }
+        placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
         autoFocus
-        margin='dense'
+        margin="dense"
         value={formValues.destination}
-        onChange={event => setFormValue('destination', event.target.value)}
+        onChange={event => setFormValue("destination", event.target.value)}
       />
       <HorizontalLayout>
         <Box shrink>
           <TextField
             error={Boolean(errors.amount)}
-            label={errors.amount ? renderError(errors.amount) : 'Amount'}
+            label={errors.amount ? renderError(errors.amount) : "Amount"}
             fullWidth
-            margin='dense'
+            margin="dense"
             value={formValues.amount}
-            onChange={event => setFormValue('amount', event.target.value)}
+            onChange={event => setFormValue("amount", event.target.value)}
           />
         </Box>
-        <Box fixed alignSelf='flex-end' padding='0 0 12px' margin='0 0 0 8px'>
+        <Box fixed alignSelf="flex-end" padding="0 0 12px" margin="0 0 0 8px">
           XLM
         </Box>
       </HorizontalLayout>
-      <Box margin='32px 0 0'>
-        <Button variant='contained' color='primary' onClick={triggerSubmit} type='submit'>
+      <Box margin="32px 0 0">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={triggerSubmit}
+          type="submit"
+        >
           <SendIcon style={{ marginRight: 8 }} />
           Create Payment
         </Button>
@@ -73,10 +94,13 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
   )
 }
 
-const StatefulPaymentCreationForm = addFormState<PaymentCreationValues, PaymentCreationFormProps>({
+const StatefulPaymentCreationForm = addFormState<
+  PaymentCreationValues,
+  PaymentCreationFormProps
+>({
   defaultValues: {
-    amount: '',
-    destination: ''
+    amount: "",
+    destination: ""
   },
   validators: {
     amount: validateAmount,
