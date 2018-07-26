@@ -135,12 +135,7 @@ class StatefulCreatePaymentDrawer extends React.Component<
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.error(error)
-
-      if (isWrongPasswordError(error)) {
-        this.setSubmissionPromise(Promise.reject(error))
-      } else {
-        // TODO: Error handling
-      }
+      // TODO: Error handling
     }
   }
 
@@ -160,9 +155,7 @@ class StatefulCreatePaymentDrawer extends React.Component<
     transaction: Transaction,
     formValues: { password: string | null }
   ) => {
-    const { account } = this.props
-
-    this.runErrorHandled(async () => {
+    const signAndSubmit = async (account: Account) => {
       if (account.requiresPassword && !formValues.password) {
         throw createWrongPasswordError(
           `Account is password-protected, but no password has been provided.`
@@ -174,9 +167,21 @@ class StatefulCreatePaymentDrawer extends React.Component<
 
       const horizon = this.getHorizon()
       const promise = horizon.submitTransaction(signedTx)
-      this.setSubmissionPromise(promise)
 
+      this.setSubmissionPromise(promise)
       await promise
+    }
+
+    this.runErrorHandled(async () => {
+      try {
+        await signAndSubmit(this.props.account)
+      } catch (error) {
+        if (isWrongPasswordError(error)) {
+          return this.setSubmissionPromise(Promise.reject(error))
+        } else {
+          throw error
+        }
+      }
 
       // Close automatically a second after successful submission
       setTimeout(() => this.props.onClose(), 1000)
