@@ -8,6 +8,7 @@ import {
 } from "../../lib/errors"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
+import { addError } from "../../stores/errors"
 import { withHorizon, HorizonProps } from "../../hocs"
 import { PaymentCreationValues } from "../Form/CreatePayment"
 import SubmissionProgress from "../SubmissionProgress"
@@ -133,9 +134,7 @@ class StatefulCreatePaymentDrawer extends React.Component<
     try {
       await fn()
     } catch (error) {
-      // tslint:disable-next-line:no-console
-      console.error(error)
-      // TODO: Error handling
+      addError(error)
     }
   }
 

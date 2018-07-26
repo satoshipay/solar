@@ -5,6 +5,7 @@ import {
   Transaction,
   TransactionRecord
 } from "stellar-sdk"
+import { addError } from "../stores/errors"
 import { waitForAccountData } from "./account"
 
 export interface AccountObservable {
@@ -32,12 +33,6 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
     balances: []
   })
 
-  const handleError = (error: any) => {
-    // TODO: Proper error handling
-    // tslint:disable-next-line:no-console
-    console.error(error)
-  }
-
   const subscribeToAccountDataStream = () => {
     let lastMessageJson = ""
     let lastErrorJson = ""
@@ -60,7 +55,10 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
           if (serialized !== lastErrorJson) {
             // Deduplicate errors. Every few seconds there is a new useless error with the same data as the previous.
             lastErrorJson = serialized
-            handleError(error)
+            addError(new Error("Account data update stream errored."))
+
+            // tslint:disable-next-line:no-console
+            console.error(error)
           }
         }
       } as any)
@@ -71,7 +69,7 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
       Object.assign(accountObservable, accountData, { activated: true })
       subscribeToAccountDataStream()
     })
-    .catch(handleError)
+    .catch(addError)
 
   return accountObservable
 }
@@ -87,11 +85,6 @@ async function setUpRecentTxsObservable(
       created_at: txResponse.created_at
     })
 
-  const handleError = (error: any) => {
-    // TODO: Proper error handling
-    // tslint:disable-next-line:no-console
-    console.error(error)
-  }
   const loadRecentTxs = async () => {
     const { records } = await horizon
       .transactions()
@@ -113,7 +106,12 @@ async function setUpRecentTxsObservable(
           // Important: Insert new transactions in the front, since order is descending
           recentTxs.transactions.unshift(deserializeTx(txResponse))
         },
-        onerror: handleError
+        onerror(error: any) {
+          addError(new Error("Recent transactions update stream errored."))
+
+          // tslint:disable-next-line:no-console
+          console.error(error)
+        }
       } as any)
   }
 
@@ -131,7 +129,7 @@ async function setUpRecentTxsObservable(
           recentTxs.activated = true
           subscribeToTxs()
         })
-        .catch(handleError)
+        .catch(addError)
     } else {
       throw error
     }
@@ -171,10 +169,7 @@ export function subscribeToRecentTxs(
       loading: true,
       transactions: []
     })
-    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey).catch(error => {
-      // TODO: Better error handling
-      throw error
-    })
+    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey).catch(addError)
     accountRecentTxsCache.set(cacheKey, recentTxs)
     return recentTxs
   }

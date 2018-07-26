@@ -8,6 +8,7 @@ import {
   Transaction
 } from "stellar-sdk"
 import { Account } from "../stores/accounts"
+import { addError } from "../stores/errors"
 
 export function selectNetwork(testnet = false) {
   if (testnet) {
@@ -25,8 +26,7 @@ async function accountExists(horizon: Server, publicKey: string) {
       .call()
     return true
   } catch (error) {
-    // TODO
-    return false
+    addError(error)
   }
 }
 
