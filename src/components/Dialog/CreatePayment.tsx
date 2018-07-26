@@ -16,10 +16,18 @@ import TxConfirmationDrawer from "./TransactionConfirmation"
 
 const SubmissionProgressOverlay = (props: {
   open: boolean
+  onClose: () => void
+  submissionFailed: boolean
   submissionPromise: Promise<any>
 }) => {
+  const onClose = () => {
+    // Only allow the user to close the overlay if the submission failed
+    if (props.submissionFailed) {
+      props.onClose()
+    }
+  }
   return (
-    <Dialog open={props.open} PaperProps={{ elevation: 20 }}>
+    <Dialog open={props.open} onClose={onClose} PaperProps={{ elevation: 20 }}>
       <DialogContent>
         <SubmissionProgress promise={props.submissionPromise} />
       </DialogContent>
@@ -33,7 +41,9 @@ interface CreatePaymentDrawerProps {
   transaction: Transaction | null
   clearTransaction: () => any
   setTransaction: (tx: Transaction) => void
+  submissionFailed: boolean
   submissionPromise: Promise<any> | null
+  clearSubmissionPromise: () => void
   setSubmissionPromise: (promise: Promise<any>) => void
   onClose: () => void
   onPaymentFormSubmission: (formValues: PaymentCreationValues) => void
@@ -62,6 +72,8 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => {
       {props.submissionPromise ? (
         <SubmissionProgressOverlay
           open
+          onClose={props.clearSubmissionPromise}
+          submissionFailed={props.submissionFailed}
           submissionPromise={props.submissionPromise}
         />
       ) : null}
@@ -76,6 +88,7 @@ interface StatefulCreatePaymentDrawerProps {
 }
 
 interface State {
+  submissionFailed: boolean
   submissionPromise: Promise<any> | null
   transaction: Transaction | null
 }
@@ -85,6 +98,7 @@ class StatefulCreatePaymentDrawer extends React.Component<
   State
 > {
   state = {
+    submissionFailed: false,
     submissionPromise: null,
     transaction: null
   }
@@ -103,8 +117,16 @@ class StatefulCreatePaymentDrawer extends React.Component<
     this.setState({ transaction })
   }
 
+  clearSubmissionPromise = () => {
+    this.setState({ submissionPromise: null })
+  }
+
   setSubmissionPromise = (submissionPromise: Promise<any>) => {
-    this.setState({ submissionPromise })
+    this.setState({ submissionPromise, submissionFailed: false })
+
+    submissionPromise.catch(() => {
+      this.setState({ submissionFailed: true })
+    })
   }
 
   runErrorHandled = async <Result extends any>(fn: () => Result) => {
@@ -166,8 +188,10 @@ class StatefulCreatePaymentDrawer extends React.Component<
         account={this.props.account}
         open={this.props.open}
         onClose={this.props.onClose}
+        clearSubmissionPromise={this.clearSubmissionPromise}
         setSubmissionPromise={this.setSubmissionPromise}
         submissionPromise={this.state.submissionPromise}
+        submissionFailed={this.state.submissionFailed}
         clearTransaction={this.clearTransaction}
         setTransaction={this.setTransaction}
         transaction={this.state.transaction}
