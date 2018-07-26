@@ -41,6 +41,21 @@ const BackButton = withRouter((props: { history: History }) => {
   )
 })
 
+const SecurityStatus = (props: {
+  requiresPassword: boolean
+  testnet: boolean
+}) => {
+  if (props.requiresPassword) {
+    return <>Password-based encryption</>
+  } else {
+    return props.testnet ? (
+      <>No password</>
+    ) : (
+      <Typography color="error">No password</Typography>
+    )
+  }
+}
+
 const AccountPage = (props: {
   accounts: typeof AccountStore
   history: History
@@ -110,6 +125,15 @@ const AccountPage = (props: {
                 }
               />
               <DetailData label="Public Key" value={account.publicKey} />
+              <DetailData
+                label="Security"
+                value={
+                  <SecurityStatus
+                    requiresPassword={account.requiresPassword}
+                    testnet={account.testnet}
+                  />
+                }
+              />
               {account.testnet ? (
                 <DetailData label="Network" value="Testnet" />
               ) : null}
@@ -124,9 +148,6 @@ const AccountPage = (props: {
                 Send payment
               </Button>
             </div>
-            {/* TODO: Add "edit" icon button */}
-            {/* TODO: Add action buttons (send payment, ...) (in <CardActions>) */}
-            {/* TODO: Add advanced actions (backup, delete, merge, ...) */}
           </CardContent>
         </Card>
       </Section>
@@ -139,6 +160,7 @@ const AccountPage = (props: {
               <TransactionList
                 accountPublicKey={account.publicKey}
                 title="Recent transactions"
+                testnet={account.testnet}
                 transactions={transactions}
               />
             ) : (

@@ -22,6 +22,7 @@ const CreateAccountDialog = (props: DialogProps & { history: History }) => {
     const account = createAccountInStore({
       name: formValues.name,
       keypair: Keypair.fromSecret(formValues.privateKey),
+      password: formValues.setPassword ? formValues.password : null,
       testnet: props.testnet
     })
     props.onClose()
@@ -30,7 +31,7 @@ const CreateAccountDialog = (props: DialogProps & { history: History }) => {
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle>
-        {props.testnet ? "Create Testnet Account" : "Create Account"}
+        {props.testnet ? "Add Testnet Account" : "Add Account"}
       </DialogTitle>
       <DialogContent>
         <AccountCreationForm onSubmit={createAccount} />
