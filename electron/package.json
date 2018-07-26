@@ -27,5 +27,8 @@
     "concurrently": "^3.5.1",
     "electron": "^2.0.4",
     "electron-builder": "^20.19.1"
+  },
+  "dependencies": {
+    "electron-debug": "^2.0.0"
   }
 }
