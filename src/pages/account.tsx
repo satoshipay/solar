@@ -11,8 +11,7 @@ import Typography from "@material-ui/core/Typography"
 import indigo from "@material-ui/core/colors/indigo"
 import ChevronLeftIcon from "react-icons/lib/md/chevron-left"
 import SendIcon from "react-icons/lib/md/send"
-import { DetailData, DetailDataSet } from "../components/Details"
-import { AccountBalance } from "../components/Balance"
+import AccountDetails from "../components/AccountDetails"
 import Spinner from "../components/Spinner"
 import { Transactions } from "../components/Subscribers"
 import TransactionList from "../components/TransactionList"
@@ -40,21 +39,6 @@ const BackButton = withRouter((props: { history: History }) => {
     </IconButton>
   )
 })
-
-const SecurityStatus = (props: {
-  requiresPassword: boolean
-  testnet: boolean
-}) => {
-  if (props.requiresPassword) {
-    return <>Password-based encryption</>
-  } else {
-    return props.testnet ? (
-      <>No password</>
-    ) : (
-      <Typography color="error">No password</Typography>
-    )
-  }
-}
 
 const AccountPage = (props: {
   accounts: typeof AccountStore
@@ -114,30 +98,7 @@ const AccountPage = (props: {
               </Box>
             </HorizontalLayout>
             <VerticalMargin size={28} />
-            <DetailDataSet>
-              <DetailData
-                label="Balance"
-                value={
-                  <AccountBalance
-                    publicKey={account.publicKey}
-                    testnet={account.testnet}
-                  />
-                }
-              />
-              <DetailData label="Public Key" value={account.publicKey} />
-              <DetailData
-                label="Security"
-                value={
-                  <SecurityStatus
-                    requiresPassword={account.requiresPassword}
-                    testnet={account.testnet}
-                  />
-                }
-              />
-              {account.testnet ? (
-                <DetailData label="Network" value="Testnet" />
-              ) : null}
-            </DetailDataSet>
+            <AccountDetails account={account} />
             <div style={{ marginTop: 24 }}>
               <Button
                 variant="contained"
