@@ -7,6 +7,7 @@
   "repository": "github:satoshipay/wallet",
   "scripts": {
     "precommit": "lint-staged",
+    "prebuild": "rm -rf dist/",
     "build": "NODE_ENV=production parcel build --public-url=./ --detailed-report src/index.html",
     "dev": "NODE_ENV=development parcel src/index.html -p 3000",
     "lint:fix": "tslint --fix '{src,stories}/**/*.{ts,tsx}'",

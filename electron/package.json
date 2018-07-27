@@ -9,9 +9,10 @@
   },
   "homepage": "https://github.com/satoshipay/wallet",
   "scripts": {
-    "prebuild:linux": "cp -r ../dist/ ./app/",
-    "prebuild:mac": "cp -r ../dist/ ./app/",
-    "prebuild:win": "cp -r ../dist/ ./app/",
+    "prebuild:bundle": "cd .. && rm -rf ./electron/app && npm run build && cp -r ./dist ./electron/app",
+    "prebuild:linux": "npm run prebuild:bundle",
+    "prebuild:mac": "npm run prebuild:bundle",
+    "prebuild:win": "npm run prebuild:bundle",
     "build:linux": "build --linux --x64",
     "build:mac": "build --mac --x64",
     "build:win": "build --win --x64",
