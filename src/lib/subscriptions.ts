@@ -55,9 +55,10 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
           setTimeout(() => {
             if (Date.now() - lastMessageTime > 2500) {
               // Every few seconds there is a new useless error with the same data as the previous.
-              // So only show them if there is no successful message afterwards :-/
+              // So don't show them if there is a successful message afterwards (stream still seems to work)
               addError(new Error("Account data update stream errored."))
             } else {
+              // tslint:disable-next-line:no-console
               console.warn(
                 "Account data update stream had an error, but still seems to work fine:",
                 error
