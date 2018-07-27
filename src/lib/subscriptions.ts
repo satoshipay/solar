@@ -35,7 +35,7 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
 
   const subscribeToAccountDataStream = () => {
     let lastMessageJson = ""
-    let lastErrorJson = ""
+    let lastMessageTime = 0
 
     horizon
       .accounts()
@@ -49,17 +49,22 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
             lastMessageJson = serialized
             Object.assign(accountObservable, accountData)
           }
+          lastMessageTime = Date.now()
         },
         onerror(error: any) {
-          const serialized = JSON.stringify(error)
-          if (serialized !== lastErrorJson) {
-            // Deduplicate errors. Every few seconds there is a new useless error with the same data as the previous.
-            lastErrorJson = serialized
-            addError(new Error("Account data update stream errored."))
-
-            // tslint:disable-next-line:no-console
-            console.error(error)
-          }
+          setTimeout(() => {
+            if (Date.now() - lastMessageTime > 2500) {
+              // Every few seconds there is a new useless error with the same data as the previous.
+              // So don't show them if there is a successful message afterwards (stream still seems to work)
+              addError(new Error("Account data update stream errored."))
+            } else {
+              // tslint:disable-next-line:no-console
+              console.warn(
+                "Account data update stream had an error, but still seems to work fine:",
+                error
+              )
+            }
+          }, 2500)
         }
       } as any)
   }

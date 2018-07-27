@@ -5,7 +5,7 @@ import SnackbarContent from "@material-ui/core/SnackbarContent"
 import ErrorIcon from "@material-ui/icons/Error"
 import { Theme } from "@material-ui/core/styles/createMuiTheme"
 import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
-import { ErrorItem, removeErrorByID } from "../stores/errors"
+import { ErrorItem } from "../stores/errors"
 
 const styles = (theme: Theme) => ({
   content: {
@@ -28,25 +28,12 @@ interface ErrorNotificationProps {
   error: any
   open?: boolean
   onClose?: () => void
-  onExited?: () => void
 }
 
 const ErrorNotification = (props: ErrorNotificationProps) => {
-  const {
-    autoHideDuration,
-    classes,
-    error,
-    open = true,
-    onClose,
-    onExited
-  } = props
+  const { autoHideDuration, classes, error, open = true, onClose } = props
   return (
-    <Snackbar
-      autoHideDuration={autoHideDuration}
-      open={open}
-      onClose={onClose}
-      onExited={onExited}
-    >
+    <Snackbar autoHideDuration={autoHideDuration} open={open} onClose={onClose}>
       <SnackbarContent
         className={classes.content}
         message={
@@ -85,15 +72,16 @@ class ErrorNotificationContainer extends React.Component<
   }
 
   render() {
-    const errorItem = this.props.errors[this.props.errors.length - 1] || null
-    const open = errorItem && errorItem.id !== this.state.lastClosedErrorID
+    const latestErrorItem =
+      this.props.errors[this.props.errors.length - 1] || null
+    const open =
+      latestErrorItem && latestErrorItem.id !== this.state.lastClosedErrorID
     return (
       <StyledErrorNotification
         autoHideDuration={5000}
-        error={errorItem ? errorItem.error : null}
+        error={latestErrorItem ? latestErrorItem.error : null}
         open={open}
-        onClose={() => this.closeErrorNotification(errorItem.id)}
-        onExited={() => removeErrorByID(errorItem.id)}
+        onClose={() => this.closeErrorNotification(latestErrorItem.id)}
       />
     )
   }
