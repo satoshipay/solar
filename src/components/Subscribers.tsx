@@ -62,12 +62,13 @@ const AccountData = (props: {
   )
 }
 
+const unknownBalance = -1
+
 const getBalance = (accountData: AccountObservable): number => {
-  const balanceUnknown = -1
   const balanceObject = accountData.balances.find(
     balance => balance.asset_type === "native"
   )
-  return balanceObject ? parseFloat(balanceObject.balance) : balanceUnknown
+  return balanceObject ? parseFloat(balanceObject.balance) : unknownBalance
 }
 
 type BalanceRenderProp = (
