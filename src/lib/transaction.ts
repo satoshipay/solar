@@ -26,7 +26,11 @@ async function accountExists(horizon: Server, publicKey: string) {
       .call()
     return true
   } catch (error) {
-    addError(error)
+    if (error && error.response && error.response.status === 404) {
+      return false
+    } else {
+      throw error
+    }
   }
 }
 
