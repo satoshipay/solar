@@ -13,7 +13,7 @@ import ChevronLeftIcon from "react-icons/lib/md/chevron-left"
 import SendIcon from "react-icons/lib/md/send"
 import AccountDetails from "../components/AccountDetails"
 import Spinner from "../components/Spinner"
-import { Transactions } from "../components/Subscribers"
+import { Balance, Transactions } from "../components/Subscribers"
 import TransactionList from "../components/TransactionList"
 import { Box, HorizontalLayout } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
@@ -99,16 +99,21 @@ const AccountPage = (props: {
             </HorizontalLayout>
             <VerticalMargin size={28} />
             <AccountDetails account={account} />
-            <div style={{ marginTop: 24 }}>
-              <Button
-                variant="contained"
-                color="default"
-                onClick={() => openDialog(createPaymentDialog(account))}
-              >
-                <SendIcon style={{ marginRight: 8 }} />
-                Send payment
-              </Button>
-            </div>
+            <Box margin="24px 0 0">
+              <Balance publicKey={account.publicKey} testnet={account.testnet}>
+                {(_, activated) => (
+                  <Button
+                    variant="contained"
+                    color="default"
+                    disabled={!activated}
+                    onClick={() => openDialog(createPaymentDialog(account))}
+                  >
+                    <SendIcon style={{ marginRight: 8 }} />
+                    Send payment
+                  </Button>
+                )}
+              </Balance>
+            </Box>
           </CardContent>
         </Card>
       </Section>
