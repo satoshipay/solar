@@ -2,10 +2,7 @@ import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import { Transaction } from "stellar-sdk"
-import {
-  createWrongPasswordError,
-  isWrongPasswordError
-} from "../../lib/errors"
+import { createWrongPasswordError, isWrongPasswordError } from "../../lib/errors"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/errors"
@@ -48,10 +45,7 @@ interface CreatePaymentDrawerProps {
   setSubmissionPromise: (promise: Promise<any>) => void
   onClose: () => void
   onPaymentFormSubmission: (formValues: PaymentCreationValues) => void
-  onSubmitTransaction: (
-    tx: Transaction,
-    formValues: { password: string | null }
-  ) => void
+  onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
 const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => {
@@ -94,10 +88,7 @@ interface State {
   transaction: Transaction | null
 }
 
-class StatefulCreatePaymentDrawer extends React.Component<
-  StatefulCreatePaymentDrawerProps & HorizonProps,
-  State
-> {
+class StatefulCreatePaymentDrawer extends React.Component<StatefulCreatePaymentDrawerProps & HorizonProps, State> {
   state = {
     submissionFailed: false,
     submissionPromise: null,
@@ -105,9 +96,7 @@ class StatefulCreatePaymentDrawer extends React.Component<
   }
 
   getHorizon = () => {
-    return this.props.account.testnet
-      ? this.props.horizonTestnet
-      : this.props.horizonLivenet
+    return this.props.account.testnet ? this.props.horizonTestnet : this.props.horizonLivenet
   }
 
   clearTransaction = () => {
@@ -150,15 +139,10 @@ class StatefulCreatePaymentDrawer extends React.Component<
     })
   }
 
-  submitTransaction = (
-    transaction: Transaction,
-    formValues: { password: string | null }
-  ) => {
+  submitTransaction = (transaction: Transaction, formValues: { password: string | null }) => {
     const signAndSubmit = async (account: Account) => {
       if (account.requiresPassword && !formValues.password) {
-        throw createWrongPasswordError(
-          `Account is password-protected, but no password has been provided.`
-        )
+        throw createWrongPasswordError(`Account is password-protected, but no password has been provided.`)
       }
 
       const privateKey = await account.getPrivateKey(formValues.password)

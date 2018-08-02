@@ -19,11 +19,7 @@ import { Box, HorizontalLayout } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import AccountContextMenu from "../components/Menu/AccountContextMenu"
-import {
-  createAccountDeletionDialog,
-  createPaymentDialog,
-  createRenamingDialog
-} from "../components/Dialog/index"
+import { createAccountDeletionDialog, createPaymentDialog, createRenamingDialog } from "../components/Dialog/index"
 import * as routes from "../lib/routes"
 import AccountStore, { renameAccount } from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
@@ -40,31 +36,19 @@ const BackButton = withRouter((props: { history: History }) => {
   )
 })
 
-const AccountPage = (props: {
-  accounts: typeof AccountStore
-  history: History
-  match: match<{ id: string }>
-}) => {
+const AccountPage = (props: { accounts: typeof AccountStore; history: History; match: match<{ id: string }> }) => {
   const { params } = props.match
-  const account = props.accounts.find(
-    someAccount => someAccount.id === params.id
-  )
+  const account = props.accounts.find(someAccount => someAccount.id === params.id)
   if (!account) {
     throw new Error(`Wallet account not found. ID: ${params.id}`)
   }
 
   const onDelete = () => {
-    openDialog(
-      createAccountDeletionDialog(account, () =>
-        props.history.push(routes.allAccounts())
-      )
-    )
+    openDialog(createAccountDeletionDialog(account, () => props.history.push(routes.allAccounts())))
   }
   const onRename = () => {
     openDialog(
-      createRenamingDialog("Rename account", account.name, (newName: string) =>
-        renameAccount(account.id, newName)
-      )
+      createRenamingDialog("Rename account", account.name, (newName: string) => renameAccount(account.id, newName))
     )
   }
 
@@ -84,13 +68,7 @@ const AccountPage = (props: {
               <Box grow>
                 <BackButton />
               </Box>
-              <Typography
-                align="center"
-                color="inherit"
-                variant="headline"
-                component="h2"
-                gutterBottom
-              >
+              <Typography align="center" color="inherit" variant="headline" component="h2" gutterBottom>
                 {account.name}
               </Typography>
               <Box grow style={{ textAlign: "right" }}>
@@ -130,11 +108,7 @@ const AccountPage = (props: {
                 transactions={transactions}
               />
             ) : (
-              <Typography
-                align="center"
-                color="textSecondary"
-                style={{ margin: "30px auto" }}
-              >
+              <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
                 Account does not exist on the network
               </Typography>
             )

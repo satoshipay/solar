@@ -5,8 +5,7 @@ const LumenBalance = (props: { balance: number }) => {
   if (props.balance < 0) {
     return <></>
   } else {
-    const trimmedBalance =
-      props.balance > 0 ? props.balance.toFixed(7).replace(/00$/, "") : "0"
+    const trimmedBalance = props.balance > 0 ? props.balance.toFixed(7).replace(/00$/, "") : "0"
     return (
       <span>
         <small style={{ fontSize: "85%" }}>XLM</small>&nbsp;{trimmedBalance}
@@ -18,13 +17,7 @@ const LumenBalance = (props: { balance: number }) => {
 const AccountBalance = (props: { publicKey: string; testnet: boolean }) => {
   return (
     <Balance publicKey={props.publicKey} testnet={props.testnet}>
-      {(balance, activated) =>
-        activated ? (
-          <LumenBalance balance={balance} />
-        ) : (
-          <LumenBalance balance={0} />
-        )
-      }
+      {(balance, activated) => (activated ? <LumenBalance balance={balance} /> : <LumenBalance balance={0} />)}
     </Balance>
   )
 }

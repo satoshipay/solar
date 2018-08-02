@@ -22,21 +22,9 @@ const RenameDialogUI = (props: UIProps) => {
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <form style={{ minWidth: 300 }} onSubmit={props.onSubmit}>
-          <TextField
-            label="Name"
-            fullWidth
-            autoFocus
-            margin="dense"
-            value={props.value}
-            onChange={props.onChange}
-          />
+          <TextField label="Name" fullWidth autoFocus margin="dense" value={props.value} onChange={props.onChange} />
           <HorizontalLayout margin="32px 0 0" justifyContent="end">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={props.onSubmit}
-              type="submit"
-            >
+            <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
               Rename
             </Button>
           </HorizontalLayout>

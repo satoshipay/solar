@@ -1,12 +1,4 @@
-import {
-  Asset,
-  Keypair,
-  Network,
-  Operation,
-  Server,
-  TransactionBuilder,
-  Transaction
-} from "stellar-sdk"
+import { Asset, Keypair, Network, Operation, Server, TransactionBuilder, Transaction } from "stellar-sdk"
 import { Account } from "../stores/accounts"
 import { addError } from "../stores/errors"
 
@@ -43,13 +35,7 @@ interface TxBlueprint {
 }
 
 export async function createTransaction(options: TxBlueprint) {
-  const {
-    amount,
-    destination,
-    horizon,
-    walletAccount,
-    testnet = false
-  } = options
+  const { amount, destination, horizon, walletAccount, testnet = false } = options
 
   selectNetwork(testnet)
 

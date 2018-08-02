@@ -8,9 +8,7 @@ import AccountStore, { Account } from "../src/stores/accounts"
 
 interface DialogContainerProps {
   account: Account
-  children: (
-    props: { open: boolean; onClose: () => void; transaction: Transaction }
-  ) => React.ReactNode
+  children: (props: { open: boolean; onClose: () => void; transaction: Transaction }) => React.ReactNode
 }
 
 class DialogContainer extends React.Component<DialogContainerProps> {
@@ -31,10 +29,7 @@ class DialogContainer extends React.Component<DialogContainerProps> {
   render() {
     return (
       <>
-        <Button
-          onClick={() => this.setState({ open: true })}
-          variant="contained"
-        >
+        <Button onClick={() => this.setState({ open: true })} variant="contained">
           Open
         </Button>
         {this.state.transaction

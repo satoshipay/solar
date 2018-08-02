@@ -8,11 +8,7 @@ const noop = () => undefined
 
 const IconDiv = (props: { children: React.ReactNode }) => {
   const marginSize = 12
-  return (
-    <div style={{ flexGrow: 0, flexShrink: 0, marginRight: marginSize }}>
-      {props.children}
-    </div>
-  )
+  return <div style={{ flexGrow: 0, flexShrink: 0, marginRight: marginSize }}>{props.children}</div>
 }
 
 interface ListItemProps {
@@ -47,18 +43,10 @@ const ListItem = (props: ListItemProps) => {
     </div>
   )
   return (
-    <MaterialListItem
-      button={props.button}
-      onClick={props.onClick || noop}
-      style={props.style}
-    >
+    <MaterialListItem button={props.button} onClick={props.onClick || noop} style={props.style}>
       <MaterialListItemText primary={content} />
     </MaterialListItem>
   )
 }
 
-export {
-  MaterialList as List,
-  MaterialListSubheader as ListSubheader,
-  ListItem
-}
+export { MaterialList as List, MaterialListSubheader as ListSubheader, ListItem }

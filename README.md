@@ -33,6 +33,7 @@ npm run build
 ```
 
 Find the app build instructions here:
+
 - [electron](./electron)
 
 ## See also

@@ -49,9 +49,7 @@ function createWindow() {
   })
   const developmentURL = "http://localhost:3000/"
 
-  window.loadURL(
-    process.env.NODE_ENV === "development" ? developmentURL : productionURL
-  )
+  window.loadURL(process.env.NODE_ENV === "development" ? developmentURL : productionURL)
 
   window.on("closed", () => {
     // Dereference the window object, usually you would store windows

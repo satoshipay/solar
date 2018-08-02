@@ -10,12 +10,8 @@ const HomePage = (props: { accounts: typeof AccountStore }) => (
   <Section>
     <AccountList
       accounts={props.accounts}
-      onCreatePubnetAccount={() =>
-        openDialog(createAccountCreationDialog(false))
-      }
-      onCreateTestnetAccount={() =>
-        openDialog(createAccountCreationDialog(true))
-      }
+      onCreatePubnetAccount={() => openDialog(createAccountCreationDialog(false))}
+      onCreateTestnetAccount={() => openDialog(createAccountCreationDialog(true))}
     />
   </Section>
 )
