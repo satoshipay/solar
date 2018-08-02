@@ -10,15 +10,9 @@ export interface HorizonProps {
   horizonTestnet: Server
 }
 
-export const withHorizon = <Props extends {}>(
-  Component: React.ComponentType<Props & HorizonProps>
-) => {
+export const withHorizon = <Props extends {}>(Component: React.ComponentType<Props & HorizonProps>) => {
   const WithHorizon = (props: Props) => (
-    <Component
-      {...props}
-      horizonLivenet={horizonLivenet}
-      horizonTestnet={horizonTestnet}
-    />
+    <Component {...props} horizonLivenet={horizonLivenet} horizonTestnet={horizonTestnet} />
   )
   return WithHorizon as React.ComponentType<Props>
 }

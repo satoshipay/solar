@@ -1,10 +1,5 @@
 import { observable } from "mobx"
-import {
-  AccountRecord,
-  Server,
-  Transaction,
-  TransactionRecord
-} from "stellar-sdk"
+import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
 import { addError } from "../stores/errors"
 import { waitForAccountData } from "./account"
 
@@ -59,10 +54,7 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
               addError(new Error("Account data update stream errored."))
             } else {
               // tslint:disable-next-line:no-console
-              console.warn(
-                "Account data update stream had an error, but still seems to work fine:",
-                error
-              )
+              console.warn("Account data update stream had an error, but still seems to work fine:", error)
             }
           }, 2500)
         }
@@ -79,11 +71,7 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
   return accountObservable
 }
 
-async function setUpRecentTxsObservable(
-  recentTxs: RecentTxsObservable,
-  horizon: Server,
-  accountPubKey: string
-) {
+async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon: Server, accountPubKey: string) {
   const maxTxsToLoadCount = 15
   const deserializeTx = (txResponse: TransactionRecord) =>
     Object.assign(new Transaction(txResponse.envelope_xdr), {
@@ -97,9 +85,7 @@ async function setUpRecentTxsObservable(
       .limit(maxTxsToLoadCount)
       .order("desc")
       .call()
-    records.forEach(txResponse =>
-      recentTxs.transactions.push(deserializeTx(txResponse))
-    )
+    records.forEach(txResponse => recentTxs.transactions.push(deserializeTx(txResponse)))
   }
   const subscribeToTxs = () => {
     horizon
@@ -143,12 +129,8 @@ async function setUpRecentTxsObservable(
   return recentTxs
 }
 
-export function subscribeToAccount(
-  horizon: Server,
-  accountPubKey: string
-): AccountObservable {
-  const cacheKey =
-    (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
+export function subscribeToAccount(horizon: Server, accountPubKey: string): AccountObservable {
+  const cacheKey = (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
 
   if (accountObservableCache.has(cacheKey)) {
     return (accountObservableCache.get(cacheKey) as any) as AccountObservable
@@ -159,12 +141,8 @@ export function subscribeToAccount(
   }
 }
 
-export function subscribeToRecentTxs(
-  horizon: Server,
-  accountPubKey: string
-): RecentTxsObservable {
-  const cacheKey =
-    (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
+export function subscribeToRecentTxs(horizon: Server, accountPubKey: string): RecentTxsObservable {
+  const cacheKey = (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
 
   if (accountRecentTxsCache.has(cacheKey)) {
     return (accountRecentTxsCache.get(cacheKey) as any) as RecentTxsObservable

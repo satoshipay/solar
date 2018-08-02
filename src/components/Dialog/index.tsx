@@ -21,54 +21,25 @@ const OpenDialog = (props: DialogDescriptor) => {
 
   switch (dialog.type) {
     case DialogType.CreateAccount:
-      return (
-        <CreateAccountDialog
-          {...dialog.props}
-          open={dialog.open}
-          onClose={onClose}
-        />
-      )
+      return <CreateAccountDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.CreatePayment:
-      return (
-        <CreatePaymentDialog
-          {...dialog.props}
-          open={dialog.open}
-          onClose={onClose}
-        />
-      )
+      return <CreatePaymentDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.DeleteAccount:
-      return (
-        <AccountDeletionDialog
-          {...dialog.props}
-          open={dialog.open}
-          onClose={onClose}
-        />
-      )
+      return <AccountDeletionDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.Rename:
-      return (
-        <RenameDialog {...dialog.props} open={dialog.open} onClose={onClose} />
-      )
+      return <RenameDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     default:
-      throw new Error(
-        `OpenDialog: Cannot render dialog with unknown type "${
-          (dialog as any).type
-        }".`
-      )
+      throw new Error(`OpenDialog: Cannot render dialog with unknown type "${(dialog as any).type}".`)
   }
 }
 
 export default OpenDialog
 
-export function createAccountCreationDialog(
-  testnet: boolean
-): CreateAccountDescriptor {
+export function createAccountCreationDialog(testnet: boolean): CreateAccountDescriptor {
   return createDialog(DialogType.CreateAccount, { testnet })
 }
 
-export function createAccountDeletionDialog(
-  account: Account,
-  onDeleted: () => void
-): DeleteAccountDescriptor {
+export function createAccountDeletionDialog(account: Account, onDeleted: () => void): DeleteAccountDescriptor {
   return createDialog(DialogType.DeleteAccount, { account, onDeleted })
 }
 

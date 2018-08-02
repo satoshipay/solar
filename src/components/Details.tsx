@@ -1,9 +1,6 @@
 import React from "react"
 
-export const DetailData = (props: {
-  label: string
-  value: React.ReactNode
-}) => (
+export const DetailData = (props: { label: string; value: React.ReactNode }) => (
   <div>
     <small
       style={{

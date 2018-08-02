@@ -9,11 +9,7 @@ import EditIcon from "@material-ui/icons/Edit"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import ContextMenu from "../ContextMenu"
 
-const AccountContextMenuItem = (props: {
-  icon: React.ReactElement<any>
-  label: string
-  onClick: () => void
-}) => {
+const AccountContextMenuItem = (props: { icon: React.ReactElement<any>; label: string; onClick: () => void }) => {
   return (
     <MenuItem onClick={props.onClick}>
       <ListItemIcon style={{ marginRight: 8 }}>{props.icon}</ListItemIcon>
@@ -32,26 +28,15 @@ const AccountContextMenu = (props: MenuProps) => {
     <ContextMenu
       anchor={({ onOpen }) => (
         <span onClick={onOpen}>
-          <IconButton
-            color="inherit"
-            style={{ marginTop: -8, marginRight: -8, fontSize: 32 }}
-          >
+          <IconButton color="inherit" style={{ marginTop: -8, marginRight: -8, fontSize: 32 }}>
             <MoreVertIcon />
           </IconButton>
         </span>
       )}
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
         <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
-          <AccountContextMenuItem
-            icon={<EditIcon />}
-            label="Rename"
-            onClick={closeAndCall(props.onRename)}
-          />
-          <AccountContextMenuItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={closeAndCall(props.onDelete)}
-          />
+          <AccountContextMenuItem icon={<EditIcon />} label="Rename" onClick={closeAndCall(props.onRename)} />
+          <AccountContextMenuItem icon={<DeleteIcon />} label="Delete" onClick={closeAndCall(props.onDelete)} />
         </Menu>
       )}
     />

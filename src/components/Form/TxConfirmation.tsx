@@ -3,11 +3,7 @@ import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "react-icons/lib/md/send"
 import { Transaction } from "stellar-sdk"
-import {
-  addFormState,
-  renderError,
-  InnerFormProps
-} from "../../lib/formHandling"
+import { addFormState, renderError, InnerFormProps } from "../../lib/formHandling"
 import { Account } from "../../stores/accounts"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import TransactionSummary from "../TransactionSummary"
@@ -23,9 +19,7 @@ interface TxConfirmationFormProps {
   onCancel?: () => any
 }
 
-const TxConfirmationForm = (
-  props: InnerFormProps<TxConfirmationValues> & TxConfirmationFormProps
-) => {
+const TxConfirmationForm = (props: InnerFormProps<TxConfirmationValues> & TxConfirmationFormProps) => {
   const {
     account,
     formValues,
@@ -56,12 +50,7 @@ const TxConfirmationForm = (
           />
         ) : null}
         <HorizontalLayout justifyContent="center" wrap="wrap">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={onSubmit}
-            style={{ marginRight: 32 }}
-          >
+          <Button variant="contained" color="primary" onClick={onSubmit} style={{ marginRight: 32 }}>
             <SendIcon style={{ marginRight: 8 }} />
             Sign and submit
           </Button>
@@ -74,10 +63,7 @@ const TxConfirmationForm = (
   )
 }
 
-const StatefulTxConfirmationForm = addFormState<
-  TxConfirmationValues,
-  TxConfirmationFormProps
->({
+const StatefulTxConfirmationForm = addFormState<TxConfirmationValues, TxConfirmationFormProps>({
   defaultValues: {
     password: null
   }

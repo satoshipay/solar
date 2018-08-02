@@ -16,10 +16,7 @@ type TransactionWithUndocumentedProps = Transaction & {
 const sumOperationAmountsBig = (ops: TransactionOperation[]) =>
   ops
     .filter(op => op.type === "payment" || op.type === "createAccount")
-    .reduce(
-      (total, op: any) => total.add(BigNumber(op.amount || op.startingBalance)),
-      BigNumber(0)
-    )
+    .reduce((total, op: any) => total.add(BigNumber(op.amount || op.startingBalance)), BigNumber(0))
 
 const TransactionIcon = (props: { balanceChangeBig: BigNumber }) => {
   if (props.balanceChangeBig.gt(0)) {
@@ -43,27 +40,20 @@ const TitleText = (props: TitleTextProps) => {
     return <small style={{ opacity: 0.8, fontSize: "75%" }}>{children}</small>
   }
 
-  const {
-    balanceChangeBig,
-    incomingPaymentOps,
-    outgoingPaymentOps,
-    transaction
-  } = props
+  const { balanceChangeBig, incomingPaymentOps, outgoingPaymentOps, transaction } = props
 
   if (balanceChangeBig.gt(0)) {
     const source = (incomingPaymentOps[0] as any).source || transaction.source
     return (
       <span>
-        Received XLM {balanceChangeBig.toString()}{" "}
-        <DetailedInfo>from {source}</DetailedInfo>
+        Received XLM {balanceChangeBig.toString()} <DetailedInfo>from {source}</DetailedInfo>
       </span>
     )
   } else if (balanceChangeBig.lt(0)) {
     const { destination } = outgoingPaymentOps[0] as any
     return (
       <span>
-        Sent XLM {balanceChangeBig.abs().toString()}{" "}
-        <DetailedInfo>to {destination}</DetailedInfo>
+        Sent XLM {balanceChangeBig.abs().toString()} <DetailedInfo>to {destination}</DetailedInfo>
       </span>
     )
   } else {
@@ -71,27 +61,18 @@ const TitleText = (props: TitleTextProps) => {
   }
 }
 
-const TransactionListItem = (props: {
-  accountPublicKey: string
-  transaction: Transaction
-}) => {
+const TransactionListItem = (props: { accountPublicKey: string; transaction: Transaction }) => {
   const { accountPublicKey, transaction } = props
 
   const paymentOps = (transaction.operations.filter(
     op => op.type === "payment" || op.type === "createAccount"
   ) as any) as Operation.Payment[]
-  const incomingPaymentOps = paymentOps.filter(
-    op => op.destination === accountPublicKey
-  )
+  const incomingPaymentOps = paymentOps.filter(op => op.destination === accountPublicKey)
   const outgoingPaymentOps = paymentOps.filter(
-    op =>
-      op.source === accountPublicKey ||
-      (!op.source && transaction.source === accountPublicKey)
+    op => op.source === accountPublicKey || (!op.source && transaction.source === accountPublicKey)
   )
 
-  const balanceChangeBig = sumOperationAmountsBig(incomingPaymentOps).sub(
-    sumOperationAmountsBig(outgoingPaymentOps)
-  )
+  const balanceChangeBig = sumOperationAmountsBig(incomingPaymentOps).sub(sumOperationAmountsBig(outgoingPaymentOps))
   const primaryText = (
     <TitleText
       balanceChangeBig={balanceChangeBig}
@@ -100,9 +81,7 @@ const TransactionListItem = (props: {
       transaction={transaction}
     />
   )
-  const createdAt = new Date(
-    (transaction as TransactionWithUndocumentedProps).created_at
-  )
+  const createdAt = new Date((transaction as TransactionWithUndocumentedProps).created_at)
 
   return (
     <ListItem
@@ -116,11 +95,7 @@ const TransactionListItem = (props: {
           <HumanTime time={createdAt.getTime()} />
         </small>
       }
-      primaryText={
-        <div style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-          {primaryText}
-        </div>
-      }
+      primaryText={<div style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{primaryText}</div>}
     />
     // TODO: Open transaction details on click
   )
@@ -137,9 +112,7 @@ const TransactionList = (props: {
 
   return (
     <List>
-      <ListSubheader style={{ background: "rgba(255, 255, 255, 0.8)" }}>
-        {props.title}
-      </ListSubheader>
+      <ListSubheader style={{ background: "rgba(255, 255, 255, 0.8)" }}>{props.title}</ListSubheader>
       {props.transactions.map(transaction => (
         <TransactionListItem
           key={transaction.hash().toString("hex")}

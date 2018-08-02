@@ -55,10 +55,7 @@ const initialKeys: KeysData<PublicKeyData> = {
 }
 
 // TODO: Create a store that is using persistent storage (#23)
-const keyStore = createStore<PrivateKeyData, PublicKeyData>(
-  () => undefined,
-  initialKeys
-)
+const keyStore = createStore<PrivateKeyData, PublicKeyData>(() => undefined, initialKeys)
 
 const AccountStore: Account[] & IObservableArray<Account> = observable([])
 
@@ -75,22 +72,14 @@ function createAccountInstance(keyID: string): Account {
       const requiresPassword = publicData.password
 
       if (password === null && requiresPassword) {
-        throw new Error(
-          `Account ${keyID} is password-protected, but no password was passed.`
-        )
+        throw new Error(`Account ${keyID} is password-protected, but no password was passed.`)
       }
       try {
-        const privateData = await keyStore.getPrivateKeyData(
-          keyID,
-          password || ""
-        )
+        const privateData = await keyStore.getPrivateKeyData(keyID, password || "")
         return privateData.privateKey
       } catch (error) {
         // tslint:disable-next-line:no-console
-        console.debug(
-          "Decrypting private key data failed. Assuming wrong password:",
-          error
-        )
+        console.debug("Decrypting private key data failed. Assuming wrong password:", error)
         throw createWrongPasswordError()
       }
     }
@@ -113,9 +102,7 @@ export async function createAccount(accountData: {
   const createID = () => {
     const highestID = AccountStore.reduce(
       (highestIdSoFar, someAccount) =>
-        parseInt(someAccount.id, 10) > highestIdSoFar
-          ? parseInt(someAccount.id, 10)
-          : highestIdSoFar,
+        parseInt(someAccount.id, 10) > highestIdSoFar ? parseInt(someAccount.id, 10) : highestIdSoFar,
       0
     )
     return String(highestID + 1)

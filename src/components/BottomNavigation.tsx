@@ -14,21 +14,13 @@ const getSelectedIndexByPath = (path: string) => {
   } else if (path === routes.qrScanner()) {
     return 1
   }
-  throw new Error(
-    `Don't know what icon to show as selected in bottom navigation. Path is: ${path}`
-  )
+  throw new Error(`Don't know what icon to show as selected in bottom navigation. Path is: ${path}`)
 }
 
-const AppBottomNavigation = (props: {
-  history: History
-  location: Location
-}) => {
+const AppBottomNavigation = (props: { history: History; location: Location }) => {
   return (
     <Paper elevation={1}>
-      <BottomNavigation
-        showLabels
-        value={getSelectedIndexByPath(props.location.pathname)}
-      >
+      <BottomNavigation showLabels value={getSelectedIndexByPath(props.location.pathname)}>
         <BottomNavigationAction
           label="Accounts"
           icon={<HomeIcon style={{ fontSize: "200%" }} />}

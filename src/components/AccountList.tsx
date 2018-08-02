@@ -29,10 +29,7 @@ const AccountListItem = (props: { account: Account; history: History }) => {
       primaryText={account.name}
       secondaryText={
         <small>
-          <AccountBalance
-            publicKey={account.publicKey}
-            testnet={account.testnet}
-          />
+          <AccountBalance publicKey={account.publicKey} testnet={account.testnet} />
         </small>
       }
       onClick={() => history.push(routes.account(account.id))}
@@ -41,10 +38,7 @@ const AccountListItem = (props: { account: Account; history: History }) => {
   )
 }
 
-const AddAccountItem = (props: {
-  label: React.ReactNode
-  onClick: () => any
-}) => {
+const AddAccountItem = (props: { label: React.ReactNode; onClick: () => any }) => {
   return (
     <ListItem
       button
@@ -66,31 +60,19 @@ interface AccountListProps {
   onCreateTestnetAccount: () => any
 }
 
-const AccountList = ({
-  accounts,
-  history,
-  onCreatePubnetAccount,
-  onCreateTestnetAccount
-}: AccountListProps) => {
+const AccountList = ({ accounts, history, onCreatePubnetAccount, onCreateTestnetAccount }: AccountListProps) => {
   const pubnetAccounts = accounts.filter(account => !account.testnet)
   const testnetAccounts = accounts.filter(account => account.testnet)
 
   return (
     <List>
       <AccountListHeader>Accounts</AccountListHeader>
-      {pubnetAccounts.map(account => (
-        <AccountListItem key={account.id} account={account} history={history} />
-      ))}
+      {pubnetAccounts.map(account => <AccountListItem key={account.id} account={account} history={history} />)}
       <AddAccountItem label="Add account…" onClick={onCreatePubnetAccount} />
       <Divider style={{ margin: "16px 0" }} />
       <AccountListHeader>Testnet Accounts</AccountListHeader>
-      {testnetAccounts.map(account => (
-        <AccountListItem key={account.id} account={account} history={history} />
-      ))}
-      <AddAccountItem
-        label="Add testnet account…"
-        onClick={onCreateTestnetAccount}
-      />
+      {testnetAccounts.map(account => <AccountListItem key={account.id} account={account} history={history} />)}
+      <AddAccountItem label="Add testnet account…" onClick={onCreateTestnetAccount} />
     </List>
   )
 }

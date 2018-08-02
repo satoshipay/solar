@@ -72,10 +72,8 @@ class ErrorNotificationContainer extends React.Component<
   }
 
   render() {
-    const latestErrorItem =
-      this.props.errors[this.props.errors.length - 1] || null
-    const open =
-      latestErrorItem && latestErrorItem.id !== this.state.lastClosedErrorID
+    const latestErrorItem = this.props.errors[this.props.errors.length - 1] || null
+    const open = latestErrorItem && latestErrorItem.id !== this.state.lastClosedErrorID
     return (
       <StyledErrorNotification
         autoHideDuration={5000}

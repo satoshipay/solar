@@ -3,11 +3,7 @@ import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "react-icons/lib/md/send"
 import { Box, HorizontalLayout } from "../Layout/Box"
-import {
-  addFormState,
-  renderError,
-  InnerFormProps
-} from "../../lib/formHandling"
+import { addFormState, renderError, InnerFormProps } from "../../lib/formHandling"
 
 const validatePublicKey = (value: string) => {
   if (!value.match(/^G[A-Z0-9]{55}$/)) {
@@ -30,16 +26,8 @@ interface PaymentCreationFormProps {
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 
-const PaymentCreationForm = (
-  props: InnerFormProps<PaymentCreationValues> & PaymentCreationFormProps
-) => {
-  const {
-    errors,
-    formValues,
-    setFormValue,
-    validate,
-    onSubmit = () => undefined
-  } = props
+const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & PaymentCreationFormProps) => {
+  const { errors, formValues, setFormValue, validate, onSubmit = () => undefined } = props
 
   const triggerSubmit = () => {
     if (validate(formValues)) onSubmit(formValues)
@@ -52,11 +40,7 @@ const PaymentCreationForm = (
     <form onSubmit={handleSubmitEvent}>
       <TextField
         error={Boolean(errors.destination)}
-        label={
-          errors.destination
-            ? renderError(errors.destination)
-            : "Destination address"
-        }
+        label={errors.destination ? renderError(errors.destination) : "Destination address"}
         placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
         autoFocus
@@ -80,12 +64,7 @@ const PaymentCreationForm = (
         </Box>
       </HorizontalLayout>
       <Box margin="32px 0 0">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={triggerSubmit}
-          type="submit"
-        >
+        <Button variant="contained" color="primary" onClick={triggerSubmit} type="submit">
           <SendIcon style={{ marginRight: 8 }} />
           Create Payment
         </Button>
@@ -94,10 +73,7 @@ const PaymentCreationForm = (
   )
 }
 
-const StatefulPaymentCreationForm = addFormState<
-  PaymentCreationValues,
-  PaymentCreationFormProps
->({
+const StatefulPaymentCreationForm = addFormState<PaymentCreationValues, PaymentCreationFormProps>({
   defaultValues: {
     amount: "",
     destination: ""

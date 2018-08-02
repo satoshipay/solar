@@ -27,15 +27,10 @@ const AccountDeletionDialog = (props: Props) => {
       <DialogContent>
         <DialogContentText>
           Are you sure you want to delete the account "{props.account.name}"?<br />
-          Make sure to backup your private key if there are still funds on the
-          account!
+          Make sure to backup your private key if there are still funds on the account!
         </DialogContentText>
         <DialogContentText style={{ marginTop: 16 }}>
-          Balance:{" "}
-          <AccountBalance
-            publicKey={props.account.publicKey}
-            testnet={props.account.testnet}
-          />
+          Balance: <AccountBalance publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </DialogContentText>
         <DialogActions>
           <Button color="primary" onClick={props.onClose}>

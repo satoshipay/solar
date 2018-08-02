@@ -16,10 +16,7 @@ async function loadAccount(horizon: Server, accountPubKey: string) {
   }
 }
 
-export async function waitForAccountData(
-  horizon: Server,
-  accountPubKey: string
-) {
+export async function waitForAccountData(horizon: Server, accountPubKey: string) {
   let accountData = null
 
   while (true) {

@@ -10,11 +10,7 @@ import LockIcon from "@material-ui/icons/LockOutlined"
 import WalletIcon from "@material-ui/icons/AccountBalanceWalletOutlined"
 import AddIcon from "react-icons/lib/md/add"
 import { Keypair } from "stellar-sdk"
-import {
-  addFormState,
-  InnerFormProps,
-  renderError
-} from "../../lib/formHandling"
+import { addFormState, InnerFormProps, renderError } from "../../lib/formHandling"
 import { Box, HorizontalLayout } from "../Layout/Box"
 
 export interface AccountCreationValues {
@@ -38,19 +34,13 @@ const validatePassword = (password: string, values: AccountCreationValues) => {
   }
 }
 
-const validatePasswordRepeat = (
-  passwordRepeat: string,
-  values: AccountCreationValues
-) => {
+const validatePasswordRepeat = (passwordRepeat: string, values: AccountCreationValues) => {
   if (values.setPassword && passwordRepeat !== values.password) {
     return new Error("Password does not match.")
   }
 }
 
-const validatePrivateKey = (
-  privateKey: string,
-  values: AccountCreationValues
-) => {
+const validatePrivateKey = (privateKey: string, values: AccountCreationValues) => {
   if (!values.createNewKey && !privateKey.match(/^S[A-Z0-9]{55}$/)) {
     return new Error("Invalid stellar public key.")
   }
@@ -60,16 +50,12 @@ interface AccountCreationFormProps {
   onSubmit(formValues: AccountCreationValues): void
 }
 
-const AccountCreationForm = (
-  props: InnerFormProps<AccountCreationValues> & AccountCreationFormProps
-) => {
+const AccountCreationForm = (props: InnerFormProps<AccountCreationValues> & AccountCreationFormProps) => {
   const { errors, formValues, onSubmit, setFormValue, validate } = props
   const triggerSubmit = () => {
     if (!validate(props.formValues)) return
 
-    const privateKey = formValues.createNewKey
-      ? Keypair.random().secret()
-      : formValues.privateKey
+    const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey
     onSubmit({ ...formValues, privateKey })
   }
   const handleSubmitEvent = (event: React.SyntheticEvent) => {
@@ -113,11 +99,7 @@ const AccountCreationForm = (
       />
       <TextField
         error={Boolean(errors.passwordRepeat)}
-        label={
-          errors.passwordRepeat
-            ? renderError(errors.passwordRepeat)
-            : "Repeat password"
-        }
+        label={errors.passwordRepeat ? renderError(errors.passwordRepeat) : "Repeat password"}
         fullWidth
         margin="dense"
         value={formValues.passwordRepeat}
@@ -134,9 +116,7 @@ const AccountCreationForm = (
       />
       <TextField
         error={Boolean(errors.privateKey)}
-        label={
-          errors.privateKey ? renderError(errors.privateKey) : "Private key"
-        }
+        label={errors.privateKey ? renderError(errors.privateKey) : "Private key"}
         placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
         margin="dense"
@@ -156,9 +136,7 @@ const AccountCreationForm = (
           control={
             <Switch
               checked={formValues.setPassword}
-              onChange={() =>
-                setFormValue("setPassword", !formValues.setPassword as any)
-              }
+              onChange={() => setFormValue("setPassword", !formValues.setPassword as any)}
             />
           }
           label="Set password"
@@ -168,9 +146,7 @@ const AccountCreationForm = (
           control={
             <Switch
               checked={!formValues.createNewKey}
-              onChange={() =>
-                setFormValue("createNewKey", !formValues.createNewKey as any)
-              }
+              onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
             />
           }
           label="Import existing key"
@@ -179,17 +155,11 @@ const AccountCreationForm = (
       </FormGroup>
       <Box margin="16px 0">
         Security note:<br />
-        The key to your account will be encrypted using the password you set
-        here. If you forget your password, your funds will be lost unless you
-        have a backup of your private key!
+        The key to your account will be encrypted using the password you set here. If you forget your password, your
+        funds will be lost unless you have a backup of your private key!
       </Box>
       <HorizontalLayout justifyContent="end" margin="24px 0 0">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={triggerSubmit}
-          type="submit"
-        >
+        <Button variant="contained" color="primary" onClick={triggerSubmit} type="submit">
           <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
           Add account
         </Button>
@@ -198,10 +168,7 @@ const AccountCreationForm = (
   )
 }
 
-const StatefulAccountCreationForm = addFormState<
-  AccountCreationValues,
-  AccountCreationFormProps
->({
+const StatefulAccountCreationForm = addFormState<AccountCreationValues, AccountCreationFormProps>({
   defaultValues: {
     name: "",
     password: "",

@@ -67,9 +67,7 @@ export function createDialog<Props extends {}>(type: DialogType, props: Props) {
   }
 }
 
-export function openDialog<DialogProps extends { type: string }>(
-  dialog: DialogDescriptor
-) {
+export function openDialog<DialogProps extends { type: string }>(dialog: DialogDescriptor) {
   DialogStore.push(dialog)
 }
 

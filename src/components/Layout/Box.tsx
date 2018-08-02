@@ -16,10 +16,7 @@ const Box = ({
   return <Component style={inlineStyle}>{children}</Component>
 }
 
-const HorizontalLayout = ({
-  children,
-  ...styleProps
-}: BoxStyles & { children: React.ReactNode }) => {
+const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: "row",
@@ -28,10 +25,7 @@ const HorizontalLayout = ({
   return <div style={style}>{children}</div>
 }
 
-const VerticalLayout = ({
-  children,
-  ...styleProps
-}: BoxStyles & { children: React.ReactNode }) => {
+const VerticalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -55,9 +49,7 @@ const AspectRatioBox = ({
       throw new Error(`Invalid ratio numbers.`)
     }
   } catch (error) {
-    throw new Error(
-      `AspectRatioBox: Bad ratio given: "${ratio}". Expected something like "1:2".`
-    )
+    throw new Error(`AspectRatioBox: Bad ratio given: "${ratio}". Expected something like "1:2".`)
   }
 
   const outerStyle: React.CSSProperties = {
@@ -80,10 +72,7 @@ const AspectRatioBox = ({
   )
 }
 
-const FloatingBox = ({
-  children,
-  ...styleProps
-}: BoxStyles & { children: React.ReactNode }) => {
+const FloatingBox = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
   const style: React.CSSProperties = {
     position: "absolute",
     top: "50%",

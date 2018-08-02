@@ -23,10 +23,7 @@ const SubmissionProgress = (props: { promise: Promise<any> }) => (
     promise={props.promise}
     pending={
       <FloatingStatusBox>
-        <CircularProgress
-          size={70}
-          style={{ marginTop: 10, marginBottom: 20 }}
-        />
+        <CircularProgress size={70} style={{ marginTop: 10, marginBottom: 20 }} />
         <div>Sending transaction...</div>
       </FloatingStatusBox>
     }

@@ -4,18 +4,11 @@ import { AccountBalance } from "../components/Balance"
 import { DetailData, DetailDataSet } from "../components/Details"
 import { Account } from "../stores/accounts"
 
-const SecurityStatus = (props: {
-  requiresPassword: boolean
-  testnet: boolean
-}) => {
+const SecurityStatus = (props: { requiresPassword: boolean; testnet: boolean }) => {
   if (props.requiresPassword) {
     return <>Password-based encryption</>
   } else {
-    return props.testnet ? (
-      <>No password</>
-    ) : (
-      <Typography color="error">No password</Typography>
-    )
+    return props.testnet ? <>No password</> : <Typography color="error">No password</Typography>
   }
 }
 
@@ -23,24 +16,11 @@ const AccountDetails = (props: { account: Account }) => {
   const { account } = props
   return (
     <DetailDataSet>
-      <DetailData
-        label="Balance"
-        value={
-          <AccountBalance
-            publicKey={account.publicKey}
-            testnet={account.testnet}
-          />
-        }
-      />
+      <DetailData label="Balance" value={<AccountBalance publicKey={account.publicKey} testnet={account.testnet} />} />
       <DetailData label="Public Key" value={account.publicKey} />
       <DetailData
         label="Security"
-        value={
-          <SecurityStatus
-            requiresPassword={account.requiresPassword}
-            testnet={account.testnet}
-          />
-        }
+        value={<SecurityStatus requiresPassword={account.requiresPassword} testnet={account.testnet} />}
       />
       {account.testnet ? <DetailData label="Network" value="Testnet" /> : null}
     </DetailDataSet>

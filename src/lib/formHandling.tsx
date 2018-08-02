@@ -22,10 +22,7 @@ export function addFormState<Values, Props = {}>(
   const defaultValues = options.defaultValues || (({} as any) as Values)
   const validators: Validators<Values> = options.validators || {}
 
-  const validate = (
-    values: Values,
-    { setErrors }: { setErrors: (updater: ErrorStateUpdater) => any }
-  ) => {
+  const validate = (values: Values, { setErrors }: { setErrors: (updater: ErrorStateUpdater) => any }) => {
     let successful = true
     Object.keys(validators).forEach((fieldName: string) => {
       const validator = validators[fieldName]
@@ -51,12 +48,9 @@ export function addFormState<Values, Props = {}>(
       },
       {}
     >({
-      setFormValue: ({ formValues, setFormValues }) => (
-        key: string,
-        value: any
-      ) => setFormValues({ ...(formValues as any), [key]: value }),
-      validate: ({ formValues, setErrors }) => (values = formValues) =>
-        validate(values, { setErrors })
+      setFormValue: ({ formValues, setFormValues }) => (key: string, value: any) =>
+        setFormValues({ ...(formValues as any), [key]: value }),
+      validate: ({ formValues, setErrors }) => (values = formValues) => validate(values, { setErrors })
     })
   )
 }

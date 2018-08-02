@@ -41,11 +41,7 @@ interface FlexParentStyles {
   wrap?: React.CSSProperties["flexWrap"]
 }
 
-const createFlexParentStyle = ({
-  alignItems,
-  justifyContent,
-  wrap
-}: FlexParentStyles) => {
+const createFlexParentStyle = ({ alignItems, justifyContent, wrap }: FlexParentStyles) => {
   if (justifyContent === "start") {
     justifyContent = "flex-start"
   }
@@ -72,12 +68,7 @@ interface FlexChildStyles {
   alignSelf?: React.CSSProperties["alignSelf"]
 }
 
-const createFlexChildStyle = ({
-  grow,
-  shrink,
-  fixed,
-  alignSelf
-}: FlexChildStyles) => {
+const createFlexChildStyle = ({ grow, shrink, fixed, alignSelf }: FlexChildStyles) => {
   const style: React.CSSProperties = {}
 
   if (grow) {
