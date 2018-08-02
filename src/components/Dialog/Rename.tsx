@@ -4,6 +4,7 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
+import { addError } from "../../stores/errors"
 import { HorizontalLayout } from "../Layout/Box"
 
 interface UIProps {
@@ -48,7 +49,7 @@ const RenameDialogUI = (props: UIProps) => {
 interface Props {
   open: boolean
   onClose: () => void
-  performRenaming: (newValue: string) => void
+  performRenaming: (newValue: string) => Promise<void>
   prevValue: string
   title: string
 }
@@ -68,7 +69,7 @@ class RenameDialog extends React.Component<Props, State> {
 
   handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    this.props.performRenaming(this.state.value)
+    this.props.performRenaming(this.state.value).catch(error => addError(error))
     this.props.onClose()
   }
 

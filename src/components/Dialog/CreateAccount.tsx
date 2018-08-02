@@ -7,6 +7,7 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import { Keypair } from "stellar-sdk"
 import * as routes from "../../lib/routes"
 import { createAccount as createAccountInStore } from "../../stores/accounts"
+import { addError } from "../../stores/errors"
 import AccountCreationForm, {
   AccountCreationValues
 } from "../Form/CreateAccount"
@@ -18,15 +19,19 @@ interface DialogProps {
 }
 
 const CreateAccountDialog = (props: DialogProps & { history: History }) => {
-  const createAccount = (formValues: AccountCreationValues) => {
-    const account = createAccountInStore({
-      name: formValues.name,
-      keypair: Keypair.fromSecret(formValues.privateKey),
-      password: formValues.setPassword ? formValues.password : null,
-      testnet: props.testnet
-    })
-    props.onClose()
-    props.history.push(routes.account(account.id))
+  const createAccount = async (formValues: AccountCreationValues) => {
+    try {
+      const account = await createAccountInStore({
+        name: formValues.name,
+        keypair: Keypair.fromSecret(formValues.privateKey),
+        password: formValues.setPassword ? formValues.password : null,
+        testnet: props.testnet
+      })
+      props.onClose()
+      props.history.push(routes.account(account.id))
+    } catch (error) {
+      addError(error)
+    }
   }
   return (
     <Dialog open={props.open} onClose={props.onClose}>
