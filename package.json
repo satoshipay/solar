@@ -1,5 +1,5 @@
 {
-  "name": "stellar-wallet",
+  "name": "stellar-wallet-webapp",
   "version": "0.0.0",
   "license": "UNLICENSED",
   "private": true,
@@ -8,12 +8,13 @@
   "scripts": {
     "precommit": "lint-staged",
     "prebuild": "rm -rf dist/",
-    "build": "NODE_ENV=production parcel build --public-url=./ --detailed-report src/index.html",
-    "dev": "NODE_ENV=development parcel src/index.html -p 3000",
+    "build": "NODE_ENV=production parcel build src/index.html --public-url=./ --target=electron --detailed-report",
+    "dev": "NODE_ENV=development parcel serve src/index.html -p 3000 --target=electron",
     "lint:fix": "tslint --fix '{src,stories}/**/*.{ts,tsx}'",
     "prettier": "prettier --write '{src,stories}/**/*.{ts,tsx}' *.md electron/*.js",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "test": "tslint --project ."
+    "test": "tslint --project .",
+    "watch": "NODE_ENV=development parcel watch src/index.html --public-url=./ --target=electron"
   },
   "lint-staged": {
     "ignore": [
