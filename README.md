@@ -32,6 +32,9 @@ npm run storybook
 npm run build
 ```
 
+Find the app build instructions here:
+- [electron](./electron)
+
 ## See also
 
 - [Zenhub board](https://app.zenhub.com/workspace/o/satoshipay/wallet/boards?repos=137336510)
