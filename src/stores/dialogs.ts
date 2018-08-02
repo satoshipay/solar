@@ -46,7 +46,7 @@ export interface DeleteAccountDescriptor extends DialogDescriptorBase {
 export interface RenameDescriptor extends DialogDescriptorBase {
   type: DialogType.Rename
   props: {
-    performRenaming: (newValue: string) => void
+    performRenaming: (newValue: string) => Promise<void>
     prevValue: string
     title: string
   }

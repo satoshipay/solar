@@ -79,7 +79,7 @@ export function createPaymentDialog(account: Account): CreatePaymentDescriptor {
 export function createRenamingDialog(
   title: string,
   prevValue: string,
-  performRenaming: (newValue: string) => void
+  performRenaming: (newValue: string) => Promise<void>
 ): RenameDescriptor {
   return createDialog(DialogType.Rename, { performRenaming, prevValue, title })
 }
