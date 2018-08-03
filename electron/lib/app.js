@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu } = require("electron")
 const path = require("path")
 const url = require("url")
 const { createAppMenu } = require("./menu")
+require("./storage")
 
 // Enable opening dev tools in production using keyboard shortcut
 require("electron-debug")({
