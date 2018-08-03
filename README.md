@@ -26,15 +26,20 @@ To run the storybook:
 npm run storybook
 ```
 
-## Build
+## Production build
 
 ```
-npm run build
+npm run build:mac
+npm run build:win
+npm run build:linux
 ```
 
-Find the app build instructions here:
+## Run dev server without electron
 
-- [electron](./electron)
+```
+cd web/
+npm run dev
+```
 
 ## See also
 

@@ -73,5 +73,5 @@ export function openDialog<DialogProps extends { type: string }>(dialog: DialogD
 
 export function closeDialog(id: number) {
   const dialog = DialogStore.find(someDialog => someDialog.id === id)
-  DialogStore.remove(dialog)
+  DialogStore.remove(dialog as DialogDescriptor)
 }
