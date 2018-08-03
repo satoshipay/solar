@@ -6,21 +6,12 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es5",
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "lib": ["es6", "dom"],
     "jsx": "react",
-    "typeRoots": [ "./types", "./node_modules/@types"]
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": [
-    "./src/**/*",
-    "./node_modules/@types/**/*",
-    "./node_modules/material-ui/**/*"
-  ],
-  "exclude": [
-    "./node_modules"
-  ],
+  "include": ["./src/**/*", "./types/**/*", "./node_modules/@types/**/*", "./node_modules/material-ui/**/*"],
+  "exclude": ["./node_modules"],
   "rules": {
     "no-submodule-imports": false
   }
