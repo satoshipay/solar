@@ -1,0 +1,10 @@
+appId: io.satoshipay.wallet
+productName: SatoshiPay Wallet
+
+directories:
+  buildResources: ./electron/build
+  output: ./electron/dist
+
+files:
+  - "./dist/*"
+  - "./electron/lib/**"

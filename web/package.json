@@ -1,0 +1,19 @@
+{
+  "name": "stellar-wallet-web",
+  "description": "SatoshiPay wallet for the Stellar payment network.",
+  "version": "0.0.0",
+  "private": true,
+  "author": {
+    "name": "SatoshiPay Ltd",
+    "email": "feedback@satoshipay.io"
+  },
+  "homepage": "https://github.com/satoshipay/wallet",
+  "scripts": {
+    "prebuild": "rm -rf dist/",
+    "build": "NODE_ENV=production ../node_modules/.bin/parcel build ../src/index.html --public-url=./ --detailed-report",
+    "dev": "NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.html -p 3000"
+  },
+  "browser": {
+    "../src/platform/electron/key-store": false
+  }
+}

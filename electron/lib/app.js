@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Menu } = require("electron")
 const path = require("path")
 const url = require("url")
-const { createAppMenu } = require("./lib/menu")
+const { createAppMenu } = require("./menu")
 
 // Enable opening dev tools in production using keyboard shortcut
 require("electron-debug")({
@@ -43,7 +43,7 @@ function createWindow() {
   })
 
   const webappURL = url.format({
-    pathname: require.resolve("stellar-wallet-webapp/dist/index.html"),
+    pathname: path.join(__dirname, "../../dist/index.html"),
     protocol: "file:",
     slashes: true
   })
