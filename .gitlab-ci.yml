@@ -1,0 +1,49 @@
+image: node:10-alpine
+
+stages:
+  - test
+  - build
+  - release
+
+test:
+  stage: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules
+  script:
+    - npm install
+    - npm test
+
+build_mac:
+  stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - electron/dist
+  script:
+    - npm run build:mac -- --mac=zip
+  only:
+    - master
+
+build_linux:
+  stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - electron/dist
+  script:
+    - sudo apt-get install rpm
+    - npm run build:linux -- --linux=deb --linux=rpm
+  only:
+    - master
+
+github_release:
+  stage: release
+  image: circleci/golang:1.9
+  script:
+    - rm ./electron/dist/*.yml
+    - go get github.com/tcnksm/ghr
+    - ghr -t $GITHUB_TOKEN -u satoshipay -r $CI_PROJECT_NAME --draft `git describe --tags` ./electron/dist
+  only:
+    - tags
