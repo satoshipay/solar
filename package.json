@@ -4,7 +4,10 @@
   "description": "SatoshiPay wallet for the Stellar payment network.",
   "license": "UNLICENSED",
   "private": true,
-  "author": "SatoshiPay Ltd",
+  "author": {
+    "name": "SatoshiPay Ltd",
+    "email": "feedback@satoshipay.io"
+  },
   "repository": "github:satoshipay/wallet",
   "main": "./electron/lib/app.js",
   "scripts": {
