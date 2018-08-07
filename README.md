@@ -2,7 +2,11 @@
 
 Desktop / Mobile app, payment requests, multisignature and more.
 
-## Setup
+## Download
+
+See <https://github.com/satoshipay/wallet/releases>. You will find the binaries there.
+
+## Development setup
 
 ```
 npm install
