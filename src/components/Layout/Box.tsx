@@ -20,6 +20,7 @@ const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { children: R
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: "row",
+    width: "100%",
     ...createBoxStyle(styleProps)
   }
   return <div style={style}>{children}</div>
