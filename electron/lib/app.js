@@ -40,7 +40,10 @@ function createWindow() {
     width: 800,
     height: 600,
     title: "SatoshiPay Wallet 🚀",
-    icon: path.join(__dirname, "icon.png")
+    icon: path.join(__dirname, "icon.png"),
+    backgroundColor: "white",
+    nodeIntegration: false,
+    titleBarStyle: process.platform === "darwin" ? "hidden" : "default"
   })
 
   const webappURL = url.format({

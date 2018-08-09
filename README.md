@@ -16,6 +16,9 @@ npm install
 
 ```
 npm run dev
+
+# On Mac OS:
+PLATFORM=darwin npm run dev
 ```
 
 To run the tests:

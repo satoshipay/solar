@@ -54,7 +54,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
 
   return (
     <>
-      <Section style={{ background: indigo[500] }}>
+      <Section top style={{ background: indigo[500] }}>
         <Card
           style={{
             position: "relative",
