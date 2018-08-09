@@ -85,14 +85,18 @@ export async function createAccount(accountData: {
   return account
 }
 
+function updateAccountInStore(updatedAccount: Account) {
+  const index = AccountStore.findIndex(account => account.id === updatedAccount.id)
+  AccountStore.splice(index, 1, updatedAccount)
+}
+
 export async function renameAccount(accountID: string, newName: string) {
   await keyStore.savePublicKeyData(accountID, {
     ...keyStore.getPublicKeyData(accountID),
     name: newName
   })
 
-  const index = AccountStore.findIndex(account => account.id === accountID)
-  AccountStore.splice(index, 1, createAccountInstance(accountID))
+  updateAccountInStore(createAccountInstance(accountID))
 }
 
 export async function deleteAccount(accountID: string) {
@@ -100,4 +104,23 @@ export async function deleteAccount(accountID: string) {
 
   const index = AccountStore.findIndex(account => account.id === accountID)
   AccountStore.splice(index, 1)
+}
+
+export async function changePassword(accountID: string, prevPassword: string, nextPassword: string) {
+  const privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+  const publicKeyData = keyStore.getPublicKeyData(accountID)
+
+  // Setting `password: true` explicitly, in case there was no password set before
+  await keyStore.saveKey(accountID, nextPassword, privateKeyData, { ...publicKeyData, password: true })
+
+  updateAccountInStore(createAccountInstance(accountID))
+}
+
+export async function removePassword(accountID: string, prevPassword: string) {
+  const privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+  const publicKeyData = keyStore.getPublicKeyData(accountID)
+
+  await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })
+
+  updateAccountInStore(createAccountInstance(accountID))
 }

@@ -19,7 +19,12 @@ import { Box, HorizontalLayout } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import AccountContextMenu from "../components/Menu/AccountContextMenu"
-import { createAccountDeletionDialog, createPaymentDialog, createRenamingDialog } from "../components/Dialog/index"
+import {
+  createAccountDeletionDialog,
+  createChangeAccountPasswordDialog,
+  createPaymentDialog,
+  createRenamingDialog
+} from "../components/Dialog/index"
 import * as routes from "../lib/routes"
 import AccountStore, { renameAccount } from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
@@ -43,6 +48,9 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
     throw new Error(`Wallet account not found. ID: ${params.id}`)
   }
 
+  const onChangePassword = () => {
+    openDialog(createChangeAccountPasswordDialog(account))
+  }
   const onDelete = () => {
     openDialog(createAccountDeletionDialog(account, () => props.history.push(routes.allAccounts())))
   }
@@ -72,7 +80,12 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                 {account.name}
               </Typography>
               <Box grow style={{ textAlign: "right" }}>
-                <AccountContextMenu onRename={onRename} onDelete={onDelete} />
+                <AccountContextMenu
+                  account={account}
+                  onRename={onRename}
+                  onChangePassword={onChangePassword}
+                  onDelete={onDelete}
+                />
               </Box>
             </HorizontalLayout>
             <VerticalMargin size={28} />
