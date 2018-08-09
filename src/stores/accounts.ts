@@ -97,4 +97,7 @@ export async function renameAccount(accountID: string, newName: string) {
 
 export async function deleteAccount(accountID: string) {
   await keyStore.removeKey(accountID)
+
+  const index = AccountStore.findIndex(account => account.id === accountID)
+  AccountStore.splice(index, 1)
 }
