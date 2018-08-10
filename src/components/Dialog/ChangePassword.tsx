@@ -13,7 +13,7 @@ import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderError } from "../../lib/formHandling"
-import { changePassword, removePassword, Account } from "../../stores/accounts"
+import { changePassword, removePassword as removeAccountPassword, Account } from "../../stores/accounts"
 import { addError, addNotification } from "../../stores/notifications"
 
 const adornmentLock = (
@@ -37,7 +37,7 @@ interface FormValues {
 type Errors = { [key in keyof FormValues]?: Error | undefined }
 
 function validateFormValues(formValues: FormValues, passwordMode: "change" | "initial" | "remove") {
-  let errors: Errors = {}
+  const errors: Errors = {}
 
   if (!formValues.prevPassword && passwordMode !== "initial") {
     errors.prevPassword = new Error("Current password is missing.")
@@ -133,7 +133,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
 
     if (success) {
       // TODO: Show confirmation prompt (dialog)
-      removePassword(this.props.account.id, this.state.formValues.prevPassword)
+      removeAccountPassword(this.props.account.id, this.state.formValues.prevPassword)
         .then(() => {
           addNotification("success", "Password removed.")
           this.props.onClose()
