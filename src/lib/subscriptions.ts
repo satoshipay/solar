@@ -1,6 +1,6 @@
 import { observable } from "mobx"
 import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
-import { addError } from "../stores/errors"
+import { addError } from "../stores/notifications"
 import { waitForAccountData } from "./account"
 
 export interface AccountObservable {
