@@ -58,13 +58,24 @@ function validateFormValues(formValues: FormValues, passwordMode: "change" | "in
   return { errors, success }
 }
 
-const Actions = (props: { removePassword: boolean; onSubmit: () => void; onToggleRemovePassword: () => void }) => {
+interface ActionsProps {
+  isPasswordProtected: boolean
+  removePassword: boolean
+  onSubmit: () => void
+  onToggleRemovePassword: () => void
+}
+
+const Actions = (props: ActionsProps) => {
   return (
     <HorizontalLayout justifyContent="space-between">
-      <FormControlLabel
-        control={<Switch checked={props.removePassword} onChange={props.onToggleRemovePassword} />}
-        label="Remove password"
-      />
+      {props.isPasswordProtected ? (
+        <FormControlLabel
+          control={<Switch checked={props.removePassword} onChange={props.onToggleRemovePassword} />}
+          label="Remove password"
+        />
+      ) : (
+        <div />
+      )}
       <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
         <LockIcon style={{ marginRight: 8, marginTop: -2 }} />
         {props.removePassword ? "Remove password" : "Change password"}
@@ -193,6 +204,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
         </DialogContent>
         <DialogActions style={{ padding: "0 24px 24px", margin: "8px 0 0" }}>
           <Actions
+            isPasswordProtected={account.requiresPassword}
             onSubmit={removePassword ? this.removePassword : this.changePassword}
             onToggleRemovePassword={this.toggleRemovePassword}
             removePassword={removePassword}
