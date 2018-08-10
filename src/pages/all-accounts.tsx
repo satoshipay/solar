@@ -7,7 +7,7 @@ import AccountStore from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
 
 const HomePage = (props: { accounts: typeof AccountStore }) => (
-  <Section top>
+  <Section top backgroundColor="white">
     <AccountList
       accounts={props.accounts}
       onCreatePubnetAccount={() => openDialog(createAccountCreationDialog(false))}
