@@ -8,7 +8,7 @@ const noop = () => undefined
 
 const IconDiv = (props: { children: React.ReactNode }) => {
   const marginSize = 12
-  return <div style={{ flexGrow: 0, flexShrink: 0, marginRight: marginSize }}>{props.children}</div>
+  return <div style={{ display: "flex", flexGrow: 0, flexShrink: 0, marginRight: marginSize }}>{props.children}</div>
 }
 
 interface ListItemProps {
