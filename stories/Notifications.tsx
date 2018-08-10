@@ -4,20 +4,29 @@ import { storiesOf } from "@storybook/react"
 import NotificationContainer from "../src/components/NotificationContainer"
 import NotificationsStore, { addError, addNotification } from "../src/stores/notifications"
 
-storiesOf("Notifications", module)
-  .add("Error", () => (
-    <div>
-      <NotificationContainer notifications={NotificationsStore} />
+const Buttons = (props: { children: React.ReactNode }) => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      height: React.Children.count(props.children) * 40,
+      justifyContent: "space-between"
+    }}
+  >
+    {props.children}
+  </div>
+)
+
+storiesOf("Notifications", module).add("All", () => (
+  <div>
+    <NotificationContainer notifications={NotificationsStore} />
+    <Buttons>
       <Button variant="contained" onClick={() => addError(new Error("An error happened."))}>
         Show error notification
       </Button>
-    </div>
-  ))
-  .add("Success", () => (
-    <div>
-      <NotificationContainer notifications={NotificationsStore} />
       <Button variant="contained" onClick={() => addNotification("success", "Action successful!")}>
         Show success notification
       </Button>
-    </div>
-  ))
+    </Buttons>
+  </div>
+))
