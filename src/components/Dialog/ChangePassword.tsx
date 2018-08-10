@@ -14,7 +14,7 @@ import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderError } from "../../lib/formHandling"
 import { changePassword, removePassword, Account } from "../../stores/accounts"
-import { addError } from "../../stores/notifications"
+import { addError, addNotification } from "../../stores/notifications"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -97,17 +97,21 @@ class ChangePasswordDialog extends React.Component<Props, State> {
   }
 
   changePassword = () => {
+    const { id: accountID, requiresPassword } = this.props.account
     const { nextPassword, prevPassword } = this.state.formValues
-    const passwordMode = this.props.account.requiresPassword ? "change" : "initial"
+
+    const passwordMode = requiresPassword ? "change" : "initial"
 
     const { errors, success } = validateFormValues(this.state.formValues, passwordMode)
     this.setState({ errors })
 
     if (success) {
       // TODO: Show confirmation prompt (dialog)
-      // TODO: Show success message (snackbar)
-      changePassword(this.props.account.id, prevPassword, nextPassword)
-        .then(() => this.props.onClose())
+      changePassword(accountID, prevPassword, nextPassword)
+        .then(() => {
+          addNotification("success", requiresPassword ? "Password changed." : "Password set.")
+          this.props.onClose()
+        })
         .catch(addError)
     }
   }
@@ -118,9 +122,11 @@ class ChangePasswordDialog extends React.Component<Props, State> {
 
     if (success) {
       // TODO: Show confirmation prompt (dialog)
-      // TODO: Show success message (snackbar)
       removePassword(this.props.account.id, this.state.formValues.prevPassword)
-        .then(() => this.props.onClose())
+        .then(() => {
+          addNotification("success", "Password removed.")
+          this.props.onClose()
+        })
         .catch(addError)
     }
   }
