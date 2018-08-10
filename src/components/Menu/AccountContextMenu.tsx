@@ -25,6 +25,7 @@ interface MenuProps {
   onChangePassword: () => void
   onDelete: () => void
   onRename: () => void
+  style?: React.CSSProperties
 }
 
 const AccountContextMenu = (props: MenuProps) => {
@@ -32,7 +33,7 @@ const AccountContextMenu = (props: MenuProps) => {
   return (
     <ContextMenu
       anchor={({ onOpen }) => (
-        <IconButton color="inherit" onClick={onOpen} style={{ marginTop: -8, marginRight: -8, fontSize: 32 }}>
+        <IconButton color="inherit" onClick={onOpen} style={props.style}>
           <MoreVertIcon />
         </IconButton>
       )}

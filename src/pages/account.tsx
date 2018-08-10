@@ -1,7 +1,7 @@
 import React from "react"
 import { History } from "history"
 import { match } from "react-router"
-import { withRouter } from "react-router-dom"
+import { withRouter, RouteComponentProps } from "react-router-dom"
 import { observer } from "mobx-react"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
@@ -29,13 +29,13 @@ import * as routes from "../lib/routes"
 import AccountStore, { renameAccount } from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
 
-const BackButton = withRouter((props: { history: History }) => {
+type BackButtonProps = RouteComponentProps<any, any, any> & {
+  style?: React.CSSProperties
+}
+
+const BackButton = withRouter<BackButtonProps>((props: BackButtonProps) => {
   return (
-    <IconButton
-      color="inherit"
-      onClick={() => props.history.push(routes.allAccounts())}
-      style={{ marginTop: -8, marginLeft: -8, fontSize: 32 }}
-    >
+    <IconButton color="inherit" onClick={() => props.history.push(routes.allAccounts())} style={props.style}>
       <ChevronLeftIcon />
     </IconButton>
   )
@@ -74,7 +74,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
           <CardContent>
             <HorizontalLayout alignItems="space-between">
               <Box grow>
-                <BackButton />
+                <BackButton style={{ marginTop: -8, marginLeft: -16, fontSize: 32 }} />
               </Box>
               <Typography align="center" color="inherit" variant="headline" component="h2" gutterBottom>
                 {account.name}
@@ -85,6 +85,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                   onRename={onRename}
                   onChangePassword={onChangePassword}
                   onDelete={onDelete}
+                  style={{ marginTop: -8, marginRight: -16, fontSize: 32 }}
                 />
               </Box>
             </HorizontalLayout>
