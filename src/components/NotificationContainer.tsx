@@ -80,6 +80,8 @@ class NotificationContainer extends React.Component<NotificationContainerProps, 
     lastClosedNotificationID: 0
   }
 
+  lastShownNotification: NotificationObject | null = null
+
   closeNotification = (notificationID: number) => {
     this.setState({
       lastClosedNotificationID: notificationID
@@ -89,11 +91,20 @@ class NotificationContainer extends React.Component<NotificationContainerProps, 
   render() {
     const latestNotificationItem = this.props.notifications[this.props.notifications.length - 1] || null
     const open = latestNotificationItem && latestNotificationItem.id !== this.state.lastClosedNotificationID
+
+    // Fall back to the values of a just-removed notification if necessary
+    // Reason: Notification might still be visible / in closing transition when it suddenly gets removed
+    const notification = latestNotificationItem || this.lastShownNotification
+
+    if (latestNotificationItem) {
+      this.lastShownNotification = latestNotificationItem
+    }
+
     return (
       <StyledNotification
         autoHideDuration={5000}
-        message={latestNotificationItem ? latestNotificationItem.message : ""}
-        type={latestNotificationItem ? latestNotificationItem.type : "error"}
+        message={notification ? notification.message : ""}
+        type={notification ? notification.type : "error"}
         open={open}
         onClose={() => this.closeNotification(latestNotificationItem.id)}
       />
