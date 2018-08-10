@@ -4,7 +4,7 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
-import { addError } from "../../stores/errors"
+import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
 
 interface UIProps {

@@ -7,7 +7,7 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import { Keypair } from "stellar-sdk"
 import * as routes from "../../lib/routes"
 import { createAccount as createAccountInStore } from "../../stores/accounts"
-import { addError } from "../../stores/errors"
+import { addError } from "../../stores/notifications"
 import AccountCreationForm, { AccountCreationValues } from "../Form/CreateAccount"
 
 interface DialogProps {

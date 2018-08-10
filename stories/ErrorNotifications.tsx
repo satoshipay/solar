@@ -1,12 +1,12 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
-import ErrorNotificationContainer from "../src/components/ErrorNotificationContainer"
-import ErrorStore, { addError } from "../src/stores/errors"
+import NotificationContainer from "../src/components/NotificationContainer"
+import NotificationsStore, { addError } from "../src/stores/notifications"
 
 storiesOf("Notifications", module).add("Error", () => (
   <div>
-    <ErrorNotificationContainer errors={ErrorStore} />
+    <NotificationContainer notifications={NotificationsStore} />
     <Button variant="contained" onClick={() => addError(new Error("An error happened."))}>
       Trigger error
     </Button>
