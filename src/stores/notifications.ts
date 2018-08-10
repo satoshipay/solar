@@ -1,6 +1,6 @@
 import { observable, IObservableArray } from "mobx"
 
-export type NotificationType = "error"
+export type NotificationType = "error" | "success"
 
 export interface Notification {
   id: number

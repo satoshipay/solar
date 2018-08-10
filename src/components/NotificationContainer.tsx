@@ -2,14 +2,24 @@ import React from "react"
 import { observer } from "mobx-react"
 import Snackbar from "@material-ui/core/Snackbar"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
+import CheckIcon from "@material-ui/icons/CheckCircle"
 import ErrorIcon from "@material-ui/icons/Error"
+import green from "@material-ui/core/colors/green"
 import { Theme } from "@material-ui/core/styles/createMuiTheme"
 import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
 import { Notification as NotificationObject, NotificationType } from "../stores/notifications"
 
+const icons: { [key in NotificationType]: React.ComponentType<any> } = {
+  error: ErrorIcon,
+  success: CheckIcon
+}
+
 const styles = (theme: Theme) => ({
   error: {
     backgroundColor: theme.palette.error.dark
+  },
+  success: {
+    backgroundColor: green["500"]
   },
   icon: {
     fontSize: 20,
@@ -33,15 +43,20 @@ interface NotificationProps {
 
 const Notification = (props: NotificationProps) => {
   const { autoHideDuration, classes, message, type, open = true, onClose } = props
-  const contentClassname = classes.error
+
+  const Icon = icons[type]
+  const contentClassnames: { [key in NotificationType]: string } = {
+    error: classes.error,
+    success: classes.success
+  }
 
   return (
     <Snackbar autoHideDuration={autoHideDuration} open={open} onClose={onClose}>
       <SnackbarContent
-        className={contentClassname}
+        className={contentClassnames[type]}
         message={
           <span className={classes.message}>
-            <ErrorIcon className={classes.icon} />
+            <Icon className={classes.icon} />
             {message}
           </span>
         }
