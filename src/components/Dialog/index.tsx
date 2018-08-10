@@ -3,6 +3,7 @@ import { Account } from "../../stores/accounts"
 import {
   closeDialog,
   createDialog,
+  ChangePasswordDescriptor,
   CreateAccountDescriptor,
   CreatePaymentDescriptor,
   DialogDescriptor,
@@ -11,6 +12,7 @@ import {
   RenameDescriptor
 } from "../../stores/dialogs"
 import AccountDeletionDialog from "./AccountDeletion"
+import ChangePasswordDialog from "./ChangePassword"
 import CreateAccountDialog from "./CreateAccount"
 import CreatePaymentDialog from "./CreatePayment"
 import RenameDialog from "./Rename"
@@ -20,6 +22,8 @@ const OpenDialog = (props: DialogDescriptor) => {
   const onClose = () => closeDialog(dialog.id)
 
   switch (dialog.type) {
+    case DialogType.ChangePassword:
+      return <ChangePasswordDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.CreateAccount:
       return <CreateAccountDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.CreatePayment:
@@ -41,6 +45,10 @@ export function createAccountCreationDialog(testnet: boolean): CreateAccountDesc
 
 export function createAccountDeletionDialog(account: Account, onDeleted: () => void): DeleteAccountDescriptor {
   return createDialog(DialogType.DeleteAccount, { account, onDeleted })
+}
+
+export function createChangeAccountPasswordDialog(account: Account): ChangePasswordDescriptor {
+  return createDialog(DialogType.ChangePassword, { account })
 }
 
 export function createPaymentDialog(account: Account): CreatePaymentDescriptor {

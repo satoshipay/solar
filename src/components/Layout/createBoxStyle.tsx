@@ -90,17 +90,19 @@ const createFlexChildStyle = ({ grow, shrink, fixed, alignSelf }: FlexChildStyle
 export type BoxStyles = SizingStyles &
   FlexParentStyles &
   FlexChildStyles & {
+    hidden?: boolean
     margin?: React.CSSProperties["margin"]
     overflow?: React.CSSProperties["overflow"]
   }
 
 const createBoxStyle = (styleProps: BoxStyles) => {
-  const { margin = 0, overflow = "visible" } = styleProps
+  const { hidden = false, margin = 0, overflow = "visible" } = styleProps
 
   const style = {
     boxSizing: "border-box",
     margin,
     overflow,
+    ...(hidden ? { display: "none" } : {}),
     ...createSizingStyle(styleProps),
     ...createFlexParentStyle(styleProps),
     ...createFlexChildStyle(styleProps)
