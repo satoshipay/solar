@@ -14,6 +14,8 @@ require("electron-debug")({
 // be closed automatically when the JavaScript object is garbage collected.
 let globalWindowRef = null
 
+const appReady = new Promise(resolve => app.on("ready", resolve))
+
 app.on("ready", () => {
   Menu.setApplicationMenu(createAppMenu())
   globalWindowRef = createWindow()
@@ -30,9 +32,12 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (globalWindowRef === null) {
-    globalWindowRef = createWindow()
-  }
+  appReady.then(() => {
+    // Make sure the app is ready before we create the window
+    if (globalWindowRef === null) {
+      globalWindowRef = createWindow()
+    }
+  })
 })
 
 function createWindow() {
