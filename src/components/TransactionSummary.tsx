@@ -8,7 +8,19 @@ const OperationContent = ({ children }: { children: React.ReactNode }) => (
   <div style={{ fontSize: "80%", marginTop: 8 }}>{children}</div>
 )
 
-const TransactionMemo = (props: { memo: Memo }) => null // TODO: Render something useful if `memo.type` !== `none`
+const TransactionMemo = (props: { memo: Memo; style?: React.CSSProperties }) => {
+  if (props.memo.type === "none" || !props.memo.value) return null
+
+  const typeLabel = props.memo.type.substr(0, 1).toUpperCase() + props.memo.type.substr(1)
+
+  return (
+    <ListItem
+      heading={<Typography color="textSecondary">{typeLabel} Memo</Typography>}
+      primaryText={typeof props.memo.value === "string" ? props.memo.value : props.memo.value.toString("hex")}
+      style={props.style}
+    />
+  )
+}
 
 const PaymentOperationListItem = (props: { operation: Operation.Payment; style?: React.CSSProperties }) => {
   const { amount, asset, destination } = props.operation
@@ -95,10 +107,10 @@ const TransactionSummary = (props: { transaction: Transaction }) => {
   return (
     <List>
       <ListSubheader style={noHPaddingStyle}>Transaction summary</ListSubheader>
-      <TransactionMemo memo={props.transaction.memo} />
       {props.transaction.operations.map((operation, index) => (
         <TransactionOperation key={index} operation={operation} style={noHPaddingStyle} />
       ))}
+      <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />
     </List>
   )
 }

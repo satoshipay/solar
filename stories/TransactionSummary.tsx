@@ -6,6 +6,25 @@ import { Transactions } from "../src/components/Subscribers"
 import TransactionSummary from "../src/components/TransactionSummary"
 
 storiesOf("TransactionSummary", module)
+  .add("Payment", () => {
+    Network.useTestNetwork()
+    const horizon = new Server("https://horizon-testnet.stellar.org")
+
+    const promise = (async () => {
+      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      const builder = new TransactionBuilder(account)
+      builder.addOperation(
+        Operation.payment({
+          amount: "1.5",
+          asset: Asset.native(),
+          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
+        })
+      )
+      return builder.build()
+    })()
+
+    return <Async promise={promise} then={transaction => <TransactionSummary transaction={transaction} />} />
+  })
   .add("Payment with memo", () => {
     Network.useTestNetwork()
     const horizon = new Server("https://horizon-testnet.stellar.org")
@@ -17,7 +36,7 @@ storiesOf("TransactionSummary", module)
       })
       builder.addOperation(
         Operation.payment({
-          amount: "1.5",
+          amount: "20",
           asset: Asset.native(),
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
@@ -33,9 +52,7 @@ storiesOf("TransactionSummary", module)
 
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
-      const builder = new TransactionBuilder(account, {
-        memo: Memo.text("Demo transaction")
-      })
+      const builder = new TransactionBuilder(account)
       builder.addOperation(
         Operation.createAccount({
           startingBalance: "1.0",

@@ -1,7 +1,7 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
-import { Transaction } from "stellar-sdk"
+import { Memo, Transaction } from "stellar-sdk"
 import { createWrongPasswordError, isWrongPasswordError } from "../../lib/errors"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
@@ -127,10 +127,23 @@ class StatefulCreatePaymentDrawer extends React.Component<StatefulCreatePaymentD
     }
   }
 
+  createMemo = (formValues: PaymentCreationValues) => {
+    switch (formValues.memoType) {
+      case "id":
+        return Memo.id(formValues.memoValue)
+      case "text":
+        return Memo.text(formValues.memoValue)
+      default:
+        return Memo.none()
+    }
+  }
+
   createTransaction = (formValues: PaymentCreationValues) => {
     this.runErrorHandled(async () => {
       const tx = await createTransaction({
-        ...formValues,
+        amount: formValues.amount,
+        destination: formValues.destination,
+        memo: this.createMemo(formValues),
         horizon: this.getHorizon(),
         walletAccount: this.props.account,
         testnet: this.props.account.testnet
