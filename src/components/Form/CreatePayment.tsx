@@ -5,36 +5,41 @@ import SendIcon from "react-icons/lib/md/send"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { addFormState, renderError, InnerFormProps } from "../../lib/formHandling"
 
-const validatePublicKey = (value: string) => {
-  if (!value.match(/^G[A-Z0-9]{55}$/)) {
-    return new Error(`Invalid stellar public key.`)
-  }
-}
-const validateAmount = (value: string) => {
-  if (!value.match(/^[0-9]+(\.[0-9]+)?$/)) {
-    return new Error(`Invalid number.`)
-  }
-  // TODO: Check if amount <= balance
-}
-
 export interface PaymentCreationValues {
   amount: string
   destination: string
 }
 
-interface PaymentCreationFormProps {
-  onSubmit?: (formValues: PaymentCreationValues) => any
+type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
+
+function validateFormValues(formValues: PaymentCreationValues) {
+  const errors: PaymentCreationErrors = {}
+
+  if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
+    errors.destination = new Error(`Invalid stellar public key.`)
+  }
+  if (!formValues.amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
+    errors.amount = new Error(`Invalid number.`)
+  }
+  // TODO: Check that amount <= balance
+
+  const success = Object.keys(errors).length === 0
+  return { errors, success }
 }
 
-const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & PaymentCreationFormProps) => {
-  const { errors, formValues, setFormValue, validate, onSubmit = () => undefined } = props
+interface PaymentCreationFormProps {
+  errors: PaymentCreationErrors
+  formValues: PaymentCreationValues
+  setFormValue: (fieldName: keyof PaymentCreationValues, value: string) => void
+  onSubmit: () => void
+}
 
-  const triggerSubmit = () => {
-    if (validate(formValues)) onSubmit(formValues)
-  }
+const PaymentCreationForm = (props: PaymentCreationFormProps) => {
+  const { errors, formValues, setFormValue, onSubmit } = props
+
   const handleSubmitEvent = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    triggerSubmit()
+    onSubmit()
   }
   return (
     <form onSubmit={handleSubmitEvent}>
@@ -64,7 +69,7 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
         </Box>
       </HorizontalLayout>
       <Box margin="32px 0 0">
-        <Button variant="contained" color="primary" onClick={triggerSubmit} type="submit">
+        <Button variant="contained" color="primary" onClick={handleSubmitEvent} type="submit">
           <SendIcon style={{ marginRight: 8 }} />
           Create Payment
         </Button>
@@ -73,15 +78,54 @@ const PaymentCreationForm = (props: InnerFormProps<PaymentCreationValues> & Paym
   )
 }
 
-const StatefulPaymentCreationForm = addFormState<PaymentCreationValues, PaymentCreationFormProps>({
-  defaultValues: {
-    amount: "",
-    destination: ""
-  },
-  validators: {
-    amount: validateAmount,
-    destination: validatePublicKey
+interface Props {
+  onSubmit?: (formValues: PaymentCreationValues) => any
+}
+
+interface State {
+  errors: PaymentCreationErrors
+  formValues: PaymentCreationValues
+}
+
+class StatefulPaymentCreationForm extends React.Component<Props, State> {
+  state = {
+    errors: {},
+    formValues: {
+      amount: "",
+      destination: ""
+    }
   }
-})(PaymentCreationForm)
+
+  handleSubmit = () => {
+    const { onSubmit = () => undefined } = this.props
+
+    const { errors, success } = validateFormValues(this.state.formValues)
+    this.setState({ errors })
+
+    if (success) {
+      onSubmit(this.state.formValues)
+    }
+  }
+
+  setFormValue = (fieldName: keyof PaymentCreationValues, value: string) => {
+    this.setState({
+      formValues: {
+        ...this.state.formValues,
+        [fieldName]: value
+      }
+    })
+  }
+
+  render() {
+    return (
+      <PaymentCreationForm
+        {...this.props}
+        {...this.state}
+        onSubmit={this.handleSubmit}
+        setFormValue={this.setFormValue}
+      />
+    )
+  }
+}
 
 export default StatefulPaymentCreationForm
