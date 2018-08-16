@@ -1,7 +1,6 @@
-const { app, BrowserWindow, Menu } = require("electron")
-const path = require("path")
-const url = require("url")
+const { app, Menu } = require("electron")
 const { createAppMenu } = require("./menu")
+const { createMainWindow, trackWindow } = require("./window")
 require("./storage")
 
 // Enable opening dev tools in production using keyboard shortcut
@@ -10,13 +9,11 @@ require("electron-debug")({
   showDevTools: process.env.NODE_ENV === "development"
 })
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let globalWindowRef = null
+const appReady = new Promise(resolve => app.on("ready", resolve))
 
 app.on("ready", () => {
   Menu.setApplicationMenu(createAppMenu())
-  globalWindowRef = createWindow()
+  trackWindow(createMainWindow())
 })
 
 app.on("window-all-closed", () => {
@@ -30,36 +27,7 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (globalWindowRef === null) {
-    globalWindowRef = createWindow()
-  }
+  appReady.then(() => {
+    trackWindow(createMainWindow())
+  })
 })
-
-function createWindow() {
-  const window = new BrowserWindow({
-    width: 800,
-    height: 600,
-    title: "SatoshiPay Wallet 🚀",
-    icon: path.join(__dirname, "icon.png"),
-    backgroundColor: "white",
-    nodeIntegration: false,
-    titleBarStyle: process.platform === "darwin" ? "hidden" : "default"
-  })
-
-  const webappURL = url.format({
-    pathname: path.join(__dirname, "../../dist/index.html"),
-    protocol: "file:",
-    slashes: true
-  })
-
-  window.loadURL(webappURL)
-
-  window.on("closed", () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    globalWindowRef = null
-  })
-
-  return window
-}
