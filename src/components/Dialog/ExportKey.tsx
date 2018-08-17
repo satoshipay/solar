@@ -8,20 +8,49 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
-import red from "@material-ui/core/colors/red"
+import indigo from "@material-ui/core/colors/indigo"
 import LockIcon from "@material-ui/icons/LockOutlined"
+import LockFilledIcon from "@material-ui/icons/Lock"
+import WarnIcon from "@material-ui/icons/Warning"
 import { isWrongPasswordError } from "../../lib/errors"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { Box, HorizontalLayout } from "../Layout/Box"
 
+const Background = (props: { children: React.ReactNode }) => (
+  <div
+    style={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      opacity: 0.1,
+      textAlign: "center",
+      zIndex: -1
+    }}
+  >
+    {props.children}
+  </div>
+)
+
 const KeyExport = (props: { account: Account; secretKey: string }) => {
   return (
     <Box padding="8px 0 16px">
+      <Background>
+        <LockFilledIcon style={{ fontSize: 220 }} />
+      </Background>
       <Typography variant="subheading" style={{ marginBottom: 8 }}>
         Plain Secret Key
       </Typography>
-      <Typography style={{ padding: "16px 32px", border: `2px solid ${red.A200}` }}>{props.secretKey}</Typography>
+      <Typography
+        style={{
+          padding: "16px 32px",
+          backgroundColor: "rgba(255, 255, 255, 0.6)",
+          border: `2px solid ${indigo[500]}`
+        }}
+      >
+        {props.secretKey}
+      </Typography>
     </Box>
   )
 }
@@ -37,6 +66,9 @@ interface WarningBoxProps {
 const WarningBox = (props: WarningBoxProps) => {
   return (
     <Box padding="8px 0 16px">
+      <Background>
+        <WarnIcon style={{ fontSize: 220 }} />
+      </Background>
       <Typography component="p" variant="body2">
         Your secret key must be stored in a safe place and must not be shared with anyone.
       </Typography>
