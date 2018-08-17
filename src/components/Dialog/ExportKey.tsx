@@ -5,8 +5,12 @@ import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
+import InputAdornment from "@material-ui/core/InputAdornment"
+import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import red from "@material-ui/core/colors/red"
+import LockIcon from "@material-ui/icons/LockOutlined"
+import { isWrongPasswordError } from "../../lib/errors"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -22,7 +26,15 @@ const KeyExport = (props: { account: Account; secretKey: string }) => {
   )
 }
 
-const WarningBox = (props: { onReveal: () => void }) => {
+interface WarningBoxProps {
+  password: string
+  passwordError: Error | null
+  requiresPassword: boolean
+  onReveal: (event: React.SyntheticEvent) => void
+  updatePassword: (event: React.SyntheticEvent<HTMLInputElement>) => void
+}
+
+const WarningBox = (props: WarningBoxProps) => {
   return (
     <Box padding="8px 0 16px">
       <Typography component="p" variant="body2">
@@ -31,10 +43,31 @@ const WarningBox = (props: { onReveal: () => void }) => {
       <Typography component="p" variant="body2" style={{ marginTop: 16 }}>
         A backup is important, though, since losing your secret key also means losing access to your account.
       </Typography>
-      {/* TODO: Show password textfield if necessary */}
       <HorizontalLayout justifyContent="center" margin="24px 0 0">
         <Button onClick={props.onReveal}>Click to reveal your secret key</Button>
       </HorizontalLayout>
+      {props.requiresPassword ? (
+        <form onSubmit={props.onReveal}>
+          <TextField
+            autoFocus
+            fullWidth
+            error={props.passwordError !== null}
+            label={props.passwordError ? props.passwordError.message : "Password"}
+            margin="dense"
+            type="password"
+            value={props.password}
+            onChange={props.updatePassword}
+            style={{ marginTop: 8 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon color="disabled" />
+                </InputAdornment>
+              )
+            }}
+          />
+        </form>
+      ) : null}
     </Box>
   )
 }
@@ -46,24 +79,45 @@ interface Props {
 }
 
 interface State {
+  password: string
+  passwordError: Error | null
   reveal: boolean
   secretKey: string | null
 }
 
 class ExportKeyDialog extends React.Component<Props, State> {
   state: State = {
+    password: "",
+    passwordError: null,
     reveal: false,
     secretKey: null
   }
 
-  reveal = () => {
+  updatePassword = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    this.setState({
+      password: event.currentTarget.value
+    })
+  }
+
+  reveal = (event: React.SyntheticEvent) => {
+    event.preventDefault()
     this.setState({ reveal: true })
 
-    const password = null
-    this.props.account
+    const { account } = this.props
+    const password = account.requiresPassword ? this.state.password : null
+
+    account
       .getPrivateKey(password)
-      .then(secretKey => this.setState({ secretKey }))
-      .catch(error => addError(error))
+      .then(secretKey => {
+        this.setState({ passwordError: null, secretKey })
+      })
+      .catch(error => {
+        if (isWrongPasswordError(error)) {
+          this.setState({ passwordError: error })
+        } else {
+          addError(error)
+        }
+      })
   }
 
   render() {
@@ -74,7 +128,13 @@ class ExportKeyDialog extends React.Component<Props, State> {
           {this.state.reveal && this.state.secretKey ? (
             <KeyExport account={this.props.account} secretKey={this.state.secretKey} />
           ) : (
-            <WarningBox onReveal={this.reveal} />
+            <WarningBox
+              onReveal={this.reveal}
+              password={this.state.password}
+              passwordError={this.state.passwordError}
+              requiresPassword={this.props.account.requiresPassword}
+              updatePassword={this.updatePassword}
+            />
           )}
           <DialogActions>
             <Button color="primary" onClick={this.props.onClose}>
