@@ -5,6 +5,9 @@ import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
+import DeleteIcon from "@material-ui/icons/Delete"
+import WarnIcon from "@material-ui/icons/Warning"
+import Background from "../Background"
 import { AccountBalance } from "../Balance"
 import { deleteAccount, Account } from "../../stores/accounts"
 
@@ -23,10 +26,15 @@ const AccountDeletionDialog = (props: Props) => {
   }
   return (
     <Dialog open={props.open} onClose={props.onClose}>
+      <Background opacity={0.08}>
+        <WarnIcon style={{ fontSize: 160 }} />
+      </Background>
       <DialogTitle>Confirm Account Deletion</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete the account "{props.account.name}"?<br />
+          Are you sure you want to delete the account "{props.account.name}
+          "?
+          <br />
           Make sure to backup your private key if there are still funds on the account!
         </DialogContentText>
         <DialogContentText style={{ marginTop: 16 }}>
@@ -36,7 +44,8 @@ const AccountDeletionDialog = (props: Props) => {
           <Button color="primary" onClick={props.onClose}>
             Cancel
           </Button>
-          <Button color="primary" autoFocus onClick={onConfirm}>
+          <Button color="primary" variant="contained" autoFocus onClick={onConfirm}>
+            <DeleteIcon style={{ marginRight: 8 }} />
             Delete
           </Button>
         </DialogActions>

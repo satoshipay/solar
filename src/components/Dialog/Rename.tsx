@@ -4,6 +4,7 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
+import EditIcon from "@material-ui/icons/Edit"
 import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
 
@@ -25,6 +26,7 @@ const RenameDialogUI = (props: UIProps) => {
           <TextField label="Name" fullWidth autoFocus margin="dense" value={props.value} onChange={props.onChange} />
           <HorizontalLayout margin="32px 0 0" justifyContent="end">
             <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
+              <EditIcon style={{ marginRight: 8 }} />
               Rename
             </Button>
           </HorizontalLayout>

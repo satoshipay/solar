@@ -16,27 +16,12 @@ import { isWrongPasswordError } from "../../lib/errors"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { Box, HorizontalLayout } from "../Layout/Box"
-
-const Background = (props: { children: React.ReactNode }) => (
-  <div
-    style={{
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      opacity: 0.1,
-      textAlign: "center",
-      zIndex: -1
-    }}
-  >
-    {props.children}
-  </div>
-)
+import Background from "../Background"
 
 const KeyExport = (props: { account: Account; secretKey: string }) => {
   return (
     <Box padding="8px 0 16px">
-      <Background>
+      <Background opacity={0.08}>
         <LockFilledIcon style={{ fontSize: 220 }} />
       </Background>
       <Typography variant="subheading" style={{ marginBottom: 8 }}>
@@ -66,7 +51,7 @@ interface WarningBoxProps {
 const WarningBox = (props: WarningBoxProps) => {
   return (
     <Box padding="8px 0 16px">
-      <Background>
+      <Background opacity={0.08}>
         <WarnIcon style={{ fontSize: 220 }} />
       </Background>
       <Typography component="p" variant="body2">
