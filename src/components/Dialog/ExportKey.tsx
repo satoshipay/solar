@@ -17,6 +17,7 @@ import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import Background from "../Background"
+import QRExportDialog from "./QRExport"
 
 const KeyExport = (props: { account: Account; secretKey: string }) => {
   return (
@@ -98,6 +99,7 @@ interface Props {
 interface State {
   password: string
   passwordError: Error | null
+  qrDialogOpen: boolean
   reveal: boolean
   secretKey: string | null
 }
@@ -106,6 +108,7 @@ class ExportKeyDialog extends React.Component<Props, State> {
   state: State = {
     password: "",
     passwordError: null,
+    qrDialogOpen: false,
     reveal: false,
     secretKey: null
   }
@@ -137,6 +140,14 @@ class ExportKeyDialog extends React.Component<Props, State> {
       })
   }
 
+  closeQRDialog = () => {
+    this.setState({ qrDialogOpen: false })
+  }
+
+  showQRDialog = () => {
+    this.setState({ qrDialogOpen: true })
+  }
+
   render() {
     return (
       <Dialog open={this.props.open} onClose={this.props.onClose}>
@@ -154,11 +165,19 @@ class ExportKeyDialog extends React.Component<Props, State> {
             />
           )}
           <DialogActions>
+            <Button
+              color="primary"
+              onClick={this.showQRDialog}
+              style={{ display: this.state.reveal ? "block" : "none" }}
+            >
+              Show QR code
+            </Button>
             <Button color="primary" onClick={this.props.onClose}>
               Close
             </Button>
           </DialogActions>
         </DialogContent>
+        <QRExportDialog data={this.state.secretKey || ""} open={this.state.qrDialogOpen} onClose={this.closeQRDialog} />
       </Dialog>
     )
   }
