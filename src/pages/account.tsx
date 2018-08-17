@@ -21,6 +21,7 @@ import { Section } from "../components/Layout/Page"
 import AccountContextMenu from "../components/Menu/AccountContextMenu"
 import {
   createAccountDeletionDialog,
+  createExportKeyDialog,
   createChangeAccountPasswordDialog,
   createPaymentDialog,
   createRenamingDialog
@@ -54,6 +55,9 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
   const onDelete = () => {
     openDialog(createAccountDeletionDialog(account, () => props.history.push(routes.allAccounts())))
   }
+  const onExport = () => {
+    openDialog(createExportKeyDialog(account))
+  }
   const onRename = () => {
     openDialog(
       createRenamingDialog("Rename account", account.name, (newName: string) => renameAccount(account.id, newName))
@@ -82,9 +86,10 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
               <Box grow style={{ textAlign: "right" }}>
                 <AccountContextMenu
                   account={account}
-                  onRename={onRename}
                   onChangePassword={onChangePassword}
                   onDelete={onDelete}
+                  onExport={onExport}
+                  onRename={onRename}
                   style={{ marginTop: -8, marginRight: -16, fontSize: 32 }}
                 />
               </Box>

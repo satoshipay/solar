@@ -6,6 +6,7 @@ export enum DialogType {
   CreateAccount = "CreateAccount",
   CreatePayment = "CreatePayment",
   DeleteAccount = "DeleteAccount",
+  ExportKey = "ExportKey",
   Rename = "Rename"
 }
 
@@ -14,6 +15,7 @@ export type DialogDescriptor =
   | CreateAccountDescriptor
   | CreatePaymentDescriptor
   | DeleteAccountDescriptor
+  | ExportKeyDescriptor
   | RenameDescriptor
 
 interface DialogDescriptorBase {
@@ -49,6 +51,13 @@ export interface DeleteAccountDescriptor extends DialogDescriptorBase {
   props: {
     account: Account
     onDeleted: () => void
+  }
+}
+
+export interface ExportKeyDescriptor extends DialogDescriptorBase {
+  type: DialogType.ExportKey
+  props: {
+    account: Account
   }
 }
 

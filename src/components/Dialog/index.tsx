@@ -15,6 +15,7 @@ import AccountDeletionDialog from "./AccountDeletion"
 import ChangePasswordDialog from "./ChangePassword"
 import CreateAccountDialog from "./CreateAccount"
 import CreatePaymentDialog from "./CreatePayment"
+import ExportKeyDialog from "./ExportKey"
 import RenameDialog from "./Rename"
 
 const OpenDialog = (props: DialogDescriptor) => {
@@ -30,6 +31,8 @@ const OpenDialog = (props: DialogDescriptor) => {
       return <CreatePaymentDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.DeleteAccount:
       return <AccountDeletionDialog {...dialog.props} open={dialog.open} onClose={onClose} />
+    case DialogType.ExportKey:
+      return <ExportKeyDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.Rename:
       return <RenameDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     default:
@@ -49,6 +52,10 @@ export function createAccountDeletionDialog(account: Account, onDeleted: () => v
 
 export function createChangeAccountPasswordDialog(account: Account): ChangePasswordDescriptor {
   return createDialog(DialogType.ChangePassword, { account })
+}
+
+export function createExportKeyDialog(account: Account): ChangePasswordDescriptor {
+  return createDialog(DialogType.ExportKey, { account })
 }
 
 export function createPaymentDialog(account: Account): CreatePaymentDescriptor {
