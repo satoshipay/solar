@@ -2,6 +2,7 @@ import React from "react"
 import Button from "@material-ui/core/Button"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import FormGroup from "@material-ui/core/FormGroup"
+import IconButton from "@material-ui/core/IconButton"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
@@ -10,7 +11,10 @@ import LockIcon from "@material-ui/icons/LockOutlined"
 import WalletIcon from "@material-ui/icons/AccountBalanceWalletOutlined"
 import AddIcon from "react-icons/lib/md/add"
 import { Keypair } from "stellar-sdk"
-import { addFormState, InnerFormProps, renderError } from "../../lib/formHandling"
+import { renderError } from "../../lib/formHandling"
+import { addError } from "../../stores/notifications"
+import QRImportDialog from "../Dialog/QRImport"
+import QRCodeIcon from "../Icon/QRCode"
 import { Box, HorizontalLayout } from "../Layout/Box"
 
 export interface AccountCreationValues {
@@ -22,48 +26,40 @@ export interface AccountCreationValues {
   setPassword: boolean
 }
 
-const validateAccountName = (accountName: string) => {
-  if (!accountName) {
-    return new Error("No account name has been entered.")
-  }
-}
+type AccountCreationErrors = { [fieldName in keyof AccountCreationValues]?: Error | null }
 
-const validatePassword = (password: string, values: AccountCreationValues) => {
-  if (values.setPassword && !password) {
-    return new Error("No password has been entered.")
-  }
-}
+function validateFormValues(formValues: AccountCreationValues) {
+  const errors: AccountCreationErrors = {}
 
-const validatePasswordRepeat = (passwordRepeat: string, values: AccountCreationValues) => {
-  if (values.setPassword && passwordRepeat !== values.password) {
-    return new Error("Password does not match.")
+  if (!formValues.name) {
+    errors.name = new Error("No account name has been entered.")
   }
-}
+  if (formValues.setPassword && !formValues.password) {
+    errors.password = new Error("No password has been entered.")
+  }
+  if (formValues.setPassword && formValues.passwordRepeat !== formValues.password) {
+    errors.passwordRepeat = new Error("Password does not match.")
+  }
+  if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
+    errors.privateKey = new Error("Invalid stellar public key.")
+  }
 
-const validatePrivateKey = (privateKey: string, values: AccountCreationValues) => {
-  if (!values.createNewKey && !privateKey.match(/^S[A-Z0-9]{55}$/)) {
-    return new Error("Invalid stellar public key.")
-  }
+  const success = Object.keys(errors).length === 0
+  return { errors, success }
 }
 
 interface AccountCreationFormProps {
-  onSubmit(formValues: AccountCreationValues): void
+  errors: AccountCreationErrors
+  formValues: AccountCreationValues
+  onOpenQRScanner(): void
+  onSubmit(event: React.SyntheticEvent): void
+  setFormValue(fieldName: keyof AccountCreationValues, value: string): void
 }
 
-const AccountCreationForm = (props: InnerFormProps<AccountCreationValues> & AccountCreationFormProps) => {
-  const { errors, formValues, onSubmit, setFormValue, validate } = props
-  const triggerSubmit = () => {
-    if (!validate(props.formValues)) return
-
-    const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey
-    onSubmit({ ...formValues, privateKey })
-  }
-  const handleSubmitEvent = (event: React.SyntheticEvent) => {
-    event.preventDefault()
-    triggerSubmit()
-  }
+const AccountCreationForm = (props: AccountCreationFormProps) => {
+  const { errors, formValues, onSubmit, setFormValue } = props
   return (
-    <form onSubmit={handleSubmitEvent}>
+    <form onSubmit={props.onSubmit}>
       <TextField
         error={Boolean(errors.name)}
         label={errors.name ? renderError(errors.name) : "Account name"}
@@ -128,6 +124,13 @@ const AccountCreationForm = (props: InnerFormProps<AccountCreationValues> & Acco
             <InputAdornment position="start">
               <WalletIcon color="disabled" />
             </InputAdornment>
+          ),
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={props.onOpenQRScanner} title="Scan QR code">
+                <QRCodeIcon />
+              </IconButton>
+            </InputAdornment>
           )
         }}
       />
@@ -154,12 +157,13 @@ const AccountCreationForm = (props: InnerFormProps<AccountCreationValues> & Acco
         />
       </FormGroup>
       <Box margin="16px 0">
-        Security note:<br />
+        Security note:
+        <br />
         The key to your account will be encrypted using the password you set here. If you forget your password, your
         funds will be lost unless you have a backup of your private key!
       </Box>
       <HorizontalLayout justifyContent="end" margin="24px 0 0">
-        <Button variant="contained" color="primary" onClick={triggerSubmit} type="submit">
+        <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
           <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
           Add account
         </Button>
@@ -168,21 +172,87 @@ const AccountCreationForm = (props: InnerFormProps<AccountCreationValues> & Acco
   )
 }
 
-const StatefulAccountCreationForm = addFormState<AccountCreationValues, AccountCreationFormProps>({
-  defaultValues: {
-    name: "",
-    password: "",
-    passwordRepeat: "",
-    privateKey: "",
-    createNewKey: true,
-    setPassword: true
-  },
-  validators: {
-    name: validateAccountName,
-    password: validatePassword,
-    passwordRepeat: validatePasswordRepeat,
-    privateKey: validatePrivateKey
+interface Props {
+  onSubmit(formValues: AccountCreationValues): void
+}
+
+interface State {
+  errors: AccountCreationErrors
+  formValues: AccountCreationValues
+  qrScannerOpen: boolean
+}
+
+class StatefulAccountCreationForm extends React.Component<Props, State> {
+  state: State = {
+    errors: {},
+    formValues: {
+      name: "",
+      password: "",
+      passwordRepeat: "",
+      privateKey: "",
+      createNewKey: true,
+      setPassword: true
+    },
+    qrScannerOpen: false
   }
-})(AccountCreationForm)
+
+  closeQRScanner = () => {
+    this.setState({ qrScannerOpen: false })
+  }
+
+  openQRScanner = () => {
+    this.setState({ qrScannerOpen: true })
+  }
+
+  privateKeyScanned = (secretKey: string | null) => {
+    if (secretKey) {
+      this.setFormValue("privateKey", secretKey)
+      this.closeQRScanner()
+    }
+  }
+
+  setFormValue = (fieldName: keyof AccountCreationValues, value: string) => {
+    this.setState({
+      formValues: {
+        ...this.state.formValues,
+        [fieldName]: value
+      }
+    })
+  }
+
+  submit = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
+    const { errors, success } = validateFormValues(this.state.formValues)
+    this.setState({ errors })
+
+    const { formValues } = this.state
+    const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey
+
+    if (success) {
+      this.props.onSubmit({ ...formValues, privateKey })
+    }
+  }
+
+  render() {
+    return (
+      <>
+        <AccountCreationForm
+          errors={this.state.errors}
+          formValues={this.state.formValues}
+          onOpenQRScanner={this.openQRScanner}
+          onSubmit={this.submit}
+          setFormValue={this.setFormValue}
+        />
+        <QRImportDialog
+          open={this.state.qrScannerOpen}
+          onClose={this.closeQRScanner}
+          onError={addError}
+          onScan={this.privateKeyScanned}
+        />
+      </>
+    )
+  }
+}
 
 export default StatefulAccountCreationForm
