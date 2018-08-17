@@ -5,6 +5,7 @@ import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
+import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
 import Background from "../Background"
 import { AccountBalance } from "../Balance"
@@ -44,6 +45,7 @@ const AccountDeletionDialog = (props: Props) => {
             Cancel
           </Button>
           <Button color="primary" variant="contained" autoFocus onClick={onConfirm}>
+            <DeleteIcon style={{ marginRight: 8 }} />
             Delete
           </Button>
         </DialogActions>
