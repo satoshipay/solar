@@ -55,7 +55,6 @@ jobs:
       - run: sudo apt-get install rpm
       - run: npm run build:mac -- --mac=zip
       - run: npm run build:linux -- --linux=deb --linux=rpm
-      - run: npm run build:win
       - save_cache:
           key: dist-cache-{{ .Revision }}
           paths:
