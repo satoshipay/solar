@@ -13,7 +13,7 @@ function createMainWindow() {
   const window = new BrowserWindow({
     width: 800,
     height: 600,
-    title: "SatoshiPay Wallet 🚀",
+    title: "SatoshiPay Wallet",
     icon: path.join(__dirname, "../build/icon.png"),
     backgroundColor: "white",
     nodeIntegration: false,
