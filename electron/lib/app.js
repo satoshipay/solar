@@ -12,7 +12,12 @@ require("electron-debug")({
 const appReady = new Promise(resolve => app.on("ready", resolve))
 
 app.on("ready", () => {
-  Menu.setApplicationMenu(createAppMenu())
+  const menu = createAppMenu()
+
+  if (menu) {
+    Menu.setApplicationMenu(menu)
+  }
+
   trackWindow(createMainWindow())
 })
 
