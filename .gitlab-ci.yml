@@ -1,0 +1,66 @@
+image: node:10-jessie
+
+stages:
+  - test
+  - build
+  - release
+
+test:
+  stage: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: push
+  script:
+    - npm ci
+    - npm test
+
+build_web:
+  stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
+  script:
+    - npm ci
+    - cd web/ && npm run build
+
+build_mac:
+  stage: build
+  artifacts:
+    paths:
+      - electron/dist
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
+  script:
+    - npm ci
+    - npm run build:mac -- --mac=zip
+  only:
+    - master
+
+build_linux:
+  stage: build
+  artifacts:
+    paths:
+      - electron/dist
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
+  script:
+    - sudo apt-get install rpm
+    - npm ci
+    - npm run build:linux -- --linux=deb --linux=rpm
+  only:
+    - master
+
+github_release:
+  stage: release
+  image: circleci/golang:1.9
+  artifacts:
+    paths:
+      - electron/dist
+  script:
+    - rm ./electron/dist/*.yml
+    - go get github.com/tcnksm/ghr
+    - ghr -t $GITHUB_TOKEN -u satoshipay -r $CI_PROJECT_NAME --draft `git describe --tags` ./electron/dist
+  only:
+    - tags
