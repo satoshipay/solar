@@ -6,7 +6,7 @@ import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
 import ChevronLeftIcon from "react-icons/lib/md/chevron-left"
-import * as routes from "../../lib/routes"
+import * as routes from "../../routes"
 import { Account, renameAccount } from "../../stores/accounts"
 import { openDialog } from "../../stores/dialogs"
 import {

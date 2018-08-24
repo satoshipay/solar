@@ -6,7 +6,7 @@ import BottomNavigationAction from "@material-ui/core/BottomNavigationAction"
 import Paper from "@material-ui/core/Paper"
 import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
 import { withRouter } from "react-router-dom"
-import * as routes from "../../lib/routes"
+import * as routes from "../../routes"
 import { Account } from "../../stores/accounts"
 
 const getSelectedIndexByPath = (path: string) => {

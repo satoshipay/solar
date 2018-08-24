@@ -8,7 +8,7 @@ import AddIcon from "@material-ui/icons/AddCircle"
 import ArrowCircleRightIcon from "react-icons/lib/fa/arrow-circle-right"
 import { List, ListItem, ListSubheader } from "../components/List"
 import { AccountBalance } from "../components/Balance"
-import * as routes from "../lib/routes"
+import * as routes from "../routes"
 import AccountStore, { Account } from "../stores/accounts"
 
 const AccountListHeader = (props: { children: React.ReactNode }) => {

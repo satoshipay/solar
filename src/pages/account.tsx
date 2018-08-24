@@ -16,7 +16,7 @@ import TransactionList from "../components/TransactionList"
 import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
-import * as routes from "../lib/routes"
+import * as routes from "../routes"
 import AccountStore, { renameAccount } from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
 
