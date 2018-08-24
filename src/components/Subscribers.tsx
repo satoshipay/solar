@@ -22,7 +22,7 @@ type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
  *   )}
  * </Horizon>
  */
-const Horizon = withHorizon<{ children: HorizonRenderProp; testnet: boolean }>(
+export const Horizon = withHorizon<{ children: HorizonRenderProp; testnet: boolean }>(
   (props: { children: HorizonRenderProp; horizonLivenet: Server; horizonTestnet: Server; testnet: boolean }) => {
     const horizon = props.testnet ? props.horizonTestnet : props.horizonLivenet
     return props.children(horizon)
@@ -31,7 +31,7 @@ const Horizon = withHorizon<{ children: HorizonRenderProp; testnet: boolean }>(
 
 type AccountDataRenderProp = (accountData: AccountObservable, activated: boolean) => React.ReactElement<any>
 
-const AccountData = (props: { children: AccountDataRenderProp; publicKey: string; testnet: boolean }) => {
+export const AccountData = (props: { children: AccountDataRenderProp; publicKey: string; testnet: boolean }) => {
   const AccountDataObserver = observer<React.StatelessComponent<{ accountData: AccountObservable }>>(
     ({ accountData }) => props.children(accountData, accountData.activated)
   )
