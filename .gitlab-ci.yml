@@ -9,24 +9,28 @@ test:
   stage: test
   cache:
     key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules
+    policy: push
   script:
     - npm ci
     - npm test
 
 build_web:
   stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
   script:
     - npm ci
     - cd web/ && npm run build
 
 build_mac:
   stage: build
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
+  artifacts:
     paths:
       - electron/dist
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
   script:
     - npm ci
     - npm run build:mac -- --mac=zip
@@ -35,10 +39,12 @@ build_mac:
 
 build_linux:
   stage: build
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
+  artifacts:
     paths:
       - electron/dist
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
   script:
     - sudo apt-get install rpm
     - npm ci
@@ -49,6 +55,9 @@ build_linux:
 github_release:
   stage: release
   image: circleci/golang:1.9
+  artifacts:
+    paths:
+      - electron/dist
   script:
     - rm ./electron/dist/*.yml
     - go get github.com/tcnksm/ghr
