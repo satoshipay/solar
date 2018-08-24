@@ -10,7 +10,10 @@ import React from "react"
 import { Server, Transaction } from "stellar-sdk"
 import { observer } from "mobx-react"
 import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from "../lib/subscriptions"
-import { withHorizon } from "../hocs"
+
+// TODO: Should probably be stored in context
+const horizonLivenet = new Server("https://horizon.stellar.org/")
+const horizonTestnet = new Server("https://horizon-testnet.stellar.org/")
 
 type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
 
@@ -22,12 +25,10 @@ type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
  *   )}
  * </Horizon>
  */
-export const Horizon = withHorizon<{ children: HorizonRenderProp; testnet: boolean }>(
-  (props: { children: HorizonRenderProp; horizonLivenet: Server; horizonTestnet: Server; testnet: boolean }) => {
-    const horizon = props.testnet ? props.horizonTestnet : props.horizonLivenet
-    return props.children(horizon)
-  }
-)
+export const Horizon = (props: { children: HorizonRenderProp; testnet: boolean }) => {
+  const horizon = props.testnet ? horizonTestnet : horizonLivenet
+  return props.children(horizon)
+}
 
 type AccountDataRenderProp = (accountData: AccountObservable, activated: boolean) => React.ReactElement<any>
 

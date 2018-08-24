@@ -1,14 +1,14 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
-import { Memo, Transaction } from "stellar-sdk"
+import { Memo, Server, Transaction } from "stellar-sdk"
 import { createWrongPasswordError, isWrongPasswordError } from "../../lib/errors"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
-import { withHorizon, HorizonProps } from "../../hocs"
 import { PaymentCreationValues } from "../Form/CreatePayment"
 import SubmissionProgress from "../SubmissionProgress"
+import { Horizon } from "../Subscribers"
 import PaymentFormDrawer from "./PaymentForm"
 import TxConfirmationDrawer from "./TransactionConfirmation"
 
@@ -33,7 +33,7 @@ const SubmissionProgressOverlay = (props: {
   )
 }
 
-interface CreatePaymentDrawerProps {
+interface StatelessCreatePaymentDrawerProps {
   account: Account
   open: boolean
   transaction: Transaction | null
@@ -48,7 +48,7 @@ interface CreatePaymentDrawerProps {
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
-const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => {
+const StatelessCreatePaymentDrawer = (props: StatelessCreatePaymentDrawerProps) => {
   return (
     <>
       <PaymentFormDrawer
@@ -76,7 +76,7 @@ const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => {
   )
 }
 
-interface StatefulCreatePaymentDrawerProps {
+interface CreatePaymentDrawerProps {
   account: Account
   open: boolean
   onClose: () => void
@@ -88,15 +88,11 @@ interface State {
   transaction: Transaction | null
 }
 
-class StatefulCreatePaymentDrawer extends React.Component<StatefulCreatePaymentDrawerProps & HorizonProps, State> {
+class StatefulCreatePaymentDrawer extends React.Component<CreatePaymentDrawerProps & { horizon: Server }, State> {
   state = {
     submissionFailed: false,
     submissionPromise: null,
     transaction: null
-  }
-
-  getHorizon = () => {
-    return this.props.account.testnet ? this.props.horizonTestnet : this.props.horizonLivenet
   }
 
   clearTransaction = () => {
@@ -144,7 +140,7 @@ class StatefulCreatePaymentDrawer extends React.Component<StatefulCreatePaymentD
         amount: formValues.amount,
         destination: formValues.destination,
         memo: this.createMemo(formValues),
-        horizon: this.getHorizon(),
+        horizon: this.props.horizon,
         walletAccount: this.props.account,
         testnet: this.props.account.testnet
       })
@@ -161,8 +157,7 @@ class StatefulCreatePaymentDrawer extends React.Component<StatefulCreatePaymentD
       const privateKey = await account.getPrivateKey(formValues.password)
       const signedTx = signTransaction(transaction, privateKey)
 
-      const horizon = this.getHorizon()
-      const promise = horizon.submitTransaction(signedTx)
+      const promise = this.props.horizon.submitTransaction(signedTx)
 
       this.setSubmissionPromise(promise)
       await promise
@@ -186,7 +181,7 @@ class StatefulCreatePaymentDrawer extends React.Component<StatefulCreatePaymentD
 
   render() {
     return (
-      <CreatePaymentDrawer
+      <StatelessCreatePaymentDrawer
         account={this.props.account}
         open={this.props.open}
         onClose={this.props.onClose}
@@ -204,4 +199,10 @@ class StatefulCreatePaymentDrawer extends React.Component<StatefulCreatePaymentD
   }
 }
 
-export default withHorizon(StatefulCreatePaymentDrawer)
+const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => (
+  <Horizon testnet={props.account.testnet}>
+    {horizon => <StatefulCreatePaymentDrawer {...props} horizon={horizon} />}
+  </Horizon>
+)
+
+export default CreatePaymentDrawer
