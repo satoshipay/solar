@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import indigo from "@material-ui/core/colors/indigo"
 import SendIcon from "react-icons/lib/md/send"
+import { createPaymentDialog } from "../components/Dialog/index"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
@@ -16,8 +17,7 @@ import TransactionList from "../components/TransactionList"
 import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
-import * as routes from "../routes"
-import AccountStore, { renameAccount } from "../stores/accounts"
+import AccountStore from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
 
 const AccountPage = (props: { accounts: typeof AccountStore; history: History; match: match<{ id: string }> }) => {
@@ -28,7 +28,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
   }
 
   return (
-    <BottomNavigationContainer navigation={<AccountBottomNavigation />}>
+    <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
       <Section top backgroundColor={indigo[500]}>
         <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }}>
           <VerticalMargin size={28} />

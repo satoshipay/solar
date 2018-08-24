@@ -13,7 +13,6 @@ import {
   createAccountDeletionDialog,
   createExportKeyDialog,
   createChangeAccountPasswordDialog,
-  createPaymentDialog,
   createRenamingDialog
 } from "../Dialog/index"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -33,7 +32,7 @@ const BackButton = withRouter<BackButtonProps>((props: BackButtonProps) => {
 
 interface Props {
   account: Account
-  children: React.ReactNode
+  children?: React.ReactNode
   history: History
   style?: React.CSSProperties
 }

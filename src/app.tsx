@@ -12,6 +12,7 @@ import { Box, VerticalLayout } from "./components/Layout/Box"
 import AllAccountsPage from "./pages/all-accounts"
 import QRScannerPage from "./pages/qr-scanner"
 import AccountPage from "./pages/account"
+import AccountAssetsPage from "./pages/account-assets"
 import accounts from "./stores/accounts"
 import dialogs from "./stores/dialogs"
 import notifications from "./stores/notifications"
@@ -22,7 +23,8 @@ const App = () => (
   <Router>
     <>
       <Route exact path="/" component={withProps({ accounts })(AllAccountsPage)} />
-      <Route path="/account/:id" component={withProps({ accounts })(AccountPage)} />
+      <Route exact path="/account/:id" component={withProps({ accounts })(AccountPage)} />
+      <Route exact path="/account/:id/assets" component={withProps({ accounts })(AccountAssetsPage)} />
       <Route path="/qr-scanner" component={QRScannerPage} />
       <NotificationContainer notifications={notifications} />
       <OpenDialogs dialogs={dialogs} />
