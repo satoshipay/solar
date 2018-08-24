@@ -9,6 +9,7 @@ import { createPaymentDialog } from "../components/Dialog/index"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
+import TrustlineList from "../components/Account/TrustlineList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
@@ -31,7 +32,11 @@ const AccountAssetsPage = (props: {
       <Section top backgroundColor={indigo[500]}>
         <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }} />
       </Section>
-      <Section>Assets go here</Section>
+      <Section>
+        <Box padding="16px 8px">
+          <TrustlineList publicKey={account.publicKey} testnet={account.testnet} />
+        </Box>
+      </Section>
     </BottomNavigationContainer>
   )
 }

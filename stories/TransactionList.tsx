@@ -1,7 +1,7 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
 import { Transactions } from "../src/components/Subscribers"
-import TransactionList from "../src/components/TransactionList"
+import TransactionList from "../src/components/Account/TransactionList"
 
 storiesOf("TransactionList", module).add("Recent transactions", () => (
   <Transactions publicKey="GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W" testnet>
