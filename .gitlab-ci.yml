@@ -12,8 +12,14 @@ test:
     paths:
       - node_modules
   script:
-    - npm install
+    - npm ci
     - npm test
+
+build_web:
+  stage: build
+  script:
+    - npm ci
+    - cd web/ && npm run build
 
 build_mac:
   stage: build
@@ -22,6 +28,7 @@ build_mac:
     paths:
       - electron/dist
   script:
+    - npm ci
     - npm run build:mac -- --mac=zip
   only:
     - master
@@ -34,6 +41,7 @@ build_linux:
       - electron/dist
   script:
     - sudo apt-get install rpm
+    - npm ci
     - npm run build:linux -- --linux=deb --linux=rpm
   only:
     - master
