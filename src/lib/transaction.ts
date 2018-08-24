@@ -1,6 +1,5 @@
 import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction } from "stellar-sdk"
 import { Account } from "../stores/accounts"
-import { addError } from "../stores/notifications"
 
 export function selectNetwork(testnet = false) {
   if (testnet) {

@@ -7,7 +7,7 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "react-icons/lib/md/send"
 import { Box, HorizontalLayout } from "../Layout/Box"
-import { addFormState, renderError, InnerFormProps } from "../../lib/formHandling"
+import { renderError } from "../../lib/formHandling"
 
 export interface PaymentCreationValues {
   amount: string
