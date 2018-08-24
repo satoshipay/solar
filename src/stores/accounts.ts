@@ -1,5 +1,4 @@
 import { observable, IObservableArray } from "mobx"
-import { createStore, KeysData } from "key-store"
 import { Keypair } from "stellar-sdk"
 import { createWrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"
