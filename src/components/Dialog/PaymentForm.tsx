@@ -4,7 +4,6 @@ import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import CloseIcon from "react-icons/lib/md/close"
-import { Transaction } from "stellar-sdk"
 import { Account } from "../../stores/accounts"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 

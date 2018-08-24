@@ -57,7 +57,7 @@ interface AccountCreationFormProps {
 }
 
 const AccountCreationForm = (props: AccountCreationFormProps) => {
-  const { errors, formValues, onSubmit, setFormValue } = props
+  const { errors, formValues, setFormValue } = props
   return (
     <form onSubmit={props.onSubmit}>
       <TextField
