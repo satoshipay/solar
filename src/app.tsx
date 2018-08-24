@@ -6,7 +6,6 @@ import { HashRouter as Router, Route } from "react-router-dom"
 import { withProps } from "recompose"
 import Paper from "@material-ui/core/Paper"
 import { Network } from "stellar-sdk"
-import AppBottomNavigation from "./components/BottomNavigation"
 import NotificationContainer from "./components/NotificationContainer"
 import OpenDialogs from "./components/OpenDialogs"
 import { Box, VerticalLayout } from "./components/Layout/Box"
@@ -21,18 +20,13 @@ Network.usePublicNetwork()
 
 const App = () => (
   <Router>
-    <VerticalLayout width="100%" height="100%">
-      <Box grow overflow="auto">
-        <Route exact path="/" component={withProps({ accounts })(AllAccountsPage)} />
-        <Route path="/account/:id" component={withProps({ accounts })(AccountPage)} />
-        <Route path="/qr-scanner" component={QRScannerPage} />
-      </Box>
-      <Paper style={{ flexGrow: 0, flexShrink: 0, zIndex: 1 }}>
-        <AppBottomNavigation />
-      </Paper>
+    <>
+      <Route exact path="/" component={withProps({ accounts })(AllAccountsPage)} />
+      <Route path="/account/:id" component={withProps({ accounts })(AccountPage)} />
+      <Route path="/qr-scanner" component={QRScannerPage} />
       <NotificationContainer notifications={notifications} />
       <OpenDialogs dialogs={dialogs} />
-    </VerticalLayout>
+    </>
   </Router>
 )
 
