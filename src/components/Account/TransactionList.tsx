@@ -57,7 +57,7 @@ const TitleText = (props: TitleTextProps) => {
       </span>
     )
   } else {
-    return <>`Other transaction`</>
+    return <>{transaction.operations.map(operation => operation.type).join(", ")}</>
   }
 }
 
