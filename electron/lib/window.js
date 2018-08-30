@@ -6,6 +6,7 @@ let openWindows = []
 
 module.exports = {
   createMainWindow,
+  getOpenWindows,
   trackWindow
 }
 
@@ -29,6 +30,10 @@ function createMainWindow() {
   window.loadURL(webappURL)
 
   return window
+}
+
+function getOpenWindows() {
+  return openWindows
 }
 
 // Keep a global reference of the window object. If you don't, the window will
