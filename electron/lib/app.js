@@ -1,6 +1,6 @@
 const { app, Menu } = require("electron")
 const { createAppMenu } = require("./menu")
-const { createMainWindow, trackWindow } = require("./window")
+const { createMainWindow, getOpenWindows, trackWindow } = require("./window")
 require("./storage")
 
 // Enable opening dev tools in production using keyboard shortcut
@@ -32,7 +32,9 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  appReady.then(() => {
-    trackWindow(createMainWindow())
-  })
+  if (getOpenWindows().length === 0) {
+    appReady.then(() => {
+      trackWindow(createMainWindow())
+    })
+  }
 })
