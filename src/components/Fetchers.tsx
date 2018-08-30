@@ -8,7 +8,9 @@ const memCacheCurrentlyFetching = new Map<string, boolean>()
 async function memoize(cacheKey: string, fetching: Promise<any>) {
   memCacheCurrentlyFetching.set(cacheKey, true)
   try {
-    return await fetching
+    const fetched = await fetching
+    memCache.set(cacheKey, fetched)
+    return fetched
   } finally {
     memCacheCurrentlyFetching.set(cacheKey, false)
   }
@@ -24,7 +26,7 @@ interface MemoizedProps<Value> {
 
 const Memoized = <Value extends {}>(props: MemoizedProps<Value>) => {
   if (memCache.has(props.cacheKey)) {
-    return <>{memCache.get(props.cacheKey)}</>
+    return <>{props.then(memCache.get(props.cacheKey))}</>
   } else if (memCacheCurrentlyFetching.get(props.cacheKey)) {
     return <>{props.pending}</>
   }
