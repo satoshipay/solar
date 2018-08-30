@@ -3,8 +3,8 @@ import ListSubheader from "@material-ui/core/ListSubheader"
 import HumanTime from "react-human-time"
 import ArrowLeftIcon from "react-icons/lib/fa/arrow-left"
 import ArrowRightIcon from "react-icons/lib/fa/arrow-right"
+import CogIcon from "react-icons/lib/fa/cog"
 import ExchangeIcon from "react-icons/lib/fa/exchange"
-import SquareIcon from "react-icons/lib/fa/square"
 import { Transaction } from "stellar-sdk"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
@@ -14,9 +14,15 @@ type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
 }
 
+const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
+
+function formatOperationType(operationType: string) {
+  return uppercaseFirstLetter(operationType.replace(/([A-Z])/g, letter => " " + letter))
+}
+
 const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
   if (props.paymentSummary.length === 0) {
-    return <SquareIcon />
+    return <CogIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return <ArrowLeftIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.lt(0))) {
@@ -76,7 +82,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
       </span>
     )
   } else {
-    return <>{props.transaction.operations.map(operation => operation.type).join(", ")}</>
+    return <>{props.transaction.operations.map(operation => formatOperationType(operation.type)).join(", ")}</>
   }
 }
 
