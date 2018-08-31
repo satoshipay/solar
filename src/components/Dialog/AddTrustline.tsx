@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset, Transaction } from "stellar-sdk"
+import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -11,15 +11,22 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import TextField from "@material-ui/core/TextField"
 import EditIcon from "@material-ui/icons/Edit"
+import { isWrongPasswordError } from "../../lib/errors"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
+import { createTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
+import { Horizon } from "../Subscribers"
+import TransactionSender from "../TransactionSender"
 import TxConfirmationDrawer from "./TransactionConfirmation"
+
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 interface FormValues {
   code: string
   issuerPublicKey: string
+  limit: string
 }
 
 interface FormProps {
@@ -35,6 +42,7 @@ const CustomTrustlineForm = (props: FormProps) => {
         label="Code"
         placeholder="EURT, USDT, BTC, ..."
         margin="dense"
+        name="asset-code"
         value={props.formValues.code}
         onChange={event => props.setFormValue("code", event.target.value)}
       />
@@ -43,8 +51,18 @@ const CustomTrustlineForm = (props: FormProps) => {
         label="Issuer"
         placeholder="Issuing account public key"
         margin="dense"
+        name="asset-issuer"
         value={props.formValues.issuerPublicKey}
         onChange={event => props.setFormValue("issuerPublicKey", event.target.value)}
+      />
+      <TextField
+        fullWidth
+        label="Limit (optional)"
+        placeholder="Limit trust in this asset / maximum balance to hold"
+        margin="dense"
+        name="trust-limit"
+        value={props.formValues.limit}
+        onChange={event => props.setFormValue("limit", event.target.value)}
       />
       <HorizontalLayout margin="32px 0 0" justifyContent="flex-end">
         <Button variant="contained" color="primary" onClick={() => props.onSubmit(props.formValues)}>
@@ -57,37 +75,43 @@ const CustomTrustlineForm = (props: FormProps) => {
 
 interface Props {
   account: Account
+  horizon: Server
   open: boolean
   onClose: () => void
+  sendTransaction: (transaction: Transaction) => void
 }
 
 interface State {
   formValues: FormValues
   showForm: boolean
-  transaction: Transaction | null
 }
 
 class AddTrustlineDialog extends React.Component<Props, State> {
   state = {
     formValues: {
       code: "",
-      issuerPublicKey: ""
+      issuerPublicKey: "",
+      limit: ""
     },
-    showForm: false,
-    transaction: null
+    showForm: false
   }
 
-  addAsset = async (asset: Asset) => {
+  addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
-      // TODO
+      const operations = [Operation.changeTrust({ asset, limit: options.limit })]
+      const transaction = await createTransaction(operations, {
+        horizon: this.props.horizon,
+        walletAccount: this.props.account
+      })
+      this.props.sendTransaction(transaction)
     } catch (error) {
       addError(error)
     }
   }
 
-  addCustomAsset = async ({ code, issuerPublicKey }: FormValues) => {
+  addCustomAsset = async ({ code, issuerPublicKey, limit }: FormValues) => {
     try {
-      await this.addAsset(new Asset(code, issuerPublicKey))
+      await this.addAsset(new Asset(code, issuerPublicKey), { limit })
     } catch (error) {
       addError(error)
     }
@@ -106,61 +130,58 @@ class AddTrustlineDialog extends React.Component<Props, State> {
     this.setState({ showForm: true })
   }
 
-  clearTransaction = () => {
-    this.setState({ transaction: null })
-  }
-
-  submitTransaction = (transaction: Transaction, formValues: { password: string | null }) => {
-    // TODO: Sign transaction
-    // TODO: Submit transaction
-    // TODO: Close dialog
-  }
-
   render() {
-    const popularAssets = this.props.account.testnet ? testnetPopularAssets : mainnetPopularAssets
+    const { account } = this.props
+    const popularAssets = account.testnet ? testnetPopularAssets : mainnetPopularAssets
+
     return (
-      <>
-        <Dialog open={this.props.open} onClose={this.props.onClose}>
-          <DialogTitle>Add Asset</DialogTitle>
-          <DialogContent>
-            <List style={{ maxHeight: "70%", overflowY: "auto" }}>
-              {popularAssets.map(asset => (
-                <ListItem key={[asset.issuer, asset.code].join("")} button onClick={() => this.addAsset(asset)}>
-                  <ListItemText primary={asset.code} secondary={asset.issuer} />
+      <Dialog open={this.props.open} onClose={this.props.onClose}>
+        <DialogTitle>Add Asset</DialogTitle>
+        <DialogContent>
+          <List style={{ maxHeight: "70%", overflowY: "auto" }}>
+            {popularAssets.map(asset => (
+              <ListItem key={[asset.issuer, asset.code].join("")} button onClick={() => this.addAsset(asset)}>
+                <ListItemText primary={asset.code} secondary={asset.issuer} />
+              </ListItem>
+            ))}
+            {this.state.showForm ? (
+              <>
+                <Divider />
+                <ListItem style={{ paddingTop: 0 }}>
+                  <CustomTrustlineForm
+                    formValues={this.state.formValues}
+                    onSubmit={this.addCustomAsset}
+                    setFormValue={this.setFormValue}
+                  />
                 </ListItem>
-              ))}
-              {this.state.showForm ? (
-                <>
-                  <Divider />
-                  <ListItem style={{ paddingTop: 0 }}>
-                    <CustomTrustlineForm
-                      formValues={this.state.formValues}
-                      onSubmit={this.addCustomAsset}
-                      setFormValue={this.setFormValue}
-                    />
-                  </ListItem>
-                </>
-              ) : (
-                <ListItem style={{ justifyContent: "center" }}>
-                  <Button onClick={this.showForm}>
-                    <EditIcon style={{ marginRight: 8 }} />
-                    Enter custom asset
-                  </Button>
-                </ListItem>
-              )}
-            </List>
-          </DialogContent>
-        </Dialog>
-        <TxConfirmationDrawer
-          open={Boolean(this.props.open && this.state.transaction)}
-          account={this.props.account}
-          transaction={this.state.transaction}
-          onClose={this.clearTransaction}
-          onSubmitTransaction={this.submitTransaction}
-        />
-      </>
+              </>
+            ) : (
+              <ListItem style={{ justifyContent: "center" }}>
+                <Button onClick={this.showForm}>
+                  <EditIcon style={{ marginRight: 8 }} />
+                  Enter custom asset
+                </Button>
+              </ListItem>
+            )}
+          </List>
+        </DialogContent>
+      </Dialog>
     )
   }
 }
 
-export default AddTrustlineDialog
+const ConnectedAddTrustlineDialog = (props: Omit<Props, "horizon" | "sendTransaction">) => {
+  const closeAfterTimeout = () => {
+    // Close automatically a second after successful submission
+    setTimeout(() => props.onClose(), 1000)
+  }
+  return (
+    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+      {({ horizon, sendTransaction }) => (
+        <AddTrustlineDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
+      )}
+    </TransactionSender>
+  )
+}
+
+export default ConnectedAddTrustlineDialog
