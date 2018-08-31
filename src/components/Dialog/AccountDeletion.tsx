@@ -8,7 +8,7 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
 import Background from "../Background"
-import { AccountBalance } from "../Balance"
+import AccountBalances from "../Balance"
 import { deleteAccount, Account } from "../../stores/accounts"
 
 interface Props {
@@ -38,7 +38,7 @@ const AccountDeletionDialog = (props: Props) => {
           Make sure to backup your private key if there are still funds on the account!
         </DialogContentText>
         <DialogContentText style={{ marginTop: 16 }}>
-          Balance: <AccountBalance publicKey={props.account.publicKey} testnet={props.account.testnet} />
+          Balance: <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </DialogContentText>
         <DialogActions>
           <Button color="primary" onClick={props.onClose}>
