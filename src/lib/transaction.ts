@@ -1,5 +1,12 @@
-import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction } from "stellar-sdk"
+import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
+import { createWrongPasswordError } from "../lib/errors"
 import { Account } from "../stores/accounts"
+
+const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
+
+export function formatOperationType(operationType: string) {
+  return uppercaseFirstLetter(operationType.replace(/([A-Z])/g, letter => " " + letter))
+}
 
 export function selectNetwork(testnet = false) {
   if (testnet) {
@@ -26,33 +33,50 @@ async function accountExists(horizon: Server, publicKey: string) {
 }
 
 interface TxBlueprint {
-  amount: string
-  destination: string
   horizon: Server
   memo?: Memo | null
   walletAccount: Account
-  testnet?: boolean
 }
 
-export async function createTransaction(options: TxBlueprint) {
-  const { amount, destination, horizon, memo, walletAccount, testnet = false } = options
+export async function createTransaction(operations: Array<xdr.Operation<any>>, options: TxBlueprint) {
+  const { horizon, memo, walletAccount } = options
 
-  selectNetwork(testnet)
+  selectNetwork(walletAccount.testnet)
 
   const account = await horizon.loadAccount(walletAccount.publicKey)
   const builder = new TransactionBuilder(account, { memo: memo || undefined })
 
-  builder.addOperation(
-    (await accountExists(horizon, destination))
-      ? Operation.payment({ destination, amount, asset: Asset.native() })
-      : Operation.createAccount({ destination, startingBalance: amount })
-  )
+  for (const operation of operations) {
+    builder.addOperation(operation)
+  }
 
   const tx = builder.build()
   return tx
 }
 
-export function signTransaction(transaction: Transaction, privateKey: string) {
+interface PaymentOperationBlueprint {
+  amount: string
+  destination: string
+  horizon: Server
+}
+
+export async function createPaymentOperation(options: PaymentOperationBlueprint) {
+  const { amount, destination, horizon } = options
+
+  const operation = (await accountExists(horizon, destination))
+    ? Operation.payment({ destination, amount, asset: Asset.native() })
+    : Operation.createAccount({ destination, startingBalance: amount })
+
+  return operation as xdr.Operation<Operation.CreateAccount | Operation.Payment>
+}
+
+export async function signTransaction(transaction: Transaction, walletAccount: Account, password: string | null) {
+  if (walletAccount.requiresPassword && !password) {
+    throw createWrongPasswordError(`Account is password-protected, but no password has been provided.`)
+  }
+
+  const privateKey = await walletAccount.getPrivateKey(password)
+
   transaction.sign(Keypair.fromSecret(privateKey))
   return transaction
 }

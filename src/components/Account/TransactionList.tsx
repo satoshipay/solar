@@ -5,19 +5,13 @@ import ArrowLeftIcon from "react-icons/lib/fa/arrow-left"
 import ArrowRightIcon from "react-icons/lib/fa/arrow-right"
 import CogIcon from "react-icons/lib/fa/cog"
 import ExchangeIcon from "react-icons/lib/fa/exchange"
-import { Transaction } from "stellar-sdk"
+import { Operation, Transaction } from "stellar-sdk"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
-import { selectNetwork } from "../../lib/transaction"
+import { formatOperationType, selectNetwork } from "../../lib/transaction"
 import { List, ListItem } from "../List"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
-}
-
-const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
-
-function formatOperationType(operationType: string) {
-  return uppercaseFirstLetter(operationType.replace(/([A-Z])/g, letter => " " + letter))
 }
 
 const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
@@ -80,6 +74,14 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
           to <RemotePublicKeys publicKeys={remotePublicKeys} />
         </DetailedInfo>
       </span>
+    )
+  } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "changeTrust") {
+    const operation = props.transaction.operations[0] as Operation.ChangeTrust
+
+    return String(operation.limit) === "0" ? (
+      <>Remove trust in asset {operation.line.code}</>
+    ) : (
+      <>Trust asset {operation.line.code}</>
     )
   } else {
     return <>{props.transaction.operations.map(operation => formatOperationType(operation.type)).join(", ")}</>

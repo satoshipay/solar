@@ -2,6 +2,7 @@ import { observable, IObservableArray } from "mobx"
 import { Account } from "./accounts"
 
 export enum DialogType {
+  AddTrustline = "AddTrustline",
   ChangePassword = "ChangePassword",
   CreateAccount = "CreateAccount",
   CreatePayment = "CreatePayment",
@@ -11,6 +12,7 @@ export enum DialogType {
 }
 
 export type DialogDescriptor =
+  | AddTrustlineDescriptor
   | ChangePasswordDescriptor
   | CreateAccountDescriptor
   | CreatePaymentDescriptor
@@ -23,6 +25,13 @@ interface DialogDescriptorBase {
   open: boolean
   type: DialogType
   props: any
+}
+
+export interface AddTrustlineDescriptor extends DialogDescriptorBase {
+  type: DialogType.AddTrustline
+  props: {
+    account: Account
+  }
 }
 
 export interface ChangePasswordDescriptor extends DialogDescriptorBase {
