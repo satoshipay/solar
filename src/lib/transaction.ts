@@ -38,7 +38,7 @@ interface TxBlueprint {
   walletAccount: Account
 }
 
-export async function createTransaction(operations: xdr.Operation<any>[], options: TxBlueprint) {
+export async function createTransaction(operations: Array<xdr.Operation<any>>, options: TxBlueprint) {
   const { horizon, memo, walletAccount } = options
 
   selectNetwork(walletAccount.testnet)

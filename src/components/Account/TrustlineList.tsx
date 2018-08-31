@@ -26,25 +26,22 @@ const TrustlineList = (props: Props) => {
           <ListItem>
             <ListItemText inset primary="XLM" secondary="Stellar Lumens" />
           </ListItem>
-          {accountData.balances.filter(balance => balance.asset_type !== "native").map(
-            (balance: any, index) =>
-              console.log(">", balance) || (
-                <ListItem key={index}>
-                  <ListItemText
-                    inset
-                    primary={balance.asset_code}
-                    secondary={
-                      <>
-                        <Line>
-                          <AccountName publicKey={balance.asset_issuer} testnet={props.testnet} />
-                        </Line>
-                        <Line>{trustlineLimitEqualsUnlimited(balance.limit) ? null : `Limit ${balance.limit}`}</Line>
-                      </>
-                    }
-                  />
-                </ListItem>
-              )
-          )}
+          {accountData.balances.filter(balance => balance.asset_type !== "native").map((balance: any, index) => (
+            <ListItem key={index}>
+              <ListItemText
+                inset
+                primary={balance.asset_code}
+                secondary={
+                  <>
+                    <Line>
+                      <AccountName publicKey={balance.asset_issuer} testnet={props.testnet} />
+                    </Line>
+                    <Line>{trustlineLimitEqualsUnlimited(balance.limit) ? null : `Limit ${balance.limit}`}</Line>
+                  </>
+                }
+              />
+            </ListItem>
+          ))}
           {!props.onAddTrustline ? null : (
             <ListItem button onClick={props.onAddTrustline}>
               <ListItemIcon>
