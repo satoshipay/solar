@@ -44,6 +44,15 @@ jobs:
           paths:
             - ~/repo
 
+  testIfItBuilds:
+    <<: *defaults
+    steps:
+      - restore_cache:
+          key: repo-cache-{{ .Revision }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run: npm run prebuild:electron
+
   build:
     <<: *defaults
     steps:
@@ -95,10 +104,14 @@ workflows:
           requires:
             - setup
           <<: *enable_job_on_tags
-      - build:
+      - testIfItBuilds:
           requires:
             - setup
           <<: *enable_job_on_master_or_release
+      - build:
+          requires:
+            - setup
+          <<: *enable_job_on_release_only
       - release:
           requires:
             - build
