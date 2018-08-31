@@ -43,31 +43,6 @@ export const AccountData = (props: { children: AccountDataRenderProp; publicKey:
   )
 }
 
-const unknownBalance = -1
-
-const getBalance = (accountData: AccountObservable): number => {
-  const balanceObject = accountData.balances.find(balance => balance.asset_type === "native")
-  return balanceObject ? parseFloat(balanceObject.balance) : unknownBalance
-}
-
-type BalanceRenderProp = (balance: number, activated: boolean) => React.ReactElement<any>
-
-/**
- * @example
- * <Balance publicKey='GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W' testnet>
- *   {balance => (
- *     <div>Current balance: XLM {balance}</div>
- *   )}
- * </Balance>
- */
-export const Balance = (props: { children: BalanceRenderProp; publicKey: string; testnet: boolean }) => {
-  return (
-    <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {(accountData, activated) => props.children(getBalance(accountData), activated)}
-    </AccountData>
-  )
-}
-
 type TransactionsRenderProp = (
   data: { activated: boolean; loading: boolean; transactions: Transaction[] }
 ) => React.ReactElement<any>
