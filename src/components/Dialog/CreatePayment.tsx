@@ -7,11 +7,9 @@ import { createPaymentOperation, createTransaction, signTransaction } from "../.
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { PaymentCreationValues } from "../Form/CreatePayment"
-import SubmissionProgress from "../SubmissionProgress"
 import { Horizon } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import PaymentFormDrawer from "./PaymentForm"
-import TxConfirmationDrawer from "./TransactionConfirmation"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 

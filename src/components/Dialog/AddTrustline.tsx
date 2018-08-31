@@ -11,7 +11,6 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import TextField from "@material-ui/core/TextField"
 import EditIcon from "@material-ui/icons/Edit"
-import { isWrongPasswordError } from "../../lib/errors"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { createTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
@@ -19,7 +18,6 @@ import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
 import { AccountData, Horizon } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
-import TxConfirmationDrawer from "./TransactionConfirmation"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 

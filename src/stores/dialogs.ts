@@ -1,4 +1,5 @@
 import { observable, IObservableArray } from "mobx"
+import { Asset } from "stellar-sdk"
 import { Account } from "./accounts"
 
 export enum DialogType {
@@ -8,6 +9,7 @@ export enum DialogType {
   CreatePayment = "CreatePayment",
   DeleteAccount = "DeleteAccount",
   ExportKey = "ExportKey",
+  RemoveTrustline = "RemoveTrustline",
   Rename = "Rename"
 }
 
@@ -18,6 +20,7 @@ export type DialogDescriptor =
   | CreatePaymentDescriptor
   | DeleteAccountDescriptor
   | ExportKeyDescriptor
+  | RemoveTrustlineDescriptor
   | RenameDescriptor
 
 interface DialogDescriptorBase {
@@ -67,6 +70,14 @@ export interface ExportKeyDescriptor extends DialogDescriptorBase {
   type: DialogType.ExportKey
   props: {
     account: Account
+  }
+}
+
+export interface RemoveTrustlineDescriptor extends DialogDescriptorBase {
+  type: DialogType.RemoveTrustline
+  props: {
+    account: Account
+    asset: Asset
   }
 }
 

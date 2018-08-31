@@ -1,4 +1,5 @@
 import React from "react"
+import { Asset } from "stellar-sdk"
 import { Account } from "../../stores/accounts"
 import {
   closeDialog,
@@ -10,6 +11,7 @@ import {
   DialogDescriptor,
   DialogType,
   DeleteAccountDescriptor,
+  RemoveTrustlineDescriptor,
   RenameDescriptor
 } from "../../stores/dialogs"
 import AccountDeletionDialog from "./AccountDeletion"
@@ -18,6 +20,7 @@ import ChangePasswordDialog from "./ChangePassword"
 import CreateAccountDialog from "./CreateAccount"
 import CreatePaymentDialog from "./CreatePayment"
 import ExportKeyDialog from "./ExportKey"
+import RemoveTrustlineDialog from "./RemoveTrustline"
 import RenameDialog from "./Rename"
 
 const OpenDialog = (props: DialogDescriptor) => {
@@ -37,6 +40,8 @@ const OpenDialog = (props: DialogDescriptor) => {
       return <AccountDeletionDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.ExportKey:
       return <ExportKeyDialog {...dialog.props} open={dialog.open} onClose={onClose} />
+    case DialogType.RemoveTrustline:
+      return <RemoveTrustlineDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.Rename:
       return <RenameDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     default:
@@ -76,4 +81,8 @@ export function createRenamingDialog(
   performRenaming: (newValue: string) => Promise<void>
 ): RenameDescriptor {
   return createDialog(DialogType.Rename, { performRenaming, prevValue, title })
+}
+
+export function createRemoveTrustlineDialog(account: Account, asset: Asset): RemoveTrustlineDescriptor {
+  return createDialog(DialogType.RemoveTrustline, { account, asset })
 }
