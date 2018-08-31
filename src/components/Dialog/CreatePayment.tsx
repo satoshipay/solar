@@ -9,77 +9,18 @@ import { addError } from "../../stores/notifications"
 import { PaymentCreationValues } from "../Form/CreatePayment"
 import SubmissionProgress from "../SubmissionProgress"
 import { Horizon } from "../Subscribers"
+import TransactionSender from "../TransactionSender"
 import PaymentFormDrawer from "./PaymentForm"
 import TxConfirmationDrawer from "./TransactionConfirmation"
 
-const SubmissionProgressOverlay = (props: {
-  open: boolean
-  onClose: () => void
-  submissionFailed: boolean
-  submissionPromise: Promise<any>
-}) => {
-  const onClose = () => {
-    // Only allow the user to close the overlay if the submission failed
-    if (props.submissionFailed) {
-      props.onClose()
-    }
-  }
-  return (
-    <Dialog open={props.open} onClose={onClose} PaperProps={{ elevation: 20 }}>
-      <DialogContent>
-        <SubmissionProgress promise={props.submissionPromise} />
-      </DialogContent>
-    </Dialog>
-  )
-}
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
-interface StatelessCreatePaymentDrawerProps {
+interface Props {
   account: Account
-  open: boolean
-  transaction: Transaction | null
-  clearTransaction: () => any
-  setTransaction: (tx: Transaction) => void
-  submissionFailed: boolean
-  submissionPromise: Promise<any> | null
-  clearSubmissionPromise: () => void
-  setSubmissionPromise: (promise: Promise<any>) => void
-  onClose: () => void
-  onPaymentFormSubmission: (formValues: PaymentCreationValues) => void
-  onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
-}
-
-const StatelessCreatePaymentDrawer = (props: StatelessCreatePaymentDrawerProps) => {
-  return (
-    <>
-      <PaymentFormDrawer
-        open={props.open}
-        account={props.account}
-        onClose={props.onClose}
-        onSubmit={props.onPaymentFormSubmission}
-      />
-      <TxConfirmationDrawer
-        open={Boolean(props.open && props.transaction)}
-        account={props.account}
-        transaction={props.transaction}
-        onClose={props.clearTransaction}
-        onSubmitTransaction={props.onSubmitTransaction}
-      />
-      {props.submissionPromise ? (
-        <SubmissionProgressOverlay
-          open
-          onClose={props.clearSubmissionPromise}
-          submissionFailed={props.submissionFailed}
-          submissionPromise={props.submissionPromise}
-        />
-      ) : null}
-    </>
-  )
-}
-
-interface CreatePaymentDrawerProps {
-  account: Account
+  horizon: Server
   open: boolean
   onClose: () => void
+  sendTransaction: (transaction: Transaction) => void
 }
 
 interface State {
@@ -88,33 +29,7 @@ interface State {
   transaction: Transaction | null
 }
 
-class StatefulCreatePaymentDrawer extends React.Component<CreatePaymentDrawerProps & { horizon: Server }, State> {
-  state = {
-    submissionFailed: false,
-    submissionPromise: null,
-    transaction: null
-  }
-
-  clearTransaction = () => {
-    this.setState({ transaction: null })
-  }
-
-  setTransaction = (transaction: Transaction) => {
-    this.setState({ transaction })
-  }
-
-  clearSubmissionPromise = () => {
-    this.setState({ submissionPromise: null })
-  }
-
-  setSubmissionPromise = (submissionPromise: Promise<any>) => {
-    this.setState({ submissionPromise, submissionFailed: false })
-
-    submissionPromise.catch(() => {
-      this.setState({ submissionFailed: true })
-    })
-  }
-
+class CreatePaymentDialog extends React.Component<Props, State> {
   createMemo = (formValues: PaymentCreationValues) => {
     switch (formValues.memoType) {
       case "id":
@@ -138,55 +53,36 @@ class StatefulCreatePaymentDrawer extends React.Component<CreatePaymentDrawerPro
         horizon: this.props.horizon,
         walletAccount: this.props.account
       })
-      this.setTransaction(tx)
+      this.props.sendTransaction(tx)
     } catch (error) {
       addError(error)
     }
   }
 
-  submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
-    try {
-      const signedTx = await signTransaction(transaction, this.props.account, formValues.password)
-      const promise = this.props.horizon.submitTransaction(signedTx)
-
-      this.setSubmissionPromise(promise)
-      await promise
-
-      // Close automatically a second after successful submission
-      setTimeout(() => this.props.onClose(), 1000)
-    } catch (error) {
-      if (isWrongPasswordError(error)) {
-        return this.setSubmissionPromise(Promise.reject(error))
-      } else {
-        addError(error)
-      }
-    }
-  }
-
   render() {
     return (
-      <StatelessCreatePaymentDrawer
-        account={this.props.account}
+      <PaymentFormDrawer
         open={this.props.open}
+        account={this.props.account}
         onClose={this.props.onClose}
-        clearSubmissionPromise={this.clearSubmissionPromise}
-        setSubmissionPromise={this.setSubmissionPromise}
-        submissionPromise={this.state.submissionPromise}
-        submissionFailed={this.state.submissionFailed}
-        clearTransaction={this.clearTransaction}
-        setTransaction={this.setTransaction}
-        transaction={this.state.transaction}
-        onPaymentFormSubmission={this.createTransaction}
-        onSubmitTransaction={this.submitTransaction}
+        onSubmit={this.createTransaction}
       />
     )
   }
 }
 
-const CreatePaymentDrawer = (props: CreatePaymentDrawerProps) => (
-  <Horizon testnet={props.account.testnet}>
-    {horizon => <StatefulCreatePaymentDrawer {...props} horizon={horizon} />}
-  </Horizon>
-)
+const ConnectedCreatePaymentDialog = (props: Omit<Props, "horizon" | "sendTransaction">) => {
+  const closeAfterTimeout = () => {
+    // Close automatically a second after successful submission
+    setTimeout(() => props.onClose(), 1000)
+  }
+  return (
+    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+      {({ horizon, sendTransaction }) => (
+        <CreatePaymentDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
+      )}
+    </TransactionSender>
+  )
+}
 
-export default CreatePaymentDrawer
+export default ConnectedCreatePaymentDialog
