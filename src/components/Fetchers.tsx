@@ -55,6 +55,7 @@ export const AccountName = (props: { publicKey: string; testnet: boolean }) => {
           }
           then={(accountData: any) => accountData.home_domain || props.publicKey}
           catch={() => props.publicKey}
+          pending={props.publicKey}
         />
       )}
     </Horizon>
