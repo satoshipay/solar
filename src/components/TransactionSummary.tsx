@@ -2,10 +2,9 @@ import React from "react"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Typography from "@material-ui/core/Typography"
 import { Memo, Operation, Transaction, TransactionOperation } from "stellar-sdk"
+import { trustlineLimitEqualsUnlimited } from "../lib/stellar"
 import { formatOperationType } from "../lib/transaction"
 import { List, ListItem } from "./List"
-
-const MAX_INT64 = "9223372036854775807"
 
 // TODO: Use <AccountName /> everywhere, instead of just <small>
 
@@ -84,7 +83,7 @@ const ChangeTrustOperation = (props: { operation: Operation.ChangeTrust; style?:
           {props.operation.line.code} by <small>{props.operation.line.issuer}</small>
         </div>
         <div>
-          {String(props.operation.limit).replace(".", "") == MAX_INT64
+          {trustlineLimitEqualsUnlimited(props.operation.limit)
             ? "Unlimited trust"
             : `Limited to ${props.operation.limit}`}
         </div>

@@ -5,8 +5,11 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import AddIcon from "@material-ui/icons/AddCircle"
+import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { AccountName } from "../Fetchers"
 import { AccountData } from "../Subscribers"
+
+const Line = (props: { children: React.ReactNode }) => <span style={{ display: "block" }}>{props.children}</span>
 
 interface Props {
   publicKey: string
@@ -23,15 +26,25 @@ const TrustlineList = (props: Props) => {
           <ListItem>
             <ListItemText inset primary="XLM" secondary="Stellar Lumens" />
           </ListItem>
-          {accountData.balances.filter(balance => balance.asset_type !== "native").map((balance, index) => (
-            <ListItem key={index}>
-              <ListItemText
-                inset
-                primary={(balance as any).asset_code}
-                secondary={<AccountName publicKey={(balance as any).asset_issuer} testnet={props.testnet} />}
-              />
-            </ListItem>
-          ))}
+          {accountData.balances.filter(balance => balance.asset_type !== "native").map(
+            (balance: any, index) =>
+              console.log(">", balance) || (
+                <ListItem key={index}>
+                  <ListItemText
+                    inset
+                    primary={balance.asset_code}
+                    secondary={
+                      <>
+                        <Line>
+                          <AccountName publicKey={balance.asset_issuer} testnet={props.testnet} />
+                        </Line>
+                        <Line>{trustlineLimitEqualsUnlimited(balance.limit) ? null : `Limit ${balance.limit}`}</Line>
+                      </>
+                    }
+                  />
+                </ListItem>
+              )
+          )}
           {!props.onAddTrustline ? null : (
             <ListItem button onClick={props.onAddTrustline}>
               <ListItemIcon>
