@@ -2,7 +2,7 @@ import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import { Memo, Server, Transaction } from "stellar-sdk"
-import { createWrongPasswordError, isWrongPasswordError } from "../../lib/errors"
+import { isWrongPasswordError } from "../../lib/errors"
 import { createPaymentOperation, createTransaction, signTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
@@ -115,14 +115,6 @@ class StatefulCreatePaymentDrawer extends React.Component<CreatePaymentDrawerPro
     })
   }
 
-  runErrorHandled = async <Result extends any>(fn: () => Result) => {
-    try {
-      await fn()
-    } catch (error) {
-      addError(error)
-    }
-  }
-
   createMemo = (formValues: PaymentCreationValues) => {
     switch (formValues.memoType) {
       case "id":
@@ -134,8 +126,8 @@ class StatefulCreatePaymentDrawer extends React.Component<CreatePaymentDrawerPro
     }
   }
 
-  createTransaction = (formValues: PaymentCreationValues) => {
-    this.runErrorHandled(async () => {
+  createTransaction = async (formValues: PaymentCreationValues) => {
+    try {
       const payment = await createPaymentOperation({
         amount: formValues.amount,
         destination: formValues.destination,
@@ -147,38 +139,28 @@ class StatefulCreatePaymentDrawer extends React.Component<CreatePaymentDrawerPro
         walletAccount: this.props.account
       })
       this.setTransaction(tx)
-    })
+    } catch (error) {
+      addError(error)
+    }
   }
 
-  submitTransaction = (transaction: Transaction, formValues: { password: string | null }) => {
-    const signAndSubmit = async (account: Account) => {
-      if (account.requiresPassword && !formValues.password) {
-        throw createWrongPasswordError(`Account is password-protected, but no password has been provided.`)
-      }
-
-      const privateKey = await account.getPrivateKey(formValues.password)
-      const signedTx = signTransaction(transaction, privateKey)
-
+  submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
+    try {
+      const signedTx = await signTransaction(transaction, this.props.account, formValues.password)
       const promise = this.props.horizon.submitTransaction(signedTx)
 
       this.setSubmissionPromise(promise)
       await promise
-    }
-
-    this.runErrorHandled(async () => {
-      try {
-        await signAndSubmit(this.props.account)
-      } catch (error) {
-        if (isWrongPasswordError(error)) {
-          return this.setSubmissionPromise(Promise.reject(error))
-        } else {
-          throw error
-        }
-      }
 
       // Close automatically a second after successful submission
       setTimeout(() => this.props.onClose(), 1000)
-    })
+    } catch (error) {
+      if (isWrongPasswordError(error)) {
+        return this.setSubmissionPromise(Promise.reject(error))
+      } else {
+        addError(error)
+      }
+    }
   }
 
   render() {

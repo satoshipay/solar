@@ -1,4 +1,5 @@
 import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
+import { createWrongPasswordError } from "../lib/errors"
 import { Account } from "../stores/accounts"
 
 export function selectNetwork(testnet = false) {
@@ -63,7 +64,13 @@ export async function createPaymentOperation(options: PaymentOperationBlueprint)
   return operation as xdr.Operation<Operation.CreateAccount | Operation.Payment>
 }
 
-export function signTransaction(transaction: Transaction, privateKey: string) {
+export async function signTransaction(transaction: Transaction, walletAccount: Account, password: string | null) {
+  if (walletAccount.requiresPassword && !password) {
+    throw createWrongPasswordError(`Account is password-protected, but no password has been provided.`)
+  }
+
+  const privateKey = await walletAccount.getPrivateKey(password)
+
   transaction.sign(Keypair.fromSecret(privateKey))
   return transaction
 }
