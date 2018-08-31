@@ -7,17 +7,11 @@ import CogIcon from "react-icons/lib/fa/cog"
 import ExchangeIcon from "react-icons/lib/fa/exchange"
 import { Transaction } from "stellar-sdk"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
-import { selectNetwork } from "../../lib/transaction"
+import { formatOperationType, selectNetwork } from "../../lib/transaction"
 import { List, ListItem } from "../List"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
-}
-
-const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
-
-function formatOperationType(operationType: string) {
-  return uppercaseFirstLetter(operationType.replace(/([A-Z])/g, letter => " " + letter))
 }
 
 const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
