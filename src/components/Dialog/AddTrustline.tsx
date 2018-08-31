@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { AccountRecord, Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -17,7 +17,7 @@ import { createTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
-import { Horizon } from "../Subscribers"
+import { AccountData, Horizon } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import TxConfirmationDrawer from "./TransactionConfirmation"
 
@@ -75,6 +75,7 @@ const CustomTrustlineForm = (props: FormProps) => {
 
 interface Props {
   account: Account
+  balances: AccountRecord["balances"]
   horizon: Server
   open: boolean
   onClose: () => void
@@ -130,9 +131,16 @@ class AddTrustlineDialog extends React.Component<Props, State> {
     this.setState({ showForm: true })
   }
 
+  isAssetAlreadyAdded = (asset: Asset) => {
+    return this.props.balances.some(
+      (balance: any) => balance.asset_code === asset.code && balance.asset_issuer === asset.issuer
+    )
+  }
+
   render() {
     const { account } = this.props
     const popularAssets = account.testnet ? testnetPopularAssets : mainnetPopularAssets
+    const popularAssetsAlreadyAdded = popularAssets.filter(asset => this.isAssetAlreadyAdded(asset))
 
     return (
       <Dialog open={this.props.open} onClose={this.props.onClose}>
@@ -140,7 +148,12 @@ class AddTrustlineDialog extends React.Component<Props, State> {
         <DialogContent>
           <List style={{ maxHeight: "70%", overflowY: "auto" }}>
             {popularAssets.map(asset => (
-              <ListItem key={[asset.issuer, asset.code].join("")} button onClick={() => this.addAsset(asset)}>
+              <ListItem
+                key={[asset.issuer, asset.code].join("")}
+                button
+                disabled={popularAssetsAlreadyAdded.indexOf(asset) > -1}
+                onClick={() => this.addAsset(asset)}
+              >
                 <ListItemText primary={asset.code} secondary={asset.issuer} />
               </ListItem>
             ))}
@@ -170,7 +183,7 @@ class AddTrustlineDialog extends React.Component<Props, State> {
   }
 }
 
-const ConnectedAddTrustlineDialog = (props: Omit<Props, "horizon" | "sendTransaction">) => {
+const ConnectedAddTrustlineDialog = (props: Omit<Props, "balances" | "horizon" | "sendTransaction">) => {
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
@@ -178,7 +191,16 @@ const ConnectedAddTrustlineDialog = (props: Omit<Props, "horizon" | "sendTransac
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <AddTrustlineDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
+        <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
+          {accountData => (
+            <AddTrustlineDialog
+              {...props}
+              balances={accountData.balances}
+              horizon={horizon}
+              sendTransaction={sendTransaction}
+            />
+          )}
+        </AccountData>
       )}
     </TransactionSender>
   )
