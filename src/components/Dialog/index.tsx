@@ -3,6 +3,7 @@ import { Account } from "../../stores/accounts"
 import {
   closeDialog,
   createDialog,
+  AddTrustlineDescriptor,
   ChangePasswordDescriptor,
   CreateAccountDescriptor,
   CreatePaymentDescriptor,
@@ -12,6 +13,7 @@ import {
   RenameDescriptor
 } from "../../stores/dialogs"
 import AccountDeletionDialog from "./AccountDeletion"
+import AddTrustlineDialog from "./AddTrustline"
 import ChangePasswordDialog from "./ChangePassword"
 import CreateAccountDialog from "./CreateAccount"
 import CreatePaymentDialog from "./CreatePayment"
@@ -23,6 +25,8 @@ const OpenDialog = (props: DialogDescriptor) => {
   const onClose = () => closeDialog(dialog.id)
 
   switch (dialog.type) {
+    case DialogType.AddTrustline:
+      return <AddTrustlineDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.ChangePassword:
       return <ChangePasswordDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.CreateAccount:
@@ -41,6 +45,10 @@ const OpenDialog = (props: DialogDescriptor) => {
 }
 
 export default OpenDialog
+
+export function createAddTrustlineDialog(account: Account): AddTrustlineDescriptor {
+  return createDialog(DialogType.AddTrustline, { account })
+}
 
 export function createAccountCreationDialog(testnet: boolean): CreateAccountDescriptor {
   return createDialog(DialogType.CreateAccount, { testnet })

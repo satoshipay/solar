@@ -7,9 +7,11 @@ import AccountBottomNavigation from "../components/Account/AccountBottomNavigati
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TrustlineList from "../components/Account/TrustlineList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
+import { createAddTrustlineDialog } from "../components/Dialog"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountStore from "../stores/accounts"
+import { openDialog } from "../stores/dialogs"
 
 const AccountAssetsPage = (props: {
   accounts: typeof AccountStore
@@ -29,7 +31,11 @@ const AccountAssetsPage = (props: {
       </Section>
       <Section>
         <Box padding="16px 8px">
-          <TrustlineList publicKey={account.publicKey} testnet={account.testnet} />
+          <TrustlineList
+            publicKey={account.publicKey}
+            testnet={account.testnet}
+            onAddTrustline={() => openDialog(createAddTrustlineDialog(account))}
+          />
         </Box>
       </Section>
     </BottomNavigationContainer>
