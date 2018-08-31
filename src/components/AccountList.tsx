@@ -7,7 +7,7 @@ import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/AddCircle"
 import ArrowCircleRightIcon from "react-icons/lib/fa/arrow-circle-right"
 import { List, ListItem, ListSubheader } from "../components/List"
-import { AccountBalance } from "../components/Balance"
+import AccountBalances from "../components/Balance"
 import * as routes from "../routes"
 import AccountStore, { Account } from "../stores/accounts"
 
@@ -29,7 +29,7 @@ const AccountListItem = (props: { account: Account; history: History }) => {
       primaryText={account.name}
       secondaryText={
         <small>
-          <AccountBalance publicKey={account.publicKey} testnet={account.testnet} />
+          <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
         </small>
       }
       onClick={() => history.push(routes.account(account.id))}

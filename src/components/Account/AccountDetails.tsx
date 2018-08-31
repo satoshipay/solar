@@ -1,6 +1,6 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { AccountBalance } from "../Balance"
+import AccountBalances from "../Balance"
 import { DetailData, DetailDataSet } from "../Details"
 import { Account } from "../../stores/accounts"
 
@@ -16,7 +16,7 @@ const AccountDetails = (props: { account: Account }) => {
   const { account } = props
   return (
     <DetailDataSet>
-      <DetailData label="Balance" value={<AccountBalance publicKey={account.publicKey} testnet={account.testnet} />} />
+      <DetailData label="Balance" value={<AccountBalances publicKey={account.publicKey} testnet={account.testnet} />} />
       <DetailData label="Public Key" value={account.publicKey} />
       <DetailData
         label="Security"

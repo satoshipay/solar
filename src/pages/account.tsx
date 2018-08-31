@@ -13,7 +13,7 @@ import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionList from "../components/Account/TransactionList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
 import Spinner from "../components/Spinner"
-import { Balance, Transactions } from "../components/Subscribers"
+import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
@@ -34,7 +34,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
           <Box margin="24px 0 0">
-            <Balance publicKey={account.publicKey} testnet={account.testnet}>
+            <AccountData publicKey={account.publicKey} testnet={account.testnet}>
               {(_, activated) => (
                 <Button
                   variant="contained"
@@ -46,7 +46,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                   Send payment
                 </Button>
               )}
-            </Balance>
+            </AccountData>
           </Box>
         </AccountHeaderCard>
       </Section>
