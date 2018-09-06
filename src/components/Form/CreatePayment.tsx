@@ -1,4 +1,5 @@
 import React from "react"
+import { Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
@@ -19,6 +20,7 @@ const memoInputLabels: MemoLabels = {
 
 export interface PaymentCreationValues {
   amount: string
+  asset: string
   destination: string
   memoType: "id" | "none" | "text"
   memoValue: string
@@ -53,9 +55,29 @@ function validateFormValues(formValues: PaymentCreationValues) {
   return { errors, success }
 }
 
+interface AssetSelectorProps {
+  assets: string[]
+  onSelect: (assetCode: string) => void
+  selected: string
+  style: React.CSSProperties
+}
+
+const AssetSelector = (props: AssetSelectorProps) => {
+  return (
+    <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
+      {props.assets.map(assetCode => (
+        <MenuItem key={assetCode} value={assetCode}>
+          {assetCode}
+        </MenuItem>
+      ))}
+    </Select>
+  )
+}
+
 interface PaymentCreationFormProps {
   errors: PaymentCreationErrors
   formValues: PaymentCreationValues
+  trustedAssets: Asset[]
   setFormValue: (fieldName: keyof PaymentCreationValues, value: string) => void
   onSubmit: () => void
 }
@@ -88,7 +110,14 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
           InputProps={{
-            endAdornment: <span style={{ alignSelf: "center" }}>XLM</span>
+            endAdornment: (
+              <AssetSelector
+                assets={props.trustedAssets.map(asset => asset.code)}
+                onSelect={code => setFormValue("asset", code)}
+                selected={formValues.asset}
+                style={{ alignSelf: "center" }}
+              />
+            )
           }}
           style={{
             minWidth: "30%"
@@ -136,6 +165,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
 }
 
 interface Props {
+  trustedAssets: Asset[]
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 
@@ -149,6 +179,7 @@ class StatefulPaymentCreationForm extends React.Component<Props, State> {
     errors: {},
     formValues: {
       amount: "",
+      asset: "XLM",
       destination: "",
       memoType: "none",
       memoValue: ""

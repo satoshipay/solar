@@ -56,15 +56,24 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
 
 interface PaymentOperationBlueprint {
   amount: string
+  asset: Asset
   destination: string
   horizon: Server
 }
 
 export async function createPaymentOperation(options: PaymentOperationBlueprint) {
-  const { amount, destination, horizon } = options
+  const { amount, asset, destination, horizon } = options
+  const destinationAccountExists = await accountExists(horizon, destination)
 
-  const operation = (await accountExists(horizon, destination))
-    ? Operation.payment({ destination, amount, asset: Asset.native() })
+  if (!destinationAccountExists && !Asset.native().equals(options.asset)) {
+    throw new Error(
+      `Cannot pay in ${asset.equals}, since the destination account does not exist yet. ` +
+        `Account creations always need to be done via XLM.`
+    )
+  }
+
+  const operation = destinationAccountExists
+    ? Operation.payment({ destination, amount, asset })
     : Operation.createAccount({ destination, startingBalance: amount })
 
   return operation as xdr.Operation<Operation.CreateAccount | Operation.Payment>

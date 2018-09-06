@@ -1,13 +1,20 @@
 import React from "react"
-import { Memo, Server, Transaction } from "stellar-sdk"
+import { AccountRecord, Asset, Memo, Server, Transaction } from "stellar-sdk"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import { PaymentCreationValues } from "../Form/CreatePayment"
+import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import PaymentFormDrawer from "./PaymentForm"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
+
+function getAssetsFromBalances(balances: AccountRecord["balances"]) {
+  return balances.map(
+    balance => (balance.asset_type === "native" ? Asset.native() : new Asset(balance.asset_code, balance.asset_issuer))
+  )
+}
 
 interface Props {
   account: Account
@@ -15,6 +22,7 @@ interface Props {
   open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
+  trustedAssets: Asset[]
 }
 
 interface State {
@@ -37,7 +45,10 @@ class CreatePaymentDialog extends React.Component<Props, State> {
 
   createTransaction = async (formValues: PaymentCreationValues) => {
     try {
+      const asset = this.props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+
       const payment = await createPaymentOperation({
+        asset: asset || Asset.native(),
         amount: formValues.amount,
         destination: formValues.destination,
         horizon: this.props.horizon
@@ -60,6 +71,7 @@ class CreatePaymentDialog extends React.Component<Props, State> {
         account={this.props.account}
         onClose={this.props.onClose}
         onSubmit={this.createTransaction}
+        trustedAssets={this.props.trustedAssets}
       />
     )
   }
@@ -73,7 +85,16 @@ const ConnectedCreatePaymentDialog = (props: Omit<Props, "horizon" | "sendTransa
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <CreatePaymentDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
+        <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
+          {accountData => (
+            <CreatePaymentDialog
+              {...props}
+              horizon={horizon}
+              sendTransaction={sendTransaction}
+              trustedAssets={getAssetsFromBalances(accountData.balances)}
+            />
+          )}
+        </AccountData>
       )}
     </TransactionSender>
   )
