@@ -2,6 +2,7 @@ import { observable } from "mobx"
 import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
 import { addError } from "../stores/notifications"
 import { waitForAccountData } from "./account"
+import { getHorizonURL } from "./stellar"
 
 export interface AccountObservable {
   activated: boolean
@@ -14,11 +15,6 @@ export interface RecentTxsObservable {
   transactions: Transaction[]
 }
 
-interface URI {
-  toString: () => string
-}
-type HorizonWithUndocumentedProps = Server & { serverURL: URI }
-
 const accountObservableCache = new Map<string, AccountObservable>()
 const accountRecentTxsCache = new Map<string, RecentTxsObservable>()
 
@@ -28,14 +24,14 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
     balances: []
   })
 
-  const subscribeToAccountDataStream = () => {
+  const subscribeToAccountDataStream = (cursor: string = "now") => {
     let lastMessageJson = ""
     let lastMessageTime = 0
 
     horizon
       .accounts()
       .accountId(accountPubKey)
-      .cursor("now")
+      .cursor(cursor)
       .stream({
         onmessage(accountData: AccountRecord) {
           const serialized = JSON.stringify(accountData)
@@ -62,9 +58,9 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
   }
 
   waitForAccountData(horizon, accountPubKey)
-    .then(accountData => {
+    .then(({ accountData, initialFetchFailed }) => {
       Object.assign(accountObservable, accountData, { activated: true })
-      subscribeToAccountDataStream()
+      subscribeToAccountDataStream(initialFetchFailed ? "0" : "now")
     })
     .catch(addError)
 
@@ -87,11 +83,11 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
       .call()
     records.forEach(txResponse => recentTxs.transactions.push(deserializeTx(txResponse)))
   }
-  const subscribeToTxs = () => {
+  const subscribeToTxs = (cursor: string = "now") => {
     horizon
       .transactions()
       .forAccount(accountPubKey)
-      .cursor("now")
+      .cursor(cursor)
       .stream({
         onmessage(txResponse: TransactionRecord) {
           // Important: Insert new transactions in the front, since order is descending
@@ -116,9 +112,9 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
       recentTxs.activated = false
       recentTxs.loading = false
       waitForAccountData(horizon, accountPubKey)
-        .then(() => {
+        .then(({ initialFetchFailed }) => {
           recentTxs.activated = true
-          subscribeToTxs()
+          subscribeToTxs(initialFetchFailed ? "0" : "now")
         })
         .catch(addError)
     } else {
@@ -130,7 +126,7 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
 }
 
 export function subscribeToAccount(horizon: Server, accountPubKey: string): AccountObservable {
-  const cacheKey = (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
+  const cacheKey = getHorizonURL(horizon) + accountPubKey
 
   if (accountObservableCache.has(cacheKey)) {
     return (accountObservableCache.get(cacheKey) as any) as AccountObservable
@@ -142,7 +138,7 @@ export function subscribeToAccount(horizon: Server, accountPubKey: string): Acco
 }
 
 export function subscribeToRecentTxs(horizon: Server, accountPubKey: string): RecentTxsObservable {
-  const cacheKey = (horizon as HorizonWithUndocumentedProps).serverURL + accountPubKey
+  const cacheKey = getHorizonURL(horizon) + accountPubKey
 
   if (accountRecentTxsCache.has(cacheKey)) {
     return (accountRecentTxsCache.get(cacheKey) as any) as RecentTxsObservable

@@ -18,6 +18,7 @@ async function loadAccount(horizon: Server, accountPubKey: string) {
 
 export async function waitForAccountData(horizon: Server, accountPubKey: string) {
   let accountData = null
+  let initialFetchFailed = false
 
   while (true) {
     accountData = await loadAccount(horizon, accountPubKey)
@@ -25,9 +26,13 @@ export async function waitForAccountData(horizon: Server, accountPubKey: string)
     if (accountData) {
       break
     } else {
-      await delay(5000)
+      initialFetchFailed = true
+      await delay(2500)
     }
   }
 
-  return accountData
+  return {
+    accountData,
+    initialFetchFailed
+  }
 }
