@@ -2,7 +2,6 @@ import React from "react"
 import Async from "react-promise"
 import { Asset, Memo, Network, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
-import { Transactions } from "../src/components/Subscribers"
 import TransactionSummary from "../src/components/TransactionSummary"
 
 storiesOf("TransactionSummary", module)
