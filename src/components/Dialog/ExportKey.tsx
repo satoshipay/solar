@@ -61,7 +61,9 @@ const WarningBox = (props: WarningBoxProps) => {
         A backup is important, though, since losing your secret key also means losing access to your account.
       </Typography>
       <HorizontalLayout justifyContent="center" margin="24px 0 0">
-        <Button onClick={props.onReveal}>Click to reveal your secret key</Button>
+        <Button variant="outlined" onClick={props.onReveal}>
+          Click to reveal your secret key
+        </Button>
       </HorizontalLayout>
       {props.requiresPassword ? (
         <form onSubmit={props.onReveal}>
