@@ -9,6 +9,14 @@ import SendIcon from "react-icons/lib/md/send"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderError } from "../../lib/formHandling"
 
+type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
+
+const memoInputLabels: MemoLabels = {
+  id: "Integer identifier",
+  none: "",
+  text: "Memo"
+}
+
 export interface PaymentCreationValues {
   amount: string
   destination: string
@@ -55,11 +63,6 @@ interface PaymentCreationFormProps {
 const PaymentCreationForm = (props: PaymentCreationFormProps) => {
   const { errors, formValues, setFormValue, onSubmit } = props
 
-  const memoPlaceholders: { [memoType in PaymentCreationValues["memoType"]]: string } = {
-    id: "Integer identifier",
-    none: "",
-    text: "Memo"
-  }
   const handleSubmitEvent = (event: React.SyntheticEvent) => {
     event.preventDefault()
     onSubmit()
@@ -109,7 +112,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
         {formValues.memoType !== "none" ? (
           <TextField
             error={Boolean(errors.memoValue)}
-            label={errors.memoValue ? renderError(errors.memoValue) : memoPlaceholders[formValues.memoType]}
+            label={errors.memoValue ? renderError(errors.memoValue) : memoInputLabels[formValues.memoType]}
             margin="dense"
             onChange={event => setFormValue("memoValue", event.target.value)}
             value={formValues.memoValue}
