@@ -20,6 +20,8 @@ interface HorizonError extends Error {
 
 function deriveError(originalError: HorizonError, newError: Error) {
   // Copy debugging metadata to the new error for future inspection
+  // Use `Object.assign()` instead of object spread operator to preserve prototype
+  // tslint:disable-next-line
   return Object.assign(newError, {
     config: originalError.config,
     request: originalError.request,
