@@ -61,7 +61,9 @@ const WarningBox = (props: WarningBoxProps) => {
         A backup is important, though, since losing your secret key also means losing access to your account.
       </Typography>
       <HorizontalLayout justifyContent="center" margin="24px 0 0">
-        <Button onClick={props.onReveal}>Click to reveal your secret key</Button>
+        <Button variant="outlined" onClick={props.onReveal}>
+          Click to reveal your secret key
+        </Button>
       </HorizontalLayout>
       {props.requiresPassword ? (
         <form onSubmit={props.onReveal}>
@@ -120,7 +122,6 @@ class ExportKeyDialog extends React.Component<Props, State> {
 
   reveal = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    this.setState({ reveal: true })
 
     const { account } = this.props
     const password = account.requiresPassword ? this.state.password : null
@@ -128,7 +129,7 @@ class ExportKeyDialog extends React.Component<Props, State> {
     account
       .getPrivateKey(password)
       .then(secretKey => {
-        this.setState({ passwordError: null, secretKey })
+        this.setState({ passwordError: null, reveal: true, secretKey })
       })
       .catch(error => {
         if (isWrongPasswordError(error)) {
