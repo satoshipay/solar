@@ -32,13 +32,20 @@ export const Horizon = (props: { children: HorizonRenderProp; testnet: boolean }
 
 type AccountDataRenderProp = (accountData: AccountObservable, activated: boolean) => React.ReactElement<any>
 
+// Utility component for <AccountData>
+// It's important to render the children in a React.Fragment (<></>) to prevent random unmounts/remounts of the children
+const AccountDataObserver = observer<
+  React.StatelessComponent<{ accountData: AccountObservable; children: AccountDataRenderProp }>
+>(({ accountData, children }) => {
+  return <>{children(accountData, accountData.activated)}</>
+})
+
 export const AccountData = (props: { children: AccountDataRenderProp; publicKey: string; testnet: boolean }) => {
-  const AccountDataObserver = observer<React.StatelessComponent<{ accountData: AccountObservable }>>(
-    ({ accountData }) => props.children(accountData, accountData.activated)
-  )
   return (
     <Horizon testnet={props.testnet}>
-      {(horizon: Server) => <AccountDataObserver accountData={subscribeToAccount(horizon, props.publicKey)} />}
+      {(horizon: Server) => (
+        <AccountDataObserver accountData={subscribeToAccount(horizon, props.publicKey)} children={props.children} />
+      )}
     </Horizon>
   )
 }
