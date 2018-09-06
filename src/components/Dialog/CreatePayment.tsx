@@ -77,7 +77,7 @@ class CreatePaymentDialog extends React.Component<Props, State> {
   }
 }
 
-const ConnectedCreatePaymentDialog = (props: Omit<Props, "horizon" | "sendTransaction">) => {
+const ConnectedCreatePaymentDialog = (props: Omit<Props, "horizon" | "sendTransaction" | "trustedAssets">) => {
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
