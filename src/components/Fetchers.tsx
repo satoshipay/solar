@@ -1,5 +1,7 @@
+import BigNumber from "big.js"
 import React from "react"
 import Async from "react-promise"
+import { LedgerRecord, Server } from "stellar-sdk"
 import { Horizon } from "./Subscribers"
 
 const memCache = new Map<string, any>()
@@ -59,5 +61,40 @@ export const AccountName = (props: { publicKey: string; testnet: boolean }) => {
         />
       )}
     </Horizon>
+  )
+}
+
+async function fetchHorizonMetadata(horizon: Server) {
+  const response = await fetch((horizon as any).serverURL.toString())
+  return response.json()
+}
+
+async function fetchLatestLedger(horizon: Server) {
+  const horizonMeta = await fetchHorizonMetadata(horizon)
+  const ledgerData = await (horizon.ledgers() as any).ledger(horizonMeta.history_latest_ledger).call()
+  return ledgerData
+}
+
+type LedgerDataRenderProp = (ledgerData: LedgerRecord) => React.ReactNode
+
+const LedgerMetadata = (props: { children: LedgerDataRenderProp; testnet: boolean }) => {
+  return (
+    <Horizon testnet={props.testnet}>
+      {horizon => (
+        <Memoized
+          cacheKey={(horizon as any).serverURL.toString()}
+          fetch={() => fetchLatestLedger(horizon)}
+          then={props.children}
+        />
+      )}
+    </Horizon>
+  )
+}
+
+export const MinimumAccountBalance = (props: { testnet: boolean }) => {
+  return (
+    <LedgerMetadata testnet={props.testnet}>
+      {ledgerData => <>{(ledgerData.base_reserve_in_stroops / 1e7) * 2}</>}
+    </LedgerMetadata>
   )
 }

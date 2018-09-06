@@ -12,6 +12,7 @@ import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionList from "../components/Account/TransactionList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
+import { MinimumAccountBalance } from "../components/Fetchers"
 import Spinner from "../components/Spinner"
 import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
@@ -64,7 +65,8 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
               />
             ) : (
               <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
-                Account does not exist on the network
+                Account does not yet exist on the network. Send at least XLM&nbsp;
+                <MinimumAccountBalance testnet={account.testnet} /> to activate the account.
               </Typography>
             )
           }
