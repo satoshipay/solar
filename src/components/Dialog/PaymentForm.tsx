@@ -1,4 +1,5 @@
 import React from "react"
+import { Asset } from "stellar-sdk"
 import Drawer from "@material-ui/core/Drawer"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -27,9 +28,11 @@ interface PaymentFormDrawerProps {
   open: boolean
   onClose: () => void
   onSubmit: (values: PaymentCreationValues) => void
+  trustedAssets?: Asset[]
 }
 
 const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
+  const trustedAssets = props.trustedAssets || [Asset.native()]
   return (
     <Drawer open={props.open} anchor="right" onClose={props.onClose}>
       <Card
@@ -50,7 +53,7 @@ const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
             {props.account.testnet ? "Testnet" : null}
           </Typography>
           <div style={{ marginTop: 32 }}>
-            <CreatePaymentForm onSubmit={props.onSubmit} />
+            <CreatePaymentForm onSubmit={props.onSubmit} trustedAssets={trustedAssets} />
           </div>
         </CardContent>
       </Card>

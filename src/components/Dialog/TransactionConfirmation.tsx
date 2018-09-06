@@ -13,7 +13,7 @@ const isPaymentOperation = (operation: TransactionOperation) =>
 interface TxConfirmationDrawerProps {
   account: Account
   open: boolean
-  transaction: Transaction
+  transaction: Transaction | null
   onClose: () => void
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
