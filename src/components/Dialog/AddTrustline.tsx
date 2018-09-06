@@ -17,6 +17,7 @@ import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
 import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
+import { AccountName } from "../Fetchers"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -151,7 +152,10 @@ class AddTrustlineDialog extends React.Component<Props, State> {
                 disabled={popularAssetsAlreadyAdded.indexOf(asset) > -1}
                 onClick={() => this.addAsset(asset)}
               >
-                <ListItemText primary={asset.code} secondary={asset.issuer} />
+                <ListItemText
+                  primary={asset.code}
+                  secondary={<AccountName publicKey={asset.issuer} testnet={account.testnet} />}
+                />
               </ListItem>
             ))}
             {this.state.showForm ? (
