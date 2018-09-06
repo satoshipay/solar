@@ -120,7 +120,6 @@ class ExportKeyDialog extends React.Component<Props, State> {
 
   reveal = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    this.setState({ reveal: true })
 
     const { account } = this.props
     const password = account.requiresPassword ? this.state.password : null
@@ -128,7 +127,7 @@ class ExportKeyDialog extends React.Component<Props, State> {
     account
       .getPrivateKey(password)
       .then(secretKey => {
-        this.setState({ passwordError: null, secretKey })
+        this.setState({ passwordError: null, reveal: true, secretKey })
       })
       .catch(error => {
         if (isWrongPasswordError(error)) {
