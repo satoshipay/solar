@@ -3,6 +3,7 @@ import { History } from "history"
 import { match } from "react-router"
 import { observer } from "mobx-react"
 import Button from "@material-ui/core/Button"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import indigo from "@material-ui/core/colors/indigo"
 import SendIcon from "react-icons/lib/md/send"
@@ -10,10 +11,10 @@ import { createPaymentDialog } from "../components/Dialog/index"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
+import FriendbotButton from "../components/Account/FriendbotButton"
 import TransactionList from "../components/Account/TransactionList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
 import { MinimumAccountBalance } from "../components/Fetchers"
-import Spinner from "../components/Spinner"
 import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
@@ -53,9 +54,11 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
       </Section>
       <Section>
         <Transactions publicKey={account.publicKey} testnet={account.testnet}>
-          {({ activated, loading, transactions }) =>
+          {({ activated, horizon, loading, transactions }) =>
             loading ? (
-              <Spinner />
+              <div style={{ padding: "16px", textAlign: "center" }}>
+                <CircularProgress />
+              </div>
             ) : activated ? (
               <TransactionList
                 accountPublicKey={account.publicKey}
@@ -64,10 +67,17 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                 transactions={transactions}
               />
             ) : (
-              <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
-                Account does not yet exist on the network. Send at least XLM&nbsp;
-                <MinimumAccountBalance testnet={account.testnet} /> to activate the account.
-              </Typography>
+              <>
+                <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
+                  Account does not yet exist on the network. Send at least XLM&nbsp;
+                  <MinimumAccountBalance testnet={account.testnet} /> to activate the account.
+                </Typography>
+                {account.testnet ? (
+                  <Typography align="center" style={{ paddingBottom: 30 }}>
+                    <FriendbotButton horizon={horizon} publicKey={account.publicKey} />
+                  </Typography>
+                ) : null}
+              </>
             )
           }
         </Transactions>

@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import Async from "react-promise"
 import { LedgerRecord, Server } from "stellar-sdk"
+import { getHorizonURL } from "../lib/stellar"
 import { Horizon } from "./Subscribers"
 
 const memCache = new Map<string, any>()
@@ -65,7 +66,7 @@ export const AccountName = (props: { publicKey: string; testnet: boolean }) => {
 }
 
 async function fetchHorizonMetadata(horizon: Server) {
-  const response = await fetch((horizon as any).serverURL.toString())
+  const response = await fetch(getHorizonURL(horizon))
   return response.json()
 }
 
@@ -81,11 +82,7 @@ const LedgerMetadata = (props: { children: LedgerDataRenderProp; testnet: boolea
   return (
     <Horizon testnet={props.testnet}>
       {horizon => (
-        <Memoized
-          cacheKey={(horizon as any).serverURL.toString()}
-          fetch={() => fetchLatestLedger(horizon)}
-          then={props.children}
-        />
+        <Memoized cacheKey={getHorizonURL(horizon)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
       )}
     </Horizon>
   )
