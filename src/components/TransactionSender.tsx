@@ -3,6 +3,7 @@ import { Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import { isWrongPasswordError } from "../lib/errors"
+import { explainSubmissionError } from "../lib/horizonErrors"
 import { signTransaction } from "../lib/transaction"
 import { Account } from "../stores/accounts"
 import { addError } from "../stores/notifications"
@@ -93,7 +94,11 @@ class TransactionSender extends React.Component<Props, State> {
     } catch (error) {
       if (isWrongPasswordError(error)) {
         return this.setSubmissionPromise(Promise.reject(error))
-      } else if (onSubmissionFailure) {
+      }
+
+      error = explainSubmissionError(error)
+
+      if (onSubmissionFailure) {
         onSubmissionFailure(error, transaction)
       } else {
         addError(error)
