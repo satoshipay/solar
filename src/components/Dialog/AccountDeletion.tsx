@@ -40,8 +40,8 @@ const AccountDeletionDialog = (props: Props) => {
         <DialogContentText style={{ marginTop: 16 }}>
           Balance: <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </DialogContentText>
-        <DialogActions>
-          <Button color="primary" onClick={props.onClose}>
+        <DialogActions style={{ marginTop: 16 }}>
+          <Button color="primary" onClick={props.onClose} style={{ marginRight: 16 }}>
             Cancel
           </Button>
           <Button color="primary" variant="contained" autoFocus onClick={onConfirm}>
