@@ -51,7 +51,7 @@ export const AccountData = (props: { children: AccountDataRenderProp; publicKey:
 }
 
 type TransactionsRenderProp = (
-  data: { activated: boolean; loading: boolean; transactions: Transaction[] }
+  data: { activated: boolean; horizon: Server; loading: boolean; transactions: Transaction[] }
 ) => React.ReactElement<any>
 
 /**
@@ -71,6 +71,7 @@ export const Transactions = (props: { children: TransactionsRenderProp; publicKe
           ({ recentTransactions }) => {
             // Had a weird issue with mobx: Didn't properly update when just passing down `recentTransactions`; destructuring solves the issue
             return props.children({
+              horizon,
               activated: recentTransactions.activated,
               loading: recentTransactions.loading,
 
