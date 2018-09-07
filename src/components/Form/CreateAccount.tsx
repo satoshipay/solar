@@ -51,7 +51,6 @@ function validateFormValues(formValues: AccountCreationValues) {
 interface AccountCreationFormProps {
   errors: AccountCreationErrors
   formValues: AccountCreationValues
-  onClose(): void
   onOpenQRScanner(): void
   onSubmit(event: React.SyntheticEvent): void
   setFormValue(fieldName: keyof AccountCreationValues, value: string): void
@@ -163,13 +162,10 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
               />
             }
-            label="Import key"
+            label="Import existing key"
           />
         </FormGroup>
         <HorizontalLayout justifyContent="end" alignItems="center" width="auto">
-          <Button variant="contained" onClick={props.onClose} style={{ marginRight: 16 }}>
-            Cancel
-          </Button>
           <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
             <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
             Add account
@@ -181,7 +177,6 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
 }
 
 interface Props {
-  onClose(): void
   onSubmit(formValues: AccountCreationValues): void
 }
 
@@ -249,7 +244,6 @@ class StatefulAccountCreationForm extends React.Component<Props, State> {
         <AccountCreationForm
           errors={this.state.errors}
           formValues={this.state.formValues}
-          onClose={this.props.onClose}
           onOpenQRScanner={this.openQRScanner}
           onSubmit={this.submit}
           setFormValue={this.setFormValue}
