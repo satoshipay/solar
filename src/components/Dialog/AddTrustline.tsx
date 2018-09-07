@@ -18,6 +18,7 @@ import { HorizontalLayout } from "../Layout/Box"
 import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import { AccountName } from "../Fetchers"
+import CloseButton from "./CloseButton"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -142,6 +143,7 @@ class AddTrustlineDialog extends React.Component<Props, State> {
 
     return (
       <Dialog open={this.props.open} onClose={this.props.onClose}>
+        <CloseButton onClick={this.props.onClose} />
         <DialogTitle>Add Asset</DialogTitle>
         <DialogContent>
           <List style={{ maxHeight: "70%", overflowY: "auto" }}>
