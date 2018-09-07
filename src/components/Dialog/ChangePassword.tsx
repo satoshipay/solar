@@ -14,6 +14,7 @@ import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderError } from "../../lib/formHandling"
 import { changePassword, removePassword as removeAccountPassword, Account } from "../../stores/accounts"
 import { addError, addNotification } from "../../stores/notifications"
+import CloseButton from "./CloseButton"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -164,6 +165,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
         onClose={onClose}
         PaperProps={{ style: { minWidth: 500, transition: "width 2s, min-width 2s" } }}
       >
+        <CloseButton onClick={onClose} />
         <DialogTitle>{account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>
         <DialogContent>
           <Box hidden={!account.requiresPassword} margin="0 0 16px">

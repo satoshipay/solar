@@ -7,6 +7,7 @@ import TextField from "@material-ui/core/TextField"
 import EditIcon from "@material-ui/icons/Edit"
 import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
+import CloseButton from "./CloseButton"
 
 interface UIProps {
   open: boolean
@@ -20,6 +21,7 @@ interface UIProps {
 const RenameDialogUI = (props: UIProps) => {
   return (
     <Dialog open={props.open} onClose={props.onClose}>
+      <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <form style={{ minWidth: 300 }} onSubmit={props.onSubmit}>
