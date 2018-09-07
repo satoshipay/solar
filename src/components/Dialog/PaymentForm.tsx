@@ -4,24 +4,9 @@ import Drawer from "@material-ui/core/Drawer"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
-import CloseIcon from "react-icons/lib/md/close"
 import { Account } from "../../stores/accounts"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
-
-const CloseButton = (props: { onClick: (event: React.MouseEvent) => any }) => {
-  const style: React.CSSProperties = {
-    position: "absolute",
-    top: 16,
-    right: 24,
-    cursor: "pointer",
-    lineHeight: 0
-  }
-  return (
-    <div style={style} onClick={props.onClick}>
-      <CloseIcon style={{ width: 32, height: 32 }} />
-    </div>
-  )
-}
+import CloseButton from "./CloseButton"
 
 interface PaymentFormDrawerProps {
   account: Account

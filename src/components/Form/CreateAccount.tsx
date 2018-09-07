@@ -144,7 +144,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
         The key to your account will be encrypted using the password you set here. If you forget your password, your
         funds will be lost unless you have a backup of your private key!
       </Box>
-      <HorizontalLayout justifyContent="space-between" margin="24px 0 0">
+      <HorizontalLayout justifyContent="space-between" margin="24px 0 0" wrap="wrap">
         <FormGroup row>
           <FormControlLabel
             control={
@@ -165,10 +165,12 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
             label="Import existing key"
           />
         </FormGroup>
-        <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
-          <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
-          Add account
-        </Button>
+        <HorizontalLayout justifyContent="end" alignItems="center" width="auto">
+          <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
+            <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
+            Add account
+          </Button>
+        </HorizontalLayout>
       </HorizontalLayout>
     </form>
   )

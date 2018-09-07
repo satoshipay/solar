@@ -9,6 +9,7 @@ import * as routes from "../../routes"
 import { createAccount as createAccountInStore } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
 import AccountCreationForm, { AccountCreationValues } from "../Form/CreateAccount"
+import CloseButton from "./CloseButton"
 
 interface DialogProps {
   open: boolean
@@ -33,6 +34,7 @@ const CreateAccountDialog = (props: DialogProps & { history: History }) => {
   }
   return (
     <Dialog open={props.open} onClose={props.onClose}>
+      <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.testnet ? "Add Testnet Account" : "Add Account"}</DialogTitle>
       <DialogContent>
         <AccountCreationForm onSubmit={createAccount} />
