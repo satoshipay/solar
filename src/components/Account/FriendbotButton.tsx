@@ -20,10 +20,13 @@ class FriendbotButton extends React.Component<Props, State> {
   }
 
   topup = () => {
-    ;(async () => {
+    return (async () => {
       try {
         this.setState({ pending: true })
         await friendbotTopup(this.props.horizon, this.props.publicKey)
+
+        // Give the account subscription a little bit of time to recognize the account activation
+        await new Promise(resolve => setTimeout(resolve, 2000))
       } finally {
         this.setState({ pending: false })
       }
