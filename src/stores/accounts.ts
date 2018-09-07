@@ -64,6 +64,10 @@ export async function createAccount(accountData: {
     return String(highestID + 1)
   }
 
+  if (AccountStore.some(someAccount => someAccount.name === accountData.name)) {
+    throw new Error("An account with that name does already exist.")
+  }
+
   const id = accountData.id || createID()
 
   await keyStore.saveKey(
