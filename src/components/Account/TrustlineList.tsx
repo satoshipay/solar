@@ -1,4 +1,5 @@
 import React from "react"
+import { Asset } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -12,7 +13,6 @@ import RemoveIcon from "@material-ui/icons/RemoveCircle"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { AccountName } from "../Fetchers"
 import { AccountData } from "../Subscribers"
-import { Asset } from "stellar-sdk"
 
 const Line = (props: { children: React.ReactNode }) => <span style={{ display: "block" }}>{props.children}</span>
 

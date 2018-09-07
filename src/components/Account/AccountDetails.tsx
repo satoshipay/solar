@@ -1,8 +1,8 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import AccountBalances from "../Balance"
 import { DetailData, DetailDataSet } from "../Details"
 import { Account } from "../../stores/accounts"
+import AccountBalances from "./AccountBalances"
 
 const SecurityStatus = (props: { requiresPassword: boolean; testnet: boolean }) => {
   if (props.requiresPassword) {

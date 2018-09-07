@@ -7,8 +7,8 @@ import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
+import AccountBalances from "../Account/AccountBalances"
 import Background from "../Background"
-import AccountBalances from "../Balance"
 import { deleteAccount, Account } from "../../stores/accounts"
 
 interface Props {
