@@ -63,9 +63,10 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
       <TextField
         error={Boolean(errors.name)}
         label={errors.name ? renderError(errors.name) : "Account name"}
+        placeholder={`"Revenue" or "Coffee Funds"`}
         fullWidth
         autoFocus
-        margin="dense"
+        margin="normal"
         value={formValues.name}
         onChange={event => setFormValue("name", event.target.value)}
         InputProps={{
@@ -75,12 +76,14 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
             </InputAdornment>
           )
         }}
+        style={{ margin: 0 }}
       />
       <TextField
         error={Boolean(errors.password)}
         label={errors.password ? renderError(errors.password) : "Password"}
+        placeholder="Enter a password of your choice"
         fullWidth
-        margin="dense"
+        margin="normal"
         value={formValues.password}
         onChange={event => setFormValue("password", event.target.value)}
         style={{ display: formValues.setPassword ? "block" : "none" }}
@@ -96,8 +99,9 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
       <TextField
         error={Boolean(errors.passwordRepeat)}
         label={errors.passwordRepeat ? renderError(errors.passwordRepeat) : "Repeat password"}
+        placeholder="Repeat password here"
         fullWidth
-        margin="dense"
+        margin="normal"
         value={formValues.passwordRepeat}
         onChange={event => setFormValue("passwordRepeat", event.target.value)}
         style={{ display: formValues.setPassword ? "block" : "none" }}
@@ -115,7 +119,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
         label={errors.privateKey ? renderError(errors.privateKey) : "Private key"}
         placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
-        margin="dense"
+        margin="normal"
         value={formValues.privateKey}
         onChange={event => setFormValue("privateKey", event.target.value)}
         style={{ display: formValues.createNewKey ? "none" : "block" }}
@@ -134,35 +138,33 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
           )
         }}
       />
-      <FormGroup row>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={formValues.setPassword}
-              onChange={() => setFormValue("setPassword", !formValues.setPassword as any)}
-            />
-          }
-          label="Set password"
-          style={{ marginTop: 16 }}
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={!formValues.createNewKey}
-              onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
-            />
-          }
-          label="Import existing key"
-          style={{ marginTop: 16 }}
-        />
-      </FormGroup>
-      <Box margin="16px 0">
+      <Box margin="24px 0 0">
         Security note:
         <br />
         The key to your account will be encrypted using the password you set here. If you forget your password, your
         funds will be lost unless you have a backup of your private key!
       </Box>
-      <HorizontalLayout justifyContent="end" margin="24px 0 0">
+      <HorizontalLayout justifyContent="space-between" margin="24px 0 0">
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formValues.setPassword}
+                onChange={() => setFormValue("setPassword", !formValues.setPassword as any)}
+              />
+            }
+            label="Set password"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={!formValues.createNewKey}
+                onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
+              />
+            }
+            label="Import existing key"
+          />
+        </FormGroup>
         <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
           <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
           Add account
