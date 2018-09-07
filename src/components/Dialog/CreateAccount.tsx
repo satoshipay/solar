@@ -35,7 +35,7 @@ const CreateAccountDialog = (props: DialogProps & { history: History }) => {
     <Dialog open={props.open} onClose={props.onClose}>
       <DialogTitle>{props.testnet ? "Add Testnet Account" : "Add Account"}</DialogTitle>
       <DialogContent>
-        <AccountCreationForm onSubmit={createAccount} />
+        <AccountCreationForm onClose={props.onClose} onSubmit={createAccount} />
       </DialogContent>
     </Dialog>
   )

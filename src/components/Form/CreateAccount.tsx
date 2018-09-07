@@ -51,6 +51,7 @@ function validateFormValues(formValues: AccountCreationValues) {
 interface AccountCreationFormProps {
   errors: AccountCreationErrors
   formValues: AccountCreationValues
+  onClose(): void
   onOpenQRScanner(): void
   onSubmit(event: React.SyntheticEvent): void
   setFormValue(fieldName: keyof AccountCreationValues, value: string): void
@@ -144,7 +145,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
         The key to your account will be encrypted using the password you set here. If you forget your password, your
         funds will be lost unless you have a backup of your private key!
       </Box>
-      <HorizontalLayout justifyContent="space-between" margin="24px 0 0">
+      <HorizontalLayout justifyContent="space-between" margin="24px 0 0" wrap="wrap">
         <FormGroup row>
           <FormControlLabel
             control={
@@ -162,19 +163,25 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
               />
             }
-            label="Import existing key"
+            label="Import key"
           />
         </FormGroup>
-        <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
-          <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
-          Add account
-        </Button>
+        <HorizontalLayout justifyContent="end" alignItems="center" width="auto">
+          <Button variant="contained" onClick={props.onClose} style={{ marginRight: 16 }}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
+            <AddIcon style={{ marginRight: 8, marginTop: -2 }} />
+            Add account
+          </Button>
+        </HorizontalLayout>
       </HorizontalLayout>
     </form>
   )
 }
 
 interface Props {
+  onClose(): void
   onSubmit(formValues: AccountCreationValues): void
 }
 
@@ -242,6 +249,7 @@ class StatefulAccountCreationForm extends React.Component<Props, State> {
         <AccountCreationForm
           errors={this.state.errors}
           formValues={this.state.formValues}
+          onClose={this.props.onClose}
           onOpenQRScanner={this.openQRScanner}
           onSubmit={this.submit}
           setFormValue={this.setFormValue}
