@@ -79,7 +79,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
     const operation = props.transaction.operations[0] as Operation.ChangeTrust
 
     return String(operation.limit) === "0" ? (
-      <>Remove trust in asset {operation.line.code}</>
+      <>Removed trust in asset {operation.line.code}</>
     ) : (
       <>Trust asset {operation.line.code}</>
     )
