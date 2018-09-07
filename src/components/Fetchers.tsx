@@ -1,4 +1,3 @@
-import BigNumber from "big.js"
 import React from "react"
 import Async from "react-promise"
 import { LedgerRecord, Server } from "stellar-sdk"

@@ -1,6 +1,6 @@
 import React from "react"
 import { AccountResponse } from "stellar-sdk"
-import { AccountData } from "./Subscribers"
+import { AccountData } from "../Subscribers"
 
 const SingleBalance = (props: { assetCode: string; balance: string }) => {
   const balanceAsNumber = parseFloat(props.balance)
