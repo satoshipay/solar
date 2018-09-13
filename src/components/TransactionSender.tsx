@@ -48,6 +48,7 @@ interface Props {
 }
 
 interface State {
+  showSubmissionProgress: boolean
   submissionFailed: boolean
   submissionPromise: Promise<any> | null
   transaction: Transaction | null
@@ -55,6 +56,7 @@ interface State {
 
 class TransactionSender extends React.Component<Props, State> {
   state = {
+    showSubmissionProgress: false,
     submissionFailed: false,
     submissionPromise: null,
     transaction: null
@@ -73,8 +75,12 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   setSubmissionPromise = (submissionPromise: Promise<any>) => {
-    this.setState({ submissionPromise, submissionFailed: false })
+    this.setState({ showSubmissionProgress: true, submissionPromise, submissionFailed: false })
 
+    submissionPromise.then(() => {
+      // Auto-close submission progress overlay shortly after submission successfully done
+      setTimeout(() => this.setState({ showSubmissionProgress: false }), 1200)
+    })
     submissionPromise.catch(() => {
       this.setState({ submissionFailed: true })
     })
@@ -107,7 +113,7 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   render() {
-    const { submissionFailed, submissionPromise, transaction } = this.state
+    const { showSubmissionProgress, submissionFailed, submissionPromise, transaction } = this.state
 
     const content = this.props.children({
       horizon: this.props.horizon,
@@ -124,7 +130,7 @@ class TransactionSender extends React.Component<Props, State> {
           onClose={this.clearTransaction}
           onSubmitTransaction={this.submitTransaction}
         />
-        {submissionPromise ? (
+        {submissionPromise && showSubmissionProgress ? (
           <SubmissionProgressOverlay
             open
             onClose={this.clearSubmissionPromise}
