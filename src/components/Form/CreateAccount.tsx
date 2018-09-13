@@ -41,7 +41,7 @@ function validateFormValues(formValues: AccountCreationValues) {
     errors.passwordRepeat = new Error("Password does not match.")
   }
   if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
-    errors.privateKey = new Error("Invalid stellar public key.")
+    errors.privateKey = new Error("Invalid stellar private key.")
   }
 
   const success = Object.keys(errors).length === 0
