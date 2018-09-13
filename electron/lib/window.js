@@ -23,8 +23,13 @@ function createMainWindow() {
     titleBarStyle: process.platform === "darwin" ? "hidden" : "default"
   })
 
+  const pathname =
+    process.env.NODE_ENV === "development"
+      ? path.join(__dirname, "../../dist/index.dev.html")
+      : path.join(__dirname, "../../dist/index.prod.html")
+
   const webappURL = url.format({
-    pathname: path.join(__dirname, "../../dist/index.html"),
+    pathname,
     protocol: "file:",
     slashes: true
   })
