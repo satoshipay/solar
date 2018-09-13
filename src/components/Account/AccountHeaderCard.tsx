@@ -6,15 +6,10 @@ import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
 import ChevronLeftIcon from "react-icons/lib/md/chevron-left"
+import { DialogsConsumer } from "../../context/dialogs"
+import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
 import * as routes from "../../routes"
 import { Account, renameAccount } from "../../stores/accounts"
-import { openDialog } from "../../stores/dialogs"
-import {
-  createAccountDeletionDialog,
-  createExportKeyDialog,
-  createChangeAccountPasswordDialog,
-  createRenamingDialog
-} from "../Dialog/index"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 
@@ -37,56 +32,89 @@ interface Props {
   style?: React.CSSProperties
 }
 
-const AccountHeaderCard = (props: Props) => {
-  const onChangePassword = () => {
-    openDialog(createChangeAccountPasswordDialog(props.account))
-  }
-  const onDelete = () => {
-    openDialog(createAccountDeletionDialog(props.account, () => props.history.push(routes.allAccounts())))
-  }
-  const onExport = () => {
-    openDialog(createExportKeyDialog(props.account))
-  }
-  const onRename = () => {
-    openDialog(
-      createRenamingDialog("Rename account", props.account.name, (newName: string) =>
-        renameAccount(props.account.id, newName)
-      )
-    )
+class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: DialogBlueprint) => void }> {
+  onChangePassword = () => {
+    this.props.openDialog({
+      type: DialogType.ChangePassword,
+      props: {
+        account: this.props.account
+      }
+    })
   }
 
+  onDelete = () => {
+    this.props.openDialog({
+      type: DialogType.DeleteAccount,
+      props: {
+        account: this.props.account,
+        onDeleted: () => this.props.history.push(routes.allAccounts())
+      }
+    })
+  }
+
+  onExport = () => {
+    this.props.openDialog({
+      type: DialogType.ExportKey,
+      props: {
+        account: this.props.account
+      }
+    })
+  }
+
+  onRename = () => {
+    const { account, openDialog } = this.props
+    openDialog({
+      type: DialogType.Rename,
+      props: {
+        performRenaming(newName: string) {
+          return renameAccount(account.id, newName)
+        },
+        prevValue: account.name,
+        title: "Rename account"
+      }
+    })
+  }
+
+  render() {
+    return (
+      <Card
+        style={{
+          position: "relative",
+          background: "inherit",
+          boxShadow: "none",
+          ...this.props.style
+        }}
+      >
+        <CardContent>
+          <HorizontalLayout alignItems="space-between">
+            <Box grow>
+              <BackButton style={{ marginTop: -8, marginLeft: -16, fontSize: 32 }} />
+            </Box>
+            <Typography align="center" color="inherit" variant="headline" component="h2" gutterBottom>
+              {this.props.account.name}
+            </Typography>
+            <Box grow style={{ textAlign: "right" }}>
+              <AccountContextMenu
+                account={this.props.account}
+                onChangePassword={this.onChangePassword}
+                onDelete={this.onDelete}
+                onExport={this.onExport}
+                onRename={this.onRename}
+                style={{ marginTop: -8, marginRight: -16, fontSize: 32 }}
+              />
+            </Box>
+          </HorizontalLayout>
+          {this.props.children}
+        </CardContent>
+      </Card>
+    )
+  }
+}
+
+const AccountHeaderCardContainer = (props: Props) => {
   return (
-    <Card
-      style={{
-        position: "relative",
-        background: "inherit",
-        boxShadow: "none",
-        ...props.style
-      }}
-    >
-      <CardContent>
-        <HorizontalLayout alignItems="space-between">
-          <Box grow>
-            <BackButton style={{ marginTop: -8, marginLeft: -16, fontSize: 32 }} />
-          </Box>
-          <Typography align="center" color="inherit" variant="headline" component="h2" gutterBottom>
-            {props.account.name}
-          </Typography>
-          <Box grow style={{ textAlign: "right" }}>
-            <AccountContextMenu
-              account={props.account}
-              onChangePassword={onChangePassword}
-              onDelete={onDelete}
-              onExport={onExport}
-              onRename={onRename}
-              style={{ marginTop: -8, marginRight: -16, fontSize: 32 }}
-            />
-          </Box>
-        </HorizontalLayout>
-        {props.children}
-      </CardContent>
-    </Card>
+    <DialogsConsumer>{({ openDialog }) => <AccountHeaderCard {...props} openDialog={openDialog} />}</DialogsConsumer>
   )
 }
 
-export default AccountHeaderCard
+export default AccountHeaderCardContainer

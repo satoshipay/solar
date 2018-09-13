@@ -1,17 +1,37 @@
-import React from "react"
 import { History } from "history"
-import { match } from "react-router"
 import { observer } from "mobx-react"
+import React from "react"
+import { match } from "react-router"
+import { Asset } from "stellar-sdk"
 import indigo from "@material-ui/core/colors/indigo"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TrustlineList from "../components/Account/TrustlineList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
-import { createCustomTrustlineDialog, createRemoveTrustlineDialog } from "../components/Dialog"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
-import AccountStore from "../stores/accounts"
-import { openDialog } from "../stores/dialogs"
+import { DialogsConsumer } from "../context/dialogs"
+import { DialogBlueprint, DialogType } from "../context/dialogTypes"
+import AccountStore, { Account } from "../stores/accounts"
+
+function createCustomTrustlineDialog(account: Account): DialogBlueprint {
+  return {
+    type: DialogType.CustomTrustline,
+    props: {
+      account
+    }
+  }
+}
+
+function createRemoveTrustlineDialog(account: Account, asset: Asset): DialogBlueprint {
+  return {
+    type: DialogType.RemoveTrustline,
+    props: {
+      account,
+      asset
+    }
+  }
+}
 
 const AccountAssetsPage = (props: {
   accounts: typeof AccountStore
@@ -32,11 +52,15 @@ const AccountAssetsPage = (props: {
       </Section>
       <Section>
         <Box padding="16px 8px">
-          <TrustlineList
-            account={account}
-            onAddCustomTrustline={() => openDialog(createCustomTrustlineDialog(account))}
-            onRemoveTrustline={asset => openDialog(createRemoveTrustlineDialog(account, asset))}
-          />
+          <DialogsConsumer>
+            {({ openDialog }) => (
+              <TrustlineList
+                account={account}
+                onAddCustomTrustline={() => openDialog(createCustomTrustlineDialog(account))}
+                onRemoveTrustline={asset => openDialog(createRemoveTrustlineDialog(account, asset))}
+              />
+            )}
+          </DialogsConsumer>
         </Box>
       </Section>
     </BottomNavigationContainer>

@@ -1,10 +1,15 @@
 import React from "react"
-import { observer } from "mobx-react"
-import { DialogDescriptor } from "../stores/dialogs"
+import { DialogsConsumer } from "../context/dialogs"
 import OpenDialog from "./Dialog/index"
 
-const OpenDialogs = (props: { dialogs: DialogDescriptor[] }) => {
-  return <>{props.dialogs.map(dialog => <OpenDialog key={dialog.id} {...dialog} />)}</>
+const OpenDialogs = () => {
+  return (
+    <DialogsConsumer>
+      {({ dialogs, closeDialog }) =>
+        dialogs.map(dialog => <OpenDialog key={dialog.id} dialog={dialog} onCloseDialog={closeDialog} />)
+      }
+    </DialogsConsumer>
+  )
 }
 
-export default observer(OpenDialogs)
+export default OpenDialogs
