@@ -3,10 +3,10 @@ import { Asset } from "stellar-sdk"
 import { Account } from "./accounts"
 
 export enum DialogType {
-  AddTrustline = "AddTrustline",
   ChangePassword = "ChangePassword",
   CreateAccount = "CreateAccount",
   CreatePayment = "CreatePayment",
+  CustomTrustline = "CustomTrustline",
   DeleteAccount = "DeleteAccount",
   ExportKey = "ExportKey",
   RemoveTrustline = "RemoveTrustline",
@@ -14,7 +14,7 @@ export enum DialogType {
 }
 
 export type DialogDescriptor =
-  | AddTrustlineDescriptor
+  | CustomTrustlineDescriptor
   | ChangePasswordDescriptor
   | CreateAccountDescriptor
   | CreatePaymentDescriptor
@@ -28,13 +28,6 @@ interface DialogDescriptorBase {
   open: boolean
   type: DialogType
   props: any
-}
-
-export interface AddTrustlineDescriptor extends DialogDescriptorBase {
-  type: DialogType.AddTrustline
-  props: {
-    account: Account
-  }
 }
 
 export interface ChangePasswordDescriptor extends DialogDescriptorBase {
@@ -55,6 +48,13 @@ export interface CreateAccountDescriptor extends DialogDescriptorBase {
   type: DialogType.CreateAccount
   props: {
     testnet: boolean
+  }
+}
+
+export interface CustomTrustlineDescriptor extends DialogDescriptorBase {
+  type: DialogType.CustomTrustline
+  props: {
+    account: Account
   }
 }
 

@@ -76,7 +76,7 @@ interface State {
   formValues: FormValues
 }
 
-class AddTrustlineDialog extends React.Component<Props, State> {
+class CustomTrustlineDialog extends React.Component<Props, State> {
   state = {
     formValues: {
       code: "",
@@ -132,7 +132,7 @@ class AddTrustlineDialog extends React.Component<Props, State> {
   }
 }
 
-const ConnectedAddTrustlineDialog = (props: Omit<Props, "horizon" | "sendTransaction">) => {
+const CustomTrustlineDialogContainer = (props: Omit<Props, "horizon" | "sendTransaction">) => {
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
@@ -140,10 +140,10 @@ const ConnectedAddTrustlineDialog = (props: Omit<Props, "horizon" | "sendTransac
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <AddTrustlineDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
+        <CustomTrustlineDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
       )}
     </TransactionSender>
   )
 }
 
-export default ConnectedAddTrustlineDialog
+export default CustomTrustlineDialogContainer
