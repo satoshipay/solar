@@ -10,7 +10,7 @@ import OpenDialogs from "./components/OpenDialogs"
 import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
 import AccountAssetsPage from "./pages/account-assets"
-import accounts from "./stores/accounts"
+import accounts, { networkSwitch } from "./stores/accounts"
 import dialogs from "./stores/dialogs"
 import notifications from "./stores/notifications"
 
@@ -19,7 +19,7 @@ Network.usePublicNetwork()
 const App = () => (
   <Router>
     <>
-      <Route exact path="/" component={withProps({ accounts })(AllAccountsPage)} />
+      <Route exact path="/" component={withProps({ accounts, networkSwitch })(AllAccountsPage)} />
       <Route exact path="/account/:id" component={withProps({ accounts })(AccountPage)} />
       <Route exact path="/account/:id/assets" component={withProps({ accounts })(AccountAssetsPage)} />
       <NotificationContainer notifications={notifications} />

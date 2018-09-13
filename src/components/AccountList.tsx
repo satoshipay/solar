@@ -2,7 +2,6 @@ import React from "react"
 import { History, Location } from "history"
 import { observer } from "mobx-react"
 import { withRouter } from "react-router-dom"
-import Divider from "@material-ui/core/Divider"
 import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/AddCircle"
 import ArrowCircleRightIcon from "react-icons/lib/fa/arrow-circle-right"
@@ -13,7 +12,7 @@ import AccountStore, { Account } from "../stores/accounts"
 
 const AccountListHeader = (props: { children: React.ReactNode }) => {
   return (
-    <ListSubheader style={{ paddingTop: 12, paddingBottom: 12 }}>
+    <ListSubheader style={{ paddingTop: 12, paddingBottom: 20 }}>
       <Typography color="inherit" variant="title">
         {props.children}
       </Typography>
@@ -51,36 +50,29 @@ const AddAccountItem = (props: { label: React.ReactNode; onClick: () => any }) =
 }
 
 interface AccountListProps {
+  accounts: typeof AccountStore
   history: History
   location: Location
   match: any
   staticContext: any
-  accounts: typeof AccountStore
+  testnet: boolean
   onCreatePubnetAccount: () => any
   onCreateTestnetAccount: () => any
 }
 
-const AccountList = ({ accounts, history, onCreatePubnetAccount, onCreateTestnetAccount }: AccountListProps) => {
-  const pubnetAccounts = accounts.filter(account => !account.testnet)
-  const testnetAccounts = accounts.filter(account => account.testnet)
+const AccountList = (props: AccountListProps) => {
+  const accounts = props.accounts.filter(account => account.testnet === props.testnet)
 
   return (
     <List>
-      <AccountListHeader>Accounts</AccountListHeader>
-      {pubnetAccounts.map(account => (
-        <AccountListItem key={account.id} account={account} history={history} />
+      <AccountListHeader>{props.testnet ? "Testnet Accounts" : "Accounts"}</AccountListHeader>
+      {accounts.map(account => (
+        <AccountListItem key={account.id} account={account} history={props.history} />
       ))}
-      <AddAccountItem label="Add account…" onClick={onCreatePubnetAccount} />
-      {testnetAccounts.length > 0 ? (
-        <>
-          <Divider component="li" style={{ margin: "16px 0" }} />
-          <AccountListHeader>Testnet Accounts</AccountListHeader>
-          {testnetAccounts.map(account => (
-            <AccountListItem key={account.id} account={account} history={history} />
-          ))}
-        </>
-      ) : null}
-      <AddAccountItem label="Add testnet account…" onClick={onCreateTestnetAccount} />
+      <AddAccountItem
+        label={props.testnet ? "Add testnet account…" : "Add account…"}
+        onClick={props.testnet ? props.onCreateTestnetAccount : props.onCreatePubnetAccount}
+      />
     </List>
   )
 }
