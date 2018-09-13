@@ -1,4 +1,4 @@
-import { observable, IObservableArray } from "mobx"
+import { observable, IObservableArray, IObservableObject } from "mobx"
 import { Keypair } from "stellar-sdk"
 import { createWrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"
@@ -47,6 +47,19 @@ for (const keyID of keyStore.getKeyIDs()) {
 }
 
 export default AccountStore
+
+function getInitialNetwork() {
+  const testnetAccounts = AccountStore.filter(account => account.testnet)
+  return testnetAccounts.length > 0 && testnetAccounts.length === AccountStore.length ? "testnet" : "mainnet"
+}
+
+export const networkSwitch = observable({
+  network: getInitialNetwork()
+}) as { network: "mainnet" | "testnet" } & IObservableObject
+
+export function toggleNetwork() {
+  networkSwitch.network = networkSwitch.network === "testnet" ? "mainnet" : "testnet"
+}
 
 export async function createAccount(accountData: {
   id?: string
