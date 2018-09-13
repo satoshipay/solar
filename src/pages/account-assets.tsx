@@ -32,9 +32,8 @@ const AccountAssetsPage = (props: {
       <Section>
         <Box padding="16px 8px">
           <TrustlineList
-            publicKey={account.publicKey}
-            testnet={account.testnet}
-            onAddTrustline={() => openDialog(createAddTrustlineDialog(account))}
+            account={account}
+            onAddCustomTrustline={() => openDialog(createAddTrustlineDialog(account))}
             onRemoveTrustline={asset => openDialog(createRemoveTrustlineDialog(account, asset))}
           />
         </Box>
