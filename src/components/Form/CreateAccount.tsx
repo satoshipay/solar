@@ -63,7 +63,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
       <TextField
         error={Boolean(errors.name)}
         label={errors.name ? renderError(errors.name) : "Account name"}
-        placeholder={`"Revenue" or "Coffee Funds"`}
+        placeholder="My First Account"
         fullWidth
         autoFocus
         margin="normal"
@@ -150,6 +150,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
             control={
               <Switch
                 checked={formValues.setPassword}
+                color="primary"
                 onChange={() => setFormValue("setPassword", !formValues.setPassword as any)}
               />
             }
@@ -159,6 +160,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
             control={
               <Switch
                 checked={!formValues.createNewKey}
+                color="primary"
                 onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
               />
             }

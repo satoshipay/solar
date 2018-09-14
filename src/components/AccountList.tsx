@@ -2,23 +2,12 @@ import React from "react"
 import { History, Location } from "history"
 import { observer } from "mobx-react"
 import { withRouter } from "react-router-dom"
-import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/AddCircle"
 import ArrowCircleRightIcon from "react-icons/lib/fa/arrow-circle-right"
 import AccountBalances from "../components/Account/AccountBalances"
-import { List, ListItem, ListSubheader } from "../components/List"
+import { List, ListItem } from "../components/List"
 import * as routes from "../routes"
 import AccountStore, { Account } from "../stores/accounts"
-
-const AccountListHeader = (props: { children: React.ReactNode }) => {
-  return (
-    <ListSubheader style={{ paddingTop: 12, paddingBottom: 20 }}>
-      <Typography color="inherit" variant="title">
-        {props.children}
-      </Typography>
-    </ListSubheader>
-  )
-}
 
 const AccountListItem = (props: { account: Account; history: History }) => {
   const { account, history } = props
@@ -65,7 +54,6 @@ const AccountList = (props: AccountListProps) => {
 
   return (
     <List>
-      <AccountListHeader>{props.testnet ? "Testnet Accounts" : "Accounts"}</AccountListHeader>
       {accounts.map(account => (
         <AccountListItem key={account.id} account={account} history={props.history} />
       ))}
