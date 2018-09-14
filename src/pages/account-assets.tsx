@@ -7,7 +7,7 @@ import AccountBottomNavigation from "../components/Account/AccountBottomNavigati
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TrustlineList from "../components/Account/TrustlineList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
-import { createAddTrustlineDialog, createRemoveTrustlineDialog } from "../components/Dialog"
+import { createCustomTrustlineDialog, createRemoveTrustlineDialog } from "../components/Dialog"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountStore from "../stores/accounts"
@@ -20,6 +20,7 @@ const AccountAssetsPage = (props: {
 }) => {
   const { params } = props.match
   const account = props.accounts.find(someAccount => someAccount.id === params.id)
+
   if (!account) {
     throw new Error(`Wallet account not found. ID: ${params.id}`)
   }
@@ -32,9 +33,8 @@ const AccountAssetsPage = (props: {
       <Section>
         <Box padding="16px 8px">
           <TrustlineList
-            publicKey={account.publicKey}
-            testnet={account.testnet}
-            onAddTrustline={() => openDialog(createAddTrustlineDialog(account))}
+            account={account}
+            onAddCustomTrustline={() => openDialog(createCustomTrustlineDialog(account))}
             onRemoveTrustline={asset => openDialog(createRemoveTrustlineDialog(account, asset))}
           />
         </Box>

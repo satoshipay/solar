@@ -51,13 +51,12 @@ class RemoveTrustlineDialog extends React.Component<Props> {
               <>You cannot remove this asset unless the asset's balance is zero.</>
             ) : (
               <>
-                Are you sure you want to remove the asset {this.props.asset.code} from account "
-                {this.props.account.name}
-                "?
+                You are about to remove the asset <b>{this.props.asset.code}</b> from account "{this.props.account.name}
+                ".
               </>
             )}
           </DialogContentText>
-          <DialogActions>
+          <DialogActions style={{ marginTop: 24 }}>
             <Button color="primary" onClick={this.props.onClose}>
               Cancel
             </Button>
