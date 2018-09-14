@@ -81,7 +81,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
       <TextField
         error={Boolean(errors.password)}
         label={errors.password ? renderError(errors.password) : "Password"}
-        placeholder="Enter a password of your choice"
+        placeholder="Enter a password"
         fullWidth
         margin="normal"
         value={formValues.password}
