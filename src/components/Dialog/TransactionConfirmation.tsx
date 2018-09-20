@@ -35,12 +35,14 @@ const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
             {props.account.testnet ? "Testnet" : null}
           </Typography>
           {props.transaction ? (
-            <TxConfirmationForm
-              transaction={props.transaction}
-              account={props.account}
-              onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
-              onCancel={props.onClose}
-            />
+            <div style={{ marginTop: 20 }}>
+              <TxConfirmationForm
+                transaction={props.transaction}
+                account={props.account}
+                onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
+                onCancel={props.onClose}
+              />
+            </div>
           ) : null}
         </CardContent>
       </Card>

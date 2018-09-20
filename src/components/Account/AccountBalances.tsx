@@ -2,7 +2,7 @@ import React from "react"
 import { AccountResponse } from "stellar-sdk"
 import { AccountData } from "../Subscribers"
 
-const SingleBalance = (props: { assetCode: string; balance: string }) => {
+export const SingleBalance = (props: { assetCode: string; balance: string }) => {
   const balanceAsNumber = parseFloat(props.balance)
   const trimmedBalance = balanceAsNumber > 0 ? balanceAsNumber.toFixed(7).replace(/00$/, "") : "0"
   return (

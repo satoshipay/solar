@@ -1,7 +1,7 @@
 import React from "react"
-import ListSubheader from "@material-ui/core/ListSubheader"
 import Typography from "@material-ui/core/Typography"
 import { Memo, Operation, Transaction, TransactionOperation } from "stellar-sdk"
+import { SingleBalance } from "./Account/AccountBalances"
 import { trustlineLimitEqualsUnlimited } from "../lib/stellar"
 import { formatOperationType } from "../lib/transaction"
 import { List, ListItem } from "./List"
@@ -31,7 +31,7 @@ const PaymentOperation = (props: { operation: Operation.Payment; style?: React.C
   const content = (
     <OperationDetails>
       <div>
-        {amount} {asset.code}
+        <SingleBalance assetCode={asset.code} balance={String(amount)} />
       </div>
       <div>
         <div>
@@ -52,7 +52,9 @@ const CreateAccountOperation = (props: { operation: Operation.CreateAccount; sty
   const { startingBalance, destination } = props.operation
   const content = (
     <OperationDetails>
-      <div>{startingBalance} XLM</div>
+      <div>
+        <SingleBalance assetCode="XLM" balance={String(startingBalance)} />
+      </div>
       <div>
         <div>
           to <small>{destination}</small>
@@ -137,7 +139,6 @@ const TransactionSummary = (props: { transaction: Transaction }) => {
   }
   return (
     <List>
-      <ListSubheader style={noHPaddingStyle}>Transaction summary</ListSubheader>
       {props.transaction.operations.map((operation, index) => (
         <TransactionOperation key={index} operation={operation} style={noHPaddingStyle} />
       ))}
