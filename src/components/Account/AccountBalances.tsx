@@ -33,7 +33,7 @@ const Balances = (props: { balances: AccountResponse["balances"] }) => {
           <SingleBalance
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
-          />
+          />{" "}
         </React.Fragment>
       ))}
     </>
