@@ -6,7 +6,7 @@ import AccountBalances from "./AccountBalances"
 const DetailHeading = (props: { children: React.ReactNode; marginTop?: number }) => {
   const { marginTop = 12 } = props
   return (
-    <Typography color="inherit" variant="body1" style={{ marginTop, fontSize: "75%", opacity: 0.8 }}>
+    <Typography color="inherit" variant="body1" style={{ marginTop, fontSize: "85%", opacity: 0.8 }}>
       {props.children}
     </Typography>
   )

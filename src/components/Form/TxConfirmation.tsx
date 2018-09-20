@@ -49,10 +49,10 @@ const TxConfirmationForm = (props: InnerFormProps<TxConfirmationValues> & TxConf
             style={{ marginBottom: 32 }}
           />
         ) : null}
-        <HorizontalLayout justifyContent="center" wrap="wrap">
+        <HorizontalLayout justifyContent="center" margin="24px 0 0" wrap="wrap">
           <Button variant="contained" color="primary" onClick={onSubmit} style={{ marginRight: 32 }}>
             <SendIcon style={{ marginRight: 8 }} />
-            Sign and submit
+            Send
           </Button>
           <Button variant="contained" onClick={onCancel}>
             Cancel
