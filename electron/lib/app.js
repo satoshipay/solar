@@ -9,6 +9,9 @@ require("electron-debug")({
   showDevTools: process.env.NODE_ENV === "development"
 })
 
+// Add context menu
+require("electron-context-menu")()
+
 const appReady = new Promise(resolve => app.on("ready", resolve))
 
 app.on("ready", () => {
