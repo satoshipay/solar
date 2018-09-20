@@ -35,17 +35,23 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
         <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
-          <Box margin="24px 0 0">
+          <Box margin="1.5rem 0 0">
             <AccountData publicKey={account.publicKey} testnet={account.testnet}>
               {(_, activated) => (
                 <Button
                   variant="contained"
-                  color="default"
                   disabled={!activated}
                   onClick={() => openDialog(createPaymentDialog(account))}
+                  style={{
+                    background: "white",
+                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
+                    color: indigo[500],
+                    paddingLeft: 20,
+                    paddingRight: 20
+                  }}
                 >
                   <SendIcon style={{ marginRight: 8 }} />
-                  Send payment
+                  Send
                 </Button>
               )}
             </AccountData>
