@@ -14,6 +14,7 @@ interface PaymentFormDrawerProps {
   onClose: () => void
   onSubmit: (values: PaymentCreationValues) => void
   trustedAssets?: Asset[]
+  txCreationPending?: boolean
 }
 
 const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
@@ -38,7 +39,11 @@ const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
             {props.account.testnet ? "Testnet" : null}
           </Typography>
           <div style={{ marginTop: 32 }}>
-            <CreatePaymentForm onSubmit={props.onSubmit} trustedAssets={trustedAssets} />
+            <CreatePaymentForm
+              onSubmit={props.onSubmit}
+              trustedAssets={trustedAssets}
+              txCreationPending={props.txCreationPending}
+            />
           </div>
         </CardContent>
       </Card>
