@@ -1,6 +1,7 @@
 import React from "react"
 import { Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -78,6 +79,7 @@ interface PaymentCreationFormProps {
   errors: PaymentCreationErrors
   formValues: PaymentCreationValues
   trustedAssets: Asset[]
+  txCreationPending?: boolean
   setFormValue: (fieldName: keyof PaymentCreationValues, value: string) => void
   onSubmit: () => void
 }
@@ -156,7 +158,11 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
       </Box>
       <Box margin="64px 0 0">
         <Button variant="contained" color="primary" onClick={handleSubmitEvent} type="submit">
-          <SendIcon style={{ marginRight: 8 }} />
+          {props.txCreationPending ? (
+            <CircularProgress size="1.5em" style={{ color: "white", marginRight: 12 }} />
+          ) : (
+            <SendIcon style={{ marginRight: 8 }} />
+          )}
           Create Payment
         </Button>
       </Box>
@@ -166,6 +172,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
 
 interface Props {
   trustedAssets: Asset[]
+  txCreationPending?: boolean
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 

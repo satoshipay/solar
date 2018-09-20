@@ -29,9 +29,17 @@ interface State {
   submissionFailed: boolean
   submissionPromise: Promise<any> | null
   transaction: Transaction | null
+  txCreationPending: boolean
 }
 
 class CreatePaymentDialog extends React.Component<Props, State> {
+  state: State = {
+    submissionFailed: false,
+    submissionPromise: null,
+    transaction: null,
+    txCreationPending: false
+  }
+
   createMemo = (formValues: PaymentCreationValues) => {
     switch (formValues.memoType) {
       case "id":
@@ -45,6 +53,7 @@ class CreatePaymentDialog extends React.Component<Props, State> {
 
   createTransaction = async (formValues: PaymentCreationValues) => {
     try {
+      this.setState({ txCreationPending: true })
       const asset = this.props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
 
       const payment = await createPaymentOperation({
@@ -61,6 +70,8 @@ class CreatePaymentDialog extends React.Component<Props, State> {
       this.props.sendTransaction(tx)
     } catch (error) {
       addError(error)
+    } finally {
+      this.setState({ txCreationPending: false })
     }
   }
 
@@ -72,6 +83,7 @@ class CreatePaymentDialog extends React.Component<Props, State> {
         onClose={this.props.onClose}
         onSubmit={this.createTransaction}
         trustedAssets={this.props.trustedAssets}
+        txCreationPending={this.state.txCreationPending}
       />
     )
   }
