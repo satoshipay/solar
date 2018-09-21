@@ -6,6 +6,7 @@ import Typography from "@material-ui/core/Typography"
 import { Transaction, TransactionOperation } from "stellar-sdk"
 import { Account } from "../../stores/accounts"
 import TxConfirmationForm from "../Form/TxConfirmation"
+import TestnetBadge from "./TestnetBadge"
 
 const isPaymentOperation = (operation: TransactionOperation) =>
   ["createAccount", "payment"].indexOf(operation.type) > -1
@@ -27,15 +28,12 @@ const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
   return (
     <Drawer open={props.open} anchor="right" onClose={props.onClose}>
       <Card style={{ position: "relative", height: "100%", padding: "0 12px" }}>
-        <CardContent>
-          <Typography variant="headline" component="h2">
-            {title}
-          </Typography>
-          <Typography gutterBottom variant="subheading" component="h3">
-            {props.account.testnet ? "Testnet" : null}
+        <CardContent style={{ paddingTop: 24 }}>
+          <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
+            {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
           </Typography>
           {props.transaction ? (
-            <div style={{ marginTop: 20 }}>
+            <div style={{ marginTop: 24 }}>
               <TxConfirmationForm
                 transaction={props.transaction}
                 account={props.account}
