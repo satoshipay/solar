@@ -28,7 +28,7 @@ const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
   return (
     <Drawer open={props.open} anchor="right" onClose={props.onClose}>
       <Card style={{ position: "relative", height: "100%", padding: "0 12px" }}>
-        <CardContent>
+        <CardContent style={{ paddingTop: 24 }}>
           <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
             {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
           </Typography>

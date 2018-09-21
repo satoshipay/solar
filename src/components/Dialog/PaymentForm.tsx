@@ -32,7 +32,7 @@ const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
         }}
       >
         <CloseButton onClick={props.onClose} />
-        <CardContent>
+        <CardContent style={{ paddingTop: 24 }}>
           <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
             Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
           </Typography>
