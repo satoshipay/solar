@@ -24,13 +24,13 @@ const SubmissionProgress = (props: { promise: Promise<any> }) => (
     pending={
       <FloatingStatusBox>
         <CircularProgress size={70} style={{ marginTop: 10, marginBottom: 20 }} />
-        <div>Sending transaction...</div>
+        <div>Submitting to network...</div>
       </FloatingStatusBox>
     }
     then={() => (
       <FloatingStatusBox>
         <SuccessIcon size={100} />
-        <div>Transaction successful</div>
+        <div>Successful</div>
       </FloatingStatusBox>
     )}
     catch={error => (
