@@ -14,21 +14,36 @@ function addThousandsSeparators(digits: string, thousandsSeparator: string) {
   return digitGroups.reverse().join(thousandsSeparator)
 }
 
-export const SingleBalance = (props: { assetCode: string; balance: string }) => {
+interface SingleBalanceProps {
+  assetCode: string
+  balance: string
+  inline?: boolean
+  trimLeadingZeros?: boolean
+}
+
+export const SingleBalance = (props: SingleBalanceProps) => {
   const balanceAsNumber = parseFloat(props.balance)
-  const trimmedBalance = balanceAsNumber > 0 ? balanceAsNumber.toFixed(7).replace(/00$/, "") : "0"
+  const halfTrimmedBalance = balanceAsNumber > 0 ? balanceAsNumber.toFixed(7).replace(/00$/, "") : "0"
+  const trimmedBalance = props.trimLeadingZeros ? halfTrimmedBalance.replace(/\.?0+/, "") : halfTrimmedBalance
   const [integerPart, decimalPart = ""] = trimmedBalance.split(".")
   return (
     <span>
-      <small style={{ fontSize: "85%", marginRight: 4 }}>{props.assetCode}</small>
-      &nbsp;
+      <small style={{ fontSize: props.inline ? "100%" : "85%", marginRight: props.inline ? undefined : 4 }}>
+        {props.assetCode}
+      </small>{" "}
       {addThousandsSeparators(integerPart, ",")}
       <span style={{ fontSize: "85%", opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
     </span>
   )
 }
 
-const Balances = (props: { balances: AccountResponse["balances"] }) => {
+interface MultipleBalancesProps {
+  balances: AccountResponse["balances"]
+  inline?: boolean
+  trimLeadingZeros?: boolean
+}
+
+export const MultipleBalances = (props: MultipleBalancesProps) => {
   if (props.balances.length === 0) {
     return <></>
   }
@@ -47,6 +62,8 @@ const Balances = (props: { balances: AccountResponse["balances"] }) => {
           <SingleBalance
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
+            inline={props.inline}
+            trimLeadingZeros={props.trimLeadingZeros}
           />{" "}
         </React.Fragment>
       ))}
@@ -57,7 +74,9 @@ const Balances = (props: { balances: AccountResponse["balances"] }) => {
 const AccountBalances = (props: { publicKey: string; testnet: boolean }) => {
   return (
     <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {(accountData, activated) => (activated ? <Balances balances={accountData.balances} /> : <InlineLoader />)}
+      {(accountData, activated) =>
+        activated ? <MultipleBalances balances={accountData.balances} /> : <InlineLoader />
+      }
     </AccountData>
   )
 }

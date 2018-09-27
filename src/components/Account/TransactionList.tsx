@@ -1,4 +1,5 @@
 import React from "react"
+import { AccountResponse } from "stellar-sdk"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
 import HumanTime from "react-human-time"
@@ -10,6 +11,7 @@ import { Operation, Transaction } from "stellar-sdk"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { formatOperationType, selectNetwork } from "../../lib/transaction"
 import { List, ListItem } from "../List"
+import { MultipleBalances } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -47,8 +49,20 @@ const RemotePublicKeys = (props: { publicKeys: string[] }) => {
 
 const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transaction }) => {
   const balanceChanges = props.paymentSummary.map(
-    ({ asset, balanceChange }) => `${asset.getCode()} ${balanceChange.abs().toString()}`
-  )
+    ({ asset, balanceChange }) =>
+      asset.isNative()
+        ? {
+            asset_type: "native",
+            balance: balanceChange.abs().toString()
+          }
+        : {
+            asset_code: asset.getCode(),
+            asset_issuer: asset.getIssuer(),
+            asset_type: asset.getAssetType(),
+            balance: balanceChange.abs().toString()
+          }
+  ) as AccountResponse["balances"]
+
   const remotePublicKeys = props.paymentSummary.reduce(
     (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
     [] as string[]
@@ -57,8 +71,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return (
       <span>
-        Received {balanceChanges.join(", ")}
-        &nbsp;
+        Received <MultipleBalances balances={balanceChanges} inline trimLeadingZeros />{" "}
         <DetailedInfo>
           from <RemotePublicKeys publicKeys={remotePublicKeys} />
         </DetailedInfo>
@@ -70,7 +83,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
   ) {
     return (
       <span>
-        Sent {balanceChanges.join(", ")}{" "}
+        Sent <MultipleBalances balances={balanceChanges} inline trimLeadingZeros />{" "}
         <DetailedInfo>
           to <RemotePublicKeys publicKeys={remotePublicKeys} />
         </DetailedInfo>
