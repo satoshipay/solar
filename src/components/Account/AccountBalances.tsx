@@ -1,6 +1,7 @@
 import React from "react"
 import { AccountResponse } from "stellar-sdk"
 import { AccountData } from "../Subscribers"
+import InlineLoader from "../InlineLoader"
 
 export const SingleBalance = (props: { assetCode: string; balance: string }) => {
   const balanceAsNumber = parseFloat(props.balance)
@@ -43,9 +44,7 @@ const Balances = (props: { balances: AccountResponse["balances"] }) => {
 const AccountBalances = (props: { publicKey: string; testnet: boolean }) => {
   return (
     <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {(accountData, activated) =>
-        activated ? <Balances balances={accountData.balances} /> : <SingleBalance assetCode="XLM" balance="0" />
-      }
+      {(accountData, activated) => (activated ? <Balances balances={accountData.balances} /> : <InlineLoader />)}
     </AccountData>
   )
 }
