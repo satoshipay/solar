@@ -1,5 +1,6 @@
 import React from "react"
 import ListSubheader from "@material-ui/core/ListSubheader"
+import Tooltip from "@material-ui/core/Tooltip"
 import HumanTime from "react-human-time"
 import ArrowLeftIcon from "react-icons/lib/fa/arrow-left"
 import ArrowRightIcon from "react-icons/lib/fa/arrow-right"
@@ -88,6 +89,10 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
   }
 }
 
+const TooltipTitle = (props: { children: React.ReactNode }) => {
+  return <span style={{ fontSize: "110%" }}>{props.children}</span>
+}
+
 const TransactionListItem = (props: { accountPublicKey: string; transaction: Transaction }) => {
   const { accountPublicKey, transaction } = props
 
@@ -102,9 +107,11 @@ const TransactionListItem = (props: { accountPublicKey: string; transaction: Tra
         </span>
       }
       heading={
-        <small style={{ color: "#666", fontSize: "80%" }}>
-          <HumanTime time={createdAt.getTime()} />
-        </small>
+        <Tooltip title={<TooltipTitle>{createdAt.toLocaleString()}</TooltipTitle>}>
+          <small style={{ color: "#666", fontSize: "80%" }}>
+            <HumanTime time={createdAt.getTime()} />
+          </small>
+        </Tooltip>
       }
       primaryText={
         <div style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
