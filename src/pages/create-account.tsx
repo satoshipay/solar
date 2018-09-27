@@ -2,7 +2,6 @@ import { History } from "history"
 import React from "react"
 import { withRouter } from "react-router-dom"
 import { Keypair } from "stellar-sdk"
-import Typography from "@material-ui/core/Typography"
 import * as routes from "../routes"
 import CloseButton from "../components/Dialog/CloseButton"
 import { Section } from "../components/Layout/Page"
@@ -39,10 +38,7 @@ class CreateAccountPage extends React.Component<Props & { history: History }> {
       <Section top backgroundColor="white">
         <Box padding="16px 24px" style={{ position: "relative" }}>
           <CloseButton onClick={this.close} />
-          <Typography color="textSecondary" variant="headline" style={{ marginBottom: 28 }}>
-            {this.props.testnet ? "Add Testnet Account" : "Add Account"}
-          </Typography>
-          <AccountCreationForm onSubmit={this.createAccount} />
+          <AccountCreationForm onSubmit={this.createAccount} testnet={this.props.testnet} />
         </Box>
       </Section>
     )
