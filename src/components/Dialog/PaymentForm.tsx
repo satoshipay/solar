@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography"
 import { Account } from "../../stores/accounts"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import CloseButton from "./CloseButton"
+import TestnetBadge from "./TestnetBadge"
 
 interface PaymentFormDrawerProps {
   account: Account
@@ -14,6 +15,7 @@ interface PaymentFormDrawerProps {
   onClose: () => void
   onSubmit: (values: PaymentCreationValues) => void
   trustedAssets?: Asset[]
+  txCreationPending?: boolean
 }
 
 const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
@@ -30,15 +32,16 @@ const PaymentFormDrawer = (props: PaymentFormDrawerProps) => {
         }}
       >
         <CloseButton onClick={props.onClose} />
-        <CardContent>
-          <Typography variant="headline" component="h2">
-            Send payment
+        <CardContent style={{ paddingTop: 24 }}>
+          <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
+            Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
           </Typography>
-          <Typography gutterBottom variant="subheading" component="h3">
-            {props.account.testnet ? "Testnet" : null}
-          </Typography>
-          <div style={{ marginTop: 32 }}>
-            <CreatePaymentForm onSubmit={props.onSubmit} trustedAssets={trustedAssets} />
+          <div style={{ marginTop: 40 }}>
+            <CreatePaymentForm
+              onSubmit={props.onSubmit}
+              trustedAssets={trustedAssets}
+              txCreationPending={props.txCreationPending}
+            />
           </div>
         </CardContent>
       </Card>

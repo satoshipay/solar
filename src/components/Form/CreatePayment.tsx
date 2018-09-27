@@ -1,12 +1,13 @@
 import React from "react"
 import { Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
-import SendIcon from "react-icons/lib/md/send"
+import CheckIcon from "@material-ui/icons/Check"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderError } from "../../lib/formHandling"
 
@@ -78,6 +79,7 @@ interface PaymentCreationFormProps {
   errors: PaymentCreationErrors
   formValues: PaymentCreationValues
   trustedAssets: Asset[]
+  txCreationPending?: boolean
   setFormValue: (fieldName: keyof PaymentCreationValues, value: string) => void
   onSubmit: () => void
 }
@@ -154,10 +156,14 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
           <div />
         )}
       </Box>
-      <Box margin="64px 0 0">
+      <Box margin="64px 0 0" style={{ textAlign: "right" }}>
         <Button variant="contained" color="primary" onClick={handleSubmitEvent} type="submit">
-          <SendIcon style={{ marginRight: 8 }} />
-          Create Payment
+          {props.txCreationPending ? (
+            <CircularProgress size="1.5em" style={{ color: "white", marginRight: 12 }} />
+          ) : (
+            <CheckIcon style={{ marginRight: 8 }} />
+          )}
+          Confirm
         </Button>
       </Box>
     </form>
@@ -166,6 +172,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
 
 interface Props {
   trustedAssets: Asset[]
+  txCreationPending?: boolean
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 

@@ -53,9 +53,11 @@ function getInitialNetwork() {
   return testnetAccounts.length > 0 && testnetAccounts.length === AccountStore.length ? "testnet" : "mainnet"
 }
 
+export type NetworkSwitch = { network: "mainnet" | "testnet" } & IObservableObject
+
 export const networkSwitch = observable({
   network: getInitialNetwork()
-}) as { network: "mainnet" | "testnet" } & IObservableObject
+}) as NetworkSwitch
 
 export function toggleNetwork() {
   networkSwitch.network = networkSwitch.network === "testnet" ? "mainnet" : "testnet"

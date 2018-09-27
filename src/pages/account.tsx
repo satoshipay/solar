@@ -39,12 +39,18 @@ const AccountActions = (props: { account: Account }) => {
           {(_, activated) => (
             <Button
               variant="contained"
-              color="default"
               disabled={!activated}
               onClick={() => openDialog(createPaymentDialog(props.account))}
+              style={{
+                background: "white",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
+                color: indigo[500],
+                paddingLeft: 20,
+                paddingRight: 20
+              }}
             >
               <SendIcon style={{ marginRight: 8 }} />
-              Send payment
+              Send
             </Button>
           )}
         </AccountData>

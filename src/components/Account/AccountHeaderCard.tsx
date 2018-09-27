@@ -4,7 +4,9 @@ import { History } from "history"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
+import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
+import LockOpenIcon from "@material-ui/icons/LockOpen"
 import ChevronLeftIcon from "react-icons/lib/md/chevron-left"
 import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
@@ -92,6 +94,11 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
             </Box>
             <Typography align="center" color="inherit" variant="headline" component="h2" gutterBottom>
               {this.props.account.name}
+              {this.props.account.requiresPassword ? null : (
+                <Tooltip title="No password">
+                  <LockOpenIcon style={{ marginLeft: 8, marginBottom: -2, fontSize: "70%" }} />
+                </Tooltip>
+              )}
             </Typography>
             <Box grow style={{ textAlign: "right" }}>
               <AccountContextMenu

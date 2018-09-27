@@ -3,7 +3,6 @@ import { Account } from "../stores/accounts"
 
 export enum DialogType {
   ChangePassword = "ChangePassword",
-  CreateAccount = "CreateAccount",
   CreatePayment = "CreatePayment",
   CustomTrustline = "CustomTrustline",
   DeleteAccount = "DeleteAccount",
@@ -15,7 +14,6 @@ export enum DialogType {
 export type DialogBlueprint =
   | CustomTrustlineDescriptor
   | ChangePasswordDescriptor
-  | CreateAccountDescriptor
   | CreatePaymentDescriptor
   | DeleteAccountDescriptor
   | ExportKeyDescriptor
@@ -42,13 +40,6 @@ export interface CreatePaymentDescriptor {
   type: DialogType.CreatePayment
   props: {
     account: Account
-  }
-}
-
-export interface CreateAccountDescriptor {
-  type: DialogType.CreateAccount
-  props: {
-    testnet: boolean
   }
 }
 

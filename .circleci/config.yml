@@ -53,6 +53,7 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run: npm run prebuild:electron
 
+  # Note that the `npm run build:*` commands will automatically create a GitHub release and upload binaries
   build:
     <<: *defaults
     steps:
@@ -80,19 +81,6 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run: npm test
 
-  release:
-    <<: *defaults
-    docker:
-      - image: circleci/golang:1.9
-    steps:
-      - restore_cache:
-          key: repo-cache-{{ .Revision }}
-      - restore_cache:
-          key: dist-cache-{{ .Revision }}
-      - run: rm ./electron/dist/*.yml
-      - run: go get github.com/tcnksm/ghr
-      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --draft `git describe --tags` ./electron/dist
-
 workflows:
   version: 2
   build_and_test:
@@ -111,9 +99,4 @@ workflows:
       - build:
           requires:
             - setup
-          <<: *enable_job_on_release_only
-      - release:
-          requires:
-            - build
-            - test
           <<: *enable_job_on_release_only
