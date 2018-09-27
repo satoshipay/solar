@@ -1,11 +1,20 @@
 import { createMuiTheme } from "@material-ui/core/styles"
 import indigo from "@material-ui/core/colors/indigo"
+import lightBlue from "@material-ui/core/colors/lightBlue"
 
 const theme = createMuiTheme({
   overrides: {
     MuiFormLabel: {
       focused: {
         color: "inherit !important"
+      }
+    },
+    MuiLinearProgress: {
+      colorPrimary: {
+        backgroundColor: lightBlue["100"]
+      },
+      barColorPrimary: {
+        backgroundColor: lightBlue.A200
       }
     }
   },
