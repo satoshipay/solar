@@ -3,14 +3,27 @@ import { AccountResponse } from "stellar-sdk"
 import { AccountData } from "../Subscribers"
 import InlineLoader from "../InlineLoader"
 
+function addThousandsSeparators(digits: string, thousandsSeparator: string) {
+  const digitGroups: string[] = []
+
+  while (digits.length > 0) {
+    digitGroups.push(digits.substr(-3))
+    digits = digits.substr(0, digits.length - 3)
+  }
+
+  return digitGroups.reverse().join(thousandsSeparator)
+}
+
 export const SingleBalance = (props: { assetCode: string; balance: string }) => {
   const balanceAsNumber = parseFloat(props.balance)
   const trimmedBalance = balanceAsNumber > 0 ? balanceAsNumber.toFixed(7).replace(/00$/, "") : "0"
+  const [integerPart, decimalPart = ""] = trimmedBalance.split(".")
   return (
     <span>
       <small style={{ fontSize: "85%", marginRight: 4 }}>{props.assetCode}</small>
       &nbsp;
-      {trimmedBalance}
+      {addThousandsSeparators(integerPart, ",")}
+      <span style={{ fontSize: "85%", opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
     </span>
   )
 }
