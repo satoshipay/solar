@@ -70,7 +70,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return (
       <span>
-        Received <MultipleBalances balances={balanceChanges} inline trimLeadingZeros />{" "}
+        Received <MultipleBalances balances={balanceChanges} inline />{" "}
         <DetailedInfo>
           from <RemotePublicKeys publicKeys={remotePublicKeys} />
         </DetailedInfo>
@@ -82,7 +82,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
   ) {
     return (
       <span>
-        Sent <MultipleBalances balances={balanceChanges} inline trimLeadingZeros />{" "}
+        Sent <MultipleBalances balances={balanceChanges} inline />{" "}
         <DetailedInfo>
           to <RemotePublicKeys publicKeys={remotePublicKeys} />
         </DetailedInfo>
