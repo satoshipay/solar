@@ -7,7 +7,6 @@ import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
 import AddIcon from "@material-ui/icons/Add"
-import LabelIcon from "@material-ui/icons/LabelOutlined"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import WalletIcon from "@material-ui/icons/AccountBalanceWalletOutlined"
 import { Keypair } from "stellar-sdk"
@@ -51,6 +50,7 @@ function validateFormValues(formValues: AccountCreationValues) {
 interface AccountCreationFormProps {
   errors: AccountCreationErrors
   formValues: AccountCreationValues
+  testnet: boolean
   onOpenQRScanner(): void
   onSubmit(event: React.SyntheticEvent): void
   setFormValue(fieldName: keyof AccountCreationValues, value: string): void
@@ -62,82 +62,83 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
     <form onSubmit={props.onSubmit}>
       <TextField
         error={Boolean(errors.name)}
-        label={errors.name ? renderError(errors.name) : "Account name"}
-        placeholder="My First Account"
-        fullWidth
+        label={errors.name ? renderError(errors.name) : undefined}
+        placeholder={props.testnet ? "Add Testnet Account" : "Add Account"}
         autoFocus
         margin="normal"
         value={formValues.name}
         onChange={event => setFormValue("name", event.target.value)}
         InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <LabelIcon color="disabled" />
-            </InputAdornment>
-          )
+          disableUnderline: true,
+          style: {
+            color: "rgba(0, 0, 0, 0.54)",
+            fontSize: "1.5rem"
+          }
         }}
-        style={{ margin: 0 }}
+        style={{ width: 300, margin: 0, marginBottom: 20 }}
       />
-      <TextField
-        error={Boolean(errors.password)}
-        label={errors.password ? renderError(errors.password) : "Password"}
-        placeholder="Enter a password"
-        fullWidth
-        margin="normal"
-        value={formValues.password}
-        onChange={event => setFormValue("password", event.target.value)}
-        style={{ display: formValues.setPassword ? "block" : "none" }}
-        type="password"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <LockIcon color="disabled" />
-            </InputAdornment>
-          )
-        }}
-      />
-      <TextField
-        error={Boolean(errors.passwordRepeat)}
-        label={errors.passwordRepeat ? renderError(errors.passwordRepeat) : "Repeat password"}
-        placeholder="Repeat password here"
-        fullWidth
-        margin="normal"
-        value={formValues.passwordRepeat}
-        onChange={event => setFormValue("passwordRepeat", event.target.value)}
-        style={{ display: formValues.setPassword ? "block" : "none" }}
-        type="password"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <LockIcon color="disabled" />
-            </InputAdornment>
-          )
-        }}
-      />
-      <TextField
-        error={Boolean(errors.privateKey)}
-        label={errors.privateKey ? renderError(errors.privateKey) : "Private key"}
-        placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
-        fullWidth
-        margin="normal"
-        value={formValues.privateKey}
-        onChange={event => setFormValue("privateKey", event.target.value)}
-        style={{ display: formValues.createNewKey ? "none" : "block" }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <WalletIcon color="disabled" />
-            </InputAdornment>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={props.onOpenQRScanner} title="Scan QR code">
-                <QRCodeIcon />
-              </IconButton>
-            </InputAdornment>
-          )
-        }}
-      />
+      <Box width="50%">
+        <TextField
+          error={Boolean(errors.password)}
+          label={errors.password ? renderError(errors.password) : "Password"}
+          placeholder="Enter a password"
+          fullWidth
+          margin="normal"
+          value={formValues.password}
+          onChange={event => setFormValue("password", event.target.value)}
+          style={{ display: formValues.setPassword ? "block" : "none" }}
+          type="password"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LockIcon color="disabled" />
+              </InputAdornment>
+            )
+          }}
+        />
+        <TextField
+          error={Boolean(errors.passwordRepeat)}
+          label={errors.passwordRepeat ? renderError(errors.passwordRepeat) : "Repeat password"}
+          placeholder="Repeat password here"
+          fullWidth
+          margin="normal"
+          value={formValues.passwordRepeat}
+          onChange={event => setFormValue("passwordRepeat", event.target.value)}
+          style={{ display: formValues.setPassword ? "block" : "none" }}
+          type="password"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LockIcon color="disabled" />
+              </InputAdornment>
+            )
+          }}
+        />
+        <TextField
+          error={Boolean(errors.privateKey)}
+          label={errors.privateKey ? renderError(errors.privateKey) : "Private key"}
+          placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
+          fullWidth
+          margin="normal"
+          value={formValues.privateKey}
+          onChange={event => setFormValue("privateKey", event.target.value)}
+          style={{ display: formValues.createNewKey ? "none" : "block" }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <WalletIcon color="disabled" />
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={props.onOpenQRScanner} title="Scan QR code">
+                  <QRCodeIcon />
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
+        />
+      </Box>
       <Box margin="24px 0 0">
         Security note:
         <br />
@@ -179,6 +180,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
 }
 
 interface Props {
+  testnet: boolean
   onSubmit(formValues: AccountCreationValues): void
 }
 
@@ -246,6 +248,7 @@ class StatefulAccountCreationForm extends React.Component<Props, State> {
         <AccountCreationForm
           errors={this.state.errors}
           formValues={this.state.formValues}
+          testnet={this.props.testnet}
           onOpenQRScanner={this.openQRScanner}
           onSubmit={this.submit}
           setFormValue={this.setFormValue}
