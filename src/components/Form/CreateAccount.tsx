@@ -63,7 +63,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
       <TextField
         error={Boolean(errors.name)}
         label={errors.name ? renderError(errors.name) : undefined}
-        placeholder={props.testnet ? "Add Testnet Account" : "Add Account"}
+        placeholder={props.testnet ? "New Testnet Account" : "New Account"}
         autoFocus
         margin="normal"
         value={formValues.name}
