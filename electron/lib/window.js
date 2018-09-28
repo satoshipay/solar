@@ -18,7 +18,7 @@ function createMainWindow() {
     minHeight: 300,
     title: "SatoshiPay Wallet",
     icon: path.join(__dirname, "../build/icon.png"),
-    backgroundColor: "white",
+    backgroundColor: "#3f51b5",
     nodeIntegration: false,
     titleBarStyle: process.platform === "darwin" ? "hidden" : "default"
   })

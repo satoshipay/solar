@@ -39,3 +39,16 @@ ReactDOM.render(<App />, document.getElementById("app"))
 if (module.hot) {
   module.hot.accept()
 }
+
+// Hide Splash Screen
+setTimeout(() => {
+  const splash = document.getElementById("splash")
+  if (splash) {
+    splash.style.opacity = "0"
+    splash.style.pointerEvents = "none"
+
+    setTimeout(() => {
+      splash.style.display = "none"
+    }, 1000)
+  }
+}, 1000)
