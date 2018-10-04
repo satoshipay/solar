@@ -33,6 +33,5 @@ const initialKeys: KeysData<PublicKeyData> = {
 }
 
 export default function createKeyStore() {
-  // TODO: Create a store that is using persistent storage (#23)
   return createStore<PrivateKeyData, PublicKeyData>(() => undefined, initialKeys)
 }
