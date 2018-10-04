@@ -43,7 +43,9 @@ function explainSubmissionErrorByOpResultCodes(error: HorizonError, resultCodes:
       case "op_low_reserve":
         return deriveError(
           error,
-          new Error("Transaction rejected by the network. You would fall below your minimum account balance.")
+          new Error(
+            "Transaction rejected by the network. Source or destination account balance would be below minimum balance."
+          )
         )
       case "op_no_issuer":
         return deriveError(error, new Error("Asset is invalid. Incorrect asset issuer."))
