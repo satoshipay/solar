@@ -3,37 +3,63 @@ import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "react-icons/lib/md/send"
 import { Transaction } from "stellar-sdk"
+import { renderFormFieldError } from "../../lib/errors"
 import { Account } from "../../stores/accounts"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import TransactionSummary from "../TransactionSummary"
 
+interface FormValues {
+  password: string | null
+}
+
 interface Props {
   account: Account
   transaction: Transaction
-  onConfirm?: (formValues: State) => any
+  onConfirm?: (formValues: FormValues) => any
   onCancel?: () => any
 }
 
 interface State {
-  password: string | null
+  errors: Partial<{ [formField in keyof FormValues]: Error | null }>
+  formValues: FormValues
 }
 
 class TxConfirmationForm extends React.Component<Props, State> {
   state: State = {
-    password: null
+    errors: {},
+    formValues: {
+      password: null
+    }
   }
 
-  setFormValue = <Key extends keyof State>(key: keyof State, value: State[Key]) => {
+  setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
     this.setState({
-      [key]: value
+      formValues: {
+        ...this.state.formValues,
+        [key]: value
+      }
     })
   }
 
   onSubmit = (event: React.SyntheticEvent) => {
-    const { onConfirm = () => {} } = this.props
+    const { onConfirm = () => undefined } = this.props
+    const { errors, formValues } = this.state
+
+    if (this.props.account.requiresPassword && !formValues.password) {
+      return this.setState({
+        errors: {
+          ...errors,
+          password: new Error("Password required")
+        }
+      })
+    }
+
+    this.setState({
+      errors: {}
+    })
 
     event.preventDefault()
-    onConfirm(this.state)
+    onConfirm(formValues)
   }
 
   render() {
@@ -45,12 +71,13 @@ class TxConfirmationForm extends React.Component<Props, State> {
           <TransactionSummary transaction={transaction} />
           {account.requiresPassword ? (
             <TextField
-              label="Password"
+              error={Boolean(this.state.errors.password)}
+              label={this.state.errors.password ? renderFormFieldError(this.state.errors.password) : "Password"}
               type="password"
               autoFocus
               fullWidth
               margin="dense"
-              value={this.state.password || ""}
+              value={this.state.formValues.password || ""}
               onChange={event => this.setFormValue("password", event.target.value)}
               style={{ marginBottom: 32 }}
             />
