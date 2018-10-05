@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset } from "stellar-sdk"
+import { AccountRecord, Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import FormControl from "@material-ui/core/FormControl"
@@ -29,16 +29,20 @@ export interface PaymentCreationValues {
 
 type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
 
-function validateFormValues(formValues: PaymentCreationValues) {
+function validateFormValues(formValues: PaymentCreationValues, balances: AccountRecord["balances"]) {
   const errors: PaymentCreationErrors = {}
+
+  const xlmBalance = balances.find(someBalance => someBalance.asset_type === "native") as AccountRecord["balances"][0]
+  const balance = balances.find((someBalance: any) => someBalance.asset_code === formValues.asset) || xlmBalance
 
   if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
     errors.destination = new Error(`Invalid stellar public key.`)
   }
   if (!formValues.amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
     errors.amount = new Error("Invalid number.")
+  } else if (Number.parseFloat(formValues.amount) > Number.parseFloat(balance.balance)) {
+    errors.amount = new Error("Not enough funds.")
   }
-  // TODO: Check that amount <= balance
 
   if (formValues.memoType === "text") {
     if (formValues.memoValue.length === 0) {
@@ -171,6 +175,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
 }
 
 interface Props {
+  balances: AccountRecord["balances"]
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onSubmit?: (formValues: PaymentCreationValues) => any
@@ -205,7 +210,7 @@ class StatefulPaymentCreationForm extends React.Component<Props, State> {
   submit = () => {
     const { onSubmit = () => undefined } = this.props
 
-    const { errors, success } = validateFormValues(this.state.formValues)
+    const { errors, success } = validateFormValues(this.state.formValues, this.props.balances)
     this.setState({ errors })
 
     if (success) {
