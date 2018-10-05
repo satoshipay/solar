@@ -3,7 +3,7 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router, Route } from "react-router-dom"
-import { withProps } from "recompose"
+import withProps from "recompose/withProps"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
 import NotificationContainer from "./components/NotificationContainer"

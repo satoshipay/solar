@@ -9,7 +9,7 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import { Box, HorizontalLayout } from "../Layout/Box"
-import { renderError } from "../../lib/formHandling"
+import { renderFormFieldError } from "../../lib/errors"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
 
@@ -100,7 +100,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
     <form onSubmit={handleSubmitEvent}>
       <TextField
         error={Boolean(errors.destination)}
-        label={errors.destination ? renderError(errors.destination) : "Destination address"}
+        label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
         placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
         autoFocus
@@ -111,7 +111,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
       <HorizontalLayout justifyContent="space-between" alignItems="center">
         <TextField
           error={Boolean(errors.amount)}
-          label={errors.amount ? renderError(errors.amount) : "Amount"}
+          label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
           margin="dense"
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
@@ -147,7 +147,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
         {formValues.memoType !== "none" ? (
           <TextField
             error={Boolean(errors.memoValue)}
-            label={errors.memoValue ? renderError(errors.memoValue) : memoInputLabels[formValues.memoType]}
+            label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
             margin="dense"
             onChange={event => setFormValue("memoValue", event.target.value)}
             value={formValues.memoValue}
