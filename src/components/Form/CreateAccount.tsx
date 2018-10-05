@@ -10,7 +10,7 @@ import AddIcon from "@material-ui/icons/Add"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import WalletIcon from "@material-ui/icons/AccountBalanceWalletOutlined"
 import { Keypair } from "stellar-sdk"
-import { renderError } from "../../lib/formHandling"
+import { renderFormFieldError } from "../../lib/errors"
 import { addError } from "../../stores/notifications"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
@@ -62,7 +62,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
     <form onSubmit={props.onSubmit}>
       <TextField
         error={Boolean(errors.name)}
-        label={errors.name ? renderError(errors.name) : undefined}
+        label={errors.name ? renderFormFieldError(errors.name) : undefined}
         placeholder={props.testnet ? "New Testnet Account" : "New Account"}
         autoFocus
         margin="normal"
@@ -80,7 +80,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
       <Box width="50%">
         <TextField
           error={Boolean(errors.password)}
-          label={errors.password ? renderError(errors.password) : "Password"}
+          label={errors.password ? renderFormFieldError(errors.password) : "Password"}
           placeholder="Enter a password"
           fullWidth
           margin="normal"
@@ -98,7 +98,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
         />
         <TextField
           error={Boolean(errors.passwordRepeat)}
-          label={errors.passwordRepeat ? renderError(errors.passwordRepeat) : "Repeat password"}
+          label={errors.passwordRepeat ? renderFormFieldError(errors.passwordRepeat) : "Repeat password"}
           placeholder="Repeat password here"
           fullWidth
           margin="normal"
@@ -116,7 +116,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
         />
         <TextField
           error={Boolean(errors.privateKey)}
-          label={errors.privateKey ? renderError(errors.privateKey) : "Private key"}
+          label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Private key"}
           placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
           fullWidth
           margin="normal"
