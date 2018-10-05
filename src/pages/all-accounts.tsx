@@ -17,13 +17,13 @@ interface Props {
 }
 
 const HomePage = (props: Props) => (
-  <Section top backgroundColor="white">
+  <Section top brandColored>
     <Box padding="16px 24px" margin="0 0 -12px" style={{ position: "relative" }}>
-      <Typography color="textSecondary" variant="headline" style={{ marginBottom: 12 }}>
-        {props.networkSwitch.network === "testnet" ? "Testnet Accounts" : "Accounts"}
+      <Typography color="inherit" variant="headline" style={{ marginBottom: 12 }}>
+        {props.networkSwitch.network === "testnet" ? "Testnet Accounts" : "My Accounts"}
       </Typography>
       <Box style={{ position: "absolute", top: 15, right: 28, zIndex: 2 }}>
-        <Button variant="outlined" onClick={toggleNetwork}>
+        <Button color="inherit" variant="outlined" onClick={toggleNetwork}>
           {props.networkSwitch.network === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
         </Button>
       </Box>
