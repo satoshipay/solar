@@ -5,7 +5,6 @@ import { observer } from "mobx-react"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
-import indigo from "@material-ui/core/colors/indigo"
 import SendIcon from "react-icons/lib/md/send"
 import { createPaymentDialog } from "../components/Dialog/index"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
@@ -21,6 +20,7 @@ import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import AccountStore from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
+import { brandColor } from "../theme"
 
 const AccountPage = (props: { accounts: typeof AccountStore; history: History; match: match<{ id: string }> }) => {
   const { params } = props.match
@@ -31,7 +31,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
 
   return (
     <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
-      <Section top backgroundColor={indigo[500]}>
+      <Section top backgroundColor={brandColor}>
         <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
@@ -45,7 +45,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                   style={{
                     background: "white",
                     boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
-                    color: indigo[500],
+                    color: brandColor,
                     paddingLeft: 20,
                     paddingRight: 20
                   }}
