@@ -6,6 +6,7 @@ import { HashRouter as Router, Route } from "react-router-dom"
 import withProps from "recompose/withProps"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
+import { VerticalLayout } from "./components/Layout/Box"
 import NotificationContainer from "./components/NotificationContainer"
 import OpenDialogs from "./components/OpenDialogs"
 import AllAccountsPage from "./pages/all-accounts"
@@ -22,13 +23,15 @@ Network.usePublicNetwork()
 const App = () => (
   <Router>
     <MuiThemeProvider theme={theme}>
-      <Route exact path="/" component={withProps({ accounts, networkSwitch })(AllAccountsPage)} />
-      <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
-      <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
-      <Route exact path="/account/:id" component={withProps({ accounts })(AccountPage)} />
-      <Route exact path="/account/:id/assets" component={withProps({ accounts })(AccountAssetsPage)} />
-      <NotificationContainer notifications={notifications} />
-      <OpenDialogs dialogs={dialogs} />
+      <VerticalLayout height="100%">
+        <Route exact path="/" component={withProps({ accounts, networkSwitch })(AllAccountsPage)} />
+        <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
+        <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
+        <Route exact path="/account/:id" component={withProps({ accounts })(AccountPage)} />
+        <Route exact path="/account/:id/assets" component={withProps({ accounts })(AccountAssetsPage)} />
+        <NotificationContainer notifications={notifications} />
+        <OpenDialogs dialogs={dialogs} />
+      </VerticalLayout>
     </MuiThemeProvider>
   </Router>
 )

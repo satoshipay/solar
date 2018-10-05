@@ -31,8 +31,8 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
 
   return (
     <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
-      <Section top backgroundColor={brandColor}>
-        <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }}>
+      <Section top brandColored>
+        <AccountHeaderCard account={account} history={props.history}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
           <Box margin="1.5rem 0 0">
