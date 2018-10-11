@@ -8,11 +8,9 @@
     "target": "es5",
     "lib": ["es6", "dom"],
     "jsx": "react",
-    "noUnusedLocals": true,
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "noUnusedLocals": true
   },
-  "include": ["./src/**/*", "./types/**/*", "./node_modules/@types/**/*", "./node_modules/material-ui/**/*"],
-  "exclude": ["./node_modules/**/*"],
+  "include": ["./src/**/*", "./types/**/*", "./node_modules/@types/recompose/index.d.ts"],
   "rules": {
     "no-submodule-imports": false
   }
