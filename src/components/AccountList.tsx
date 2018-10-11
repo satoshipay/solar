@@ -37,10 +37,10 @@ const cardStyles: StyleRules = {
 
 const StyledCard = withStyles(cardStyles)(
   (props: {
-    children: React.ReactNode
+    children?: React.ReactNode
     classes: ClassNameMap<keyof typeof cardStyles>
     elevation?: number
-    onClick: () => void
+    onClick?: () => void
     style?: React.CSSProperties
   }) => {
     return (
