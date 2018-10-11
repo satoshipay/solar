@@ -7,13 +7,13 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
-import indigo from "@material-ui/core/colors/indigo"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockFilledIcon from "@material-ui/icons/Lock"
 import WarnIcon from "@material-ui/icons/Warning"
 import { isWrongPasswordError } from "../../lib/errors"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
+import { brandColor } from "../../theme"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import Background from "../Background"
 import QRExportDialog from "./QRExport"
@@ -31,7 +31,7 @@ const KeyExport = (props: { account: Account; secretKey: string }) => {
         style={{
           padding: "16px 32px",
           backgroundColor: "rgba(255, 255, 255, 0.6)",
-          border: `2px solid ${indigo[500]}`
+          border: `2px solid ${brandColor}`
         }}
       >
         {props.secretKey}

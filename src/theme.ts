@@ -2,6 +2,8 @@ import { createMuiTheme } from "@material-ui/core/styles"
 import indigo from "@material-ui/core/colors/indigo"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 
+export const brandColor = indigo[500]
+
 const theme = createMuiTheme({
   overrides: {
     MuiFormLabel: {

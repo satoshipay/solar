@@ -36,9 +36,16 @@ export const SingleBalance = (props: SingleBalanceProps) => {
   const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
   return (
     <span>
-      <small style={{ fontSize: props.inline ? "100%" : "85%", marginRight: props.inline ? undefined : 4 }}>
+      <small
+        style={{
+          fontSize: props.inline ? "100%" : "85%",
+          fontWeight: props.inline ? undefined : "bold",
+          marginRight: props.inline ? undefined : 4
+        }}
+      >
         {props.assetCode}
-      </small>{" "}
+      </small>
+      &nbsp;
       {addThousandsSeparators(integerPart, thousandsSeparator)}
       <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
     </span>
