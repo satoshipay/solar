@@ -45,7 +45,7 @@ interface WarningBoxProps {
   passwordError: Error | null
   requiresPassword: boolean
   onReveal: (event: React.SyntheticEvent) => void
-  updatePassword: (event: React.SyntheticEvent<HTMLInputElement>) => void
+  updatePassword: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const WarningBox = (props: WarningBoxProps) => {
