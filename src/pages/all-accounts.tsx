@@ -23,7 +23,7 @@ const HomePage = (props: Props) => (
         {props.networkSwitch.network === "testnet" ? "Testnet Accounts" : "My Accounts"}
       </Typography>
       <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
-        <Button color="inherit" variant="outlined" onClick={toggleNetwork}>
+        <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
           {props.networkSwitch.network === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
         </Button>
       </Box>
