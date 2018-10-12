@@ -60,7 +60,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
   const { errors, formValues, setFormValue } = props
   return (
     <form onSubmit={props.onSubmit}>
-      <VerticalLayout minHeight="400px" maxHeight="80vh" justifyContent="space-between">
+      <VerticalLayout minHeight="400px" justifyContent="space-between">
         <Box>
           <TextField
             error={Boolean(errors.name)}

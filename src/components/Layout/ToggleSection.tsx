@@ -13,11 +13,11 @@ interface Props {
 
 const ToggleSection = (props: Props) => {
   return (
-    <Box style={{ display: "flex", margin: "24px 0", ...props.style }}>
+    <Box style={{ display: "flex", margin: "24px 0 0", ...props.style }}>
       <Box width={70} shrink={0}>
         <Switch color="primary" checked={props.checked} onChange={props.onChange} />
       </Box>
-      <Box grow shrink={0}>
+      <Box grow shrink={0} width="calc(100% - 70px)">
         <Typography variant="title" style={{ marginTop: 12 }}>
           <span onClick={props.onChange} style={{ cursor: "pointer" }}>
             {props.title}
