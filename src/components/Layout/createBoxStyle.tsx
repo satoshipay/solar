@@ -14,7 +14,9 @@ const removeNullValueProps = (object: { [key: string]: any }) => {
 interface SizingStyles {
   width?: React.CSSProperties["width"]
   height?: React.CSSProperties["height"]
+  minWidth?: React.CSSProperties["minWidth"]
   maxWidth?: React.CSSProperties["maxWidth"]
+  minHeight?: React.CSSProperties["minHeight"]
   maxHeight?: React.CSSProperties["maxHeight"]
   padding?: React.CSSProperties["padding"]
 }
@@ -22,7 +24,9 @@ interface SizingStyles {
 const createSizingStyle = ({
   width = null,
   height = null,
+  minWidth = null,
   maxWidth = null,
+  minHeight = null,
   maxHeight = null,
   padding = 0
 }: SizingStyles) => {
@@ -31,12 +35,14 @@ const createSizingStyle = ({
     width,
     height,
     maxWidth,
-    maxHeight
+    minWidth,
+    maxHeight,
+    minHeight
   }
 }
 
 interface FlexParentStyles {
-  alignItems?: string
+  alignItems?: React.CSSProperties["alignItems"]
   justifyContent?: React.CSSProperties["justifyContent"] | "start" | "end"
   wrap?: React.CSSProperties["flexWrap"]
 }
