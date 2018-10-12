@@ -20,7 +20,6 @@ import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import AccountStore from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
-import { brandColor } from "../theme"
 
 const AccountPage = (props: { accounts: typeof AccountStore; history: History; match: match<{ id: string }> }) => {
   const { params } = props.match
@@ -43,9 +42,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                   disabled={!activated}
                   onClick={() => openDialog(createPaymentDialog(account))}
                   style={{
-                    background: "white",
                     boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
-                    color: brandColor,
                     paddingLeft: 20,
                     paddingRight: 20
                   }}
