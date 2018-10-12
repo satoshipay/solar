@@ -11,7 +11,6 @@ import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountStore from "../stores/accounts"
 import { openDialog } from "../stores/dialogs"
-import { brandColor } from "../theme"
 
 const AccountAssetsPage = (props: {
   accounts: typeof AccountStore
@@ -27,7 +26,7 @@ const AccountAssetsPage = (props: {
 
   return (
     <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
-      <Section top backgroundColor={brandColor}>
+      <Section top brandColored>
         <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }} />
       </Section>
       <Section>
