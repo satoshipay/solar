@@ -11,7 +11,7 @@ import { renderFormFieldError } from "../../lib/errors"
 import { addError } from "../../stores/notifications"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
-import { HorizontalLayout } from "../Layout/Box"
+import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 import ToggleSection from "../Layout/ToggleSection"
 
@@ -60,108 +60,112 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
   const { errors, formValues, setFormValue } = props
   return (
     <form onSubmit={props.onSubmit}>
-      <TextField
-        error={Boolean(errors.name)}
-        label={errors.name ? renderFormFieldError(errors.name) : undefined}
-        placeholder={props.testnet ? "New Testnet Account" : "New Account"}
-        autoFocus
-        margin="normal"
-        value={formValues.name}
-        onChange={event => setFormValue("name", event.target.value)}
-        InputProps={{
-          disableUnderline: true,
-          endAdornment: (
-            <InputAdornment position="end">
-              <EditIcon />
-            </InputAdornment>
-          ),
-          style: {
-            color: "rgba(0, 0, 0, 0.54)",
-            fontSize: "1.5rem"
-          }
-        }}
-        style={{ minWidth: 300, maxWidth: "70%", margin: 0, marginBottom: 20 }}
-      />
-      <ToggleSection
-        checked={formValues.setPassword}
-        onChange={() => setFormValue("setPassword", !formValues.setPassword as any)}
-        title="Password Protect"
-      >
-        <>
-          <Typography
-            color={formValues.setPassword ? "default" : "textSecondary"}
-            variant="body1"
-            style={{ margin: "12px 0 0" }}
-          >
-            <b>Note:</b> The key to your account will be encrypted using the password you set here. If you forget your
-            password, your funds will be lost unless you have a backup of your private key! You can export your private
-            key at any time.
-          </Typography>
+      <VerticalLayout minHeight="400px" maxHeight="80vh" justifyContent="space-between">
+        <Box>
+          <TextField
+            error={Boolean(errors.name)}
+            label={errors.name ? renderFormFieldError(errors.name) : undefined}
+            placeholder={props.testnet ? "New Testnet Account" : "New Account"}
+            autoFocus
+            margin="normal"
+            value={formValues.name}
+            onChange={event => setFormValue("name", event.target.value)}
+            InputProps={{
+              disableUnderline: true,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <EditIcon />
+                </InputAdornment>
+              ),
+              style: {
+                color: "rgba(0, 0, 0, 0.54)",
+                fontSize: "1.5rem"
+              }
+            }}
+            style={{ minWidth: 300, maxWidth: "70%", margin: 0 }}
+          />
+        </Box>
+        <ToggleSection
+          checked={formValues.setPassword}
+          onChange={() => setFormValue("setPassword", !formValues.setPassword as any)}
+          title="Password Protect"
+        >
+          <>
+            <Typography
+              color={formValues.setPassword ? "default" : "textSecondary"}
+              variant="body1"
+              style={{ margin: "12px 0 0" }}
+            >
+              <b>Note:</b> The key to your account will be encrypted using the password you set here. If you forget your
+              password, your funds will be lost unless you have a backup of your private key! You can export your
+              private key at any time.
+            </Typography>
 
-          <HorizontalLayout>
+            <HorizontalLayout>
+              <TextField
+                disabled={!formValues.setPassword}
+                error={Boolean(errors.password)}
+                label={errors.password ? renderFormFieldError(errors.password) : "Password"}
+                fullWidth
+                margin="normal"
+                value={formValues.password}
+                onChange={event => setFormValue("password", event.target.value)}
+                type="password"
+              />
+              <HorizontalMargin size={32} />
+              <TextField
+                disabled={!formValues.setPassword}
+                error={Boolean(errors.passwordRepeat)}
+                label={errors.passwordRepeat ? renderFormFieldError(errors.passwordRepeat) : "Repeat password"}
+                margin="normal"
+                fullWidth
+                value={formValues.passwordRepeat}
+                onChange={event => setFormValue("passwordRepeat", event.target.value)}
+                type="password"
+              />
+            </HorizontalLayout>
+          </>
+        </ToggleSection>
+        <ToggleSection
+          checked={!formValues.createNewKey}
+          onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
+          title="Import Existing"
+        >
+          <HorizontalLayout alignItems="center">
             <TextField
-              disabled={!formValues.setPassword}
-              error={Boolean(errors.password)}
-              label={errors.password ? renderFormFieldError(errors.password) : "Password"}
+              disabled={Boolean(formValues.createNewKey)}
+              error={Boolean(errors.privateKey)}
+              label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Private key"}
+              placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
               fullWidth
               margin="normal"
-              value={formValues.password}
-              onChange={event => setFormValue("password", event.target.value)}
-              type="password"
+              value={formValues.privateKey}
+              onChange={event => setFormValue("privateKey", event.target.value)}
             />
             <HorizontalMargin size={32} />
-            <TextField
-              disabled={!formValues.setPassword}
-              error={Boolean(errors.passwordRepeat)}
-              label={errors.passwordRepeat ? renderFormFieldError(errors.passwordRepeat) : "Repeat password"}
-              margin="normal"
-              fullWidth
-              value={formValues.passwordRepeat}
-              onChange={event => setFormValue("passwordRepeat", event.target.value)}
-              type="password"
-            />
+            <Button
+              disabled={Boolean(formValues.createNewKey)}
+              variant="outlined"
+              onClick={props.onOpenQRScanner}
+              style={{ height: 48 }}
+            >
+              <QRCodeIcon style={{ marginRight: 16 }} />
+              Scan
+            </Button>
           </HorizontalLayout>
-        </>
-      </ToggleSection>
-      <ToggleSection
-        checked={!formValues.createNewKey}
-        onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
-        title="Import Existing"
-      >
-        <HorizontalLayout alignItems="center">
-          <TextField
-            disabled={Boolean(formValues.createNewKey)}
-            error={Boolean(errors.privateKey)}
-            label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Private key"}
-            placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
-            fullWidth
-            margin="normal"
-            value={formValues.privateKey}
-            onChange={event => setFormValue("privateKey", event.target.value)}
-          />
-          <HorizontalMargin size={32} />
-          <Button
-            disabled={Boolean(formValues.createNewKey)}
-            variant="outlined"
-            onClick={props.onOpenQRScanner}
-            style={{ height: 48 }}
-          >
-            <QRCodeIcon style={{ marginRight: 16 }} />
-            Scan
+        </ToggleSection>
+        <HorizontalLayout justifyContent="end" alignItems="center" margin="64px 0 0" width="auto">
+          <Button variant="contained" onClick={props.onCancel}>
+            <CloseIcon style={{ marginRight: 8, marginTop: -2 }} />
+            Cancel
+          </Button>
+          <HorizontalMargin size={16} />
+          <Button color="primary" variant="contained" onClick={props.onSubmit} type="submit">
+            <CheckIcon style={{ marginRight: 8, marginTop: -2 }} />
+            {formValues.createNewKey ? "Create Account" : "Import Account"}
           </Button>
         </HorizontalLayout>
-      </ToggleSection>
-      <HorizontalLayout justifyContent="end" alignItems="center" margin="64px 0 0" width="auto">
-        <Button variant="contained" onClick={props.onCancel}>
-          <CloseIcon style={{ marginRight: 8, marginTop: -2 }} />
-          Cancel
-        </Button>
-        <HorizontalMargin size={16} />
-        <Button color="primary" variant="contained" onClick={props.onSubmit} type="submit">
-          <CheckIcon style={{ marginRight: 8, marginTop: -2 }} />
-          {formValues.createNewKey ? "Create Account" : "Import Account"}
-        </Button>
-      </HorizontalLayout>
+      </VerticalLayout>
     </form>
   )
 }
