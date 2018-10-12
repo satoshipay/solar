@@ -20,7 +20,6 @@ const cardStyles: StyleRules = {
     maxWidth: 500,
     flexGrow: 1,
     margin: "12px 1%",
-    border: "2px solid white",
     borderRadius: 8
   },
   cardActionArea: {
@@ -71,7 +70,10 @@ const AccountCard = (props: { account: Account; history: History; style?: React.
 
 const AddAccountCard = (props: { onClick: () => any; style?: React.CSSProperties }) => {
   return (
-    <StyledCard onClick={props.onClick} style={{ ...props.style, background: "transparent", color: "white" }}>
+    <StyledCard
+      onClick={props.onClick}
+      style={{ ...props.style, background: "transparent", border: "2px solid white", color: "white" }}
+    >
       <VerticalLayout height="100px" justifyContent="center" fontSize="1.3rem" textAlign="center">
         <div>
           <AddIcon style={{ fontSize: "200%" }} />
