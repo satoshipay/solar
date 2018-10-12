@@ -50,7 +50,7 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                     paddingRight: 20
                   }}
                 >
-                  <SendIcon style={{ marginRight: 8 }} />
+                  <SendIcon style={{ marginTop: -2, marginRight: 8 }} />
                   Send
                 </Button>
               )}
