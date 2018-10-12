@@ -78,7 +78,6 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 </InputAdornment>
               ),
               style: {
-                color: "rgba(0, 0, 0, 0.54)",
                 fontSize: "1.5rem"
               }
             }}
