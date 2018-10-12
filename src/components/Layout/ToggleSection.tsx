@@ -17,9 +17,11 @@ const ToggleSection = (props: Props) => {
       <Box width={70} shrink={0}>
         <Switch color="primary" checked={props.checked} onChange={props.onChange} />
       </Box>
-      <Box grow>
-        <Typography variant="title" onClick={props.onChange} style={{ cursor: "pointer", marginTop: 12 }}>
-          {props.title}
+      <Box grow shrink={0}>
+        <Typography variant="title" style={{ marginTop: 12 }}>
+          <span onClick={props.onChange} style={{ cursor: "pointer" }}>
+            {props.title}
+          </span>
         </Typography>
         {props.children}
       </Box>
