@@ -10,7 +10,7 @@ import EditIcon from "@material-ui/icons/Edit"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VisibilityIcon from "@material-ui/icons/Visibility"
-import { Account } from "../../stores/accounts"
+import { Account } from "../../context/accounts"
 import ContextMenu from "../ContextMenu"
 
 const AccountContextMenuItem = (props: { icon: React.ReactElement<any>; label: string; onClick: () => void }) => {

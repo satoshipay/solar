@@ -1,5 +1,5 @@
 import { Asset } from "stellar-sdk"
-import { Account } from "../stores/accounts"
+import { Account } from "../context/accounts"
 
 export enum DialogType {
   ChangePassword = "ChangePassword",

@@ -1,22 +1,24 @@
 import { History } from "history"
 import React from "react"
-import { withRouter } from "react-router-dom"
+import { withRouter, RouteComponentProps } from "react-router-dom"
 import { Keypair } from "stellar-sdk"
 import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
 import { Box } from "../components/Layout/Box"
+import { AccountsConsumer, AccountsContext } from "../context/accounts"
 import { addError } from "../context/notifications"
-import { createAccount as createAccountInStore } from "../stores/accounts"
 
 interface Props {
+  history: History
   testnet: boolean
+  createAccount: AccountsContext["createAccount"]
 }
 
-class CreateAccountPage extends React.Component<Props & { history: History }> {
+class CreateAccountPage extends React.Component<Props> {
   createAccount = async (formValues: AccountCreationValues) => {
     try {
-      const account = await createAccountInStore({
+      const account = await this.props.createAccount({
         name: formValues.name,
         keypair: Keypair.fromSecret(formValues.privateKey),
         password: formValues.setPassword ? formValues.password : null,
@@ -43,9 +45,14 @@ class CreateAccountPage extends React.Component<Props & { history: History }> {
   }
 }
 
-const RoutedCreateAccountPage = withRouter<any>(CreateAccountPage)
+type ContainerProps = RouteComponentProps<any> & Pick<Props, "testnet">
 
-// react-router wants functional components
-const CreateAccountPageContainer = (props: Props) => <RoutedCreateAccountPage {...props} />
+const CreateAccountPageContainer = (props: ContainerProps) => {
+  return (
+    <AccountsConsumer>
+      {({ createAccount }) => <CreateAccountPage {...props} createAccount={createAccount} />}
+    </AccountsConsumer>
+  )
+}
 
-export default CreateAccountPageContainer
+export default withRouter<ContainerProps>(CreateAccountPageContainer)

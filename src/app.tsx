@@ -9,22 +9,24 @@ import { MuiThemeProvider } from "@material-ui/core/styles"
 import { VerticalLayout } from "./components/Layout/Box"
 import NotificationContainer from "./components/NotificationContainer"
 import OpenDialogs from "./components/OpenDialogs"
+import { AccountsProvider } from "./context/accounts"
 import { DialogsProvider } from "./context/dialogs"
 import { NotificationsProvider } from "./context/notifications"
 import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
 import AccountAssetsPage from "./pages/account-assets"
 import CreateAccountPage from "./pages/create-account"
-import accounts, { networkSwitch } from "./stores/accounts"
 import theme from "./theme"
 
 Network.usePublicNetwork()
 
 const Providers = (props: { children: React.ReactNode }) => {
   return (
-    <DialogsProvider>
-      <NotificationsProvider>{props.children}</NotificationsProvider>
-    </DialogsProvider>
+    <AccountsProvider>
+      <DialogsProvider>
+        <NotificationsProvider>{props.children}</NotificationsProvider>
+      </DialogsProvider>
+    </AccountsProvider>
   )
 }
 
@@ -33,11 +35,11 @@ const App = () => (
     <MuiThemeProvider theme={theme}>
       <Providers>
         <VerticalLayout height="100%">
-          <Route exact path="/" component={withProps({ accounts, networkSwitch })(AllAccountsPage)} />
+          <Route exact path="/" component={AllAccountsPage} />
           <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
           <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
-          <Route exact path="/account/:id" component={withProps({ accounts })(AccountPage)} />
-          <Route exact path="/account/:id/assets" component={withProps({ accounts })(AccountAssetsPage)} />
+          <Route exact path="/account/:id" component={AccountPage} />
+          <Route exact path="/account/:id/assets" component={AccountAssetsPage} />
           <NotificationContainer />
           <OpenDialogs />
         </VerticalLayout>

@@ -8,10 +8,10 @@ import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import LockOpenIcon from "@material-ui/icons/LockOpen"
 import ChevronLeftIcon from "react-icons/lib/md/chevron-left"
+import { Account, AccountsContext } from "../../context/accounts"
 import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
 import * as routes from "../../routes"
-import { Account, renameAccount } from "../../stores/accounts"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 
@@ -31,6 +31,7 @@ interface Props {
   account: Account
   children?: React.ReactNode
   history: History
+  renameAccount: AccountsContext["renameAccount"]
   style?: React.CSSProperties
 }
 
@@ -64,7 +65,7 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
   }
 
   onRename = () => {
-    const { account, openDialog } = this.props
+    const { account, openDialog, renameAccount } = this.props
     openDialog({
       type: DialogType.Rename,
       props: {

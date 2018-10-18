@@ -1,7 +1,6 @@
 import React from "react"
 import { History } from "history"
 import { match } from "react-router"
-import { observer } from "mobx-react"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
@@ -18,9 +17,9 @@ import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
+import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
 import { DialogsConsumer } from "../context/dialogs"
 import { DialogBlueprint, DialogType } from "../context/dialogTypes"
-import AccountStore, { Account } from "../stores/accounts"
 
 function createPaymentDialog(account: Account): DialogBlueprint {
   return {
@@ -59,13 +58,16 @@ const AccountActions = (props: { account: Account }) => {
 }
 
 interface Props {
-  accounts: typeof AccountStore
+  accounts: Account[]
   history: History
   match: match<{ id: string }>
+  renameAccount: AccountsContext["renameAccount"]
 }
 
 const AccountPage = (props: Props) => {
+  const { renameAccount } = props
   const { params } = props.match
+
   const account = props.accounts.find(someAccount => someAccount.id === params.id)
   if (!account) {
     throw new Error(`Wallet account not found. ID: ${params.id}`)
@@ -74,7 +76,7 @@ const AccountPage = (props: Props) => {
   return (
     <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
       <Section top brandColored>
-        <AccountHeaderCard account={account} history={props.history}>
+        <AccountHeaderCard account={account} history={props.history} renameAccount={renameAccount}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
           <Box margin="24px 0 0">
@@ -116,4 +118,8 @@ const AccountPage = (props: Props) => {
   )
 }
 
-export default observer(AccountPage)
+const AccountPageContainer = (props: Pick<Props, "history" | "match">) => {
+  return <AccountsConsumer>{accountsContext => <AccountPage {...props} {...accountsContext} />}</AccountsConsumer>
+}
+
+export default AccountPageContainer

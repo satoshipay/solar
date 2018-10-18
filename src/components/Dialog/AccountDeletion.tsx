@@ -7,19 +7,21 @@ import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
+import { Account, AccountsContext } from "../../context/accounts"
 import AccountBalances from "../Account/AccountBalances"
 import Background from "../Background"
 import ButtonIconLabel from "../ButtonIconLabel"
-import { deleteAccount, Account } from "../../stores/accounts"
 
 interface Props {
   account: Account
   open: boolean
+  deleteAccount: AccountsContext["deleteAccount"]
   onClose: () => void
   onDeleted: () => void
 }
 
 const AccountDeletionDialog = (props: Props) => {
+  const { deleteAccount } = props
   const onConfirm = () => {
     deleteAccount(props.account.id)
     props.onClose()

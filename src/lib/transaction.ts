@@ -1,6 +1,6 @@
 import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
+import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
-import { Account } from "../stores/accounts"
 
 const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 

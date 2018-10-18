@@ -11,9 +11,9 @@ import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
+import { Account, AccountsContext } from "../../context/accounts"
 import { NotificationsConsumer, NotificationContext } from "../../context/notifications"
 import { renderFormFieldError } from "../../lib/errors"
-import { changePassword, removePassword as removeAccountPassword, Account } from "../../stores/accounts"
 import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
 
@@ -91,6 +91,8 @@ interface Props {
   open: boolean
   addError: NotificationContext["addError"]
   addNotification: NotificationContext["addNotification"]
+  changePassword: AccountsContext["changePassword"]
+  removePassword: AccountsContext["removePassword"]
   onClose: () => void
 }
 
@@ -112,7 +114,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
   }
 
   changePassword = () => {
-    const { addError, addNotification } = this.props
+    const { addError, addNotification, changePassword } = this.props
     const { id: accountID, requiresPassword } = this.props.account
     const { nextPassword, prevPassword } = this.state.formValues
 
@@ -133,13 +135,13 @@ class ChangePasswordDialog extends React.Component<Props, State> {
   }
 
   removePassword = () => {
-    const { addError, addNotification } = this.props
+    const { addError, addNotification, removePassword } = this.props
     const { errors, success } = validateFormValues(this.state.formValues, "remove")
     this.setState({ errors })
 
     if (success) {
       // TODO: Show confirmation prompt (dialog)
-      removeAccountPassword(this.props.account.id, this.state.formValues.prevPassword)
+      removePassword(this.props.account.id, this.state.formValues.prevPassword)
         .then(() => {
           addNotification("success", "Password removed.")
           this.props.onClose()

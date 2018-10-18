@@ -1,6 +1,6 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { Account } from "../../stores/accounts"
+import { Account } from "../../context/accounts"
 import AccountBalances from "./AccountBalances"
 
 const DetailHeading = (props: { children: React.ReactNode; marginTop?: number }) => {
