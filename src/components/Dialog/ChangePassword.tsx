@@ -11,9 +11,9 @@ import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
+import { NotificationsConsumer, NotificationContext } from "../../context/notifications"
 import { renderFormFieldError } from "../../lib/errors"
 import { changePassword, removePassword as removeAccountPassword, Account } from "../../stores/accounts"
-import { addError, addNotification } from "../../stores/notifications"
 import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
 
@@ -89,6 +89,8 @@ const Actions = (props: ActionsProps) => {
 interface Props {
   account: Account
   open: boolean
+  addError: NotificationContext["addError"]
+  addNotification: NotificationContext["addNotification"]
   onClose: () => void
 }
 
@@ -110,6 +112,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
   }
 
   changePassword = () => {
+    const { addError, addNotification } = this.props
     const { id: accountID, requiresPassword } = this.props.account
     const { nextPassword, prevPassword } = this.state.formValues
 
@@ -130,6 +133,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
   }
 
   removePassword = () => {
+    const { addError, addNotification } = this.props
     const { errors, success } = validateFormValues(this.state.formValues, "remove")
     this.setState({ errors })
 
@@ -220,4 +224,14 @@ class ChangePasswordDialog extends React.Component<Props, State> {
   }
 }
 
-export default ChangePasswordDialog
+const ChangePasswordContainer = (props: Props) => {
+  return (
+    <NotificationsConsumer>
+      {({ addError, addNotification }) => (
+        <ChangePasswordDialog {...props} addError={addError} addNotification={addNotification} />
+      )}
+    </NotificationsConsumer>
+  )
+}
+
+export default ChangePasswordContainer

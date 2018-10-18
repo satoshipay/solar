@@ -12,7 +12,6 @@ interface Props {
 }
 
 interface State {
-  nextID: number
   dialogs: DialogDescriptor[]
 }
 
@@ -23,40 +22,38 @@ const DialogsContext = React.createContext<ContextValue>({
 })
 
 export class DialogsProvider extends React.Component<Props, State> {
+  // Not in the state, since updates using `this.setState()` would be performed asyncronously
+  nextID = 1
+
   state: State = {
-    nextID: 1,
     dialogs: []
   }
 
   openDialog = (blueprint: DialogBlueprint) => {
     const newDialog: DialogDescriptor = {
-      id: this.state.nextID,
+      id: this.nextID++,
       open: true,
       props: blueprint.props as any, // To prevent type error that is due to inprecise type inference
       type: blueprint.type as any
     }
-    this.setState({
-      nextID: this.state.nextID + 1,
-      dialogs: this.state.dialogs.concat([newDialog])
-    })
+    this.setState(state => ({
+      dialogs: state.dialogs.concat([newDialog])
+    }))
   }
 
   closeDialog = (dialogID: number) => {
-    this.setState({
-      dialogs: this.state.dialogs.filter(someDialog => someDialog.id !== dialogID)
-    })
+    this.setState(state => ({
+      dialogs: state.dialogs.filter(someDialog => someDialog.id !== dialogID)
+    }))
   }
 
-  getContextValue = (): ContextValue => {
-    return {
+  render() {
+    const contextValue: ContextValue = {
       dialogs: this.state.dialogs,
       closeDialog: this.closeDialog,
       openDialog: this.openDialog
     }
-  }
-
-  render() {
-    return <DialogsContext.Provider value={this.getContextValue()}>{this.props.children}</DialogsContext.Provider>
+    return <DialogsContext.Provider value={contextValue}>{this.props.children}</DialogsContext.Provider>
   }
 }
 

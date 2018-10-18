@@ -1,5 +1,4 @@
 import React from "react"
-import { observer } from "mobx-react"
 import Snackbar from "@material-ui/core/Snackbar"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
 import CheckIcon from "@material-ui/icons/CheckCircle"
@@ -7,7 +6,7 @@ import ErrorIcon from "@material-ui/icons/Error"
 import green from "@material-ui/core/colors/green"
 import { Theme } from "@material-ui/core/styles/createMuiTheme"
 import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
-import { Notification as NotificationObject, NotificationType } from "../stores/notifications"
+import { Notification, NotificationsConsumer, NotificationType } from "../context/notifications"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   error: ErrorIcon,
@@ -67,20 +66,20 @@ const Notification = (props: NotificationProps) => {
 
 const StyledNotification = withStyles(styles)(Notification)
 
-interface NotificationContainerProps {
-  notifications: NotificationObject[]
+interface NotificationsProps {
+  notifications: Notification[]
 }
 
-interface NotificationContainerState {
+interface NotificationsState {
   lastClosedNotificationID: number
 }
 
-class NotificationContainer extends React.Component<NotificationContainerProps, NotificationContainerState> {
+class Notifications extends React.Component<NotificationsProps, NotificationsState> {
   state = {
     lastClosedNotificationID: 0
   }
 
-  lastShownNotification: NotificationObject | null = null
+  lastShownNotification: Notification | null = null
 
   closeNotification = (notificationID: number) => {
     this.setState({
@@ -112,4 +111,12 @@ class NotificationContainer extends React.Component<NotificationContainerProps, 
   }
 }
 
-export default observer(NotificationContainer)
+const NotificationsContainer = (props: {}) => {
+  return (
+    <NotificationsConsumer>
+      {({ notifications }) => <Notifications notifications={notifications} />}
+    </NotificationsConsumer>
+  )
+}
+
+export default NotificationsContainer

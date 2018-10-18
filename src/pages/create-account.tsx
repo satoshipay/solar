@@ -6,8 +6,8 @@ import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
 import { Box } from "../components/Layout/Box"
+import { addError } from "../context/notifications"
 import { createAccount as createAccountInStore } from "../stores/accounts"
-import { addError } from "../stores/notifications"
 
 interface Props {
   testnet: boolean

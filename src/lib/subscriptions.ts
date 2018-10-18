@@ -1,6 +1,6 @@
 import { observable } from "mobx"
 import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
-import { addError } from "../stores/notifications"
+import { addError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
 import { getHorizonURL } from "./stellar"
 
