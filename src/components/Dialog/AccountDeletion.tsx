@@ -9,6 +9,7 @@ import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
 import AccountBalances from "../Account/AccountBalances"
 import Background from "../Background"
+import ButtonIconLabel from "../ButtonIconLabel"
 import { deleteAccount, Account } from "../../stores/accounts"
 
 interface Props {
@@ -45,8 +46,9 @@ const AccountDeletionDialog = (props: Props) => {
             Cancel
           </Button>
           <Button color="primary" variant="contained" autoFocus onClick={onConfirm}>
-            <DeleteIcon style={{ marginRight: 8 }} />
-            Delete
+            <ButtonIconLabel label="Delete">
+              <DeleteIcon />
+            </ButtonIconLabel>
           </Button>
         </DialogActions>
       </DialogContent>

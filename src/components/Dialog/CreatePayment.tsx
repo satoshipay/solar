@@ -1,12 +1,17 @@
 import React from "react"
 import { AccountRecord, Asset, Memo, Server, Transaction } from "stellar-sdk"
+import Drawer from "@material-ui/core/Drawer"
+import Card from "@material-ui/core/Card"
+import CardContent from "@material-ui/core/CardContent"
+import Typography from "@material-ui/core/Typography"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
-import { PaymentCreationValues } from "../Form/CreatePayment"
+import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
-import PaymentFormDrawer from "./PaymentForm"
+import CloseButton from "./CloseButton"
+import TestnetBadge from "./TestnetBadge"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -18,6 +23,7 @@ function getAssetsFromBalances(balances: AccountRecord["balances"]) {
 
 interface Props {
   account: Account
+  balances: AccountRecord["balances"]
   horizon: Server
   open: boolean
   onClose: () => void
@@ -76,20 +82,41 @@ class CreatePaymentDialog extends React.Component<Props, State> {
   }
 
   render() {
+    const trustedAssets = this.props.trustedAssets || [Asset.native()]
     return (
-      <PaymentFormDrawer
-        open={this.props.open}
-        account={this.props.account}
-        onClose={this.props.onClose}
-        onSubmit={this.createTransaction}
-        trustedAssets={this.props.trustedAssets}
-        txCreationPending={this.state.txCreationPending}
-      />
+      <Drawer open={this.props.open} anchor="right" onClose={this.props.onClose}>
+        <Card
+          style={{
+            position: "relative",
+            height: "100%",
+            padding: "0 12px",
+            width: "90vw",
+            maxWidth: "700px"
+          }}
+        >
+          <CloseButton onClick={this.props.onClose} />
+          <CardContent style={{ paddingTop: 24 }}>
+            <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
+              Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+            </Typography>
+            <div style={{ marginTop: 40 }}>
+              <CreatePaymentForm
+                balances={this.props.balances}
+                onSubmit={this.createTransaction}
+                trustedAssets={trustedAssets}
+                txCreationPending={this.state.txCreationPending}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </Drawer>
     )
   }
 }
 
-const ConnectedCreatePaymentDialog = (props: Omit<Props, "horizon" | "sendTransaction" | "trustedAssets">) => {
+const ConnectedCreatePaymentDialog = (
+  props: Omit<Props, "balances" | "horizon" | "sendTransaction" | "trustedAssets">
+) => {
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
@@ -101,6 +128,7 @@ const ConnectedCreatePaymentDialog = (props: Omit<Props, "horizon" | "sendTransa
           {accountData => (
             <CreatePaymentDialog
               {...props}
+              balances={accountData.balances}
               horizon={horizon}
               sendTransaction={sendTransaction}
               trustedAssets={getAssetsFromBalances(accountData.balances)}

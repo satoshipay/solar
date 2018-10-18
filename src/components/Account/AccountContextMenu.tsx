@@ -42,7 +42,11 @@ const AccountContextMenu = (props: MenuProps) => {
       )}
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
         <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
-          <AccountContextMenuItem icon={<VisibilityIcon />} label="Export Key" onClick={closeAndCall(props.onExport)} />
+          <AccountContextMenuItem
+            icon={<VisibilityIcon />}
+            label="Export Secret Key"
+            onClick={closeAndCall(props.onExport)}
+          />
           <AccountContextMenuItem
             icon={<LockIcon />}
             label={labelChangePassword}

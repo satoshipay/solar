@@ -14,25 +14,41 @@ function addThousandsSeparators(digits: string, thousandsSeparator: string) {
   return digitGroups.reverse().join(thousandsSeparator)
 }
 
+function trimBalance(balance: number): string {
+  if (balance === 0) {
+    return "0"
+  } else if (Math.round(balance) === balance) {
+    return balance.toFixed(2)
+  } else {
+    return balance.toFixed(7)
+  }
+}
+
 interface SingleBalanceProps {
   assetCode: string
   balance: string
   inline?: boolean
-  trimLeadingZeros?: boolean
+  style?: React.CSSProperties
 }
 
 export const SingleBalance = (props: SingleBalanceProps) => {
-  const balanceAsNumber = parseFloat(props.balance)
-  const halfTrimmedBalance = balanceAsNumber > 0 ? balanceAsNumber.toFixed(7).replace(/00$/, "") : "0"
-  const trimmedBalance = props.trimLeadingZeros ? halfTrimmedBalance.replace(/\.?0+/, "") : halfTrimmedBalance
-  const [integerPart, decimalPart = ""] = trimmedBalance.split(".")
+  const thousandsSeparator = ","
+  const trimmedUnformattedBalance = trimBalance(parseFloat(props.balance))
+  const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
   return (
-    <span>
-      <small style={{ fontSize: props.inline ? "100%" : "85%", marginRight: props.inline ? undefined : 4 }}>
+    <span style={props.style}>
+      <small
+        style={{
+          fontSize: props.inline ? "100%" : "85%",
+          fontWeight: props.inline ? undefined : "bold",
+          marginRight: props.inline ? undefined : 4
+        }}
+      >
         {props.assetCode}
-      </small>{" "}
-      {addThousandsSeparators(integerPart, ",")}
-      <span style={{ fontSize: "85%", opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
+      </small>
+      &nbsp;
+      {addThousandsSeparators(integerPart, thousandsSeparator)}
+      <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
     </span>
   )
 }
@@ -40,7 +56,6 @@ export const SingleBalance = (props: SingleBalanceProps) => {
 interface MultipleBalancesProps {
   balances: AccountResponse["balances"]
   inline?: boolean
-  trimLeadingZeros?: boolean
 }
 
 export const MultipleBalances = (props: MultipleBalancesProps) => {
@@ -49,8 +64,10 @@ export const MultipleBalances = (props: MultipleBalancesProps) => {
   }
 
   const byAssetCode = (balance1: any, balance2: any) => (balance1.asset_code < balance2.asset_code ? -1 : 1)
+  const nativeBalance = props.balances.find(balance => balance.asset_type === "native")
+
   const balances = [
-    props.balances.find(balance => balance.asset_type === "native"),
+    ...(nativeBalance ? [nativeBalance] : []),
     ...props.balances.filter(balance => balance.asset_type !== "native").sort(byAssetCode)
   ]
 
@@ -58,12 +75,11 @@ export const MultipleBalances = (props: MultipleBalancesProps) => {
     <>
       {balances.map((balance: any, index) => (
         <React.Fragment key={balance.asset_code || "XLM"}>
-          {index > 0 ? <span style={{ margin: "0 8px", opacity: 0.8 }} /> : null}
           <SingleBalance
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
             inline={props.inline}
-            trimLeadingZeros={props.trimLeadingZeros}
+            style={index < balances.length - 1 ? { marginRight: 16 } : undefined}
           />{" "}
         </React.Fragment>
       ))}
@@ -71,11 +87,22 @@ export const MultipleBalances = (props: MultipleBalancesProps) => {
   )
 }
 
+const zeroXLMBalance = {
+  asset_type: "native",
+  balance: "0"
+}
+
 const AccountBalances = (props: { publicKey: string; testnet: boolean }) => {
   return (
     <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {(accountData, activated) =>
-        activated ? <MultipleBalances balances={accountData.balances} /> : <InlineLoader />
+      {(accountData, { activated, loading }) =>
+        loading ? (
+          <InlineLoader />
+        ) : activated ? (
+          <MultipleBalances balances={accountData.balances} />
+        ) : (
+          <MultipleBalances balances={[zeroXLMBalance] as any} />
+        )
       }
     </AccountData>
   )

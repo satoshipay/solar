@@ -5,8 +5,8 @@ import { observer } from "mobx-react"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
-import indigo from "@material-ui/core/colors/indigo"
 import SendIcon from "react-icons/lib/md/send"
+import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
@@ -42,15 +42,14 @@ const AccountActions = (props: { account: Account }) => {
               disabled={!activated}
               onClick={() => openDialog(createPaymentDialog(props.account))}
               style={{
-                background: "white",
                 boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
-                color: indigo[500],
                 paddingLeft: 20,
                 paddingRight: 20
               }}
             >
-              <SendIcon style={{ marginRight: 8 }} />
-              Send
+              <ButtonIconLabel label="Send">
+                <SendIcon />
+              </ButtonIconLabel>
             </Button>
           )}
         </AccountData>
@@ -74,8 +73,8 @@ const AccountPage = (props: Props) => {
 
   return (
     <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
-      <Section top backgroundColor={indigo[500]}>
-        <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }}>
+      <Section top brandColored>
+        <AccountHeaderCard account={account} history={props.history}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
           <Box margin="24px 0 0">

@@ -1,15 +1,15 @@
 import React from "react"
-import { Asset } from "stellar-sdk"
+import { AccountRecord, Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
-import CheckIcon from "@material-ui/icons/Check"
+import SendIcon from "@material-ui/icons/Send"
+import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, HorizontalLayout } from "../Layout/Box"
-import { renderError } from "../../lib/formHandling"
+import { renderFormFieldError } from "../../lib/errors"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
 
@@ -29,16 +29,20 @@ export interface PaymentCreationValues {
 
 type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
 
-function validateFormValues(formValues: PaymentCreationValues) {
+function validateFormValues(formValues: PaymentCreationValues, balances: AccountRecord["balances"]) {
   const errors: PaymentCreationErrors = {}
+
+  const xlmBalance = balances.find(someBalance => someBalance.asset_type === "native") as AccountRecord["balances"][0]
+  const balance = balances.find((someBalance: any) => someBalance.asset_code === formValues.asset) || xlmBalance
 
   if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
     errors.destination = new Error(`Invalid stellar public key.`)
   }
   if (!formValues.amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
     errors.amount = new Error("Invalid number.")
+  } else if (Number.parseFloat(formValues.amount) > Number.parseFloat(balance.balance)) {
+    errors.amount = new Error("Not enough funds.")
   }
-  // TODO: Check that amount <= balance
 
   if (formValues.memoType === "text") {
     if (formValues.memoValue.length === 0) {
@@ -96,7 +100,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
     <form onSubmit={handleSubmitEvent}>
       <TextField
         error={Boolean(errors.destination)}
-        label={errors.destination ? renderError(errors.destination) : "Destination address"}
+        label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
         placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
         autoFocus
@@ -107,7 +111,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
       <HorizontalLayout justifyContent="space-between" alignItems="center">
         <TextField
           error={Boolean(errors.amount)}
-          label={errors.amount ? renderError(errors.amount) : "Amount"}
+          label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
           margin="dense"
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
@@ -143,7 +147,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
         {formValues.memoType !== "none" ? (
           <TextField
             error={Boolean(errors.memoValue)}
-            label={errors.memoValue ? renderError(errors.memoValue) : memoInputLabels[formValues.memoType]}
+            label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
             margin="dense"
             onChange={event => setFormValue("memoValue", event.target.value)}
             value={formValues.memoValue}
@@ -158,12 +162,9 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
       </Box>
       <Box margin="64px 0 0" style={{ textAlign: "right" }}>
         <Button variant="contained" color="primary" onClick={handleSubmitEvent} type="submit">
-          {props.txCreationPending ? (
-            <CircularProgress size="1.5em" style={{ color: "white", marginRight: 12 }} />
-          ) : (
-            <CheckIcon style={{ marginRight: 8 }} />
-          )}
-          Confirm
+          <ButtonIconLabel label="Send" loading={props.txCreationPending}>
+            <SendIcon style={{ fontSize: 16 }} />
+          </ButtonIconLabel>
         </Button>
       </Box>
     </form>
@@ -171,6 +172,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
 }
 
 interface Props {
+  balances: AccountRecord["balances"]
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onSubmit?: (formValues: PaymentCreationValues) => any
@@ -205,7 +207,7 @@ class StatefulPaymentCreationForm extends React.Component<Props, State> {
   submit = () => {
     const { onSubmit = () => undefined } = this.props
 
-    const { errors, success } = validateFormValues(this.state.formValues)
+    const { errors, success } = validateFormValues(this.state.formValues, this.props.balances)
     this.setState({ errors })
 
     if (success) {

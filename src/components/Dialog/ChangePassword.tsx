@@ -11,9 +11,10 @@ import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
-import { renderError } from "../../lib/formHandling"
+import { renderFormFieldError } from "../../lib/errors"
 import { changePassword, removePassword as removeAccountPassword, Account } from "../../stores/accounts"
 import { addError, addNotification } from "../../stores/notifications"
+import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
 
 const adornmentLock = (
@@ -77,8 +78,9 @@ const Actions = (props: ActionsProps) => {
         <div />
       )}
       <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
-        <LockIcon style={{ marginRight: 8, marginTop: -2 }} />
-        {props.removePassword ? "Remove password" : "Change password"}
+        <ButtonIconLabel label={props.removePassword ? "Remove password" : "Change password"}>
+          <LockIcon />
+        </ButtonIconLabel>
       </Button>
     </HorizontalLayout>
   )
@@ -171,7 +173,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
           <Box hidden={!account.requiresPassword} margin="0 0 16px">
             <TextField
               error={Boolean(errors.prevPassword)}
-              label={errors.prevPassword ? renderError(errors.prevPassword) : "Current password"}
+              label={errors.prevPassword ? renderFormFieldError(errors.prevPassword) : "Current password"}
               fullWidth
               margin="dense"
               value={formValues.prevPassword}
@@ -183,7 +185,7 @@ class ChangePasswordDialog extends React.Component<Props, State> {
           <Box hidden={removePassword}>
             <TextField
               error={Boolean(errors.nextPassword)}
-              label={errors.nextPassword ? renderError(errors.nextPassword) : "New password"}
+              label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
               fullWidth
               margin="dense"
               value={formValues.nextPassword}
@@ -193,7 +195,9 @@ class ChangePasswordDialog extends React.Component<Props, State> {
             />
             <TextField
               error={Boolean(errors.nextPasswordRepeat)}
-              label={errors.nextPasswordRepeat ? renderError(errors.nextPasswordRepeat) : "Repeat new password"}
+              label={
+                errors.nextPasswordRepeat ? renderFormFieldError(errors.nextPasswordRepeat) : "Repeat new password"
+              }
               fullWidth
               margin="dense"
               value={formValues.nextPasswordRepeat}

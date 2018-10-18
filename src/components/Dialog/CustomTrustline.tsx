@@ -11,6 +11,7 @@ import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
 import TransactionSender from "../TransactionSender"
 import CloseButton from "./CloseButton"
+import ButtonIconLabel from "../ButtonIconLabel"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -22,6 +23,7 @@ interface FormValues {
 
 interface FormProps {
   formValues: FormValues
+  txCreationPending: boolean
   setFormValue: (fieldName: keyof FormValues, value: string) => void
   onSubmit: (formValues: FormValues) => void
 }
@@ -32,6 +34,7 @@ const CustomTrustlineForm = (props: FormProps) => {
       <TextField
         label="Code"
         placeholder="EURT, USDT, BTC, ..."
+        autoFocus
         margin="dense"
         name="asset-code"
         value={props.formValues.code}
@@ -57,7 +60,7 @@ const CustomTrustlineForm = (props: FormProps) => {
       />
       <HorizontalLayout margin="32px 0 0" justifyContent="flex-end">
         <Button variant="contained" color="primary" onClick={() => props.onSubmit(props.formValues)}>
-          Trust Asset
+          <ButtonIconLabel label="Trust Asset" loading={props.txCreationPending} />
         </Button>
       </HorizontalLayout>
     </form>
@@ -74,6 +77,7 @@ interface Props {
 
 interface State {
   formValues: FormValues
+  txCreationPending: boolean
 }
 
 class CustomTrustlineDialog extends React.Component<Props, State> {
@@ -82,25 +86,31 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
       code: "",
       issuerPublicKey: "",
       limit: ""
-    }
+    },
+    txCreationPending: false
   }
 
   addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
       const operations = [Operation.changeTrust({ asset, limit: options.limit })]
+
+      this.setState({ txCreationPending: true })
       const transaction = await createTransaction(operations, {
         horizon: this.props.horizon,
         walletAccount: this.props.account
       })
+
+      this.setState({ txCreationPending: false })
       this.props.sendTransaction(transaction)
     } catch (error) {
+      this.setState({ txCreationPending: false })
       addError(error)
     }
   }
 
   addCustomAsset = async ({ code, issuerPublicKey, limit }: FormValues) => {
     try {
-      await this.addAsset(new Asset(code, issuerPublicKey), { limit })
+      await this.addAsset(new Asset(code, issuerPublicKey), { limit: limit || undefined })
     } catch (error) {
       addError(error)
     }
@@ -125,6 +135,7 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
             formValues={this.state.formValues}
             onSubmit={this.addCustomAsset}
             setFormValue={this.setFormValue}
+            txCreationPending={this.state.txCreationPending}
           />
         </DialogContent>
       </Dialog>

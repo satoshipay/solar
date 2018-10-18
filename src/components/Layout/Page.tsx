@@ -1,5 +1,6 @@
 import React from "react"
 import { Box } from "./Box"
+import { primaryBackground } from "../../theme"
 
 const FramelessWindowInvisibleTitleBar = (props: { backgroundColor?: React.CSSProperties["backgroundColor"] }) => {
   if (process.env.PLATFORM === "darwin") {
@@ -15,12 +16,15 @@ const FramelessWindowInvisibleTitleBar = (props: { backgroundColor?: React.CSSPr
 interface SectionProps {
   children: React.ReactNode
   backgroundColor?: React.CSSProperties["backgroundColor"]
+  brandColored?: boolean
   top?: boolean
 }
 
 const Section = (props: SectionProps) => {
   const style: React.CSSProperties = {
-    backgroundColor: props.backgroundColor || "white",
+    background: props.brandColored ? primaryBackground : props.backgroundColor || "white",
+    color: props.brandColored ? "white" : undefined,
+    flexGrow: 1,
     position: "relative",
     zIndex: props.top ? undefined : 1
   }

@@ -10,6 +10,7 @@ import RemoveIcon from "@material-ui/icons/RemoveCircle"
 import { createTransaction } from "../../lib/transaction"
 import { Account } from "../../stores/accounts"
 import { addError } from "../../stores/notifications"
+import ButtonIconLabel from "../ButtonIconLabel"
 import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 
@@ -61,8 +62,9 @@ class RemoveTrustlineDialog extends React.Component<Props> {
               Cancel
             </Button>
             <Button autoFocus color="primary" variant="contained" disabled={stillOwnsTokens} onClick={this.removeAsset}>
-              <RemoveIcon style={{ marginRight: 8 }} />
-              Remove
+              <ButtonIconLabel label="Remove">
+                <RemoveIcon />
+              </ButtonIconLabel>
             </Button>
           </DialogActions>
         </DialogContent>

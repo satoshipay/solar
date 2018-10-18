@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://*.stellar.org ws://localhost:*; script-src 'self' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:;">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SatoshiPay Wallet</title>
+    <title>Wallet X</title>
     <link href="./fonts.css" rel="stylesheet">
     <link href="./base-styles.css" rel="stylesheet">
+    <link href="./splash.css" rel="stylesheet">
   </head>
   <body>
     <div id="app"></div>
+    {% include "splash.html" %}
     <script src="./app.tsx"></script>
   </body>
 </html>

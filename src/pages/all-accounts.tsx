@@ -7,7 +7,6 @@ import Typography from "@material-ui/core/Typography"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
-import { DialogsConsumer } from "../context/dialogs"
 import AccountStore, { toggleNetwork, NetworkSwitch } from "../stores/accounts"
 import * as routes from "../routes"
 
@@ -18,28 +17,26 @@ interface Props {
 }
 
 const HomePage = (props: Props) => (
-  <DialogsConsumer>
-    {({ openDialog }) => (
-      <Section top backgroundColor="white">
-        <Box padding="16px 24px" margin="0 0 -12px" style={{ position: "relative" }}>
-          <Typography color="textSecondary" variant="headline" style={{ marginBottom: 12 }}>
-            {props.networkSwitch.network === "testnet" ? "Testnet Accounts" : "Accounts"}
-          </Typography>
-          <Box style={{ position: "absolute", top: 15, right: 28, zIndex: 2 }}>
-            <Button variant="outlined" onClick={toggleNetwork}>
-              {props.networkSwitch.network === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
-            </Button>
-          </Box>
-        </Box>
+  <Section top brandColored>
+    <Box margin="16px 24px" style={{ position: "relative" }}>
+      <Typography color="inherit" variant="headline" style={{ marginRight: 180, marginBottom: 12 }}>
+        {props.networkSwitch.network === "testnet" ? "Testnet Accounts" : "My Accounts"}
+      </Typography>
+      <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
+        <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
+          {props.networkSwitch.network === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
+        </Button>
+      </Box>
+      <Box margin="16px 0 0">
         <AccountList
           accounts={props.accounts}
           testnet={props.networkSwitch.network === "testnet"}
           onCreatePubnetAccount={() => props.history.push(routes.createAccount(false))}
           onCreateTestnetAccount={() => props.history.push(routes.createAccount(true))}
         />
-      </Section>
-    )}
-  </DialogsConsumer>
+      </Box>
+    </Box>
+  </Section>
 )
 
 export default withRouter<RouteComponentProps<any> & Props>(observer(HomePage))

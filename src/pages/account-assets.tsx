@@ -3,7 +3,6 @@ import { observer } from "mobx-react"
 import React from "react"
 import { match } from "react-router"
 import { Asset } from "stellar-sdk"
-import indigo from "@material-ui/core/colors/indigo"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TrustlineList from "../components/Account/TrustlineList"
@@ -47,7 +46,7 @@ const AccountAssetsPage = (props: {
 
   return (
     <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
-      <Section top backgroundColor={indigo[500]}>
+      <Section top brandColored>
         <AccountHeaderCard account={account} history={props.history} style={{ color: "white" }} />
       </Section>
       <Section>

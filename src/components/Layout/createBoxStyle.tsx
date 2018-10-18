@@ -14,7 +14,9 @@ const removeNullValueProps = (object: { [key: string]: any }) => {
 interface SizingStyles {
   width?: React.CSSProperties["width"]
   height?: React.CSSProperties["height"]
+  minWidth?: React.CSSProperties["minWidth"]
   maxWidth?: React.CSSProperties["maxWidth"]
+  minHeight?: React.CSSProperties["minHeight"]
   maxHeight?: React.CSSProperties["maxHeight"]
   padding?: React.CSSProperties["padding"]
 }
@@ -22,7 +24,9 @@ interface SizingStyles {
 const createSizingStyle = ({
   width = null,
   height = null,
+  minWidth = null,
   maxWidth = null,
+  minHeight = null,
   maxHeight = null,
   padding = 0
 }: SizingStyles) => {
@@ -31,12 +35,14 @@ const createSizingStyle = ({
     width,
     height,
     maxWidth,
-    maxHeight
+    minWidth,
+    maxHeight,
+    minHeight
   }
 }
 
 interface FlexParentStyles {
-  alignItems?: string
+  alignItems?: React.CSSProperties["alignItems"]
   justifyContent?: React.CSSProperties["justifyContent"] | "start" | "end"
   wrap?: React.CSSProperties["flexWrap"]
 }
@@ -62,8 +68,8 @@ const createFlexParentStyle = ({ alignItems, justifyContent, wrap }: FlexParentS
 }
 
 interface FlexChildStyles {
-  grow?: boolean
-  shrink?: boolean
+  grow?: boolean | number
+  shrink?: boolean | number
   fixed?: boolean
   alignSelf?: React.CSSProperties["alignSelf"]
 }
@@ -71,11 +77,17 @@ interface FlexChildStyles {
 const createFlexChildStyle = ({ grow, shrink, fixed, alignSelf }: FlexChildStyles) => {
   const style: React.CSSProperties = {}
 
-  if (grow) {
-    style.flexGrow = 1
+  if (typeof grow === "boolean") {
+    style.flexGrow = grow ? 1 : 0
   }
-  if (shrink) {
-    style.flexShrink = 1
+  if (typeof grow === "number") {
+    style.flexGrow = grow
+  }
+  if (typeof shrink === "boolean") {
+    style.flexShrink = shrink ? 1 : 0
+  }
+  if (typeof shrink === "number") {
+    style.flexShrink = shrink
   }
   if (fixed) {
     style.flexGrow = 0
@@ -87,9 +99,24 @@ const createFlexChildStyle = ({ grow, shrink, fixed, alignSelf }: FlexChildStyle
   return style
 }
 
+interface TextStyles {
+  fontSize?: React.CSSProperties["fontSize"]
+  fontWeight?: React.CSSProperties["fontWeight"]
+  textAlign?: React.CSSProperties["textAlign"]
+}
+
+function createTextStyle({ fontSize, fontWeight, textAlign }: TextStyles) {
+  return {
+    fontSize,
+    fontWeight,
+    textAlign
+  }
+}
+
 export type BoxStyles = SizingStyles &
   FlexParentStyles &
-  FlexChildStyles & {
+  FlexChildStyles &
+  TextStyles & {
     hidden?: boolean
     margin?: React.CSSProperties["margin"]
     overflow?: React.CSSProperties["overflow"]
@@ -105,7 +132,8 @@ const createBoxStyle = (styleProps: BoxStyles) => {
     ...(hidden ? { display: "none" } : {}),
     ...createSizingStyle(styleProps),
     ...createFlexParentStyle(styleProps),
-    ...createFlexChildStyle(styleProps)
+    ...createFlexChildStyle(styleProps),
+    ...createTextStyle(styleProps)
   }
   return removeNullValueProps(style)
 }

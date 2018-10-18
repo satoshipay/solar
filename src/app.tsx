@@ -3,9 +3,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router, Route } from "react-router-dom"
-import { withProps } from "recompose"
+import withProps from "recompose/withProps"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
+import { VerticalLayout } from "./components/Layout/Box"
 import NotificationContainer from "./components/NotificationContainer"
 import OpenDialogs from "./components/OpenDialogs"
 import { DialogsProvider } from "./context/dialogs"
@@ -23,13 +24,15 @@ const App = () => (
   <Router>
     <MuiThemeProvider theme={theme}>
       <DialogsProvider>
-        <Route exact path="/" component={withProps({ accounts, networkSwitch })(AllAccountsPage)} />
-        <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
-        <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
-        <Route exact path="/account/:id" component={withProps({ accounts })(AccountPage)} />
-        <Route exact path="/account/:id/assets" component={withProps({ accounts })(AccountAssetsPage)} />
-        <NotificationContainer notifications={notifications} />
-        <OpenDialogs />
+        <VerticalLayout height="100%">
+          <Route exact path="/" component={withProps({ accounts, networkSwitch })(AllAccountsPage)} />
+          <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
+          <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
+          <Route exact path="/account/:id" component={withProps({ accounts })(AccountPage)} />
+          <Route exact path="/account/:id/assets" component={withProps({ accounts })(AccountAssetsPage)} />
+          <NotificationContainer notifications={notifications} />
+          <OpenDialogs />
+        </VerticalLayout>
       </DialogsProvider>
     </MuiThemeProvider>
   </Router>
@@ -41,3 +44,16 @@ ReactDOM.render(<App />, document.getElementById("app"))
 if (module.hot) {
   module.hot.accept()
 }
+
+// Hide Splash Screen
+setTimeout(() => {
+  const splash = document.getElementById("splash")
+  if (splash) {
+    splash.style.opacity = "0"
+    splash.style.pointerEvents = "none"
+
+    setTimeout(() => {
+      splash.style.display = "none"
+    }, 1000)
+  }
+}, 1000)

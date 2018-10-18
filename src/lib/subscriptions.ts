@@ -1,12 +1,13 @@
 import { observable } from "mobx"
 import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
 import { addError } from "../stores/notifications"
-import { waitForAccountData } from "./account"
+import { loadAccount, waitForAccountData } from "./account"
 import { getHorizonURL } from "./stellar"
 
 export interface AccountObservable {
   activated: boolean
   balances: AccountRecord["balances"]
+  loading: boolean
 }
 
 export interface RecentTxsObservable {
@@ -21,7 +22,8 @@ const accountRecentTxsCache = new Map<string, RecentTxsObservable>()
 function createAccountObservable(horizon: Server, accountPubKey: string) {
   const accountObservable = observable({
     activated: false,
-    balances: []
+    balances: [],
+    loading: true
   })
 
   const subscribeToAccountDataStream = (cursor: string = "now") => {
@@ -57,12 +59,17 @@ function createAccountObservable(horizon: Server, accountPubKey: string) {
       } as any)
   }
 
-  waitForAccountData(horizon, accountPubKey)
-    .then(({ accountData, initialFetchFailed }) => {
-      Object.assign(accountObservable, accountData, { activated: true })
-      subscribeToAccountDataStream(initialFetchFailed ? "0" : "now")
-    })
-    .catch(addError)
+  const fetchAccount = async () => {
+    const initialAccountData = await loadAccount(horizon, accountPubKey)
+    Object.assign(accountObservable, { loading: false })
+
+    const accountData = initialAccountData ? initialAccountData : await waitForAccountData(horizon, accountPubKey)
+
+    Object.assign(accountObservable, accountData, { activated: true })
+    subscribeToAccountDataStream(initialAccountData ? "now" : "0")
+  }
+
+  fetchAccount().catch(addError)
 
   return accountObservable
 }
