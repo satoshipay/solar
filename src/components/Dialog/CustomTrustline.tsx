@@ -1,6 +1,7 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -22,6 +23,7 @@ interface FormValues {
 
 interface FormProps {
   formValues: FormValues
+  txCreationPending: boolean
   setFormValue: (fieldName: keyof FormValues, value: string) => void
   onSubmit: (formValues: FormValues) => void
 }
@@ -57,6 +59,9 @@ const CustomTrustlineForm = (props: FormProps) => {
       />
       <HorizontalLayout margin="32px 0 0" justifyContent="flex-end">
         <Button variant="contained" color="primary" onClick={() => props.onSubmit(props.formValues)}>
+          {props.txCreationPending ? (
+            <CircularProgress size="1.5em" style={{ color: "white", marginRight: 12 }} />
+          ) : null}
           Trust Asset
         </Button>
       </HorizontalLayout>
@@ -74,6 +79,7 @@ interface Props {
 
 interface State {
   formValues: FormValues
+  txCreationPending: boolean
 }
 
 class CustomTrustlineDialog extends React.Component<Props, State> {
@@ -82,18 +88,24 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
       code: "",
       issuerPublicKey: "",
       limit: ""
-    }
+    },
+    txCreationPending: false
   }
 
   addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
       const operations = [Operation.changeTrust({ asset, limit: options.limit })]
+
+      this.setState({ txCreationPending: true })
       const transaction = await createTransaction(operations, {
         horizon: this.props.horizon,
         walletAccount: this.props.account
       })
+
+      this.setState({ txCreationPending: false })
       this.props.sendTransaction(transaction)
     } catch (error) {
+      this.setState({ txCreationPending: false })
       addError(error)
     }
   }
@@ -125,6 +137,7 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
             formValues={this.state.formValues}
             onSubmit={this.addCustomAsset}
             setFormValue={this.setFormValue}
+            txCreationPending={this.state.txCreationPending}
           />
         </DialogContent>
       </Dialog>
