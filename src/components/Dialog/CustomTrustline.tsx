@@ -100,7 +100,7 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
 
   addCustomAsset = async ({ code, issuerPublicKey, limit }: FormValues) => {
     try {
-      await this.addAsset(new Asset(code, issuerPublicKey), { limit })
+      await this.addAsset(new Asset(code, issuerPublicKey), { limit: limit || undefined })
     } catch (error) {
       addError(error)
     }
