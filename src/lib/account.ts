@@ -4,7 +4,7 @@ function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-async function loadAccount(horizon: Server, accountPubKey: string) {
+export async function loadAccount(horizon: Server, accountPubKey: string) {
   try {
     return await horizon.loadAccount(accountPubKey)
   } catch (error) {

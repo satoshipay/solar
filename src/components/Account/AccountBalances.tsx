@@ -86,11 +86,22 @@ export const MultipleBalances = (props: MultipleBalancesProps) => {
   )
 }
 
+const zeroXLMBalance = {
+  asset_type: "native",
+  balance: "0"
+}
+
 const AccountBalances = (props: { publicKey: string; testnet: boolean }) => {
   return (
     <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {(accountData, activated) =>
-        activated ? <MultipleBalances balances={accountData.balances} /> : <InlineLoader />
+      {(accountData, { activated, loading }) =>
+        loading ? (
+          <InlineLoader />
+        ) : activated ? (
+          <MultipleBalances balances={accountData.balances} />
+        ) : (
+          <MultipleBalances balances={[zeroXLMBalance] as any} />
+        )
       }
     </AccountData>
   )
