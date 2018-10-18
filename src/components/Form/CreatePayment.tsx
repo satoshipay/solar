@@ -7,7 +7,8 @@ import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
-import CheckIcon from "@material-ui/icons/Check"
+import SendIcon from "@material-ui/icons/Send"
+import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderFormFieldError } from "../../lib/errors"
 
@@ -162,12 +163,9 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
       </Box>
       <Box margin="64px 0 0" style={{ textAlign: "right" }}>
         <Button variant="contained" color="primary" onClick={handleSubmitEvent} type="submit">
-          {props.txCreationPending ? (
-            <CircularProgress size="1.5em" style={{ color: "white", marginRight: 12 }} />
-          ) : (
-            <CheckIcon style={{ marginRight: 8 }} />
-          )}
-          Confirm
+          <ButtonIconLabel label="Send" loading={props.txCreationPending}>
+            <SendIcon style={{ fontSize: 16 }} />
+          </ButtonIconLabel>
         </Button>
       </Box>
     </form>

@@ -6,10 +6,11 @@ import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import SendIcon from "react-icons/lib/md/send"
-import { createPaymentDialog } from "../components/Dialog/index"
+import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
+import { createPaymentDialog } from "../components/Dialog/index"
 import FriendbotButton from "../components/Account/FriendbotButton"
 import TransactionList from "../components/Account/TransactionList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
@@ -47,8 +48,9 @@ const AccountPage = (props: { accounts: typeof AccountStore; history: History; m
                     paddingRight: 20
                   }}
                 >
-                  <SendIcon style={{ marginTop: -2, marginRight: 8 }} />
-                  Send
+                  <ButtonIconLabel label="Send">
+                    <SendIcon />
+                  </ButtonIconLabel>
                 </Button>
               )}
             </AccountData>

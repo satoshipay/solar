@@ -14,6 +14,7 @@ import QRCodeIcon from "../Icon/QRCode"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 import ToggleSection from "../Layout/ToggleSection"
+import ButtonIconLabel from "../ButtonIconLabel"
 
 export interface AccountCreationValues {
   name: string
@@ -155,13 +156,15 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
         </ToggleSection>
         <HorizontalLayout justifyContent="end" alignItems="center" margin="64px 0 0" width="auto">
           <Button variant="contained" onClick={props.onCancel}>
-            <CloseIcon style={{ marginRight: 8, marginTop: -2 }} />
-            Cancel
+            <ButtonIconLabel label="Cancel">
+              <CloseIcon />
+            </ButtonIconLabel>
           </Button>
           <HorizontalMargin size={16} />
           <Button color="primary" variant="contained" onClick={props.onSubmit} type="submit">
-            <CheckIcon style={{ marginRight: 8, marginTop: -2 }} />
-            {formValues.createNewKey ? "Create Account" : "Import Account"}
+            <ButtonIconLabel label={formValues.createNewKey ? "Create Account" : "Import Account"}>
+              <CheckIcon />
+            </ButtonIconLabel>
           </Button>
         </HorizontalLayout>
       </VerticalLayout>

@@ -14,6 +14,7 @@ import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderFormFieldError } from "../../lib/errors"
 import { changePassword, removePassword as removeAccountPassword, Account } from "../../stores/accounts"
 import { addError, addNotification } from "../../stores/notifications"
+import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
 
 const adornmentLock = (
@@ -77,8 +78,9 @@ const Actions = (props: ActionsProps) => {
         <div />
       )}
       <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
-        <LockIcon style={{ marginRight: 8, marginTop: -2 }} />
-        {props.removePassword ? "Remove password" : "Change password"}
+        <ButtonIconLabel label={props.removePassword ? "Remove password" : "Change password"}>
+          <LockIcon />
+        </ButtonIconLabel>
       </Button>
     </HorizontalLayout>
   )

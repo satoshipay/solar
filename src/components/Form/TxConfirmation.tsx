@@ -1,11 +1,12 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
-import SendIcon from "react-icons/lib/md/send"
+import CheckIcon from "@material-ui/icons/Check"
 import { Transaction } from "stellar-sdk"
 import { renderFormFieldError } from "../../lib/errors"
 import { Account } from "../../stores/accounts"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import ButtonIconLabel from "../ButtonIconLabel"
 import TransactionSummary from "../TransactionSummary"
 
 interface FormValues {
@@ -84,8 +85,9 @@ class TxConfirmationForm extends React.Component<Props, State> {
           ) : null}
           <HorizontalLayout justifyContent="center" margin="24px 0 0" wrap="wrap">
             <Button variant="contained" color="primary" onClick={this.onSubmit} style={{ marginRight: 32 }}>
-              <SendIcon style={{ marginRight: 8 }} />
-              Send
+              <ButtonIconLabel label="Confirm">
+                <CheckIcon />
+              </ButtonIconLabel>
             </Button>
             <Button variant="contained" onClick={onCancel}>
               Cancel
