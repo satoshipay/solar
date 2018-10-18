@@ -48,6 +48,11 @@ const theme = createMuiTheme({
       barColorPrimary: {
         backgroundColor: lightBlue.A200
       }
+    },
+    MuiListSubheader: {
+      sticky: {
+        background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
+      }
     }
   },
   palette: {
