@@ -1,7 +1,6 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -12,6 +11,7 @@ import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
 import TransactionSender from "../TransactionSender"
 import CloseButton from "./CloseButton"
+import ButtonIconLabel from "../ButtonIconLabel"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -60,10 +60,7 @@ const CustomTrustlineForm = (props: FormProps) => {
       />
       <HorizontalLayout margin="32px 0 0" justifyContent="flex-end">
         <Button variant="contained" color="primary" onClick={() => props.onSubmit(props.formValues)}>
-          {props.txCreationPending ? (
-            <CircularProgress size="1.5em" style={{ color: "white", marginRight: 12 }} />
-          ) : null}
-          Trust Asset
+          <ButtonIconLabel label="Trust Asset" loading={props.txCreationPending} />
         </Button>
       </HorizontalLayout>
     </form>

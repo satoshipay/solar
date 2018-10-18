@@ -7,6 +7,7 @@ import TextField from "@material-ui/core/TextField"
 import EditIcon from "@material-ui/icons/Edit"
 import { addError } from "../../stores/notifications"
 import { HorizontalLayout } from "../Layout/Box"
+import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
 
 interface UIProps {
@@ -28,8 +29,9 @@ const RenameDialogUI = (props: UIProps) => {
           <TextField label="Name" fullWidth autoFocus margin="dense" value={props.value} onChange={props.onChange} />
           <HorizontalLayout margin="32px 0 0" justifyContent="end">
             <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
-              <EditIcon style={{ marginRight: 8 }} />
-              Rename
+              <ButtonIconLabel label="Rename">
+                <EditIcon />
+              </ButtonIconLabel>
             </Button>
           </HorizontalLayout>
         </form>

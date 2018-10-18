@@ -1,7 +1,7 @@
 import React from "react"
 import { Server } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
-import CircularProgress from "@material-ui/core/CircularProgress"
+import ButtonIconLabel from "../ButtonIconLabel"
 import { friendbotTopup } from "../../lib/stellar"
 import { addError } from "../../stores/notifications"
 
@@ -36,8 +36,7 @@ class FriendbotButton extends React.Component<Props, State> {
   render() {
     return (
       <Button variant="outlined" onClick={this.topup}>
-        {this.state.pending ? <CircularProgress size="1.5em" style={{ marginRight: 12 }} /> : null}
-        Request top-up from friendbot
+        <ButtonIconLabel label="Request top-up from friendbot" loading={this.state.pending} />
       </Button>
     )
   }
