@@ -34,6 +34,7 @@ const CustomTrustlineForm = (props: FormProps) => {
       <TextField
         label="Code"
         placeholder="EURT, USDT, BTC, ..."
+        autoFocus
         margin="dense"
         name="asset-code"
         value={props.formValues.code}
