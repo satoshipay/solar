@@ -28,6 +28,7 @@ interface SingleBalanceProps {
   assetCode: string
   balance: string
   inline?: boolean
+  style?: React.CSSProperties
 }
 
 export const SingleBalance = (props: SingleBalanceProps) => {
@@ -35,7 +36,7 @@ export const SingleBalance = (props: SingleBalanceProps) => {
   const trimmedUnformattedBalance = trimBalance(parseFloat(props.balance))
   const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
   return (
-    <span>
+    <span style={props.style}>
       <small
         style={{
           fontSize: props.inline ? "100%" : "85%",
@@ -74,11 +75,11 @@ export const MultipleBalances = (props: MultipleBalancesProps) => {
     <>
       {balances.map((balance: any, index) => (
         <React.Fragment key={balance.asset_code || "XLM"}>
-          {index > 0 ? <span style={{ margin: "0 8px", opacity: 0.8 }} /> : null}
           <SingleBalance
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
             inline={props.inline}
+            style={index < balances.length - 1 ? { marginRight: 16 } : undefined}
           />{" "}
         </React.Fragment>
       ))}
