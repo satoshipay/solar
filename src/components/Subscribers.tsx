@@ -12,8 +12,8 @@ import { observer } from "mobx-react"
 import { subscribeToAccount, subscribeToRecentTxs, AccountObservable } from "../lib/subscriptions"
 
 // TODO: Should probably be stored in context
-const horizonLivenet = new Server("https://horizon.stellar.org/")
-const horizonTestnet = new Server("https://horizon-testnet.stellar.org/")
+const horizonLivenet = new Server("https://stellar-horizon.satoshipay.io/")
+const horizonTestnet = new Server("https://stellar-horizon-testnet.satoshipay.io/")
 
 type HorizonRenderProp = (horizon: Server) => React.ReactElement<any>
 
