@@ -1,6 +1,5 @@
 import React from "react"
 import { History, Location } from "history"
-import { observer } from "mobx-react"
 import { withRouter } from "react-router-dom"
 import Card from "@material-ui/core/Card"
 import CardActionArea from "@material-ui/core/CardActionArea"
@@ -9,8 +8,8 @@ import Typography from "@material-ui/core/Typography"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import AddIcon from "@material-ui/icons/Add"
 import AccountBalances from "../components/Account/AccountBalances"
+import { Account } from "../context/accounts"
 import * as routes from "../routes"
-import AccountStore, { Account } from "../stores/accounts"
 import { HorizontalLayout, VerticalLayout } from "./Layout/Box"
 
 const cardStyles: StyleRules = {
@@ -85,7 +84,7 @@ const AddAccountCard = (props: { onClick: () => any; style?: React.CSSProperties
 }
 
 interface AccountListProps {
-  accounts: typeof AccountStore
+  accounts: Account[]
   history: History
   location: Location
   match: any
@@ -109,4 +108,4 @@ const AccountList = (props: AccountListProps) => {
   )
 }
 
-export default withRouter<AccountListProps>(observer(AccountList))
+export default withRouter<AccountListProps>(AccountList)

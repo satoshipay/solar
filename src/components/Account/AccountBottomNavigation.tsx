@@ -7,8 +7,8 @@ import Paper from "@material-ui/core/Paper"
 import MoneyIcon from "@material-ui/icons/AttachMoney"
 import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
 import { withRouter } from "react-router-dom"
+import { Account } from "../../context/accounts"
 import * as routes from "../../routes"
-import { Account } from "../../stores/accounts"
 
 const getSelectedIndexByPath = (path: string) => {
   if (routes.isAccountBasePath(path)) {

@@ -4,7 +4,7 @@ import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import { Transaction, TransactionOperation } from "stellar-sdk"
-import { Account } from "../../stores/accounts"
+import { Account } from "../../context/accounts"
 import TxConfirmationForm from "../Form/TxConfirmation"
 import TestnetBadge from "./TestnetBadge"
 

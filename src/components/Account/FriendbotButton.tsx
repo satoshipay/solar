@@ -2,8 +2,8 @@ import React from "react"
 import { Server } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ButtonIconLabel from "../ButtonIconLabel"
+import { addError } from "../../context/notifications"
 import { friendbotTopup } from "../../lib/stellar"
-import { addError } from "../../stores/notifications"
 
 interface Props {
   horizon: Server

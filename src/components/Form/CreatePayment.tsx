@@ -1,7 +1,6 @@
 import React from "react"
 import { AccountRecord, Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
