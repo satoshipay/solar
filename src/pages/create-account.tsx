@@ -36,7 +36,7 @@ class CreateAccountPage extends React.Component<Props> {
 
   render() {
     return (
-      <Section top backgroundColor="white">
+      <Section top>
         <Box padding="16px 24px" style={{ position: "relative" }}>
           <AccountCreationForm onCancel={this.close} onSubmit={this.createAccount} testnet={this.props.testnet} />
         </Box>

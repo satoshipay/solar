@@ -8,6 +8,8 @@ export interface AccountObservable {
   activated: boolean
   balances: AccountRecord["balances"]
   loading: boolean
+  signers: AccountRecord["signers"]
+  thresholds: AccountRecord["thresholds"]
 }
 
 export interface RecentTxsObservable {
@@ -19,11 +21,17 @@ export interface RecentTxsObservable {
 const accountObservableCache = new Map<string, AccountObservable>()
 const accountRecentTxsCache = new Map<string, RecentTxsObservable>()
 
-function createAccountObservable(horizon: Server, accountPubKey: string) {
+function createAccountObservable(horizon: Server, accountPubKey: string): AccountObservable {
   const accountObservable = observable({
     activated: false,
     balances: [],
-    loading: true
+    loading: true,
+    signers: [],
+    thresholds: {
+      low_threshold: 0,
+      med_threshold: 0,
+      high_threshold: 0
+    }
   })
 
   const subscribeToAccountDataStream = (cursor: string = "now") => {

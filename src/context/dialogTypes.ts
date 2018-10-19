@@ -1,3 +1,8 @@
+/**
+ * Type definitions for the different dialogs.
+ * Implementations can be found in src/components/Dialog/.
+ */
+
 import { Asset } from "stellar-sdk"
 import { Account } from "../context/accounts"
 
