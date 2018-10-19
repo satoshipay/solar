@@ -3,8 +3,8 @@ import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import TxConfirmationDrawer from "../src/components/Dialog/TransactionConfirmation"
+import { Account, AccountsConsumer, AccountsProvider } from "../src/context/accounts"
 import { createPaymentOperation, createTransaction } from "../src/lib/transaction"
-import AccountStore, { Account } from "../src/stores/accounts"
 
 interface DialogContainerProps {
   account: Account
@@ -36,7 +36,7 @@ class DialogContainer extends React.Component<DialogContainerProps> {
 
   render() {
     return (
-      <>
+      <AccountsProvider>
         <Button onClick={() => this.setState({ open: true })} variant="contained">
           Open
         </Button>
@@ -47,35 +47,43 @@ class DialogContainer extends React.Component<DialogContainerProps> {
               transaction: (this.state.transaction as any) as Transaction
             })
           : null}
-      </>
+      </AccountsProvider>
     )
   }
 }
 
 storiesOf("Dialogs", module)
   .add("TxConfirmationDrawer without password", () => (
-    <DialogContainer account={AccountStore[0]}>
-      {({ open, onClose, transaction }) => (
-        <TxConfirmationDrawer
-          account={AccountStore[0]}
-          open={open}
-          transaction={transaction}
-          onClose={onClose}
-          onSubmitTransaction={() => undefined}
-        />
+    <AccountsConsumer>
+      {({ accounts }) => (
+        <DialogContainer account={accounts[0]}>
+          {({ open, onClose, transaction }) => (
+            <TxConfirmationDrawer
+              account={accounts[0]}
+              open={open}
+              transaction={transaction}
+              onClose={onClose}
+              onSubmitTransaction={() => undefined}
+            />
+          )}
+        </DialogContainer>
       )}
-    </DialogContainer>
+    </AccountsConsumer>
   ))
   .add("TxConfirmationDrawer with password", () => (
-    <DialogContainer account={AccountStore[1]}>
-      {({ open, onClose, transaction }) => (
-        <TxConfirmationDrawer
-          account={AccountStore[1]}
-          open={open}
-          transaction={transaction}
-          onClose={onClose}
-          onSubmitTransaction={() => undefined}
-        />
+    <AccountsConsumer>
+      {({ accounts }) => (
+        <DialogContainer account={accounts[1]}>
+          {({ open, onClose, transaction }) => (
+            <TxConfirmationDrawer
+              account={accounts[1]}
+              open={open}
+              transaction={transaction}
+              onClose={onClose}
+              onSubmitTransaction={() => undefined}
+            />
+          )}
+        </DialogContainer>
       )}
-    </DialogContainer>
+    </AccountsConsumer>
   ))
