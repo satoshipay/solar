@@ -8,6 +8,11 @@ import { List, ListItem } from "./List"
 
 // TODO: Use <AccountName /> everywhere, instead of just <small>
 
+function prettifyCamelcase(identifier: string) {
+  const prettified = identifier.replace(/[A-Z]/g, letter => ` ${letter.toLowerCase()}`)
+  return prettified.charAt(0).toUpperCase() + prettified.substr(1)
+}
+
 const OperationDetails = (props: { children: React.ReactNode }) => (
   <div style={{ fontSize: "80%", marginTop: 8, marginLeft: 16 }}>{props.children}</div>
 )
@@ -101,16 +106,16 @@ const DefaultOperation = (props: { operation: TransactionOperation; style?: Reac
     .filter(propName => Boolean((props.operation as any)[propName]))
 
   const operationDetailLines = operationPropNames.map(
-    propName => `${propName}: ${JSON.stringify((props.operation as any)[propName], null, 2)}`
+    propName => `${prettifyCamelcase(propName)}: ${JSON.stringify((props.operation as any)[propName], null, 2)}`
   )
   const operationDetails = operationDetailLines.join("\n")
 
   return (
     <ListItem
-      heading={<Typography color="textSecondary">{formatOperationType(props.operation.type)}</Typography>}
+      heading={<Typography>{formatOperationType(props.operation.type)}</Typography>}
       primaryText={
         <OperationDetails>
-          <pre style={{ fontSize: "90%" }}>{operationDetails}</pre>
+          <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{operationDetails}</pre>
         </OperationDetails>
       }
       style={props.style}
