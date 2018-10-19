@@ -1,26 +1,18 @@
 import React from "react"
 import { History, Location } from "history"
 import { withRouter } from "react-router-dom"
-import Card from "@material-ui/core/Card"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import AddIcon from "@material-ui/icons/Add"
 import AccountBalances from "../components/Account/AccountBalances"
+import { CardList, CardListCard } from "../components/CardList"
 import { Account } from "../context/accounts"
 import * as routes from "../routes"
-import { HorizontalLayout, VerticalLayout } from "./Layout/Box"
+import { VerticalLayout } from "./Layout/Box"
 
 const cardStyles: StyleRules = {
-  card: {
-    width: "47%",
-    minWidth: 250,
-    maxWidth: 500,
-    flexGrow: 1,
-    margin: "12px 1%",
-    borderRadius: 8
-  },
   cardActionArea: {
     width: "100%",
     height: "100%"
@@ -42,11 +34,11 @@ const StyledCard = withStyles(cardStyles)(
     style?: React.CSSProperties
   }) => {
     return (
-      <Card className={props.classes.card} elevation={props.elevation} onClick={props.onClick} style={props.style}>
+      <CardListCard elevation={props.elevation} onClick={props.onClick} style={props.style}>
         <CardActionArea className={props.classes.cardActionArea} centerRipple>
           <CardContent className={props.classes.content}>{props.children}</CardContent>
         </CardActionArea>
-      </Card>
+      </CardListCard>
     )
   }
 )
@@ -98,13 +90,12 @@ const AccountList = (props: AccountListProps) => {
   const accounts = props.accounts.filter(account => account.testnet === props.testnet)
 
   return (
-    <HorizontalLayout justifyContent="space-evenly" wrap="wrap" margin="0 -1%" width="102%">
+    <CardList addInvisibleCard={accounts.length % 2 === 0}>
       <AddAccountCard onClick={props.testnet ? props.onCreateTestnetAccount : props.onCreatePubnetAccount} />
       {accounts.map((account, index) => (
         <AccountCard key={account.id} account={account} history={props.history} />
       ))}
-      {accounts.length % 2 ? null : <StyledCard style={{ visibility: "hidden" }} />}
-    </HorizontalLayout>
+    </CardList>
   )
 }
 
