@@ -117,7 +117,6 @@ export class AccountsProvider extends React.Component<Props, State> {
     }
 
     const id = accountData.id || createNextID(accounts)
-    const account = createAccountInstance(id)
 
     await keyStore.saveKey(
       id,
@@ -130,6 +129,9 @@ export class AccountsProvider extends React.Component<Props, State> {
         testnet: accountData.testnet
       }
     )
+
+    // Must happen after updating the key store
+    const account = createAccountInstance(id)
 
     this.setState(state => ({
       accounts: state.accounts.concat([account])
