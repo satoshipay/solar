@@ -13,6 +13,7 @@ import { HorizontalMargin } from "../Layout/Spacing"
 import SignersEditor from "./SignersEditor"
 import { AccountData } from "../Subscribers"
 
+const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
 const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
 
 interface ActionsProps {
@@ -77,7 +78,13 @@ class ManageSignersForm extends React.Component<Props, State> {
   state: State = {
     signersToAdd: [],
     signersToRemove: [],
-    weightThreshold: "1"
+    weightThreshold: String(
+      max([
+        this.props.accountData.thresholds.low_threshold,
+        this.props.accountData.thresholds.med_threshold,
+        this.props.accountData.thresholds.high_threshold
+      ])
+    )
   }
 
   getUpdatedSigners = () => {
