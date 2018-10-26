@@ -8,8 +8,9 @@ import ExchangeIcon from "react-icons/lib/fa/exchange"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
-import { formatOperationType, selectNetwork } from "../../lib/transaction"
+import { selectNetwork } from "../../lib/transaction"
 import { List, ListItem } from "../List"
+import { HumanReadableOperation } from "../TransactionSummary"
 import { MultipleBalances } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
@@ -97,7 +98,16 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
       <>Trust asset {operation.line.code}</>
     )
   } else {
-    return <>{props.transaction.operations.map(operation => formatOperationType(operation.type)).join(", ")}</>
+    return (
+      <>
+        {props.transaction.operations.map((operation, index) => (
+          <span>
+            {index > 0 ? <>,&nbsp;</> : ""}
+            <HumanReadableOperation key={index} operation={operation} />
+          </span>
+        ))}
+      </>
+    )
   }
 }
 
