@@ -29,7 +29,7 @@ const ShortPublicKey = ({ publicKey, variant }: Props) => {
     return <>{publicKey}</>
   }
   return (
-    <Typography style={{ fontWeight: "bold" }}>
+    <Typography component="span" style={{ display: "inline", fontWeight: "bold" }}>
       {publicKey.substr(0, digits.leading) + "…" + publicKey.substr(-digits.trailing)}
     </Typography>
   )
