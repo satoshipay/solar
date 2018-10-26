@@ -64,6 +64,11 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
     })
   }
 
+  onManageSigners = () => {
+    const route = routes.manageAccountSigners(this.props.account.id)
+    this.props.history.push(route)
+  }
+
   onRename = () => {
     const { account, openDialog, renameAccount } = this.props
     openDialog({
@@ -107,6 +112,7 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
                 onChangePassword={this.onChangePassword}
                 onDelete={this.onDelete}
                 onExport={this.onExport}
+                onManageSigners={this.onManageSigners}
                 onRename={this.onRename}
                 style={{ marginTop: -8, marginRight: -16, fontSize: 32 }}
               />

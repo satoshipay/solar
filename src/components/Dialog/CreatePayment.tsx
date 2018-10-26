@@ -32,16 +32,12 @@ interface Props {
 }
 
 interface State {
-  submissionFailed: boolean
-  submissionPromise: Promise<any> | null
   transaction: Transaction | null
   txCreationPending: boolean
 }
 
 class CreatePaymentDialog extends React.Component<Props, State> {
   state: State = {
-    submissionFailed: false,
-    submissionPromise: null,
     transaction: null,
     txCreationPending: false
   }

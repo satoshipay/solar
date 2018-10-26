@@ -29,7 +29,10 @@ const theme = createMuiTheme({
         color: brandColor.dark
       },
       containedPrimary: {
-        borderColor: grey["200"]
+        borderColor: grey["200"],
+        "&$disabled": {
+          borderColor: "rgba(64, 64, 64, 0.5)"
+        }
       },
       flatPrimary: {
         color: brandColor.dark

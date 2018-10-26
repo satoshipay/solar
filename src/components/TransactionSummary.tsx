@@ -3,14 +3,42 @@ import Typography from "@material-ui/core/Typography"
 import { Memo, Operation, Transaction, TransactionOperation } from "stellar-sdk"
 import { SingleBalance } from "./Account/AccountBalances"
 import { trustlineLimitEqualsUnlimited } from "../lib/stellar"
-import { formatOperationType } from "../lib/transaction"
 import { List, ListItem } from "./List"
+import ShortPublicKey from "./ShortPublicKey"
 
 // TODO: Use <AccountName /> everywhere, instead of just <small>
+
+const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 
 function prettifyCamelcase(identifier: string) {
   const prettified = identifier.replace(/[A-Z]/g, letter => ` ${letter.toLowerCase()}`)
   return prettified.charAt(0).toUpperCase() + prettified.substr(1)
+}
+
+export const HumanReadableOperation = (props: { operation: TransactionOperation }) => {
+  const { operation } = props
+  if (operation.type === "setOptions") {
+    if (operation.signer && typeof operation.signer.weight === "number") {
+      const signerPublicKey = String(operation.signer.ed25519PublicKey)
+      if (operation.signer.weight > 0) {
+        return (
+          <>
+            Add signer: <ShortPublicKey publicKey={signerPublicKey} variant="shorter" />
+          </>
+        )
+      } else if (operation.signer.weight === 0) {
+        return (
+          <>
+            Remove signer: <ShortPublicKey publicKey={signerPublicKey} variant="shorter" />
+          </>
+        )
+      }
+    } else if (operation.lowThreshold || operation.medThreshold || operation.highThreshold) {
+      return <>Change key thresholds</>
+    }
+  }
+  const formattedType = uppercaseFirstLetter(operation.type.replace(/([A-Z])/g, letter => " " + letter))
+  return <>{formattedType}</>
 }
 
 const OperationDetails = (props: { children: React.ReactNode }) => (
@@ -112,7 +140,11 @@ const DefaultOperation = (props: { operation: TransactionOperation; style?: Reac
 
   return (
     <ListItem
-      heading={<Typography>{formatOperationType(props.operation.type)}</Typography>}
+      heading={
+        <Typography>
+          <HumanReadableOperation operation={props.operation} />
+        </Typography>
+      }
       primaryText={
         <OperationDetails>
           <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{operationDetails}</pre>

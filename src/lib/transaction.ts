@@ -2,12 +2,6 @@ import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, T
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
 
-const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
-
-export function formatOperationType(operationType: string) {
-  return uppercaseFirstLetter(operationType.replace(/([A-Z])/g, letter => " " + letter))
-}
-
 export function selectNetwork(testnet = false) {
   if (testnet) {
     Network.useTestNetwork()

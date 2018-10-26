@@ -29,9 +29,24 @@ const initialKeys: KeysData<PublicKeyData> = {
     },
     private:
       "5VzbN/Y5S1CfizJnnIejm8ku4KsG5cPvRht6BoZ8HalOOKdOt66Ra/rjoNlMbh45Et+25iGggzj+IlFvpepmuaEFcdqj5myEJspcy4GGwn+9TtA+KmUDcRI="
+  },
+  "3": {
+    metadata: {
+      nonce: "ChxQagEiuX/R98SEtdL/vT8HiebThI5X",
+      iterations: 10000
+    },
+    public: {
+      name: "Multisig Account",
+      password: false,
+      publicKey: "GDNVDG37WMKPEIXSJRBAQAVPO5WGOPKZRZZBPLWXULSX6NQNLNQP6CFF",
+      testnet: true
+    },
+    private:
+      "XFZM+iKm5YM6v2KdABGyczb9D51IdFPM3ibRhrVGfMonOKV8dVKvqC9JA1ylfcbEpzUaIUwPBjAxk7SIgcGhtjrqenp0Bj1QPqZwSWmAB5q5pfb5aLTdwVc="
   }
 }
 
 export default function createKeyStore() {
-  return createStore<PrivateKeyData, PublicKeyData>(() => undefined, initialKeys)
+  // tslint:disable-next-line
+  return createStore<PrivateKeyData, PublicKeyData>(data => console.log("Key store update:", data), initialKeys)
 }
