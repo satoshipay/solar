@@ -71,7 +71,7 @@ class ManageSignersPage extends React.Component<Props, State> {
 
   render() {
     return (
-      <Section top>
+      <Section top brandColored>
         <Box padding="16px 24px" style={{ position: "relative" }}>
           <ManageSignersForm account={this.props.account} onCancel={this.cancel} onSubmit={this.createTransaction} />
         </Box>

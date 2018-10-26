@@ -8,7 +8,7 @@ import CloseIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { renderFormFieldError } from "../../lib/errors"
 import ButtonIconLabel from "../ButtonIconLabel"
-import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 import SignersEditor from "./SignersEditor"
 import { AccountData } from "../Subscribers"
@@ -27,11 +27,17 @@ interface ActionsProps {
 
 const Actions = (props: ActionsProps) => {
   return (
-    <HorizontalLayout justifyContent="space-between" alignItems="center" margin="64px 0 0">
+    <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0">
       <TextField
         error={!!props.error}
         label={props.error ? renderFormFieldError(props.error) : "Key weight threshold"}
         onChange={event => props.onWeightThresholdUpdate(event.target.value)}
+        InputLabelProps={{
+          style: { color: "white" }
+        }}
+        inputProps={{
+          style: { color: "white" }
+        }}
         value={props.weightThreshold}
         variant="outlined"
       />
@@ -151,8 +157,16 @@ class ManageSignersForm extends React.Component<Props, State> {
 
     return (
       <VerticalLayout minHeight="400px" justifyContent="space-between">
-        <Typography variant="headline">{account.name} Signers</Typography>
-        <SignersEditor addSigner={this.addSigner} removeSigner={this.removeSigner} signers={this.getUpdatedSigners()} />
+        <Typography variant="headline" style={{ color: "white" }}>
+          {account.name} Signers
+        </Typography>
+        <Box margin="20px 0 0">
+          <SignersEditor
+            addSigner={this.addSigner}
+            removeSigner={this.removeSigner}
+            signers={this.getUpdatedSigners()}
+          />
+        </Box>
         <Actions
           disabled={signersToAdd.length === 0 && signersToRemove.length === 0}
           error={weightThresholdError}
