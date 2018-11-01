@@ -2,6 +2,15 @@ import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, T
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
 
+const dedupe = <T>(array: T[]) => Array.from(new Set(array))
+
+function getAllSources(tx: Transaction) {
+  return dedupe([
+    tx.source,
+    ...(tx.operations.map(operation => operation.source).filter(source => Boolean(source)) as string[])
+  ])
+}
+
 export function selectNetwork(testnet = false) {
   if (testnet) {
     Network.useTestNetwork()
@@ -82,4 +91,21 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
 
   transaction.sign(Keypair.fromSecret(privateKey))
   return transaction
+}
+
+export async function requiresRemoteSignatures(horizon: Server, transaction: Transaction, walletPublicKey: string) {
+  const sources = getAllSources(transaction)
+
+  if (sources.length > 1) {
+    return true
+  }
+
+  const accounts = await Promise.all(sources.map(sourcePublicKey => horizon.loadAccount(sourcePublicKey)))
+
+  return accounts.some(account => {
+    const thisWalletSigner = account.signers.find(signer => signer.public_key === walletPublicKey)
+
+    // requires another signature?
+    return thisWalletSigner ? thisWalletSigner.weight < account.thresholds.high_threshold : true
+  })
 }
