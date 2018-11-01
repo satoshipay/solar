@@ -84,7 +84,7 @@ class TxConfirmationForm extends React.Component<Props, State> {
             />
           ) : null}
           <HorizontalLayout justifyContent="center" margin="24px 0 0" wrap="wrap">
-            <Button variant="contained" color="primary" onClick={this.onSubmit} style={{ marginRight: 32 }}>
+            <Button variant="contained" color="primary" style={{ marginRight: 32 }} type="submit">
               <ButtonIconLabel label="Confirm">
                 <CheckIcon />
               </ButtonIconLabel>
