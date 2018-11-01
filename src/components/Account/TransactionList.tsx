@@ -101,7 +101,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
     return (
       <>
         {props.transaction.operations.map((operation, index) => (
-          <span>
+          <span key={index}>
             {index > 0 ? <>,&nbsp;</> : ""}
             <HumanReadableOperation key={index} operation={operation} />
           </span>
