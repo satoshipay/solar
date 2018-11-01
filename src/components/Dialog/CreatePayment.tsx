@@ -10,7 +10,6 @@ import { createPaymentOperation, createTransaction } from "../../lib/transaction
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
-import CloseButton from "./CloseButton"
 import TestnetBadge from "./TestnetBadge"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
@@ -90,7 +89,6 @@ class CreatePaymentDialog extends React.Component<Props, State> {
             maxWidth: "700px"
           }}
         >
-          <CloseButton onClick={this.props.onClose} />
           <CardContent style={{ paddingTop: 24 }}>
             <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
               Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
