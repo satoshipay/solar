@@ -4,9 +4,12 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import { Account } from "../context/accounts"
 import { addError } from "../context/notifications"
+import { getMultisigServiceURL } from "../feature-flags"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
-import { signTransaction } from "../lib/transaction"
+import { createSignatureRequestURI, submitSignatureRequest } from "../lib/multisig-service"
+import { networkPassphrases } from "../lib/stellar"
+import { requiresRemoteSignatures, signTransaction } from "../lib/transaction"
 import TxConfirmationDrawer from "./Dialog/TransactionConfirmation"
 import SubmissionProgress from "./SubmissionProgress"
 import { Horizon } from "./Subscribers"
@@ -88,14 +91,16 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
-    const { onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
+    const { account, horizon, onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
 
     try {
       const signedTx = await signTransaction(transaction, this.props.account, formValues.password)
-      const promise = this.props.horizon.submitTransaction(signedTx)
 
-      this.setSubmissionPromise(promise)
-      await promise
+      if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
+        await this.submitTransactionToMultisigService(signedTx)
+      } else {
+        await this.submitTransactionToHorizon(signedTx)
+      }
 
       onSubmissionCompleted(signedTx)
     } catch (error) {
@@ -103,14 +108,36 @@ class TransactionSender extends React.Component<Props, State> {
         return this.setSubmissionPromise(Promise.reject(error))
       }
 
-      error = explainSubmissionError(error)
-
       if (onSubmissionFailure) {
         onSubmissionFailure(error, transaction)
       } else {
         addError(error)
       }
     }
+  }
+
+  submitTransactionToHorizon = async (signedTransaction: Transaction) => {
+    try {
+      const promise = this.props.horizon.submitTransaction(signedTransaction)
+
+      this.setSubmissionPromise(promise)
+      return await promise
+    } catch (error) {
+      const refinedError = explainSubmissionError(error)
+
+      // re-throw
+      throw refinedError
+    }
+  }
+
+  submitTransactionToMultisigService = async (signedTransaction: Transaction) => {
+    const signatureRequestURI = createSignatureRequestURI(signedTransaction, {
+      network_passphrase: this.props.account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet
+    })
+    const promise = submitSignatureRequest(getMultisigServiceURL(), signatureRequestURI)
+
+    this.setSubmissionPromise(promise)
+    return promise
   }
 
   render() {
