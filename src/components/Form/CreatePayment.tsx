@@ -85,11 +85,12 @@ interface PaymentCreationFormProps {
   trustedAssets: Asset[]
   txCreationPending?: boolean
   setFormValue: (fieldName: keyof PaymentCreationValues, value: string) => void
+  onCancel: () => void
   onSubmit: () => void
 }
 
 const PaymentCreationForm = (props: PaymentCreationFormProps) => {
-  const { errors, formValues, setFormValue, onSubmit } = props
+  const { errors, formValues, setFormValue, onCancel, onSubmit } = props
 
   const handleSubmitEvent = (event: React.SyntheticEvent) => {
     event.preventDefault()
@@ -160,13 +161,16 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
           <div />
         )}
       </Box>
-      <Box margin="64px 0 0" style={{ textAlign: "right" }}>
-        <Button variant="contained" color="primary" onClick={handleSubmitEvent} type="submit">
+      <HorizontalLayout margin="64px 0 0" justifyContent="end">
+        <Button variant="contained" color="primary" style={{ marginRight: 32 }} type="submit">
           <ButtonIconLabel label="Send" loading={props.txCreationPending}>
             <SendIcon style={{ fontSize: 16 }} />
           </ButtonIconLabel>
         </Button>
-      </Box>
+        <Button variant="contained" onClick={onCancel}>
+          Cancel
+        </Button>
+      </HorizontalLayout>
     </form>
   )
 }
@@ -175,6 +179,7 @@ interface Props {
   balances: AccountRecord["balances"]
   trustedAssets: Asset[]
   txCreationPending?: boolean
+  onCancel: () => void
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 

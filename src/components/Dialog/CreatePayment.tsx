@@ -98,6 +98,7 @@ class CreatePaymentDialog extends React.Component<Props, State> {
             <div style={{ marginTop: 40 }}>
               <CreatePaymentForm
                 balances={this.props.balances}
+                onCancel={this.props.onClose}
                 onSubmit={this.createTransaction}
                 trustedAssets={trustedAssets}
                 txCreationPending={this.state.txCreationPending}
