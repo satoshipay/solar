@@ -135,7 +135,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
             <TextField
               disabled={Boolean(formValues.createNewKey)}
               error={Boolean(errors.privateKey)}
-              label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Private key"}
+              label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Secret key"}
               placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
               fullWidth
               margin="normal"
