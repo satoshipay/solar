@@ -63,6 +63,14 @@ class TransactionSender extends React.Component<Props, State> {
     transaction: null
   }
 
+  submissionTimeout: NodeJS.Timer | null = null
+
+  componentWillUnmount() {
+    if (this.submissionTimeout) {
+      clearTimeout(this.submissionTimeout)
+    }
+  }
+
   clearTransaction = () => {
     this.setState({ transaction: null })
   }
@@ -80,7 +88,7 @@ class TransactionSender extends React.Component<Props, State> {
 
     submissionPromise.then(() => {
       // Auto-close submission progress overlay shortly after submission successfully done
-      setTimeout(() => {
+      this.submissionTimeout = setTimeout(() => {
         this.clearSubmissionPromise()
         this.clearTransaction()
       }, 1200)
