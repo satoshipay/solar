@@ -9,9 +9,10 @@ import { MuiThemeProvider } from "@material-ui/core/styles"
 import { VerticalLayout } from "./components/Layout/Box"
 import NotificationContainer from "./components/NotificationContainer"
 import OpenDialogs from "./components/OpenDialogs"
-import { AccountsProvider } from "./context/accounts"
+import { AccountsConsumer, AccountsProvider } from "./context/accounts"
 import { DialogsProvider } from "./context/dialogs"
 import { NotificationsProvider } from "./context/notifications"
+import { SignatureDelegationProvider } from "./context/signatureDelegation"
 import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
 import AccountAssetsPage from "./pages/account-assets"
@@ -25,7 +26,13 @@ const Providers = (props: { children: React.ReactNode }) => {
   return (
     <AccountsProvider>
       <DialogsProvider>
-        <NotificationsProvider>{props.children}</NotificationsProvider>
+        <NotificationsProvider>
+          <AccountsConsumer>
+            {({ accounts }) => (
+              <SignatureDelegationProvider accounts={accounts}>{props.children}</SignatureDelegationProvider>
+            )}
+          </AccountsConsumer>
+        </NotificationsProvider>
       </DialogsProvider>
     </AccountsProvider>
   )

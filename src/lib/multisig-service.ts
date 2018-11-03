@@ -1,6 +1,40 @@
 import fetch from "isomorphic-fetch"
 import qs from "qs"
 import { Transaction } from "stellar-sdk"
+import { addError } from "../context/notifications"
+
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
+
+export interface ServerSentEvent {
+  data: string | string[]
+  event?: string
+  id?: string
+  retry?: number
+}
+
+export interface SignatureRequestSigner {
+  account_id: string
+  has_signed: boolean
+}
+
+export interface SignatureRequest {
+  hash: string
+  request_uri: string
+  created_at: string
+  updated_at: string
+  completed_at: string
+
+  // Parsed request URI
+  meta: {
+    callbackURL: string
+    operation: string
+    transaction: Transaction
+  }
+
+  _embedded: {
+    signers: SignatureRequestSigner[]
+  }
+}
 
 export interface TxParameters {
   callback?: string
@@ -11,6 +45,8 @@ export interface TxParameters {
   signature?: string
 }
 
+const dedupe = <T>(array: T[]) => Array.from(new Set(array))
+
 function urlJoin(baseURL: string, path: string) {
   if (baseURL.charAt(baseURL.length - 1) === "/" && path.charAt(0) === "/") {
     return baseURL + path.substr(1)
@@ -18,6 +54,33 @@ function urlJoin(baseURL: string, path: string) {
     return baseURL + path
   } else {
     return baseURL + "/" + path
+  }
+}
+
+function parseRequestURI(requestURI: string) {
+  if (!requestURI.startsWith("web+stellar:")) {
+    throw new Error("Expected request to start with 'web+stellar:'")
+  }
+
+  const [operation, queryString] = requestURI.replace(/^web\+stellar:/, "").split("?", 2)
+  const parameters = qs.parse(queryString)
+
+  return {
+    operation,
+    parameters
+  }
+}
+
+function deserializeSignatureRequest(rawSignatureRequest: Omit<SignatureRequest, "meta">): SignatureRequest {
+  const { operation, parameters } = parseRequestURI(rawSignatureRequest.request_uri)
+
+  return {
+    ...rawSignatureRequest,
+    meta: {
+      operation,
+      callbackURL: parameters.callback,
+      transaction: new Transaction(parameters.xdr)
+    }
   }
 }
 
@@ -56,4 +119,80 @@ export async function submitSignatureRequest(serviceURL: string, signatureReques
   }
 
   return response
+}
+
+export async function fetchSignatureRequests(serviceURL: string, accountIDs: string[]) {
+  const url = urlJoin(serviceURL, `/requests/${dedupe(accountIDs).join(",")}`)
+  const response = await fetch(url)
+  const responseBody = await response.json()
+
+  return (responseBody as any[]).map(deserializeSignatureRequest)
+}
+
+function deserializeSignatureRequestData(messageData: string | string[]) {
+  const jsonResponses = Array.isArray(messageData) ? messageData : [messageData]
+  const signatureRequests = jsonResponses.map(jsonResponse => deserializeSignatureRequest(JSON.parse(jsonResponse)))
+  return signatureRequests
+}
+
+interface SubscriptionHandlers {
+  onNewSignatureRequest?: (signatureRequest: SignatureRequest) => void
+  onSignatureRequestUpdate?: (signatureRequest: SignatureRequest) => void
+  onSignatureRequestSubmitted?: (signatureRequest: SignatureRequest) => void
+  onError?: (error: Error) => void
+}
+
+export function subscribeToSignatureRequests(serviceURL: string, accountIDs: string[], handlers: SubscriptionHandlers) {
+  if (accountIDs.length === 0) {
+    return () => undefined
+  }
+
+  const { onError = addError, onNewSignatureRequest, onSignatureRequestUpdate, onSignatureRequestSubmitted } = handlers
+
+  const eventSource = new EventSource(urlJoin(serviceURL, `/stream/${dedupe(accountIDs).join(",")}`))
+
+  if (onNewSignatureRequest) {
+    eventSource.addEventListener(
+      "signature-request",
+      ((message: ServerSentEvent) => {
+        for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
+          onNewSignatureRequest(signatureRequest)
+        }
+      }) as any,
+      false
+    )
+  }
+
+  if (onSignatureRequestUpdate) {
+    eventSource.addEventListener(
+      "signature-request:updated",
+      ((message: ServerSentEvent) => {
+        for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
+          onSignatureRequestUpdate(signatureRequest)
+        }
+      }) as any,
+      false
+    )
+  }
+
+  if (onSignatureRequestSubmitted) {
+    eventSource.addEventListener(
+      "signature-request:submitted",
+      ((message: ServerSentEvent) => {
+        for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
+          onSignatureRequestSubmitted(signatureRequest)
+        }
+      }) as any,
+      false
+    )
+  }
+
+  eventSource.onerror = () => {
+    // No need to manually reconnect, since auto-reconnect is part of the protocol
+    onError(new Error("Multisig service event stream crashed."))
+  }
+
+  return function unsubscribe() {
+    eventSource.close()
+  }
 }

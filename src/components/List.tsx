@@ -43,7 +43,11 @@ const ListItem = (props: ListItemProps) => {
     </div>
   )
   return (
-    <MaterialListItem button={props.button} onClick={props.onClick || noop} style={props.style}>
+    <MaterialListItem
+      button={props.button || Boolean(props.onClick)}
+      onClick={props.onClick || noop}
+      style={props.style}
+    >
       <MaterialListItemText primary={content} />
     </MaterialListItem>
   )

@@ -10,7 +10,8 @@ import AccountBottomNavigation from "../components/Account/AccountBottomNavigati
 import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
-import TransactionList from "../components/Account/TransactionList"
+import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
+import { TransactionList } from "../components/Account/TransactionList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import { AccountData, Transactions } from "../components/Subscribers"
@@ -20,6 +21,8 @@ import { Section } from "../components/Layout/Page"
 import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
 import { DialogsConsumer } from "../context/dialogs"
 import { DialogBlueprint, DialogType } from "../context/dialogTypes"
+import { SignatureDelegationConsumer } from "../context/signatureDelegation"
+import { isMultisigEnabled } from "../feature-flags"
 
 function createPaymentDialog(account: Account): DialogBlueprint {
   return {
@@ -92,12 +95,27 @@ const AccountPage = (props: Props) => {
                 <CircularProgress />
               </div>
             ) : activated ? (
-              <TransactionList
-                accountPublicKey={account.publicKey}
-                title="Recent transactions"
-                testnet={account.testnet}
-                transactions={transactions}
-              />
+              <>
+                {isMultisigEnabled() ? (
+                  <SignatureDelegationConsumer>
+                    {({ pendingSignatureRequests }) => (
+                      <InteractiveSignatureRequestList
+                        account={account}
+                        signatureRequests={pendingSignatureRequests.filter(request =>
+                          request._embedded.signers.some(signer => signer.account_id === account.publicKey)
+                        )}
+                        title="Pending transactions to co-sign"
+                      />
+                    )}
+                  </SignatureDelegationConsumer>
+                ) : null}
+                <TransactionList
+                  accountPublicKey={account.publicKey}
+                  title="Recent transactions"
+                  testnet={account.testnet}
+                  transactions={transactions}
+                />
+              </>
             ) : (
               <>
                 <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
