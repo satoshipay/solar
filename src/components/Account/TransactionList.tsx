@@ -9,6 +9,7 @@ import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
+import { HorizontalLayout } from "../Layout/Box"
 import { List, ListItem } from "../List"
 import { HumanReadableOperation } from "../TransactionSummary"
 import { MultipleBalances } from "./AccountBalances"
@@ -115,18 +116,22 @@ const TooltipTitle = (props: { children: React.ReactNode }) => {
   return <span style={{ fontSize: "110%" }}>{props.children}</span>
 }
 
-const TransactionListItem = (props: { accountPublicKey: string; transaction: Transaction }) => {
-  const { accountPublicKey, transaction } = props
+interface TransactionListItemProps {
+  accountPublicKey: string
+  createdAt: string
+  icon?: React.ReactNode
+  onClick?: () => void
+  transaction: Transaction
+}
 
-  const createdAt = new Date((transaction as TransactionWithUndocumentedProps).created_at)
-  const paymentSummary = getPaymentSummary(accountPublicKey, transaction)
+export const TransactionListItem = (props: TransactionListItemProps) => {
+  const createdAt = new Date(props.createdAt)
+  const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
   return (
     <ListItem
       leftIcon={
-        <span style={{ fontSize: "125%" }}>
-          <TransactionIcon paymentSummary={paymentSummary} />
-        </span>
+        <span style={{ fontSize: "125%" }}>{props.icon || <TransactionIcon paymentSummary={paymentSummary} />}</span>
       }
       heading={
         <Tooltip title={<TooltipTitle>{createdAt.toLocaleString()}</TooltipTitle>}>
@@ -136,15 +141,19 @@ const TransactionListItem = (props: { accountPublicKey: string; transaction: Tra
         </Tooltip>
       }
       primaryText={
-        <div style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-          <TitleText paymentSummary={paymentSummary} transaction={transaction} />
-        </div>
+        <HorizontalLayout>
+          <div style={{ flexGrow: 1, overflow: "hidden", textOverflow: "ellipsis" }}>
+            <TitleText paymentSummary={paymentSummary} transaction={props.transaction} />
+          </div>
+          {/* TODO: Action buttons */}
+        </HorizontalLayout>
       }
+      onClick={props.onClick}
     />
   )
 }
 
-const TransactionList = (props: {
+export const TransactionList = (props: {
   accountPublicKey: string
   testnet: boolean
   title: React.ReactNode
@@ -155,16 +164,15 @@ const TransactionList = (props: {
 
   return (
     <List>
-      <ListSubheader style={{ background: "rgba(255, 255, 255, 0.8)" }}>{props.title}</ListSubheader>
+      <ListSubheader>{props.title}</ListSubheader>
       {props.transactions.map(transaction => (
         <TransactionListItem
           key={transaction.hash().toString("hex")}
           accountPublicKey={props.accountPublicKey}
+          createdAt={(transaction as TransactionWithUndocumentedProps).created_at}
           transaction={transaction}
         />
       ))}
     </List>
   )
 }
-
-export default TransactionList
