@@ -23,6 +23,7 @@ import { DialogsConsumer } from "../context/dialogs"
 import { DialogBlueprint, DialogType } from "../context/dialogTypes"
 import { SignatureDelegationConsumer } from "../context/signatureDelegation"
 import { isMultisigEnabled } from "../feature-flags"
+import { hasSigned } from "../lib/transaction"
 
 function createPaymentDialog(account: Account): DialogBlueprint {
   return {
@@ -99,13 +100,26 @@ const AccountPage = (props: Props) => {
                 {isMultisigEnabled() ? (
                   <SignatureDelegationConsumer>
                     {({ pendingSignatureRequests }) => (
-                      <InteractiveSignatureRequestList
-                        account={account}
-                        signatureRequests={pendingSignatureRequests.filter(request =>
-                          request._embedded.signers.some(signer => signer.account_id === account.publicKey)
-                        )}
-                        title="Pending transactions to co-sign"
-                      />
+                      <>
+                        <InteractiveSignatureRequestList
+                          account={account}
+                          signatureRequests={pendingSignatureRequests.filter(
+                            request =>
+                              request._embedded.signers.some(signer => signer.account_id === account.publicKey) &&
+                              !hasSigned(request.meta.transaction, account.publicKey)
+                          )}
+                          title="Transactions to co-sign"
+                        />
+                        <InteractiveSignatureRequestList
+                          account={account}
+                          signatureRequests={pendingSignatureRequests.filter(
+                            request =>
+                              request._embedded.signers.some(signer => signer.account_id === account.publicKey) &&
+                              hasSigned(request.meta.transaction, account.publicKey)
+                          )}
+                          title="Awaiting additional signatures"
+                        />
+                      </>
                     )}
                   </SignatureDelegationConsumer>
                 ) : null}
