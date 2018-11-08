@@ -20,7 +20,8 @@ const SignatureRequestListItem = (props: {
   return (
     <TransactionListItem
       key={signatureRequest.hash}
-      accountPublicKey={props.accountPublicKey}
+      alwaysShowSource
+      accountPublicKey={signatureRequest.meta.transaction.source}
       createdAt={signatureRequest.created_at}
       icon={<SignatureRequestIcon style={{ opacity: signedByThisAccountAlready ? 0.5 : 1 }} />}
       onClick={

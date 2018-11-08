@@ -1,5 +1,4 @@
 import React from "react"
-import ListSubheader from "@material-ui/core/ListSubheader"
 import Typography from "@material-ui/core/Typography"
 import { Memo, Operation, Transaction, TransactionOperation } from "stellar-sdk"
 import { SingleBalance } from "./Account/AccountBalances"
