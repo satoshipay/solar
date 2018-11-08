@@ -78,7 +78,7 @@ function deserializeSignatureRequest(rawSignatureRequest: Omit<SignatureRequest,
     ...rawSignatureRequest,
     meta: {
       operation,
-      callbackURL: parameters.callback.replace(/^url:/, ""),
+      callbackURL: parameters.callback ? parameters.callback.replace(/^url:/, "") : undefined,
       transaction: new Transaction(parameters.xdr)
     }
   }
@@ -145,10 +145,29 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
     const contentType = response.headers.get("Content-Type")
     const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
 
-    throw new Error(
-      `Submitting transaction to multi-signature service failed with status ${response.status}: ` +
-        (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
-    )
+    const horizonResponse = responseBodyObject && responseBodyObject.data ? responseBodyObject.data.response : null
+
+    if (horizonResponse && horizonResponse.type === "https://stellar.org/horizon-errors/transaction_failed") {
+      // Throw something that can be handled by explainSubmissionError()
+      throw Object.assign(
+        new Error(
+          `Submitting transaction to multi-signature service failed with status ${response.status}: ${
+            responseBodyObject.message
+          }`
+        ),
+        {
+          response: {
+            status: horizonResponse.status,
+            data: horizonResponse
+          }
+        }
+      )
+    } else {
+      throw new Error(
+        `Submitting transaction to multi-signature service failed with status ${response.status}: ` +
+          (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
+      )
+    }
   }
 
   return response

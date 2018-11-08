@@ -138,10 +138,8 @@ class TransactionSender extends React.Component<Props, State> {
       this.setSubmissionPromise(promise)
       return await promise
     } catch (error) {
-      const refinedError = explainSubmissionError(error)
-
-      // re-throw
-      throw refinedError
+      // re-throw refined error
+      throw explainSubmissionError(error)
     }
   }
 
@@ -153,12 +151,18 @@ class TransactionSender extends React.Component<Props, State> {
     const signatureRequestURI = this.state.signatureRequest
       ? this.state.signatureRequest.request_uri
       : createSignatureRequestURI(signedTransaction, creationOptions)
-    const promise = this.state.signatureRequest
-      ? collateSignature(this.state.signatureRequest, signedTransaction)
-      : submitNewSignatureRequest(getMultisigServiceURL(), signatureRequestURI)
 
-    this.setSubmissionPromise(promise)
-    return promise
+    try {
+      const promise = this.state.signatureRequest
+        ? collateSignature(this.state.signatureRequest, signedTransaction)
+        : submitNewSignatureRequest(getMultisigServiceURL(), signatureRequestURI)
+
+      this.setSubmissionPromise(promise)
+      return await promise
+    } catch (error) {
+      // re-throw refined error
+      throw explainSubmissionError(error)
+    }
   }
 
   render() {
