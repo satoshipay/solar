@@ -78,7 +78,7 @@ function deserializeSignatureRequest(rawSignatureRequest: Omit<SignatureRequest,
     ...rawSignatureRequest,
     meta: {
       operation,
-      callbackURL: parameters.callback,
+      callbackURL: parameters.callback.replace(/^url:/, ""),
       transaction: new Transaction(parameters.xdr)
     }
   }
@@ -97,7 +97,7 @@ export function createSignatureRequestURI(transaction: Transaction, options: TxP
   return "web+stellar:tx?" + qs.stringify(query)
 }
 
-export async function submitSignatureRequest(serviceURL: string, signatureRequestURI: string) {
+export async function submitNewSignatureRequest(serviceURL: string, signatureRequestURI: string) {
   const submissionEndpoint = urlJoin(serviceURL, "/submit")
 
   const response = await fetch(submissionEndpoint, {
@@ -105,6 +105,39 @@ export async function submitSignatureRequest(serviceURL: string, signatureReques
     body: signatureRequestURI,
     headers: {
       "Content-Type": "text/plain"
+    }
+  })
+
+  if (!response.ok) {
+    const contentType = response.headers.get("Content-Type")
+    const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
+
+    throw new Error(
+      `Submitting transaction to multi-signature service failed with status ${response.status}: ` +
+        (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
+    )
+  }
+
+  return response
+}
+
+export async function collateSignature(signatureRequest: SignatureRequest, signedTx: Transaction) {
+  const collateEndpointURL = signatureRequest.meta.callbackURL
+
+  if (!collateEndpointURL) {
+    throw new Error("Cannot submit back to multi-signature service. Signature request has no callback URL set.")
+  }
+
+  const response = await fetch(collateEndpointURL, {
+    method: "POST",
+    body: qs.stringify({
+      xdr: signedTx
+        .toEnvelope()
+        .toXDR()
+        .toString("base64")
+    }),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
     }
   })
 

@@ -11,7 +11,7 @@ import TransactionSender from "../TransactionSender"
 
 const SignatureRequestListItem = (props: {
   accountPublicKey: string
-  onOpenTransaction?: (tx: Transaction) => void
+  onOpenTransaction?: (tx: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequest: SignatureRequest
 }) => {
   const { onOpenTransaction, signatureRequest } = props
@@ -23,7 +23,9 @@ const SignatureRequestListItem = (props: {
       accountPublicKey={props.accountPublicKey}
       createdAt={signatureRequest.created_at}
       icon={<SignatureRequestIcon style={{ opacity: signedByThisAccountAlready ? 0.5 : 1 }} />}
-      onClick={onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction) : undefined}
+      onClick={
+        onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction, signatureRequest) : undefined
+      }
       transaction={signatureRequest.meta.transaction}
     />
   )
@@ -31,7 +33,7 @@ const SignatureRequestListItem = (props: {
 
 export const SignatureRequestList = (props: {
   accountPublicKey: string
-  onOpenTransaction?: (transaction: Transaction) => void
+  onOpenTransaction?: (transaction: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
 }) => {
@@ -43,6 +45,7 @@ export const SignatureRequestList = (props: {
       <ListSubheader>{props.title}</ListSubheader>
       {props.signatureRequests.map(signatureRequest => (
         <SignatureRequestListItem
+          key={signatureRequest.hash}
           accountPublicKey={props.accountPublicKey}
           onOpenTransaction={props.onOpenTransaction}
           signatureRequest={signatureRequest}
