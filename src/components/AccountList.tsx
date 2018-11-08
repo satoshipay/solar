@@ -12,6 +12,7 @@ import { CardList, CardListCard } from "../components/CardList"
 import { Account } from "../context/accounts"
 import { SignatureDelegationConsumer } from "../context/signatureDelegation"
 import { SignatureRequest } from "../lib/multisig-service"
+import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 import { VerticalLayout } from "./Layout/Box"
 
@@ -64,8 +65,10 @@ const AccountCard = (props: {
   style?: React.CSSProperties
 }) => {
   const onClick = () => props.history.push(routes.account(props.account.id))
-  const pendingSignatureRequests = props.pendingSignatureRequests.filter(req =>
-    req._embedded.signers.some(signer => signer.account_id === props.account.publicKey)
+  const pendingSignatureRequests = props.pendingSignatureRequests.filter(
+    req =>
+      req._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+      !hasSigned(req.meta.transaction, props.account.publicKey)
   )
   const badgeContent = pendingSignatureRequests.length > 0 ? pendingSignatureRequests.length : null
   return (

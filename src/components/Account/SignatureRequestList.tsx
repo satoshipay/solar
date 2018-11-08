@@ -4,6 +4,7 @@ import ListSubheader from "@material-ui/core/ListSubheader"
 import SignatureRequestIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
+import { hasSigned } from "../../lib/transaction"
 import { List } from "../List"
 import { TransactionListItem } from "./TransactionList"
 import TransactionSender from "../TransactionSender"
@@ -15,9 +16,7 @@ const SignatureRequestListItem = (props: {
 }) => {
   const { onOpenTransaction, signatureRequest } = props
 
-  const signedByThisAccountAlready = signatureRequest._embedded.signers.find(
-    signer => signer.account_id === props.accountPublicKey
-  )
+  const signedByThisAccountAlready = hasSigned(signatureRequest.meta.transaction, props.accountPublicKey)
   return (
     <TransactionListItem
       key={signatureRequest.hash}

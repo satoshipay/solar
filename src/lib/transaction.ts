@@ -2,6 +2,10 @@ import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, T
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
 
+interface SignatureWithHint extends xdr.DecoratedSignature {
+  hint(): Buffer
+}
+
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
 function getAllSources(tx: Transaction) {
@@ -17,6 +21,15 @@ export function selectNetwork(testnet = false) {
   } else {
     Network.usePublicNetwork()
   }
+}
+
+export function hasSigned(transaction: Transaction, publicKey: string) {
+  return transaction.signatures.some(signature => {
+    const hint = (signature as SignatureWithHint).hint()
+    const keypair = Keypair.fromPublicKey(publicKey)
+
+    return hint.equals(keypair.rawPublicKey().slice(-hint.byteLength))
+  })
 }
 
 async function accountExists(horizon: Server, publicKey: string) {
