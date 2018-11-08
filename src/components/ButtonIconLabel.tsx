@@ -19,10 +19,11 @@ interface Props {
   children?: React.ReactNode | null
   label: React.ReactNode
   loading?: boolean
+  loaderColor?: string
 }
 
 const ButtonIconLabel = (props: Props) => {
-  const loader = <CircularProgress size="1.2em" style={{ color: "white" }} />
+  const loader = <CircularProgress size="1.2em" style={{ color: props.loaderColor || "white" }} />
   return (
     <Container>
       {props.children || props.loading ? <Icon>{props.loading ? loader : props.children}</Icon> : null}

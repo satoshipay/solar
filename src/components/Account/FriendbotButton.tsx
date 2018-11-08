@@ -36,7 +36,7 @@ class FriendbotButton extends React.Component<Props, State> {
   render() {
     return (
       <Button variant="outlined" onClick={this.topup}>
-        <ButtonIconLabel label="Request top-up from friendbot" loading={this.state.pending} />
+        <ButtonIconLabel label="Request top-up from friendbot" loading={this.state.pending} loaderColor="inherit" />
       </Button>
     )
   }
