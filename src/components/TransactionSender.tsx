@@ -14,7 +14,7 @@ import {
   SignatureRequest
 } from "../lib/multisig-service"
 import { networkPassphrases } from "../lib/stellar"
-import { requiresRemoteSignatures, signTransaction } from "../lib/transaction"
+import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
 import TxConfirmationDrawer from "./Dialog/TransactionConfirmation"
 import SubmissionProgress from "./SubmissionProgress"
 import { Horizon } from "./Subscribers"
@@ -179,6 +179,7 @@ class TransactionSender extends React.Component<Props, State> {
         <TxConfirmationDrawer
           open={Boolean(transaction)}
           account={this.props.account}
+          disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
           transaction={transaction}
           onClose={this.clearTransaction}
           onSubmitTransaction={this.submitTransaction}
