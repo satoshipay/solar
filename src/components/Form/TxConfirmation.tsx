@@ -69,7 +69,7 @@ class TxConfirmationForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.onSubmit}>
         <VerticalLayout>
-          <TransactionSummary transaction={transaction} />
+          <TransactionSummary showSource={account.publicKey !== transaction.source} transaction={transaction} />
           {account.requiresPassword ? (
             <TextField
               error={Boolean(this.state.errors.password)}

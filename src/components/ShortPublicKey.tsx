@@ -20,16 +20,17 @@ function getDigitCounts(variant?: Variant) {
 interface Props {
   publicKey: string
   variant: Variant
+  style?: React.CSSProperties
 }
 
-const ShortPublicKey = ({ publicKey, variant }: Props) => {
+const ShortPublicKey = ({ publicKey, style, variant }: Props) => {
   const digits = getDigitCounts(variant)
 
   if (publicKey.length !== 56) {
     return <>{publicKey}</>
   }
   return (
-    <Typography component="span" style={{ display: "inline", fontWeight: "bold" }}>
+    <Typography component="span" style={{ display: "inline", fontWeight: "bold", ...style }}>
       {publicKey.substr(0, digits.leading) + "…" + publicKey.substr(-digits.trailing)}
     </Typography>
   )

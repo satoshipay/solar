@@ -1,4 +1,5 @@
 import React from "react"
+import ListSubheader from "@material-ui/core/ListSubheader"
 import Typography from "@material-ui/core/Typography"
 import { Memo, Operation, Transaction, TransactionOperation } from "stellar-sdk"
 import { SingleBalance } from "./Account/AccountBalances"
@@ -155,6 +156,24 @@ const DefaultOperation = (props: { operation: TransactionOperation; style?: Reac
   )
 }
 
+const SourceAccount = (props: { transaction: Transaction; style?: React.CSSProperties }) => {
+  return (
+    <ListItem
+      heading="Source Account"
+      primaryText={
+        <OperationDetails>
+          <ShortPublicKey
+            publicKey={props.transaction.source}
+            style={{ fontWeight: "normal", fontSize: "inherit" }}
+            variant="short"
+          />
+        </OperationDetails>
+      }
+      style={props.style}
+    />
+  )
+}
+
 const TransactionOperation = (props: { operation: TransactionOperation; style?: React.CSSProperties }) => {
   // TODO: Add more operation types!
 
@@ -169,7 +188,7 @@ const TransactionOperation = (props: { operation: TransactionOperation; style?: 
   }
 }
 
-const TransactionSummary = (props: { transaction: Transaction }) => {
+const TransactionSummary = (props: { showSource?: boolean; transaction: Transaction }) => {
   const noHPaddingStyle = {
     paddingLeft: 0,
     paddingRight: 0
@@ -180,6 +199,7 @@ const TransactionSummary = (props: { transaction: Transaction }) => {
         <TransactionOperation key={index} operation={operation} style={noHPaddingStyle} />
       ))}
       <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />
+      {props.showSource ? <SourceAccount transaction={props.transaction} style={noHPaddingStyle} /> : null}
     </List>
   )
 }
