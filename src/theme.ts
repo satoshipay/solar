@@ -10,6 +10,7 @@ export const brandColor = {
 }
 
 export const primaryBackground = "linear-gradient(to left bottom, #01B3F3, #0176DC)"
+export const primaryBackgroundColor = "#01B3F3"
 
 const theme = createMuiTheme({
   overrides: {
