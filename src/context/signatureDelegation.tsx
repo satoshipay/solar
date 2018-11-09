@@ -6,10 +6,12 @@ import { addError } from "./notifications"
 
 interface ContextValue {
   pendingSignatureRequests: SignatureRequest[]
+  subscribeToNewSignatureRequests: (subscriber: (signatureRequest: SignatureRequest) => void) => () => void
 }
 
 const SignatureDelegationContext = React.createContext<ContextValue>({
-  pendingSignatureRequests: []
+  pendingSignatureRequests: [],
+  subscribeToNewSignatureRequests: () => () => undefined
 })
 
 interface Props {
@@ -18,12 +20,14 @@ interface Props {
 }
 
 interface State {
+  newSignatureRequestSubscribers: Array<(signatureRequest: SignatureRequest) => void>
   pendingSignatureRequests: SignatureRequest[]
   subscribedAccountsKey: string
 }
 
 class SignatureDelegationProvider extends React.Component<Props, State> {
   state: State = {
+    newSignatureRequestSubscribers: [],
     pendingSignatureRequests: [],
     subscribedAccountsKey: this.createSubscribedAccountsKey(this.props.accounts)
   }
@@ -67,6 +71,9 @@ class SignatureDelegationProvider extends React.Component<Props, State> {
         this.setState(state => ({
           pendingSignatureRequests: [signatureRequest, ...state.pendingSignatureRequests]
         }))
+        for (const subscriber of this.state.newSignatureRequestSubscribers) {
+          subscriber(signatureRequest)
+        }
       },
       onSignatureRequestSubmitted: signatureRequest => {
         this.setState(state => ({
@@ -78,9 +85,22 @@ class SignatureDelegationProvider extends React.Component<Props, State> {
     })
   }
 
+  subscribeToNewSignatureRequests = (subscriber: (signatureRequest: SignatureRequest) => void) => {
+    this.setState(state => ({
+      newSignatureRequestSubscribers: [...state.newSignatureRequestSubscribers, subscriber]
+    }))
+
+    return () => {
+      this.setState(state => ({
+        newSignatureRequestSubscribers: state.newSignatureRequestSubscribers.filter(func => func !== subscriber)
+      }))
+    }
+  }
+
   render() {
     const contextValue: ContextValue = {
-      pendingSignatureRequests: this.state.pendingSignatureRequests
+      pendingSignatureRequests: this.state.pendingSignatureRequests,
+      subscribeToNewSignatureRequests: this.subscribeToNewSignatureRequests
     }
     return (
       <SignatureDelegationContext.Provider value={contextValue}>
@@ -96,11 +116,11 @@ const FeatureFlaggedProvider = (props: Props) => {
   if (isMultisigEnabled()) {
     return <SignatureDelegationProvider {...props} />
   } else {
-    return (
-      <SignatureDelegationContext.Provider value={{ pendingSignatureRequests: [] }}>
-        {props.children}
-      </SignatureDelegationContext.Provider>
-    )
+    const value = {
+      pendingSignatureRequests: [],
+      subscribeToNewSignatureRequests: () => () => undefined
+    }
+    return <SignatureDelegationContext.Provider value={value}>{props.children}</SignatureDelegationContext.Provider>
   }
 }
 

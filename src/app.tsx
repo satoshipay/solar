@@ -7,6 +7,7 @@ import withProps from "recompose/withProps"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
 import { VerticalLayout } from "./components/Layout/Box"
+import DesktopNotifications from "./components/DesktopNotifications"
 import NotificationContainer from "./components/NotificationContainer"
 import OpenDialogs from "./components/OpenDialogs"
 import { AccountsConsumer, AccountsProvider } from "./context/accounts"
@@ -49,6 +50,7 @@ const App = () => (
           <Route exact path="/account/:id" component={AccountPage} />
           <Route exact path="/account/:id/assets" component={AccountAssetsPage} />
           <Route exact path="/account/:id/signers" component={ManageSignersPage} />
+          <DesktopNotifications />
           <NotificationContainer />
           <OpenDialogs />
         </VerticalLayout>
