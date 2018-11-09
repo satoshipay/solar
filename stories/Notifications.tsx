@@ -26,8 +26,17 @@ storiesOf("Notifications", module).add("All", () => (
           <Button variant="contained" onClick={() => addError(new Error("An error happened."))}>
             Show error notification
           </Button>
+          <Button variant="contained" onClick={() => addNotification("info", "This is an informational message.")}>
+            Show info notification
+          </Button>
           <Button variant="contained" onClick={() => addNotification("success", "Action successful!")}>
             Show success notification
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => addNotification("info", "Click me.", { onClick: () => window.alert("Clicked!") })}
+          >
+            Show clickable notification
           </Button>
         </Buttons>
       )}

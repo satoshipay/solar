@@ -3,6 +3,8 @@ import Snackbar from "@material-ui/core/Snackbar"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import ErrorIcon from "@material-ui/icons/Error"
+import InfoIcon from "@material-ui/icons/Info"
+import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
 import { Theme } from "@material-ui/core/styles/createMuiTheme"
 import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
@@ -10,12 +12,19 @@ import { Notification, NotificationsConsumer, NotificationType } from "../contex
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   error: ErrorIcon,
+  info: InfoIcon,
   success: CheckIcon
 }
 
 const styles = (theme: Theme) => ({
+  clickable: {
+    cursor: "pointer"
+  },
   error: {
     backgroundColor: theme.palette.error.dark
+  },
+  info: {
+    backgroundColor: blue["500"]
   },
   success: {
     backgroundColor: green["500"]
@@ -37,26 +46,34 @@ interface NotificationProps {
   message: string
   type: NotificationType
   open?: boolean
+  onClick?: () => void
   onClose?: () => void
 }
 
 const Notification = (props: NotificationProps) => {
-  const { autoHideDuration, classes, message, type, open = true, onClose } = props
+  const { classes, open = true } = props
 
-  const Icon = icons[type]
+  const Icon = icons[props.type]
   const contentClassnames: { [key in NotificationType]: string } = {
     error: classes.error,
+    info: classes.info,
     success: classes.success
   }
 
   return (
-    <Snackbar autoHideDuration={autoHideDuration} open={open} onClose={onClose}>
+    <Snackbar
+      autoHideDuration={props.autoHideDuration}
+      className={props.onClick ? classes.clickable : undefined}
+      open={open}
+      onClick={props.onClick}
+      onClose={props.onClose}
+    >
       <SnackbarContent
-        className={contentClassnames[type]}
+        className={contentClassnames[props.type]}
         message={
           <span className={classes.message}>
             <Icon className={classes.icon} />
-            {message}
+            {props.message}
           </span>
         }
       />
@@ -105,6 +122,7 @@ class Notifications extends React.Component<NotificationsProps, NotificationsSta
         message={notification ? notification.message : ""}
         type={notification ? notification.type : "error"}
         open={open}
+        onClick={notification ? notification.onClick : undefined}
         onClose={() => this.closeNotification(latestNotificationItem.id)}
       />
     )
