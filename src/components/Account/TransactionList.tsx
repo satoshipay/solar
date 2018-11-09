@@ -1,10 +1,10 @@
 import React from "react"
 import { AccountResponse, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
-import ArrowLeftIcon from "react-icons/lib/fa/arrow-left"
-import ArrowRightIcon from "react-icons/lib/fa/arrow-right"
+import CallMadeIcon from "@material-ui/icons/CallMade"
+import CallReceivedIcon from "@material-ui/icons/CallReceived"
+import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import CogIcon from "react-icons/lib/fa/cog"
-import ExchangeIcon from "react-icons/lib/fa/exchange"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
@@ -23,11 +23,11 @@ const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
   if (props.paymentSummary.length === 0) {
     return <CogIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
-    return <ArrowLeftIcon />
+    return <CallReceivedIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.lt(0))) {
-    return <ArrowRightIcon />
+    return <CallMadeIcon />
   } else {
-    return <ExchangeIcon />
+    return <SwapHorizIcon />
   }
 }
 
