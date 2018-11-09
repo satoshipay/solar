@@ -32,19 +32,29 @@ export class DialogsProvider extends React.Component<Props, State> {
   openDialog = (blueprint: DialogBlueprint) => {
     const newDialog: DialogDescriptor = {
       id: this.nextID++,
-      open: true,
+      open: false,
       props: blueprint.props as any, // To prevent type error that is due to inprecise type inference
       type: blueprint.type as any
     }
     this.setState(state => ({
       dialogs: state.dialogs.concat([newDialog])
     }))
+    setTimeout(() => {
+      this.setState(state => ({
+        dialogs: state.dialogs.map(dialog => (dialog.id === newDialog.id ? { ...dialog, open: true } : dialog))
+      }))
+    }, 20)
   }
 
   closeDialog = (dialogID: number) => {
     this.setState(state => ({
-      dialogs: state.dialogs.filter(someDialog => someDialog.id !== dialogID)
+      dialogs: state.dialogs.map(dialog => (dialog.id === dialogID ? { ...dialog, open: false } : dialog))
     }))
+    setTimeout(() => {
+      this.setState(state => ({
+        dialogs: state.dialogs.filter(someDialog => someDialog.id !== dialogID)
+      }))
+    }, 1000)
   }
 
   render() {
