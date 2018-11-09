@@ -1,5 +1,5 @@
 import React from "react"
-import { AccountResponse, Operation, Transaction } from "stellar-sdk"
+import { AccountResponse, Memo, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
@@ -141,6 +141,17 @@ const TitleText = (props: TitleTextProps) => {
   }
 }
 
+const MemoMessage = (props: { memo: Memo }) => {
+  const memo = props.memo
+  if (!memo.value) {
+    return null
+  } else if (Buffer.isBuffer(memo.value)) {
+    return <>Memo: {memo.value.toString("hex")}</>
+  } else {
+    return <>Memo: {memo.value}</>
+  }
+}
+
 const TooltipTitle = (props: { children: React.ReactNode }) => {
   return <span style={{ fontSize: "110%" }}>{props.children}</span>
 }
@@ -156,6 +167,7 @@ interface TransactionListItemProps {
 
 export const TransactionListItem = (props: TransactionListItemProps) => {
   const createdAt = new Date(props.createdAt)
+  const memo = props.transaction.memo
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
   return (
@@ -164,11 +176,14 @@ export const TransactionListItem = (props: TransactionListItemProps) => {
         <span style={{ fontSize: "125%" }}>{props.icon || <TransactionIcon paymentSummary={paymentSummary} />}</span>
       }
       heading={
-        <Tooltip title={<TooltipTitle>{createdAt.toLocaleString()}</TooltipTitle>}>
-          <small style={{ color: "#666", fontSize: "80%" }}>
-            <HumanTime time={createdAt.getTime()} />
-          </small>
-        </Tooltip>
+        <HorizontalLayout>
+          <Tooltip title={<TooltipTitle>{createdAt.toLocaleString()}</TooltipTitle>}>
+            <small style={{ display: "inline-block", width: 100, color: "#666", fontSize: "80%" }}>
+              <HumanTime time={createdAt.getTime()} />
+            </small>
+          </Tooltip>
+          <small style={{ color: "#666", fontSize: "80%" }}>{memo ? <MemoMessage memo={memo} /> : null}</small>
+        </HorizontalLayout>
       }
       primaryText={
         <HorizontalLayout>
