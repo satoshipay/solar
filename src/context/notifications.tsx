@@ -1,11 +1,12 @@
 import React from "react"
 
-export type NotificationType = "error" | "success"
+export type NotificationType = "error" | "info" | "success"
 
 export interface Notification {
   id: number
   message: string
   type: NotificationType
+  onClick?: () => void
 }
 
 let addErrorImplementation: (error: any) => void = () => undefined
@@ -14,10 +15,14 @@ export function addError(error: any) {
   addErrorImplementation(error)
 }
 
+interface NotificationOptions {
+  onClick?: () => void
+}
+
 interface ContextValue {
   notifications: Notification[]
   addError(error: any): void
-  addNotification(type: NotificationType, message: string): void
+  addNotification(type: NotificationType, message: string, props?: NotificationOptions): void
 }
 
 interface Props {
@@ -46,11 +51,12 @@ export class NotificationsProvider extends React.Component<Props, State> {
     addErrorImplementation = this.addError
   }
 
-  addNotification = (type: NotificationType, message: string) => {
+  addNotification = (type: NotificationType, message: string, options: NotificationOptions = {}) => {
     const id = this.nextID++
 
     this.setState(state => ({
       notifications: state.notifications.concat({
+        ...options,
         id,
         message,
         type

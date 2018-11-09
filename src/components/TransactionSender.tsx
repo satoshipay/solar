@@ -21,6 +21,9 @@ import { Horizon } from "./Subscribers"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
+// Had issues with react-storybook vs electron build
+type Timer = any
+
 const SubmissionProgressOverlay = (props: {
   open: boolean
   onClose: () => void
@@ -70,7 +73,7 @@ class TransactionSender extends React.Component<Props, State> {
     transaction: null
   }
 
-  submissionTimeout: NodeJS.Timer | null = null
+  submissionTimeout: Timer | null = null
 
   componentWillUnmount() {
     if (this.submissionTimeout) {
