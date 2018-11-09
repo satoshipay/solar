@@ -14,63 +14,82 @@ import FriendbotButton from "../components/Account/FriendbotButton"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
 import TransactionList from "../components/Account/TransactionList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
+import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
-import { DialogsConsumer } from "../context/dialogs"
-import { DialogBlueprint, DialogType } from "../context/dialogTypes"
 import { SignatureDelegationConsumer } from "../context/signatureDelegation"
 import { isMultisigEnabled } from "../feature-flags"
 import { hasSigned } from "../lib/transaction"
 
-function createPaymentDialog(account: Account): DialogBlueprint {
-  return {
-    type: DialogType.CreatePayment,
-    props: {
-      account
-    }
-  }
+const AccountActions = (props: { account: Account; onOpenPaymentDrawer: () => void }) => {
+  return (
+    <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
+      {(_, activated) => (
+        <Button
+          variant="contained"
+          disabled={!activated}
+          onClick={props.onOpenPaymentDrawer}
+          style={{
+            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
+            paddingLeft: 20,
+            paddingRight: 20
+          }}
+        >
+          <ButtonIconLabel label="Send">
+            <SendIcon />
+          </ButtonIconLabel>
+        </Button>
+      )}
+    </AccountData>
+  )
 }
 
-const AccountActions = (props: { account: Account }) => {
+const PendingMultisigTransactions = (props: { account: Account }) => {
   return (
-    <DialogsConsumer>
-      {({ openDialog }) => (
-        <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
-          {(_, activated) => (
-            <Button
-              variant="contained"
-              disabled={!activated}
-              onClick={() => openDialog(createPaymentDialog(props.account))}
-              style={{
-                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
-                paddingLeft: 20,
-                paddingRight: 20
-              }}
-            >
-              <ButtonIconLabel label="Send">
-                <SendIcon />
-              </ButtonIconLabel>
-            </Button>
-          )}
-        </AccountData>
+    <SignatureDelegationConsumer>
+      {({ pendingSignatureRequests }) => (
+        <>
+          <InteractiveSignatureRequestList
+            account={props.account}
+            icon={<SendIcon />}
+            signatureRequests={pendingSignatureRequests.filter(
+              request =>
+                request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+                !hasSigned(request.meta.transaction, props.account.publicKey)
+            )}
+            title="Transactions to co-sign"
+          />
+          <InteractiveSignatureRequestList
+            account={props.account}
+            icon={<UpdateIcon style={{ opacity: 0.5 }} />}
+            signatureRequests={pendingSignatureRequests.filter(
+              request =>
+                request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+                hasSigned(request.meta.transaction, props.account.publicKey)
+            )}
+            title="Awaiting additional signatures"
+          />
+        </>
       )}
-    </DialogsConsumer>
+    </SignatureDelegationConsumer>
   )
 }
 
 interface Props {
   accounts: Account[]
   history: History
+  isPaymentDrawerOpen: boolean
   match: match<{ id: string }>
   renameAccount: AccountsContext["renameAccount"]
+  onClosePaymentDrawer: () => void
+  onOpenPaymentDrawer: () => void
 }
 
 const AccountPage = (props: Props) => {
-  const { renameAccount } = props
   const { params } = props.match
 
   const account = props.accounts.find(someAccount => someAccount.id === params.id)
@@ -81,11 +100,11 @@ const AccountPage = (props: Props) => {
   return (
     <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
       <Section top brandColored>
-        <AccountHeaderCard account={account} history={props.history} renameAccount={renameAccount}>
+        <AccountHeaderCard account={account} history={props.history} renameAccount={props.renameAccount}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
           <Box margin="24px 0 0">
-            <AccountActions account={account} />
+            <AccountActions account={account} onOpenPaymentDrawer={props.onOpenPaymentDrawer} />
           </Box>
         </AccountHeaderCard>
       </Section>
@@ -98,34 +117,7 @@ const AccountPage = (props: Props) => {
               </div>
             ) : activated ? (
               <>
-                {isMultisigEnabled() ? (
-                  <SignatureDelegationConsumer>
-                    {({ pendingSignatureRequests }) => (
-                      <>
-                        <InteractiveSignatureRequestList
-                          account={account}
-                          icon={<SendIcon />}
-                          signatureRequests={pendingSignatureRequests.filter(
-                            request =>
-                              request._embedded.signers.some(signer => signer.account_id === account.publicKey) &&
-                              !hasSigned(request.meta.transaction, account.publicKey)
-                          )}
-                          title="Transactions to co-sign"
-                        />
-                        <InteractiveSignatureRequestList
-                          account={account}
-                          icon={<UpdateIcon style={{ opacity: 0.5 }} />}
-                          signatureRequests={pendingSignatureRequests.filter(
-                            request =>
-                              request._embedded.signers.some(signer => signer.account_id === account.publicKey) &&
-                              hasSigned(request.meta.transaction, account.publicKey)
-                          )}
-                          title="Awaiting additional signatures"
-                        />
-                      </>
-                    )}
-                  </SignatureDelegationConsumer>
-                ) : null}
+                {isMultisigEnabled() ? <PendingMultisigTransactions account={account} /> : null}
                 <TransactionList
                   accountPublicKey={account.publicKey}
                   title="Recent transactions"
@@ -149,12 +141,43 @@ const AccountPage = (props: Props) => {
           }
         </Transactions>
       </Section>
+      <CreatePaymentDialog account={account} open={props.isPaymentDrawerOpen} onClose={props.onClosePaymentDrawer} />
     </BottomNavigationContainer>
   )
 }
 
-const AccountPageContainer = (props: Pick<Props, "history" | "match">) => {
-  return <AccountsConsumer>{accountsContext => <AccountPage {...props} {...accountsContext} />}</AccountsConsumer>
+interface State {
+  isPaymentDrawerOpen: boolean
+}
+
+class AccountPageContainer extends React.Component<Pick<Props, "history" | "match">, State> {
+  state: State = {
+    isPaymentDrawerOpen: false
+  }
+
+  closePaymentDrawer = () => {
+    this.setState({ isPaymentDrawerOpen: false })
+  }
+
+  openPaymentDrawer = () => {
+    this.setState({ isPaymentDrawerOpen: true })
+  }
+
+  render() {
+    return (
+      <AccountsConsumer>
+        {accountsContext => (
+          <AccountPage
+            {...this.props}
+            {...accountsContext}
+            isPaymentDrawerOpen={this.state.isPaymentDrawerOpen}
+            onClosePaymentDrawer={this.closePaymentDrawer}
+            onOpenPaymentDrawer={this.openPaymentDrawer}
+          />
+        )}
+      </AccountsConsumer>
+    )
+  }
 }
 
 export default AccountPageContainer

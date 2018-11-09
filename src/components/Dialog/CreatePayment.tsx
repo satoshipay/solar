@@ -1,13 +1,13 @@
 import React from "react"
 import { AccountRecord, Asset, Memo, Server, Transaction } from "stellar-sdk"
-import Drawer from "@material-ui/core/Drawer"
-import Card from "@material-ui/core/Card"
-import CardContent from "@material-ui/core/CardContent"
+import Dialog from "@material-ui/core/Dialog"
+import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { addError } from "../../context/notifications"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
+import { Box } from "../Layout/Box"
 import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import TestnetBadge from "./TestnetBadge"
@@ -19,6 +19,8 @@ function getAssetsFromBalances(balances: AccountRecord["balances"]) {
     balance => (balance.asset_type === "native" ? Asset.native() : new Asset(balance.asset_code, balance.asset_issuer))
   )
 }
+
+const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
@@ -79,32 +81,20 @@ class CreatePaymentDialog extends React.Component<Props, State> {
   render() {
     const trustedAssets = this.props.trustedAssets || [Asset.native()]
     return (
-      <Drawer open={this.props.open} anchor="right" onClose={this.props.onClose}>
-        <Card
-          style={{
-            position: "relative",
-            height: "100%",
-            padding: "0 12px",
-            width: "90vw",
-            maxWidth: "700px"
-          }}
-        >
-          <CardContent style={{ paddingTop: 24 }}>
-            <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
-              Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-            </Typography>
-            <div style={{ marginTop: 40 }}>
-              <CreatePaymentForm
-                balances={this.props.balances}
-                onCancel={this.props.onClose}
-                onSubmit={this.createTransaction}
-                trustedAssets={trustedAssets}
-                txCreationPending={this.state.txCreationPending}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </Drawer>
+      <Dialog open={this.props.open} fullScreen onClose={this.props.onClose} TransitionComponent={Transition}>
+        <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
+          <Typography variant="headline" component="h2" style={{ marginTop: 8, marginBottom: 40 }}>
+            Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+          </Typography>
+          <CreatePaymentForm
+            balances={this.props.balances}
+            onCancel={this.props.onClose}
+            onSubmit={this.createTransaction}
+            trustedAssets={trustedAssets}
+            txCreationPending={this.state.txCreationPending}
+          />
+        </Box>
+      </Dialog>
     )
   }
 }

@@ -1,17 +1,19 @@
 import React from "react"
-import Drawer from "@material-ui/core/Drawer"
-import Card from "@material-ui/core/Card"
-import CardContent from "@material-ui/core/CardContent"
+import Dialog from "@material-ui/core/Dialog"
+import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Transaction, TransactionOperation } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import TxConfirmationForm from "../Form/TxConfirmation"
+import { Box } from "../Layout/Box"
 import TestnetBadge from "./TestnetBadge"
 
 const isPaymentOperation = (operation: TransactionOperation) =>
   ["createAccount", "payment"].indexOf(operation.type) > -1
 
-interface TxConfirmationDrawerProps {
+const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
+
+interface TxConfirmationDialogProps {
   account: Account
   disabled?: boolean
   open: boolean
@@ -20,34 +22,32 @@ interface TxConfirmationDrawerProps {
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
-const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
+const TxConfirmationDialog = (props: TxConfirmationDialogProps) => {
   const title =
     props.transaction && props.transaction.operations.every(isPaymentOperation)
       ? "Confirm Payment"
       : "Confirm Transaction"
 
   return (
-    <Drawer open={props.open} anchor="right" onClose={props.onClose}>
-      <Card style={{ position: "relative", height: "100%", padding: "0 12px" }}>
-        <CardContent style={{ paddingTop: 24 }}>
-          <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
-            {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-          </Typography>
-          {props.transaction ? (
-            <div style={{ marginTop: 24 }}>
-              <TxConfirmationForm
-                transaction={props.transaction}
-                account={props.account}
-                disabled={props.disabled}
-                onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
-                onCancel={props.onClose}
-              />
-            </div>
-          ) : null}
-        </CardContent>
-      </Card>
-    </Drawer>
+    <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
+      <Box padding="24px 36px" overflow="auto">
+        <Typography variant="headline" component="h2">
+          {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+        </Typography>
+        {props.transaction ? (
+          <div style={{ marginTop: 24 }}>
+            <TxConfirmationForm
+              transaction={props.transaction}
+              account={props.account}
+              disabled={props.disabled}
+              onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
+              onCancel={props.onClose}
+            />
+          </div>
+        ) : null}
+      </Box>
+    </Dialog>
   )
 }
 
-export default TxConfirmationDrawer
+export default TxConfirmationDialog
