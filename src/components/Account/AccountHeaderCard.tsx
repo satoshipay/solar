@@ -6,8 +6,8 @@ import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
 import LockOpenIcon from "@material-ui/icons/LockOpen"
-import ChevronLeftIcon from "react-icons/lib/md/chevron-left"
 import { Account, AccountsContext } from "../../context/accounts"
 import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
@@ -22,7 +22,7 @@ type BackButtonProps = RouteComponentProps<any, any, any> & {
 const BackButton = withRouter<BackButtonProps>((props: BackButtonProps) => {
   return (
     <IconButton color="inherit" onClick={() => props.history.push(routes.allAccounts())} style={props.style}>
-      <ChevronLeftIcon />
+      <ChevronLeftIcon style={{ fontSize: "inherit" }} />
     </IconButton>
   )
 })
