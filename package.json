@@ -21,7 +21,7 @@
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && build --mac --x64 --config ./electron-build.yml",
     "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32  --config ./electron-build.yml",
     "dev": "run-p dev:bundle dev:app:delayed",
-    "dev:app": "NODE_ENV=development electron -r ./electron/development .",
+    "dev:app": "NODE_ENV=development run-electron -r ./electron/development .",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
     "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --public-url=./ --target=electron"
   },
@@ -66,6 +66,7 @@
     "parcel-plugin-nunjucks": "^1.0.0",
     "parcel-plugin-typescript": "~0.7.1",
     "prettier": "^1.13.7",
+    "run-electron": "^0.1.0",
     "storybook-addon-material-ui": "^0.9.0-alpha.16",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
