@@ -188,7 +188,7 @@ export const TransactionListItem = (props: TransactionListItemProps) => {
   )
 }
 
-export const TransactionList = (props: {
+const TransactionList = (props: {
   accountPublicKey: string
   testnet: boolean
   title: React.ReactNode
@@ -211,3 +211,5 @@ export const TransactionList = (props: {
     </List>
   )
 }
+
+export default TransactionList
