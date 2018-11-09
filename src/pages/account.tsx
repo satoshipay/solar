@@ -14,7 +14,7 @@ import FriendbotButton from "../components/Account/FriendbotButton"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
 import TransactionList from "../components/Account/TransactionList"
 import BottomNavigationContainer from "../components/BottomNavigationContainer"
-import CreatePaymentDrawer from "../components/Dialog/CreatePayment"
+import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
@@ -141,7 +141,7 @@ const AccountPage = (props: Props) => {
           }
         </Transactions>
       </Section>
-      <CreatePaymentDrawer account={account} open={props.isPaymentDrawerOpen} onClose={props.onClosePaymentDrawer} />
+      <CreatePaymentDialog account={account} open={props.isPaymentDrawerOpen} onClose={props.onClosePaymentDrawer} />
     </BottomNavigationContainer>
   )
 }
