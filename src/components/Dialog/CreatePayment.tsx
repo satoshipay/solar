@@ -11,6 +11,7 @@ import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import TestnetBadge from "./TestnetBadge"
+import { VerticalLayout } from "../Layout/Box"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -79,29 +80,27 @@ class CreatePaymentDialog extends React.Component<Props, State> {
   render() {
     const trustedAssets = this.props.trustedAssets || [Asset.native()]
     return (
-      <Drawer open={this.props.open} anchor="right" onClose={this.props.onClose}>
+      <Drawer open={this.props.open} anchor="bottom" onClose={this.props.onClose}>
         <Card
           style={{
             position: "relative",
-            height: "100%",
-            padding: "0 12px",
-            width: "90vw",
-            maxWidth: "700px"
+            boxSizing: "border-box",
+            width: "100vw",
+            height: "100vh",
+            padding: "0 12px"
           }}
         >
-          <CardContent style={{ paddingTop: 24 }}>
-            <Typography variant="headline" component="h2" style={{ marginTop: 8 }}>
+          <CardContent style={{ maxWidth: 900, paddingTop: 24, margin: "0 auto" }}>
+            <Typography variant="headline" component="h2" style={{ marginTop: 8, marginBottom: 40 }}>
               Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
             </Typography>
-            <div style={{ marginTop: 40 }}>
-              <CreatePaymentForm
-                balances={this.props.balances}
-                onCancel={this.props.onClose}
-                onSubmit={this.createTransaction}
-                trustedAssets={trustedAssets}
-                txCreationPending={this.state.txCreationPending}
-              />
-            </div>
+            <CreatePaymentForm
+              balances={this.props.balances}
+              onCancel={this.props.onClose}
+              onSubmit={this.createTransaction}
+              trustedAssets={trustedAssets}
+              txCreationPending={this.state.txCreationPending}
+            />
           </CardContent>
         </Card>
       </Drawer>
