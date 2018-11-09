@@ -4,7 +4,7 @@ import { Memo, Operation, Transaction, TransactionOperation } from "stellar-sdk"
 import { SingleBalance } from "./Account/AccountBalances"
 import { trustlineLimitEqualsUnlimited } from "../lib/stellar"
 import { List, ListItem } from "./List"
-import ShortPublicKey from "./ShortPublicKey"
+import PublicKey from "./PublicKey"
 
 // TODO: Use <AccountName /> everywhere, instead of just <small>
 
@@ -23,13 +23,13 @@ export const HumanReadableOperation = (props: { operation: TransactionOperation 
       if (operation.signer.weight > 0) {
         return (
           <>
-            Add signer: <ShortPublicKey publicKey={signerPublicKey} variant="shorter" />
+            Add signer: <PublicKey publicKey={signerPublicKey} variant="shorter" />
           </>
         )
       } else if (operation.signer.weight === 0) {
         return (
           <>
-            Remove signer: <ShortPublicKey publicKey={signerPublicKey} variant="shorter" />
+            Remove signer: <PublicKey publicKey={signerPublicKey} variant="shorter" />
           </>
         )
       }
@@ -161,7 +161,7 @@ const SourceAccount = (props: { transaction: Transaction; style?: React.CSSPrope
       heading="Source Account"
       primaryText={
         <OperationDetails>
-          <ShortPublicKey
+          <PublicKey
             publicKey={props.transaction.source}
             style={{ fontWeight: "normal", fontSize: "inherit" }}
             variant="short"

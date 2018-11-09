@@ -7,7 +7,7 @@ import PersonIcon from "@material-ui/icons/Person"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import RemoveIcon from "@material-ui/icons/RemoveCircle"
 import { CardList } from "../CardList"
-import ShortPublicKey from "../ShortPublicKey"
+import PublicKey from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
 import SignerCard from "./SignerCard"
 
@@ -88,7 +88,7 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
         {this.props.signers.map(signer => (
           <SignerCard key={signer.public_key} icon={<PersonIcon style={iconStyle} />}>
             <ListItemText
-              primary={<ShortPublicKey publicKey={signer.public_key} variant="short" />}
+              primary={<PublicKey publicKey={signer.public_key} variant="short" />}
               secondary={`Weight: ${signer.weight}`}
             />
             <ListItemSecondaryAction>

@@ -11,7 +11,7 @@ import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
 import { List, ListItem } from "../List"
-import ShortPublicKey from "../ShortPublicKey"
+import PublicKey from "../PublicKey"
 import { HumanReadableOperation } from "../TransactionSummary"
 import { MultipleBalances } from "./AccountBalances"
 
@@ -35,15 +35,15 @@ const DetailedInfo = (props: { children: React.ReactNode }) => {
   return <small style={{ opacity: 0.8, fontSize: "75%" }}>{props.children}</small>
 }
 
-const RemotePublicKeys = (props: { publicKeys: string[] }) => {
+const RemotePublicKeys = (props: { publicKeys: string[]; short?: boolean }) => {
   if (props.publicKeys.length === 0) {
     return <>-</>
   } else if (props.publicKeys.length === 1) {
-    return <ShortPublicKey publicKey={props.publicKeys[0]} variant="short" />
+    return <PublicKey publicKey={props.publicKeys[0]} variant={props.short ? "short" : "full"} />
   } else {
     return (
       <>
-        <ShortPublicKey publicKey={props.publicKeys[0]} variant="short" /> <i>+ {props.publicKeys.length - 1} more</i>
+        <PublicKey publicKey={props.publicKeys[0]} variant="short" /> <i>+ {props.publicKeys.length - 1} more</i>
       </>
     )
   }
@@ -96,10 +96,10 @@ const TitleText = (props: TitleTextProps) => {
         <DetailedInfo>
           {props.alwaysShowSource ? (
             <span>
-              from <ShortPublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
+              from <PublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
             </span>
           ) : null}
-          to <RemotePublicKeys publicKeys={remotePublicKeys} />
+          to <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
         </DetailedInfo>
       </span>
     )
@@ -112,7 +112,7 @@ const TitleText = (props: TitleTextProps) => {
         {props.alwaysShowSource ? (
           <>
             {" "}
-            (<ShortPublicKey publicKey={props.accountPublicKey} variant="short" />)
+            (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
           </>
         ) : null}
       </>
@@ -122,7 +122,7 @@ const TitleText = (props: TitleTextProps) => {
         {props.alwaysShowSource ? (
           <>
             {" "}
-            (<ShortPublicKey publicKey={props.accountPublicKey} variant="short" />)
+            (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
           </>
         ) : null}
       </>
