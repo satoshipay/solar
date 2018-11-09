@@ -3,7 +3,6 @@ import { Transaction } from "stellar-sdk"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
-import { hasSigned } from "../../lib/transaction"
 import { List } from "../List"
 import { TransactionListItem } from "./TransactionList"
 import TransactionSender from "../TransactionSender"
@@ -15,8 +14,6 @@ const SignatureRequestListItem = (props: {
   signatureRequest: SignatureRequest
 }) => {
   const { onOpenTransaction, signatureRequest } = props
-
-  const signedByThisAccountAlready = hasSigned(signatureRequest.meta.transaction, props.accountPublicKey)
   return (
     <TransactionListItem
       key={signatureRequest.hash}
