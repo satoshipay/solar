@@ -1,6 +1,6 @@
 {
   "name": "satoshipay-stellar-wallet",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "SatoshiPay wallet for the Stellar payment network.",
   "license": "UNLICENSED",
   "private": true,
