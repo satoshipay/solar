@@ -55,7 +55,13 @@ const badgeStyles: StyleRules = {
 }
 
 const StyledBadge = withStyles(badgeStyles)((props: BadgeProps) => {
-  return props.badgeContent ? <Badge {...props} /> : <div {...props} />
+  return props.badgeContent ? (
+    <Badge {...props} />
+  ) : (
+    <div className={props.className} style={props.style}>
+      {props.children}
+    </div>
+  )
 })
 
 const AccountCard = (props: {
