@@ -1,7 +1,6 @@
 import React from "react"
 import { Transaction } from "stellar-sdk"
 import ListSubheader from "@material-ui/core/ListSubheader"
-import SignatureRequestIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { hasSigned } from "../../lib/transaction"
@@ -11,7 +10,8 @@ import TransactionSender from "../TransactionSender"
 
 const SignatureRequestListItem = (props: {
   accountPublicKey: string
-  onOpenTransaction?: (tx: Transaction) => void
+  icon?: React.ReactNode
+  onOpenTransaction?: (tx: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequest: SignatureRequest
 }) => {
   const { onOpenTransaction, signatureRequest } = props
@@ -20,10 +20,13 @@ const SignatureRequestListItem = (props: {
   return (
     <TransactionListItem
       key={signatureRequest.hash}
-      accountPublicKey={props.accountPublicKey}
+      alwaysShowSource
+      accountPublicKey={signatureRequest.meta.transaction.source}
       createdAt={signatureRequest.created_at}
-      icon={<SignatureRequestIcon style={{ opacity: signedByThisAccountAlready ? 0.5 : 1 }} />}
-      onClick={onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction) : undefined}
+      icon={props.icon}
+      onClick={
+        onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction, signatureRequest) : undefined
+      }
       transaction={signatureRequest.meta.transaction}
     />
   )
@@ -31,7 +34,8 @@ const SignatureRequestListItem = (props: {
 
 export const SignatureRequestList = (props: {
   accountPublicKey: string
-  onOpenTransaction?: (transaction: Transaction) => void
+  icon?: React.ReactNode
+  onOpenTransaction?: (transaction: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
 }) => {
@@ -43,7 +47,9 @@ export const SignatureRequestList = (props: {
       <ListSubheader>{props.title}</ListSubheader>
       {props.signatureRequests.map(signatureRequest => (
         <SignatureRequestListItem
+          key={signatureRequest.hash}
           accountPublicKey={props.accountPublicKey}
+          icon={props.icon}
           onOpenTransaction={props.onOpenTransaction}
           signatureRequest={signatureRequest}
         />
@@ -54,6 +60,7 @@ export const SignatureRequestList = (props: {
 
 export const InteractiveSignatureRequestList = (props: {
   account: Account
+  icon?: React.ReactNode
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
 }) => {
@@ -65,6 +72,7 @@ export const InteractiveSignatureRequestList = (props: {
       {({ sendTransaction }) => (
         <SignatureRequestList
           accountPublicKey={props.account.publicKey}
+          icon={props.icon}
           onOpenTransaction={sendTransaction}
           signatureRequests={props.signatureRequests}
           title={props.title}

@@ -7,9 +7,14 @@ import { addError } from "../context/notifications"
 import { getMultisigServiceURL } from "../feature-flags"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
-import { createSignatureRequestURI, submitSignatureRequest } from "../lib/multisig-service"
+import {
+  collateSignature,
+  createSignatureRequestURI,
+  submitNewSignatureRequest,
+  SignatureRequest
+} from "../lib/multisig-service"
 import { networkPassphrases } from "../lib/stellar"
-import { requiresRemoteSignatures, signTransaction } from "../lib/transaction"
+import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
 import TxConfirmationDrawer from "./Dialog/TransactionConfirmation"
 import SubmissionProgress from "./SubmissionProgress"
 import { Horizon } from "./Subscribers"
@@ -51,13 +56,15 @@ interface Props {
 }
 
 interface State {
+  signatureRequest: SignatureRequest | null
   submissionFailed: boolean
   submissionPromise: Promise<any> | null
   transaction: Transaction | null
 }
 
 class TransactionSender extends React.Component<Props, State> {
-  state = {
+  state: State = {
+    signatureRequest: null,
     submissionFailed: false,
     submissionPromise: null,
     transaction: null
@@ -75,8 +82,8 @@ class TransactionSender extends React.Component<Props, State> {
     this.setState({ transaction: null })
   }
 
-  setTransaction = (transaction: Transaction) => {
-    this.setState({ transaction })
+  setTransaction = (transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
+    this.setState({ signatureRequest, transaction })
   }
 
   clearSubmissionPromise = () => {
@@ -131,21 +138,31 @@ class TransactionSender extends React.Component<Props, State> {
       this.setSubmissionPromise(promise)
       return await promise
     } catch (error) {
-      const refinedError = explainSubmissionError(error)
-
-      // re-throw
-      throw refinedError
+      // re-throw refined error
+      throw explainSubmissionError(error)
     }
   }
 
   submitTransactionToMultisigService = async (signedTransaction: Transaction) => {
-    const signatureRequestURI = createSignatureRequestURI(signedTransaction, {
+    const creationOptions = {
       network_passphrase: this.props.account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet
-    })
-    const promise = submitSignatureRequest(getMultisigServiceURL(), signatureRequestURI)
+    }
 
-    this.setSubmissionPromise(promise)
-    return promise
+    const signatureRequestURI = this.state.signatureRequest
+      ? this.state.signatureRequest.request_uri
+      : createSignatureRequestURI(signedTransaction, creationOptions)
+
+    try {
+      const promise = this.state.signatureRequest
+        ? collateSignature(this.state.signatureRequest, signedTransaction)
+        : submitNewSignatureRequest(getMultisigServiceURL(), signatureRequestURI)
+
+      this.setSubmissionPromise(promise)
+      return await promise
+    } catch (error) {
+      // re-throw refined error
+      throw explainSubmissionError(error)
+    }
   }
 
   render() {
@@ -162,6 +179,7 @@ class TransactionSender extends React.Component<Props, State> {
         <TxConfirmationDrawer
           open={Boolean(transaction)}
           account={this.props.account}
+          disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
           transaction={transaction}
           onClose={this.clearTransaction}
           onSubmitTransaction={this.submitTransaction}

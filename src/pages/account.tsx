@@ -4,7 +4,8 @@ import { match } from "react-router"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
-import SendIcon from "react-icons/lib/md/send"
+import SendIcon from "@material-ui/icons/Send"
+import UpdateIcon from "@material-ui/icons/Update"
 import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountDetails from "../components/Account/AccountDetails"
@@ -23,6 +24,7 @@ import { DialogsConsumer } from "../context/dialogs"
 import { DialogBlueprint, DialogType } from "../context/dialogTypes"
 import { SignatureDelegationConsumer } from "../context/signatureDelegation"
 import { isMultisigEnabled } from "../feature-flags"
+import { hasSigned } from "../lib/transaction"
 
 function createPaymentDialog(account: Account): DialogBlueprint {
   return {
@@ -99,13 +101,28 @@ const AccountPage = (props: Props) => {
                 {isMultisigEnabled() ? (
                   <SignatureDelegationConsumer>
                     {({ pendingSignatureRequests }) => (
-                      <InteractiveSignatureRequestList
-                        account={account}
-                        signatureRequests={pendingSignatureRequests.filter(request =>
-                          request._embedded.signers.some(signer => signer.account_id === account.publicKey)
-                        )}
-                        title="Pending transactions to co-sign"
-                      />
+                      <>
+                        <InteractiveSignatureRequestList
+                          account={account}
+                          icon={<SendIcon />}
+                          signatureRequests={pendingSignatureRequests.filter(
+                            request =>
+                              request._embedded.signers.some(signer => signer.account_id === account.publicKey) &&
+                              !hasSigned(request.meta.transaction, account.publicKey)
+                          )}
+                          title="Transactions to co-sign"
+                        />
+                        <InteractiveSignatureRequestList
+                          account={account}
+                          icon={<UpdateIcon style={{ opacity: 0.5 }} />}
+                          signatureRequests={pendingSignatureRequests.filter(
+                            request =>
+                              request._embedded.signers.some(signer => signer.account_id === account.publicKey) &&
+                              hasSigned(request.meta.transaction, account.publicKey)
+                          )}
+                          title="Awaiting additional signatures"
+                        />
+                      </>
                     )}
                   </SignatureDelegationConsumer>
                 ) : null}

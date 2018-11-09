@@ -11,6 +11,7 @@ import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
 import { List, ListItem } from "../List"
+import ShortPublicKey from "../ShortPublicKey"
 import { HumanReadableOperation } from "../TransactionSummary"
 import { MultipleBalances } from "./AccountBalances"
 
@@ -38,17 +39,24 @@ const RemotePublicKeys = (props: { publicKeys: string[] }) => {
   if (props.publicKeys.length === 0) {
     return <>-</>
   } else if (props.publicKeys.length === 1) {
-    return <>{props.publicKeys[0]}</>
+    return <ShortPublicKey publicKey={props.publicKeys[0]} variant="short" />
   } else {
     return (
       <>
-        {props.publicKeys[0]} <i>+ {props.publicKeys.length - 1} more</i>
+        <ShortPublicKey publicKey={props.publicKeys[0]} variant="short" /> <i>+ {props.publicKeys.length - 1} more</i>
       </>
     )
   }
 }
 
-const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transaction }) => {
+interface TitleTextProps {
+  accountPublicKey: string
+  alwaysShowSource?: boolean
+  paymentSummary: PaymentSummary
+  transaction: Transaction
+}
+
+const TitleText = (props: TitleTextProps) => {
   const balanceChanges = props.paymentSummary.map(
     ({ asset, balanceChange }) =>
       asset.isNative()
@@ -72,7 +80,7 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return (
       <span>
-        Received <MultipleBalances balances={balanceChanges} inline />{" "}
+        Receive <MultipleBalances balances={balanceChanges} inline />{" "}
         <DetailedInfo>
           from <RemotePublicKeys publicKeys={remotePublicKeys} />
         </DetailedInfo>
@@ -84,8 +92,13 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
   ) {
     return (
       <span>
-        Sent <MultipleBalances balances={balanceChanges} inline />{" "}
+        Send <MultipleBalances balances={balanceChanges} inline />{" "}
         <DetailedInfo>
+          {props.alwaysShowSource ? (
+            <span>
+              from <ShortPublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
+            </span>
+          ) : null}
           to <RemotePublicKeys publicKeys={remotePublicKeys} />
         </DetailedInfo>
       </span>
@@ -94,9 +107,25 @@ const TitleText = (props: { paymentSummary: PaymentSummary; transaction: Transac
     const operation = props.transaction.operations[0] as Operation.ChangeTrust
 
     return String(operation.limit) === "0" ? (
-      <>Removed trust in asset {operation.line.code}</>
+      <>
+        Remove trust in asset {operation.line.code}
+        {props.alwaysShowSource ? (
+          <>
+            {" "}
+            (<ShortPublicKey publicKey={props.accountPublicKey} variant="short" />)
+          </>
+        ) : null}
+      </>
     ) : (
-      <>Trust asset {operation.line.code}</>
+      <>
+        Trust asset {operation.line.code}
+        {props.alwaysShowSource ? (
+          <>
+            {" "}
+            (<ShortPublicKey publicKey={props.accountPublicKey} variant="short" />)
+          </>
+        ) : null}
+      </>
     )
   } else {
     return (
@@ -118,6 +147,7 @@ const TooltipTitle = (props: { children: React.ReactNode }) => {
 
 interface TransactionListItemProps {
   accountPublicKey: string
+  alwaysShowSource?: boolean
   createdAt: string
   icon?: React.ReactNode
   onClick?: () => void
@@ -143,7 +173,12 @@ export const TransactionListItem = (props: TransactionListItemProps) => {
       primaryText={
         <HorizontalLayout>
           <div style={{ flexGrow: 1, overflow: "hidden", textOverflow: "ellipsis" }}>
-            <TitleText paymentSummary={paymentSummary} transaction={props.transaction} />
+            <TitleText
+              accountPublicKey={props.accountPublicKey}
+              alwaysShowSource={props.alwaysShowSource}
+              paymentSummary={paymentSummary}
+              transaction={props.transaction}
+            />
           </div>
           {/* TODO: Action buttons */}
         </HorizontalLayout>

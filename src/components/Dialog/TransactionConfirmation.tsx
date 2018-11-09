@@ -13,6 +13,7 @@ const isPaymentOperation = (operation: TransactionOperation) =>
 
 interface TxConfirmationDrawerProps {
   account: Account
+  disabled?: boolean
   open: boolean
   transaction: Transaction | null
   onClose: () => void
@@ -37,6 +38,7 @@ const TxConfirmationDrawer = (props: TxConfirmationDrawerProps) => {
               <TxConfirmationForm
                 transaction={props.transaction}
                 account={props.account}
+                disabled={props.disabled}
                 onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
                 onCancel={props.onClose}
               />

@@ -15,6 +15,7 @@ interface FormValues {
 
 interface Props {
   account: Account
+  disabled?: boolean
   transaction: Transaction
   onConfirm?: (formValues: FormValues) => any
   onCancel?: () => any
@@ -64,12 +65,12 @@ class TxConfirmationForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { account, transaction, onCancel = () => undefined } = this.props
+    const { account, disabled, transaction, onCancel = () => undefined } = this.props
 
     return (
       <form onSubmit={this.onSubmit}>
         <VerticalLayout>
-          <TransactionSummary transaction={transaction} />
+          <TransactionSummary showSource={account.publicKey !== transaction.source} transaction={transaction} />
           {account.requiresPassword ? (
             <TextField
               error={Boolean(this.state.errors.password)}
@@ -84,11 +85,13 @@ class TxConfirmationForm extends React.Component<Props, State> {
             />
           ) : null}
           <HorizontalLayout justifyContent="center" margin="24px 0 0" wrap="wrap">
-            <Button variant="contained" color="primary" style={{ marginRight: 32 }} type="submit">
-              <ButtonIconLabel label="Confirm">
-                <CheckIcon />
-              </ButtonIconLabel>
-            </Button>
+            {disabled ? null : (
+              <Button variant="contained" color="primary" style={{ marginRight: 32 }} type="submit">
+                <ButtonIconLabel label="Confirm">
+                  <CheckIcon />
+                </ButtonIconLabel>
+              </Button>
+            )}
             <Button variant="contained" onClick={onCancel}>
               Cancel
             </Button>
