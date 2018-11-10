@@ -15,29 +15,19 @@ function prettifyCamelcase(identifier: string) {
   return prettified.charAt(0).toUpperCase() + prettified.substr(1)
 }
 
+function prettifyOperationObject(operation: TransactionOperation) {
+  const operationPropNames = Object.keys(operation)
+    .filter(key => key !== "type")
+    .filter(propName => Boolean((operation as any)[propName]))
+
+  const operationDetailLines = operationPropNames.map(
+    propName => `${prettifyCamelcase(propName)}: ${JSON.stringify((operation as any)[propName], null, 2)}`
+  )
+  return operationDetailLines.join("\n")
+}
+
 export const HumanReadableOperation = (props: { operation: TransactionOperation }) => {
-  const { operation } = props
-  if (operation.type === "setOptions") {
-    if (operation.signer && typeof operation.signer.weight === "number") {
-      const signerPublicKey = String(operation.signer.ed25519PublicKey)
-      if (operation.signer.weight > 0) {
-        return (
-          <>
-            Add signer: <PublicKey publicKey={signerPublicKey} variant="shorter" />
-          </>
-        )
-      } else if (operation.signer.weight === 0) {
-        return (
-          <>
-            Remove signer: <PublicKey publicKey={signerPublicKey} variant="shorter" />
-          </>
-        )
-      }
-    } else if (operation.lowThreshold || operation.medThreshold || operation.highThreshold) {
-      return <>Change key thresholds</>
-    }
-  }
-  const formattedType = uppercaseFirstLetter(operation.type.replace(/([A-Z])/g, letter => " " + letter))
+  const formattedType = uppercaseFirstLetter(props.operation.type.replace(/([A-Z])/g, letter => " " + letter))
   return <>{formattedType}</>
 }
 
@@ -128,16 +118,38 @@ const ChangeTrustOperation = (props: { operation: Operation.ChangeTrust; style?:
   }
 }
 
-const DefaultOperation = (props: { operation: TransactionOperation; style?: React.CSSProperties }) => {
-  const operationPropNames = Object.keys(props.operation)
-    .filter(key => key !== "type")
-    .filter(propName => Boolean((props.operation as any)[propName]))
-
-  const operationDetailLines = operationPropNames.map(
-    propName => `${prettifyCamelcase(propName)}: ${JSON.stringify((props.operation as any)[propName], null, 2)}`
+const SetOptionsOperation = (props: { operation: Operation.SetOptions; style?: React.CSSProperties }) => {
+  let heading = <></>
+  let primaryText = (
+    <OperationDetails>
+      <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{prettifyOperationObject(props.operation)}</pre>
+    </OperationDetails>
   )
-  const operationDetails = operationDetailLines.join("\n")
 
+  if (props.operation.signer && typeof props.operation.signer.weight === "number") {
+    const signerPublicKey = String(props.operation.signer.ed25519PublicKey)
+    if (props.operation.signer.weight > 0) {
+      heading = <>Add signer</>
+      primaryText = (
+        <OperationDetails>
+          <PublicKey publicKey={signerPublicKey} variant="full" />
+        </OperationDetails>
+      )
+    } else if (props.operation.signer.weight === 0) {
+      heading = <>Remove signer</>
+      primaryText = (
+        <OperationDetails>
+          <PublicKey publicKey={signerPublicKey} variant="full" />
+        </OperationDetails>
+      )
+    }
+  } else if (props.operation.lowThreshold || props.operation.medThreshold || props.operation.highThreshold) {
+    heading = <>Change key thresholds</>
+  }
+  return <ListItem heading={heading} primaryText={primaryText} style={props.style} />
+}
+
+const DefaultOperation = (props: { operation: TransactionOperation; style?: React.CSSProperties }) => {
   return (
     <ListItem
       heading={
@@ -147,7 +159,7 @@ const DefaultOperation = (props: { operation: TransactionOperation; style?: Reac
       }
       primaryText={
         <OperationDetails>
-          <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{operationDetails}</pre>
+          <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{prettifyOperationObject(props.operation)}</pre>
         </OperationDetails>
       }
       style={props.style}
@@ -182,6 +194,8 @@ const TransactionOperation = (props: { operation: TransactionOperation; style?: 
     return <CreateAccountOperation operation={props.operation} style={props.style} />
   } else if (props.operation.type === "changeTrust") {
     return <ChangeTrustOperation operation={props.operation} style={props.style} />
+  } else if (props.operation.type === "setOptions") {
+    return <SetOptionsOperation operation={props.operation} style={props.style} />
   } else {
     return <DefaultOperation operation={props.operation} style={props.style} />
   }
