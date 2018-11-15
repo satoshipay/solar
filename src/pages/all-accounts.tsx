@@ -16,7 +16,7 @@ interface Props {
   toggleNetwork: AccountsContext["toggleNetwork"]
 }
 
-const HomePage = (props: Props) => {
+const AllAccountsPage = (props: Props) => {
   return (
     <Section top brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
@@ -41,14 +41,14 @@ const HomePage = (props: Props) => {
   )
 }
 
-const HomePageContainer = (props: Pick<Props, "history">) => {
+const AllAccountsPageContainer = (props: Pick<Props, "history">) => {
   return (
     <AccountsConsumer>
       {({ accounts, networkSwitch, toggleNetwork }) => (
-        <HomePage {...props} accounts={accounts} networkSwitch={networkSwitch} toggleNetwork={toggleNetwork} />
+        <AllAccountsPage {...props} accounts={accounts} networkSwitch={networkSwitch} toggleNetwork={toggleNetwork} />
       )}
     </AccountsConsumer>
   )
 }
 
-export default withRouter(HomePageContainer)
+export default withRouter(AllAccountsPageContainer)
