@@ -14,6 +14,7 @@
     "dev": "NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 3000"
   },
   "browser": {
+    "fs": false,
     "../src/platform/electron/key-store": false
   }
 }
