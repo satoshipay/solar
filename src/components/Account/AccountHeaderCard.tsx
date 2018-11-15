@@ -88,7 +88,7 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
       <Card
         style={{
           position: "relative",
-          background: "inherit",
+          background: "transparent",
           boxShadow: "none",
           ...this.props.style
         }}
