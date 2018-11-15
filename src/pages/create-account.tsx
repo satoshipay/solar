@@ -6,13 +6,14 @@ import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
 import { Box } from "../components/Layout/Box"
-import { AccountsConsumer, AccountsContext } from "../context/accounts"
+import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
 import { addError } from "../context/notifications"
 
 interface Props {
+  accounts: Account[]
+  createAccount: AccountsContext["createAccount"]
   history: History
   testnet: boolean
-  createAccount: AccountsContext["createAccount"]
 }
 
 class CreateAccountPage extends React.Component<Props> {
@@ -38,7 +39,12 @@ class CreateAccountPage extends React.Component<Props> {
     return (
       <Section top>
         <Box padding="16px 24px" style={{ position: "relative" }}>
-          <AccountCreationForm onCancel={this.close} onSubmit={this.createAccount} testnet={this.props.testnet} />
+          <AccountCreationForm
+            accounts={this.props.accounts}
+            onCancel={this.close}
+            onSubmit={this.createAccount}
+            testnet={this.props.testnet}
+          />
         </Box>
       </Section>
     )
@@ -50,7 +56,9 @@ type ContainerProps = RouteComponentProps<any> & Pick<Props, "testnet">
 const CreateAccountPageContainer = (props: ContainerProps) => {
   return (
     <AccountsConsumer>
-      {({ createAccount }) => <CreateAccountPage {...props} createAccount={createAccount} />}
+      {({ accounts, createAccount }) => (
+        <CreateAccountPage {...props} accounts={accounts} createAccount={createAccount} />
+      )}
     </AccountsConsumer>
   )
 }
