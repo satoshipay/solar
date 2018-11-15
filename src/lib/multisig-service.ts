@@ -202,6 +202,7 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
   const { onError = addError, onNewSignatureRequest, onSignatureRequestUpdate, onSignatureRequestSubmitted } = handlers
 
   const eventSource = new EventSource(urlJoin(serviceURL, `/stream/${dedupe(accountIDs).join(",")}`))
+  let lastErrorTime = 0
 
   if (onNewSignatureRequest) {
     eventSource.addEventListener(
@@ -241,7 +242,11 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
 
   eventSource.onerror = () => {
     // No need to manually reconnect, since auto-reconnect is part of the protocol
-    onError(new Error("Multisig service event stream crashed."))
+    // Debounce error notifications (show only once per series of subsequent errors)
+    if (Date.now() - lastErrorTime > 10000) {
+      onError(new Error("Multisig service event stream crashed."))
+    }
+    lastErrorTime = Date.now()
   }
 
   return function unsubscribe() {
