@@ -34,11 +34,13 @@ export function hasSigned(transaction: Transaction, publicKey: string) {
 
 async function accountExists(horizon: Server, publicKey: string) {
   try {
-    await horizon
+    const account = await horizon
       .accounts()
       .accountId(publicKey)
       .call()
-    return true
+
+    // Hack to fix SatoshiPay horizons responding with status 200 and an empty object on non-existent accounts
+    return Object.keys(account).length > 0
   } catch (error) {
     if (error && error.response && error.response.status === 404) {
       return false
