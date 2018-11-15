@@ -7,6 +7,7 @@ import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
+import { Account } from "../../context/accounts"
 import { addError } from "../../context/notifications"
 import { renderFormFieldError } from "../../lib/errors"
 import QRImportDialog from "../Dialog/QRImport"
@@ -26,6 +27,20 @@ export interface AccountCreationValues {
 }
 
 type AccountCreationErrors = { [fieldName in keyof AccountCreationValues]?: Error | null }
+
+function getNewAccountName(accounts: Account[], testnet?: boolean) {
+  const baseName = `My ${testnet ? "Testnet " : ""}Account`
+  const deriveName = (idx: number) => (idx === 0 ? baseName : `${baseName} ${idx + 1}`)
+
+  let index = 0
+
+  // Find an account name that is not in use yet
+  while (accounts.some(account => account.name === deriveName(index))) {
+    index++
+  }
+
+  return deriveName(index)
+}
 
 function validateFormValues(formValues: AccountCreationValues) {
   const errors: AccountCreationErrors = {}
@@ -173,6 +188,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
 }
 
 interface Props {
+  accounts: Account[]
   testnet: boolean
   onCancel(): void
   onSubmit(formValues: AccountCreationValues): void
@@ -188,7 +204,7 @@ class StatefulAccountCreationForm extends React.Component<Props, State> {
   state: State = {
     errors: {},
     formValues: {
-      name: "",
+      name: getNewAccountName(this.props.accounts, this.props.testnet),
       password: "",
       passwordRepeat: "",
       privateKey: "",
