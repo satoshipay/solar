@@ -24,6 +24,8 @@ body,
   height: 28px;
   margin: 0;
   padding: 0;
+  overflow: hidden;
   z-index: 1;
   -webkit-app-region: drag;
+  -webkit-mask: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
 }

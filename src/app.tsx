@@ -44,15 +44,17 @@ const App = () => (
     <MuiThemeProvider theme={theme}>
       <Providers>
         <VerticalLayout height="100%">
-          <Route exact path="/" component={AllAccountsPage} />
-          <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
-          <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
-          <Route exact path="/account/:id" component={AccountPage} />
-          <Route exact path="/account/:id/assets" component={AccountAssetsPage} />
-          <Route exact path="/account/:id/signers" component={ManageSignersPage} />
-          <DesktopNotifications />
-          <NotificationContainer />
-          <OpenDialogs />
+          <VerticalLayout height="100%" grow overflow="auto">
+            <Route exact path="/" component={AllAccountsPage} />
+            <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
+            <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
+            <Route exact path="/account/:id" component={AccountPage} />
+            <Route exact path="/account/:id/assets" component={AccountAssetsPage} />
+            <Route exact path="/account/:id/signers" component={ManageSignersPage} />
+            <DesktopNotifications />
+            <NotificationContainer />
+            <OpenDialogs />
+          </VerticalLayout>
         </VerticalLayout>
       </Providers>
     </MuiThemeProvider>
