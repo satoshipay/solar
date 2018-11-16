@@ -3,17 +3,32 @@ import { withRouter, RouteComponentProps } from "react-router-dom"
 import { History } from "history"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
-import IconButton from "@material-ui/core/IconButton"
+import IconButton, { IconButtonProps } from "@material-ui/core/IconButton"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
-import LockOpenIcon from "@material-ui/icons/LockOpen"
+import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
+import MoreVertIcon from "@material-ui/icons/MoreVert"
+import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
 import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
 import * as routes from "../../routes"
+import { primaryBackgroundColor } from "../../theme"
+import TilesIcon from "../Icon/Tiles"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
+
+const iconButtonStyles: StyleRules = {
+  iconButton: {
+    marginLeft: -16,
+    marginRight: 8,
+    fontSize: 32
+  }
+}
+
+const StyledIconButton = withStyles(iconButtonStyles)((props: IconButtonProps & { classes: ClassNameMap }) => {
+  return <IconButton {...props} className={props.classes.iconButton} />
+})
 
 type BackButtonProps = RouteComponentProps<any, any, any> & {
   style?: React.CSSProperties
@@ -22,10 +37,34 @@ type BackButtonProps = RouteComponentProps<any, any, any> & {
 const BackButton = withRouter<BackButtonProps>((props: BackButtonProps) => {
   return (
     <IconButton color="inherit" onClick={() => props.history.push(routes.allAccounts())} style={props.style}>
-      <ChevronLeftIcon style={{ fontSize: "inherit" }} />
+      <TilesIcon />
     </IconButton>
   )
 })
+
+const PasswordStatus = (props: { safe: boolean; style?: React.CSSProperties }) => {
+  return (
+    <Tooltip title={props.safe ? "Password protected" : "No password"}>
+      <VerifiedUserIcon style={{ opacity: props.safe ? 1 : 0.5, ...props.style }} />
+    </Tooltip>
+  )
+}
+
+const TestnetBadge = (props: { style?: React.CSSProperties }) => {
+  const style: React.CSSProperties = {
+    display: "inline-block",
+    padding: "5px",
+    background: "white",
+    borderRadius: 3,
+    color: primaryBackgroundColor,
+    fontSize: "50%",
+    fontWeight: "bold",
+    lineHeight: "100%",
+    textTransform: "uppercase",
+    ...props.style
+  }
+  return <span style={style}>Testnet</span>
+}
 
 interface Props {
   account: Account
@@ -94,18 +133,21 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
         }}
       >
         <CardContent>
-          <HorizontalLayout alignItems="space-between">
-            <Box grow>
-              <BackButton style={{ marginTop: -8, marginLeft: -16, fontSize: 32 }} />
-            </Box>
-            <Typography align="center" color="inherit" variant="headline" component="h2" gutterBottom>
+          <HorizontalLayout alignItems="center" margin="-12px 0 -10px">
+            <BackButton style={{ marginLeft: -8, marginRight: 8, fontSize: 24 }} />
+            <Typography
+              align="center"
+              color="inherit"
+              variant="headline"
+              component="h2"
+              style={{ marginRight: 20, fontSize: "2rem" }}
+            >
               {this.props.account.name}
-              {this.props.account.requiresPassword ? null : (
-                <Tooltip title="No password">
-                  <LockOpenIcon style={{ marginLeft: 8, marginBottom: -2, fontSize: "70%" }} />
-                </Tooltip>
-              )}
             </Typography>
+            <HorizontalLayout display="inline-flex" width="auto" fontSize="1.5rem">
+              {this.props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
+              <PasswordStatus safe={this.props.account.requiresPassword} style={{ fontSize: "80%" }} />
+            </HorizontalLayout>
             <Box grow style={{ textAlign: "right" }}>
               <AccountContextMenu
                 account={this.props.account}
@@ -114,8 +156,13 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
                 onExport={this.onExport}
                 onManageSigners={this.onManageSigners}
                 onRename={this.onRename}
-                style={{ marginTop: -8, marginRight: -16, fontSize: 32 }}
-              />
+              >
+                {({ onOpen }) => (
+                  <StyledIconButton color="inherit" onClick={onOpen}>
+                    <MoreVertIcon style={{ fontSize: "inherit" }} />
+                  </StyledIconButton>
+                )}
+              </AccountContextMenu>
             </Box>
           </HorizontalLayout>
           {this.props.children}
