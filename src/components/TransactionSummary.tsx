@@ -71,11 +71,11 @@ const PaymentOperation = (props: { operation: Operation.Payment; style?: React.C
       </div>
       <div>
         <div>
-          to <small>{destination}</small>
+          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
         </div>
         {props.operation.source ? (
           <div>
-            from <small>{props.operation.source}</small>
+            from <PublicKey publicKey={props.operation.source} style={{ fontWeight: "normal" }} variant="full" />
           </div>
         ) : null}
       </div>
@@ -93,11 +93,11 @@ const CreateAccountOperation = (props: { operation: Operation.CreateAccount; sty
       </div>
       <div>
         <div>
-          to <small>{destination}</small>
+          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
         </div>
         {props.operation.source ? (
           <div>
-            from <small>{props.operation.source}</small>
+            from <PublicKey publicKey={props.operation.source} style={{ fontWeight: "normal" }} variant="full" />
           </div>
         ) : null}
       </div>
@@ -110,7 +110,8 @@ const ChangeTrustOperation = (props: { operation: Operation.ChangeTrust; style?:
   if (String(props.operation.limit) === "0") {
     const content = (
       <OperationDetails>
-        {props.operation.line.code} by <small>{props.operation.line.issuer}</small>
+        {props.operation.line.code} by{" "}
+        <PublicKey publicKey={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
       </OperationDetails>
     )
     return <ListItem heading="Remove trust in asset" primaryText={content} style={props.style} />
@@ -118,7 +119,8 @@ const ChangeTrustOperation = (props: { operation: Operation.ChangeTrust; style?:
     const content = (
       <OperationDetails>
         <div>
-          {props.operation.line.code} by <small>{props.operation.line.issuer}</small>
+          {props.operation.line.code} by{" "}
+          <PublicKey publicKey={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
         </div>
         <div>
           {trustlineLimitEqualsUnlimited(props.operation.limit)
@@ -145,14 +147,14 @@ const SetOptionsOperation = (props: { operation: Operation.SetOptions; style?: R
       heading = <>Add signer</>
       primaryText = (
         <OperationDetails>
-          <PublicKey publicKey={signerPublicKey} variant="full" />
+          <PublicKey publicKey={signerPublicKey} style={{ fontWeight: "normal" }} variant="full" />
         </OperationDetails>
       )
     } else if (props.operation.signer.weight === 0) {
       heading = <>Remove signer</>
       primaryText = (
         <OperationDetails>
-          <PublicKey publicKey={signerPublicKey} variant="full" />
+          <PublicKey publicKey={signerPublicKey} style={{ fontWeight: "normal" }} variant="full" />
         </OperationDetails>
       )
     }
@@ -182,11 +184,7 @@ const SourceAccount = (props: { transaction: Transaction; style?: React.CSSPrope
       heading="Source Account"
       primaryText={
         <OperationDetails>
-          <PublicKey
-            publicKey={props.transaction.source}
-            style={{ fontWeight: "normal", fontSize: "inherit" }}
-            variant="short"
-          />
+          <PublicKey publicKey={props.transaction.source} style={{ fontWeight: "normal" }} variant="full" />
         </OperationDetails>
       }
       style={props.style}
