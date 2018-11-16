@@ -1,10 +1,10 @@
 import React from "react"
 
-interface AnchorRenderPropArgument {
+export interface AnchorRenderProps {
   onOpen: (event: React.SyntheticEvent<HTMLElement>) => void
 }
 
-interface MenuRenderPropArgument {
+interface MenuRenderProps {
   anchorEl: HTMLElement | null
   closeAndCall: (fn: () => void) => () => void
   open: boolean
@@ -12,8 +12,8 @@ interface MenuRenderPropArgument {
 }
 
 interface Props {
-  anchor: (anchorProps: AnchorRenderPropArgument) => React.ReactNode
-  menu: (menuProps: MenuRenderPropArgument) => React.ReactNode
+  anchor: (anchorProps: AnchorRenderProps) => React.ReactNode
+  menu: (menuProps: MenuRenderProps) => React.ReactNode
 }
 
 interface State {

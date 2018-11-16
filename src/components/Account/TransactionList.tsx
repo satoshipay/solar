@@ -1,38 +1,35 @@
 import React from "react"
-import { AccountResponse, Memo, Operation, Transaction } from "stellar-sdk"
+import { Memo, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
+import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import ListItemIcon from "@material-ui/core/ListItemIcon"
+import ListItemText from "@material-ui/core/ListItemText"
+import ListSubheader from "@material-ui/core/ListSubheader"
+import Tooltip from "@material-ui/core/Tooltip"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import CogIcon from "react-icons/lib/fa/cog"
-import ListSubheader from "@material-ui/core/ListSubheader"
-import Tooltip from "@material-ui/core/Tooltip"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
-import { HorizontalLayout } from "../Layout/Box"
-import { List, ListItem } from "../List"
 import PublicKey from "../PublicKey"
 import { HumanReadableOperation } from "../TransactionSummary"
-import { MultipleBalances } from "./AccountBalances"
+import { SingleBalance } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
 }
 
-const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
-  if (props.paymentSummary.length === 0) {
-    return <CogIcon />
-  } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
-    return <CallReceivedIcon />
-  } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.lt(0))) {
-    return <CallMadeIcon />
+const MemoMessage = (props: { memo: Memo }) => {
+  const memo = props.memo
+  if (!memo.value) {
+    return null
+  } else if (Buffer.isBuffer(memo.value)) {
+    return <>Memo: {memo.value.toString("hex")}</>
   } else {
-    return <SwapHorizIcon />
+    return <>Memo: {memo.value}</>
   }
-}
-
-const DetailedInfo = (props: { children: React.ReactNode }) => {
-  return <small style={{ opacity: 0.8, fontSize: "75%" }}>{props.children}</small>
 }
 
 const RemotePublicKeys = (props: { publicKeys: string[]; short?: boolean }) => {
@@ -49,28 +46,49 @@ const RemotePublicKeys = (props: { publicKeys: string[]; short?: boolean }) => {
   }
 }
 
+const Time = (props: { time: Date }) => {
+  return (
+    <Tooltip title={<span style={{ fontSize: "110%" }}>{props.time.toLocaleString()}</span>}>
+      <span>
+        <HumanTime time={props.time.getTime()} />
+      </span>
+    </Tooltip>
+  )
+}
+
+const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
+  if (props.paymentSummary.length === 0) {
+    return <CogIcon />
+  } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
+    return <CallReceivedIcon />
+  } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.lt(0))) {
+    return <CallMadeIcon />
+  } else {
+    return <SwapHorizIcon />
+  }
+}
+
 interface TitleTextProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
+  createdAt: Date
   paymentSummary: PaymentSummary
   transaction: Transaction
 }
 
-const TitleText = (props: TitleTextProps) => {
-  const balanceChanges = props.paymentSummary.map(
-    ({ asset, balanceChange }) =>
-      asset.isNative()
-        ? {
-            asset_type: "native",
-            balance: balanceChange.abs().toString()
-          }
-        : {
-            asset_code: asset.getCode(),
-            asset_issuer: asset.getIssuer(),
-            asset_type: asset.getAssetType(),
-            balance: balanceChange.abs().toString()
-          }
-  ) as AccountResponse["balances"]
+// TODO: Re-use code of transaction summary operation heading
+const TransactionItemText = (props: TitleTextProps) => {
+  const secondary = (
+    <>
+      <Time time={props.createdAt} />
+      {props.transaction.memo.type !== "none" ? (
+        <>
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          <MemoMessage memo={props.transaction.memo} />
+        </>
+      ) : null}
+    </>
+  )
 
   const remotePublicKeys = props.paymentSummary.reduce(
     (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
@@ -79,132 +97,126 @@ const TitleText = (props: TitleTextProps) => {
 
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return (
-      <span>
-        Receive <MultipleBalances balances={balanceChanges} inline />{" "}
-        <DetailedInfo>
-          from <RemotePublicKeys publicKeys={remotePublicKeys} />
-        </DetailedInfo>
-      </span>
+      <ListItemText
+        primary={
+          <span>
+            <RemotePublicKeys publicKeys={remotePublicKeys} />
+          </span>
+        }
+        secondary={secondary}
+      />
     )
   } else if (
     remotePublicKeys.length > 0 &&
     props.paymentSummary.every(summaryItem => summaryItem.balanceChange.lt(0))
   ) {
     return (
-      <span>
-        Send <MultipleBalances balances={balanceChanges} inline />{" "}
-        <DetailedInfo>
-          {props.alwaysShowSource ? (
-            <span>
-              from <PublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
-            </span>
-          ) : null}
-          to <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
-        </DetailedInfo>
-      </span>
+      <ListItemText
+        primary={
+          <span>
+            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
+            {props.alwaysShowSource ? (
+              <span>
+                &nbsp;from <PublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
+              </span>
+            ) : null}
+          </span>
+        }
+        secondary={secondary}
+      />
     )
   } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "changeTrust") {
     const operation = props.transaction.operations[0] as Operation.ChangeTrust
 
     return String(operation.limit) === "0" ? (
-      <>
-        Remove trust in asset {operation.line.code}
-        {props.alwaysShowSource ? (
-          <>
-            {" "}
-            (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
-          </>
-        ) : null}
-      </>
+      <ListItemText
+        primary={
+          <span>
+            Remove trust in asset {operation.line.code}
+            {props.alwaysShowSource ? (
+              <>
+                {" "}
+                (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+              </>
+            ) : null}
+          </span>
+        }
+        secondary={secondary}
+      />
     ) : (
-      <>
-        Trust asset {operation.line.code}
-        {props.alwaysShowSource ? (
-          <>
-            {" "}
-            (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
-          </>
-        ) : null}
-      </>
+      <ListItemText
+        primary={
+          <span>
+            Trust asset {operation.line.code}
+            {props.alwaysShowSource ? (
+              <>
+                {" "}
+                (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+              </>
+            ) : null}
+          </span>
+        }
+        secondary={secondary}
+      />
     )
   } else {
     return (
-      <>
-        {props.transaction.operations.map((operation, index) => (
-          <span key={index}>
-            {index > 0 ? <>,&nbsp;</> : ""}
-            <HumanReadableOperation key={index} operation={operation} />
+      <ListItemText
+        primary={
+          <span>
+            {props.transaction.operations.map((operation, index) => (
+              <span key={index}>
+                {index > 0 ? <>,&nbsp;</> : ""}
+                <HumanReadableOperation key={index} operation={operation} />
+              </span>
+            ))}
           </span>
-        ))}
-      </>
+        }
+        secondary={secondary}
+      />
     )
   }
-}
-
-const MemoMessage = (props: { memo: Memo }) => {
-  const memo = props.memo
-  if (!memo.value) {
-    return null
-  } else if (Buffer.isBuffer(memo.value)) {
-    return <>Memo: {memo.value.toString("hex")}</>
-  } else {
-    return <>Memo: {memo.value}</>
-  }
-}
-
-const TooltipTitle = (props: { children: React.ReactNode }) => {
-  return <span style={{ fontSize: "110%" }}>{props.children}</span>
 }
 
 interface TransactionListItemProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
   createdAt: string
-  icon?: React.ReactNode
+  icon?: React.ReactElement<any>
   onClick?: () => void
+  style?: React.CSSProperties
   transaction: Transaction
 }
 
 export const TransactionListItem = (props: TransactionListItemProps) => {
-  const createdAt = new Date(props.createdAt)
-  const memo = props.transaction.memo
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
   return (
-    <ListItem
-      leftIcon={
-        <span style={{ fontSize: "125%" }}>{props.icon || <TransactionIcon paymentSummary={paymentSummary} />}</span>
-      }
-      heading={
-        <HorizontalLayout>
-          <Tooltip title={<TooltipTitle>{createdAt.toLocaleString()}</TooltipTitle>}>
-            <small style={{ display: "inline-block", width: 100, color: "#666", fontSize: "80%" }}>
-              <HumanTime time={createdAt.getTime()} />
-            </small>
-          </Tooltip>
-          <small style={{ color: "#666", fontSize: "80%" }}>{memo ? <MemoMessage memo={memo} /> : null}</small>
-        </HorizontalLayout>
-      }
-      primaryText={
-        <HorizontalLayout>
-          <div style={{ flexGrow: 1, overflow: "hidden", textOverflow: "ellipsis" }}>
-            <TitleText
-              accountPublicKey={props.accountPublicKey}
-              alwaysShowSource={props.alwaysShowSource}
-              paymentSummary={paymentSummary}
-              transaction={props.transaction}
-            />
-          </div>
-          {/* TODO: Action buttons */}
-        </HorizontalLayout>
-      }
-      onClick={props.onClick}
-    />
+    <ListItem button={Boolean(props.onClick)} onClick={props.onClick} style={props.style}>
+      <ListItemIcon>{props.icon || <TransactionIcon paymentSummary={paymentSummary} />}</ListItemIcon>
+      <TransactionItemText
+        accountPublicKey={props.accountPublicKey}
+        alwaysShowSource={props.alwaysShowSource}
+        createdAt={new Date(props.createdAt)}
+        paymentSummary={paymentSummary}
+        transaction={props.transaction}
+      />
+      <ListItemText primaryTypographyProps={{ align: "right" }}>
+        {paymentSummary.length === 0 ? null : (
+          <SingleBalance
+            assetCode={paymentSummary[0].asset.getCode()}
+            balance={paymentSummary[0].balanceChange.toString()}
+            style={{ fontSize: "1.6rem" }}
+          />
+        )}
+      </ListItemText>
+    </ListItem>
   )
 }
 
 const TransactionList = (props: {
   accountPublicKey: string
+  background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
   transactions: Transaction[]
@@ -213,8 +225,10 @@ const TransactionList = (props: {
   selectNetwork(props.testnet)
 
   return (
-    <List>
-      <ListSubheader>{props.title}</ListSubheader>
+    <List style={{ background: props.background }}>
+      <ListSubheader disableSticky style={{ background: props.background }}>
+        {props.title}
+      </ListSubheader>
       {props.transactions.map(transaction => (
         <TransactionListItem
           key={transaction.hash().toString("hex")}

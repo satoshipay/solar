@@ -117,6 +117,7 @@ export type BoxStyles = SizingStyles &
   FlexParentStyles &
   FlexChildStyles &
   TextStyles & {
+    display?: React.CSSProperties["display"]
     hidden?: boolean
     margin?: React.CSSProperties["margin"]
     overflow?: React.CSSProperties["overflow"]
@@ -134,6 +135,9 @@ const createBoxStyle = (styleProps: BoxStyles) => {
     ...createFlexParentStyle(styleProps),
     ...createFlexChildStyle(styleProps),
     ...createTextStyle(styleProps)
+  }
+  if (styleProps.display) {
+    style.display = styleProps.display
   }
   return removeNullValueProps(style)
 }
