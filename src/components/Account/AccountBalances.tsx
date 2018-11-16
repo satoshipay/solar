@@ -33,22 +33,23 @@ interface SingleBalanceProps {
 
 export const SingleBalance = (props: SingleBalanceProps) => {
   const thousandsSeparator = ","
-  const trimmedUnformattedBalance = trimBalance(parseFloat(props.balance))
+  const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(props.balance)))
   const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
   return (
     <span style={props.style}>
-      <span
-        style={{
-          fontWeight: props.inline ? undefined : "bold",
-          marginRight: props.inline ? undefined : 8
-        }}
-      >
-        {props.assetCode}
-      </span>
-      &nbsp;
+      {parseFloat(props.balance) >= 0 ? null : <span>-&nbsp;</span>}
       <span style={{ fontWeight: 300 }}>
         {addThousandsSeparators(integerPart, thousandsSeparator)}
         <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
+      </span>
+      &nbsp;
+      <span
+        style={{
+          fontWeight: props.inline ? undefined : "bold",
+          marginLeft: props.inline ? undefined : "0.4em"
+        }}
+      >
+        {props.assetCode}
       </span>
     </span>
   )

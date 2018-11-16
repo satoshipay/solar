@@ -108,7 +108,7 @@ const AccountPage = (props: Props) => {
           </Box>
         </AccountHeaderCard>
       </Section>
-      <Section>
+      <Section backgroundColor="#f6f6f6">
         <Transactions publicKey={account.publicKey} testnet={account.testnet}>
           {({ activated, horizon, loading, transactions }) =>
             loading ? (
@@ -120,6 +120,7 @@ const AccountPage = (props: Props) => {
                 {isMultisigEnabled() ? <PendingMultisigTransactions account={account} /> : null}
                 <TransactionList
                   accountPublicKey={account.publicKey}
+                  background="transparent"
                   title="Recent transactions"
                   testnet={account.testnet}
                   transactions={transactions}

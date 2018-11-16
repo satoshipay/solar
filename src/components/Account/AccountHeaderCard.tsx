@@ -27,7 +27,7 @@ const iconButtonStyles: StyleRules = {
 }
 
 const StyledIconButton = withStyles(iconButtonStyles)((props: IconButtonProps & { classes: ClassNameMap }) => {
-  return <IconButton {...props} className={props.classes.iconButton} />
+  return <IconButton {...props} className={props.classes.iconButton} classes={undefined} />
 })
 
 type BackButtonProps = RouteComponentProps<any, any, any> & {

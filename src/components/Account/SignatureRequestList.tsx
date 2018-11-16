@@ -9,9 +9,10 @@ import TransactionSender from "../TransactionSender"
 
 const SignatureRequestListItem = (props: {
   accountPublicKey: string
-  icon?: React.ReactNode
+  icon?: React.ReactElement<any>
   onOpenTransaction?: (tx: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequest: SignatureRequest
+  style?: React.CSSProperties
 }) => {
   const { onOpenTransaction, signatureRequest } = props
   return (
@@ -24,6 +25,7 @@ const SignatureRequestListItem = (props: {
       onClick={
         onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction, signatureRequest) : undefined
       }
+      style={props.style}
       transaction={signatureRequest.meta.transaction}
     />
   )
@@ -31,7 +33,7 @@ const SignatureRequestListItem = (props: {
 
 export const SignatureRequestList = (props: {
   accountPublicKey: string
-  icon?: React.ReactNode
+  icon?: React.ReactElement<any>
   onOpenTransaction?: (transaction: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
@@ -40,8 +42,10 @@ export const SignatureRequestList = (props: {
     return null
   }
   return (
-    <List>
-      <ListSubheader>{props.title}</ListSubheader>
+    <List style={{ background: "transparent" }}>
+      <ListSubheader disableSticky style={{ background: "transparent" }}>
+        {props.title}
+      </ListSubheader>
       {props.signatureRequests.map(signatureRequest => (
         <SignatureRequestListItem
           key={signatureRequest.hash}
@@ -49,6 +53,7 @@ export const SignatureRequestList = (props: {
           icon={props.icon}
           onOpenTransaction={props.onOpenTransaction}
           signatureRequest={signatureRequest}
+          style={{ background: "#ffffff", boxShadow: "#ccc 0px 1px 5px" }}
         />
       ))}
     </List>
@@ -57,7 +62,7 @@ export const SignatureRequestList = (props: {
 
 export const InteractiveSignatureRequestList = (props: {
   account: Account
-  icon?: React.ReactNode
+  icon?: React.ReactElement<any>
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
 }) => {
