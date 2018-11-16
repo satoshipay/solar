@@ -73,6 +73,7 @@ interface TitleTextProps {
   alwaysShowSource?: boolean
   createdAt: Date
   paymentSummary: PaymentSummary
+  style?: React.CSSProperties
   transaction: Transaction
 }
 
@@ -103,7 +104,9 @@ const TransactionItemText = (props: TitleTextProps) => {
             <RemotePublicKeys publicKeys={remotePublicKeys} />
           </span>
         }
+        primaryTypographyProps={{ style: props.style }}
         secondary={secondary}
+        style={props.style}
       />
     )
   } else if (
@@ -122,7 +125,9 @@ const TransactionItemText = (props: TitleTextProps) => {
             ) : null}
           </span>
         }
+        primaryTypographyProps={{ style: props.style }}
         secondary={secondary}
+        style={props.style}
       />
     )
   } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "changeTrust") {
@@ -141,7 +146,9 @@ const TransactionItemText = (props: TitleTextProps) => {
             ) : null}
           </span>
         }
+        primaryTypographyProps={{ style: props.style }}
         secondary={secondary}
+        style={props.style}
       />
     ) : (
       <ListItemText
@@ -156,7 +163,9 @@ const TransactionItemText = (props: TitleTextProps) => {
             ) : null}
           </span>
         }
+        primaryTypographyProps={{ style: props.style }}
         secondary={secondary}
+        style={props.style}
       />
     )
   } else {
@@ -172,7 +181,9 @@ const TransactionItemText = (props: TitleTextProps) => {
             ))}
           </span>
         }
+        primaryTypographyProps={{ style: props.style }}
         secondary={secondary}
+        style={props.style}
       />
     )
   }
@@ -199,6 +210,7 @@ export const TransactionListItem = (props: TransactionListItemProps) => {
         alwaysShowSource={props.alwaysShowSource}
         createdAt={new Date(props.createdAt)}
         paymentSummary={paymentSummary}
+        style={{ overflow: "hidden", textOverflow: "ellipsis" }}
         transaction={props.transaction}
       />
       <ListItemText primaryTypographyProps={{ align: "right" }}>
