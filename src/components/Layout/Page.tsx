@@ -2,8 +2,11 @@ import React from "react"
 import { Box } from "./Box"
 import { primaryBackground } from "../../theme"
 
+// tslint:disable-next-line
+const platform = process.env.PLATFORM || require("os").platform()
+
 const FramelessWindowInvisibleTitleBar = (props: { background?: React.CSSProperties["background"] }) => {
-  if (process.env.PLATFORM === "darwin") {
+  if (platform === "darwin") {
     // Add invisible window-drag area and a bit of additional v-space on top
     // Need to define a static CSS class for it, since `-webkit-app-region` in CSS-in-JS might lead to trouble
     return (
