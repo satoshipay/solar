@@ -40,7 +40,7 @@ const AccountActions = (props: { account: Account; onOpenPaymentDrawer: () => vo
           }}
         >
           <ButtonIconLabel label="Send">
-            <SendIcon />
+            <SendIcon style={{ fontSize: "125%" }} />
           </ButtonIconLabel>
         </Button>
       )}
@@ -103,7 +103,7 @@ const AccountPage = (props: Props) => {
         <AccountHeaderCard account={account} history={props.history} renameAccount={props.renameAccount}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
-          <Box margin="24px 0 0">
+          <Box margin="28px 0 0">
             <AccountActions account={account} onOpenPaymentDrawer={props.onOpenPaymentDrawer} />
           </Box>
         </AccountHeaderCard>

@@ -3,33 +3,35 @@ import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import AccountBalances from "./AccountBalances"
 
-const DetailHeading = (props: { children: React.ReactNode; marginTop?: number }) => {
-  const { marginTop = 12 } = props
+const DetailContent = (props: { children: React.ReactNode }) => {
   return (
-    <Typography color="inherit" variant="body1" style={{ marginTop, fontSize: "100%", opacity: 0.8 }}>
+    <Typography color="inherit" component="div" variant="body1" style={{ marginTop: 8, fontSize: "140%" }}>
       {props.children}
     </Typography>
   )
 }
 
-const DetailContent = (props: { children: React.ReactNode }) => {
-  return (
-    <Typography color="inherit" component="div" variant="body1" style={{ fontSize: "120%" }}>
-      {props.children}
-    </Typography>
-  )
+const AccountPublicKey = (props: { publicKey: string }) => {
+  const style = {
+    display: "inline-block",
+    maxWidth: "100%",
+    overflow: "hidden",
+    fontWeight: 300,
+    textOverflow: "ellipsis"
+  }
+  return <span style={style}>{props.publicKey}</span>
 }
 
 const AccountDetails = (props: { account: Account }) => {
   const { account } = props
   return (
     <div>
-      <DetailHeading marginTop={0}>Balance</DetailHeading>
       <DetailContent>
         <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
       </DetailContent>
-      <DetailHeading>Public Key</DetailHeading>
-      <DetailContent>{account.publicKey}</DetailContent>
+      <DetailContent>
+        <AccountPublicKey publicKey={account.publicKey} />
+      </DetailContent>
     </div>
   )
 }
