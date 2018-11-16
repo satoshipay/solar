@@ -3,10 +3,9 @@ import { withRouter, RouteComponentProps } from "react-router-dom"
 import { History } from "history"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
-import IconButton, { IconButtonProps } from "@material-ui/core/IconButton"
+import IconButton from "@material-ui/core/IconButton"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
-import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import ArrowBackIcon from "@material-ui/icons/ArrowBack"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
@@ -17,18 +16,6 @@ import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
-
-const iconButtonStyles: StyleRules = {
-  iconButton: {
-    marginLeft: -16,
-    marginRight: 8,
-    fontSize: 32
-  }
-}
-
-const StyledIconButton = withStyles(iconButtonStyles)((props: IconButtonProps & { classes: ClassNameMap }) => {
-  return <IconButton {...props} className={props.classes.iconButton} classes={undefined} />
-})
 
 type BackButtonProps = RouteComponentProps<any, any, any> & {
   style?: React.CSSProperties
@@ -158,9 +145,9 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
                 onRename={this.onRename}
               >
                 {({ onOpen }) => (
-                  <StyledIconButton color="inherit" onClick={onOpen}>
+                  <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -12, fontSize: 32 }}>
                     <MoreVertIcon style={{ fontSize: "inherit" }} />
-                  </StyledIconButton>
+                  </IconButton>
                 )}
               </AccountContextMenu>
             </Box>
