@@ -7,6 +7,7 @@ import IconButton, { IconButtonProps } from "@material-ui/core/IconButton"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
@@ -14,7 +15,6 @@ import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
-import TilesIcon from "../Icon/Tiles"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 
@@ -37,7 +37,7 @@ type BackButtonProps = RouteComponentProps<any, any, any> & {
 const BackButton = withRouter<BackButtonProps>((props: BackButtonProps) => {
   return (
     <IconButton color="inherit" onClick={() => props.history.push(routes.allAccounts())} style={props.style}>
-      <TilesIcon />
+      <ChevronLeftIcon style={{ fontSize: "inherit" }} />
     </IconButton>
   )
 })
@@ -134,7 +134,7 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
       >
         <CardContent>
           <HorizontalLayout alignItems="center" margin="-12px 0 -10px">
-            <BackButton style={{ marginLeft: -8, marginRight: 8, fontSize: 24 }} />
+            <BackButton style={{ marginLeft: -20, marginRight: 12, padding: 6, fontSize: 42 }} />
             <Typography
               align="center"
               color="inherit"
