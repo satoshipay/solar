@@ -9,17 +9,19 @@ import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
+import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
-import CogIcon from "react-icons/lib/fa/cog"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
 import PublicKey from "../PublicKey"
-import { HumanReadableOperation } from "../TransactionSummary"
+import { formatOperation } from "../TransactionSummary"
 import { SingleBalance } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
 }
+
+const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 
 const MemoMessage = (props: { memo: Memo }) => {
   const memo = props.memo
@@ -58,7 +60,7 @@ const Time = (props: { time: Date }) => {
 
 const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
   if (props.paymentSummary.length === 0) {
-    return <CogIcon />
+    return <SettingsIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return <CallReceivedIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.lt(0))) {
@@ -169,18 +171,10 @@ const TransactionItemText = (props: TitleTextProps) => {
       />
     )
   } else {
+    const formattedOperations = props.transaction.operations.map(formatOperation)
     return (
       <ListItemText
-        primary={
-          <span>
-            {props.transaction.operations.map((operation, index) => (
-              <span key={index}>
-                {index > 0 ? <>,&nbsp;</> : ""}
-                <HumanReadableOperation key={index} operation={operation} />
-              </span>
-            ))}
-          </span>
-        }
+        primary={<span>{dedupe(formattedOperations).join(", ")}</span>}
         primaryTypographyProps={{ style: props.style }}
         secondary={secondary}
         style={props.style}
@@ -210,7 +204,7 @@ export const TransactionListItem = (props: TransactionListItemProps) => {
         alwaysShowSource={props.alwaysShowSource}
         createdAt={new Date(props.createdAt)}
         paymentSummary={paymentSummary}
-        style={{ overflow: "hidden", textOverflow: "ellipsis" }}
+        style={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }}
         transaction={props.transaction}
       />
       <ListItemText primaryTypographyProps={{ align: "right" }}>

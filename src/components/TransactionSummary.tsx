@@ -10,6 +10,24 @@ import PublicKey from "./PublicKey"
 
 const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 
+function someThresholdSet(operation: Operation.SetOptions) {
+  return (
+    typeof operation.lowThreshold === "number" ||
+    typeof operation.medThreshold === "number" ||
+    typeof operation.highThreshold === "number"
+  )
+}
+
+export const formatOperation = (operation: TransactionOperation) => {
+  if (operation.type === "setOptions" && operation.signer && typeof operation.signer.weight === "number") {
+    return operation.signer.weight > 0 ? "Add signer" : "Remove signer"
+  } else if (operation.type === "setOptions" && someThresholdSet(operation)) {
+    return "Change key threshold"
+  } else {
+    return uppercaseFirstLetter(operation.type.replace(/([A-Z])/g, letter => " " + letter))
+  }
+}
+
 function prettifyCamelcase(identifier: string) {
   const prettified = identifier.replace(/[A-Z]/g, letter => ` ${letter.toLowerCase()}`)
   return prettified.charAt(0).toUpperCase() + prettified.substr(1)
@@ -24,11 +42,6 @@ function prettifyOperationObject(operation: TransactionOperation) {
     propName => `${prettifyCamelcase(propName)}: ${JSON.stringify((operation as any)[propName], null, 2)}`
   )
   return operationDetailLines.join("\n")
-}
-
-export const HumanReadableOperation = (props: { operation: TransactionOperation }) => {
-  const formattedType = uppercaseFirstLetter(props.operation.type.replace(/([A-Z])/g, letter => " " + letter))
-  return <>{formattedType}</>
 }
 
 const OperationDetails = (props: { children: React.ReactNode }) => (
@@ -152,11 +165,7 @@ const SetOptionsOperation = (props: { operation: Operation.SetOptions; style?: R
 const DefaultOperation = (props: { operation: TransactionOperation; style?: React.CSSProperties }) => {
   return (
     <ListItem
-      heading={
-        <Typography>
-          <HumanReadableOperation operation={props.operation} />
-        </Typography>
-      }
+      heading={<Typography>{formatOperation(props.operation)}</Typography>}
       primaryText={
         <OperationDetails>
           <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{prettifyOperationObject(props.operation)}</pre>
