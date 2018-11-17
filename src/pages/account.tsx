@@ -35,12 +35,13 @@ const AccountActions = (props: { account: Account; onOpenPaymentDrawer: () => vo
           onClick={props.onOpenPaymentDrawer}
           style={{
             boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
+            fontSize: "1rem",
             paddingLeft: 20,
             paddingRight: 20
           }}
         >
           <ButtonIconLabel label="Send">
-            <SendIcon style={{ fontSize: "125%" }} />
+            <SendIcon style={{ fontSize: "110%" }} />
           </ButtonIconLabel>
         </Button>
       )}
@@ -103,7 +104,7 @@ const AccountPage = (props: Props) => {
         <AccountHeaderCard account={account} history={props.history} renameAccount={props.renameAccount}>
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
-          <Box margin="28px 0 0">
+          <Box margin="24px 0 0">
             <AccountActions account={account} onOpenPaymentDrawer={props.onOpenPaymentDrawer} />
           </Box>
         </AccountHeaderCard>
