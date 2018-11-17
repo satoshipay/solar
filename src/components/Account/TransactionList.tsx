@@ -207,7 +207,7 @@ export const TransactionListItem = (props: TransactionListItemProps) => {
         style={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }}
         transaction={props.transaction}
       />
-      <ListItemText primaryTypographyProps={{ align: "right" }}>
+      <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
         {paymentSummary.length === 0 ? null : (
           <SingleBalance
             assetCode={paymentSummary[0].asset.getCode()}
