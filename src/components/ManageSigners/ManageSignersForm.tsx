@@ -19,7 +19,7 @@ interface ActionsProps {
   disabled?: boolean
   error?: Error
   onCancel: () => void
-  onSubmit: () => void
+  onSubmit: () => Promise<any>
   onWeightThresholdUpdate: (threshold: string) => void
   weightThreshold: string
 }
@@ -121,7 +121,7 @@ class ManageSignersForm extends React.Component<Props, State> {
     }))
   }
 
-  submit = () => {
+  submit = async () => {
     const { signersToAdd, signersToRemove, weightThreshold } = this.state
 
     if (!weightThreshold.match(/^[0-9]+$/)) {
@@ -139,10 +139,15 @@ class ManageSignersForm extends React.Component<Props, State> {
       })
     }
 
-    this.props.onSubmit({
+    await this.props.onSubmit({
       signersToAdd,
       signersToRemove,
       weightThreshold: weightThresholdInteger
+    })
+
+    this.setState({
+      signersToAdd: [],
+      signersToRemove: []
     })
   }
 

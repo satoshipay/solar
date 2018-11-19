@@ -208,13 +208,13 @@ class AccountPageContainer extends React.Component<Pick<Props, "history" | "matc
             {...accountsContext}
             isAssetsDrawerOpen={this.state.isAssetsDrawerOpen}
             isPaymentDrawerOpen={this.state.isPaymentDrawerOpen}
-            isSignersDrawerOpen={this.state.isPaymentDrawerOpen}
+            isSignersDrawerOpen={this.state.isSignersDrawerOpen}
             onCloseAssetsDrawer={this.closeAssetsDrawer}
             onClosePaymentDrawer={this.closePaymentDrawer}
-            onCloseSignersDrawer={this.closePaymentDrawer}
+            onCloseSignersDrawer={this.closeSignersDrawer}
             onOpenAssetsDrawer={this.openAssetsDrawer}
             onOpenPaymentDrawer={this.openPaymentDrawer}
-            onOpenSignersDrawer={this.openPaymentDrawer}
+            onOpenSignersDrawer={this.openSignersDrawer}
           />
         )}
       </AccountsConsumer>

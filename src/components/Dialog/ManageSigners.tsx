@@ -72,10 +72,13 @@ class ManageSignersDialog extends React.Component<Props, State> {
         horizon: this.props.horizon,
         walletAccount: this.props.account
       })
-      this.props.sendTransaction(tx)
+
+      const submissionPromise = this.props.sendTransaction(tx)
+      this.setState({ txCreationPending: false })
+
+      await submissionPromise
     } catch (error) {
       addError(error)
-    } finally {
       this.setState({ txCreationPending: false })
     }
   }
