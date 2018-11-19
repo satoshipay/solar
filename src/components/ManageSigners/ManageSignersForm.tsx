@@ -2,7 +2,6 @@ import React from "react"
 import { AccountRecord } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
-import Typography from "@material-ui/core/Typography"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
@@ -20,7 +19,7 @@ interface ActionsProps {
   disabled?: boolean
   error?: Error
   onCancel: () => void
-  onSubmit: () => void
+  onSubmit: () => Promise<any>
   onWeightThresholdUpdate: (threshold: string) => void
   weightThreshold: string
 }
@@ -30,14 +29,8 @@ const Actions = (props: ActionsProps) => {
     <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0">
       <TextField
         error={!!props.error}
-        label={props.error ? renderFormFieldError(props.error) : "Key weight threshold"}
+        label={props.error ? renderFormFieldError(props.error) : "Required key weight sum"}
         onChange={event => props.onWeightThresholdUpdate(event.target.value)}
-        InputLabelProps={{
-          style: { color: "white" }
-        }}
-        inputProps={{
-          style: { color: "white" }
-        }}
         value={props.weightThreshold}
         variant="outlined"
       />
@@ -69,6 +62,7 @@ export interface SignerUpdate {
 interface Props {
   account: Account
   accountData: AccountRecord
+  editorRef?: React.Ref<SignersEditor>
   onCancel: () => void
   onSubmit: (values: SignerUpdate) => void
 }
@@ -96,10 +90,15 @@ class ManageSignersForm extends React.Component<Props, State> {
   getUpdatedSigners = () => {
     const { signersToAdd, signersToRemove } = this.state
 
+    const existingSigners = [
+      ...this.props.accountData.signers.filter(signer => signer.public_key === this.props.account.publicKey),
+      ...this.props.accountData.signers.filter(signer => signer.public_key !== this.props.account.publicKey)
+    ]
+
     const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
     const isNotToBeRemoved = (signer: Signer) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
 
-    return [...this.props.accountData.signers, ...signersToAdd].filter(isNotToBeRemoved)
+    return [...existingSigners, ...signersToAdd].filter(isNotToBeRemoved)
   }
 
   addSigner = (signer: Signer) => {
@@ -122,7 +121,7 @@ class ManageSignersForm extends React.Component<Props, State> {
     }))
   }
 
-  submit = () => {
+  submit = async () => {
     const { signersToAdd, signersToRemove, weightThreshold } = this.state
 
     if (!weightThreshold.match(/^[0-9]+$/)) {
@@ -140,10 +139,15 @@ class ManageSignersForm extends React.Component<Props, State> {
       })
     }
 
-    this.props.onSubmit({
+    await this.props.onSubmit({
       signersToAdd,
       signersToRemove,
       weightThreshold: weightThresholdInteger
+    })
+
+    this.setState({
+      signersToAdd: [],
+      signersToRemove: []
     })
   }
 
@@ -152,17 +156,15 @@ class ManageSignersForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { account, onCancel } = this.props
+    const { onCancel } = this.props
     const { signersToAdd, signersToRemove, weightThreshold, weightThresholdError } = this.state
 
     return (
       <VerticalLayout minHeight="400px" justifyContent="space-between">
-        <Typography variant="headline" style={{ color: "white" }}>
-          {account.name} Signers
-        </Typography>
         <Box margin="20px 0 0">
           <SignersEditor
             addSigner={this.addSigner}
+            ref={this.props.editorRef}
             removeSigner={this.removeSigner}
             signers={this.getUpdatedSigners()}
           />
@@ -180,7 +182,7 @@ class ManageSignersForm extends React.Component<Props, State> {
   }
 }
 
-const ManageSignersContainer = (props: Pick<Props, "account" | "onCancel" | "onSubmit">) => {
+const ManageSignersContainer = (props: Pick<Props, "account" | "editorRef" | "onCancel" | "onSubmit">) => {
   return (
     <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
       {accountData => <ManageSignersForm {...props} accountData={accountData as any} />}

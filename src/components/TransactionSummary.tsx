@@ -137,7 +137,9 @@ const SetOptionsOperation = (props: { operation: Operation.SetOptions; style?: R
   let heading = <></>
   let primaryText = (
     <OperationDetails>
-      <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{prettifyOperationObject(props.operation)}</pre>
+      <pre style={{ margin: "8px 0 0", fontFamily: "inherit", fontSize: "90%" }}>
+        {prettifyOperationObject(props.operation)}
+      </pre>
     </OperationDetails>
   )
 
@@ -158,8 +160,19 @@ const SetOptionsOperation = (props: { operation: Operation.SetOptions; style?: R
         </OperationDetails>
       )
     }
-  } else if (props.operation.lowThreshold || props.operation.medThreshold || props.operation.highThreshold) {
+  } else if (someThresholdSet(props.operation)) {
     heading = <>Change key thresholds</>
+    primaryText = (
+      <OperationDetails>
+        <pre style={{ margin: "8px 0 0", fontFamily: "inherit", fontSize: "90%" }}>
+          {[
+            `Low threshold:    ${props.operation.lowThreshold}`,
+            `Medium threshold: ${props.operation.medThreshold}`,
+            `High threshold:   ${props.operation.highThreshold}`
+          ].join("\n")}
+        </pre>
+      </OperationDetails>
+    )
   }
   return <ListItem heading={heading} primaryText={primaryText} style={props.style} />
 }
@@ -170,7 +183,9 @@ const DefaultOperation = (props: { operation: TransactionOperation; style?: Reac
       heading={<Typography>{formatOperation(props.operation)}</Typography>}
       primaryText={
         <OperationDetails>
-          <pre style={{ fontFamily: "inherit", fontSize: "90%" }}>{prettifyOperationObject(props.operation)}</pre>
+          <pre style={{ margin: "8px 0 0", fontFamily: "inherit", fontSize: "90%" }}>
+            {prettifyOperationObject(props.operation)}
+          </pre>
         </OperationDetails>
       }
       style={props.style}
