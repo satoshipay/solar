@@ -14,6 +14,7 @@ import { InteractiveSignatureRequestList } from "../components/Account/Signature
 import TransactionList from "../components/Account/TransactionList"
 import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
+import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
@@ -84,12 +85,15 @@ interface Props {
   history: History
   isAssetsDrawerOpen: boolean
   isPaymentDrawerOpen: boolean
+  isSignersDrawerOpen: boolean
   match: match<{ id: string }>
   renameAccount: AccountsContext["renameAccount"]
   onCloseAssetsDrawer: () => void
   onClosePaymentDrawer: () => void
+  onCloseSignersDrawer: () => void
   onOpenAssetsDrawer: () => void
   onOpenPaymentDrawer: () => void
+  onOpenSignersDrawer: () => void
 }
 
 const AccountPage = (props: Props) => {
@@ -107,6 +111,7 @@ const AccountPage = (props: Props) => {
           account={account}
           history={props.history}
           onManageAssets={props.onOpenAssetsDrawer}
+          onManageSigners={props.onOpenSignersDrawer}
           onRenameAccount={props.renameAccount}
         >
           <VerticalMargin size={28} />
@@ -152,6 +157,7 @@ const AccountPage = (props: Props) => {
       </Section>
       <CreatePaymentDialog account={account} open={props.isPaymentDrawerOpen} onClose={props.onClosePaymentDrawer} />
       <ManageAssetsDialog account={account} open={props.isAssetsDrawerOpen} onClose={props.onCloseAssetsDrawer} />
+      <ManageSignersDialog account={account} open={props.isSignersDrawerOpen} onClose={props.onCloseSignersDrawer} />
     </>
   )
 }
@@ -159,12 +165,14 @@ const AccountPage = (props: Props) => {
 interface State {
   isAssetsDrawerOpen: boolean
   isPaymentDrawerOpen: boolean
+  isSignersDrawerOpen: boolean
 }
 
 class AccountPageContainer extends React.Component<Pick<Props, "history" | "match">, State> {
   state: State = {
     isAssetsDrawerOpen: false,
-    isPaymentDrawerOpen: false
+    isPaymentDrawerOpen: false,
+    isSignersDrawerOpen: false
   }
 
   closeAssetsDrawer = () => {
@@ -175,12 +183,20 @@ class AccountPageContainer extends React.Component<Pick<Props, "history" | "matc
     this.setState({ isPaymentDrawerOpen: false })
   }
 
+  closeSignersDrawer = () => {
+    this.setState({ isSignersDrawerOpen: false })
+  }
+
   openAssetsDrawer = () => {
     this.setState({ isAssetsDrawerOpen: true })
   }
 
   openPaymentDrawer = () => {
     this.setState({ isPaymentDrawerOpen: true })
+  }
+
+  openSignersDrawer = () => {
+    this.setState({ isSignersDrawerOpen: true })
   }
 
   render() {
@@ -192,10 +208,13 @@ class AccountPageContainer extends React.Component<Pick<Props, "history" | "matc
             {...accountsContext}
             isAssetsDrawerOpen={this.state.isAssetsDrawerOpen}
             isPaymentDrawerOpen={this.state.isPaymentDrawerOpen}
+            isSignersDrawerOpen={this.state.isPaymentDrawerOpen}
             onCloseAssetsDrawer={this.closeAssetsDrawer}
             onClosePaymentDrawer={this.closePaymentDrawer}
+            onCloseSignersDrawer={this.closePaymentDrawer}
             onOpenAssetsDrawer={this.openAssetsDrawer}
             onOpenPaymentDrawer={this.openPaymentDrawer}
+            onOpenSignersDrawer={this.openPaymentDrawer}
           />
         )}
       </AccountsConsumer>

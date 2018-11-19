@@ -1,15 +1,15 @@
 import React from "react"
 import { AccountRecord } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
+import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import ListItemText from "@material-ui/core/ListItemText"
 import PersonIcon from "@material-ui/icons/Person"
-import PersonAddIcon from "@material-ui/icons/PersonAdd"
-import RemoveIcon from "@material-ui/icons/RemoveCircle"
-import { CardList } from "../CardList"
+import RemoveIcon from "@material-ui/icons/Close"
 import PublicKey from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
-import SignerCard from "./SignerCard"
 
 type Signer = AccountRecord["signers"][0]
 
@@ -41,7 +41,15 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
     }
   }
 
-  addCosigner = () => {
+  addAdditionalCosigner = () => {
+    this.setState({ editingNewSigner: true })
+  }
+
+  cancelEditingCosigner = () => {
+    this.setState({ editingNewSigner: false })
+  }
+
+  createCosigner = () => {
     const { newSignerValues } = this.state
     const errors: Partial<SignersEditorState["newSignerErrors"]> = {}
 
@@ -82,13 +90,15 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
 
   render() {
     const { editingNewSigner, newSignerErrors, newSignerValues } = this.state
-    const iconStyle = { width: "1.5em", height: "1.5em", margin: "0 16px" }
     return (
-      <CardList addInvisibleCard={this.props.signers.length % 2 === 0}>
+      <List>
         {this.props.signers.map(signer => (
-          <SignerCard key={signer.public_key} icon={<PersonIcon style={iconStyle} />}>
+          <ListItem>
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
             <ListItemText
-              primary={<PublicKey publicKey={signer.public_key} variant="short" />}
+              primary={<PublicKey publicKey={signer.public_key} variant="full" />}
               secondary={`Weight: ${signer.weight}`}
             />
             <ListItemSecondaryAction>
@@ -97,24 +107,18 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
                 <RemoveIcon />
               </IconButton>
             </ListItemSecondaryAction>
-          </SignerCard>
+          </ListItem>
         ))}
-        <SignerCard
-          icon={<PersonAddIcon style={iconStyle} />}
-          onClick={editingNewSigner ? undefined : () => this.setState({ editingNewSigner: true })}
-        >
-          {editingNewSigner ? (
-            <NewSignerForm
-              errors={newSignerErrors}
-              onSubmit={this.addCosigner}
-              onUpdate={this.updateNewSignerValues}
-              values={newSignerValues}
-            />
-          ) : (
-            <ListItemText>Add co-signer</ListItemText>
-          )}
-        </SignerCard>
-      </CardList>
+        {editingNewSigner ? (
+          <NewSignerForm
+            errors={newSignerErrors}
+            onCancel={this.cancelEditingCosigner}
+            onSubmit={this.createCosigner}
+            onUpdate={this.updateNewSignerValues}
+            values={newSignerValues}
+          />
+        ) : null}
+      </List>
     )
   }
 }

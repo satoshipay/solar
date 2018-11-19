@@ -2,11 +2,9 @@ import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
-import IconButton from "@material-ui/core/IconButton"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
-import ArrowBackIcon from "@material-ui/icons/ArrowBack"
 import { Account, AccountsConsumer } from "../../context/accounts"
 import { DialogsConsumer, DialogsContext } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
@@ -16,15 +14,8 @@ import TrustlineList from "../Account/TrustlineList"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
 import TransactionSender from "../TransactionSender"
+import BackButton from "./BackButton"
 import CustomTrustlineDialog from "./CustomTrustline"
-
-const BackButton = (props: { onClick?: () => void; style?: React.CSSProperties }) => {
-  return (
-    <IconButton color="inherit" onClick={props.onClick} style={props.style}>
-      <ArrowBackIcon style={{ fontSize: "inherit" }} />
-    </IconButton>
-  )
-}
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
 
@@ -86,10 +77,7 @@ class ManageAssets extends React.Component<Props, State> {
       <Dialog open={this.props.open} fullScreen onClose={this.props.onClose} TransitionComponent={Transition}>
         <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
           <HorizontalLayout alignItems="center" margin="0 0 24px">
-            <BackButton
-              onClick={this.props.onClose}
-              style={{ marginLeft: -10, marginRight: 16, padding: 6, fontSize: 32 }}
-            />
+            <BackButton onClick={this.props.onClose} />
             <Typography variant="headline" style={{ flexGrow: 1 }}>
               Manage Trustlines
             </Typography>

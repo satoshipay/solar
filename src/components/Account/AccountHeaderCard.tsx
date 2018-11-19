@@ -58,6 +58,7 @@ interface Props {
   children?: React.ReactNode
   history: History
   onManageAssets: () => void
+  onManageSigners: () => void
   onRenameAccount: AccountsContext["renameAccount"]
   style?: React.CSSProperties
 }
@@ -89,11 +90,6 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
         account: this.props.account
       }
     })
-  }
-
-  onManageSigners = () => {
-    const route = routes.manageAccountSigners(this.props.account.id)
-    this.props.history.push(route)
   }
 
   onRename = () => {
@@ -143,7 +139,7 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
                 onDelete={this.onDelete}
                 onExport={this.onExport}
                 onManageAssets={this.props.onManageAssets}
-                onManageSigners={this.onManageSigners}
+                onManageSigners={this.props.onManageSigners}
                 onRename={this.onRename}
               >
                 {({ onOpen }) => (
