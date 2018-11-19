@@ -16,6 +16,7 @@ import TrustlineList from "../Account/TrustlineList"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
 import TransactionSender from "../TransactionSender"
+import CustomTrustlineDialog from "./CustomTrustline"
 
 const BackButton = (props: { onClick?: () => void; style?: React.CSSProperties }) => {
   return (
@@ -26,15 +27,6 @@ const BackButton = (props: { onClick?: () => void; style?: React.CSSProperties }
 }
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
-
-function createCustomTrustlineDialog(account: Account): DialogBlueprint {
-  return {
-    type: DialogType.CustomTrustline,
-    props: {
-      account
-    }
-  }
-}
 
 function createRemoveTrustlineDialog(account: Account, asset: Asset): DialogBlueprint {
   return {
@@ -55,7 +47,15 @@ interface Props {
   sendTransaction: (transaction: Transaction) => void
 }
 
-class ManageAssets extends React.Component<Props> {
+interface State {
+  isCustomTrustlineDialogOpen: boolean
+}
+
+class ManageAssets extends React.Component<Props, State> {
+  state: State = {
+    isCustomTrustlineDialogOpen: false
+  }
+
   addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
       const operations = [Operation.changeTrust({ asset, limit: options.limit })]
@@ -70,8 +70,13 @@ class ManageAssets extends React.Component<Props> {
   }
 
   addCustomTrustline = () => {
-    this.props.openDialog(createCustomTrustlineDialog(this.props.account))
+    this.setState({ isCustomTrustlineDialogOpen: true })
   }
+
+  closeCustomTrustlineDialog = () => {
+    this.setState({ isCustomTrustlineDialogOpen: false })
+  }
+
   removeTrustline = (asset: Asset) => {
     this.props.openDialog(createRemoveTrustlineDialog(this.props.account, asset))
   }
@@ -83,7 +88,7 @@ class ManageAssets extends React.Component<Props> {
           <HorizontalLayout alignItems="center" margin="0 0 24px">
             <BackButton
               onClick={this.props.onClose}
-              style={{ marginLeft: -10, marginRight: 10, padding: 6, fontSize: 32 }}
+              style={{ marginLeft: -10, marginRight: 16, padding: 6, fontSize: 32 }}
             />
             <Typography variant="headline" style={{ flexGrow: 1 }}>
               Manage Trustlines
@@ -100,6 +105,13 @@ class ManageAssets extends React.Component<Props> {
             onRemoveTrustline={this.removeTrustline}
           />
         </Box>
+        <CustomTrustlineDialog
+          account={this.props.account}
+          horizon={this.props.horizon}
+          open={this.state.isCustomTrustlineDialogOpen}
+          onClose={this.closeCustomTrustlineDialog}
+          sendTransaction={this.props.sendTransaction}
+        />
       </Dialog>
     )
   }
