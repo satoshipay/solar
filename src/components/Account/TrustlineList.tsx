@@ -1,25 +1,20 @@
 import React from "react"
-import { AccountRecord, Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { AccountRecord, Asset } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
-import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
-import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
 import AddIcon from "@material-ui/icons/AddCircleOutlined"
 import CheckIcon from "@material-ui/icons/CheckCircleOutlined"
 import RemoveIcon from "@material-ui/icons/RemoveCircle"
 import { Account } from "../../context/accounts"
-import { addError } from "../../context/notifications"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
-import { createTransaction } from "../../lib/transaction"
 import { AccountName } from "../Fetchers"
 import { AccountData } from "../Subscribers"
-import TransactionSender from "../TransactionSender"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -28,26 +23,11 @@ const Line = (props: { children: React.ReactNode }) => <span style={{ display: "
 interface Props {
   account: Account
   balances: AccountRecord["balances"]
-  horizon: Server
-  sendTransaction: (transaction: Transaction) => void
-  onAddCustomTrustline?: () => void
+  onAddAsset: (asset: Asset, options?: { limit?: string }) => Promise<void>
   onRemoveTrustline?: (asset: Asset) => void
 }
 
 class TrustlineList extends React.Component<Props> {
-  addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
-    try {
-      const operations = [Operation.changeTrust({ asset, limit: options.limit })]
-      const transaction = await createTransaction(operations, {
-        horizon: this.props.horizon,
-        walletAccount: this.props.account
-      })
-      this.props.sendTransaction(transaction)
-    } catch (error) {
-      addError(error)
-    }
-  }
-
   isAssetAlreadyAdded = (asset: Asset) => {
     return this.props.balances.some(
       (balance: any) => balance.asset_code === asset.code && balance.asset_issuer === asset.issuer
@@ -55,7 +35,7 @@ class TrustlineList extends React.Component<Props> {
   }
 
   render() {
-    const { account, onRemoveTrustline = () => undefined } = this.props
+    const { account, onAddAsset, onRemoveTrustline = () => undefined } = this.props
     const popularAssets = account.testnet ? testnetPopularAssets : mainnetPopularAssets
     const popularAssetsNotYetAdded = popularAssets.filter(asset => !this.isAssetAlreadyAdded(asset))
 
@@ -63,7 +43,6 @@ class TrustlineList extends React.Component<Props> {
       <AccountData publicKey={account.publicKey} testnet={account.testnet}>
         {accountData => (
           <List>
-            <ListSubheader>Trusted Assets</ListSubheader>
             <ListItem>
               <ListItemIcon>
                 <CheckIcon />
@@ -104,7 +83,7 @@ class TrustlineList extends React.Component<Props> {
                 key={[asset.issuer, asset.code].join("")}
                 button
                 component="li"
-                onClick={() => this.addAsset(asset)}
+                onClick={() => onAddAsset(asset)}
               >
                 <ListItemIcon>
                   <AddIcon />
@@ -116,13 +95,6 @@ class TrustlineList extends React.Component<Props> {
                 />
               </ListItem>
             ))}
-            <Divider component="li" style={{ margin: "12px 0" }} />
-            <ListItem button component="li" onClick={this.props.onAddCustomTrustline}>
-              <ListItemIcon>
-                <AddIcon />
-              </ListItemIcon>
-              <ListItemText inset primary="Add Custom Asset" secondary="Click to trust another asset" />
-            </ListItem>
           </List>
         )}
       </AccountData>
@@ -130,22 +102,11 @@ class TrustlineList extends React.Component<Props> {
   }
 }
 
-const TrustlineListContainer = (props: Omit<Props, "balances" | "horizon" | "sendTransaction">) => {
+const TrustlineListContainer = (props: Omit<Props, "balances">) => {
   return (
-    <TransactionSender account={props.account}>
-      {({ horizon, sendTransaction }) => (
-        <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
-          {accountData => (
-            <TrustlineList
-              {...props}
-              balances={accountData.balances}
-              horizon={horizon}
-              sendTransaction={sendTransaction}
-            />
-          )}
-        </AccountData>
-      )}
-    </TransactionSender>
+    <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
+      {accountData => <TrustlineList {...props} balances={accountData.balances} />}
+    </AccountData>
   )
 }
 

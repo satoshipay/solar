@@ -16,7 +16,6 @@ import { NotificationsProvider } from "./context/notifications"
 import { SignatureDelegationProvider } from "./context/signatureDelegation"
 import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
-import AccountAssetsPage from "./pages/account-assets"
 import CreateAccountPage from "./pages/create-account"
 import ManageSignersPage from "./pages/manage-signers"
 import theme from "./theme"
@@ -49,7 +48,6 @@ const App = () => (
             <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
             <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
             <Route exact path="/account/:id" component={AccountPage} />
-            <Route exact path="/account/:id/assets" component={AccountAssetsPage} />
             <Route exact path="/account/:id/signers" component={ManageSignersPage} />
             <DesktopNotifications />
             <NotificationContainer />

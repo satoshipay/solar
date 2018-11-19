@@ -58,3 +58,5 @@ export class DialogsProvider extends React.Component<Props, State> {
 }
 
 export const DialogsConsumer = DialogsContext.Consumer
+
+export { ContextValue as DialogsContext }

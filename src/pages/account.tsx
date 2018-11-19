@@ -7,14 +7,13 @@ import Typography from "@material-ui/core/Typography"
 import SendIcon from "@material-ui/icons/Send"
 import UpdateIcon from "@material-ui/icons/Update"
 import ButtonIconLabel from "../components/ButtonIconLabel"
-import AccountBottomNavigation from "../components/Account/AccountBottomNavigation"
 import AccountDetails from "../components/Account/AccountDetails"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
 import TransactionList from "../components/Account/TransactionList"
-import BottomNavigationContainer from "../components/BottomNavigationContainer"
 import CreatePaymentDialog from "../components/Dialog/CreatePayment"
+import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
@@ -83,10 +82,13 @@ const PendingMultisigTransactions = (props: { account: Account }) => {
 interface Props {
   accounts: Account[]
   history: History
+  isAssetsDrawerOpen: boolean
   isPaymentDrawerOpen: boolean
   match: match<{ id: string }>
   renameAccount: AccountsContext["renameAccount"]
+  onCloseAssetsDrawer: () => void
   onClosePaymentDrawer: () => void
+  onOpenAssetsDrawer: () => void
   onOpenPaymentDrawer: () => void
 }
 
@@ -99,9 +101,14 @@ const AccountPage = (props: Props) => {
   }
 
   return (
-    <BottomNavigationContainer navigation={<AccountBottomNavigation account={account} />}>
+    <>
       <Section top brandColored>
-        <AccountHeaderCard account={account} history={props.history} renameAccount={props.renameAccount}>
+        <AccountHeaderCard
+          account={account}
+          history={props.history}
+          onManageAssets={props.onOpenAssetsDrawer}
+          onRenameAccount={props.renameAccount}
+        >
           <VerticalMargin size={28} />
           <AccountDetails account={account} />
           <Box margin="24px 0 0">
@@ -144,21 +151,32 @@ const AccountPage = (props: Props) => {
         </Transactions>
       </Section>
       <CreatePaymentDialog account={account} open={props.isPaymentDrawerOpen} onClose={props.onClosePaymentDrawer} />
-    </BottomNavigationContainer>
+      <ManageAssetsDialog account={account} open={props.isAssetsDrawerOpen} onClose={props.onCloseAssetsDrawer} />
+    </>
   )
 }
 
 interface State {
+  isAssetsDrawerOpen: boolean
   isPaymentDrawerOpen: boolean
 }
 
 class AccountPageContainer extends React.Component<Pick<Props, "history" | "match">, State> {
   state: State = {
+    isAssetsDrawerOpen: false,
     isPaymentDrawerOpen: false
+  }
+
+  closeAssetsDrawer = () => {
+    this.setState({ isAssetsDrawerOpen: false })
   }
 
   closePaymentDrawer = () => {
     this.setState({ isPaymentDrawerOpen: false })
+  }
+
+  openAssetsDrawer = () => {
+    this.setState({ isAssetsDrawerOpen: true })
   }
 
   openPaymentDrawer = () => {
@@ -172,8 +190,11 @@ class AccountPageContainer extends React.Component<Pick<Props, "history" | "matc
           <AccountPage
             {...this.props}
             {...accountsContext}
+            isAssetsDrawerOpen={this.state.isAssetsDrawerOpen}
             isPaymentDrawerOpen={this.state.isPaymentDrawerOpen}
+            onCloseAssetsDrawer={this.closeAssetsDrawer}
             onClosePaymentDrawer={this.closePaymentDrawer}
+            onOpenAssetsDrawer={this.openAssetsDrawer}
             onOpenPaymentDrawer={this.openPaymentDrawer}
           />
         )}
