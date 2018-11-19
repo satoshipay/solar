@@ -1,5 +1,6 @@
 import React from "react"
 import { AccountRecord, Asset } from "stellar-sdk"
+import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -7,14 +8,15 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import Tooltip from "@material-ui/core/Tooltip"
-import AddIcon from "@material-ui/icons/AddCircleOutlined"
-import CheckIcon from "@material-ui/icons/CheckCircleOutlined"
-import RemoveIcon from "@material-ui/icons/RemoveCircle"
+import CheckIcon from "@material-ui/icons/CheckCircle"
+import RemoveIcon from "@material-ui/icons/Close"
+import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { AccountName } from "../Fetchers"
 import { AccountData } from "../Subscribers"
+import { SingleBalance } from "./AccountBalances"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -35,23 +37,33 @@ class TrustlineList extends React.Component<Props> {
   }
 
   render() {
-    const { account, onAddAsset, onRemoveTrustline = () => undefined } = this.props
+    const { account, balances, onAddAsset, onRemoveTrustline = () => undefined } = this.props
     const popularAssets = account.testnet ? testnetPopularAssets : mainnetPopularAssets
     const popularAssetsNotYetAdded = popularAssets.filter(asset => !this.isAssetAlreadyAdded(asset))
+
+    const xlmBalance = balances.find(balance => balance.asset_type === "native")
 
     return (
       <AccountData publicKey={account.publicKey} testnet={account.testnet}>
         {accountData => (
           <List>
             <ListItem>
-              <ListItemIcon>
+              <ListItemIcon style={{ color: "inherit" }}>
                 <CheckIcon />
               </ListItemIcon>
               <ListItemText inset primary="XLM" secondary="Stellar Lumens" />
+              <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+                <SingleBalance
+                  assetCode=""
+                  balance={xlmBalance ? xlmBalance.balance : "0.00"}
+                  style={{ fontSize: "1.6rem" }}
+                />
+              </ListItemText>
+              <ListItemSecondaryAction />
             </ListItem>
             {accountData.balances.filter(balance => balance.asset_type !== "native").map((balance: any, index) => (
               <ListItem key={index}>
-                <ListItemIcon>
+                <ListItemIcon style={{ color: "inherit" }}>
                   <CheckIcon />
                 </ListItemIcon>
                 <ListItemText
@@ -66,11 +78,15 @@ class TrustlineList extends React.Component<Props> {
                     </>
                   }
                 />
+                <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+                  <SingleBalance assetCode="" balance={balance.balance} style={{ fontSize: "1.6rem" }} />
+                </ListItemText>
                 <ListItemSecondaryAction>
                   <Tooltip title="Remove asset">
                     <IconButton
                       aria-label="Remove asset"
                       onClick={() => onRemoveTrustline(new Asset(balance.asset_code, balance.asset_issuer))}
+                      style={{ color: "black" }}
                     >
                       <RemoveIcon />
                     </IconButton>
@@ -85,14 +101,28 @@ class TrustlineList extends React.Component<Props> {
                 component="li"
                 onClick={() => onAddAsset(asset)}
               >
-                <ListItemIcon>
-                  <AddIcon />
+                <ListItemIcon style={{ color: "inherit" }}>
+                  <UncheckedIcon />
                 </ListItemIcon>
                 <ListItemText
                   inset
                   primary={asset.code}
                   secondary={<AccountName publicKey={asset.issuer} testnet={account.testnet} />}
                 />
+                <ListItemText>
+                  <Button
+                    disabled
+                    style={{
+                      borderColor: "rgba(0, 0, 0, 0.87)",
+                      color: "rgba(0, 0, 0, 0.87)",
+                      fontWeight: "bold",
+                      textTransform: "none"
+                    }}
+                    variant="outlined"
+                  >
+                    Trust Asset
+                  </Button>
+                </ListItemText>
               </ListItem>
             ))}
           </List>
