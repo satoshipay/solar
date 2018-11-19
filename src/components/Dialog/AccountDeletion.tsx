@@ -29,7 +29,7 @@ const AccountDeletionDialog = (props: Props) => {
           </Background>
           <DialogTitle>Confirm Account Deletion</DialogTitle>
           <DialogContent>
-            <DialogContentText>
+            <DialogContentText style={{ marginTop: 16 }}>
               Are you sure you want to delete the account "{props.account.name}
               "?
               <br />
@@ -38,7 +38,7 @@ const AccountDeletionDialog = (props: Props) => {
             <DialogContentText style={{ marginTop: 16 }}>
               Balance: <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
             </DialogContentText>
-            <DialogActions style={{ marginTop: 16 }}>
+            <DialogActions style={{ marginTop: 24 }}>
               <Button color="primary" onClick={props.onClose} style={{ marginRight: 16 }}>
                 Cancel
               </Button>

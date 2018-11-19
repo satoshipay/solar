@@ -90,10 +90,15 @@ class ManageSignersForm extends React.Component<Props, State> {
   getUpdatedSigners = () => {
     const { signersToAdd, signersToRemove } = this.state
 
+    const existingSigners = [
+      ...this.props.accountData.signers.filter(signer => signer.public_key === this.props.account.publicKey),
+      ...this.props.accountData.signers.filter(signer => signer.public_key !== this.props.account.publicKey)
+    ]
+
     const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
     const isNotToBeRemoved = (signer: Signer) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
 
-    return [...this.props.accountData.signers, ...signersToAdd].filter(isNotToBeRemoved)
+    return [...existingSigners, ...signersToAdd].filter(isNotToBeRemoved)
   }
 
   addSigner = (signer: Signer) => {
