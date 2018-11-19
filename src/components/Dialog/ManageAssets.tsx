@@ -79,7 +79,7 @@ class ManageAssets extends React.Component<Props, State> {
           <HorizontalLayout alignItems="center" margin="0 0 24px">
             <BackButton onClick={this.props.onClose} />
             <Typography variant="headline" style={{ flexGrow: 1 }}>
-              Manage Trustlines
+              Manage Assets
             </Typography>
             <Button color="primary" onClick={this.addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">
               <ButtonIconLabel label="Add Custom Asset">
