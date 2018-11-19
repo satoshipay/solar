@@ -61,7 +61,6 @@ const AccountContextMenu = (props: MenuProps) => {
             onClick={closeAndCall(props.onChangePassword)}
           />
           <Divider component="li" />
-          <AccountContextMenuItem icon={<EditIcon />} label="Rename" onClick={closeAndCall(props.onRename)} />
           <AccountContextMenuItem
             icon={<MoneyIcon />}
             label="Manage Assets"
@@ -73,6 +72,7 @@ const AccountContextMenu = (props: MenuProps) => {
             label="Manage Signers"
             onClick={closeAndCall(props.onManageSigners)}
           />
+          <AccountContextMenuItem icon={<EditIcon />} label="Rename" onClick={closeAndCall(props.onRename)} />
           <AccountContextMenuItem icon={<DeleteIcon />} label="Delete" onClick={closeAndCall(props.onDelete)} />
         </Menu>
       )}
