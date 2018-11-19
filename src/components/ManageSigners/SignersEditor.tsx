@@ -95,7 +95,7 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
         {this.props.signers.map(signer => (
           <ListItem>
             <ListItemIcon>
-              <PersonIcon />
+              <PersonIcon style={{ fontSize: "2rem" }} />
             </ListItemIcon>
             <ListItemText
               primary={<PublicKey publicKey={signer.public_key} variant="full" />}

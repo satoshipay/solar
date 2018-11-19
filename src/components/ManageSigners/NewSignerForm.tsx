@@ -31,7 +31,7 @@ const NewSignerForm = (props: Props) => {
   return (
     <ListItem>
       <ListItemIcon>
-        <PersonAddIcon />
+        <PersonAddIcon style={{ fontSize: "2rem" }} />
       </ListItemIcon>
       <ListItemText>
         <HorizontalLayout>
