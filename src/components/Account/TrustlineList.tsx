@@ -2,7 +2,6 @@ import React from "react"
 import { AccountRecord, Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
-import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -14,13 +13,16 @@ import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
+import SpaciousList from "../List/SpaciousList"
 import { AccountName } from "../Fetchers"
 import { AccountData } from "../Subscribers"
 import { SingleBalance } from "./AccountBalances"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
-const Line = (props: { children: React.ReactNode }) => <span style={{ display: "block" }}>{props.children}</span>
+const Line = (props: { children: React.ReactNode; style?: React.CSSProperties }) => (
+  <span style={{ display: "block", ...props.style }}>{props.children}</span>
+)
 
 interface Props {
   account: Account
@@ -46,7 +48,7 @@ class TrustlineList extends React.Component<Props> {
     return (
       <AccountData publicKey={account.publicKey} testnet={account.testnet}>
         {accountData => (
-          <List>
+          <SpaciousList fitHorizontal>
             <ListItem>
               <ListItemIcon style={{ color: "inherit" }}>
                 <CheckIcon />
@@ -71,7 +73,7 @@ class TrustlineList extends React.Component<Props> {
                   primary={balance.asset_code}
                   secondary={
                     <>
-                      <Line>
+                      <Line style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                         <AccountName publicKey={balance.asset_issuer} testnet={account.testnet} />
                       </Line>
                       <Line>{trustlineLimitEqualsUnlimited(balance.limit) ? null : `Limit ${balance.limit}`}</Line>
@@ -125,7 +127,7 @@ class TrustlineList extends React.Component<Props> {
                 </ListItemText>
               </ListItem>
             ))}
-          </List>
+          </SpaciousList>
         )}
       </AccountData>
     )

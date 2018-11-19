@@ -1,13 +1,13 @@
 import React from "react"
 import { AccountRecord } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
-import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import ListItemText from "@material-ui/core/ListItemText"
 import PersonIcon from "@material-ui/icons/Person"
 import RemoveIcon from "@material-ui/icons/Close"
+import SpaciousList from "../List/SpaciousList"
 import PublicKey from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
 
@@ -91,7 +91,7 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
   render() {
     const { editingNewSigner, newSignerErrors, newSignerValues } = this.state
     return (
-      <List>
+      <SpaciousList fitHorizontal>
         {this.props.signers.map(signer => (
           <ListItem>
             <ListItemIcon>
@@ -118,7 +118,7 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
             values={newSignerValues}
           />
         ) : null}
-      </List>
+      </SpaciousList>
     )
   }
 }
