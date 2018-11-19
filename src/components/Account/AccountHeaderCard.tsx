@@ -57,7 +57,8 @@ interface Props {
   account: Account
   children?: React.ReactNode
   history: History
-  renameAccount: AccountsContext["renameAccount"]
+  onManageAssets: () => void
+  onRenameAccount: AccountsContext["renameAccount"]
   style?: React.CSSProperties
 }
 
@@ -96,12 +97,12 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
   }
 
   onRename = () => {
-    const { account, openDialog, renameAccount } = this.props
+    const { account, openDialog, onRenameAccount } = this.props
     openDialog({
       type: DialogType.Rename,
       props: {
         performRenaming(newName: string) {
-          return renameAccount(account.id, newName)
+          return onRenameAccount(account.id, newName)
         },
         prevValue: account.name,
         title: "Rename account"
@@ -141,6 +142,7 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
                 onChangePassword={this.onChangePassword}
                 onDelete={this.onDelete}
                 onExport={this.onExport}
+                onManageAssets={this.props.onManageAssets}
                 onManageSigners={this.onManageSigners}
                 onRename={this.onRename}
               >

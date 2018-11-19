@@ -8,6 +8,7 @@ import DeleteIcon from "@material-ui/icons/Delete"
 import EditIcon from "@material-ui/icons/Edit"
 import GroupIcon from "@material-ui/icons/Group"
 import LockIcon from "@material-ui/icons/LockOutlined"
+import MoneyIcon from "@material-ui/icons/AttachMoney"
 import VisibilityIcon from "@material-ui/icons/Visibility"
 import { Account } from "../../context/accounts"
 import { isMultisigEnabled } from "../../feature-flags"
@@ -38,6 +39,7 @@ interface MenuProps {
   onChangePassword: () => void
   onDelete: () => void
   onExport: () => void
+  onManageAssets: () => void
   onManageSigners: () => void
   onRename: () => void
 }
@@ -59,13 +61,18 @@ const AccountContextMenu = (props: MenuProps) => {
             onClick={closeAndCall(props.onChangePassword)}
           />
           <Divider component="li" />
-          <AccountContextMenuItem icon={<EditIcon />} label="Rename" onClick={closeAndCall(props.onRename)} />
+          <AccountContextMenuItem
+            icon={<MoneyIcon />}
+            label="Manage Assets"
+            onClick={closeAndCall(props.onManageAssets)}
+          />
           <AccountContextMenuItem
             hidden={!isMultisigEnabled()}
             icon={<GroupIcon />}
             label="Manage Signers"
             onClick={closeAndCall(props.onManageSigners)}
           />
+          <AccountContextMenuItem icon={<EditIcon />} label="Rename" onClick={closeAndCall(props.onRename)} />
           <AccountContextMenuItem icon={<DeleteIcon />} label="Delete" onClick={closeAndCall(props.onDelete)} />
         </Menu>
       )}

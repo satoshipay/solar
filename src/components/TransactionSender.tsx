@@ -47,7 +47,7 @@ const SubmissionProgressOverlay = (props: {
 
 interface RenderFunctionProps {
   horizon: Server
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (transaction: Transaction, signatureRequest?: SignatureRequest | null) => Promise<any>
 }
 
 interface Props {
@@ -62,6 +62,7 @@ interface State {
   signatureRequest: SignatureRequest | null
   submissionFailed: boolean
   submissionPromise: Promise<any> | null
+  submissionSuccessCallbacks: Array<() => void>
   transaction: Transaction | null
 }
 
@@ -70,6 +71,7 @@ class TransactionSender extends React.Component<Props, State> {
     signatureRequest: null,
     submissionFailed: false,
     submissionPromise: null,
+    submissionSuccessCallbacks: [],
     transaction: null
   }
 
@@ -87,6 +89,20 @@ class TransactionSender extends React.Component<Props, State> {
 
   setTransaction = (transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
     this.setState({ signatureRequest, transaction })
+    return new Promise(resolve => {
+      this.setState(state => ({
+        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve]
+      }))
+    })
+  }
+
+  triggerSubmissionSuccessCallbacks = () => {
+    const callbacks = this.state.submissionSuccessCallbacks
+    this.setState({ submissionSuccessCallbacks: [] })
+
+    for (const callback of callbacks) {
+      callback()
+    }
   }
 
   clearSubmissionPromise = () => {
@@ -101,6 +117,7 @@ class TransactionSender extends React.Component<Props, State> {
       this.submissionTimeout = setTimeout(() => {
         this.clearSubmissionPromise()
         this.clearTransaction()
+        this.triggerSubmissionSuccessCallbacks()
       }, 1200)
     })
     submissionPromise.catch(() => {

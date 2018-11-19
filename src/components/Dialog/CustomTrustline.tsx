@@ -4,16 +4,16 @@ import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
+import Slide, { SlideProps } from "@material-ui/core/Slide"
 import TextField from "@material-ui/core/TextField"
+import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
 import { addError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
-import TransactionSender from "../TransactionSender"
-import CloseButton from "./CloseButton"
 import ButtonIconLabel from "../ButtonIconLabel"
 
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
+const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 
 interface FormValues {
   code: string
@@ -25,6 +25,7 @@ interface FormProps {
   formValues: FormValues
   txCreationPending: boolean
   setFormValue: (fieldName: keyof FormValues, value: string) => void
+  onClose: () => void
   onSubmit: (formValues: FormValues) => void
 }
 
@@ -59,8 +60,18 @@ const CustomTrustlineForm = (props: FormProps) => {
         onChange={event => props.setFormValue("limit", event.target.value)}
       />
       <HorizontalLayout margin="32px 0 0" justifyContent="flex-end">
-        <Button variant="contained" color="primary" onClick={() => props.onSubmit(props.formValues)}>
-          <ButtonIconLabel label="Trust Asset" loading={props.txCreationPending} />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => props.onSubmit(props.formValues)}
+          style={{ marginRight: 32 }}
+        >
+          <ButtonIconLabel label="Trust Asset" loading={props.txCreationPending}>
+            <VerifiedUserIcon />
+          </ButtonIconLabel>
+        </Button>
+        <Button variant="contained" onClick={props.onClose}>
+          Cancel
         </Button>
       </HorizontalLayout>
     </form>
@@ -72,7 +83,7 @@ interface Props {
   horizon: Server
   open: boolean
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
 }
 
 interface State {
@@ -101,7 +112,9 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
       })
 
       this.setState({ txCreationPending: false })
-      this.props.sendTransaction(transaction)
+      await this.props.sendTransaction(transaction)
+
+      this.props.onClose()
     } catch (error) {
       this.setState({ txCreationPending: false })
       addError(error)
@@ -127,12 +140,12 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
 
   render() {
     return (
-      <Dialog open={this.props.open} onClose={this.props.onClose}>
-        <CloseButton onClick={this.props.onClose} />
+      <Dialog open={this.props.open} onClose={this.props.onClose} TransitionComponent={Transition}>
         <DialogTitle>Add Custom Asset</DialogTitle>
         <DialogContent>
           <CustomTrustlineForm
             formValues={this.state.formValues}
+            onClose={this.props.onClose}
             onSubmit={this.addCustomAsset}
             setFormValue={this.setFormValue}
             txCreationPending={this.state.txCreationPending}
@@ -143,18 +156,4 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
   }
 }
 
-const CustomTrustlineDialogContainer = (props: Omit<Props, "horizon" | "sendTransaction">) => {
-  const closeAfterTimeout = () => {
-    // Close automatically a second after successful submission
-    setTimeout(() => props.onClose(), 1000)
-  }
-  return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
-      {({ horizon, sendTransaction }) => (
-        <CustomTrustlineDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
-      )}
-    </TransactionSender>
-  )
-}
-
-export default CustomTrustlineDialogContainer
+export default CustomTrustlineDialog
