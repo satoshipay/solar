@@ -110,7 +110,7 @@ const ChangeTrustOperation = (props: { operation: Operation.ChangeTrust; style?:
   if (String(props.operation.limit) === "0") {
     const content = (
       <OperationDetails>
-        {props.operation.line.code} by{" "}
+        <b>{props.operation.line.code}</b> by{" "}
         <PublicKey publicKey={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
       </OperationDetails>
     )
@@ -119,7 +119,7 @@ const ChangeTrustOperation = (props: { operation: Operation.ChangeTrust; style?:
     const content = (
       <OperationDetails>
         <div>
-          {props.operation.line.code} by{" "}
+          <b>{props.operation.line.code}</b> by{" "}
           <PublicKey publicKey={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
         </div>
         <div>
