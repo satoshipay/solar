@@ -83,7 +83,7 @@ interface Props {
   horizon: Server
   open: boolean
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
 }
 
 interface State {
@@ -112,7 +112,9 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
       })
 
       this.setState({ txCreationPending: false })
-      this.props.sendTransaction(transaction)
+      await this.props.sendTransaction(transaction)
+
+      this.props.onClose()
     } catch (error) {
       this.setState({ txCreationPending: false })
       addError(error)

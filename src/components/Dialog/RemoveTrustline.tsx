@@ -1,12 +1,12 @@
 import React from "react"
 import { AccountResponse, Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import CloseIcon from "@material-ui/icons/Close"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import RemoveIcon from "@material-ui/icons/RemoveCircle"
 import { Account } from "../../context/accounts"
 import { addError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
@@ -58,13 +58,13 @@ class RemoveTrustlineDialog extends React.Component<Props> {
             )}
           </DialogContentText>
           <DialogActions style={{ marginTop: 24 }}>
-            <Button color="primary" onClick={this.props.onClose}>
-              Cancel
-            </Button>
             <Button autoFocus color="primary" variant="contained" disabled={stillOwnsTokens} onClick={this.removeAsset}>
               <ButtonIconLabel label="Remove">
-                <RemoveIcon />
+                <CloseIcon />
               </ButtonIconLabel>
+            </Button>
+            <Button color="primary" onClick={this.props.onClose}>
+              Cancel
             </Button>
           </DialogActions>
         </DialogContent>
