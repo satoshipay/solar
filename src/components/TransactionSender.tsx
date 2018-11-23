@@ -1,7 +1,6 @@
 import React from "react"
 import { Server, Transaction } from "stellar-sdk"
-import Dialog from "@material-ui/core/Dialog"
-import DialogContent from "@material-ui/core/DialogContent"
+import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
 import { addError } from "../context/notifications"
 import { getMultisigServiceURL } from "../feature-flags"
@@ -24,24 +23,31 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 // Had issues with react-storybook vs electron build
 type Timer = any
 
-const SubmissionProgressOverlay = (props: {
-  open: boolean
-  onClose: () => void
-  submissionFailed: boolean
-  submissionPromise: Promise<any>
-}) => {
-  const onClose = () => {
-    // Only allow the user to close the overlay if the submission failed
-    if (props.submissionFailed) {
-      props.onClose()
-    }
+const ConditionalSubmissionProgress = (props: { promise: Promise<any> | null }) => {
+  const outerStyle: React.CSSProperties = {
+    position: "absolute",
+    display: props.promise ? "flex" : "none",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "white"
+  }
+  const innerStyle: React.CSSProperties = {
+    display: "flex",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center"
   }
   return (
-    <Dialog open={props.open} onClose={onClose} PaperProps={{ elevation: 20 }}>
-      <DialogContent>
-        <SubmissionProgress promise={props.submissionPromise} />
-      </DialogContent>
-    </Dialog>
+    <div style={outerStyle}>
+      <Zoom in={Boolean(props.promise)}>
+        <div style={innerStyle}>{props.promise ? <SubmissionProgress promise={props.promise} /> : null}</div>
+      </Zoom>
+    </div>
   )
 }
 
@@ -59,6 +65,7 @@ interface Props {
 }
 
 interface State {
+  confirmationDialogOpen: boolean
   signatureRequest: SignatureRequest | null
   submissionFailed: boolean
   submissionPromise: Promise<any> | null
@@ -68,6 +75,7 @@ interface State {
 
 class TransactionSender extends React.Component<Props, State> {
   state: State = {
+    confirmationDialogOpen: false,
     signatureRequest: null,
     submissionFailed: false,
     submissionPromise: null,
@@ -75,20 +83,16 @@ class TransactionSender extends React.Component<Props, State> {
     transaction: null
   }
 
-  submissionTimeout: Timer | null = null
+  submissionTimeouts: Timer[] = []
 
   componentWillUnmount() {
-    if (this.submissionTimeout) {
-      clearTimeout(this.submissionTimeout)
+    for (const timeout of this.submissionTimeouts) {
+      clearTimeout(timeout)
     }
   }
 
-  clearTransaction = () => {
-    this.setState({ transaction: null })
-  }
-
   setTransaction = (transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
-    this.setState({ signatureRequest, transaction })
+    this.setState({ confirmationDialogOpen: true, signatureRequest, transaction })
     return new Promise(resolve => {
       this.setState(state => ({
         submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve]
@@ -105,6 +109,17 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
+  onConfirmationDrawerCloseRequest = () => {
+    if (this.state.submissionPromise) {
+      if (this.state.submissionFailed) {
+        // Only allow manually closing the submission progress if tx submission failed
+        this.clearSubmissionPromise()
+      }
+    } else {
+      this.setState({ confirmationDialogOpen: false })
+    }
+  }
+
   clearSubmissionPromise = () => {
     this.setState({ submissionPromise: null })
   }
@@ -113,12 +128,13 @@ class TransactionSender extends React.Component<Props, State> {
     this.setState({ submissionPromise, submissionFailed: false })
 
     submissionPromise.then(() => {
-      // Auto-close submission progress overlay shortly after submission successfully done
-      this.submissionTimeout = setTimeout(() => {
-        this.clearSubmissionPromise()
-        this.clearTransaction()
-        this.triggerSubmissionSuccessCallbacks()
-      }, 1200)
+      this.triggerSubmissionSuccessCallbacks()
+      // Auto-close tx confirmation dialog shortly after submission successfully done
+      this.submissionTimeouts.push(
+        setTimeout(() => {
+          this.setState({ confirmationDialogOpen: false })
+        }, 1200)
+      )
     })
     submissionPromise.catch(() => {
       this.setState({ submissionFailed: true })
@@ -186,7 +202,7 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   render() {
-    const { submissionFailed, submissionPromise, transaction } = this.state
+    const { confirmationDialogOpen, submissionPromise, transaction } = this.state
 
     const content = this.props.children({
       horizon: this.props.horizon,
@@ -197,21 +213,14 @@ class TransactionSender extends React.Component<Props, State> {
       <>
         {content}
         <TxConfirmationDrawer
-          open={Boolean(transaction)}
+          open={confirmationDialogOpen}
           account={this.props.account}
           disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
           transaction={transaction}
-          onClose={this.clearTransaction}
+          onClose={this.onConfirmationDrawerCloseRequest}
           onSubmitTransaction={this.submitTransaction}
+          submissionProgress={<ConditionalSubmissionProgress promise={submissionPromise} />}
         />
-        {submissionPromise ? (
-          <SubmissionProgressOverlay
-            open
-            onClose={this.clearSubmissionPromise}
-            submissionFailed={submissionFailed}
-            submissionPromise={submissionPromise}
-          />
-        ) : null}
       </>
     )
   }

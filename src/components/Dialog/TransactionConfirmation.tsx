@@ -17,6 +17,7 @@ interface TxConfirmationDialogProps {
   account: Account
   disabled?: boolean
   open: boolean
+  submissionProgress?: React.ReactNode
   transaction: Transaction | null
   onClose: () => void
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
@@ -46,6 +47,7 @@ const TxConfirmationDialog = (props: TxConfirmationDialogProps) => {
           </div>
         ) : null}
       </Box>
+      {props.submissionProgress}
     </Dialog>
   )
 }

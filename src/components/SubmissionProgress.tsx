@@ -6,15 +6,21 @@ import ErrorIcon from "./Icon/Error"
 import SuccessIcon from "./Icon/Success"
 import { AspectRatioBox, VerticalLayout } from "./Layout/Box"
 
-const FloatingStatusBox = (props: { children: React.ReactNode }) => {
+const Container = (props: { children: React.ReactNode }) => {
   return (
     <AspectRatioBox width="250px" maxWidth="40vw" ratio="3:2">
-      <VerticalLayout padding={10} height="100%" justifyContent="center">
-        <Typography align="center" variant="subheading">
-          {props.children}
-        </Typography>
+      <VerticalLayout padding={10} height="100%" alignItems="center" justifyContent="center">
+        {props.children}
       </VerticalLayout>
     </AspectRatioBox>
+  )
+}
+
+const Heading = (props: { children: React.ReactNode }) => {
+  return (
+    <Typography align="center" variant="subheading">
+      {props.children}
+    </Typography>
   )
 }
 
@@ -22,22 +28,22 @@ const SubmissionProgress = (props: { promise: Promise<any> }) => (
   <Async
     promise={props.promise}
     pending={
-      <FloatingStatusBox>
+      <Container>
         <CircularProgress size={70} style={{ marginTop: 10, marginBottom: 20 }} />
-        <div>Submitting to network...</div>
-      </FloatingStatusBox>
+        <Heading>Submitting to network...</Heading>
+      </Container>
     }
     then={() => (
-      <FloatingStatusBox>
+      <Container>
         <SuccessIcon size={100} />
-        <div>Successful</div>
-      </FloatingStatusBox>
+        <Heading>Successful</Heading>
+      </Container>
     )}
     catch={error => (
-      <FloatingStatusBox>
+      <Container>
         <ErrorIcon size={100} />
-        <div>{error.message || JSON.stringify(error)}</div>
-      </FloatingStatusBox>
+        <Heading>{error.message || JSON.stringify(error)}</Heading>
+      </Container>
     )}
   />
 )
