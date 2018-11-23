@@ -87,10 +87,11 @@ class TrustlineList extends React.Component<Props> {
                   <Tooltip title="Remove asset">
                     <IconButton
                       aria-label="Remove asset"
+                      disabled={parseFloat(balance.balance) > 0}
                       onClick={() => onRemoveTrustline(new Asset(balance.asset_code, balance.asset_issuer))}
                       style={{ color: "black" }}
                     >
-                      <RemoveIcon />
+                      <RemoveIcon style={{ opacity: parseFloat(balance.balance) > 0 ? 0.5 : 1 }} />
                     </IconButton>
                   </Tooltip>
                 </ListItemSecondaryAction>
