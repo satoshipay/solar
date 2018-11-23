@@ -112,7 +112,7 @@ class TrustlineList extends React.Component<Props> {
                   primary={asset.code}
                   secondary={<AccountName publicKey={asset.issuer} testnet={account.testnet} />}
                 />
-                <ListItemText>
+                <ListItemText primaryTypographyProps={{ align: "right" }}>
                   <Button
                     disabled
                     style={{
@@ -126,6 +126,7 @@ class TrustlineList extends React.Component<Props> {
                     Trust Asset
                   </Button>
                 </ListItemText>
+                <ListItemSecondaryAction />
               </ListItem>
             ))}
           </SpaciousList>
