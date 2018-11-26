@@ -42,7 +42,7 @@ export const SingleBalance = (props: SingleBalanceProps) => {
         {addThousandsSeparators(integerPart, thousandsSeparator)}
         <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
       </span>
-      &nbsp;
+      {props.assetCode ? <>&nbsp;</> : null}
       <span
         style={{
           fontWeight: props.inline ? undefined : "bold",
@@ -81,7 +81,7 @@ export const MultipleBalances = (props: MultipleBalancesProps) => {
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
             inline={props.inline}
-            style={index < balances.length - 1 ? { marginRight: 16 } : undefined}
+            style={index < balances.length - 1 ? { marginRight: "1.2em" } : undefined}
           />{" "}
         </React.Fragment>
       ))}
