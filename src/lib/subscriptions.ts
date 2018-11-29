@@ -7,6 +7,7 @@ import { getHorizonURL } from "./stellar"
 export interface AccountObservable {
   activated: boolean
   balances: AccountRecord["balances"]
+  id: string
   loading: boolean
   signers: AccountRecord["signers"]
   thresholds: AccountRecord["thresholds"]
@@ -25,6 +26,7 @@ function createAccountObservable(horizon: Server, accountPubKey: string): Accoun
   const accountObservable = observable({
     activated: false,
     balances: [],
+    id: accountPubKey,
     loading: true,
     signers: [],
     thresholds: {

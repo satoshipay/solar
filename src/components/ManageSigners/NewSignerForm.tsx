@@ -38,14 +38,14 @@ const NewSignerForm = (props: Props) => {
           <TextField
             autoFocus
             error={!!props.errors.publicKey}
-            label="Public Key"
+            label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key"}
             onChange={event => props.onUpdate({ publicKey: event.target.value })}
             style={{ flexGrow: 1 }}
             value={props.values.publicKey}
           />
           <TextField
             error={!!props.errors.weight}
-            label="Weight"
+            label={props.errors.weight ? props.errors.weight.message : "Weight"}
             onChange={event => props.onUpdate({ weight: event.target.value })}
             style={{ maxWidth: 50, marginLeft: 16 }}
             value={props.values.weight}
