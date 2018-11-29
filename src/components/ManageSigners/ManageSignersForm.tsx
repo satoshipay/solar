@@ -143,6 +143,10 @@ class ManageSignersForm extends React.Component<Props, State> {
       })
     }
 
+    this.setState({
+      weightThresholdError: undefined
+    })
+
     await this.props.onSubmit({
       signersToAdd,
       signersToRemove,
