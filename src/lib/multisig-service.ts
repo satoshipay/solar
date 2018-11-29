@@ -176,9 +176,12 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
 export async function fetchSignatureRequests(serviceURL: string, accountIDs: string[]) {
   const url = urlJoin(serviceURL, `/requests/${dedupe(accountIDs).join(",")}`)
   const response = await fetch(url)
-  const responseBody = await response.json()
 
-  return (responseBody as any[]).map(deserializeSignatureRequest)
+  if (!response.ok) {
+    throw new Error(`Fetching signature requests failed: ${await response.text()}\nService: ${serviceURL}`)
+  }
+
+  return ((await response.json()) as any[]).map(deserializeSignatureRequest)
 }
 
 function deserializeSignatureRequestData(messageData: string | string[]) {
