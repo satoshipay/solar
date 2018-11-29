@@ -149,7 +149,8 @@ const SetOptionsOperation = (props: { operation: Operation.SetOptions; style?: R
       heading = <>Add signer</>
       primaryText = (
         <OperationDetails>
-          <PublicKey publicKey={signerPublicKey} style={{ fontWeight: "normal" }} variant="full" />
+          <PublicKey publicKey={signerPublicKey} style={{ display: "block", fontWeight: "normal" }} variant="full" />
+          <div>Key weight: {props.operation.signer.weight}</div>
         </OperationDetails>
       )
     } else if (props.operation.signer.weight === 0) {
