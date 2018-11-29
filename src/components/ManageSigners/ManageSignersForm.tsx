@@ -88,24 +88,29 @@ class ManageSignersForm extends React.Component<Props, State> {
   getUpdatedSigners = () => {
     const { signersToAdd, signersToRemove } = this.state
 
-    const existingSigners = [
-      ...this.props.accountData.signers.filter(signer => signer.public_key === this.props.accountData.id),
-      ...this.props.accountData.signers.filter(signer => signer.public_key !== this.props.accountData.id)
-    ]
-
+    const signersPubKeysToAdd = signersToAdd.map(signer => signer.public_key)
     const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
+
+    const isNotToBeAdded = (signer: Signer) => signersPubKeysToAdd.indexOf(signer.public_key) === -1
     const isNotToBeRemoved = (signer: Signer) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
 
-    return [...existingSigners, ...signersToAdd].filter(isNotToBeRemoved)
+    const updatedSigners = [
+      ...this.props.accountData.signers.filter(isNotToBeAdded).filter(isNotToBeRemoved),
+      ...signersToAdd
+    ]
+
+    return [
+      ...updatedSigners.filter(signer => signer.public_key === this.props.accountData.id),
+      ...updatedSigners.filter(signer => signer.public_key !== this.props.accountData.id)
+    ]
   }
 
   addSigner = (signer: Signer) => {
     this.setState(state => ({
       ...state,
-      signersToAdd: state.signersToAdd.concat([signer]),
-      signersToRemove: state.signersToRemove.filter(
-        someSignerToBeRemoved => someSignerToBeRemoved.public_key !== signer.public_key
-      )
+      signersToAdd: state.signersToAdd.concat([signer])
+      // keep `signersToRemove` untouched
+      // use case: remove signer, then re-add with different weight
     }))
   }
 

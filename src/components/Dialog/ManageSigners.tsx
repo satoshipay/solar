@@ -54,14 +54,15 @@ class ManageSignersDialog extends React.Component<Props, State> {
       this.setState({ txCreationPending: true })
 
       const operations = [
-        ...update.signersToAdd.map(signer =>
-          Operation.setOptions({
-            signer: { ed25519PublicKey: signer.public_key, weight: signer.weight }
-          })
-        ),
+        // signer removals before adding, so you can remove and immediately re-add signer
         ...update.signersToRemove.map(signer =>
           Operation.setOptions({
             signer: { ed25519PublicKey: signer.public_key, weight: 0 }
+          })
+        ),
+        ...update.signersToAdd.map(signer =>
+          Operation.setOptions({
+            signer: { ed25519PublicKey: signer.public_key, weight: signer.weight }
           })
         ),
         Operation.setOptions({

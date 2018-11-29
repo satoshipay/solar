@@ -55,6 +55,8 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
 
     if (!newSignerValues.publicKey.match(/^G[A-Z0-9]{55}$/)) {
       errors.publicKey = new Error("Not a valid public key.")
+    } else if (this.props.signers.find(existingSigner => existingSigner.public_key === newSignerValues.publicKey)) {
+      errors.publicKey = new Error("Cannot add existing signer.")
     }
     if (!newSignerValues.weight.match(/^[0-9]+$/)) {
       errors.weight = new Error("Must be an integer.")
