@@ -6,8 +6,7 @@ import ErrorIcon from "@material-ui/icons/Error"
 import InfoIcon from "@material-ui/icons/Info"
 import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
-import { Theme } from "@material-ui/core/styles/createMuiTheme"
-import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
+import withStyles, { ClassNameMap, StyleRulesCallback } from "@material-ui/core/styles/withStyles"
 import { Notification, NotificationsConsumer, NotificationType } from "../context/notifications"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
@@ -16,7 +15,7 @@ const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   success: CheckIcon
 }
 
-const styles = (theme: Theme) => ({
+const styles: StyleRulesCallback = theme => ({
   clickable: {
     cursor: "pointer"
   },
@@ -36,7 +35,8 @@ const styles = (theme: Theme) => ({
   },
   message: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    whiteSpace: "pre"
   }
 })
 
