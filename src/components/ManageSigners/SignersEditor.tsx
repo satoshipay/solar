@@ -93,7 +93,7 @@ class SignersEditor extends React.Component<SignersEditorProps, SignersEditorSta
     return (
       <SpaciousList fitHorizontal>
         {this.props.signers.map(signer => (
-          <ListItem>
+          <ListItem key={signer.public_key}>
             <ListItemIcon>
               <PersonIcon style={{ fontSize: "2rem" }} />
             </ListItemIcon>
