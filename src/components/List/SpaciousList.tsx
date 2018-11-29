@@ -7,21 +7,22 @@ type Props = ListProps & {
 }
 
 const SpaciousList = (props: Props) => {
+  const { fitHorizontal = false, ...listProps } = props
   const children = React.Children.toArray(props.children).filter(child => child !== null)
   const dividerStyle: React.CSSProperties = {
     margin: "1em 0",
-    marginLeft: props.fitHorizontal ? 24 : 0
+    marginLeft: fitHorizontal ? 24 : 0
   }
   const style: React.CSSProperties = {
     ...props.style,
-    ...(props.fitHorizontal
+    ...(fitHorizontal
       ? {
           marginLeft: -24
         }
       : {})
   }
   return (
-    <List {...props} style={style}>
+    <List {...listProps} style={style}>
       {children.map((child, index) => (
         <React.Fragment key={index}>
           {index === 0 ? null : <Divider style={dividerStyle} />}
