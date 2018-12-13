@@ -10,6 +10,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
 import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
+import { SettingsContext } from "../../context/settings"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
@@ -46,6 +47,7 @@ interface Props extends RouteComponentProps<any, any, any> {
   onManageAssets: () => void
   onManageSigners: () => void
   onRenameAccount: AccountsContext["renameAccount"]
+  settings: SettingsContext
   style?: React.CSSProperties
 }
 
@@ -124,6 +126,7 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
             <Box grow style={{ textAlign: "right" }}>
               <AccountContextMenu
                 account={this.props.account}
+                settings={this.props.settings}
                 onChangePassword={this.onChangePassword}
                 onDelete={this.onDelete}
                 onExport={this.onExport}

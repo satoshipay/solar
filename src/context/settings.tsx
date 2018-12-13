@@ -8,6 +8,7 @@ interface Props {
 
 interface ContextValue {
   multiSignature: boolean
+  multiSignatureServiceURL: string
   showTestnet: boolean
   toggleMultiSignature: () => void
   toggleTestnet: () => void
@@ -19,8 +20,12 @@ const initialSettings: SettingsData = {
   ...loadSettings()
 }
 
+const multiSignatureServiceURL =
+  process.env.MULTISIG_SERVICE || "https://api-dev.satoshipay.io/staging/signature-coordinator/"
+
 const SettingsContext = React.createContext<ContextValue>({
   multiSignature: initialSettings.multisignature,
+  multiSignatureServiceURL,
   showTestnet: initialSettings.testnet,
   toggleMultiSignature: () => undefined,
   toggleTestnet: () => undefined
@@ -53,6 +58,7 @@ export class SettingsProvider extends React.Component<Props, SettingsData> {
   render() {
     const contextValue: ContextValue = {
       multiSignature: this.state.multisignature,
+      multiSignatureServiceURL,
       showTestnet: this.state.testnet,
       toggleMultiSignature: this.toggleMultiSignature,
       toggleTestnet: this.toggleTestnet

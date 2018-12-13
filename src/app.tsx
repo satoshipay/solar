@@ -13,7 +13,7 @@ import OpenDialogs from "./components/OpenDialogs"
 import { AccountsConsumer, AccountsProvider } from "./context/accounts"
 import { DialogsProvider } from "./context/dialogs"
 import { NotificationsProvider } from "./context/notifications"
-import { SettingsProvider } from "./context/settings"
+import { SettingsConsumer, SettingsProvider } from "./context/settings"
 import { SignatureDelegationProvider } from "./context/signatureDelegation"
 import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
@@ -29,11 +29,17 @@ const Providers = (props: { children: React.ReactNode }) => {
       <SettingsProvider>
         <DialogsProvider>
           <NotificationsProvider>
-            <AccountsConsumer>
-              {({ accounts }) => (
-                <SignatureDelegationProvider accounts={accounts}>{props.children}</SignatureDelegationProvider>
+            <SettingsConsumer>
+              {settings => (
+                <AccountsConsumer>
+                  {({ accounts }) => (
+                    <SignatureDelegationProvider accounts={accounts} settings={settings}>
+                      {props.children}
+                    </SignatureDelegationProvider>
+                  )}
+                </AccountsConsumer>
               )}
-            </AccountsConsumer>
+            </SettingsConsumer>
           </NotificationsProvider>
         </DialogsProvider>
       </SettingsProvider>
