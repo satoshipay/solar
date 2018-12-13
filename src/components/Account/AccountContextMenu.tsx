@@ -11,7 +11,7 @@ import LockIcon from "@material-ui/icons/LockOutlined"
 import MoneyIcon from "@material-ui/icons/AttachMoney"
 import VisibilityIcon from "@material-ui/icons/Visibility"
 import { Account } from "../../context/accounts"
-import { isMultisigEnabled } from "../../feature-flags"
+import { SettingsContext } from "../../context/settings"
 import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
 
 interface ItemProps {
@@ -36,6 +36,7 @@ const AccountContextMenuItem = (props: ItemProps) => {
 interface MenuProps {
   account: Account
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
+  settings: SettingsContext
   onChangePassword: () => void
   onDelete: () => void
   onExport: () => void
@@ -67,7 +68,7 @@ const AccountContextMenu = (props: MenuProps) => {
             onClick={closeAndCall(props.onManageAssets)}
           />
           <AccountContextMenuItem
-            hidden={!isMultisigEnabled()}
+            hidden={!props.settings.multiSignature}
             icon={<GroupIcon />}
             label="Manage Signers"
             onClick={closeAndCall(props.onManageSigners)}

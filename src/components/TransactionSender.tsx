@@ -3,7 +3,7 @@ import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
 import { addError } from "../context/notifications"
-import { getMultisigServiceURL } from "../feature-flags"
+import { SettingsConsumer, SettingsContext } from "../context/settings"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
 import {
@@ -59,6 +59,7 @@ interface RenderFunctionProps {
 interface Props {
   account: Account
   horizon: Server
+  settings: SettingsContext
   children: (props: RenderFunctionProps) => React.ReactNode
   onSubmissionCompleted?: (transaction: Transaction) => void
   onSubmissionFailure?: (error: Error, transaction: Transaction) => void
@@ -191,7 +192,7 @@ class TransactionSender extends React.Component<Props, State> {
     try {
       const promise = this.state.signatureRequest
         ? collateSignature(this.state.signatureRequest, signedTransaction)
-        : submitNewSignatureRequest(getMultisigServiceURL(), signatureRequestURI)
+        : submitNewSignatureRequest(this.props.settings.multiSignatureServiceURL, signatureRequestURI)
 
       this.setSubmissionPromise(promise)
       return await promise
@@ -227,7 +228,13 @@ class TransactionSender extends React.Component<Props, State> {
 }
 
 const TransactionSenderWithHorizon = (props: Omit<Props, "horizon">) => (
-  <Horizon testnet={props.account.testnet}>{horizon => <TransactionSender {...props} horizon={horizon} />}</Horizon>
+  <SettingsConsumer>
+    {settings => (
+      <Horizon testnet={props.account.testnet}>
+        {horizon => <TransactionSender {...props} horizon={horizon} settings={settings} />}
+      </Horizon>
+    )}
+  </SettingsConsumer>
 )
 
 export default TransactionSenderWithHorizon

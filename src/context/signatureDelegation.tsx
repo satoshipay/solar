@@ -1,8 +1,8 @@
 import React from "react"
-import { isMultisigEnabled, getMultisigServiceURL } from "../feature-flags"
 import { fetchSignatureRequests, subscribeToSignatureRequests, SignatureRequest } from "../lib/multisig-service"
 import { Account } from "./accounts"
 import { addError } from "./notifications"
+import { SettingsContext } from "./settings"
 
 interface ContextValue {
   pendingSignatureRequests: SignatureRequest[]
@@ -17,6 +17,7 @@ const SignatureDelegationContext = React.createContext<ContextValue>({
 interface Props {
   accounts: Account[]
   children: React.ReactNode
+  settings: SettingsContext
 }
 
 interface State {
@@ -62,11 +63,13 @@ class SignatureDelegationProvider extends React.Component<Props, State> {
   }
 
   subscribeToAccounts = (accountIDs: string[]) => {
-    fetchSignatureRequests(getMultisigServiceURL(), accountIDs)
+    const multiSignatureServiceURL = this.props.settings.multiSignatureServiceURL
+
+    fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
       .then(pendingSignatureRequests => this.setState({ pendingSignatureRequests: pendingSignatureRequests.reverse() }))
       .catch(addError)
 
-    this.unsubscribeFromSignatureRequests = subscribeToSignatureRequests(getMultisigServiceURL(), accountIDs, {
+    this.unsubscribeFromSignatureRequests = subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs, {
       onNewSignatureRequest: signatureRequest => {
         this.setState(state => ({
           pendingSignatureRequests: [signatureRequest, ...state.pendingSignatureRequests]
@@ -113,7 +116,7 @@ class SignatureDelegationProvider extends React.Component<Props, State> {
 export const SignatureDelegationConsumer = SignatureDelegationContext.Consumer
 
 const FeatureFlaggedProvider = (props: Props) => {
-  if (isMultisigEnabled()) {
+  if (props.settings.multiSignature) {
     return <SignatureDelegationProvider {...props} />
   } else {
     const value = {

@@ -21,8 +21,8 @@ import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
+import { SettingsConsumer, SettingsContext } from "../context/settings"
 import { SignatureDelegationConsumer } from "../context/signatureDelegation"
-import { isMultisigEnabled } from "../feature-flags"
 import { hasSigned } from "../lib/transaction"
 
 const AccountActions = (props: { account: Account; onOpenPaymentDrawer: () => void }) => {
@@ -88,6 +88,7 @@ interface Props {
   isSignersDrawerOpen: boolean
   match: match<{ id: string }>
   renameAccount: AccountsContext["renameAccount"]
+  settings: SettingsContext
   onCloseAssetsDrawer: () => void
   onClosePaymentDrawer: () => void
   onCloseSignersDrawer: () => void
@@ -109,7 +110,7 @@ const AccountPage = (props: Props) => {
       <Section top brandColored>
         <AccountHeaderCard
           account={account}
-          history={props.history}
+          settings={props.settings}
           onManageAssets={props.onOpenAssetsDrawer}
           onManageSigners={props.onOpenSignersDrawer}
           onRenameAccount={props.renameAccount}
@@ -130,7 +131,7 @@ const AccountPage = (props: Props) => {
               </div>
             ) : activated ? (
               <>
-                {isMultisigEnabled() ? <PendingMultisigTransactions account={account} /> : null}
+                {props.settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
                 <TransactionList
                   accountPublicKey={account.publicKey}
                   background="transparent"
@@ -201,23 +202,28 @@ class AccountPageContainer extends React.Component<Pick<Props, "history" | "matc
 
   render() {
     return (
-      <AccountsConsumer>
-        {accountsContext => (
-          <AccountPage
-            {...this.props}
-            {...accountsContext}
-            isAssetsDrawerOpen={this.state.isAssetsDrawerOpen}
-            isPaymentDrawerOpen={this.state.isPaymentDrawerOpen}
-            isSignersDrawerOpen={this.state.isSignersDrawerOpen}
-            onCloseAssetsDrawer={this.closeAssetsDrawer}
-            onClosePaymentDrawer={this.closePaymentDrawer}
-            onCloseSignersDrawer={this.closeSignersDrawer}
-            onOpenAssetsDrawer={this.openAssetsDrawer}
-            onOpenPaymentDrawer={this.openPaymentDrawer}
-            onOpenSignersDrawer={this.openSignersDrawer}
-          />
+      <SettingsConsumer>
+        {settings => (
+          <AccountsConsumer>
+            {accountsContext => (
+              <AccountPage
+                {...this.props}
+                {...accountsContext}
+                settings={settings}
+                isAssetsDrawerOpen={this.state.isAssetsDrawerOpen}
+                isPaymentDrawerOpen={this.state.isPaymentDrawerOpen}
+                isSignersDrawerOpen={this.state.isSignersDrawerOpen}
+                onCloseAssetsDrawer={this.closeAssetsDrawer}
+                onClosePaymentDrawer={this.closePaymentDrawer}
+                onCloseSignersDrawer={this.closeSignersDrawer}
+                onOpenAssetsDrawer={this.openAssetsDrawer}
+                onOpenPaymentDrawer={this.openPaymentDrawer}
+                onOpenSignersDrawer={this.openSignersDrawer}
+              />
+            )}
+          </AccountsConsumer>
         )}
-      </AccountsConsumer>
+      </SettingsConsumer>
     )
   }
 }
