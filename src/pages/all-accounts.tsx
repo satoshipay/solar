@@ -2,7 +2,9 @@ import { History } from "history"
 import React from "react"
 import { withRouter } from "react-router"
 import Button from "@material-ui/core/Button"
+import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
+import SettingsIcon from "@material-ui/icons/Settings"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
@@ -27,6 +29,12 @@ const AllAccountsPage = (props: Props) => {
           <Button color="inherit" variant="outlined" onClick={props.toggleNetwork} style={{ borderColor: "white" }}>
             {props.networkSwitch === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
           </Button>
+          <IconButton
+            onClick={() => props.history.push(routes.settings())}
+            style={{ marginLeft: 8, marginRight: -10, color: "inherit" }}
+          >
+            <SettingsIcon />
+          </IconButton>
         </Box>
         <Box margin="16px 0 0">
           <AccountList

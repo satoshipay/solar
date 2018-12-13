@@ -114,7 +114,7 @@ class ManageSignersDialog extends React.Component<Props, State> {
   }
 }
 
-const ManageSignersDialogContainer = (props: Omit<Props, "horizon" | "sendTransaction">) => {
+const ManageSignersDialogContainer = (props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) => {
   return (
     <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (

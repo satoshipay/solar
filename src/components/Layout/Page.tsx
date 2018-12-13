@@ -24,6 +24,7 @@ interface SectionProps {
   backgroundColor?: React.CSSProperties["backgroundColor"]
   brandColored?: boolean
   top?: boolean
+  style?: React.CSSProperties
 }
 
 const Section = (props: SectionProps) => {
@@ -33,7 +34,8 @@ const Section = (props: SectionProps) => {
     color: props.brandColored ? "white" : undefined,
     flexGrow: 1,
     position: "relative",
-    zIndex: props.top ? undefined : 1
+    zIndex: props.top ? undefined : 1,
+    ...props.style
   }
   return (
     <>

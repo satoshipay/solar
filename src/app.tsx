@@ -13,10 +13,12 @@ import OpenDialogs from "./components/OpenDialogs"
 import { AccountsConsumer, AccountsProvider } from "./context/accounts"
 import { DialogsProvider } from "./context/dialogs"
 import { NotificationsProvider } from "./context/notifications"
+import { SettingsProvider } from "./context/settings"
 import { SignatureDelegationProvider } from "./context/signatureDelegation"
 import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
 import CreateAccountPage from "./pages/create-account"
+import SettingsPage from "./pages/settings"
 import theme from "./theme"
 
 Network.usePublicNetwork()
@@ -24,15 +26,17 @@ Network.usePublicNetwork()
 const Providers = (props: { children: React.ReactNode }) => {
   return (
     <AccountsProvider>
-      <DialogsProvider>
-        <NotificationsProvider>
-          <AccountsConsumer>
-            {({ accounts }) => (
-              <SignatureDelegationProvider accounts={accounts}>{props.children}</SignatureDelegationProvider>
-            )}
-          </AccountsConsumer>
-        </NotificationsProvider>
-      </DialogsProvider>
+      <SettingsProvider>
+        <DialogsProvider>
+          <NotificationsProvider>
+            <AccountsConsumer>
+              {({ accounts }) => (
+                <SignatureDelegationProvider accounts={accounts}>{props.children}</SignatureDelegationProvider>
+              )}
+            </AccountsConsumer>
+          </NotificationsProvider>
+        </DialogsProvider>
+      </SettingsProvider>
     </AccountsProvider>
   )
 }
@@ -47,6 +51,7 @@ const App = () => (
             <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
             <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
             <Route exact path="/account/:id" component={AccountPage} />
+            <Route exact path="/settings" component={SettingsPage} />
             <DesktopNotifications />
             <NotificationContainer />
             <OpenDialogs />

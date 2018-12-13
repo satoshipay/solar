@@ -109,7 +109,6 @@ const AccountPage = (props: Props) => {
       <Section top brandColored>
         <AccountHeaderCard
           account={account}
-          history={props.history}
           onManageAssets={props.onOpenAssetsDrawer}
           onManageSigners={props.onOpenSignersDrawer}
           onRenameAccount={props.renameAccount}
