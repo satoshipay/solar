@@ -4,12 +4,15 @@ import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import BackButton from "../components/BackButton"
-import { HorizontalLayout } from "../components/Layout/Box"
+import { Box, HorizontalLayout, VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import Settings from "../components/Settings"
 import * as routes from "../routes"
 
 type Props = RouteComponentProps<any, any, any>
+
+// tslint:disable-next-line
+const pkg = require("../../package.json")
 
 class SettingsPage extends React.Component<Props> {
   render() {
@@ -42,10 +45,17 @@ class SettingsPage extends React.Component<Props> {
             </CardContent>
           </Card>
         </Section>
-        <Section>
-          <div style={{ padding: "0 8px" }}>
-            <Settings />
-          </div>
+        <Section style={{ display: "flex", flexDirection: "column" }}>
+          <VerticalLayout height="100%" padding="0 8px" grow>
+            <Box grow>
+              <Settings />
+            </Box>
+            <Box grow={0} margin="16px 0 0">
+              <Typography align="center" color="textSecondary">
+                v{pkg.version}
+              </Typography>
+            </Box>
+          </VerticalLayout>
         </Section>
       </>
     )
