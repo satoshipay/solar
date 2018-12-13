@@ -8,3 +8,8 @@ export interface PublicKeyData {
 export interface PrivateKeyData {
   privateKey: string
 }
+
+export interface SettingsData {
+  multisignature: boolean
+  testnet: boolean
+}

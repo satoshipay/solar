@@ -1,44 +1,59 @@
 import React from "react"
+import { loadSettings, saveSettings, SettingsData } from "../platform/settings"
+import { addError } from "./notifications"
 
 interface Props {
   children: React.ReactNode
 }
 
-interface State {
+interface ContextValue {
   multiSignature: boolean
   showTestnet: boolean
-}
-
-interface ContextValue extends State {
   toggleMultiSignature: () => void
   toggleTestnet: () => void
 }
 
+const initialSettings: SettingsData = {
+  multisignature: false,
+  testnet: false,
+  ...loadSettings()
+}
+
 const SettingsContext = React.createContext<ContextValue>({
-  multiSignature: false,
-  showTestnet: false,
+  multiSignature: initialSettings.multisignature,
+  showTestnet: initialSettings.testnet,
   toggleMultiSignature: () => undefined,
   toggleTestnet: () => undefined
 })
 
-export class SettingsProvider extends React.Component<Props, State> {
-  state: State = {
-    multiSignature: false,
-    showTestnet: false
+export class SettingsProvider extends React.Component<Props, SettingsData> {
+  state: SettingsData = initialSettings
+
+  updateSettings = (update: Pick<SettingsData, "multisignature"> | Pick<SettingsData, "testnet">) => {
+    try {
+      const updatedSettings = {
+        ...this.state,
+        ...update
+      }
+      this.setState(updatedSettings)
+      saveSettings(updatedSettings)
+    } catch (error) {
+      addError(error)
+    }
   }
 
   toggleMultiSignature = () => {
-    this.setState({ multiSignature: !this.state.multiSignature })
+    this.updateSettings({ multisignature: !this.state.multisignature })
   }
 
   toggleTestnet = () => {
-    this.setState({ showTestnet: !this.state.showTestnet })
+    this.updateSettings({ testnet: !this.state.testnet })
   }
 
   render() {
     const contextValue: ContextValue = {
-      multiSignature: this.state.multiSignature,
-      showTestnet: this.state.showTestnet,
+      multiSignature: this.state.multisignature,
+      showTestnet: this.state.testnet,
       toggleMultiSignature: this.toggleMultiSignature,
       toggleTestnet: this.toggleTestnet
     }

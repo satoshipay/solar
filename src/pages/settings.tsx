@@ -23,8 +23,8 @@ class SettingsPage extends React.Component<Props> {
               boxShadow: "none"
             }}
           >
-            <CardContent>
-              <HorizontalLayout alignItems="center" margin="-12px 0 -10px">
+            <CardContent style={{ paddingTop: 16, paddingBottom: 16 }}>
+              <HorizontalLayout alignItems="center" margin="-12px 0 -10px" minHeight={56}>
                 <BackButton
                   onClick={() => this.props.history.push(routes.allAccounts())}
                   style={{ marginLeft: -10, marginRight: 10 }}
