@@ -1,6 +1,6 @@
-# Stellar Wallet
+# Solar Wallet
 
-Desktop / Mobile app, payment requests, multisignature and more.
+Stellar wallet app, featuring payment requests, multisignature and more.
 
 ## Download
 

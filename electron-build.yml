@@ -1,5 +1,5 @@
 appId: io.satoshipay.wallet
-productName: Wallet X
+productName: Solar Wallet
 
 directories:
   buildResources: ./electron/build
