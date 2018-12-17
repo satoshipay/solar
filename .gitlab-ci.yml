@@ -51,7 +51,7 @@ build_linux:
     paths:
       - electron/dist
   script:
-    - sudo apt-get install rpm
+    - apt-get install -y rpm
     - npm run build:linux -- --linux=deb --linux=rpm
   only:
     - master
