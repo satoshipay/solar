@@ -8,11 +8,14 @@ stages:
 
 prepare:
   stage: setup
+  variables:
+    npm_config_cache: $CI_PROJECT_DIR/cache/
   cache:
     key: npm-${CI_COMMIT_REF_SLUG}
     paths:
-      - ~/.npm
+      - cache/
   script:
+    - echo $npm_config_cache
     - npm ci
   artifacts:
     paths:

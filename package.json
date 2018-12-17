@@ -28,7 +28,8 @@
   },
   "lint-staged": {
     "ignore": [
-      "**/*.yml"
+      "**/*.yml",
+      ".gitignore"
     ],
     "linters": {
       "*": [
