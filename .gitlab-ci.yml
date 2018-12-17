@@ -19,6 +19,11 @@ prepare:
       - node_modules
     expire_in: 4 hours
 
+lint:
+  stage: test
+  script:
+    - npm run prettier:check
+
 test:
   stage: test
   script:
