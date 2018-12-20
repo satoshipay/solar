@@ -68,7 +68,7 @@ interface Props {
 interface State {
   confirmationDialogOpen: boolean
   signatureRequest: SignatureRequest | null
-  submissionFailed: boolean
+  submissionStatus: "before" | "pending" | "fulfilled" | "rejected"
   submissionPromise: Promise<any> | null
   submissionSuccessCallbacks: Array<() => void>
   transaction: Transaction | null
@@ -78,7 +78,7 @@ class TransactionSender extends React.Component<Props, State> {
   state: State = {
     confirmationDialogOpen: false,
     signatureRequest: null,
-    submissionFailed: false,
+    submissionStatus: "before",
     submissionPromise: null,
     submissionSuccessCallbacks: [],
     transaction: null
@@ -111,24 +111,24 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   onConfirmationDrawerCloseRequest = () => {
-    if (this.state.submissionPromise) {
-      if (this.state.submissionFailed) {
-        // Only allow manually closing the submission progress if tx submission failed
-        this.clearSubmissionPromise()
-      }
-    } else {
-      this.setState({ confirmationDialogOpen: false })
+    if (!this.state.submissionPromise || this.state.submissionStatus !== "pending") {
+      // Prevent manually closing the submission progress if tx submission is pending
+      this.clearSubmissionPromise()
     }
   }
 
   clearSubmissionPromise = () => {
-    this.setState({ submissionPromise: null })
+    this.setState({
+      confirmationDialogOpen: false,
+      submissionPromise: null
+    })
   }
 
   setSubmissionPromise = (submissionPromise: Promise<any>) => {
-    this.setState({ submissionPromise, submissionFailed: false })
+    this.setState({ submissionPromise, submissionStatus: "pending" })
 
     submissionPromise.then(() => {
+      this.setState({ submissionStatus: "fulfilled" })
       this.triggerSubmissionSuccessCallbacks()
       // Auto-close tx confirmation dialog shortly after submission successfully done
       this.submissionTimeouts.push(
@@ -138,7 +138,7 @@ class TransactionSender extends React.Component<Props, State> {
       )
     })
     submissionPromise.catch(() => {
-      this.setState({ submissionFailed: true })
+      this.setState({ submissionStatus: "rejected" })
     })
   }
 
