@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { loadSettings, saveSettings, SettingsData } from "../platform/settings"
-import { addError } from "./notifications"
+import { trackError } from "./notifications"
 
 interface Props {
   children: React.ReactNode
@@ -43,7 +43,7 @@ export function SettingsProvider(props: Props) {
       setSettings(updatedSettings)
       saveSettings(updatedSettings)
     } catch (error) {
-      addError(error)
+      trackError(error)
     }
   }
 

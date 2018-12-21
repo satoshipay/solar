@@ -8,7 +8,7 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import { Account } from "../../context/accounts"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { AccountData } from "../Subscribers"
@@ -36,7 +36,7 @@ class RemoveTrustlineDialog extends React.Component<Props> {
       })
       this.props.sendTransaction(transaction)
     } catch (error) {
-      addError(error)
+      trackError(error)
     }
   }
 

@@ -1,7 +1,7 @@
 import fetch from "isomorphic-fetch"
 import qs from "qs"
 import { Transaction } from "stellar-sdk"
-import { addError } from "../context/notifications"
+import { trackError } from "../context/notifications"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -202,7 +202,12 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
     return () => undefined
   }
 
-  const { onError = addError, onNewSignatureRequest, onSignatureRequestUpdate, onSignatureRequestSubmitted } = handlers
+  const {
+    onError = trackError,
+    onNewSignatureRequest,
+    onSignatureRequestUpdate,
+    onSignatureRequestSubmitted
+  } = handlers
 
   const eventSource = new EventSource(urlJoin(serviceURL, `/stream/${dedupe(accountIDs).join(",")}`))
   let lastErrorTime = 0

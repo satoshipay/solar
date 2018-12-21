@@ -2,7 +2,7 @@ import React from "react"
 import { Server } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ButtonIconLabel from "../ButtonIconLabel"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { friendbotTopup } from "../../lib/stellar"
 
 interface Props {
@@ -30,7 +30,7 @@ class FriendbotButton extends React.Component<Props, State> {
       } finally {
         this.setState({ pending: false })
       }
-    })().catch(addError)
+    })().catch(trackError)
   }
 
   render() {

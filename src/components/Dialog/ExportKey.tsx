@@ -11,7 +11,7 @@ import LockIcon from "@material-ui/icons/LockOutlined"
 import LockFilledIcon from "@material-ui/icons/Lock"
 import WarnIcon from "@material-ui/icons/Warning"
 import { Account } from "../../context/accounts"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { isWrongPasswordError } from "../../lib/errors"
 import { brandColor } from "../../theme"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -135,7 +135,7 @@ class ExportKeyDialog extends React.Component<Props, State> {
         if (isWrongPasswordError(error)) {
           this.setState({ passwordError: error })
         } else {
-          addError(error)
+          trackError(error)
         }
       })
   }

@@ -8,7 +8,7 @@ import Slide, { SlideProps } from "@material-ui/core/Slide"
 import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
@@ -117,7 +117,7 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
       this.props.onClose()
     } catch (error) {
       this.setState({ txCreationPending: false })
-      addError(error)
+      trackError(error)
     }
   }
 
@@ -125,7 +125,7 @@ class CustomTrustlineDialog extends React.Component<Props, State> {
     try {
       await this.addAsset(new Asset(code, issuerPublicKey), { limit: limit || undefined })
     } catch (error) {
-      addError(error)
+      trackError(error)
     }
   }
 

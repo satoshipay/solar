@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { fetchSignatureRequests, subscribeToSignatureRequests, SignatureRequest } from "../lib/multisig-service"
 import { Account } from "./accounts"
-import { addError } from "./notifications"
+import { trackError } from "./notifications"
 import { SettingsContext } from "./settings"
 
 interface ContextValue {
@@ -29,7 +29,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
   useEffect(() => {
     fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
       .then(requests => setPendingSignatureRequests(requests.reverse()))
-      .catch(addError)
+      .catch(trackError)
 
     const unsubscribe = subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs, {
       onNewSignatureRequest: signatureRequest => {

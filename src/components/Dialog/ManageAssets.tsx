@@ -8,7 +8,7 @@ import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsConsumer } from "../../context/accounts"
 import { DialogsConsumer, DialogsContext } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -56,7 +56,7 @@ class ManageAssets extends React.Component<Props, State> {
       })
       this.props.sendTransaction(transaction)
     } catch (error) {
-      addError(error)
+      trackError(error)
     }
   }
 

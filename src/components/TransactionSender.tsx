@@ -2,7 +2,7 @@ import React from "react"
 import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
-import { addError } from "../context/notifications"
+import { trackError } from "../context/notifications"
 import { SettingsConsumer, SettingsContextType } from "../context/settings"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
@@ -163,7 +163,7 @@ class TransactionSender extends React.Component<Props, State> {
       if (onSubmissionFailure) {
         onSubmissionFailure(error, transaction)
       } else {
-        addError(error)
+        trackError(error)
       }
     }
   }
@@ -227,7 +227,7 @@ class TransactionSender extends React.Component<Props, State> {
   }
 }
 
-const TransactionSenderWithHorizon = (props: Omit<Props, "horizon">) => (
+const TransactionSenderWithHorizon = (props: Omit<Props, "horizon" | "settings">) => (
   <SettingsConsumer>
     {settings => (
       <Horizon testnet={props.account.testnet}>

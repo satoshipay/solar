@@ -7,7 +7,7 @@ import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
 import { Box } from "../components/Layout/Box"
 import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
-import { addError } from "../context/notifications"
+import { trackError } from "../context/notifications"
 
 interface Props {
   accounts: Account[]
@@ -27,7 +27,7 @@ class CreateAccountPage extends React.Component<Props> {
       })
       this.props.history.push(routes.account(account.id))
     } catch (error) {
-      addError(error)
+      trackError(error)
     }
   }
 

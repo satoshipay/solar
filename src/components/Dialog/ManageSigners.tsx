@@ -6,7 +6,7 @@ import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { AccountObservable } from "../../lib/subscriptions"
 import { createTransaction } from "../../lib/transaction"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -82,7 +82,7 @@ class ManageSignersDialog extends React.Component<Props, State> {
 
       await submissionPromise
     } catch (error) {
-      addError(error)
+      trackError(error)
       this.setState({ txCreationPending: false })
     }
   }

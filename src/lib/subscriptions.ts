@@ -1,6 +1,6 @@
 import { observable } from "mobx"
 import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
-import { addError } from "../context/notifications"
+import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
 import { getHorizonURL } from "./stellar"
 
@@ -59,7 +59,7 @@ function createAccountObservable(horizon: Server, accountPubKey: string): Accoun
             if (Date.now() - lastMessageTime > 3000) {
               // Every few seconds there is a new useless error with the same data as the previous.
               // So don't show them if there is a successful message afterwards (stream still seems to work)
-              addError(new Error("Account data update stream errored."))
+              trackError(new Error("Account data update stream errored."))
             } else {
               // tslint:disable-next-line:no-console
               console.warn("Account data update stream had an error, but still seems to work fine:", error)
@@ -79,7 +79,7 @@ function createAccountObservable(horizon: Server, accountPubKey: string): Accoun
     subscribeToAccountDataStream(initialAccountData ? "now" : "0")
   }
 
-  fetchAccount().catch(addError)
+  fetchAccount().catch(trackError)
 
   return accountObservable
 }
@@ -111,7 +111,7 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
           recentTxs.transactions.unshift(deserializeTx(txResponse))
         },
         onerror(error: any) {
-          addError(new Error("Recent transactions update stream errored."))
+          trackError(new Error("Recent transactions update stream errored."))
 
           // tslint:disable-next-line:no-console
           console.error(error)
@@ -133,7 +133,7 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
           recentTxs.activated = true
           subscribeToTxs(initialFetchFailed ? "0" : "now")
         })
-        .catch(addError)
+        .catch(trackError)
     } else {
       throw error
     }
@@ -165,7 +165,7 @@ export function subscribeToRecentTxs(horizon: Server, accountPubKey: string): Re
       loading: true,
       transactions: []
     })
-    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey).catch(addError)
+    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey).catch(trackError)
     accountRecentTxsCache.set(cacheKey, recentTxs)
     return recentTxs
   }
