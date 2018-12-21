@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useRef, useState } from "react"
 import { DialogDescriptor, DialogBlueprint } from "./dialogTypes"
 
 interface ContextValue {
@@ -11,50 +11,37 @@ interface Props {
   children: React.ReactNode
 }
 
-interface State {
-  dialogs: DialogDescriptor[]
-}
-
 const DialogsContext = React.createContext<ContextValue>({
   dialogs: [],
   closeDialog: () => undefined,
   openDialog: () => undefined
 })
 
-export class DialogsProvider extends React.Component<Props, State> {
-  // Not in the state, since updates using `this.setState()` would be performed asyncronously
-  nextID = 1
+export function DialogsProvider(props: Props) {
+  // Not in the state, since state updates would be performed asyncronously
+  const nextIDRef = useRef(1)
+  const [dialogs, setDialogs] = useState<DialogDescriptor[]>([])
 
-  state: State = {
-    dialogs: []
-  }
-
-  openDialog = (blueprint: DialogBlueprint) => {
+  const openDialog = (blueprint: DialogBlueprint) => {
     const newDialog: DialogDescriptor = {
-      id: this.nextID++,
+      id: nextIDRef.current++,
       open: true,
       props: blueprint.props as any, // To prevent type error that is due to inprecise type inference
       type: blueprint.type as any
     }
-    this.setState(state => ({
-      dialogs: state.dialogs.concat([newDialog])
-    }))
+    setDialogs(prevDialogs => [...prevDialogs, newDialog])
   }
 
-  closeDialog = (dialogID: number) => {
-    this.setState(state => ({
-      dialogs: state.dialogs.filter(someDialog => someDialog.id !== dialogID)
-    }))
+  const closeDialog = (dialogID: number) => {
+    setDialogs(prevDialogs => prevDialogs.filter(dialog => dialog.id !== dialogID))
   }
 
-  render() {
-    const contextValue: ContextValue = {
-      dialogs: this.state.dialogs,
-      closeDialog: this.closeDialog,
-      openDialog: this.openDialog
-    }
-    return <DialogsContext.Provider value={contextValue}>{this.props.children}</DialogsContext.Provider>
+  const contextValue: ContextValue = {
+    dialogs,
+    closeDialog,
+    openDialog
   }
+  return <DialogsContext.Provider value={contextValue}>{props.children}</DialogsContext.Provider>
 }
 
 export const DialogsConsumer = DialogsContext.Consumer
