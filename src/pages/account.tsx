@@ -21,7 +21,7 @@ import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
-import { SettingsConsumer, SettingsContext } from "../context/settings"
+import { SettingsConsumer, SettingsContextType } from "../context/settings"
 import { SignatureDelegationConsumer } from "../context/signatureDelegation"
 import { hasSigned } from "../lib/transaction"
 
@@ -88,7 +88,7 @@ interface Props {
   isSignersDrawerOpen: boolean
   match: match<{ id: string }>
   renameAccount: AccountsContext["renameAccount"]
-  settings: SettingsContext
+  settings: SettingsContextType
   onCloseAssetsDrawer: () => void
   onClosePaymentDrawer: () => void
   onCloseSignersDrawer: () => void

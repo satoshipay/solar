@@ -3,7 +3,7 @@ import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
 import { addError } from "../context/notifications"
-import { SettingsConsumer, SettingsContext } from "../context/settings"
+import { SettingsConsumer, SettingsContextType } from "../context/settings"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
 import {
@@ -59,7 +59,7 @@ interface RenderFunctionProps {
 interface Props {
   account: Account
   horizon: Server
-  settings: SettingsContext
+  settings: SettingsContextType
   children: (props: RenderFunctionProps) => React.ReactNode
   onSubmissionCompleted?: (transaction: Transaction) => void
   onSubmissionFailure?: (error: Error, transaction: Transaction) => void

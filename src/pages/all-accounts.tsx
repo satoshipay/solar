@@ -9,14 +9,14 @@ import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
 import { Account, AccountsConsumer, AccountsContext, NetworkID } from "../context/accounts"
-import { SettingsConsumer, SettingsContext } from "../context/settings"
+import { SettingsConsumer, SettingsContextType } from "../context/settings"
 import * as routes from "../routes"
 
 interface Props {
   accounts: Account[]
   history: History
   networkSwitch: NetworkID
-  settings: SettingsContext
+  settings: SettingsContextType
   toggleNetwork: AccountsContext["toggleNetwork"]
 }
 

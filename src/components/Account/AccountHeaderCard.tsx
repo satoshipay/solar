@@ -10,7 +10,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
 import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
-import { SettingsContext } from "../../context/settings"
+import { SettingsContextType } from "../../context/settings"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
@@ -47,7 +47,7 @@ interface Props extends RouteComponentProps<any, any, any> {
   onManageAssets: () => void
   onManageSigners: () => void
   onRenameAccount: AccountsContext["renameAccount"]
-  settings: SettingsContext
+  settings: SettingsContextType
   style?: React.CSSProperties
 }
 

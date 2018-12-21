@@ -6,7 +6,7 @@ interface Props {
   children: React.ReactNode
 }
 
-interface ContextValue {
+interface ContextType {
   multiSignature: boolean
   multiSignatureServiceURL: string
   showTestnet: boolean
@@ -23,7 +23,7 @@ const initialSettings: SettingsData = {
 const multiSignatureServiceURL =
   process.env.MULTISIG_SERVICE || "https://api-dev.satoshipay.io/staging/signature-coordinator/"
 
-const SettingsContext = React.createContext<ContextValue>({
+const SettingsContext = React.createContext<ContextType>({
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
   showTestnet: initialSettings.testnet,
@@ -56,7 +56,7 @@ export class SettingsProvider extends React.Component<Props, SettingsData> {
   }
 
   render() {
-    const contextValue: ContextValue = {
+    const contextValue: ContextType = {
       multiSignature: this.state.multisignature,
       multiSignatureServiceURL,
       showTestnet: this.state.testnet,
@@ -69,4 +69,4 @@ export class SettingsProvider extends React.Component<Props, SettingsData> {
 
 export const SettingsConsumer = SettingsContext.Consumer
 
-export { ContextValue as SettingsContext }
+export { ContextType as SettingsContextType, SettingsContext }
