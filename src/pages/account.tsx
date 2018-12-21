@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext } from "react"
 import { History } from "history"
 import { match } from "react-router"
 import Button from "@material-ui/core/Button"
@@ -22,10 +22,10 @@ import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import { Account, AccountsConsumer, AccountsContextType } from "../context/accounts"
 import { SettingsConsumer, SettingsContextType } from "../context/settings"
-import { SignatureDelegationConsumer } from "../context/signatureDelegation"
+import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { hasSigned } from "../lib/transaction"
 
-const AccountActions = (props: { account: Account; onOpenPaymentDrawer: () => void }) => {
+function AccountActions(props: { account: Account; onOpenPaymentDrawer: () => void }) {
   return (
     <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
       {(_, activated) => (
@@ -49,34 +49,31 @@ const AccountActions = (props: { account: Account; onOpenPaymentDrawer: () => vo
   )
 }
 
-const PendingMultisigTransactions = (props: { account: Account }) => {
+function PendingMultisigTransactions(props: { account: Account }) {
+  const { pendingSignatureRequests } = useContext(SignatureDelegationContext)
   return (
-    <SignatureDelegationConsumer>
-      {({ pendingSignatureRequests }) => (
-        <>
-          <InteractiveSignatureRequestList
-            account={props.account}
-            icon={<SendIcon />}
-            signatureRequests={pendingSignatureRequests.filter(
-              request =>
-                request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-                !hasSigned(request.meta.transaction, props.account.publicKey)
-            )}
-            title="Transactions to co-sign"
-          />
-          <InteractiveSignatureRequestList
-            account={props.account}
-            icon={<UpdateIcon style={{ opacity: 0.5 }} />}
-            signatureRequests={pendingSignatureRequests.filter(
-              request =>
-                request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-                hasSigned(request.meta.transaction, props.account.publicKey)
-            )}
-            title="Awaiting additional signatures"
-          />
-        </>
-      )}
-    </SignatureDelegationConsumer>
+    <>
+      <InteractiveSignatureRequestList
+        account={props.account}
+        icon={<SendIcon />}
+        signatureRequests={pendingSignatureRequests.filter(
+          request =>
+            request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+            !hasSigned(request.meta.transaction, props.account.publicKey)
+        )}
+        title="Transactions to co-sign"
+      />
+      <InteractiveSignatureRequestList
+        account={props.account}
+        icon={<UpdateIcon style={{ opacity: 0.5 }} />}
+        signatureRequests={pendingSignatureRequests.filter(
+          request =>
+            request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+            hasSigned(request.meta.transaction, props.account.publicKey)
+        )}
+        title="Awaiting additional signatures"
+      />
+    </>
   )
 }
 
@@ -97,7 +94,7 @@ interface Props {
   onOpenSignersDrawer: () => void
 }
 
-const AccountPage = (props: Props) => {
+function AccountPage(props: Props) {
   const { params } = props.match
 
   const account = props.accounts.find(someAccount => someAccount.id === params.id)

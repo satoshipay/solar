@@ -76,8 +76,6 @@ function SignatureDelegationProvider(props: Props) {
   )
 }
 
-export const SignatureDelegationConsumer = SignatureDelegationContext.Consumer
-
 function FeatureFlaggedProvider(props: Props) {
   const settings = useContext(SettingsContext)
 

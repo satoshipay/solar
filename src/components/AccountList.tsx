@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext } from "react"
 import { History, Location } from "history"
 import { withRouter } from "react-router-dom"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
@@ -10,7 +10,7 @@ import AddIcon from "@material-ui/icons/Add"
 import AccountBalances from "../components/Account/AccountBalances"
 import { CardList, CardListCard } from "../components/CardList"
 import { Account } from "../context/accounts"
-import { SignatureDelegationConsumer } from "../context/signatureDelegation"
+import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { SignatureRequest } from "../lib/multisig-service"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
@@ -64,12 +64,12 @@ const StyledBadge = withStyles(badgeStyles)((props: BadgeProps) => {
   )
 })
 
-const AccountCard = (props: {
+function AccountCard(props: {
   account: Account
   history: History
   pendingSignatureRequests: SignatureRequest[]
   style?: React.CSSProperties
-}) => {
+}) {
   const onClick = () => props.history.push(routes.account(props.account.id))
   const pendingSignatureRequests = props.pendingSignatureRequests.filter(
     req =>
@@ -93,7 +93,7 @@ const AccountCard = (props: {
   )
 }
 
-const AddAccountCard = (props: { onClick: () => any; style?: React.CSSProperties }) => {
+function AddAccountCard(props: { onClick: () => any; style?: React.CSSProperties }) {
   return (
     <StyledCard
       onClick={props.onClick}
@@ -120,25 +120,22 @@ interface AccountListProps {
   onCreateTestnetAccount: () => any
 }
 
-const AccountList = (props: AccountListProps) => {
+function AccountList(props: AccountListProps) {
   const accounts = props.accounts.filter(account => account.testnet === props.testnet)
+  const { pendingSignatureRequests } = useContext(SignatureDelegationContext)
 
   return (
-    <SignatureDelegationConsumer>
-      {({ pendingSignatureRequests }) => (
-        <CardList addInvisibleCard={accounts.length % 2 === 0}>
-          <AddAccountCard onClick={props.testnet ? props.onCreateTestnetAccount : props.onCreatePubnetAccount} />
-          {accounts.map((account, index) => (
-            <AccountCard
-              key={account.id}
-              account={account}
-              history={props.history}
-              pendingSignatureRequests={pendingSignatureRequests}
-            />
-          ))}
-        </CardList>
-      )}
-    </SignatureDelegationConsumer>
+    <CardList addInvisibleCard={accounts.length % 2 === 0}>
+      <AddAccountCard onClick={props.testnet ? props.onCreateTestnetAccount : props.onCreatePubnetAccount} />
+      {accounts.map((account, index) => (
+        <AccountCard
+          key={account.id}
+          account={account}
+          history={props.history}
+          pendingSignatureRequests={pendingSignatureRequests}
+        />
+      ))}
+    </CardList>
   )
 }
 
