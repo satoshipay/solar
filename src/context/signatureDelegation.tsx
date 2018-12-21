@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { fetchSignatureRequests, subscribeToSignatureRequests, SignatureRequest } from "../lib/multisig-service"
 import { Account } from "./accounts"
 import { addError } from "./notifications"
@@ -9,114 +9,79 @@ interface ContextValue {
   subscribeToNewSignatureRequests: (subscriber: (signatureRequest: SignatureRequest) => void) => () => void
 }
 
+type SignatureRequestCallback = (signatureRequest: SignatureRequest) => void
+
+interface SubscribersState {
+  newRequestSubscribers: SignatureRequestCallback[]
+}
+
 const SignatureDelegationContext = React.createContext<ContextValue>({
   pendingSignatureRequests: [],
   subscribeToNewSignatureRequests: () => () => undefined
 })
 
+function useSignatureRequestSubscription(multiSignatureServiceURL: string, accounts: Account[]) {
+  const accountIDs = accounts.map(account => account.publicKey)
+
+  const subscribersRef = useRef<SubscribersState>({ newRequestSubscribers: [] })
+  const [pendingSignatureRequests, setPendingSignatureRequests] = useState<SignatureRequest[]>([])
+
+  useEffect(() => {
+    fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
+      .then(requests => setPendingSignatureRequests(requests.reverse()))
+      .catch(addError)
+
+    const unsubscribe = subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs, {
+      onNewSignatureRequest: signatureRequest => {
+        setPendingSignatureRequests(prevPending => [signatureRequest, ...prevPending])
+        subscribersRef.current.newRequestSubscribers.forEach(subscriber => subscriber(signatureRequest))
+      },
+      onSignatureRequestSubmitted: signatureRequest => {
+        setPendingSignatureRequests(prevPending =>
+          prevPending.filter(request => request.hash !== signatureRequest.hash)
+        )
+      }
+    })
+    return unsubscribe
+  }, accounts)
+
+  const subscribeToNewSignatureRequests = (callback: SignatureRequestCallback) => {
+    subscribersRef.current.newRequestSubscribers.push(callback)
+
+    const unsubscribe = () => {
+      subscribersRef.current.newRequestSubscribers = subscribersRef.current.newRequestSubscribers.filter(
+        subscriber => subscriber !== callback
+      )
+    }
+    return unsubscribe
+  }
+
+  return {
+    pendingSignatureRequests,
+    subscribeToNewSignatureRequests
+  }
+}
+
 interface Props {
   accounts: Account[]
   children: React.ReactNode
-  settings: SettingsContext
 }
 
-interface State {
-  newSignatureRequestSubscribers: Array<(signatureRequest: SignatureRequest) => void>
-  pendingSignatureRequests: SignatureRequest[]
-  subscribedAccountsKey: string
-}
+function SignatureDelegationProvider(props: Props) {
+  const settings = useContext(SettingsContext)
+  const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureServiceURL, props.accounts)
 
-class SignatureDelegationProvider extends React.Component<Props, State> {
-  state: State = {
-    newSignatureRequestSubscribers: [],
-    pendingSignatureRequests: [],
-    subscribedAccountsKey: this.createSubscribedAccountsKey(this.props.accounts)
-  }
-
-  constructor(props: Props) {
-    super(props)
-
-    const accountIDs = this.props.accounts.map(account => account.publicKey)
-    this.subscribeToAccounts(accountIDs)
-  }
-
-  unsubscribeFromSignatureRequests: () => void = () => undefined
-
-  componentDidUpdate() {
-    const accountIDs = this.props.accounts.map(account => account.publicKey)
-    const newSubscribedAccountsKey = this.createSubscribedAccountsKey(this.props.accounts)
-
-    if (newSubscribedAccountsKey !== this.state.subscribedAccountsKey) {
-      this.unsubscribeFromSignatureRequests()
-      this.subscribeToAccounts(accountIDs)
-      this.setState({ subscribedAccountsKey: newSubscribedAccountsKey })
-    }
-  }
-
-  componentWillUnmount() {
-    this.unsubscribeFromSignatureRequests()
-    this.setState({ pendingSignatureRequests: [] })
-  }
-
-  createSubscribedAccountsKey(accounts: Account[]) {
-    return accounts.map(account => account.publicKey).join(",")
-  }
-
-  subscribeToAccounts = (accountIDs: string[]) => {
-    const multiSignatureServiceURL = this.props.settings.multiSignatureServiceURL
-
-    fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
-      .then(pendingSignatureRequests => this.setState({ pendingSignatureRequests: pendingSignatureRequests.reverse() }))
-      .catch(addError)
-
-    this.unsubscribeFromSignatureRequests = subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs, {
-      onNewSignatureRequest: signatureRequest => {
-        this.setState(state => ({
-          pendingSignatureRequests: [signatureRequest, ...state.pendingSignatureRequests]
-        }))
-        for (const subscriber of this.state.newSignatureRequestSubscribers) {
-          subscriber(signatureRequest)
-        }
-      },
-      onSignatureRequestSubmitted: signatureRequest => {
-        this.setState(state => ({
-          pendingSignatureRequests: state.pendingSignatureRequests.filter(
-            request => request.hash !== signatureRequest.hash
-          )
-        }))
-      }
-    })
-  }
-
-  subscribeToNewSignatureRequests = (subscriber: (signatureRequest: SignatureRequest) => void) => {
-    this.setState(state => ({
-      newSignatureRequestSubscribers: [...state.newSignatureRequestSubscribers, subscriber]
-    }))
-
-    return () => {
-      this.setState(state => ({
-        newSignatureRequestSubscribers: state.newSignatureRequestSubscribers.filter(func => func !== subscriber)
-      }))
-    }
-  }
-
-  render() {
-    const contextValue: ContextValue = {
-      pendingSignatureRequests: this.state.pendingSignatureRequests,
-      subscribeToNewSignatureRequests: this.subscribeToNewSignatureRequests
-    }
-    return (
-      <SignatureDelegationContext.Provider value={contextValue}>
-        {this.props.children}
-      </SignatureDelegationContext.Provider>
-    )
-  }
+  return (
+    <SignatureDelegationContext.Provider value={contextValue}>{props.children}</SignatureDelegationContext.Provider>
+  )
 }
 
 export const SignatureDelegationConsumer = SignatureDelegationContext.Consumer
 
-const FeatureFlaggedProvider = (props: Props) => {
-  if (props.settings.multiSignature) {
+function FeatureFlaggedProvider(props: Props) {
+  const settings = useContext(SettingsContext)
+
+  if (settings.multiSignature) {
     return <SignatureDelegationProvider {...props} />
   } else {
     const value = {
