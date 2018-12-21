@@ -189,4 +189,4 @@ export function AccountsProvider(props: Props) {
 
 export const AccountsConsumer = AccountsContext.Consumer
 
-export { ContextValue as AccountsContext }
+export { AccountsContext, ContextValue as AccountsContextType }

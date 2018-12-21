@@ -6,12 +6,12 @@ import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
 import { Box } from "../components/Layout/Box"
-import { Account, AccountsConsumer, AccountsContext } from "../context/accounts"
+import { Account, AccountsConsumer, AccountsContextType } from "../context/accounts"
 import { trackError } from "../context/notifications"
 
 interface Props {
   accounts: Account[]
-  createAccount: AccountsContext["createAccount"]
+  createAccount: AccountsContextType["createAccount"]
   history: History
   testnet: boolean
 }

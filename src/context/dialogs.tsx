@@ -46,4 +46,4 @@ export function DialogsProvider(props: Props) {
 
 export const DialogsConsumer = DialogsContext.Consumer
 
-export { ContextValue as DialogsContext }
+export { ContextValue as DialogsContextType, DialogsContext }

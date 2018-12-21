@@ -1,15 +1,15 @@
 import { History } from "history"
 import React from "react"
 import { withRouter } from "react-router-dom"
-import { SignatureDelegationConsumer, SignatureDelegationContext } from "../context/signatureDelegation"
+import { SignatureDelegationConsumer, SignatureDelegationContextType } from "../context/signatureDelegation"
 import { SignatureRequest } from "../lib/multisig-service"
 import * as routes from "../routes"
 
-type UnsubscribeFromNewSignatureRequests = ReturnType<SignatureDelegationContext["subscribeToNewSignatureRequests"]>
+type UnsubscribeFromNewSignatureRequests = ReturnType<SignatureDelegationContextType["subscribeToNewSignatureRequests"]>
 
 interface Props {
   history: History
-  subscribeToNewSignatureRequests: SignatureDelegationContext["subscribeToNewSignatureRequests"]
+  subscribeToNewSignatureRequests: SignatureDelegationContextType["subscribeToNewSignatureRequests"]
 }
 
 class DesktopNotifications extends React.Component<Props> {

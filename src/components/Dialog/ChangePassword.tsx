@@ -11,8 +11,8 @@ import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
-import { Account, AccountsContext } from "../../context/accounts"
-import { NotificationsConsumer, NotificationContext } from "../../context/notifications"
+import { Account, AccountsContextType } from "../../context/accounts"
+import { NotificationsConsumer, NotificationContextType } from "../../context/notifications"
 import { renderFormFieldError } from "../../lib/errors"
 import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
@@ -89,10 +89,10 @@ const Actions = (props: ActionsProps) => {
 interface Props {
   account: Account
   open: boolean
-  addError: NotificationContext["addError"]
-  addNotification: NotificationContext["addNotification"]
-  changePassword: AccountsContext["changePassword"]
-  removePassword: AccountsContext["removePassword"]
+  addError: NotificationContextType["addError"]
+  addNotification: NotificationContextType["addNotification"]
+  changePassword: AccountsContextType["changePassword"]
+  removePassword: AccountsContextType["removePassword"]
   onClose: () => void
 }
 

@@ -92,4 +92,8 @@ function FeatureFlaggedProvider(props: Props) {
   }
 }
 
-export { ContextValue as SignatureDelegationContext, FeatureFlaggedProvider as SignatureDelegationProvider }
+export {
+  ContextValue as SignatureDelegationContextType,
+  FeatureFlaggedProvider as SignatureDelegationProvider,
+  SignatureDelegationContext
+}

@@ -6,7 +6,7 @@ import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsConsumer } from "../../context/accounts"
-import { DialogsConsumer, DialogsContext } from "../../context/dialogs"
+import { DialogsConsumer, DialogsContextType } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
 import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
@@ -33,7 +33,7 @@ interface Props {
   account: Account
   horizon: Server
   open: boolean
-  openDialog: DialogsContext["openDialog"]
+  openDialog: DialogsContextType["openDialog"]
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }

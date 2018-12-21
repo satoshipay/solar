@@ -73,4 +73,4 @@ export function NotificationsProvider(props: Props) {
 
 export const NotificationsConsumer = NotificationsContext.Consumer
 
-export { ContextValue as NotificationContext }
+export { ContextValue as NotificationContextType, NotificationsContext }

@@ -8,7 +8,7 @@ import SettingsIcon from "@material-ui/icons/Settings"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
-import { Account, AccountsConsumer, AccountsContext, NetworkID } from "../context/accounts"
+import { Account, AccountsConsumer, AccountsContextType, NetworkID } from "../context/accounts"
 import { SettingsConsumer, SettingsContextType } from "../context/settings"
 import * as routes from "../routes"
 
@@ -17,7 +17,7 @@ interface Props {
   history: History
   networkSwitch: NetworkID
   settings: SettingsContextType
-  toggleNetwork: AccountsContext["toggleNetwork"]
+  toggleNetwork: AccountsContextType["toggleNetwork"]
 }
 
 const AllAccountsPage = (props: Props) => {

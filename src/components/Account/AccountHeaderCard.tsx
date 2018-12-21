@@ -7,7 +7,7 @@ import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
-import { Account, AccountsContext } from "../../context/accounts"
+import { Account, AccountsContextType } from "../../context/accounts"
 import { DialogsConsumer } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
 import { SettingsContextType } from "../../context/settings"
@@ -46,7 +46,7 @@ interface Props extends RouteComponentProps<any, any, any> {
   children?: React.ReactNode
   onManageAssets: () => void
   onManageSigners: () => void
-  onRenameAccount: AccountsContext["renameAccount"]
+  onRenameAccount: AccountsContextType["renameAccount"]
   settings: SettingsContextType
   style?: React.CSSProperties
 }
