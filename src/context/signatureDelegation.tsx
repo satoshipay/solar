@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { fetchSignatureRequests, subscribeToSignatureRequests, SignatureRequest } from "../lib/multisig-service"
-import { Account } from "./accounts"
+import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
 import { SettingsContext } from "./settings"
 
@@ -63,13 +63,13 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 }
 
 interface Props {
-  accounts: Account[]
   children: React.ReactNode
 }
 
 function SignatureDelegationProvider(props: Props) {
+  const { accounts } = useContext(AccountsContext)
   const settings = useContext(SettingsContext)
-  const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureServiceURL, props.accounts)
+  const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureServiceURL, accounts)
 
   return (
     <SignatureDelegationContext.Provider value={contextValue}>{props.children}</SignatureDelegationContext.Provider>
