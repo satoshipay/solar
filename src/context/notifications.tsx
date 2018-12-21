@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react"
+import React from "react"
+import { useRef, useState } from "react"
 
 export type NotificationType = "error" | "info" | "success"
 

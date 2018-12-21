@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from "react"
+import React from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { fetchSignatureRequests, subscribeToSignatureRequests, SignatureRequest } from "../lib/multisig-service"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"

@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+import React from "react"
+import { useState } from "react"
 import { Keypair } from "stellar-sdk"
 import { createWrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"

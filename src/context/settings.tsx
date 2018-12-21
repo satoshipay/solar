@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+import React from "react"
+import { useState } from "react"
 import { loadSettings, saveSettings, SettingsData } from "../platform/settings"
 import { trackError } from "./notifications"
 
