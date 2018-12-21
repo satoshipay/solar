@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { loadSettings, saveSettings, SettingsData } from "../platform/settings"
 import { addError } from "./notifications"
 
@@ -31,40 +31,34 @@ const SettingsContext = React.createContext<ContextType>({
   toggleTestnet: () => undefined
 })
 
-export class SettingsProvider extends React.Component<Props, SettingsData> {
-  state: SettingsData = initialSettings
+export function SettingsProvider(props: Props) {
+  const [settings, setSettings] = useState(initialSettings)
 
-  updateSettings = (update: Pick<SettingsData, "multisignature"> | Pick<SettingsData, "testnet">) => {
+  const updateSettings = (update: Pick<SettingsData, "multisignature"> | Pick<SettingsData, "testnet">) => {
     try {
       const updatedSettings = {
-        ...this.state,
+        ...settings,
         ...update
       }
-      this.setState(updatedSettings)
+      setSettings(updatedSettings)
       saveSettings(updatedSettings)
     } catch (error) {
       addError(error)
     }
   }
 
-  toggleMultiSignature = () => {
-    this.updateSettings({ multisignature: !this.state.multisignature })
+  const toggleMultiSignature = () => updateSettings({ multisignature: !settings.multisignature })
+  const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
+
+  const contextValue: ContextType = {
+    multiSignature: settings.multisignature,
+    multiSignatureServiceURL,
+    showTestnet: settings.testnet,
+    toggleMultiSignature,
+    toggleTestnet
   }
 
-  toggleTestnet = () => {
-    this.updateSettings({ testnet: !this.state.testnet })
-  }
-
-  render() {
-    const contextValue: ContextType = {
-      multiSignature: this.state.multisignature,
-      multiSignatureServiceURL,
-      showTestnet: this.state.testnet,
-      toggleMultiSignature: this.toggleMultiSignature,
-      toggleTestnet: this.toggleTestnet
-    }
-    return <SettingsContext.Provider value={contextValue}>{this.props.children}</SettingsContext.Provider>
-  }
+  return <SettingsContext.Provider value={contextValue}>{props.children}</SettingsContext.Provider>
 }
 
 export const SettingsConsumer = SettingsContext.Consumer
