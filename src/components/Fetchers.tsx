@@ -1,8 +1,8 @@
 import React from "react"
 import Async from "react-promise"
 import { LedgerRecord, Server } from "stellar-sdk"
+import { useHorizon } from "../hooks"
 import { getHorizonURL } from "../lib/stellar"
-import { Horizon } from "./Subscribers"
 
 const memCache = new Map<string, any>()
 const memCacheCurrentlyFetching = new Map<string, boolean>()
@@ -44,23 +44,20 @@ const Memoized = <Value extends {}>(props: MemoizedProps<Value>) => {
 }
 
 export const AccountName = (props: { publicKey: string; testnet: boolean }) => {
+  const horizon = useHorizon(props.testnet)
   return (
-    <Horizon testnet={props.testnet}>
-      {horizon => (
-        <Memoized
-          cacheKey={`AccountData:${props.publicKey}`}
-          fetch={() =>
-            horizon
-              .accounts()
-              .accountId(props.publicKey)
-              .call()
-          }
-          then={(accountData: any) => accountData.home_domain || props.publicKey}
-          catch={() => props.publicKey}
-          pending={props.publicKey}
-        />
-      )}
-    </Horizon>
+    <Memoized
+      cacheKey={`AccountData:${props.publicKey}`}
+      fetch={() =>
+        horizon
+          .accounts()
+          .accountId(props.publicKey)
+          .call()
+      }
+      then={(accountData: any) => accountData.home_domain || props.publicKey}
+      catch={() => props.publicKey}
+      pending={props.publicKey}
+    />
   )
 }
 
@@ -78,13 +75,8 @@ async function fetchLatestLedger(horizon: Server) {
 type LedgerDataRenderProp = (ledgerData: LedgerRecord) => React.ReactNode
 
 const LedgerMetadata = (props: { children: LedgerDataRenderProp; testnet: boolean }) => {
-  return (
-    <Horizon testnet={props.testnet}>
-      {horizon => (
-        <Memoized cacheKey={getHorizonURL(horizon)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
-      )}
-    </Horizon>
-  )
+  const horizon = useHorizon(props.testnet)
+  return <Memoized cacheKey={getHorizonURL(horizon)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
 }
 
 export const MinimumAccountBalance = (props: { testnet: boolean }) => {

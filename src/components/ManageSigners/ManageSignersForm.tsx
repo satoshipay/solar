@@ -5,7 +5,7 @@ import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import { renderFormFieldError } from "../../lib/errors"
-import { AccountObservable } from "../../lib/subscriptions"
+import { ObservedAccountData } from "../../lib/subscriptions"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
@@ -59,7 +59,7 @@ export interface SignerUpdate {
 }
 
 interface Props {
-  accountData: AccountObservable
+  accountData: ObservedAccountData
   editorRef?: React.Ref<SignersEditor>
   onCancel: () => void
   onSubmit: (values: SignerUpdate) => void

@@ -1,6 +1,6 @@
 import React from "react"
 import { AccountResponse } from "stellar-sdk"
-import { AccountData } from "../Subscribers"
+import { useAccountData } from "../../hooks"
 import InlineLoader from "../InlineLoader"
 
 function addThousandsSeparators(digits: string, thousandsSeparator: string) {
@@ -31,7 +31,7 @@ interface SingleBalanceProps {
   style?: React.CSSProperties
 }
 
-export const SingleBalance = (props: SingleBalanceProps) => {
+export function SingleBalance(props: SingleBalanceProps) {
   const thousandsSeparator = ","
   const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(props.balance)))
   const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
@@ -60,7 +60,7 @@ interface MultipleBalancesProps {
   inline?: boolean
 }
 
-export const MultipleBalances = (props: MultipleBalancesProps) => {
+export function MultipleBalances(props: MultipleBalancesProps) {
   if (props.balances.length === 0) {
     return <></>
   }
@@ -94,19 +94,14 @@ const zeroXLMBalance = {
   balance: "0"
 }
 
-const AccountBalances = (props: { publicKey: string; testnet: boolean }) => {
-  return (
-    <AccountData publicKey={props.publicKey} testnet={props.testnet}>
-      {(accountData, { activated, loading }) =>
-        loading ? (
-          <InlineLoader />
-        ) : activated ? (
-          <MultipleBalances balances={accountData.balances} />
-        ) : (
-          <MultipleBalances balances={[zeroXLMBalance] as any} />
-        )
-      }
-    </AccountData>
+function AccountBalances(props: { publicKey: string; testnet: boolean }) {
+  const accountData = useAccountData(props.publicKey, props.testnet)
+  return accountData.loading ? (
+    <InlineLoader />
+  ) : accountData.activated ? (
+    <MultipleBalances balances={accountData.balances} />
+  ) : (
+    <MultipleBalances balances={[zeroXLMBalance] as any} />
   )
 }
 

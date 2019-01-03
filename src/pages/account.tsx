@@ -17,36 +17,33 @@ import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import { MinimumAccountBalance } from "../components/Fetchers"
-import { AccountData, Transactions } from "../components/Subscribers"
 import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import { Account, AccountsContext, AccountsContextType } from "../context/accounts"
 import { SettingsContext, SettingsContextType } from "../context/settings"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
+import { useAccountData, useHorizon, useRecentTransactions } from "../hooks"
 import { hasSigned } from "../lib/transaction"
 
 function AccountActions(props: { account: Account; onOpenPaymentDrawer: () => void }) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   return (
-    <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
-      {(_, activated) => (
-        <Button
-          variant="contained"
-          disabled={!activated}
-          onClick={props.onOpenPaymentDrawer}
-          style={{
-            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
-            fontSize: "1rem",
-            paddingLeft: 20,
-            paddingRight: 20
-          }}
-        >
-          <ButtonIconLabel label="Send">
-            <SendIcon style={{ fontSize: "110%" }} />
-          </ButtonIconLabel>
-        </Button>
-      )}
-    </AccountData>
+    <Button
+      variant="contained"
+      disabled={!accountData.activated}
+      onClick={props.onOpenPaymentDrawer}
+      style={{
+        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
+        fontSize: "1rem",
+        paddingLeft: 20,
+        paddingRight: 20
+      }}
+    >
+      <ButtonIconLabel label="Send">
+        <SendIcon style={{ fontSize: "110%" }} />
+      </ButtonIconLabel>
+    </Button>
   )
 }
 
@@ -103,6 +100,9 @@ function AccountPage(props: Props) {
     throw new Error(`Wallet account not found. ID: ${params.id}`)
   }
 
+  const horizon = useHorizon(account.testnet)
+  const recentTxs = useRecentTransactions(account.publicKey, account.testnet)
+
   return (
     <>
       <Section top brandColored>
@@ -121,38 +121,34 @@ function AccountPage(props: Props) {
         </AccountHeaderCard>
       </Section>
       <Section backgroundColor="#f6f6f6">
-        <Transactions publicKey={account.publicKey} testnet={account.testnet}>
-          {({ activated, horizon, loading, transactions }) =>
-            loading ? (
-              <div style={{ padding: "16px", textAlign: "center" }}>
-                <CircularProgress />
-              </div>
-            ) : activated ? (
-              <>
-                {props.settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
-                <TransactionList
-                  accountPublicKey={account.publicKey}
-                  background="transparent"
-                  title="Recent transactions"
-                  testnet={account.testnet}
-                  transactions={transactions}
-                />
-              </>
-            ) : (
-              <>
-                <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
-                  Account does not yet exist on the network. Send at least XLM&nbsp;
-                  <MinimumAccountBalance testnet={account.testnet} /> to activate the account.
-                </Typography>
-                {account.testnet ? (
-                  <Typography align="center" style={{ paddingBottom: 30 }}>
-                    <FriendbotButton horizon={horizon} publicKey={account.publicKey} />
-                  </Typography>
-                ) : null}
-              </>
-            )
-          }
-        </Transactions>
+        {recentTxs.loading ? (
+          <div style={{ padding: "16px", textAlign: "center" }}>
+            <CircularProgress />
+          </div>
+        ) : recentTxs.activated ? (
+          <>
+            {props.settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
+            <TransactionList
+              accountPublicKey={account.publicKey}
+              background="transparent"
+              title="Recent transactions"
+              testnet={account.testnet}
+              transactions={recentTxs.transactions}
+            />
+          </>
+        ) : (
+          <>
+            <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
+              Account does not yet exist on the network. Send at least XLM&nbsp;
+              <MinimumAccountBalance testnet={account.testnet} /> to activate the account.
+            </Typography>
+            {account.testnet ? (
+              <Typography align="center" style={{ paddingBottom: 30 }}>
+                <FriendbotButton horizon={horizon} publicKey={account.publicKey} />
+              </Typography>
+            ) : null}
+          </>
+        )}
       </Section>
       <CreatePaymentDialog account={account} open={props.isPaymentDrawerOpen} onClose={props.onClosePaymentDrawer} />
       <ManageAssetsDialog account={account} open={props.isAssetsDrawerOpen} onClose={props.onCloseAssetsDrawer} />

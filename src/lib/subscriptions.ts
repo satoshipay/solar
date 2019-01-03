@@ -1,10 +1,22 @@
-import { observable } from "mobx"
 import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
 import { getHorizonURL } from "./stellar"
 
-export interface AccountObservable {
+type SubscriberFn<Thing> = (update: Thing) => void
+type UnsubscribeFn = () => void
+
+export interface SubscriptionTarget<Thing> {
+  getLatest(): Thing
+  subscribe(callback: SubscriberFn<Thing>): UnsubscribeFn
+}
+
+interface SubscriptionTargetInternals<Thing> {
+  subscriptionTarget: SubscriptionTarget<Thing>
+  propagateUpdate(update: Thing): void
+}
+
+export interface ObservedAccountData {
   activated: boolean
   balances: AccountRecord["balances"]
   id: string
@@ -13,17 +25,49 @@ export interface AccountObservable {
   thresholds: AccountRecord["thresholds"]
 }
 
-export interface RecentTxsObservable {
+export interface ObservedRecentTxs {
   activated: boolean
   loading: boolean
   transactions: Transaction[]
 }
 
-const accountObservableCache = new Map<string, AccountObservable>()
-const accountRecentTxsCache = new Map<string, RecentTxsObservable>()
+const accountDataSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountData>>()
+const recentTxsSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedRecentTxs>>()
 
-function createAccountObservable(horizon: Server, accountPubKey: string): AccountObservable {
-  const accountObservable = observable({
+function createSubscriptionTarget<Thing>(initialValue: Thing): SubscriptionTargetInternals<Thing> {
+  let latestValue: Thing = initialValue
+  let subscribers: Array<SubscriberFn<Thing>> = []
+
+  const subscriptionTarget: SubscriptionTarget<Thing> = {
+    getLatest() {
+      return latestValue
+    },
+    subscribe(callback: SubscriberFn<Thing>) {
+      subscribers.push(callback)
+      const unsubscribe = () => {
+        subscribers = subscribers.filter(someSubscriber => someSubscriber !== callback)
+      }
+      return unsubscribe
+    }
+  }
+  const propagateUpdate = (update: Thing) => {
+    latestValue = update
+    for (const subscriber of subscribers) {
+      subscriber(update)
+    }
+  }
+
+  return {
+    propagateUpdate,
+    subscriptionTarget
+  }
+}
+
+function createAccountDataSubscription(
+  horizon: Server,
+  accountPubKey: string
+): SubscriptionTarget<ObservedAccountData> {
+  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ObservedAccountData>({
     activated: false,
     balances: [],
     id: accountPubKey,
@@ -50,7 +94,10 @@ function createAccountObservable(horizon: Server, accountPubKey: string): Accoun
           if (serialized !== lastMessageJson) {
             // Deduplicate messages. Every few seconds there is a new message with an unchanged value.
             lastMessageJson = serialized
-            Object.assign(accountObservable, accountData)
+            propagateUpdate({
+              ...subscriptionTarget.getLatest(),
+              ...accountData
+            })
           }
           lastMessageTime = Date.now()
         },
@@ -71,20 +118,31 @@ function createAccountObservable(horizon: Server, accountPubKey: string): Accoun
 
   const fetchAccount = async () => {
     const initialAccountData = await loadAccount(horizon, accountPubKey)
-    Object.assign(accountObservable, { loading: false })
+    propagateUpdate({
+      ...subscriptionTarget.getLatest(),
+      loading: false
+    })
 
     const accountData = initialAccountData ? initialAccountData : await waitForAccountData(horizon, accountPubKey)
 
-    Object.assign(accountObservable, accountData, { activated: true })
+    propagateUpdate({
+      ...subscriptionTarget.getLatest(),
+      ...accountData,
+      activated: true
+    })
     subscribeToAccountDataStream(initialAccountData ? "now" : "0")
   }
 
   fetchAccount().catch(trackError)
 
-  return accountObservable
+  return subscriptionTarget
 }
 
-async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon: Server, accountPubKey: string) {
+async function createRecentTxsSubscription(
+  { propagateUpdate, subscriptionTarget }: SubscriptionTargetInternals<ObservedRecentTxs>,
+  horizon: Server,
+  accountPubKey: string
+): Promise<SubscriptionTarget<ObservedRecentTxs>> {
   const maxTxsToLoadCount = 15
   const deserializeTx = (txResponse: TransactionRecord) =>
     Object.assign(new Transaction(txResponse.envelope_xdr), {
@@ -98,7 +156,11 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
       .limit(maxTxsToLoadCount)
       .order("desc")
       .call()
-    records.forEach(txResponse => recentTxs.transactions.push(deserializeTx(txResponse)))
+
+    propagateUpdate({
+      ...subscriptionTarget.getLatest(),
+      transactions: [...subscriptionTarget.getLatest().transactions, ...records.map(deserializeTx)]
+    })
   }
   const subscribeToTxs = (cursor: string = "now") => {
     horizon
@@ -108,7 +170,10 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
       .stream({
         onmessage(txResponse: TransactionRecord) {
           // Important: Insert new transactions in the front, since order is descending
-          recentTxs.transactions.unshift(deserializeTx(txResponse))
+          propagateUpdate({
+            ...subscriptionTarget.getLatest(),
+            transactions: [deserializeTx(txResponse), ...subscriptionTarget.getLatest().transactions]
+          })
         },
         onerror(error: any) {
           trackError(new Error("Recent transactions update stream errored."))
@@ -121,16 +186,26 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
 
   try {
     await loadRecentTxs()
-    recentTxs.activated = true
-    recentTxs.loading = false
+    propagateUpdate({
+      ...subscriptionTarget.getLatest(),
+      activated: true,
+      loading: false
+    })
     subscribeToTxs()
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      recentTxs.activated = false
-      recentTxs.loading = false
+      propagateUpdate({
+        ...subscriptionTarget.getLatest(),
+        activated: false,
+        loading: false
+      })
       waitForAccountData(horizon, accountPubKey)
         .then(({ initialFetchFailed }) => {
-          recentTxs.activated = true
+          propagateUpdate({
+            ...subscriptionTarget.getLatest(),
+            activated: true,
+            loading: false
+          })
           subscribeToTxs(initialFetchFailed ? "0" : "now")
         })
         .catch(trackError)
@@ -139,34 +214,37 @@ async function setUpRecentTxsObservable(recentTxs: RecentTxsObservable, horizon:
     }
   }
 
-  return recentTxs
+  return subscriptionTarget
 }
 
-export function subscribeToAccount(horizon: Server, accountPubKey: string): AccountObservable {
+export function subscribeToAccount(horizon: Server, accountPubKey: string): SubscriptionTarget<ObservedAccountData> {
   const cacheKey = getHorizonURL(horizon) + accountPubKey
+  const cached = accountDataSubscriptionsCache.get(cacheKey)
 
-  if (accountObservableCache.has(cacheKey)) {
-    return (accountObservableCache.get(cacheKey) as any) as AccountObservable
+  if (cached) {
+    return cached
   } else {
-    const accountObservable = createAccountObservable(horizon, accountPubKey)
-    accountObservableCache.set(cacheKey, accountObservable)
+    const accountObservable = createAccountDataSubscription(horizon, accountPubKey)
+    accountDataSubscriptionsCache.set(cacheKey, accountObservable)
     return accountObservable
   }
 }
 
-export function subscribeToRecentTxs(horizon: Server, accountPubKey: string): RecentTxsObservable {
+export function subscribeToRecentTxs(horizon: Server, accountPubKey: string): SubscriptionTarget<ObservedRecentTxs> {
   const cacheKey = getHorizonURL(horizon) + accountPubKey
+  const cached = recentTxsSubscriptionsCache.get(cacheKey)
 
-  if (accountRecentTxsCache.has(cacheKey)) {
-    return (accountRecentTxsCache.get(cacheKey) as any) as RecentTxsObservable
+  if (cached) {
+    return cached
   } else {
-    const recentTxs = observable({
+    const subscriptionInternals = createSubscriptionTarget<ObservedRecentTxs>({
       activated: false,
       loading: true,
       transactions: []
     })
-    setUpRecentTxsObservable(recentTxs, horizon, accountPubKey).catch(trackError)
-    accountRecentTxsCache.set(cacheKey, recentTxs)
-    return recentTxs
+
+    createRecentTxsSubscription(subscriptionInternals, horizon, accountPubKey).catch(trackError)
+    recentTxsSubscriptionsCache.set(cacheKey, subscriptionInternals.subscriptionTarget)
+    return subscriptionInternals.subscriptionTarget
   }
 }

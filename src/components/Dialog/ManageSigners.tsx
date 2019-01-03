@@ -7,15 +7,15 @@ import Typography from "@material-ui/core/Typography"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { AccountObservable } from "../../lib/subscriptions"
+import { ObservedAccountData } from "../../lib/subscriptions"
 import { createTransaction } from "../../lib/transaction"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import ManageSignersForm, { SignerUpdate } from "../ManageSigners/ManageSignersForm"
-import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import ButtonIconLabel from "../ButtonIconLabel"
 import SignersEditor from "../ManageSigners/SignersEditor"
 import BackButton from "./BackButton"
+import { useAccountData } from "../../hooks"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -23,7 +23,7 @@ const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
 
 interface Props {
   account: Account
-  accountData: AccountObservable
+  accountData: ObservedAccountData
   horizon: Server
   open: boolean
   onClose: () => void
@@ -114,20 +114,12 @@ class ManageSignersDialog extends React.Component<Props, State> {
   }
 }
 
-const ManageSignersDialogContainer = (props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) => {
+function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   return (
     <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (
-        <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
-          {accountData => (
-            <ManageSignersDialog
-              {...props}
-              accountData={accountData}
-              horizon={horizon}
-              sendTransaction={sendTransaction}
-            />
-          )}
-        </AccountData>
+        <ManageSignersDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}
     </TransactionSender>
   )

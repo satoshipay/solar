@@ -1,9 +1,11 @@
 import React from "react"
+import { useContext } from "react"
 import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
 import { trackError } from "../context/notifications"
-import { SettingsConsumer, SettingsContextType } from "../context/settings"
+import { SettingsContext, SettingsContextType } from "../context/settings"
+import { useHorizon } from "../hooks"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
 import {
@@ -16,14 +18,13 @@ import { networkPassphrases } from "../lib/stellar"
 import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
 import TxConfirmationDrawer from "./Dialog/TransactionConfirmation"
 import SubmissionProgress from "./SubmissionProgress"
-import { Horizon } from "./Subscribers"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 // Had issues with react-storybook vs electron build
 type Timer = any
 
-const ConditionalSubmissionProgress = (props: { promise: Promise<any> | null }) => {
+function ConditionalSubmissionProgress(props: { promise: Promise<any> | null }) {
   const outerStyle: React.CSSProperties = {
     position: "absolute",
     display: props.promise ? "flex" : "none",
@@ -227,14 +228,10 @@ class TransactionSender extends React.Component<Props, State> {
   }
 }
 
-const TransactionSenderWithHorizon = (props: Omit<Props, "horizon" | "settings">) => (
-  <SettingsConsumer>
-    {settings => (
-      <Horizon testnet={props.account.testnet}>
-        {horizon => <TransactionSender {...props} horizon={horizon} settings={settings} />}
-      </Horizon>
-    )}
-  </SettingsConsumer>
-)
+function TransactionSenderWithHorizon(props: Omit<Props, "horizon" | "settings">) {
+  const horizon = useHorizon(props.account.testnet)
+  const settings = useContext(SettingsContext)
+  return <TransactionSender {...props} horizon={horizon} settings={settings} />
+}
 
 export default TransactionSenderWithHorizon
