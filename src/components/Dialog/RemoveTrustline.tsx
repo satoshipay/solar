@@ -9,9 +9,9 @@ import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import ButtonIconLabel from "../ButtonIconLabel"
-import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
@@ -26,54 +26,55 @@ interface Props {
   sendTransaction: (transaction: Transaction) => void
 }
 
-class RemoveTrustlineDialog extends React.Component<Props> {
-  removeAsset = async () => {
+function RemoveTrustlineDialog(props: Props) {
+  const removeAsset = async () => {
     try {
-      const operations = [Operation.changeTrust({ asset: this.props.asset, limit: "0" })]
+      const operations = [Operation.changeTrust({ asset: props.asset, limit: "0" })]
       const transaction = await createTransaction(operations, {
-        horizon: this.props.horizon,
-        walletAccount: this.props.account
+        horizon: props.horizon,
+        walletAccount: props.account
       })
-      this.props.sendTransaction(transaction)
+      props.sendTransaction(transaction)
     } catch (error) {
       trackError(error)
     }
   }
 
-  render() {
-    const assetBalance = this.props.balances.find((balance: any) => balance.asset_code === this.props.asset.code)
-    const stillOwnsTokens = assetBalance && parseFloat(assetBalance.balance) > 0
-    return (
-      <Dialog open={this.props.open} onClose={this.props.onClose}>
-        <DialogTitle>Confirm Removing Asset</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {stillOwnsTokens ? (
-              <>You cannot remove this asset unless the asset's balance is zero.</>
-            ) : (
-              <>
-                You are about to remove the asset <b>{this.props.asset.code}</b> from account "{this.props.account.name}
-                ".
-              </>
-            )}
-          </DialogContentText>
-          <DialogActions style={{ marginTop: 24 }}>
-            <Button autoFocus color="primary" variant="contained" disabled={stillOwnsTokens} onClick={this.removeAsset}>
-              <ButtonIconLabel label="Remove">
-                <CloseIcon />
-              </ButtonIconLabel>
-            </Button>
-            <Button color="primary" onClick={this.props.onClose}>
-              Cancel
-            </Button>
-          </DialogActions>
-        </DialogContent>
-      </Dialog>
-    )
-  }
+  const assetBalance = props.balances.find((balance: any) => balance.asset_code === props.asset.code)
+  const stillOwnsTokens = assetBalance && parseFloat(assetBalance.balance) > 0
+
+  return (
+    <Dialog open={props.open} onClose={props.onClose}>
+      <DialogTitle>Confirm Removing Asset</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {stillOwnsTokens ? (
+            <>You cannot remove this asset unless the asset's balance is zero.</>
+          ) : (
+            <>
+              You are about to remove the asset <b>{props.asset.code}</b> from account "{props.account.name}
+              ".
+            </>
+          )}
+        </DialogContentText>
+        <DialogActions style={{ marginTop: 24 }}>
+          <Button autoFocus color="primary" variant="contained" disabled={stillOwnsTokens} onClick={removeAsset}>
+            <ButtonIconLabel label="Remove">
+              <CloseIcon />
+            </ButtonIconLabel>
+          </Button>
+          <Button color="primary" onClick={props.onClose}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
-const ConnectedRemoveTrustlineDialog = (props: Omit<Props, "balances" | "horizon" | "sendTransaction">) => {
+function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon" | "sendTransaction">) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
@@ -81,16 +82,12 @@ const ConnectedRemoveTrustlineDialog = (props: Omit<Props, "balances" | "horizon
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
-          {accountData => (
-            <RemoveTrustlineDialog
-              {...props}
-              balances={accountData.balances}
-              horizon={horizon}
-              sendTransaction={sendTransaction}
-            />
-          )}
-        </AccountData>
+        <RemoveTrustlineDialog
+          {...props}
+          balances={accountData.balances}
+          horizon={horizon}
+          sendTransaction={sendTransaction}
+        />
       )}
     </TransactionSender>
   )

@@ -5,10 +5,10 @@ import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useAccountData } from "../../hooks"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import { Box } from "../Layout/Box"
-import { AccountData } from "../Subscribers"
 import TransactionSender from "../TransactionSender"
 import TestnetBadge from "./TestnetBadge"
 
@@ -99,9 +99,10 @@ class CreatePaymentDialog extends React.Component<Props, State> {
   }
 }
 
-const ConnectedCreatePaymentDialog = (
+function ConnectedCreatePaymentDialog(
   props: Omit<Props, "balances" | "horizon" | "sendTransaction" | "trustedAssets">
-) => {
+) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
@@ -109,17 +110,13 @@ const ConnectedCreatePaymentDialog = (
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <AccountData publicKey={props.account.publicKey} testnet={props.account.testnet}>
-          {accountData => (
-            <CreatePaymentDialog
-              {...props}
-              balances={accountData.balances}
-              horizon={horizon}
-              sendTransaction={sendTransaction}
-              trustedAssets={getAssetsFromBalances(accountData.balances)}
-            />
-          )}
-        </AccountData>
+        <CreatePaymentDialog
+          {...props}
+          balances={accountData.balances}
+          horizon={horizon}
+          sendTransaction={sendTransaction}
+          trustedAssets={getAssetsFromBalances(accountData.balances)}
+        />
       )}
     </TransactionSender>
   )
