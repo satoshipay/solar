@@ -6,14 +6,23 @@ stages:
   - build
   - release
 
+cache:
+  key: npm-${CI_COMMIT_REF_SLUG}
+  paths:
+    - cache/
+    - node_modules/
+  policy: pull
+
 prepare:
   stage: setup
-  variables:
-    npm_config_cache: $CI_PROJECT_DIR/cache/
   cache:
     key: npm-${CI_COMMIT_REF_SLUG}
     paths:
       - cache/
+      - node_modules/
+    policy: pull-push
+  variables:
+    npm_config_cache: $CI_PROJECT_DIR/cache/
   script:
     - echo $npm_config_cache
     - npm ci
