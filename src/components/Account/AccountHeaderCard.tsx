@@ -1,5 +1,5 @@
 import React from "react"
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { withRouter, RouteComponentProps } from "react-router-dom"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -8,15 +8,24 @@ import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
-import { Account, AccountsContextType } from "../../context/accounts"
-import { DialogsContext } from "../../context/dialogs"
-import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
+import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
+import AccountDeletionDialog from "../Dialog/AccountDeletion"
+import ChangePasswordDialog from "../Dialog/ChangePassword"
+import ExportKeyDialog from "../Dialog/ExportKey"
+import RenameDialog from "../Dialog/Rename"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
+
+enum DialogID {
+  changePassword,
+  deleteAccount,
+  exportKey,
+  renameAccount
+}
 
 function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
   return (
@@ -52,107 +61,88 @@ interface Props extends RouteComponentProps<any, any, any> {
   style?: React.CSSProperties
 }
 
-class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: DialogBlueprint) => void }> {
-  onChangePassword = () => {
-    this.props.openDialog({
-      type: DialogType.ChangePassword,
-      props: {
-        account: this.props.account
-      }
-    })
-  }
+function AccountHeaderCard(props: Props) {
+  const { changePassword, removePassword } = useContext(AccountsContext)
+  const [openDialog, setOpenDialog] = useState<DialogID | null>(null)
 
-  onDelete = () => {
-    this.props.openDialog({
-      type: DialogType.DeleteAccount,
-      props: {
-        account: this.props.account,
-        onDeleted: () => this.props.history.push(routes.allAccounts())
-      }
-    })
-  }
-
-  onExport = () => {
-    this.props.openDialog({
-      type: DialogType.ExportKey,
-      props: {
-        account: this.props.account
-      }
-    })
-  }
-
-  onRename = () => {
-    const { account, openDialog, onRenameAccount } = this.props
-    openDialog({
-      type: DialogType.Rename,
-      props: {
-        performRenaming(newName: string) {
-          return onRenameAccount(account.id, newName)
-        },
-        prevValue: account.name,
-        title: "Rename account"
-      }
-    })
-  }
-
-  render() {
-    return (
-      <Card
-        style={{
-          position: "relative",
-          background: "transparent",
-          boxShadow: "none",
-          ...this.props.style
-        }}
-      >
-        <CardContent>
-          <HorizontalLayout alignItems="center" margin="-12px 0 -10px">
-            <BackButton
-              onClick={() => this.props.history.push(routes.allAccounts())}
-              style={{ marginLeft: -10, marginRight: 10 }}
-            />
-            <Typography
-              align="center"
-              color="inherit"
-              variant="headline"
-              component="h2"
-              style={{ marginRight: 20, fontSize: "2rem" }}
-            >
-              {this.props.account.name}
-            </Typography>
-            <HorizontalLayout display="inline-flex" width="auto" fontSize="1.5rem">
-              {this.props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
-              <PasswordStatus safe={this.props.account.requiresPassword} style={{ fontSize: "80%" }} />
-            </HorizontalLayout>
-            <Box grow style={{ textAlign: "right" }}>
-              <AccountContextMenu
-                account={this.props.account}
-                settings={this.props.settings}
-                onChangePassword={this.onChangePassword}
-                onDelete={this.onDelete}
-                onExport={this.onExport}
-                onManageAssets={this.props.onManageAssets}
-                onManageSigners={this.props.onManageSigners}
-                onRename={this.onRename}
-              >
-                {({ onOpen }) => (
-                  <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -12, fontSize: 32 }}>
-                    <MoreVertIcon style={{ fontSize: "inherit" }} />
-                  </IconButton>
-                )}
-              </AccountContextMenu>
-            </Box>
+  return (
+    <Card
+      style={{
+        position: "relative",
+        background: "transparent",
+        boxShadow: "none",
+        ...props.style
+      }}
+    >
+      <CardContent>
+        <HorizontalLayout alignItems="center" margin="-12px 0 -10px">
+          <BackButton
+            onClick={() => props.history.push(routes.allAccounts())}
+            style={{ marginLeft: -10, marginRight: 10 }}
+          />
+          <Typography
+            align="center"
+            color="inherit"
+            variant="headline"
+            component="h2"
+            style={{ marginRight: 20, fontSize: "2rem" }}
+          >
+            {props.account.name}
+          </Typography>
+          <HorizontalLayout display="inline-flex" width="auto" fontSize="1.5rem">
+            {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
+            <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "80%" }} />
           </HorizontalLayout>
-          {this.props.children}
-        </CardContent>
-      </Card>
-    )
-  }
+          <Box grow style={{ textAlign: "right" }}>
+            <AccountContextMenu
+              account={props.account}
+              settings={props.settings}
+              onChangePassword={() => setOpenDialog(DialogID.changePassword)}
+              onDelete={() => setOpenDialog(DialogID.deleteAccount)}
+              onExport={() => setOpenDialog(DialogID.exportKey)}
+              onManageAssets={props.onManageAssets}
+              onManageSigners={props.onManageSigners}
+              onRename={() => setOpenDialog(DialogID.renameAccount)}
+            >
+              {({ onOpen }) => (
+                <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -12, fontSize: 32 }}>
+                  <MoreVertIcon style={{ fontSize: "inherit" }} />
+                </IconButton>
+              )}
+            </AccountContextMenu>
+          </Box>
+        </HorizontalLayout>
+
+        {props.children}
+
+        <AccountDeletionDialog
+          account={props.account}
+          open={openDialog === DialogID.deleteAccount}
+          onClose={() => setOpenDialog(null)}
+          onDeleted={() => props.history.push(routes.allAccounts())}
+        />
+        <ChangePasswordDialog
+          account={props.account}
+          changePassword={changePassword}
+          open={openDialog === DialogID.changePassword}
+          onClose={() => setOpenDialog(null)}
+          removePassword={removePassword}
+        />
+        <ExportKeyDialog
+          account={props.account}
+          open={openDialog === DialogID.exportKey}
+          onClose={() => setOpenDialog(null)}
+        />
+        <RenameDialog
+          open={openDialog === DialogID.renameAccount}
+          onClose={() => setOpenDialog(null)}
+          performRenaming={newName => props.onRenameAccount(props.account.id, newName)}
+          prevValue={props.account.name}
+          title="Rename account"
+        />
+      </CardContent>
+    </Card>
+  )
 }
 
-function AccountHeaderCardContainer(props: Props) {
-  const { openDialog } = useContext(DialogsContext)
-  return <AccountHeaderCard {...props} openDialog={openDialog} />
-}
-
-export default withRouter<Props>(AccountHeaderCardContainer)
+export default withRouter<Props>(AccountHeaderCard)

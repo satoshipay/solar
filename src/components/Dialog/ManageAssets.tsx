@@ -7,7 +7,6 @@ import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
-import { DialogsContext } from "../../context/dialogs"
 import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
@@ -84,10 +83,9 @@ function ManageAssets(props: Props) {
 
 function ManageAssetsContainer(props: Pick<Props, "account" | "open" | "onClose">) {
   const accountsContext = useContext(AccountsContext)
-  const dialogsContext = useContext(DialogsContext)
   return (
     <TransactionSender account={props.account}>
-      {txContext => <ManageAssets {...props} {...accountsContext} {...dialogsContext} {...txContext} />}
+      {txContext => <ManageAssets {...props} {...accountsContext} {...txContext} />}
     </TransactionSender>
   )
 }
