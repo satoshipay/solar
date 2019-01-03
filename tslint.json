@@ -1,12 +1,10 @@
 {
-  "extends": [
-    "tslint:latest",
-    "tslint-config-prettier"
-  ],
+  "extends": ["tslint:latest", "tslint-config-prettier"],
   "rules": {
     "curly": [true, "ignore-same-line"],
     "interface-name": [true, "never-prefix"],
     "member-access": [true, "no-public"],
+    "no-duplicate-imports": false,
     "no-submodule-imports": false,
     "no-implicit-dependencies": [true, "dev"],
     "object-literal-sort-keys": false,
