@@ -3,7 +3,6 @@
  * Implementations can be found in src/components/Dialog/.
  */
 
-import { Asset } from "stellar-sdk"
 import { Account } from "../context/accounts"
 
 export enum DialogType {
@@ -20,7 +19,6 @@ export type DialogBlueprint =
   | CreatePaymentDescriptor
   | DeleteAccountDescriptor
   | ExportKeyDescriptor
-  | RemoveTrustlineDescriptor
   | RenameDescriptor
 
 interface DialogDescriptorBase {
@@ -58,14 +56,6 @@ export interface ExportKeyDescriptor {
   type: DialogType.ExportKey
   props: {
     account: Account
-  }
-}
-
-export interface RemoveTrustlineDescriptor {
-  type: DialogType.RemoveTrustline
-  props: {
-    account: Account
-    asset: Asset
   }
 }
 

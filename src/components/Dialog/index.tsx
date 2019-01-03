@@ -3,7 +3,6 @@ import { DialogDescriptor, DialogType } from "../../context/dialogTypes"
 import AccountDeletionDialog from "./AccountDeletion"
 import ChangePasswordDialog from "./ChangePassword"
 import ExportKeyDialog from "./ExportKey"
-import RemoveTrustlineDialog from "./RemoveTrustline"
 import RenameDialog from "./Rename"
 
 interface Props {
@@ -22,8 +21,6 @@ const OpenDialog = (props: Props) => {
       return <AccountDeletionDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.ExportKey:
       return <ExportKeyDialog {...dialog.props} open={dialog.open} onClose={onClose} />
-    case DialogType.RemoveTrustline:
-      return <RemoveTrustlineDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     case DialogType.Rename:
       return <RenameDialog {...dialog.props} open={dialog.open} onClose={onClose} />
     default:

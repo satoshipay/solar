@@ -8,7 +8,6 @@ import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
 import { DialogsContext } from "../../context/dialogs"
-import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
 import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
@@ -17,18 +16,9 @@ import ButtonIconLabel from "../ButtonIconLabel"
 import TransactionSender from "../TransactionSender"
 import BackButton from "./BackButton"
 import CustomTrustlineDialog from "./CustomTrustline"
+import RemoveTrustlineDialog from "./RemoveTrustline"
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
-
-function createRemoveTrustlineDialog(account: Account, asset: Asset): DialogBlueprint {
-  return {
-    type: DialogType.RemoveTrustline,
-    props: {
-      account,
-      asset
-    }
-  }
-}
 
 interface Props {
   account: Account
@@ -39,8 +29,8 @@ interface Props {
 }
 
 function ManageAssets(props: Props) {
-  const { openDialog } = useContext(DialogsContext)
   const [isCustomTrustlineDialogOpen, setCustomTrustlineDialogOpen] = useState(false)
+  const [removeTrustlineDialogAsset, setRemoveTrustlineDialogAsset] = useState<Asset | null>(null)
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -57,7 +47,7 @@ function ManageAssets(props: Props) {
 
   const addCustomTrustline = () => setCustomTrustlineDialogOpen(true)
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
-  const removeTrustline = (asset: Asset) => openDialog(createRemoveTrustlineDialog(props.account, asset))
+  const onRemoveTrustline = (asset: Asset) => setRemoveTrustlineDialogAsset(asset)
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
@@ -73,7 +63,7 @@ function ManageAssets(props: Props) {
             </ButtonIconLabel>
           </Button>
         </HorizontalLayout>
-        <TrustlineList account={props.account} onAddAsset={addAsset} onRemoveTrustline={removeTrustline} />
+        <TrustlineList account={props.account} onAddAsset={addAsset} onRemoveTrustline={onRemoveTrustline} />
       </Box>
       <CustomTrustlineDialog
         account={props.account}
@@ -81,6 +71,12 @@ function ManageAssets(props: Props) {
         open={isCustomTrustlineDialogOpen}
         onClose={closeCustomTrustlineDialog}
         sendTransaction={props.sendTransaction}
+      />
+      <RemoveTrustlineDialog
+        account={props.account}
+        asset={removeTrustlineDialogAsset || Asset.native()}
+        open={removeTrustlineDialogAsset !== null}
+        onClose={() => setRemoveTrustlineDialogAsset(null)}
       />
     </Dialog>
   )
