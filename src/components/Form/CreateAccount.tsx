@@ -8,7 +8,7 @@ import CloseIcon from "@material-ui/icons/Close"
 import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { renderFormFieldError } from "../../lib/errors"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
@@ -267,7 +267,7 @@ class StatefulAccountCreationForm extends React.Component<Props, State> {
         <QRImportDialog
           open={this.state.qrScannerOpen}
           onClose={this.closeQRScanner}
-          onError={addError}
+          onError={trackError}
           onScan={this.privateKeyScanned}
         />
       </>

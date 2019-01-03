@@ -1,4 +1,5 @@
 import React from "react"
+import { useRef, useState } from "react"
 
 export type NotificationType = "error" | "info" | "success"
 
@@ -9,10 +10,11 @@ export interface Notification {
   onClick?: () => void
 }
 
-let addErrorImplementation: (error: any) => void = () => undefined
+// tslint:disable-next-line
+let trackErrorImplementation: (error: any) => void = console.error
 
-export function addError(error: any) {
-  addErrorImplementation(error)
+export function trackError(error: any) {
+  trackErrorImplementation(error)
 }
 
 interface NotificationOptions {
@@ -29,69 +31,45 @@ interface Props {
   children: React.ReactNode
 }
 
-interface State {
-  notifications: Notification[]
-}
-
 const NotificationsContext = React.createContext<ContextValue>({
   notifications: [],
   addError: () => undefined,
   addNotification: () => undefined
 })
 
-export class NotificationsProvider extends React.Component<Props, State> {
-  // Not in the state, since updates using `this.setState()` would be performed asyncronously
-  nextID = 1
+export function NotificationsProvider(props: Props) {
+  // Not in the state, since state updates would be performed asyncronously
+  const nextIDRef = useRef(1)
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
-  state: State = {
-    notifications: []
-  }
+  const addNotification = (type: NotificationType, message: string, options: NotificationOptions = {}) => {
+    const id = nextIDRef.current++
 
-  componentDidMount() {
-    addErrorImplementation = this.addError
-  }
-
-  addNotification = (type: NotificationType, message: string, options: NotificationOptions = {}) => {
-    const id = this.nextID++
-
-    this.setState(state => ({
-      notifications: state.notifications.concat({
-        ...options,
-        id,
-        message,
-        type
-      })
-    }))
+    setNotifications(prevNotifications => prevNotifications.concat({ ...options, id, message, type }))
 
     // just to prevent memory leaks; the NotificationContainer component determines when to hide
-    setTimeout(() => {
-      this.removeNotificationByID(id)
-    }, 10000)
+    setTimeout(() => removeNotificationByID(id), 10000)
   }
 
-  addError = (error: any) => {
-    this.addNotification("error", String(error.message || error))
+  const addError = (error: any) => {
+    addNotification("error", String(error.message || error))
 
     // tslint:disable-next-line:no-console
     console.error(error)
   }
 
-  removeNotificationByID = (notificationID: number) => {
-    this.setState(state => ({
-      notifications: state.notifications.filter(notification => notification.id !== notificationID)
-    }))
+  const removeNotificationByID = (notificationID: number) => {
+    setNotifications(prevNotifications => prevNotifications.filter(notification => notification.id !== notificationID))
   }
 
-  render() {
-    const contextValue: ContextValue = {
-      addError: this.addError,
-      addNotification: this.addNotification,
-      notifications: this.state.notifications
-    }
-    return <NotificationsContext.Provider value={contextValue}>{this.props.children}</NotificationsContext.Provider>
+  trackErrorImplementation = addError
+
+  const contextValue: ContextValue = {
+    addError,
+    addNotification,
+    notifications
   }
+  return <NotificationsContext.Provider value={contextValue}>{props.children}</NotificationsContext.Provider>
 }
 
-export const NotificationsConsumer = NotificationsContext.Consumer
-
-export { ContextValue as NotificationContext }
+export { ContextValue as NotificationContextType, NotificationsContext }

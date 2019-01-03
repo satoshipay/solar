@@ -1,4 +1,5 @@
 import React from "react"
+import { useContext } from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
@@ -11,8 +12,8 @@ import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
-import { Account, AccountsContext } from "../../context/accounts"
-import { NotificationsConsumer, NotificationContext } from "../../context/notifications"
+import { Account, AccountsContextType } from "../../context/accounts"
+import { NotificationsContext, NotificationContextType } from "../../context/notifications"
 import { renderFormFieldError } from "../../lib/errors"
 import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
@@ -66,7 +67,7 @@ interface ActionsProps {
   onToggleRemovePassword: () => void
 }
 
-const Actions = (props: ActionsProps) => {
+function Actions(props: ActionsProps) {
   return (
     <HorizontalLayout justifyContent="space-between">
       {props.isPasswordProtected ? (
@@ -89,10 +90,10 @@ const Actions = (props: ActionsProps) => {
 interface Props {
   account: Account
   open: boolean
-  addError: NotificationContext["addError"]
-  addNotification: NotificationContext["addNotification"]
-  changePassword: AccountsContext["changePassword"]
-  removePassword: AccountsContext["removePassword"]
+  addError: NotificationContextType["addError"]
+  addNotification: NotificationContextType["addNotification"]
+  changePassword: AccountsContextType["changePassword"]
+  removePassword: AccountsContextType["removePassword"]
   onClose: () => void
 }
 
@@ -227,13 +228,8 @@ class ChangePasswordDialog extends React.Component<Props, State> {
 }
 
 const ChangePasswordContainer = (props: Props) => {
-  return (
-    <NotificationsConsumer>
-      {({ addError, addNotification }) => (
-        <ChangePasswordDialog {...props} addError={addError} addNotification={addNotification} />
-      )}
-    </NotificationsConsumer>
-  )
+  const { addError, addNotification } = useContext(NotificationsContext)
+  return <ChangePasswordDialog {...props} addError={addError} addNotification={addNotification} />
 }
 
 export default ChangePasswordContainer

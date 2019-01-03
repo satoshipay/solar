@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 
 export interface AnchorRenderProps {
   onOpen: (event: React.SyntheticEvent<HTMLElement>) => void
@@ -16,47 +17,34 @@ interface Props {
   menu: (menuProps: MenuRenderProps) => React.ReactNode
 }
 
-interface State {
-  anchorEl: HTMLElement | null
-  open: boolean
-}
+function ContextMenu({ anchor, menu }: Props) {
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null)
+  const [isOpen, setOpenState] = useState(false)
 
-class ContextMenu extends React.Component<Props, State> {
-  state = {
-    anchorEl: null,
-    open: false
+  const show = (event: React.SyntheticEvent<HTMLElement>) => {
+    setAnchorElement(event.currentTarget)
+    setOpenState(true)
   }
+  const hide = () => setOpenState(false)
 
-  show = (event: React.SyntheticEvent<HTMLElement>) => {
-    this.setState({ anchorEl: event.currentTarget, open: true })
-  }
-
-  hide = () => {
-    this.setState({ open: false })
-  }
-
-  closeAndCall = (fn: () => void) => {
+  const closeAndCall = (fn: () => void) => {
     return () => {
-      this.hide()
+      hide()
       fn()
     }
   }
 
-  render() {
-    const { anchor, menu } = this.props
-
-    return (
-      <>
-        {anchor({ onOpen: this.show })}
-        {menu({
-          anchorEl: this.state.anchorEl,
-          open: this.state.open,
-          onClose: this.hide,
-          closeAndCall: this.closeAndCall
-        })}
-      </>
-    )
-  }
+  return (
+    <>
+      {anchor({ onOpen: show })}
+      {menu({
+        anchorEl: anchorElement,
+        open: isOpen,
+        onClose: hide,
+        closeAndCall
+      })}
+    </>
+  )
 }
 
 export default ContextMenu

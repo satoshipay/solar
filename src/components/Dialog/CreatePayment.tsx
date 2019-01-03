@@ -4,7 +4,7 @@ import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
-import { addError } from "../../context/notifications"
+import { trackError } from "../../context/notifications"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import { Box } from "../Layout/Box"
@@ -72,7 +72,7 @@ class CreatePaymentDialog extends React.Component<Props, State> {
       })
       this.props.sendTransaction(tx)
     } catch (error) {
-      addError(error)
+      trackError(error)
     } finally {
       this.setState({ txCreationPending: false })
     }

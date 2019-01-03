@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 import { Keypair } from "stellar-sdk"
 import { createWrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"
@@ -64,8 +65,28 @@ function createAccountInstance(keyID: string): Account {
   }
 }
 
-const keyStore = getKeyStore()
-const initialAccounts = keyStore.getKeyIDs().map(keyID => createAccountInstance(keyID))
+async function createAccountInKeyStore(accounts: Account[], accountData: NewAccountData) {
+  if (accounts.some(someAccount => someAccount.name.toLowerCase() === accountData.name.toLowerCase())) {
+    throw new Error("An account with that name does already exist.")
+  }
+
+  const id = accountData.id || createNextID(accounts)
+
+  await keyStore.saveKey(
+    id,
+    accountData.password || "",
+    { privateKey: accountData.keypair.secret() },
+    {
+      name: accountData.name,
+      password: accountData.password !== null,
+      publicKey: accountData.keypair.publicKey(),
+      testnet: accountData.testnet
+    }
+  )
+
+  // Must happen after updating the key store
+  return createAccountInstance(id)
+}
 
 function createNextID(accounts: Account[]) {
   const highestID = accounts.reduce(
@@ -81,9 +102,13 @@ function getInitialNetwork(accounts: Account[]) {
   return testnetAccounts.length > 0 && testnetAccounts.length === accounts.length ? "testnet" : "mainnet"
 }
 
+const keyStore = getKeyStore()
+const initialAccounts = keyStore.getKeyIDs().map(keyID => createAccountInstance(keyID))
+const initialNetwork = getInitialNetwork(initialAccounts)
+
 const AccountsContext = React.createContext<ContextValue>({
   accounts: initialAccounts,
-  networkSwitch: getInitialNetwork(initialAccounts),
+  networkSwitch: initialNetwork,
   changePassword: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
   createAccount: () => {
     throw new Error("AccountsProvider not yet ready.")
@@ -98,111 +123,69 @@ interface Props {
   children: React.ReactNode
 }
 
-interface State {
-  accounts: Account[]
-  networkSwitch: NetworkID
-}
+export function AccountsProvider(props: Props) {
+  const [accounts, setAccounts] = useState<Account[]>(initialAccounts)
+  const [networkSwitch, setNetworkSwitch] = useState<NetworkID>(initialNetwork)
 
-export class AccountsProvider extends React.Component<Props, State> {
-  state: State = {
-    accounts: initialAccounts,
-    networkSwitch: getInitialNetwork(initialAccounts)
-  }
-
-  createAccount = async (accountData: NewAccountData) => {
-    const { accounts } = this.state
-
-    if (accounts.some(someAccount => someAccount.name === accountData.name)) {
-      throw new Error("An account with that name does already exist.")
-    }
-
-    const id = accountData.id || createNextID(accounts)
-
-    await keyStore.saveKey(
-      id,
-      accountData.password || "",
-      { privateKey: accountData.keypair.secret() },
-      {
-        name: accountData.name,
-        password: accountData.password !== null,
-        publicKey: accountData.keypair.publicKey(),
-        testnet: accountData.testnet
-      }
-    )
-
-    // Must happen after updating the key store
-    const account = createAccountInstance(id)
-
-    this.setState(state => ({
-      accounts: state.accounts.concat([account])
-    }))
-
+  const createAccount = async (accountData: NewAccountData) => {
+    const account = await createAccountInKeyStore(accounts, accountData)
+    setAccounts(prevAccounts => [...prevAccounts, account])
     return account
   }
 
-  updateAccountInStore = (updatedAccount: Account) => {
-    this.setState(state => ({
-      accounts: state.accounts.map(account => (account.id === updatedAccount.id ? updatedAccount : account))
-    }))
+  const updateAccountInStore = (updatedAccount: Account) => {
+    setAccounts(prevAccounts =>
+      prevAccounts.map(account => (account.id === updatedAccount.id ? updatedAccount : account))
+    )
   }
 
-  renameAccount = async (accountID: string, newName: string) => {
+  const renameAccount = async (accountID: string, newName: string) => {
     await keyStore.savePublicKeyData(accountID, {
       ...keyStore.getPublicKeyData(accountID),
       name: newName
     })
-
-    this.updateAccountInStore(createAccountInstance(accountID))
+    updateAccountInStore(createAccountInstance(accountID))
   }
 
-  deleteAccount = async (accountID: string) => {
+  const deleteAccount = async (accountID: string) => {
     await keyStore.removeKey(accountID)
-
-    this.setState(state => ({
-      accounts: state.accounts.filter(account => account.id !== accountID)
-    }))
+    setAccounts(prevAccounts => prevAccounts.filter(account => account.id !== accountID))
   }
 
-  changePassword = async (accountID: string, prevPassword: string, nextPassword: string) => {
+  const changePassword = async (accountID: string, prevPassword: string, nextPassword: string) => {
     const privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
     const publicKeyData = keyStore.getPublicKeyData(accountID)
 
     // Setting `password: true` explicitly, in case there was no password set before
     await keyStore.saveKey(accountID, nextPassword, privateKeyData, { ...publicKeyData, password: true })
 
-    this.updateAccountInStore(createAccountInstance(accountID))
+    updateAccountInStore(createAccountInstance(accountID))
   }
 
-  removePassword = async (accountID: string, prevPassword: string) => {
+  const removePassword = async (accountID: string, prevPassword: string) => {
     const privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
     const publicKeyData = keyStore.getPublicKeyData(accountID)
 
     await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })
-
-    this.updateAccountInStore(createAccountInstance(accountID))
+    updateAccountInStore(createAccountInstance(accountID))
   }
 
-  toggleNetwork = () => {
-    this.setState(state => ({
-      networkSwitch: state.networkSwitch === "mainnet" ? "testnet" : "mainnet"
-    }))
+  const toggleNetwork = () => {
+    setNetworkSwitch(prevNetwork => (prevNetwork === "mainnet" ? "testnet" : "mainnet"))
   }
 
-  render() {
-    const contextValue: ContextValue = {
-      accounts: this.state.accounts,
-      networkSwitch: this.state.networkSwitch,
-      changePassword: this.changePassword,
-      createAccount: this.createAccount,
-      deleteAccount: this.deleteAccount,
-      removePassword: this.removePassword,
-      renameAccount: this.renameAccount,
-      toggleNetwork: this.toggleNetwork
-    }
-    return <AccountsContext.Provider value={contextValue}>{this.props.children}</AccountsContext.Provider>
+  const contextValue: ContextValue = {
+    accounts,
+    networkSwitch,
+    changePassword,
+    createAccount,
+    deleteAccount,
+    removePassword,
+    renameAccount,
+    toggleNetwork
   }
+
+  return <AccountsContext.Provider value={contextValue}>{props.children}</AccountsContext.Provider>
 }
 
-export const AccountsConsumer = AccountsContext.Consumer
-
-export { ContextValue as AccountsContext }
+export { AccountsContext, ContextValue as AccountsContextType }

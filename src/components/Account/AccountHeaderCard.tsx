@@ -1,4 +1,5 @@
 import React from "react"
+import { useContext } from "react"
 import { withRouter, RouteComponentProps } from "react-router-dom"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -7,17 +8,17 @@ import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
-import { Account, AccountsContext } from "../../context/accounts"
-import { DialogsConsumer } from "../../context/dialogs"
+import { Account, AccountsContextType } from "../../context/accounts"
+import { DialogsContext } from "../../context/dialogs"
 import { DialogBlueprint, DialogType } from "../../context/dialogTypes"
-import { SettingsContext } from "../../context/settings"
+import { SettingsContextType } from "../../context/settings"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 
-const PasswordStatus = (props: { safe: boolean; style?: React.CSSProperties }) => {
+function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
   return (
     <Tooltip title={props.safe ? "Password protected" : "No password"}>
       <VerifiedUserIcon style={{ opacity: props.safe ? 1 : 0.5, ...props.style }} />
@@ -25,7 +26,7 @@ const PasswordStatus = (props: { safe: boolean; style?: React.CSSProperties }) =
   )
 }
 
-const TestnetBadge = (props: { style?: React.CSSProperties }) => {
+function TestnetBadge(props: { style?: React.CSSProperties }) {
   const style: React.CSSProperties = {
     display: "inline-block",
     padding: "5px",
@@ -46,8 +47,8 @@ interface Props extends RouteComponentProps<any, any, any> {
   children?: React.ReactNode
   onManageAssets: () => void
   onManageSigners: () => void
-  onRenameAccount: AccountsContext["renameAccount"]
-  settings: SettingsContext
+  onRenameAccount: AccountsContextType["renameAccount"]
+  settings: SettingsContextType
   style?: React.CSSProperties
 }
 
@@ -149,10 +150,9 @@ class AccountHeaderCard extends React.Component<Props & { openDialog: (dialog: D
   }
 }
 
-const AccountHeaderCardContainer = (props: Props) => {
-  return (
-    <DialogsConsumer>{({ openDialog }) => <AccountHeaderCard {...props} openDialog={openDialog} />}</DialogsConsumer>
-  )
+function AccountHeaderCardContainer(props: Props) {
+  const { openDialog } = useContext(DialogsContext)
+  return <AccountHeaderCard {...props} openDialog={openDialog} />
 }
 
 export default withRouter<Props>(AccountHeaderCardContainer)

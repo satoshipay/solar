@@ -1,5 +1,6 @@
 import { History } from "history"
 import React from "react"
+import { useContext } from "react"
 import { withRouter } from "react-router"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
@@ -8,34 +9,29 @@ import SettingsIcon from "@material-ui/icons/Settings"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
-import { Account, AccountsConsumer, AccountsContext, NetworkID } from "../context/accounts"
-import { SettingsConsumer, SettingsContext } from "../context/settings"
+import { AccountsContext } from "../context/accounts"
+import { SettingsContext } from "../context/settings"
 import * as routes from "../routes"
 
-interface Props {
-  accounts: Account[]
-  history: History
-  networkSwitch: NetworkID
-  settings: SettingsContext
-  toggleNetwork: AccountsContext["toggleNetwork"]
-}
+function AllAccountsPage(props: { history: History }) {
+  const { accounts, networkSwitch, toggleNetwork } = useContext(AccountsContext)
+  const settings = useContext(SettingsContext)
+  const testnetAccounts = accounts.filter(account => account.testnet)
 
-const AllAccountsPage = (props: Props) => {
-  const testnetAccounts = props.accounts.filter(account => account.testnet)
-  const networkSwitch = (
-    <Button color="inherit" variant="outlined" onClick={props.toggleNetwork} style={{ borderColor: "white" }}>
-      {props.networkSwitch === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
+  const networkSwitchButton = (
+    <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
+      {networkSwitch === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
     </Button>
   )
   return (
     <Section top brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
         <Typography color="inherit" variant="headline" style={{ marginRight: 180, marginBottom: 12 }}>
-          {props.networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
+          {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
         </Typography>
         <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
-          {props.settings.showTestnet || props.networkSwitch === "testnet" || testnetAccounts.length > 0
-            ? networkSwitch
+          {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
+            ? networkSwitchButton
             : null}
           <IconButton
             onClick={() => props.history.push(routes.settings())}
@@ -46,8 +42,8 @@ const AllAccountsPage = (props: Props) => {
         </Box>
         <Box margin="16px 0 0">
           <AccountList
-            accounts={props.accounts}
-            testnet={props.networkSwitch === "testnet"}
+            accounts={accounts}
+            testnet={networkSwitch === "testnet"}
             onCreatePubnetAccount={() => props.history.push(routes.createAccount(false))}
             onCreateTestnetAccount={() => props.history.push(routes.createAccount(true))}
           />
@@ -57,16 +53,4 @@ const AllAccountsPage = (props: Props) => {
   )
 }
 
-const AllAccountsPageContainer = (props: Pick<Props, "history">) => {
-  return (
-    <SettingsConsumer>
-      {settings => (
-        <AccountsConsumer>
-          {accountsContext => <AllAccountsPage {...props} {...accountsContext} settings={settings} />}
-        </AccountsConsumer>
-      )}
-    </SettingsConsumer>
-  )
-}
-
-export default withRouter(AllAccountsPageContainer)
+export default withRouter(AllAccountsPage)

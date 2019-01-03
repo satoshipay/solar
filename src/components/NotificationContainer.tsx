@@ -1,4 +1,5 @@
 import React from "react"
+import { useContext, useRef, useState } from "react"
 import Snackbar from "@material-ui/core/Snackbar"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
 import CheckIcon from "@material-ui/icons/CheckCircle"
@@ -7,7 +8,7 @@ import InfoIcon from "@material-ui/icons/Info"
 import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
 import withStyles, { ClassNameMap, StyleRulesCallback } from "@material-ui/core/styles/withStyles"
-import { Notification, NotificationsConsumer, NotificationType } from "../context/notifications"
+import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   error: ErrorIcon,
@@ -50,7 +51,7 @@ interface NotificationProps {
   onClose?: () => void
 }
 
-const Notification = (props: NotificationProps) => {
+function NotificationSnackbar(props: NotificationProps) {
   const { classes, open = true } = props
 
   const Icon = icons[props.type]
@@ -81,59 +82,35 @@ const Notification = (props: NotificationProps) => {
   )
 }
 
-const StyledNotification = withStyles(styles)(Notification)
+const StyledNotification = withStyles(styles)(NotificationSnackbar)
 
-interface NotificationsProps {
-  notifications: Notification[]
-}
+function NotificationsContainer() {
+  const { notifications } = useContext(NotificationsContext)
+  const [lastClosedNotificationID, setLastClosedNotificationID] = useState(0)
+  const lastShownNotification = useRef<Notification | null>(null)
 
-interface NotificationsState {
-  lastClosedNotificationID: number
-}
+  const latestNotificationItem = notifications[notifications.length - 1] || null
+  const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID
 
-class Notifications extends React.Component<NotificationsProps, NotificationsState> {
-  state = {
-    lastClosedNotificationID: 0
+  const closeNotification = (someNotification: Notification) => setLastClosedNotificationID(someNotification.id)
+
+  // Fall back to the values of a just-removed notification if necessary
+  // Reason: Notification might still be visible / in closing transition when it suddenly gets removed
+  const notification = latestNotificationItem || lastShownNotification.current
+
+  if (latestNotificationItem && latestNotificationItem !== lastShownNotification.current) {
+    lastShownNotification.current = latestNotificationItem
   }
 
-  lastShownNotification: Notification | null = null
-
-  closeNotification = (notificationID: number) => {
-    this.setState({
-      lastClosedNotificationID: notificationID
-    })
-  }
-
-  render() {
-    const latestNotificationItem = this.props.notifications[this.props.notifications.length - 1] || null
-    const open = latestNotificationItem && latestNotificationItem.id !== this.state.lastClosedNotificationID
-
-    // Fall back to the values of a just-removed notification if necessary
-    // Reason: Notification might still be visible / in closing transition when it suddenly gets removed
-    const notification = latestNotificationItem || this.lastShownNotification
-
-    if (latestNotificationItem) {
-      this.lastShownNotification = latestNotificationItem
-    }
-
-    return (
-      <StyledNotification
-        autoHideDuration={5000}
-        message={notification ? notification.message : ""}
-        type={notification ? notification.type : "error"}
-        open={open}
-        onClick={notification ? notification.onClick : undefined}
-        onClose={() => this.closeNotification(latestNotificationItem.id)}
-      />
-    )
-  }
-}
-
-const NotificationsContainer = (props: {}) => {
   return (
-    <NotificationsConsumer>
-      {({ notifications }) => <Notifications notifications={notifications} />}
-    </NotificationsConsumer>
+    <StyledNotification
+      autoHideDuration={5000}
+      message={notification ? notification.message : ""}
+      type={notification ? notification.type : "error"}
+      open={open}
+      onClick={notification ? notification.onClick : undefined}
+      onClose={() => closeNotification(notification)}
+    />
   )
 }
 
