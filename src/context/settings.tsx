@@ -62,6 +62,4 @@ export function SettingsProvider(props: Props) {
   return <SettingsContext.Provider value={contextValue}>{props.children}</SettingsContext.Provider>
 }
 
-export const SettingsConsumer = SettingsContext.Consumer
-
 export { ContextType as SettingsContextType, SettingsContext }

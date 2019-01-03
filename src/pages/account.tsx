@@ -1,5 +1,5 @@
 import React from "react"
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { History } from "history"
 import { match } from "react-router"
 import Button from "@material-ui/core/Button"
@@ -22,7 +22,7 @@ import { Box } from "../components/Layout/Box"
 import { VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import { Account, AccountsConsumer, AccountsContextType } from "../context/accounts"
-import { SettingsConsumer, SettingsContextType } from "../context/settings"
+import { SettingsContext, SettingsContextType } from "../context/settings"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { hasSigned } from "../lib/transaction"
 
@@ -161,69 +161,32 @@ function AccountPage(props: Props) {
   )
 }
 
-interface State {
-  isAssetsDrawerOpen: boolean
-  isPaymentDrawerOpen: boolean
-  isSignersDrawerOpen: boolean
-}
+function AccountPageContainer(props: Pick<Props, "history" | "match">) {
+  const settings = useContext(SettingsContext)
+  const [isAssetsDrawerOpen, setAssetsDrawerOpen] = useState(false)
+  const [isPaymentDrawerOpen, setPaymentDrawerOpen] = useState(false)
+  const [isSignersDrawerOpen, setSignersDrawerOpen] = useState(false)
 
-class AccountPageContainer extends React.Component<Pick<Props, "history" | "match">, State> {
-  state: State = {
-    isAssetsDrawerOpen: false,
-    isPaymentDrawerOpen: false,
-    isSignersDrawerOpen: false
-  }
-
-  closeAssetsDrawer = () => {
-    this.setState({ isAssetsDrawerOpen: false })
-  }
-
-  closePaymentDrawer = () => {
-    this.setState({ isPaymentDrawerOpen: false })
-  }
-
-  closeSignersDrawer = () => {
-    this.setState({ isSignersDrawerOpen: false })
-  }
-
-  openAssetsDrawer = () => {
-    this.setState({ isAssetsDrawerOpen: true })
-  }
-
-  openPaymentDrawer = () => {
-    this.setState({ isPaymentDrawerOpen: true })
-  }
-
-  openSignersDrawer = () => {
-    this.setState({ isSignersDrawerOpen: true })
-  }
-
-  render() {
-    return (
-      <SettingsConsumer>
-        {settings => (
-          <AccountsConsumer>
-            {accountsContext => (
-              <AccountPage
-                {...this.props}
-                {...accountsContext}
-                settings={settings}
-                isAssetsDrawerOpen={this.state.isAssetsDrawerOpen}
-                isPaymentDrawerOpen={this.state.isPaymentDrawerOpen}
-                isSignersDrawerOpen={this.state.isSignersDrawerOpen}
-                onCloseAssetsDrawer={this.closeAssetsDrawer}
-                onClosePaymentDrawer={this.closePaymentDrawer}
-                onCloseSignersDrawer={this.closeSignersDrawer}
-                onOpenAssetsDrawer={this.openAssetsDrawer}
-                onOpenPaymentDrawer={this.openPaymentDrawer}
-                onOpenSignersDrawer={this.openSignersDrawer}
-              />
-            )}
-          </AccountsConsumer>
-        )}
-      </SettingsConsumer>
-    )
-  }
+  return (
+    <AccountsConsumer>
+      {accountsContext => (
+        <AccountPage
+          {...props}
+          {...accountsContext}
+          settings={settings}
+          isAssetsDrawerOpen={isAssetsDrawerOpen}
+          isPaymentDrawerOpen={isPaymentDrawerOpen}
+          isSignersDrawerOpen={isSignersDrawerOpen}
+          onCloseAssetsDrawer={() => setAssetsDrawerOpen(false)}
+          onClosePaymentDrawer={() => setPaymentDrawerOpen(false)}
+          onCloseSignersDrawer={() => setSignersDrawerOpen(false)}
+          onOpenAssetsDrawer={() => setAssetsDrawerOpen(true)}
+          onOpenPaymentDrawer={() => setPaymentDrawerOpen(true)}
+          onOpenSignersDrawer={() => setSignersDrawerOpen(true)}
+        />
+      )}
+    </AccountsConsumer>
+  )
 }
 
 export default AccountPageContainer
