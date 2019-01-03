@@ -45,6 +45,4 @@ export function DialogsProvider(props: Props) {
   return <DialogsContext.Provider value={contextValue}>{props.children}</DialogsContext.Provider>
 }
 
-export const DialogsConsumer = DialogsContext.Consumer
-
 export { ContextValue as DialogsContextType, DialogsContext }
