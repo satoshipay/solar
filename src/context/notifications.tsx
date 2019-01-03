@@ -72,6 +72,4 @@ export function NotificationsProvider(props: Props) {
   return <NotificationsContext.Provider value={contextValue}>{props.children}</NotificationsContext.Provider>
 }
 
-export const NotificationsConsumer = NotificationsContext.Consumer
-
 export { ContextValue as NotificationContextType, NotificationsContext }
