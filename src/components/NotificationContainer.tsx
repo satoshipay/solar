@@ -86,13 +86,13 @@ const StyledNotification = withStyles(styles)(NotificationSnackbar)
 
 function NotificationsContainer() {
   const { notifications } = useContext(NotificationsContext)
-  const [lastClosedNotificationID, updateLastClosedNotificationID] = useState(0)
+  const [lastClosedNotificationID, setLastClosedNotificationID] = useState(0)
   const lastShownNotification = useRef<Notification | null>(null)
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
   const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID
 
-  const closeNotification = (notification: Notification) => updateLastClosedNotificationID(notification.id)
+  const closeNotification = (someNotification: Notification) => setLastClosedNotificationID(someNotification.id)
 
   // Fall back to the values of a just-removed notification if necessary
   // Reason: Notification might still be visible / in closing transition when it suddenly gets removed
