@@ -1,26 +1,40 @@
 image: node:10-jessie
 
 stages:
+  - setup
   - test
   - build
   - release
 
+prepare:
+  stage: setup
+  variables:
+    npm_config_cache: $CI_PROJECT_DIR/cache/
+  cache:
+    key: npm-${CI_COMMIT_REF_SLUG}
+    paths:
+      - cache/
+  script:
+    - echo $npm_config_cache
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules
+    expire_in: 4 hours
+
+lint:
+  stage: test
+  script:
+    - npm run prettier:check
+
 test:
   stage: test
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    policy: push
   script:
-    - npm ci
     - npm test
 
 build_web:
   stage: build
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    policy: pull
   script:
-    - npm ci
     - cd web/ && npm run build
 
 # Note that the `npm run build:*` commands will automatically create a GitHub release and upload binaries
@@ -29,11 +43,7 @@ build_mac:
   artifacts:
     paths:
       - electron/dist
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    policy: pull
   script:
-    - npm ci
     - npm run build:mac -- --mac=zip
   only:
     - master
@@ -43,12 +53,8 @@ build_linux:
   artifacts:
     paths:
       - electron/dist
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    policy: pull
   script:
-    - sudo apt-get install rpm
-    - npm ci
+    - apt-get install -y rpm
     - npm run build:linux -- --linux=deb --linux=rpm
   only:
     - master
