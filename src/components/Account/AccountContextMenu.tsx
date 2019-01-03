@@ -61,7 +61,7 @@ const AccountContextMenu = (props: MenuProps) => {
             label={props.account.requiresPassword ? "Change Password" : "Set Password"}
             onClick={closeAndCall(props.onChangePassword)}
           />
-          <Divider component="li" />
+          <Divider />
           <AccountContextMenuItem
             icon={<MoneyIcon />}
             label="Manage Assets"

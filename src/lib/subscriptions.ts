@@ -96,7 +96,7 @@ function createAccountDataSubscription(
             lastMessageJson = serialized
             propagateUpdate({
               ...subscriptionTarget.getLatest(),
-              ...accountData
+              ...(accountData as any)
             })
           }
           lastMessageTime = Date.now()
@@ -127,7 +127,7 @@ function createAccountDataSubscription(
 
     propagateUpdate({
       ...subscriptionTarget.getLatest(),
-      ...accountData,
+      ...(accountData as any),
       activated: true
     })
     subscribeToAccountDataStream(initialAccountData ? "now" : "0")
