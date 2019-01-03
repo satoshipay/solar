@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 import { Server } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ButtonIconLabel from "../ButtonIconLabel"
@@ -10,36 +11,26 @@ interface Props {
   publicKey: string
 }
 
-interface State {
-  pending: boolean
-}
+function FriendbotButton(props: Props) {
+  const [isPending, setPending] = useState(false)
 
-class FriendbotButton extends React.Component<Props, State> {
-  state: State = {
-    pending: false
+  const topup = async () => {
+    try {
+      setPending(true)
+      await friendbotTopup(props.horizon, props.publicKey)
+
+      // Give the account subscription a little bit of time to recognize the account activation
+      await new Promise(resolve => setTimeout(resolve, 2000))
+    } finally {
+      setPending(false)
+    }
   }
 
-  topup = () => {
-    return (async () => {
-      try {
-        this.setState({ pending: true })
-        await friendbotTopup(this.props.horizon, this.props.publicKey)
-
-        // Give the account subscription a little bit of time to recognize the account activation
-        await new Promise(resolve => setTimeout(resolve, 2000))
-      } finally {
-        this.setState({ pending: false })
-      }
-    })().catch(trackError)
-  }
-
-  render() {
-    return (
-      <Button variant="outlined" onClick={this.topup}>
-        <ButtonIconLabel label="Request top-up from friendbot" loading={this.state.pending} loaderColor="inherit" />
-      </Button>
-    )
-  }
+  return (
+    <Button variant="outlined" onClick={() => topup().catch(trackError)}>
+      <ButtonIconLabel label="Request top-up from friendbot" loading={isPending} loaderColor="inherit" />
+    </Button>
+  )
 }
 
 export default FriendbotButton
