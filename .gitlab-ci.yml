@@ -17,10 +17,6 @@ prepare:
   script:
     - echo $npm_config_cache
     - npm ci
-  artifacts:
-    paths:
-      - node_modules
-    expire_in: 4 hours
 
 lint:
   stage: test
