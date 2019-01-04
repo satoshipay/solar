@@ -13,7 +13,6 @@
   "scripts": {
     "precommit": "lint-staged",
     "lint:fix": "tslint --fix '{src,stories}/**/*.{ts,tsx}'",
-    "prettier:check": "prettier --list-different '{src,stories}/**/*.{ts,tsx}' *.md electron/*.js",
     "prettier": "prettier --write '{src,stories}/**/*.{ts,tsx}' *.md electron/*.js",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "test": "tslint --project .",
@@ -28,8 +27,7 @@
   },
   "lint-staged": {
     "ignore": [
-      "**/*.yml",
-      ".gitignore"
+      "**/*.yml"
     ],
     "linters": {
       "*": [
