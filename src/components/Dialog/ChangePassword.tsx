@@ -227,7 +227,9 @@ class ChangePasswordDialog extends React.Component<Props, State> {
   }
 }
 
-const ChangePasswordContainer = (props: Props) => {
+const ChangePasswordContainer = (
+  props: Pick<Props, "account" | "changePassword" | "onClose" | "open" | "removePassword">
+) => {
   const { addError, addNotification } = useContext(NotificationsContext)
   return <ChangePasswordDialog {...props} addError={addError} addNotification={addNotification} />
 }

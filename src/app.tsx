@@ -9,9 +9,7 @@ import { MuiThemeProvider } from "@material-ui/core/styles"
 import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
 import NotificationContainer from "./components/NotificationContainer"
-import OpenDialogs from "./components/OpenDialogs"
 import { AccountsProvider } from "./context/accounts"
-import { DialogsProvider } from "./context/dialogs"
 import { NotificationsProvider } from "./context/notifications"
 import { SettingsProvider } from "./context/settings"
 import { SignatureDelegationProvider } from "./context/signatureDelegation"
@@ -27,11 +25,9 @@ const Providers = (props: { children: React.ReactNode }) => {
   return (
     <AccountsProvider>
       <SettingsProvider>
-        <DialogsProvider>
-          <NotificationsProvider>
-            <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
-          </NotificationsProvider>
-        </DialogsProvider>
+        <NotificationsProvider>
+          <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
+        </NotificationsProvider>
       </SettingsProvider>
     </AccountsProvider>
   )
@@ -50,7 +46,6 @@ const App = () => (
             <Route exact path="/settings" component={SettingsPage} />
             <DesktopNotifications />
             <NotificationContainer />
-            <OpenDialogs />
           </VerticalLayout>
         </VerticalLayout>
       </Providers>
