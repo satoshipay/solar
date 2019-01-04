@@ -15,7 +15,8 @@ test:
     - npm test
 
 build_web:
-  stage: build
+  # just used for testing; does not need to wait for the "test" stage to finish
+  stage: test
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     policy: pull
@@ -47,7 +48,7 @@ build_linux:
     key: ${CI_COMMIT_REF_SLUG}
     policy: pull
   script:
-    - sudo apt-get install rpm
+    - apt-get install rpm
     - npm ci
     - npm run build:linux -- --linux=deb --linux=rpm
   only:
