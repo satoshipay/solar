@@ -6,10 +6,12 @@ import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
+import GroupIcon from "@material-ui/icons/Group"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
+import { useAccountData } from "../../hooks"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
@@ -37,7 +39,8 @@ function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
 
 function TestnetBadge(props: { style?: React.CSSProperties }) {
   const style: React.CSSProperties = {
-    display: "inline-block",
+    display: "inline-flex",
+    alignItems: "center",
     padding: "5px",
     background: "white",
     borderRadius: 3,
@@ -64,6 +67,7 @@ interface Props extends RouteComponentProps<any, any, any> {
 function AccountHeaderCard(props: Props) {
   const { changePassword, removePassword } = useContext(AccountsContext)
   const [openDialog, setOpenDialog] = useState<DialogID | null>(null)
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
   return (
     <Card
@@ -89,9 +93,14 @@ function AccountHeaderCard(props: Props) {
           >
             {props.account.name}
           </Typography>
-          <HorizontalLayout display="inline-flex" width="auto" fontSize="1.5rem">
+          <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
             {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
-            <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "80%" }} />
+            {accountData.signers.length > 1 ? (
+              <Tooltip title="Multi-Signature Account">
+                <GroupIcon style={{ marginRight: 8 }} />
+              </Tooltip>
+            ) : null}
+            <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "80%", marginTop: "-0.05em" }} />
           </HorizontalLayout>
           <Box grow style={{ textAlign: "right" }}>
             <AccountContextMenu

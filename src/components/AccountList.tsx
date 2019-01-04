@@ -5,17 +5,20 @@ import { withRouter } from "react-router-dom"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
+import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import AddIcon from "@material-ui/icons/Add"
+import GroupIcon from "@material-ui/icons/Group"
 import AccountBalances from "../components/Account/AccountBalances"
 import { CardList, CardListCard } from "../components/CardList"
 import { Account } from "../context/accounts"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
+import { useAccountData } from "../hooks"
 import { SignatureRequest } from "../lib/multisig-service"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
-import { VerticalLayout } from "./Layout/Box"
+import { Box, HorizontalLayout, VerticalLayout } from "./Layout/Box"
 
 const cardStyles: StyleRules = {
   cardActionArea: {
@@ -71,6 +74,8 @@ function AccountCard(props: {
   pendingSignatureRequests: SignatureRequest[]
   style?: React.CSSProperties
 }) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+
   const onClick = () => props.history.push(routes.account(props.account.id))
   const pendingSignatureRequests = props.pendingSignatureRequests.filter(
     req =>
@@ -82,12 +87,21 @@ function AccountCard(props: {
     <StyledCard elevation={5} onClick={onClick} style={{ background: "white", color: "black" }}>
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
         <VerticalLayout height="100px" justifyContent="space-evenly" textAlign="left">
-          <Typography variant="headline" style={{ marginBottom: 20 }}>
-            {props.account.name}
-          </Typography>
-          <div style={{ fontSize: "120%" }}>
+          <HorizontalLayout margin="0 0 20px">
+            <Typography variant="headline" style={{ flexGrow: 1 }}>
+              {props.account.name}
+            </Typography>
+            <Box>
+              {accountData.signers.length > 1 ? (
+                <Tooltip title="Multi-Signature Account">
+                  <GroupIcon style={{ marginTop: 6 }} />
+                </Tooltip>
+              ) : null}
+            </Box>
+          </HorizontalLayout>
+          <Box fontSize="120%">
             <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-          </div>
+          </Box>
         </VerticalLayout>
       </StyledBadge>
     </StyledCard>
