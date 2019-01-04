@@ -2,25 +2,27 @@ import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
 import NotificationContainer from "../src/components/NotificationContainer"
-import { NotificationsConsumer, NotificationsProvider } from "../src/context/notifications"
+import { NotificationsContext, NotificationsProvider } from "../src/context/notifications"
 
-const Buttons = (props: { children: React.ReactNode }) => (
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      height: React.Children.count(props.children) * 40,
-      justifyContent: "space-between"
-    }}
-  >
-    {props.children}
-  </div>
-)
+function Buttons(props: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: React.Children.count(props.children) * 40,
+        justifyContent: "space-between"
+      }}
+    >
+      {props.children}
+    </div>
+  )
+}
 
 storiesOf("Notifications", module).add("All", () => (
   <NotificationsProvider>
     <NotificationContainer />
-    <NotificationsConsumer>
+    <NotificationsContext.Consumer>
       {({ addError, addNotification }) => (
         <Buttons>
           <Button variant="contained" onClick={() => addError(new Error("An error happened."))}>
@@ -40,6 +42,6 @@ storiesOf("Notifications", module).add("All", () => (
           </Button>
         </Buttons>
       )}
-    </NotificationsConsumer>
+    </NotificationsContext.Consumer>
   </NotificationsProvider>
 ))

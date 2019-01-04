@@ -3,7 +3,7 @@ import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import TxConfirmationDrawer from "../src/components/Dialog/TransactionConfirmation"
-import { Account, AccountsConsumer, AccountsProvider } from "../src/context/accounts"
+import { Account, AccountsContext, AccountsProvider } from "../src/context/accounts"
 import { createPaymentOperation, createTransaction } from "../src/lib/transaction"
 
 interface DialogContainerProps {
@@ -54,7 +54,7 @@ class DialogContainer extends React.Component<DialogContainerProps> {
 
 storiesOf("Dialogs", module)
   .add("TxConfirmationDrawer without password", () => (
-    <AccountsConsumer>
+    <AccountsContext.Consumer>
       {({ accounts }) => (
         <DialogContainer account={accounts[0]}>
           {({ open, onClose, transaction }) => (
@@ -68,10 +68,10 @@ storiesOf("Dialogs", module)
           )}
         </DialogContainer>
       )}
-    </AccountsConsumer>
+    </AccountsContext.Consumer>
   ))
   .add("TxConfirmationDrawer with password", () => (
-    <AccountsConsumer>
+    <AccountsContext.Consumer>
       {({ accounts }) => (
         <DialogContainer account={accounts[1]}>
           {({ open, onClose, transaction }) => (
@@ -85,5 +85,5 @@ storiesOf("Dialogs", module)
           )}
         </DialogContainer>
       )}
-    </AccountsConsumer>
+    </AccountsContext.Consumer>
   ))

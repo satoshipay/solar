@@ -55,6 +55,7 @@
     "@types/stellar-sdk": "^0.8.6",
     "@types/storybook__react": "^3.0.7",
     "awesome-typescript-loader": "~3.5.0",
+    "babel-core": "^6.26.3",
     "electron": "^3.0.9",
     "electron-builder": "^20.26.1",
     "electron-reload": "^1.2.5",
