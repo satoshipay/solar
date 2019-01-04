@@ -14,12 +14,35 @@ test:
     - npm ci
     - npm test
 
+build_storybook:
+  # just used for testing; does not need to wait for the "test" stage to finish
+  stage: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
+  only:
+    changes:
+      - package.json
+      - .storybook/**
+      - src/**
+      - stories/**
+      - types/**
+  script:
+    - npm ci
+    - npx build-storybook
+
 build_web:
   # just used for testing; does not need to wait for the "test" stage to finish
   stage: test
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     policy: pull
+  only:
+    changes:
+      - package.json
+      - src/**
+      - types/**
+      - web/**
   script:
     - npm ci
     - cd web/ && npm run build

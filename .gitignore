@@ -3,6 +3,7 @@
 .vscode/
 dist/
 node_modules/
+storybook-static/
 .DS_Store
 Thumbs.db
 *.sublime-project
