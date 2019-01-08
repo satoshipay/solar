@@ -5,6 +5,7 @@ import { match } from "react-router"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
+import DoneAllIcon from "@material-ui/icons/DoneAll"
 import SendIcon from "@material-ui/icons/Send"
 import UpdateIcon from "@material-ui/icons/Update"
 import ButtonIconLabel from "../components/ButtonIconLabel"
@@ -53,7 +54,7 @@ function PendingMultisigTransactions(props: { account: Account }) {
     <>
       <InteractiveSignatureRequestList
         account={props.account}
-        icon={<SendIcon />}
+        icon={<DoneAllIcon />}
         signatureRequests={pendingSignatureRequests.filter(
           request =>
             request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
