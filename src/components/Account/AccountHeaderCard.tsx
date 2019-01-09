@@ -10,7 +10,7 @@ import GroupIcon from "@material-ui/icons/Group"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
-import { SettingsContextType } from "../../context/settings"
+import { SettingsContext } from "../../context/settings"
 import { useAccountData } from "../../hooks"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
@@ -60,12 +60,13 @@ interface Props extends RouteComponentProps<any, any, any> {
   onManageAssets: () => void
   onManageSigners: () => void
   onRenameAccount: AccountsContextType["renameAccount"]
-  settings: SettingsContextType
   style?: React.CSSProperties
 }
 
 function AccountHeaderCard(props: Props) {
   const { changePassword, removePassword } = useContext(AccountsContext)
+  const settings = useContext(SettingsContext)
+
   const [openDialog, setOpenDialog] = useState<DialogID | null>(null)
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
@@ -105,7 +106,7 @@ function AccountHeaderCard(props: Props) {
           <Box grow style={{ textAlign: "right" }}>
             <AccountContextMenu
               account={props.account}
-              settings={props.settings}
+              settings={settings}
               onChangePassword={() => setOpenDialog(DialogID.changePassword)}
               onDelete={() => setOpenDialog(DialogID.deleteAccount)}
               onExport={() => setOpenDialog(DialogID.exportKey)}
