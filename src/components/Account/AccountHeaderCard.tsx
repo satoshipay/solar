@@ -98,10 +98,10 @@ function AccountHeaderCard(props: Props) {
             {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
             {accountData.signers.length > 1 ? (
               <Tooltip title="Multi-Signature Account">
-                <GroupIcon style={{ marginRight: 8 }} />
+                <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
               </Tooltip>
             ) : null}
-            <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "80%", marginTop: "-0.05em" }} />
+            <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
           </HorizontalLayout>
           <Box grow style={{ textAlign: "right" }}>
             <AccountContextMenu
