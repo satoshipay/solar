@@ -2,9 +2,12 @@ import React from "react"
 import { useState } from "react"
 import { AccountRecord } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
+import Tooltip from "@material-ui/core/Tooltip"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
+import InfoIcon from "@material-ui/icons/Info"
 import { renderFormFieldError } from "../../lib/errors"
 import { ObservedAccountData } from "../../lib/subscriptions"
 import { trackError } from "../../context/notifications"
@@ -56,6 +59,16 @@ function validateFormValues(weightThreshold: string, updatedSigners: Signer[]): 
   if (updatedSigners.length > 1 && weightThresholdInteger === 0) {
     return new Error("Please set a threshold.")
   }
+}
+
+function KeyWeightThresholdInfoAdornment(props: { text: string }) {
+  return (
+    <InputAdornment position="end" style={{ color: "rgba(0, 0, 0, 0.54)", cursor: "default" }}>
+      <Tooltip placement="right" title={props.text}>
+        <InfoIcon />
+      </Tooltip>
+    </InputAdornment>
+  )
 }
 
 interface Props {
@@ -120,6 +133,11 @@ function ManageSignersForm(props: Props) {
 
   const weightThresholdLabel = allDefaultKeyweights ? "Required signatures" : "Required key weight"
 
+  const sanitizedKeyWeight = weightThreshold.match(/^[0-9]+$/) ? String(weightThreshold) : "X"
+  const weightThresholdExplanation = allDefaultKeyweights
+    ? `Every transaction needs to be signed by ${sanitizedKeyWeight} signers`
+    : `Every transaction needs to be signed by signers with a combined key weight of ${sanitizedKeyWeight} `
+
   return (
     <VerticalLayout minHeight="400px" justifyContent="space-between">
       <Box margin="20px 0 0">
@@ -140,6 +158,9 @@ function ManageSignersForm(props: Props) {
           onChange={event => setWeightThreshold(event.target.value)}
           value={weightThreshold}
           variant="outlined"
+          InputProps={{
+            endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
+          }}
         />
         <HorizontalLayout justifyContent="end" alignItems="center" width="auto">
           <Button variant="contained" onClick={props.onCancel}>
