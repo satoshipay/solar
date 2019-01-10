@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
@@ -13,7 +14,6 @@ import { Box, HorizontalLayout } from "../Layout/Box"
 import ManageSignersForm, { SignerUpdate } from "../ManageSigners/ManageSignersForm"
 import TransactionSender from "../TransactionSender"
 import ButtonIconLabel from "../ButtonIconLabel"
-import SignersEditor from "../ManageSigners/SignersEditor"
 import BackButton from "./BackButton"
 import { useAccountData } from "../../hooks"
 
@@ -30,28 +30,13 @@ interface Props {
   sendTransaction: (tx: Transaction) => void
 }
 
-interface State {
-  transaction: Transaction | null
-  txCreationPending: boolean
-}
+function ManageSignersDialog(props: Props) {
+  const [isEditingNewSigner, setIsEditingNewSigner] = useState(false)
+  const [, setTxCreationPending] = useState(false)
 
-class ManageSignersDialog extends React.Component<Props, State> {
-  editor = React.createRef<SignersEditor>()
-
-  state: State = {
-    transaction: null,
-    txCreationPending: false
-  }
-
-  addCosigner = () => {
-    if (this.editor.current) {
-      this.editor.current.addAdditionalCosigner()
-    }
-  }
-
-  createTransaction = async (update: SignerUpdate) => {
+  const submitTransaction = async (update: SignerUpdate) => {
     try {
-      this.setState({ txCreationPending: true })
+      setTxCreationPending(true)
 
       const operations = [
         // signer removals before adding, so you can remove and immediately re-add signer
@@ -73,45 +58,49 @@ class ManageSignersDialog extends React.Component<Props, State> {
       ]
 
       const tx = await createTransaction(operations, {
-        horizon: this.props.horizon,
-        walletAccount: this.props.account
+        horizon: props.horizon,
+        walletAccount: props.account
       })
 
-      const submissionPromise = this.props.sendTransaction(tx)
-      this.setState({ txCreationPending: false })
+      const submissionPromise = props.sendTransaction(tx)
+      setTxCreationPending(false)
 
       await submissionPromise
     } catch (error) {
       trackError(error)
-      this.setState({ txCreationPending: false })
+      setTxCreationPending(false)
     }
   }
 
-  render() {
-    return (
-      <Dialog open={this.props.open} fullScreen onClose={this.props.onClose} TransitionComponent={Transition}>
-        <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-          <HorizontalLayout alignItems="center" margin="0 0 24px">
-            <BackButton onClick={this.props.onClose} />
-            <Typography variant="headline" style={{ flexGrow: 1 }}>
-              Manage Account Signers
-            </Typography>
-            <Button color="primary" onClick={this.addCosigner} style={{ marginLeft: 32 }} variant="contained">
-              <ButtonIconLabel label="Add Co-Signer">
-                <PersonAddIcon />
-              </ButtonIconLabel>
-            </Button>
-          </HorizontalLayout>
-          <ManageSignersForm
-            accountData={this.props.accountData}
-            editorRef={this.editor}
-            onCancel={this.props.onClose}
-            onSubmit={this.createTransaction}
-          />
-        </Box>
-      </Dialog>
-    )
-  }
+  return (
+    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
+      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+        <HorizontalLayout alignItems="center" margin="0 0 24px">
+          <BackButton onClick={props.onClose} />
+          <Typography variant="headline" style={{ flexGrow: 1 }}>
+            Manage Account Signers
+          </Typography>
+          <Button
+            color="primary"
+            onClick={() => setIsEditingNewSigner(true)}
+            style={{ marginLeft: 32 }}
+            variant="contained"
+          >
+            <ButtonIconLabel label="Add Co-Signer">
+              <PersonAddIcon />
+            </ButtonIconLabel>
+          </Button>
+        </HorizontalLayout>
+        <ManageSignersForm
+          accountData={props.accountData}
+          isEditingNewSigner={isEditingNewSigner}
+          setIsEditingNewSigner={setIsEditingNewSigner}
+          onCancel={props.onClose}
+          onSubmit={submitTransaction}
+        />
+      </Box>
+    </Dialog>
+  )
 }
 
 function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) {
