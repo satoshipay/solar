@@ -43,16 +43,9 @@ function NewSignerForm(props: Props) {
             style={{ flexGrow: 1 }}
             value={props.values.publicKey}
           />
-          <TextField
-            error={!!props.errors.weight}
-            label={props.errors.weight ? props.errors.weight.message : "Weight"}
-            onChange={event => props.onUpdate({ weight: event.target.value })}
-            style={{ maxWidth: 50, marginLeft: 16 }}
-            value={props.values.weight}
-          />
         </HorizontalLayout>
       </ListItemText>
-      <ListItemIcon>
+      <ListItemIcon style={{ marginRight: 8 }}>
         <IconButton onClick={props.onSubmit}>
           <CheckIcon />
         </IconButton>

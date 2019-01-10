@@ -42,9 +42,11 @@ function validateNewSignerValues(values: SignerFormValues, signers: Signer[]): S
 interface SignersEditorProps {
   isEditingNewSigner: boolean
   setIsEditingNewSigner: (isEditingNewSigner: boolean) => void
+  localPublicKey: string
   signers: Signer[]
   addSigner: (signer: Signer) => void
   removeSigner: (signer: Signer) => void
+  showKeyWeights?: boolean
 }
 
 function SignersEditor(props: SignersEditorProps) {
@@ -92,7 +94,12 @@ function SignersEditor(props: SignersEditorProps) {
           </ListItemIcon>
           <ListItemText
             primary={<PublicKey publicKey={signer.public_key} variant="full" />}
-            secondary={`Weight: ${signer.weight}`}
+            secondary={
+              <>
+                {props.showKeyWeights ? <span style={{ marginRight: 24 }}>Weight: {signer.weight}</span> : null}
+                {signer.public_key === props.localPublicKey ? <span>Local key</span> : null}
+              </>
+            }
           />
           <ListItemSecondaryAction>
             <IconButton

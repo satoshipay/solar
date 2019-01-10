@@ -24,6 +24,21 @@ export interface SignerUpdate {
   weightThreshold: number
 }
 
+function getUpdatedSigners(accountData: ObservedAccountData, signersToAdd: Signer[], signersToRemove: Signer[]) {
+  const signersPubKeysToAdd = signersToAdd.map(signer => signer.public_key)
+  const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
+
+  const isNotToBeAdded = (signer: Signer) => signersPubKeysToAdd.indexOf(signer.public_key) === -1
+  const isNotToBeRemoved = (signer: Signer) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
+
+  const updatedSigners = [...accountData.signers.filter(isNotToBeAdded).filter(isNotToBeRemoved), ...signersToAdd]
+
+  return [
+    ...updatedSigners.filter(signer => signer.public_key === accountData.id),
+    ...updatedSigners.filter(signer => signer.public_key !== accountData.id)
+  ]
+}
+
 function validateFormValues(weightThreshold: string, updatedSigners: Signer[]): Error | undefined {
   if (updatedSigners.length === 0) {
     throw new Error("No signers left. Don't lock yourself out!")
@@ -65,20 +80,8 @@ function ManageSignersForm(props: Props) {
     ]).toString()
   )
 
-  const getUpdatedSigners = () => {
-    const signersPubKeysToAdd = signersToAdd.map(signer => signer.public_key)
-    const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
-
-    const isNotToBeAdded = (signer: Signer) => signersPubKeysToAdd.indexOf(signer.public_key) === -1
-    const isNotToBeRemoved = (signer: Signer) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
-
-    const updatedSigners = [...accountData.signers.filter(isNotToBeAdded).filter(isNotToBeRemoved), ...signersToAdd]
-
-    return [
-      ...updatedSigners.filter(signer => signer.public_key === accountData.id),
-      ...updatedSigners.filter(signer => signer.public_key !== accountData.id)
-    ]
-  }
+  const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
+  const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
 
   const addSigner = (signer: Signer) => setSignersToAdd([...signersToAdd, signer])
 
@@ -89,7 +92,7 @@ function ManageSignersForm(props: Props) {
 
   const submit = async () => {
     try {
-      const validationError = validateFormValues(weightThreshold, getUpdatedSigners())
+      const validationError = validateFormValues(weightThreshold, updatedSigners)
 
       if (validationError) {
         return setWeightThresholdError(validationError)
@@ -115,21 +118,25 @@ function ManageSignersForm(props: Props) {
     signersToAdd.length === 0 &&
     signersToRemove.length === 0
 
+  const weightThresholdLabel = allDefaultKeyweights ? "Required signatures" : "Required key weight"
+
   return (
     <VerticalLayout minHeight="400px" justifyContent="space-between">
       <Box margin="20px 0 0">
         <SignersEditor
-          addSigner={addSigner}
           isEditingNewSigner={props.isEditingNewSigner}
           setIsEditingNewSigner={props.setIsEditingNewSigner}
+          addSigner={addSigner}
           removeSigner={removeSigner}
-          signers={getUpdatedSigners()}
+          localPublicKey={accountData.id}
+          signers={updatedSigners}
+          showKeyWeights={!allDefaultKeyweights}
         />
       </Box>
       <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0">
         <TextField
           error={!!weightThresholdError}
-          label={weightThresholdError ? renderFormFieldError(weightThresholdError) : "Required key weight sum"}
+          label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
           onChange={event => setWeightThreshold(event.target.value)}
           value={weightThreshold}
           variant="outlined"
