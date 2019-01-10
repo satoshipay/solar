@@ -7,6 +7,7 @@ import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import { renderFormFieldError } from "../../lib/errors"
 import { ObservedAccountData } from "../../lib/subscriptions"
+import { trackError } from "../../context/notifications"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
@@ -24,6 +25,9 @@ export interface SignerUpdate {
 }
 
 function validateFormValues(weightThreshold: string, updatedSigners: Signer[]): Error | undefined {
+  if (updatedSigners.length === 0) {
+    throw new Error("No signers left. Don't lock yourself out!")
+  }
   if (!weightThreshold.match(/^[0-9]+$/)) {
     return new Error("Weight must be an integer.")
   }
@@ -84,22 +88,26 @@ function ManageSignersForm(props: Props) {
   }
 
   const submit = async () => {
-    const validationError = validateFormValues(weightThreshold, getUpdatedSigners())
+    try {
+      const validationError = validateFormValues(weightThreshold, getUpdatedSigners())
 
-    if (validationError) {
-      return setWeightThresholdError(validationError)
+      if (validationError) {
+        return setWeightThresholdError(validationError)
+      }
+
+      setWeightThresholdError(undefined)
+
+      await props.onSubmit({
+        signersToAdd,
+        signersToRemove,
+        weightThreshold: Number.parseInt(weightThreshold, 10)
+      })
+
+      setSignersToAdd([])
+      setSignersToRemove([])
+    } catch (error) {
+      trackError(error)
     }
-
-    setWeightThresholdError(undefined)
-
-    await props.onSubmit({
-      signersToAdd,
-      signersToRemove,
-      weightThreshold: Number.parseInt(weightThreshold, 10)
-    })
-
-    setSignersToAdd([])
-    setSignersToRemove([])
   }
 
   const nothingEdited =

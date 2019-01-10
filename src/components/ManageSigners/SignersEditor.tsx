@@ -95,7 +95,11 @@ function SignersEditor(props: SignersEditorProps) {
             secondary={`Weight: ${signer.weight}`}
           />
           <ListItemSecondaryAction>
-            <IconButton aria-label="Remove" onClick={() => props.removeSigner(signer)}>
+            <IconButton
+              aria-label="Remove"
+              disabled={props.signers.length === 1}
+              onClick={() => props.removeSigner(signer)}
+            >
               <RemoveIcon />
             </IconButton>
           </ListItemSecondaryAction>
