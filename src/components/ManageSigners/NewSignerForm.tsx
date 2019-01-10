@@ -27,7 +27,7 @@ interface Props {
   onUpdate: (values: Partial<FormValues>) => void
 }
 
-const NewSignerForm = (props: Props) => {
+function NewSignerForm(props: Props) {
   return (
     <ListItem>
       <ListItemIcon>
