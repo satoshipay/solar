@@ -7,7 +7,7 @@ import { Account } from "../../context/accounts"
 import { renderFormFieldError } from "../../lib/errors"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
-import TransactionSummary from "../TransactionSummary"
+import TransactionSummary from "../TransactionSummary/TransactionSummary"
 
 interface FormValues {
   password: string | null
@@ -70,7 +70,11 @@ class TxConfirmationForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.onSubmit}>
         <VerticalLayout>
-          <TransactionSummary showSource={account.publicKey !== transaction.source} transaction={transaction} />
+          <TransactionSummary
+            showSource={account.publicKey !== transaction.source}
+            testnet={account.testnet}
+            transaction={transaction}
+          />
           {account.requiresPassword ? (
             <TextField
               error={Boolean(this.state.errors.password)}
