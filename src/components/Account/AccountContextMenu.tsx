@@ -52,17 +52,6 @@ const AccountContextMenu = (props: MenuProps) => {
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
         <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
           <AccountContextMenuItem
-            icon={<VisibilityIcon />}
-            label="Export Secret Key"
-            onClick={closeAndCall(props.onExport)}
-          />
-          <AccountContextMenuItem
-            icon={<LockIcon />}
-            label={props.account.requiresPassword ? "Change Password" : "Set Password"}
-            onClick={closeAndCall(props.onChangePassword)}
-          />
-          <Divider />
-          <AccountContextMenuItem
             icon={<MoneyIcon />}
             label="Manage Assets"
             onClick={closeAndCall(props.onManageAssets)}
@@ -72,6 +61,17 @@ const AccountContextMenu = (props: MenuProps) => {
             icon={<GroupIcon />}
             label="Manage Signers"
             onClick={closeAndCall(props.onManageSigners)}
+          />
+          <AccountContextMenuItem
+            icon={<VisibilityIcon />}
+            label="Export Secret Key"
+            onClick={closeAndCall(props.onExport)}
+          />
+          <Divider />
+          <AccountContextMenuItem
+            icon={<LockIcon />}
+            label={props.account.requiresPassword ? "Change Password" : "Set Password"}
+            onClick={closeAndCall(props.onChangePassword)}
           />
           <AccountContextMenuItem icon={<EditIcon />} label="Rename" onClick={closeAndCall(props.onRename)} />
           <AccountContextMenuItem icon={<DeleteIcon />} label="Delete" onClick={closeAndCall(props.onDelete)} />
