@@ -23,7 +23,7 @@ interface TxConfirmationDialogProps {
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
-const TxConfirmationDialog = (props: TxConfirmationDialogProps) => {
+function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   const title =
     props.transaction && props.transaction.operations.every(isPaymentOperation)
       ? "Confirm Payment"
