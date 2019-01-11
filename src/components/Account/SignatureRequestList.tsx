@@ -1,8 +1,9 @@
 import React from "react"
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ListSubheader from "@material-ui/core/ListSubheader"
+import Snackbar from "@material-ui/core/Snackbar"
 import Typography from "@material-ui/core/Typography"
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward"
 import CloseIcon from "@material-ui/icons/Close"
@@ -63,28 +64,48 @@ interface SignatureRequestListProps {
 }
 
 export function SignatureRequestList(props: SignatureRequestListProps) {
-  const { ignoreSignatureRequest } = useContext(SettingsContext)
+  const settings = useContext(SettingsContext)
+  const [pendingConfirmation, setPendingConfirmation] = useState<SignatureRequest | null>(null)
+
+  const onConfirmDismissal = () => {
+    if (!pendingConfirmation) return
+
+    settings.ignoreSignatureRequest(pendingConfirmation.hash)
+  }
 
   if (props.signatureRequests.length === 0) {
     return null
   }
   return (
-    <List style={{ background: "transparent" }}>
-      <ListSubheader disableSticky style={{ background: "transparent" }}>
-        {props.title}
-      </ListSubheader>
-      {props.signatureRequests.map(signatureRequest => (
-        <SignatureRequestListItem
-          key={signatureRequest.hash}
-          accountPublicKey={props.accountPublicKey}
-          icon={props.icon}
-          onDismissSignatureRequest={ignoreSignatureRequest}
-          onOpenTransaction={props.onOpenTransaction}
-          signatureRequest={signatureRequest}
-          style={{ background: "#ffffff", boxShadow: "#ccc 0px 1px 5px" }}
-        />
-      ))}
-    </List>
+    <>
+      <List style={{ background: "transparent" }}>
+        <ListSubheader disableSticky style={{ background: "transparent" }}>
+          {props.title}
+        </ListSubheader>
+        {props.signatureRequests.map(signatureRequest => (
+          <SignatureRequestListItem
+            key={signatureRequest.hash}
+            accountPublicKey={props.accountPublicKey}
+            icon={props.icon}
+            onDismissSignatureRequest={() => setPendingConfirmation(signatureRequest)}
+            onOpenTransaction={props.onOpenTransaction}
+            signatureRequest={signatureRequest}
+            style={{ background: "#ffffff", boxShadow: "#ccc 0px 1px 5px" }}
+          />
+        ))}
+      </List>
+      <Snackbar
+        action={
+          <Button color="primary" onClick={onConfirmDismissal}>
+            Confirm
+          </Button>
+        }
+        autoHideDuration={8000}
+        message="Dismiss pending multi-sig transaction?"
+        open={pendingConfirmation !== null}
+        onClose={() => setPendingConfirmation(null)}
+      />
+    </>
   )
 }
 
