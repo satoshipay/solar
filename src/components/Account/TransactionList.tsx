@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 import { Memo, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import List from "@material-ui/core/List"
@@ -23,7 +24,7 @@ type TransactionWithUndocumentedProps = Transaction & {
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 
-const MemoMessage = (props: { memo: Memo }) => {
+function MemoMessage(props: { memo: Memo }) {
   const memo = props.memo
   if (!memo.value) {
     return null
@@ -34,7 +35,7 @@ const MemoMessage = (props: { memo: Memo }) => {
   }
 }
 
-const RemotePublicKeys = (props: { publicKeys: string[]; short?: boolean }) => {
+function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
   if (props.publicKeys.length === 0) {
     return <>-</>
   } else if (props.publicKeys.length === 1) {
@@ -48,7 +49,7 @@ const RemotePublicKeys = (props: { publicKeys: string[]; short?: boolean }) => {
   }
 }
 
-const Time = (props: { time: Date }) => {
+function Time(props: { time: Date }) {
   return (
     <Tooltip title={<span style={{ fontSize: "110%" }}>{props.time.toLocaleString()}</span>}>
       <span>
@@ -58,7 +59,7 @@ const Time = (props: { time: Date }) => {
   )
 }
 
-const TransactionIcon = (props: { paymentSummary: PaymentSummary }) => {
+function TransactionIcon(props: { paymentSummary: PaymentSummary }) {
   if (props.paymentSummary.length === 0) {
     return <SettingsIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
@@ -80,7 +81,7 @@ interface TitleTextProps {
 }
 
 // TODO: Re-use code of transaction summary operation heading
-const TransactionItemText = (props: TitleTextProps) => {
+function TransactionItemText(props: TitleTextProps) {
   const secondary = (
     <>
       <Time time={props.createdAt} />
@@ -183,21 +184,43 @@ const TransactionItemText = (props: TitleTextProps) => {
   }
 }
 
+function TransactionListItemBalance(props: { paymentSummary: ReturnType<typeof getPaymentSummary> }) {
+  const { paymentSummary } = props
+  return (
+    <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+      {paymentSummary.length === 0 ? null : (
+        <SingleBalance
+          assetCode={paymentSummary[0].asset.getCode()}
+          balance={paymentSummary[0].balanceChange.toString()}
+          style={{ fontSize: "1.6rem" }}
+        />
+      )}
+    </ListItemText>
+  )
+}
+
 interface TransactionListItemProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
   createdAt: string
+  hoverActions?: React.ReactElement<any>
   icon?: React.ReactElement<any>
   onClick?: () => void
   style?: React.CSSProperties
   transaction: Transaction
 }
 
-export const TransactionListItem = (props: TransactionListItemProps) => {
+export function TransactionListItem(props: TransactionListItemProps) {
+  const [hovering, setHoveringStatus] = useState(false)
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
-
   return (
-    <ListItem button={Boolean(props.onClick)} onClick={props.onClick} style={props.style}>
+    <ListItem
+      button={Boolean(props.onClick)}
+      onClick={props.onClick}
+      onMouseEnter={() => setHoveringStatus(true)}
+      onMouseLeave={() => setHoveringStatus(false)}
+      style={props.style}
+    >
       <ListItemIcon>{props.icon || <TransactionIcon paymentSummary={paymentSummary} />}</ListItemIcon>
       <TransactionItemText
         accountPublicKey={props.accountPublicKey}
@@ -207,26 +230,22 @@ export const TransactionListItem = (props: TransactionListItemProps) => {
         style={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }}
         transaction={props.transaction}
       />
-      <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
-        {paymentSummary.length === 0 ? null : (
-          <SingleBalance
-            assetCode={paymentSummary[0].asset.getCode()}
-            balance={paymentSummary[0].balanceChange.toString()}
-            style={{ fontSize: "1.6rem" }}
-          />
-        )}
-      </ListItemText>
+      {hovering && props.hoverActions ? (
+        props.hoverActions
+      ) : (
+        <TransactionListItemBalance paymentSummary={paymentSummary} />
+      )}
     </ListItem>
   )
 }
 
-const TransactionList = (props: {
+function TransactionList(props: {
   accountPublicKey: string
   background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
   transactions: Transaction[]
-}) => {
+}) {
   // Need to select the right network, because `transaction.hash()` will fail if no network was selected
   selectNetwork(props.testnet)
 

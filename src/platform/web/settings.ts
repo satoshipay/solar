@@ -15,3 +15,12 @@ export function saveSettings(updatedSettings: Partial<SettingsData>) {
     ...updatedSettings
   }
 }
+
+export function loadIgnoredSignatureRequestHashes() {
+  const data = window.localStorage.getItem("wallet:storage:ignoredSignatureRequests")
+  return data ? JSON.parse(data) : []
+}
+
+export function saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]) {
+  window.localStorage.setItem("wallet:storage:ignoredSignatureRequests", JSON.stringify(updatedSignatureRequestHashes))
+}

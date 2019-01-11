@@ -24,6 +24,7 @@ const SignatureDelegationContext = React.createContext<ContextValue>({
 function useSignatureRequestSubscription(multiSignatureServiceURL: string, accounts: Account[]) {
   const accountIDs = accounts.map(account => account.publicKey)
 
+  const { ignoredSignatureRequests } = useContext(SettingsContext)
   const subscribersRef = useRef<SubscribersState>({ newRequestSubscribers: [] })
   const [pendingSignatureRequests, setPendingSignatureRequests] = useState<SignatureRequest[]>([])
 
@@ -57,8 +58,12 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
     return unsubscribe
   }
 
+  const filteredPendingSignatureRequests = pendingSignatureRequests.filter(
+    signatureRequest => ignoredSignatureRequests.indexOf(signatureRequest.hash) === -1
+  )
+
   return {
-    pendingSignatureRequests,
+    pendingSignatureRequests: filteredPendingSignatureRequests,
     subscribeToNewSignatureRequests
   }
 }

@@ -8,3 +8,11 @@ export function loadSettings() {
 export function saveSettings(updatedSettings: Partial<SettingsData>) {
   ipcRenderer.sendSync("storage:settings:storeSync", updatedSettings)
 }
+
+export function loadIgnoredSignatureRequestHashes() {
+  return ipcRenderer.sendSync("storage:ignoredSignatureRequests:readSync")
+}
+
+export function saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]) {
+  ipcRenderer.sendSync("storage:ignoredSignatureRequests:storeSync", updatedSignatureRequestHashes)
+}

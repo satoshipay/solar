@@ -31,3 +31,15 @@ ipcMain.on("storage:settings:storeSync", (event, newSettings) => {
   mainStore.set("settings", { ...prevSettings, ...newSettings })
   event.returnValue = true
 })
+
+//////////////////
+// Dismissed txs:
+
+ipcMain.on("storage:ignoredSignatureRequests:readSync", event => {
+  event.returnValue = mainStore.has("ignoredSignatureRequests") ? mainStore.get("ignoredSignatureRequests") : []
+})
+
+ipcMain.on("storage:ignoredSignatureRequests:storeSync", (event, updatedIgnoredHashes) => {
+  mainStore.set("ignoredSignatureRequests", updatedIgnoredHashes)
+  event.returnValue = true
+})
