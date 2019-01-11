@@ -1,6 +1,12 @@
 import React from "react"
 import { useState } from "react"
-import { loadSettings, saveSettings, SettingsData } from "../platform/settings"
+import {
+  loadIgnoredSignatureRequestHashes,
+  loadSettings,
+  saveIgnoredSignatureRequestHashes,
+  saveSettings,
+  SettingsData
+} from "../platform/settings"
 import { trackError } from "./notifications"
 
 interface Props {
@@ -8,6 +14,8 @@ interface Props {
 }
 
 interface ContextType {
+  ignoreSignatureRequest: (signatureRequestHash: string) => void
+  ignoredSignatureRequests: string[]
   multiSignature: boolean
   multiSignatureServiceURL: string
   showTestnet: boolean
@@ -21,10 +29,14 @@ const initialSettings: SettingsData = {
   ...loadSettings()
 }
 
+const initialIgnoredSignatureRequests = loadIgnoredSignatureRequestHashes()
+
 const multiSignatureServiceURL =
   process.env.MULTISIG_SERVICE || "https://api-dev.satoshipay.io/staging/signature-coordinator/"
 
 const SettingsContext = React.createContext<ContextType>({
+  ignoreSignatureRequest: () => undefined,
+  ignoredSignatureRequests: initialIgnoredSignatureRequests,
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
   showTestnet: initialSettings.testnet,
@@ -33,7 +45,16 @@ const SettingsContext = React.createContext<ContextType>({
 })
 
 export function SettingsProvider(props: Props) {
+  const [ignoredSignatureRequests, setIgnoredSignatureRequests] = useState(initialIgnoredSignatureRequests)
   const [settings, setSettings] = useState(initialSettings)
+
+  const ignoreSignatureRequest = (signatureRequestHash: string) => {
+    if (ignoredSignatureRequests.indexOf(signatureRequestHash) === -1) {
+      const updatedSignatureRequestHashes = [...ignoredSignatureRequests, signatureRequestHash]
+      saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes)
+      setIgnoredSignatureRequests(updatedSignatureRequestHashes)
+    }
+  }
 
   const updateSettings = (update: Pick<SettingsData, "multisignature"> | Pick<SettingsData, "testnet">) => {
     try {
@@ -52,6 +73,8 @@ export function SettingsProvider(props: Props) {
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
 
   const contextValue: ContextType = {
+    ignoreSignatureRequest,
+    ignoredSignatureRequests,
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
     showTestnet: settings.testnet,
