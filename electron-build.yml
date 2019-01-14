@@ -1,5 +1,6 @@
-appId: io.satoshipay.wallet
+appId: io.solarwallet.app
 productName: Solar Wallet
+copyright: Copyright © 2019 SatoshiPay Ltd
 
 directories:
   buildResources: ./electron/build
