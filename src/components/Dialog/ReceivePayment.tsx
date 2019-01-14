@@ -44,9 +44,10 @@ function ReceivePaymentDialog(props: Props) {
               Tap to copy:
             </Typography>
             <Typography
-              aria-role="button"
               align="center"
+              component="p"
               onClick={copyToClipboard}
+              role="button"
               style={{ cursor: "pointer" }}
               variant="subheading"
             >
