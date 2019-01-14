@@ -49,7 +49,6 @@ function AccountActions(props: AccountActionsProps) {
     <HorizontalLayout>
       <Button
         variant="contained"
-        disabled={!accountData.activated}
         onClick={props.onReceivePayment}
         style={{
           border: "none",
