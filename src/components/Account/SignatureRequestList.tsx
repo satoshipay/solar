@@ -101,7 +101,7 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
           </Button>
         }
         autoHideDuration={8000}
-        message="Dismiss pending multi-sig transaction?"
+        message="Dismiss pending multi-signature transaction?"
         open={pendingConfirmation !== null}
         onClose={() => setPendingConfirmation(null)}
       />
