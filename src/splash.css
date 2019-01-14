@@ -35,9 +35,8 @@
 #splash > img {
   flex-grow: 1;
   flex-shrink: 0;
-  margin-top: -36px;
   max-width: 80vw;
-  max-height: 60vh;
+  max-height: 50vh;
   animation: fade-in 0.5s linear;
 }
 
