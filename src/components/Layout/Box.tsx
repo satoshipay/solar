@@ -4,13 +4,18 @@ import createBoxStyle, { BoxStyles } from "./createBoxStyle"
 type BoxProps = BoxStyles & {
   children: React.ReactNode
   component?: string
+  onClick?: () => void
   style?: React.CSSProperties
 }
 
-const Box = ({ children, component, style, ...styleProps }: BoxProps) => {
+const Box = ({ children, component, onClick, style, ...styleProps }: BoxProps) => {
   const inlineStyle = { ...createBoxStyle(styleProps), ...style }
-  const Component = component || "div"
-  return <Component style={inlineStyle}>{children}</Component>
+  const Component = ((component || "div") as any) as React.ComponentType<any>
+  return (
+    <Component onClick={onClick} style={inlineStyle}>
+      {children}
+    </Component>
+  )
 }
 
 const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {

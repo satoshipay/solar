@@ -9,7 +9,7 @@ import DoneAllIcon from "@material-ui/icons/DoneAll"
 import SendIcon from "@material-ui/icons/Send"
 import UpdateIcon from "@material-ui/icons/Update"
 import ButtonIconLabel from "../components/ButtonIconLabel"
-import AccountDetails from "../components/Account/AccountDetails"
+import AccountBalances from "../components/Account/AccountBalances"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
@@ -18,33 +18,71 @@ import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import { MinimumAccountBalance } from "../components/Fetchers"
-import { Box } from "../components/Layout/Box"
-import { VerticalMargin } from "../components/Layout/Spacing"
+import QRCodeIcon from "../components/Icon/QRCode"
+import { HorizontalLayout } from "../components/Layout/Box"
+import { HorizontalMargin, VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import { Account, AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { useAccountData, useHorizon, useRecentTransactions } from "../hooks"
 import { hasSigned } from "../lib/transaction"
+import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
 
-function AccountActions(props: { account: Account; onOpenPaymentDrawer: () => void }) {
+function DetailContent(props: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <Typography color="inherit" component="div" variant="body1" style={{ fontSize: "1.2rem", ...props.style }}>
+      {props.children}
+    </Typography>
+  )
+}
+
+interface AccountActionsProps {
+  account: Account
+  onCreatePayment: () => void
+  onReceivePayment: () => void
+}
+
+function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   return (
-    <Button
-      variant="contained"
-      disabled={!accountData.activated}
-      onClick={props.onOpenPaymentDrawer}
-      style={{
-        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
-        fontSize: "1rem",
-        paddingLeft: 20,
-        paddingRight: 20
-      }}
-    >
-      <ButtonIconLabel label="Send">
-        <SendIcon style={{ fontSize: "110%" }} />
-      </ButtonIconLabel>
-    </Button>
+    <HorizontalLayout>
+      <Button
+        variant="contained"
+        disabled={!accountData.activated}
+        onClick={props.onReceivePayment}
+        style={{
+          border: "none",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
+          fontSize: "1rem",
+          flexGrow: 1,
+          padding: "20px"
+        }}
+      >
+        <ButtonIconLabel label="Receive">
+          <QRCodeIcon style={{ fontSize: "110%" }} />
+        </ButtonIconLabel>
+      </Button>
+      <HorizontalMargin size={40} />
+      <Button
+        color="primary"
+        variant="contained"
+        disabled={!accountData.activated}
+        onClick={props.onCreatePayment}
+        style={{
+          border: "none",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
+          fontSize: "1rem",
+          flexGrow: 1,
+          paddingLeft: 20,
+          paddingRight: 20
+        }}
+      >
+        <ButtonIconLabel label="Send">
+          <SendIcon style={{ fontSize: "110%" }} />
+        </ButtonIconLabel>
+      </Button>
+    </HorizontalLayout>
   )
 }
 
@@ -127,6 +165,7 @@ function AccountPage(props: Props) {
   const { accounts, renameAccount } = useContext(AccountsContext)
   const [isAssetsDrawerOpen, setAssetsDrawerOpen] = useState(false)
   const [isPaymentDrawerOpen, setPaymentDrawerOpen] = useState(false)
+  const [isReceiveDrawerOpen, setReceiveDrawerOpen] = useState(false)
   const [isSignersDrawerOpen, setSignersDrawerOpen] = useState(false)
 
   const account = accounts.find(someAccount => someAccount.id === params.id)
@@ -143,11 +182,15 @@ function AccountPage(props: Props) {
           onManageSigners={() => setSignersDrawerOpen(true)}
           onRenameAccount={renameAccount}
         >
-          <VerticalMargin size={28} />
-          <AccountDetails account={account} />
-          <Box margin="24px 0 0">
-            <AccountActions account={account} onOpenPaymentDrawer={() => setPaymentDrawerOpen(true)} />
-          </Box>
+          <DetailContent style={{ marginTop: 12, marginLeft: 48 }}>
+            <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
+          </DetailContent>
+          <VerticalMargin size={40} />
+          <AccountActions
+            account={account}
+            onCreatePayment={() => setPaymentDrawerOpen(true)}
+            onReceivePayment={() => setReceiveDrawerOpen(true)}
+          />
         </AccountHeaderCard>
       </Section>
       <Section backgroundColor="#f6f6f6">
@@ -156,6 +199,7 @@ function AccountPage(props: Props) {
       <CreatePaymentDialog account={account} open={isPaymentDrawerOpen} onClose={() => setPaymentDrawerOpen(false)} />
       <ManageAssetsDialog account={account} open={isAssetsDrawerOpen} onClose={() => setAssetsDrawerOpen(false)} />
       <ManageSignersDialog account={account} open={isSignersDrawerOpen} onClose={() => setSignersDrawerOpen(false)} />
+      <ReceivePaymentDialog account={account} open={isReceiveDrawerOpen} onClose={() => setReceiveDrawerOpen(false)} />
     </>
   )
 }
