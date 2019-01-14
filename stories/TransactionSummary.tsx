@@ -2,7 +2,7 @@ import React from "react"
 import Async from "react-promise"
 import { Asset, Memo, Network, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
-import TransactionSummary from "../src/components/TransactionSummary"
+import TransactionSummary from "../src/components/TransactionSummary/TransactionSummary"
 
 storiesOf("TransactionSummary", module)
   .add("Payment", () => {
@@ -22,7 +22,7 @@ storiesOf("TransactionSummary", module)
       return builder.build()
     })()
 
-    return <Async promise={promise} then={transaction => <TransactionSummary transaction={transaction} />} />
+    return <Async promise={promise} then={transaction => <TransactionSummary testnet transaction={transaction} />} />
   })
   .add("Payment with memo", () => {
     Network.useTestNetwork()
@@ -43,7 +43,7 @@ storiesOf("TransactionSummary", module)
       return builder.build()
     })()
 
-    return <Async promise={promise} then={transaction => <TransactionSummary transaction={transaction} />} />
+    return <Async promise={promise} then={transaction => <TransactionSummary testnet transaction={transaction} />} />
   })
   .add("Account creation & Inflation destination", () => {
     Network.useTestNetwork()
@@ -66,5 +66,5 @@ storiesOf("TransactionSummary", module)
       return builder.build()
     })()
 
-    return <Async promise={promise} then={transaction => <TransactionSummary transaction={transaction} />} />
+    return <Async promise={promise} then={transaction => <TransactionSummary testnet transaction={transaction} />} />
   })
