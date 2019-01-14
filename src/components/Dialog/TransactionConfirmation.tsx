@@ -23,20 +23,20 @@ interface TxConfirmationDialogProps {
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
-const TxConfirmationDialog = (props: TxConfirmationDialogProps) => {
+function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   const title =
     props.transaction && props.transaction.operations.every(isPaymentOperation)
       ? "Confirm Payment"
       : "Confirm Transaction"
 
   return (
-    <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
+    <Dialog open={props.open} onClose={props.onClose} maxWidth="lg" TransitionComponent={Transition}>
       <Box padding="24px 36px" overflow="auto">
         <Typography variant="headline" component="h2">
           {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
         </Typography>
         {props.transaction ? (
-          <div style={{ marginTop: 24 }}>
+          <div style={{ marginTop: 8 }}>
             <TxConfirmationForm
               transaction={props.transaction}
               account={props.account}
