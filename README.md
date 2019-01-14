@@ -57,3 +57,7 @@ npm run build:linux
 cd web/
 npm run dev
 ```
+
+## License
+
+GPL v3
