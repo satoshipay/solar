@@ -22,7 +22,8 @@ function createAppMenu() {
         { type: "separator" },
         { role: "cut" },
         { role: "copy" },
-        { role: "paste" }
+        { role: "paste" },
+        { role: "selectall" }
       ]
     }
   ])
