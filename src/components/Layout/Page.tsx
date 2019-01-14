@@ -23,6 +23,8 @@ interface SectionProps {
   children: React.ReactNode
   backgroundColor?: React.CSSProperties["backgroundColor"]
   brandColored?: boolean
+  grow?: number
+  shrink?: number
   top?: boolean
   style?: React.CSSProperties
 }
@@ -32,7 +34,8 @@ const Section = (props: SectionProps) => {
   const style: React.CSSProperties = {
     background,
     color: props.brandColored ? "white" : undefined,
-    flexGrow: 1,
+    flexGrow: typeof props.grow === "number" ? props.grow : 1,
+    flexShrink: typeof props.shrink === "number" ? props.shrink : undefined,
     position: "relative",
     zIndex: props.top ? undefined : 1,
     ...props.style

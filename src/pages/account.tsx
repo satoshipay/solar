@@ -174,7 +174,7 @@ function AccountPage(props: Props) {
 
   return (
     <>
-      <Section top brandColored>
+      <Section top brandColored grow={0}>
         <AccountHeaderCard
           account={account}
           onManageAssets={() => setAssetsDrawerOpen(true)}
