@@ -8,6 +8,7 @@
     "name": "SatoshiPay Ltd",
     "email": "feedback@satoshipay.io"
   },
+  "homepage": "https://solarwallet.io/",
   "repository": "github:satoshipay/wallet",
   "main": "./electron/lib/app.js",
   "scripts": {
