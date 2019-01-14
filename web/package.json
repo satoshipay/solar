@@ -7,7 +7,6 @@
     "name": "SatoshiPay Ltd",
     "email": "feedback@satoshipay.io"
   },
-  "homepage": "https://github.com/satoshipay/wallet",
   "scripts": {
     "prebuild": "rm -rf dist/",
     "build": "NODE_ENV=production ../node_modules/.bin/parcel build ../src/index.prod.njk --public-url=./ --detailed-report",

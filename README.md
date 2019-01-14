@@ -1,18 +1,28 @@
-# Solar Wallet
+# Solar Wallet (Beta)
 
-Stellar wallet app, featuring payment requests, multisignature and more.
+User-friendly Stellar wallet app, featuring multi-signature, custom assets management and more.
+
+Runs on Mac OS, Windows & Linux. Mobile app coming soon.
 
 ## Download
 
-See <https://github.com/satoshipay/wallet/releases>. You will find the binaries there.
+See <https://github.com/satoshipay/solar/releases>. You will find the binaries there.
 
-## Development setup
+## Key security
+
+Keys are encrypted with a key derived from the user's password before storing them on the local filesystem. That means that the user's secret key is safe as long as their password is strong enough. However, if they forget their password there will be no way of recovering the secret key. That's why you should always make a backup of your secret key.
+
+The encryption key is derived from the password using `PBKDF2` with `SHA256`. The actual encryption is performed using `xsalsa20-poly1305`.
+
+## Development
+
+Install the dependencies first:
 
 ```
 npm install
 ```
 
-## Development
+To run the app in development mode:
 
 ```
 npm run dev
@@ -33,7 +43,7 @@ To run the storybook:
 npm run storybook
 ```
 
-## Production build
+### Production build
 
 ```
 npm run build:mac
@@ -41,15 +51,13 @@ npm run build:win
 npm run build:linux
 ```
 
-## Run dev server without electron
+### Run dev server without electron
 
 ```
 cd web/
 npm run dev
 ```
 
-## See also
+## License
 
-- [Zenhub board](https://app.zenhub.com/workspace/o/satoshipay/wallet/boards?repos=137336510)
-- [Roadmap](https://docs.google.com/spreadsheets/d/1XSER-1Mn4qz5DEAS1bo8pA9A-PbBEh-4k4Ed5KjWot8/edit?usp=sharing)
-- [Feature Overlap with potential Publisher App](https://docs.google.com/document/d/16WIGcMW7BQxKVIbdAql20gQvPVxeubHd9UOowUixNXc/edit?usp=sharing)
+GPL v3

@@ -1,14 +1,15 @@
 {
   "name": "satoshipay-stellar-wallet",
   "version": "0.14.0",
-  "description": "SatoshiPay wallet for the Stellar payment network.",
-  "license": "UNLICENSED",
+  "description": "Wallet for the Stellar payment network by SatoshiPay.",
+  "license": "GPL-3.0",
   "private": true,
   "author": {
     "name": "SatoshiPay Ltd",
     "email": "feedback@satoshipay.io"
   },
-  "repository": "github:satoshipay/wallet",
+  "homepage": "https://solarwallet.io/",
+  "repository": "github:satoshipay/solar",
   "main": "./electron/lib/app.js",
   "scripts": {
     "precommit": "lint-staged",
