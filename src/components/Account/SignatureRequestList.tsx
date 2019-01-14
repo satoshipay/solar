@@ -3,7 +3,6 @@ import { useContext, useState } from "react"
 import { Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ListSubheader from "@material-ui/core/ListSubheader"
-import Snackbar from "@material-ui/core/Snackbar"
 import Typography from "@material-ui/core/Typography"
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward"
 import CloseIcon from "@material-ui/icons/Close"
@@ -12,6 +11,7 @@ import { SettingsContext } from "../../context/settings"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { List } from "../List"
 import { TransactionListItem } from "./TransactionList"
+import { ActionButton, ConfirmationDialog, SubmitButton } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
 
 interface SignatureRequestListItemProps {
@@ -94,16 +94,13 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
           />
         ))}
       </List>
-      <Snackbar
-        action={
-          <Button color="primary" onClick={onConfirmDismissal}>
-            Confirm
-          </Button>
-        }
-        autoHideDuration={8000}
-        message="Dismiss pending multi-signature transaction?"
-        open={pendingConfirmation !== null}
+      <ConfirmationDialog
+        cancelButton={<ActionButton onClick={() => setPendingConfirmation(null)}>Cancel</ActionButton>}
+        confirmButton={<SubmitButton onClick={onConfirmDismissal}>Confirm</SubmitButton>}
+        content="Dismiss pending multi-signature transaction?"
         onClose={() => setPendingConfirmation(null)}
+        open={pendingConfirmation !== null}
+        title="Confirm"
       />
     </>
   )
