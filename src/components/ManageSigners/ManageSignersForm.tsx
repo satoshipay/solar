@@ -27,6 +27,18 @@ export interface SignerUpdate {
   weightThreshold: number
 }
 
+function getEffectiveWeightThreshold(accountData: ObservedAccountData) {
+  const weightThresholdOnLedger = max([
+    accountData.thresholds.low_threshold,
+    accountData.thresholds.med_threshold,
+    accountData.thresholds.high_threshold
+  ])
+
+  // Turn 0 values (which is the default) to 1, since the network will require
+  // every tx to have at least one signature
+  return weightThresholdOnLedger || 1
+}
+
 function getUpdatedSigners(accountData: ObservedAccountData, signersToAdd: Signer[], signersToRemove: Signer[]) {
   const signersPubKeysToAdd = signersToAdd.map(signer => signer.public_key)
   const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
@@ -85,13 +97,7 @@ function ManageSignersForm(props: Props) {
   const [signersToAdd, setSignersToAdd] = useState<Signer[]>([])
   const [signersToRemove, setSignersToRemove] = useState<Signer[]>([])
   const [weightThresholdError, setWeightThresholdError] = useState<Error | undefined>(undefined)
-  const [weightThreshold, setWeightThreshold] = useState(
-    max([
-      accountData.thresholds.low_threshold,
-      accountData.thresholds.med_threshold,
-      accountData.thresholds.high_threshold
-    ]).toString()
-  )
+  const [weightThreshold, setWeightThreshold] = useState(getEffectiveWeightThreshold(accountData).toString())
 
   const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
@@ -126,10 +132,11 @@ function ManageSignersForm(props: Props) {
     }
   }
 
-  const nothingEdited =
-    parseInt(weightThreshold, 10) === accountData.thresholds.high_threshold &&
-    signersToAdd.length === 0 &&
-    signersToRemove.length === 0
+  const weightThresholdUnchanged =
+    parseInt(weightThreshold, 10) === accountData.thresholds.high_threshold ||
+    parseInt(weightThreshold, 10) === getEffectiveWeightThreshold(accountData)
+
+  const nothingEdited = weightThresholdUnchanged && signersToAdd.length === 0 && signersToRemove.length === 0
 
   const weightThresholdLabel = allDefaultKeyweights ? "Required signatures" : "Required key weight"
 
