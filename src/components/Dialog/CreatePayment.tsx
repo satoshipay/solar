@@ -7,6 +7,7 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData } from "../../hooks"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
+import AccountBalances from "../Account/AccountBalances"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import { Box } from "../Layout/Box"
 import TransactionSender from "../TransactionSender"
@@ -83,9 +84,12 @@ class CreatePaymentDialog extends React.Component<Props, State> {
     return (
       <Dialog open={this.props.open} fullScreen onClose={this.props.onClose} TransitionComponent={Transition}>
         <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
-          <Typography variant="headline" component="h2" style={{ marginTop: 8, marginBottom: 40 }}>
+          <Typography variant="headline" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
             Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
           </Typography>
+          <Box margin="0 0 36px">
+            <AccountBalances publicKey={this.props.account.publicKey} testnet={this.props.account.testnet} />
+          </Box>
           <CreatePaymentForm
             balances={this.props.balances}
             onCancel={this.props.onClose}
