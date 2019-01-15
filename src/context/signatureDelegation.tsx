@@ -29,6 +29,11 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
   const [pendingSignatureRequests, setPendingSignatureRequests] = useState<SignatureRequest[]>([])
 
   useEffect(() => {
+    if (accounts.length === 0) {
+      // The GET request will otherwise fail if there are no accounts to be queried
+      return () => undefined
+    }
+
     fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
       .then(requests => setPendingSignatureRequests(requests.reverse()))
       .catch(trackError)
