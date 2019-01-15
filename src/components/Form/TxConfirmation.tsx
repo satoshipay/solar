@@ -16,6 +16,7 @@ interface FormValues {
 interface Props {
   account: Account
   disabled?: boolean
+  passwordError?: Error | null
   transaction: Transaction
   onConfirm?: (formValues: FormValues) => any
   onCancel?: () => any
@@ -66,6 +67,7 @@ class TxConfirmationForm extends React.Component<Props, State> {
 
   render() {
     const { account, disabled, transaction, onCancel = () => undefined } = this.props
+    const passwordError = this.props.passwordError || this.state.errors.password
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -77,8 +79,8 @@ class TxConfirmationForm extends React.Component<Props, State> {
           />
           {account.requiresPassword ? (
             <TextField
-              error={Boolean(this.state.errors.password)}
-              label={this.state.errors.password ? renderFormFieldError(this.state.errors.password) : "Password"}
+              error={Boolean(passwordError)}
+              label={passwordError ? renderFormFieldError(passwordError) : "Password"}
               type="password"
               autoFocus
               fullWidth
