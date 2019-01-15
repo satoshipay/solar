@@ -15,6 +15,7 @@ import { SettingsContextType } from "../../context/settings"
 import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
 
 interface ItemProps {
+  disabled?: boolean
   hidden?: boolean
   icon: React.ReactElement<any>
   label: string
@@ -26,7 +27,7 @@ const AccountContextMenuItem = (props: ItemProps) => {
     return null
   }
   return (
-    <MenuItem onClick={props.onClick}>
+    <MenuItem disabled={props.disabled} onClick={props.onClick}>
       <ListItemIcon style={{ marginRight: 8 }}>{props.icon}</ListItemIcon>
       <ListItemText>{props.label}</ListItemText>
     </MenuItem>
@@ -35,6 +36,7 @@ const AccountContextMenuItem = (props: ItemProps) => {
 
 interface MenuProps {
   account: Account
+  activated: boolean
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
   settings: SettingsContextType
   onChangePassword: () => void
@@ -52,11 +54,13 @@ const AccountContextMenu = (props: MenuProps) => {
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
         <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
           <AccountContextMenuItem
+            disabled={!props.activated}
             icon={<MoneyIcon />}
             label="Manage Assets"
             onClick={closeAndCall(props.onManageAssets)}
           />
           <AccountContextMenuItem
+            disabled={!props.activated}
             hidden={!props.settings.multiSignature}
             icon={<GroupIcon />}
             label="Manage Signers"
