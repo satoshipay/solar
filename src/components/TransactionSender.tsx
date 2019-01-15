@@ -68,6 +68,7 @@ interface Props {
 
 interface State {
   confirmationDialogOpen: boolean
+  passwordError: Error | null
   signatureRequest: SignatureRequest | null
   submissionStatus: "before" | "pending" | "fulfilled" | "rejected"
   submissionPromise: Promise<any> | null
@@ -78,6 +79,7 @@ interface State {
 class TransactionSender extends React.Component<Props, State> {
   state: State = {
     confirmationDialogOpen: false,
+    passwordError: name,
     signatureRequest: null,
     submissionStatus: "before",
     submissionPromise: null,
@@ -144,23 +146,30 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
+    let signedTx: Transaction
     const { account, horizon, onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
 
     try {
-      const signedTx = await signTransaction(transaction, this.props.account, formValues.password)
+      signedTx = await signTransaction(transaction, this.props.account, formValues.password)
+      this.setState({ passwordError: null })
+    } catch (error) {
+      if (isWrongPasswordError(error)) {
+        this.setState({ passwordError: error })
+      }
+      throw error
+    }
 
+    try {
       if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
         await this.submitTransactionToMultisigService(signedTx)
       } else {
         await this.submitTransactionToHorizon(signedTx)
       }
-
+      setTimeout(() => {
+        this.clearSubmissionPromise()
+      }, 1000)
       onSubmissionCompleted(signedTx)
     } catch (error) {
-      if (isWrongPasswordError(error)) {
-        return this.setSubmissionPromise(Promise.reject(error))
-      }
-
       if (onSubmissionFailure) {
         onSubmissionFailure(error, transaction)
       } else {
@@ -204,7 +213,7 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   render() {
-    const { confirmationDialogOpen, submissionPromise, transaction } = this.state
+    const { confirmationDialogOpen, passwordError, submissionPromise, transaction } = this.state
 
     const content = this.props.children({
       horizon: this.props.horizon,
@@ -218,6 +227,7 @@ class TransactionSender extends React.Component<Props, State> {
           open={confirmationDialogOpen}
           account={this.props.account}
           disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
+          passwordError={passwordError}
           transaction={transaction}
           onClose={this.onConfirmationDrawerCloseRequest}
           onSubmitTransaction={this.submitTransaction}

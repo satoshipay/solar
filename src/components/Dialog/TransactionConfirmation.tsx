@@ -17,6 +17,7 @@ interface TxConfirmationDialogProps {
   account: Account
   disabled?: boolean
   open: boolean
+  passwordError?: Error | null
   submissionProgress?: React.ReactNode
   transaction: Transaction | null
   onClose: () => void
@@ -43,6 +44,7 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
               disabled={props.disabled}
               onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
               onCancel={props.onClose}
+              passwordError={props.passwordError}
             />
           </div>
         ) : null}
