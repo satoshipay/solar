@@ -45,13 +45,13 @@
 }
 
 #splash .splash-caption img {
-  height: 25px;
+  height: 4vh;
   margin: 20px 0 0;
 }
 
 #splash h3 {
   margin: 0;
-  font-size: 11px;
+  font-size: 1.9vh;
   font-weight: 400;
   line-height: 100%;
   text-align: right;
