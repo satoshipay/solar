@@ -35,8 +35,8 @@
 #splash > img {
   flex-grow: 1;
   flex-shrink: 0;
-  max-width: 80vw;
-  max-height: 50vh;
+  max-width: 40vw;
+  max-height: 25vh;
   animation: fade-in 0.5s linear;
 }
 
@@ -45,21 +45,13 @@
 }
 
 #splash .splash-caption img {
-  height: 70px;
-  margin: 36px 0 0;
-}
-
-#splash h1 {
-  margin: 36px 0 12px;
-  font-size: 70px;
-  font-weight: 400;
-  line-height: 100%;
-  text-transform: uppercase;
+  height: 25px;
+  margin: 20px 0 0;
 }
 
 #splash h3 {
-  margin: 8px 0 0;
-  font-size: 20px;
+  margin: 0;
+  font-size: 11px;
   font-weight: 400;
   line-height: 100%;
   text-align: right;
