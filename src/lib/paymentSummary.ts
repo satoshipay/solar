@@ -22,7 +22,9 @@ export function getPaymentSummary(accountPublicKey: string, transaction: Transac
     let balanceChange = summaryItem ? summaryItem.balanceChange : BigNumber(0)
     let remotePublicKey: string | null = null
 
-    if (operation.destination === accountPublicKey) {
+    if (operation.destination === (operation.source || transaction.source)) {
+      // leave at zero, since source equals destination
+    } else if (operation.destination === accountPublicKey) {
       // incoming payment
       balanceChange = balanceChange.add(amount)
       remotePublicKey = operation.source || transaction.source
