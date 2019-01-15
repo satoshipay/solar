@@ -106,6 +106,7 @@ function AccountHeaderCard(props: Props) {
           <Box grow style={{ textAlign: "right" }}>
             <AccountContextMenu
               account={props.account}
+              activated={accountData.activated}
               settings={settings}
               onChangePassword={() => setOpenDialog(DialogID.changePassword)}
               onDelete={() => setOpenDialog(DialogID.deleteAccount)}
