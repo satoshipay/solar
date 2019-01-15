@@ -48,6 +48,11 @@ class TxConfirmationForm extends React.Component<Props, State> {
     const { onConfirm = () => undefined } = this.props
     const { errors, formValues } = this.state
 
+    if (this.props.disabled) {
+      // Just a precaution; we shouldn't even get here if the component is disabled
+      return
+    }
+
     if (this.props.account.requiresPassword && !formValues.password) {
       return this.setState({
         errors: {
@@ -77,7 +82,7 @@ class TxConfirmationForm extends React.Component<Props, State> {
             testnet={account.testnet}
             transaction={transaction}
           />
-          {account.requiresPassword ? (
+          {account.requiresPassword && !disabled ? (
             <TextField
               error={Boolean(passwordError)}
               label={passwordError ? renderFormFieldError(passwordError) : "Password"}
