@@ -28,29 +28,32 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
   const subscribersRef = useRef<SubscribersState>({ newRequestSubscribers: [] })
   const [pendingSignatureRequests, setPendingSignatureRequests] = useState<SignatureRequest[]>([])
 
-  useEffect(() => {
-    if (accounts.length === 0) {
-      // The GET request will otherwise fail if there are no accounts to be queried
-      return () => undefined
-    }
-
-    fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
-      .then(requests => setPendingSignatureRequests(requests.reverse()))
-      .catch(trackError)
-
-    const unsubscribe = subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs, {
-      onNewSignatureRequest: signatureRequest => {
-        setPendingSignatureRequests(prevPending => [signatureRequest, ...prevPending])
-        subscribersRef.current.newRequestSubscribers.forEach(subscriber => subscriber(signatureRequest))
-      },
-      onSignatureRequestSubmitted: signatureRequest => {
-        setPendingSignatureRequests(prevPending =>
-          prevPending.filter(request => request.hash !== signatureRequest.hash)
-        )
+  useEffect(
+    () => {
+      if (accounts.length === 0) {
+        // The GET request will otherwise fail if there are no accounts to be queried
+        return () => undefined
       }
-    })
-    return unsubscribe
-  }, accounts)
+
+      fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
+        .then(requests => setPendingSignatureRequests(requests.reverse()))
+        .catch(trackError)
+
+      const unsubscribe = subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs, {
+        onNewSignatureRequest: signatureRequest => {
+          setPendingSignatureRequests(prevPending => [signatureRequest, ...prevPending])
+          subscribersRef.current.newRequestSubscribers.forEach(subscriber => subscriber(signatureRequest))
+        },
+        onSignatureRequestSubmitted: signatureRequest => {
+          setPendingSignatureRequests(prevPending =>
+            prevPending.filter(request => request.hash !== signatureRequest.hash)
+          )
+        }
+      })
+      return unsubscribe
+    },
+    [accountIDs.join(",")]
+  )
 
   const subscribeToNewSignatureRequests = (callback: SignatureRequestCallback) => {
     subscribersRef.current.newRequestSubscribers.push(callback)
