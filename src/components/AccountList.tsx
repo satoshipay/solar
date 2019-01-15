@@ -109,11 +109,15 @@ function AccountCard(props: {
 }
 
 function AddAccountCard(props: { onClick: () => any; style?: React.CSSProperties }) {
+  const style = {
+    ...props.style,
+    background: "transparent",
+    border: "2px solid white",
+    boxShadow: "none",
+    color: "white"
+  }
   return (
-    <StyledCard
-      onClick={props.onClick}
-      style={{ ...props.style, background: "transparent", border: "2px solid white", color: "white" }}
-    >
+    <StyledCard onClick={props.onClick} style={style}>
       <VerticalLayout height="100px" justifyContent="center" fontSize="1.3rem" textAlign="center">
         <div>
           <AddIcon style={{ fontSize: "200%" }} />
@@ -142,7 +146,7 @@ function AccountList(props: AccountListProps) {
   return (
     <CardList addInvisibleCard={accounts.length % 2 === 0}>
       <AddAccountCard onClick={props.testnet ? props.onCreateTestnetAccount : props.onCreatePubnetAccount} />
-      {accounts.map((account, index) => (
+      {accounts.map(account => (
         <AccountCard
           key={account.id}
           account={account}

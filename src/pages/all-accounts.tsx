@@ -6,7 +6,7 @@ import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
 import SettingsIcon from "@material-ui/icons/Settings"
-import { Box } from "../components/Layout/Box"
+import { Box, HorizontalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
 import { AccountsContext } from "../context/accounts"
@@ -26,20 +26,22 @@ function AllAccountsPage(props: { history: History }) {
   return (
     <Section top brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
-        <Typography color="inherit" variant="headline" style={{ marginRight: 180, marginBottom: 12 }}>
-          {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
-        </Typography>
-        <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
-          {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
-            ? networkSwitchButton
-            : null}
-          <IconButton
-            onClick={() => props.history.push(routes.settings())}
-            style={{ marginLeft: 8, marginRight: -10, color: "inherit" }}
-          >
-            <SettingsIcon />
-          </IconButton>
-        </Box>
+        <HorizontalLayout alignItems="center">
+          <Typography color="inherit" variant="headline" style={{ flexGrow: 1, marginRight: 180 }}>
+            {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
+          </Typography>
+          <Box>
+            {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
+              ? networkSwitchButton
+              : null}
+            <IconButton
+              onClick={() => props.history.push(routes.settings())}
+              style={{ marginLeft: 8, marginRight: -10, color: "inherit" }}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </Box>
+        </HorizontalLayout>
         <Box margin="16px 0 0">
           <AccountList
             accounts={accounts}
