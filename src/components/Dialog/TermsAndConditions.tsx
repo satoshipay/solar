@@ -68,8 +68,9 @@ function TermsAndConditions(props: Props) {
               }
               label={
                 <CheckboxLabel>
-                  I have read, understood and agree to the&nbsp;
-                  <Link href="https://solarwallet.io/terms.html">Terms and Conditions</Link> of Solar.
+                  I have read, understood and agree to the{" "}
+                  <Link href="https://solarwallet.io/terms.html">Terms and Conditions</Link> &amp;{" "}
+                  <Link href="https://solarwallet.io/privacy.html">Privacy policy</Link> of Solar.
                 </CheckboxLabel>
               }
             />
