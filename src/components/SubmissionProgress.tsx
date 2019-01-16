@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography"
 import ErrorIcon from "./Icon/Error"
 import SuccessIcon from "./Icon/Success"
 import { AspectRatioBox, VerticalLayout } from "./Layout/Box"
+import { explainSubmissionError } from "../lib/horizonErrors"
 
 const Container = (props: { children: React.ReactNode }) => {
   return (
@@ -42,7 +43,7 @@ const SubmissionProgress = (props: { promise: Promise<any> }) => (
     catch={error => (
       <Container>
         <ErrorIcon size={100} />
-        <Heading>{error.message || JSON.stringify(error)}</Heading>
+        <Heading>{explainSubmissionError(error).message || JSON.stringify(error)}</Heading>
       </Container>
     )}
   />
