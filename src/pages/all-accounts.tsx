@@ -1,6 +1,6 @@
 import { History } from "history"
 import React from "react"
-import { useContext, useState } from "react"
+import { useContext } from "react"
 import { withRouter } from "react-router"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
@@ -17,7 +17,6 @@ import * as routes from "../routes"
 function AllAccountsPage(props: { history: History }) {
   const { accounts, networkSwitch, toggleNetwork } = useContext(AccountsContext)
   const settings = useContext(SettingsContext)
-  const [isTermsOpen, setTermsOpen] = useState(accounts.length === 0)
   const testnetAccounts = accounts.filter(account => account.testnet)
 
   const networkSwitchButton = (
@@ -53,7 +52,7 @@ function AllAccountsPage(props: { history: History }) {
           />
         </Box>
       </Box>
-      <TermsAndConditions open={isTermsOpen} onConfirm={() => setTermsOpen(false)} />
+      <TermsAndConditions open={!settings.agreedToToC} onConfirm={settings.confirmToC} />
     </Section>
   )
 }
