@@ -1,4 +1,5 @@
 const { BrowserWindow } = require("electron")
+const open = require("opn")
 const path = require("path")
 const url = require("url")
 
@@ -35,6 +36,11 @@ function createMainWindow() {
   })
 
   window.loadURL(webappURL)
+
+  window.webContents.on("new-window", (event, url) => {
+    event.preventDefault()
+    open(url)
+  })
 
   return window
 }
