@@ -3,7 +3,6 @@ import { useContext } from "react"
 import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
-import { trackError } from "../context/notifications"
 import { SettingsContext, SettingsContextType } from "../context/settings"
 import { useHorizon } from "../hooks"
 import { isWrongPasswordError } from "../lib/errors"
@@ -172,8 +171,6 @@ class TransactionSender extends React.Component<Props, State> {
     } catch (error) {
       if (onSubmissionFailure) {
         onSubmissionFailure(error, transaction)
-      } else {
-        trackError(error)
       }
     }
   }
