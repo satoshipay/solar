@@ -1,6 +1,7 @@
 import { SettingsData } from "../types"
 
 let settings: SettingsData = {
+  agreedToToC: true,
   multisignature: true,
   testnet: true
 }

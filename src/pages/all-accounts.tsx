@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
 import SettingsIcon from "@material-ui/icons/Settings"
+import TermsAndConditions from "../components/Dialog/TermsAndConditions"
 import { Box, HorizontalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
@@ -51,6 +52,7 @@ function AllAccountsPage(props: { history: History }) {
           />
         </Box>
       </Box>
+      <TermsAndConditions open={!settings.agreedToToC} onConfirm={settings.confirmToC} />
     </Section>
   )
 }
