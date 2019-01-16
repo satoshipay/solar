@@ -31,8 +31,7 @@ const initialSettings: SettingsData = {
 
 const initialIgnoredSignatureRequests = loadIgnoredSignatureRequestHashes()
 
-const multiSignatureServiceURL =
-  process.env.MULTISIG_SERVICE || "https://api-dev.satoshipay.io/staging/signature-coordinator/"
+const multiSignatureServiceURL = process.env.MULTISIG_SERVICE || "https://multisig.satoshipay.io/"
 
 const SettingsContext = React.createContext<ContextType>({
   ignoreSignatureRequest: () => undefined,
