@@ -52,7 +52,7 @@ function AllAccountsPage(props: { history: History }) {
           />
         </Box>
       </Box>
-      <TermsAndConditions open={!settings.agreedToToC} onConfirm={settings.confirmToC} />
+      <TermsAndConditions open={!settings.agreedToTermsAt} onConfirm={settings.confirmToC} />
     </Section>
   )
 }

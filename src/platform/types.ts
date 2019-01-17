@@ -10,7 +10,7 @@ export interface PrivateKeyData {
 }
 
 export interface SettingsData {
-  agreedToToC: boolean
+  agreedToTermsAt?: string
   multisignature: boolean
   testnet: boolean
 }

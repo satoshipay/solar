@@ -14,7 +14,7 @@ interface Props {
 }
 
 interface ContextType {
-  agreedToToC: boolean
+  agreedToTermsAt: string | undefined
   confirmToC: () => void
   ignoreSignatureRequest: (signatureRequestHash: string) => void
   ignoredSignatureRequests: string[]
@@ -26,7 +26,7 @@ interface ContextType {
 }
 
 const initialSettings: SettingsData = {
-  agreedToToC: false,
+  agreedToTermsAt: undefined,
   multisignature: false,
   testnet: false,
   ...loadSettings()
@@ -37,7 +37,7 @@ const initialIgnoredSignatureRequests = loadIgnoredSignatureRequestHashes()
 const multiSignatureServiceURL = process.env.MULTISIG_SERVICE || "https://multisig.satoshipay.io/"
 
 const SettingsContext = React.createContext<ContextType>({
-  agreedToToC: initialSettings.agreedToToC,
+  agreedToTermsAt: initialSettings.agreedToTermsAt,
   confirmToC: () => undefined,
   ignoreSignatureRequest: () => undefined,
   ignoredSignatureRequests: initialIgnoredSignatureRequests,
@@ -60,7 +60,7 @@ export function SettingsProvider(props: Props) {
     }
   }
 
-  const updateSettings = (update: Partial<Pick<SettingsData, "agreedToToC" | "multisignature" | "testnet">>) => {
+  const updateSettings = (update: Partial<Pick<SettingsData, "agreedToTermsAt" | "multisignature" | "testnet">>) => {
     try {
       const updatedSettings = {
         ...settings,
@@ -73,12 +73,12 @@ export function SettingsProvider(props: Props) {
     }
   }
 
-  const confirmToC = () => updateSettings({ agreedToToC: true })
+  const confirmToC = () => updateSettings({ agreedToTermsAt: new Date().toISOString() })
   const toggleMultiSignature = () => updateSettings({ multisignature: !settings.multisignature })
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
 
   const contextValue: ContextType = {
-    agreedToToC: settings.agreedToToC,
+    agreedToTermsAt: settings.agreedToTermsAt,
     confirmToC,
     ignoreSignatureRequest,
     ignoredSignatureRequests,
