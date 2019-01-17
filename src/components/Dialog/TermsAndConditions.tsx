@@ -18,7 +18,7 @@ const Link = (props: { children: React.ReactNode; href: string }) => (
     {props.children}
   </a>
 )
-const Transition = (props: FadeProps) => <Fade {...props} timeout={{ enter: 0 }} />
+const Transition = (props: FadeProps) => <Fade {...props} appear={false} />
 
 interface Props {
   open: boolean
@@ -35,8 +35,9 @@ function TermsAndConditions(props: Props) {
     setCheckedNotes(updatedNoteChecks)
   }
 
+  // Super important to make sure that the Dialog unmounts on exit, so it won't act as an invisible click blocker!
   return (
-    <Dialog open={props.open} fullScreen TransitionComponent={Transition}>
+    <Dialog open={props.open} fullScreen TransitionComponent={Transition} TransitionProps={{ unmountOnExit: true }}>
       <Section brandColored top style={{ display: "flex", flexDirection: "column" }}>
         <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
           <Typography color="inherit" variant="display1">
