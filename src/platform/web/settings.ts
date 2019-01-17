@@ -1,7 +1,7 @@
 import { SettingsData } from "../types"
 
 let settings: SettingsData = {
-  agreedToTermsAt: undefined,
+  agreedToTermsAt: "2019-01-17T07:34:05.688Z",
   multisignature: true,
   testnet: true
 }
