@@ -1,12 +1,11 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import { Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { renderFormFieldError } from "../../lib/errors"
-import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import ButtonIconLabel from "../ButtonIconLabel"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import { VerticalLayout } from "../Layout/Box"
 import TransactionSummary from "../TransactionSummary/TransactionSummary"
 
 interface FormValues {
@@ -95,18 +94,14 @@ class TxConfirmationForm extends React.Component<Props, State> {
               style={{ marginBottom: 32 }}
             />
           ) : null}
-          <HorizontalLayout justifyContent="center" margin="24px 0 0" wrap="wrap">
+          <DialogActionsBox style={{ justifyContent: "center" }}>
+            <ActionButton onClick={onCancel}>Cancel</ActionButton>
             {disabled ? null : (
-              <Button variant="contained" color="primary" style={{ marginRight: 32 }} type="submit">
-                <ButtonIconLabel label="Confirm">
-                  <CheckIcon />
-                </ButtonIconLabel>
-              </Button>
+              <ActionButton icon={<CheckIcon />} onClick={() => undefined} type="submit">
+                Confirm
+              </ActionButton>
             )}
-            <Button variant="contained" onClick={onCancel}>
-              Cancel
-            </Button>
-          </HorizontalLayout>
+          </DialogActionsBox>
         </VerticalLayout>
       </form>
     )

@@ -1,44 +1,13 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
+import { useState } from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
 import EditIcon from "@material-ui/icons/Edit"
 import { trackError } from "../../context/notifications"
-import { HorizontalLayout } from "../Layout/Box"
-import ButtonIconLabel from "../ButtonIconLabel"
 import CloseButton from "./CloseButton"
-
-interface UIProps {
-  open: boolean
-  title: string
-  value: string
-  onClose: () => void
-  onChange: (event: React.SyntheticEvent) => void
-  onSubmit: (event: React.SyntheticEvent) => void
-}
-
-const RenameDialogUI = (props: UIProps) => {
-  return (
-    <Dialog open={props.open} onClose={props.onClose}>
-      <CloseButton onClick={props.onClose} />
-      <DialogTitle>{props.title}</DialogTitle>
-      <DialogContent>
-        <form style={{ minWidth: 300 }} onSubmit={props.onSubmit}>
-          <TextField label="Name" fullWidth autoFocus margin="dense" value={props.value} onChange={props.onChange} />
-          <HorizontalLayout margin="32px 0 0" justifyContent="end">
-            <Button variant="contained" color="primary" onClick={props.onSubmit} type="submit">
-              <ButtonIconLabel label="Rename">
-                <EditIcon />
-              </ButtonIconLabel>
-            </Button>
-          </HorizontalLayout>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+import { ActionButton, DialogActionsBox } from "./Generic"
 
 interface Props {
   open: boolean
@@ -48,35 +17,38 @@ interface Props {
   title: string
 }
 
-interface State {
-  value: string
-}
+function RenameDialog(props: Props) {
+  const [newName, setNewName] = useState("")
 
-class RenameDialog extends React.Component<Props, State> {
-  state = {
-    value: this.props.prevValue
+  const handleInput = (event: React.SyntheticEvent) => {
+    setNewName((event.target as HTMLInputElement).value)
   }
 
-  handleInput = (event: React.SyntheticEvent) => {
-    this.setState({ value: (event.target as HTMLInputElement).value })
+  const handleSubmit = (event?: React.SyntheticEvent) => {
+    if (event) {
+      event.preventDefault()
+    }
+    props.performRenaming(newName).catch(error => trackError(error))
+    props.onClose()
   }
 
-  handleSubmit = (event: React.SyntheticEvent) => {
-    event.preventDefault()
-    this.props.performRenaming(this.state.value).catch(error => trackError(error))
-    this.props.onClose()
-  }
-
-  render() {
-    return (
-      <RenameDialogUI
-        {...this.props}
-        onChange={this.handleInput}
-        onSubmit={this.handleSubmit}
-        value={this.state.value}
-      />
-    )
-  }
+  return (
+    <Dialog open={props.open} onClose={props.onClose}>
+      <CloseButton onClick={props.onClose} />
+      <DialogTitle>{props.title}</DialogTitle>
+      <DialogContent>
+        <form style={{ minWidth: 300 }} onSubmit={handleSubmit}>
+          <TextField label="Name" fullWidth autoFocus margin="dense" value={newName} onChange={handleInput} />
+          <DialogActionsBox>
+            <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+            <ActionButton icon={<EditIcon />} onClick={handleSubmit} type="primary">
+              Rename
+            </ActionButton>
+          </DialogActionsBox>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 export default RenameDialog

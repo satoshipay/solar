@@ -1,8 +1,6 @@
 import React from "react"
 import { useContext } from "react"
-import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -11,7 +9,7 @@ import WarnIcon from "@material-ui/icons/Warning"
 import { Account, AccountsContext } from "../../context/accounts"
 import AccountBalances from "../Account/AccountBalances"
 import Background from "../Background"
-import ButtonIconLabel from "../ButtonIconLabel"
+import { ActionButton, DialogActionsBox } from "./Generic"
 
 interface Props {
   account: Account
@@ -38,25 +36,21 @@ function AccountDeletionDialog(props: Props) {
         <DialogContentText style={{ marginTop: 16 }}>
           Balance: <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </DialogContentText>
-        <DialogActions style={{ marginTop: 24 }}>
-          <Button color="primary" onClick={props.onClose} style={{ marginRight: 16 }}>
-            Cancel
-          </Button>
-          <Button
+        <DialogActionsBox>
+          <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+          <ActionButton
             autoFocus
-            color="primary"
+            icon={<DeleteIcon />}
             onClick={() => {
               deleteAccount(props.account.id)
               props.onClose()
               props.onDeleted()
             }}
-            variant="contained"
+            type="primary"
           >
-            <ButtonIconLabel label="Delete">
-              <DeleteIcon />
-            </ButtonIconLabel>
-          </Button>
-        </DialogActions>
+            Delete
+          </ActionButton>
+        </DialogActionsBox>
       </DialogContent>
     </Dialog>
   )

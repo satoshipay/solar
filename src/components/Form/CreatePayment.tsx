@@ -1,13 +1,12 @@
 import React from "react"
 import { AccountRecord, Asset } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
-import ButtonIconLabel from "../ButtonIconLabel"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { renderFormFieldError } from "../../lib/errors"
 
@@ -161,16 +160,17 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
           <div />
         )}
       </Box>
-      <HorizontalLayout margin="64px 0 0" justifyContent="end">
-        <Button variant="contained" color="primary" style={{ marginRight: 32 }} type="submit">
-          <ButtonIconLabel label="Send" loading={props.txCreationPending}>
-            <SendIcon style={{ fontSize: 16 }} />
-          </ButtonIconLabel>
-        </Button>
-        <Button variant="contained" onClick={onCancel}>
-          Cancel
-        </Button>
-      </HorizontalLayout>
+      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+        <ActionButton onClick={onCancel}>Cancel</ActionButton>
+        <ActionButton
+          icon={<SendIcon style={{ fontSize: 16 }} />}
+          loading={props.txCreationPending}
+          onClick={() => undefined}
+          type="submit"
+        >
+          Send
+        </ActionButton>
+      </DialogActionsBox>
     </form>
   )
 }

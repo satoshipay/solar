@@ -8,6 +8,7 @@ import Typography from "@material-ui/core/Typography"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useAccountData } from "../../hooks"
 import { ObservedAccountData } from "../../lib/subscriptions"
 import { createTransaction } from "../../lib/transaction"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -15,7 +16,6 @@ import ManageSignersForm, { SignerUpdate } from "../ManageSigners/ManageSignersF
 import TransactionSender from "../TransactionSender"
 import ButtonIconLabel from "../ButtonIconLabel"
 import BackButton from "./BackButton"
-import { useAccountData } from "../../hooks"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 

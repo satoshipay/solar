@@ -1,7 +1,7 @@
 import React from "react"
+import { useState } from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import InputAdornment from "@material-ui/core/InputAdornment"
@@ -16,9 +16,10 @@ import { isWrongPasswordError } from "../../lib/errors"
 import { brandColor } from "../../theme"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import Background from "../Background"
+import { ActionButton, DialogActionsBox } from "./Generic"
 import QRExportDialog from "./QRExport"
 
-const KeyExport = (props: { account: Account; secretKey: string }) => {
+function KeyExport(props: { account: Account; secretKey: string }) {
   return (
     <Box padding="8px 0 16px">
       <Background opacity={0.08}>
@@ -48,7 +49,7 @@ interface WarningBoxProps {
   updatePassword: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-const WarningBox = (props: WarningBoxProps) => {
+function WarningBox(props: WarningBoxProps) {
   return (
     <Box padding="8px 0 16px">
       <Background opacity={0.08}>
@@ -97,90 +98,61 @@ interface Props {
   onClose: () => void
 }
 
-interface State {
-  password: string
-  passwordError: Error | null
-  qrDialogOpen: boolean
-  reveal: boolean
-  secretKey: string | null
-}
+function ExportKeyDialog(props: Props) {
+  const [password, setPassword] = useState("")
+  const [passwordError, setPasswordError] = useState<Error | null>(null)
+  const [qrDialogOpen, setQrDialogOpen] = useState(false)
+  const [isRevealed, setIsRevealed] = useState(false)
+  const [secretKey, setSecretKey] = useState<string | null>(null)
 
-class ExportKeyDialog extends React.Component<Props, State> {
-  state: State = {
-    password: "",
-    passwordError: null,
-    qrDialogOpen: false,
-    reveal: false,
-    secretKey: null
-  }
+  const updatePassword = (event: React.SyntheticEvent<HTMLInputElement>) => setPassword(event.currentTarget.value)
 
-  updatePassword = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({
-      password: event.currentTarget.value
-    })
-  }
-
-  reveal = (event: React.SyntheticEvent) => {
+  const reveal = (event: React.SyntheticEvent) => {
     event.preventDefault()
 
-    const { account } = this.props
-    const password = account.requiresPassword ? this.state.password : null
+    const passwordToUse = props.account.requiresPassword ? password : null
 
-    account
-      .getPrivateKey(password)
-      .then(secretKey => {
-        this.setState({ passwordError: null, reveal: true, secretKey })
+    props.account
+      .getPrivateKey(passwordToUse)
+      .then(decryptedSecretKey => {
+        setPasswordError(null)
+        setIsRevealed(true)
+        setSecretKey(decryptedSecretKey)
       })
       .catch(error => {
         if (isWrongPasswordError(error)) {
-          this.setState({ passwordError: error })
+          setPasswordError(error)
         } else {
           trackError(error)
         }
       })
   }
 
-  closeQRDialog = () => {
-    this.setState({ qrDialogOpen: false })
-  }
-
-  showQRDialog = () => {
-    this.setState({ qrDialogOpen: true })
-  }
-
-  render() {
-    return (
-      <Dialog open={this.props.open} onClose={this.props.onClose}>
-        <DialogTitle>Export Secret Key</DialogTitle>
-        <DialogContent>
-          {this.state.reveal && this.state.secretKey ? (
-            <KeyExport account={this.props.account} secretKey={this.state.secretKey} />
-          ) : (
-            <WarningBox
-              onReveal={this.reveal}
-              password={this.state.password}
-              passwordError={this.state.passwordError}
-              requiresPassword={this.props.account.requiresPassword}
-              updatePassword={this.updatePassword}
-            />
-          )}
-          <DialogActions>
-            <Button
-              color="primary"
-              onClick={this.showQRDialog}
-              style={{ display: this.state.reveal ? "block" : "none" }}
-            >
-              Show QR code
-            </Button>
-            <Button color="primary" onClick={this.props.onClose}>
-              Close
-            </Button>
-          </DialogActions>
-        </DialogContent>
-        <QRExportDialog data={this.state.secretKey || ""} open={this.state.qrDialogOpen} onClose={this.closeQRDialog} />
-      </Dialog>
-    )
-  }
+  return (
+    <Dialog open={props.open} onClose={props.onClose}>
+      <DialogTitle>Export Secret Key</DialogTitle>
+      <DialogContent>
+        {isRevealed && secretKey ? (
+          <KeyExport account={props.account} secretKey={secretKey} />
+        ) : (
+          <WarningBox
+            onReveal={reveal}
+            password={password}
+            passwordError={passwordError}
+            requiresPassword={props.account.requiresPassword}
+            updatePassword={updatePassword}
+          />
+        )}
+        <DialogActionsBox>
+          <ActionButton onClick={props.onClose}>Close</ActionButton>
+          <ActionButton onClick={() => setQrDialogOpen(true)} style={{ display: isRevealed ? "block" : "none" }}>
+            Show QR code
+          </ActionButton>
+        </DialogActionsBox>
+      </DialogContent>
+      <QRExportDialog data={secretKey || ""} open={qrDialogOpen} onClose={() => setQrDialogOpen(false)} />
+    </Dialog>
+  )
 }
 
 export default ExportKeyDialog

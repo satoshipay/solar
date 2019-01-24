@@ -7,45 +7,96 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { HorizontalMargin } from "../Layout/Spacing"
+import ButtonIconLabel from "../ButtonIconLabel"
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 
-export function ActionButton(props: { children: React.ReactNode; onClick: () => void }) {
+function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
   return (
-    <Button onClick={props.onClick} variant="contained">
-      {props.children}
+    <>
+      {props.icon ? (
+        <ButtonIconLabel label={props.label} loading={props.loading}>
+          {props.icon}
+        </ButtonIconLabel>
+      ) : (
+        props.label
+      )}
+    </>
+  )
+}
+
+interface ActionButtonProps {
+  autoFocus?: boolean
+  children: React.ReactNode
+  disabled?: boolean
+  icon?: React.ReactNode
+  loading?: boolean
+  onClick: () => void
+  style?: React.CSSProperties
+  type?: "primary" | "secondary" | "submit"
+}
+
+export function ActionButton(props: ActionButtonProps) {
+  const { type = "secondary" } = props
+  return (
+    <Button
+      autoFocus={props.autoFocus}
+      color={type === "primary" || type === "submit" ? "primary" : undefined}
+      disabled={props.disabled}
+      onClick={props.onClick}
+      style={props.style}
+      type={type === "submit" ? "submit" : undefined}
+      variant="contained"
+    >
+      <MaybeIcon icon={props.icon} label={props.children} loading={props.loading} />
     </Button>
   )
 }
 
-export function SubmitButton(props: { children: React.ReactNode; onClick: () => void }) {
+interface DialogActionsBoxProps {
+  children: React.ReactNode | React.ReactNode[]
+  spacing?: "normal" | "large"
+  style?: React.CSSProperties
+}
+
+export function DialogActionsBox(props: DialogActionsBoxProps) {
   return (
-    <Button color="primary" onClick={props.onClick} variant="contained">
-      {props.children}
-    </Button>
+    <DialogActions style={{ alignItems: "stretch", marginTop: 32, ...props.style }}>
+      {React.Children.map(
+        props.children,
+        (child, index) =>
+          index === 0 ? (
+            child
+          ) : (
+            <>
+              <HorizontalMargin size={props.spacing === "large" ? 32 : 16} />
+              {child}
+            </>
+          )
+      )}
+    </DialogActions>
   )
 }
 
-interface Props {
+interface ConfirmDialogProps {
+  children: React.ReactNode
   cancelButton: React.ReactNode
   confirmButton: React.ReactNode
-  content: React.ReactNode
   onClose: () => void
   open: boolean
   title: string
 }
 
-export function ConfirmationDialog(props: Props) {
+export function ConfirmDialog(props: ConfirmDialogProps) {
   return (
     <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
-        <Typography variant="body1">{props.content}</Typography>
-        <DialogActions style={{ marginTop: 32 }}>
+        <Typography variant="body1">{props.children}</Typography>
+        <DialogActionsBox>
           {props.cancelButton}
-          <HorizontalMargin size={12} />
           {props.confirmButton}
-        </DialogActions>
+        </DialogActionsBox>
       </DialogContent>
     </Dialog>
   )
