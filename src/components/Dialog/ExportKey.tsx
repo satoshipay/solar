@@ -114,10 +114,10 @@ function ExportKeyDialog(props: Props) {
 
     props.account
       .getPrivateKey(passwordToUse)
-      .then(secretKey => {
+      .then(decryptedSecretKey => {
         setPasswordError(null)
         setIsRevealed(true)
-        setSecretKey(secretKey)
+        setSecretKey(decryptedSecretKey)
       })
       .catch(error => {
         if (isWrongPasswordError(error)) {

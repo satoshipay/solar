@@ -108,10 +108,10 @@ function ChangePasswordDialog(props: Props) {
 
     const passwordMode = requiresPassword ? "change" : "initial"
 
-    const { errors, success } = validateFormValues(formValues, passwordMode)
-    setErrors(errors)
+    const validation = validateFormValues(formValues, passwordMode)
+    setErrors(validation.errors)
 
-    if (success) {
+    if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
       props
         .changePassword(accountID, prevPassword, nextPassword)
@@ -131,10 +131,10 @@ function ChangePasswordDialog(props: Props) {
     })
   }
   const removePassword = () => {
-    const { errors, success } = validateFormValues(formValues, "remove")
-    setErrors(errors)
+    const validation = validateFormValues(formValues, "remove")
+    setErrors(validation.errors)
 
-    if (success) {
+    if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
       props
         .removePassword(props.account.id, formValues.prevPassword)
