@@ -11,7 +11,7 @@ import { SettingsContext } from "../../context/settings"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { List } from "../List"
 import { TransactionListItem } from "./TransactionList"
-import { ActionButton, ConfirmationDialog, SubmitButton } from "../Dialog/Generic"
+import { ActionButton, ConfirmDialog, SubmitButton } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
 
 interface SignatureRequestListItemProps {
@@ -94,7 +94,7 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
           />
         ))}
       </List>
-      <ConfirmationDialog
+      <ConfirmDialog
         cancelButton={<ActionButton onClick={() => setPendingConfirmation(null)}>Cancel</ActionButton>}
         confirmButton={<SubmitButton onClick={onConfirmDismissal}>Confirm</SubmitButton>}
         content="Dismiss pending multi-signature transaction?"

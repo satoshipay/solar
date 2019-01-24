@@ -26,7 +26,30 @@ export function SubmitButton(props: { children: React.ReactNode; onClick: () => 
   )
 }
 
-interface Props {
+interface DialogActionProps {
+  children: React.ReactNode[]
+}
+
+export function DialogActionsBox(props: DialogActionProps) {
+  return (
+    <DialogActions style={{ marginTop: 32 }}>
+      {React.Children.map(
+        props.children,
+        (child, index) =>
+          index === 0 ? (
+            child
+          ) : (
+            <>
+              <HorizontalMargin size={12} />
+              {child}
+            </>
+          )
+      )}
+    </DialogActions>
+  )
+}
+
+interface ConfirmDialogProps {
   cancelButton: React.ReactNode
   confirmButton: React.ReactNode
   content: React.ReactNode
@@ -35,15 +58,14 @@ interface Props {
   title: string
 }
 
-export function ConfirmationDialog(props: Props) {
+export function ConfirmDialog(props: ConfirmDialogProps) {
   return (
     <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <Typography variant="body1">{props.content}</Typography>
-        <DialogActions style={{ marginTop: 32 }}>
+        <DialogActions>
           {props.cancelButton}
-          <HorizontalMargin size={12} />
           {props.confirmButton}
         </DialogActions>
       </DialogContent>
