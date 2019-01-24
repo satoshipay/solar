@@ -54,7 +54,7 @@ export function ActionButton(props: ActionButtonProps) {
 }
 
 interface DialogActionProps {
-  children: React.ReactNode[]
+  children: React.ReactNode | React.ReactNode[]
   style?: React.CSSProperties
 }
 
