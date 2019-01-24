@@ -65,6 +65,8 @@ function explainSubmissionErrorByTxResultCode(error: HorizonError, resultCode: s
   switch (resultCode) {
     case "tx_bad_auth":
       return deriveError(error, new Error("Transaction authentication failed."))
+    case "tx_bad_auth_extra":
+      return deriveError(error, new Error("Transaction authentication failed: More signatures than required."))
     case "tx_bad_seq":
       return deriveError(error, new Error("Sequence number mismatch. Please re-create the transaction."))
     case "tx_insufficient_balance":
