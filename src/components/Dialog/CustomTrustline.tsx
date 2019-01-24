@@ -1,7 +1,6 @@
 import React from "react"
 import { useState } from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -11,8 +10,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
-import { HorizontalLayout } from "../Layout/Box"
-import ButtonIconLabel from "../ButtonIconLabel"
+import { ActionButton, DialogActionsBox } from "./Generic"
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 
@@ -89,16 +87,17 @@ function CustomTrustlineDialog(props: Props) {
             value={limit}
             onChange={event => setLimit(event.target.value)}
           />
-          <HorizontalLayout margin="32px 0 0" justifyContent="flex-end">
-            <Button variant="contained" color="primary" onClick={addCustomAsset} style={{ marginRight: 32 }}>
-              <ButtonIconLabel label="Trust Asset" loading={txCreationPending}>
-                <VerifiedUserIcon />
-              </ButtonIconLabel>
-            </Button>
-            <Button variant="contained" onClick={props.onClose}>
-              Cancel
-            </Button>
-          </HorizontalLayout>
+          <DialogActionsBox>
+            <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+            <ActionButton
+              icon={<VerifiedUserIcon />}
+              loading={txCreationPending}
+              onClick={addCustomAsset}
+              type="primary"
+            >
+              Trust Asset
+            </ActionButton>
+          </DialogActionsBox>
         </form>
       </DialogContent>
     </Dialog>

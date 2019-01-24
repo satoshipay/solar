@@ -11,14 +11,25 @@ import ButtonIconLabel from "../ButtonIconLabel"
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 
-function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode }) {
-  return <>{props.icon ? <ButtonIconLabel label={props.label}>{props.icon}</ButtonIconLabel> : props.label}</>
+function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
+  return (
+    <>
+      {props.icon ? (
+        <ButtonIconLabel label={props.label} loading={props.loading}>
+          {props.icon}
+        </ButtonIconLabel>
+      ) : (
+        props.label
+      )}
+    </>
+  )
 }
 
 interface ActionButtonProps {
   autoFocus?: boolean
   children: React.ReactNode
   icon?: React.ReactNode
+  loading?: boolean
   onClick: () => void
   type?: "primary" | "secondary"
 }
@@ -32,7 +43,7 @@ export function ActionButton(props: ActionButtonProps) {
       onClick={props.onClick}
       variant="contained"
     >
-      <MaybeIcon icon={props.icon} label={props.children} />
+      <MaybeIcon icon={props.icon} label={props.children} loading={props.loading} />
     </Button>
   )
 }
