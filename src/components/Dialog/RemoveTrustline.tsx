@@ -1,9 +1,7 @@
 import React from "react"
 import { AccountResponse, Asset, Operation, Server, Transaction } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
 import CloseIcon from "@material-ui/icons/Close"
 import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -11,8 +9,8 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
-import ButtonIconLabel from "../ButtonIconLabel"
 import TransactionSender from "../TransactionSender"
+import { ActionButton, DialogActionsBox } from "./Generic"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -57,16 +55,12 @@ function RemoveTrustlineDialog(props: Props) {
             </>
           )}
         </DialogContentText>
-        <DialogActions style={{ marginTop: 24 }}>
-          <Button autoFocus color="primary" variant="contained" disabled={stillOwnsTokens} onClick={removeAsset}>
-            <ButtonIconLabel label="Remove">
-              <CloseIcon />
-            </ButtonIconLabel>
-          </Button>
-          <Button color="primary" onClick={props.onClose}>
-            Cancel
-          </Button>
-        </DialogActions>
+        <DialogActionsBox>
+          <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+          <ActionButton autoFocus disabled={stillOwnsTokens} icon={<CloseIcon />} onClick={removeAsset} type="primary">
+            Remove
+          </ActionButton>
+        </DialogActionsBox>
       </DialogContent>
     </Dialog>
   )
