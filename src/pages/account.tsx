@@ -139,8 +139,8 @@ function Transactions(props: { account: Account }) {
       ) : (
         <>
           <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
-            Account does not yet exist on the network. Send at least XLM&nbsp;
-            <MinimumAccountBalance testnet={account.testnet} /> to activate the account.
+            Account does not yet exist on the network. Send at least <MinimumAccountBalance testnet={account.testnet} />
+            &nbsp;XLM to activate the account.
           </Typography>
           {account.testnet ? (
             <Typography align="center" style={{ paddingBottom: 30 }}>
