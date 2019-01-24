@@ -31,6 +31,7 @@ interface ActionButtonProps {
   icon?: React.ReactNode
   loading?: boolean
   onClick: () => void
+  style?: React.CSSProperties
   type?: "primary" | "secondary"
 }
 
@@ -41,6 +42,7 @@ export function ActionButton(props: ActionButtonProps) {
       autoFocus={props.autoFocus}
       color={type === "primary" ? "primary" : undefined}
       onClick={props.onClick}
+      style={props.style}
       variant="contained"
     >
       <MaybeIcon icon={props.icon} label={props.children} loading={props.loading} />

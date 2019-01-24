@@ -2,7 +2,6 @@ import React from "react"
 import { useState } from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import InputAdornment from "@material-ui/core/InputAdornment"
@@ -17,6 +16,7 @@ import { isWrongPasswordError } from "../../lib/errors"
 import { brandColor } from "../../theme"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import Background from "../Background"
+import { ActionButton, DialogActionsBox } from "./Generic"
 import QRExportDialog from "./QRExport"
 
 function KeyExport(props: { account: Account; secretKey: string }) {
@@ -143,18 +143,12 @@ function ExportKeyDialog(props: Props) {
             updatePassword={updatePassword}
           />
         )}
-        <DialogActions>
-          <Button
-            color="primary"
-            onClick={() => setQrDialogOpen(true)}
-            style={{ display: isRevealed ? "block" : "none" }}
-          >
+        <DialogActionsBox>
+          <ActionButton onClick={props.onClose}>Close</ActionButton>
+          <ActionButton onClick={() => setQrDialogOpen(true)} style={{ display: isRevealed ? "block" : "none" }}>
             Show QR code
-          </Button>
-          <Button color="primary" onClick={props.onClose}>
-            Close
-          </Button>
-        </DialogActions>
+          </ActionButton>
+        </DialogActionsBox>
       </DialogContent>
       <QRExportDialog data={secretKey || ""} open={qrDialogOpen} onClose={() => setQrDialogOpen(false)} />
     </Dialog>
