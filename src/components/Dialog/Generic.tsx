@@ -7,21 +7,32 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { HorizontalMargin } from "../Layout/Spacing"
+import ButtonIconLabel from "../ButtonIconLabel"
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 
-export function ActionButton(props: { children: React.ReactNode; onClick: () => void }) {
-  return (
-    <Button onClick={props.onClick} variant="contained">
-      {props.children}
-    </Button>
-  )
+function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode }) {
+  return <>{props.icon ? <ButtonIconLabel label={props.label}>{props.icon}</ButtonIconLabel> : props.label}</>
 }
 
-export function SubmitButton(props: { children: React.ReactNode; onClick: () => void }) {
+interface ActionButtonProps {
+  autoFocus?: boolean
+  children: React.ReactNode
+  icon?: React.ReactNode
+  onClick: () => void
+  type?: "primary" | "secondary"
+}
+
+export function ActionButton(props: ActionButtonProps) {
+  const { type = "secondary" } = props
   return (
-    <Button color="primary" onClick={props.onClick} variant="contained">
-      {props.children}
+    <Button
+      autoFocus={props.autoFocus}
+      color={type === "primary" ? "primary" : undefined}
+      onClick={props.onClick}
+      variant="contained"
+    >
+      <MaybeIcon icon={props.icon} label={props.children} />
     </Button>
   )
 }
@@ -32,7 +43,7 @@ interface DialogActionProps {
 
 export function DialogActionsBox(props: DialogActionProps) {
   return (
-    <DialogActions style={{ marginTop: 32 }}>
+    <DialogActions style={{ alignItems: "stretch", marginTop: 32 }}>
       {React.Children.map(
         props.children,
         (child, index) =>
@@ -40,7 +51,7 @@ export function DialogActionsBox(props: DialogActionProps) {
             child
           ) : (
             <>
-              <HorizontalMargin size={12} />
+              <HorizontalMargin size={16} />
               {child}
             </>
           )
@@ -50,9 +61,9 @@ export function DialogActionsBox(props: DialogActionProps) {
 }
 
 interface ConfirmDialogProps {
+  children: React.ReactNode
   cancelButton: React.ReactNode
   confirmButton: React.ReactNode
-  content: React.ReactNode
   onClose: () => void
   open: boolean
   title: string
@@ -63,11 +74,11 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
     <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
-        <Typography variant="body1">{props.content}</Typography>
-        <DialogActions>
+        <Typography variant="body1">{props.children}</Typography>
+        <DialogActionsBox>
           {props.cancelButton}
           {props.confirmButton}
-        </DialogActions>
+        </DialogActionsBox>
       </DialogContent>
     </Dialog>
   )
