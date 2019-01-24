@@ -28,11 +28,12 @@ function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; load
 interface ActionButtonProps {
   autoFocus?: boolean
   children: React.ReactNode
+  disabled?: boolean
   icon?: React.ReactNode
   loading?: boolean
   onClick: () => void
   style?: React.CSSProperties
-  type?: "primary" | "secondary"
+  type?: "primary" | "secondary" | "submit"
 }
 
 export function ActionButton(props: ActionButtonProps) {
@@ -40,9 +41,11 @@ export function ActionButton(props: ActionButtonProps) {
   return (
     <Button
       autoFocus={props.autoFocus}
-      color={type === "primary" ? "primary" : undefined}
+      color={type === "primary" || type === "submit" ? "primary" : undefined}
+      disabled={props.disabled}
       onClick={props.onClick}
       style={props.style}
+      type={type === "submit" ? "submit" : undefined}
       variant="contained"
     >
       <MaybeIcon icon={props.icon} label={props.children} loading={props.loading} />
@@ -52,11 +55,12 @@ export function ActionButton(props: ActionButtonProps) {
 
 interface DialogActionProps {
   children: React.ReactNode[]
+  style?: React.CSSProperties
 }
 
 export function DialogActionsBox(props: DialogActionProps) {
   return (
-    <DialogActions style={{ alignItems: "stretch", marginTop: 32 }}>
+    <DialogActions style={{ alignItems: "stretch", marginTop: 32, ...props.style }}>
       {React.Children.map(
         props.children,
         (child, index) =>

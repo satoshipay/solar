@@ -1,7 +1,6 @@
 import React from "react"
 import { useState } from "react"
 import { AccountRecord } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
@@ -11,9 +10,8 @@ import InfoIcon from "@material-ui/icons/Info"
 import { renderFormFieldError } from "../../lib/errors"
 import { ObservedAccountData } from "../../lib/subscriptions"
 import { trackError } from "../../context/notifications"
-import ButtonIconLabel from "../ButtonIconLabel"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import { HorizontalMargin } from "../Layout/Spacing"
 import SignersEditor from "./SignersEditor"
 
 const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
@@ -170,17 +168,14 @@ function ManageSignersForm(props: Props) {
           }}
         />
         <HorizontalLayout justifyContent="end" alignItems="center" width="auto">
-          <Button variant="contained" onClick={props.onCancel}>
-            <ButtonIconLabel label="Cancel">
-              <CloseIcon />
-            </ButtonIconLabel>
-          </Button>
-          <HorizontalMargin size={16} />
-          <Button color="primary" disabled={nothingEdited} variant="contained" onClick={submit} type="submit">
-            <ButtonIconLabel label={"Apply changes"}>
-              <CheckIcon />
-            </ButtonIconLabel>
-          </Button>
+          <DialogActionsBox style={{ margin: 0 }}>
+            <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
+              Cancel
+            </ActionButton>
+            <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
+              Apply changes
+            </ActionButton>
+          </DialogActionsBox>
         </HorizontalLayout>
       </HorizontalLayout>
     </VerticalLayout>
