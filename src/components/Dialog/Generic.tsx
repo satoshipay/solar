@@ -53,12 +53,13 @@ export function ActionButton(props: ActionButtonProps) {
   )
 }
 
-interface DialogActionProps {
+interface DialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
+  spacing?: "normal" | "large"
   style?: React.CSSProperties
 }
 
-export function DialogActionsBox(props: DialogActionProps) {
+export function DialogActionsBox(props: DialogActionsBoxProps) {
   return (
     <DialogActions style={{ alignItems: "stretch", marginTop: 32, ...props.style }}>
       {React.Children.map(
@@ -68,7 +69,7 @@ export function DialogActionsBox(props: DialogActionProps) {
             child
           ) : (
             <>
-              <HorizontalMargin size={16} />
+              <HorizontalMargin size={props.spacing === "large" ? 32 : 16} />
               {child}
             </>
           )
