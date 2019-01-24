@@ -10,6 +10,7 @@ import { Account, AccountsContext } from "../../context/accounts"
 import AccountBalances from "../Account/AccountBalances"
 import Background from "../Background"
 import { ActionButton, DialogActionsBox } from "./Generic"
+import { useAccountData } from "../../hooks"
 
 interface Props {
   account: Account
@@ -19,6 +20,7 @@ interface Props {
 }
 
 function AccountDeletionDialog(props: Props) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const { deleteAccount } = useContext(AccountsContext)
   return (
     <Dialog open={props.open} onClose={props.onClose}>
@@ -30,10 +32,11 @@ function AccountDeletionDialog(props: Props) {
         <DialogContentText style={{ marginTop: 16 }}>
           Are you sure you want to delete the account "{props.account.name}
           "?
-          <br />
-          Make sure to backup your private key if there are still funds on the account!
         </DialogContentText>
-        <DialogContentText style={{ marginTop: 16 }}>
+        <DialogContentText style={{ display: accountData.activated ? undefined : "none", marginTop: 16 }}>
+          Make sure to backup your private key, since there are still funds on the account!
+        </DialogContentText>
+        <DialogContentText style={{ display: accountData.activated ? undefined : "none", marginTop: 16 }}>
           Balance: <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </DialogContentText>
         <DialogActionsBox>
