@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react"
+import { useContext, useEffect, useMemo, useState } from "react"
+import { __RouterContext, RouteComponentProps } from "react-router"
 import { Server } from "stellar-sdk"
 import { subscribeToAccount, subscribeToRecentTxs, ObservedAccountData, ObservedRecentTxs } from "./lib/subscriptions"
 
@@ -58,4 +59,26 @@ export function useRecentTransactions(accountID: string, testnet: boolean): Obse
   )
 
   return recentTxs
+}
+
+// TODO: Get rid of this hook once react-router is shipped with a hook out-of-the-box
+export function useRouter<Params = {}>() {
+  const routerContext = useContext<RouteComponentProps<Params>>(__RouterContext)
+  const [updateEnforcementState, setUpdateEnforcementState] = useState(0)
+
+  const forceUpdate = () => setUpdateEnforcementState(updateEnforcementState + 1)
+
+  if (!routerContext) {
+    throw new Error("useRouter() hook can only be used within a react-router provider.")
+  }
+
+  useEffect(
+    () => {
+      const unsubscribe = routerContext.history.listen(() => forceUpdate())
+      return unsubscribe
+    },
+    [routerContext]
+  )
+
+  return routerContext
 }
