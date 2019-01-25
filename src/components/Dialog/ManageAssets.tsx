@@ -44,6 +44,10 @@ function ManageAssets(props: Props) {
     }
   }
 
+  const tradeAsset = () => {
+    // FIXME
+  }
+
   const addCustomTrustline = () => setCustomTrustlineDialogOpen(true)
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
   const onRemoveTrustline = (asset: Asset) => setRemoveTrustlineDialogAsset(asset)
@@ -62,7 +66,12 @@ function ManageAssets(props: Props) {
             </ButtonIconLabel>
           </Button>
         </HorizontalLayout>
-        <TrustlineList account={props.account} onAddAsset={addAsset} onRemoveTrustline={onRemoveTrustline} />
+        <TrustlineList
+          account={props.account}
+          onAddTrustline={addAsset}
+          onRemoveTrustline={onRemoveTrustline}
+          onTradeAsset={tradeAsset}
+        />
       </Box>
       <CustomTrustlineDialog
         account={props.account}

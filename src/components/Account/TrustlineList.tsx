@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 import { Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
@@ -9,23 +10,123 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import Tooltip from "@material-ui/core/Tooltip"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import RemoveIcon from "@material-ui/icons/Close"
+import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
 import { useAccountData } from "../../hooks"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
+import ButtonIconLabel from "../ButtonIconLabel"
 import SpaciousList from "../List/SpaciousList"
 import { AccountName } from "../Fetchers"
 import { SingleBalance } from "./AccountBalances"
+
+interface CustomAssetBalance {
+  asset_type: "credit_alphanum4" | "credit_alphanum12"
+  asset_code: string
+  asset_issuer: string
+  balance: string
+  limit: string
+}
 
 const Line = (props: { children: React.ReactNode; style?: React.CSSProperties }) => (
   <span style={{ display: "block", ...props.style }}>{props.children}</span>
 )
 
+const SecondaryTrustInfo = (props: { balance: CustomAssetBalance; testnet: boolean }) => (
+  <>
+    <Line style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+      <AccountName publicKey={props.balance.asset_issuer} testnet={props.testnet} />
+    </Line>
+    <Line>{trustlineLimitEqualsUnlimited(props.balance.limit) ? null : `Limit ${props.balance.limit}`}</Line>
+  </>
+)
+
+interface TrustedAssetProps {
+  account: Account
+  balance: CustomAssetBalance
+  hoverActions?: React.ReactNode
+  onRemoveTrustline: (asset: Asset) => void
+}
+
+function TrustedAsset(props: TrustedAssetProps) {
+  const { account, balance } = props
+  const [hovering, setHovering] = useState(false)
+  return (
+    <ListItem onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
+      <ListItemIcon style={{ color: "inherit" }}>
+        <CheckIcon />
+      </ListItemIcon>
+      <ListItemText
+        inset
+        primary={balance.asset_code}
+        secondary={<SecondaryTrustInfo balance={balance} testnet={account.testnet} />}
+      />
+      <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+        {hovering && props.hoverActions ? (
+          props.hoverActions
+        ) : (
+          <SingleBalance assetCode="" balance={balance.balance} style={{ fontSize: "1.6rem" }} />
+        )}
+      </ListItemText>
+      <ListItemSecondaryAction>
+        <Tooltip title="Remove asset">
+          <IconButton
+            aria-label="Remove asset"
+            disabled={Number.parseFloat(balance.balance) > 0}
+            onClick={() => props.onRemoveTrustline(new Asset(balance.asset_code, balance.asset_issuer))}
+            style={{ color: "black" }}
+          >
+            <RemoveIcon style={{ opacity: Number.parseFloat(balance.balance) > 0 ? 0.5 : 1 }} />
+          </IconButton>
+        </Tooltip>
+      </ListItemSecondaryAction>
+    </ListItem>
+  )
+}
+
+interface UntrustedAssetProps {
+  account: Account
+  asset: Asset
+  onAddTrustline: (asset: Asset, options?: { limit?: string }) => Promise<void>
+}
+
+function UntrustedAsset(props: UntrustedAssetProps) {
+  const { account, asset } = props
+  return (
+    <ListItem button component="li" onClick={() => props.onAddTrustline(asset)}>
+      <ListItemIcon style={{ color: "inherit" }}>
+        <UncheckedIcon />
+      </ListItemIcon>
+      <ListItemText
+        inset
+        primary={asset.code}
+        secondary={<AccountName publicKey={asset.issuer} testnet={account.testnet} />}
+      />
+      <ListItemText primaryTypographyProps={{ align: "right" }}>
+        <Button
+          disabled
+          style={{
+            borderColor: "rgba(0, 0, 0, 0.87)",
+            color: "rgba(0, 0, 0, 0.87)",
+            fontWeight: "bold",
+            textTransform: "none"
+          }}
+          variant="outlined"
+        >
+          Trust Asset
+        </Button>
+      </ListItemText>
+      <ListItemSecondaryAction />
+    </ListItem>
+  )
+}
+
 interface Props {
   account: Account
-  onAddAsset: (asset: Asset, options?: { limit?: string }) => Promise<void>
-  onRemoveTrustline?: (asset: Asset) => void
+  onAddTrustline: (asset: Asset, options?: { limit?: string }) => Promise<void>
+  onRemoveTrustline: (asset: Asset) => void
+  onTradeAsset: (asset: Asset) => void
 }
 
 function TrustlineList(props: Props) {
@@ -37,7 +138,7 @@ function TrustlineList(props: Props) {
     )
   }
 
-  const { account, onAddAsset, onRemoveTrustline = () => undefined } = props
+  const { account, onAddTrustline, onRemoveTrustline = () => undefined } = props
   const popularAssets = account.testnet ? testnetPopularAssets : mainnetPopularAssets
   const popularAssetsNotYetAdded = popularAssets.filter(asset => !isAssetAlreadyAdded(asset))
 
@@ -60,65 +161,27 @@ function TrustlineList(props: Props) {
         <ListItemSecondaryAction />
       </ListItem>
       {accountData.balances.filter(balance => balance.asset_type !== "native").map((balance: any, index) => (
-        <ListItem key={index}>
-          <ListItemIcon style={{ color: "inherit" }}>
-            <CheckIcon />
-          </ListItemIcon>
-          <ListItemText
-            inset
-            primary={balance.asset_code}
-            secondary={
-              <>
-                <Line style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                  <AccountName publicKey={balance.asset_issuer} testnet={account.testnet} />
-                </Line>
-                <Line>{trustlineLimitEqualsUnlimited(balance.limit) ? null : `Limit ${balance.limit}`}</Line>
-              </>
-            }
-          />
-          <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
-            <SingleBalance assetCode="" balance={balance.balance} style={{ fontSize: "1.6rem" }} />
-          </ListItemText>
-          <ListItemSecondaryAction>
-            <Tooltip title="Remove asset">
-              <IconButton
-                aria-label="Remove asset"
-                disabled={parseFloat(balance.balance) > 0}
-                onClick={() => onRemoveTrustline(new Asset(balance.asset_code, balance.asset_issuer))}
-                style={{ color: "black" }}
-              >
-                <RemoveIcon style={{ opacity: parseFloat(balance.balance) > 0 ? 0.5 : 1 }} />
-              </IconButton>
-            </Tooltip>
-          </ListItemSecondaryAction>
-        </ListItem>
+        <TrustedAsset
+          key={index}
+          account={account}
+          balance={balance}
+          hoverActions={
+            <Button onClick={() => props.onTradeAsset(new Asset(balance.asset_code, balance.asset_issuer))}>
+              <ButtonIconLabel label="Buy / Sell">
+                <SwapHorizIcon />
+              </ButtonIconLabel>
+            </Button>
+          }
+          onRemoveTrustline={onRemoveTrustline}
+        />
       ))}
       {popularAssetsNotYetAdded.map(asset => (
-        <ListItem key={[asset.issuer, asset.code].join("")} button component="li" onClick={() => onAddAsset(asset)}>
-          <ListItemIcon style={{ color: "inherit" }}>
-            <UncheckedIcon />
-          </ListItemIcon>
-          <ListItemText
-            inset
-            primary={asset.code}
-            secondary={<AccountName publicKey={asset.issuer} testnet={account.testnet} />}
-          />
-          <ListItemText primaryTypographyProps={{ align: "right" }}>
-            <Button
-              disabled
-              style={{
-                borderColor: "rgba(0, 0, 0, 0.87)",
-                color: "rgba(0, 0, 0, 0.87)",
-                fontWeight: "bold",
-                textTransform: "none"
-              }}
-              variant="outlined"
-            >
-              Trust Asset
-            </Button>
-          </ListItemText>
-          <ListItemSecondaryAction />
-        </ListItem>
+        <UntrustedAsset
+          key={[asset.issuer, asset.code].join("")}
+          account={account}
+          asset={asset}
+          onAddTrustline={onAddTrustline}
+        />
       ))}
     </SpaciousList>
   )
