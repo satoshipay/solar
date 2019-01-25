@@ -1,7 +1,5 @@
 import React from "react"
 import { useContext } from "react"
-import { History, Location } from "history"
-import { withRouter } from "react-router-dom"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
@@ -14,7 +12,7 @@ import AccountBalances from "../components/Account/AccountBalances"
 import { CardList, CardListCard } from "../components/CardList"
 import { Account } from "../context/accounts"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
-import { useAccountData } from "../hooks"
+import { useAccountData, useRouter } from "../hooks"
 import { SignatureRequest } from "../lib/multisig-service"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
@@ -70,13 +68,13 @@ const StyledBadge = withStyles(badgeStyles)((props: BadgeProps) => {
 
 function AccountCard(props: {
   account: Account
-  history: History
   pendingSignatureRequests: SignatureRequest[]
   style?: React.CSSProperties
 }) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const router = useRouter()
 
-  const onClick = () => props.history.push(routes.account(props.account.id))
+  const onClick = () => router.history.push(routes.account(props.account.id))
   const pendingSignatureRequests = props.pendingSignatureRequests.filter(
     req =>
       req._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
@@ -130,10 +128,6 @@ function AddAccountCard(props: { onClick: () => any; style?: React.CSSProperties
 
 interface AccountListProps {
   accounts: Account[]
-  history: History
-  location: Location
-  match: any
-  staticContext: any
   testnet: boolean
   onCreatePubnetAccount: () => any
   onCreateTestnetAccount: () => any
@@ -147,15 +141,10 @@ function AccountList(props: AccountListProps) {
     <CardList addInvisibleCard={accounts.length % 2 === 0}>
       <AddAccountCard onClick={props.testnet ? props.onCreateTestnetAccount : props.onCreatePubnetAccount} />
       {accounts.map(account => (
-        <AccountCard
-          key={account.id}
-          account={account}
-          history={props.history}
-          pendingSignatureRequests={pendingSignatureRequests}
-        />
+        <AccountCard key={account.id} account={account} pendingSignatureRequests={pendingSignatureRequests} />
       ))}
     </CardList>
   )
 }
 
-export default withRouter<AccountListProps>(AccountList)
+export default AccountList

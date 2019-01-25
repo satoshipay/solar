@@ -1,6 +1,5 @@
 import React from "react"
 import { useContext, useState } from "react"
-import { withRouter, RouteComponentProps } from "react-router-dom"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
@@ -11,7 +10,7 @@ import MoreVertIcon from "@material-ui/icons/MoreVert"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useAccountData } from "../../hooks"
+import { useAccountData, useRouter } from "../../hooks"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
@@ -54,7 +53,7 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
   return <span style={style}>Testnet</span>
 }
 
-interface Props extends RouteComponentProps<any, any, any> {
+interface Props {
   account: Account
   children?: React.ReactNode
   onManageAssets: () => void
@@ -66,6 +65,7 @@ interface Props extends RouteComponentProps<any, any, any> {
 function AccountHeaderCard(props: Props) {
   const { changePassword, removePassword } = useContext(AccountsContext)
   const settings = useContext(SettingsContext)
+  const router = useRouter()
 
   const [openDialog, setOpenDialog] = useState<DialogID | null>(null)
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
@@ -82,7 +82,7 @@ function AccountHeaderCard(props: Props) {
       <CardContent>
         <HorizontalLayout alignItems="center" margin="-12px 0 -10px">
           <BackButton
-            onClick={() => props.history.push(routes.allAccounts())}
+            onClick={() => router.history.push(routes.allAccounts())}
             style={{ marginLeft: -10, marginRight: 10 }}
           />
           <Typography
@@ -130,7 +130,7 @@ function AccountHeaderCard(props: Props) {
           account={props.account}
           open={openDialog === DialogID.deleteAccount}
           onClose={() => setOpenDialog(null)}
-          onDeleted={() => props.history.push(routes.allAccounts())}
+          onDeleted={() => router.history.push(routes.allAccounts())}
         />
         <ChangePasswordDialog
           account={props.account}
@@ -156,4 +156,4 @@ function AccountHeaderCard(props: Props) {
   )
 }
 
-export default withRouter<Props>(AccountHeaderCard)
+export default AccountHeaderCard

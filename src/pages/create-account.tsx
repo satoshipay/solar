@@ -1,8 +1,7 @@
-import { History } from "history"
 import React from "react"
 import { useContext } from "react"
-import { withRouter, RouteComponentProps } from "react-router-dom"
 import { Keypair } from "stellar-sdk"
+import { useRouter } from "../hooks"
 import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
@@ -10,13 +9,9 @@ import { Box } from "../components/Layout/Box"
 import { AccountsContext } from "../context/accounts"
 import { trackError } from "../context/notifications"
 
-interface Props {
-  history: History
-  testnet: boolean
-}
-
-function CreateAccountPage(props: Props) {
+function CreateAccountPage(props: { testnet: boolean }) {
   const { accounts, createAccount } = useContext(AccountsContext)
+  const router = useRouter()
 
   const onCreateAccount = async (formValues: AccountCreationValues) => {
     try {
@@ -26,15 +21,13 @@ function CreateAccountPage(props: Props) {
         password: formValues.setPassword ? formValues.password : null,
         testnet: props.testnet
       })
-      props.history.push(routes.account(account.id))
+      router.history.push(routes.account(account.id))
     } catch (error) {
       trackError(error)
     }
   }
 
-  const onClose = () => {
-    props.history.push(routes.allAccounts())
-  }
+  const onClose = () => router.history.push(routes.allAccounts())
 
   return (
     <Section top>
@@ -50,4 +43,4 @@ function CreateAccountPage(props: Props) {
   )
 }
 
-export default withRouter<RouteComponentProps<any> & Props>(CreateAccountPage)
+export default CreateAccountPage
