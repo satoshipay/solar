@@ -1,7 +1,5 @@
-import { History } from "history"
 import React from "react"
 import { useContext } from "react"
-import { withRouter } from "react-router"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
@@ -12,10 +10,12 @@ import { Section } from "../components/Layout/Page"
 import AccountList from "../components/AccountList"
 import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
+import { useRouter } from "../hooks"
 import * as routes from "../routes"
 
-function AllAccountsPage(props: { history: History }) {
+function AllAccountsPage() {
   const { accounts, networkSwitch, toggleNetwork } = useContext(AccountsContext)
+  const router = useRouter()
   const settings = useContext(SettingsContext)
   const testnetAccounts = accounts.filter(account => account.testnet)
 
@@ -36,7 +36,7 @@ function AllAccountsPage(props: { history: History }) {
               ? networkSwitchButton
               : null}
             <IconButton
-              onClick={() => props.history.push(routes.settings())}
+              onClick={() => router.history.push(routes.settings())}
               style={{ marginLeft: 8, marginRight: -10, color: "inherit" }}
             >
               <SettingsIcon />
@@ -47,8 +47,8 @@ function AllAccountsPage(props: { history: History }) {
           <AccountList
             accounts={accounts}
             testnet={networkSwitch === "testnet"}
-            onCreatePubnetAccount={() => props.history.push(routes.createAccount(false))}
-            onCreateTestnetAccount={() => props.history.push(routes.createAccount(true))}
+            onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
+            onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
           />
         </Box>
       </Box>
@@ -57,4 +57,4 @@ function AllAccountsPage(props: { history: History }) {
   )
 }
 
-export default withRouter(AllAccountsPage)
+export default AllAccountsPage

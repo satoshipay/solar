@@ -1,16 +1,12 @@
-import { History } from "history"
 import { useContext, useEffect } from "react"
-import { withRouter } from "react-router-dom"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
+import { useRouter } from "../hooks"
 import { SignatureRequest } from "../lib/multisig-service"
 import * as routes from "../routes"
 
-interface Props {
-  history: History
-}
-
-function DesktopNotifications(props: Props) {
+function DesktopNotifications() {
   const { subscribeToNewSignatureRequests } = useContext(SignatureDelegationContext)
+  const router = useRouter()
 
   const handleNewSignatureRequest = (signatureRequest: SignatureRequest) => {
     const signersHavingSigned = signatureRequest._embedded.signers.filter(signer => signer.has_signed)
@@ -18,7 +14,7 @@ function DesktopNotifications(props: Props) {
     const notification = new Notification("New signature request", {
       body: `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`
     })
-    notification.addEventListener("click", () => props.history.push(routes.allAccounts()))
+    notification.addEventListener("click", () => router.history.push(routes.allAccounts()))
   }
 
   useEffect(() => {
@@ -29,4 +25,4 @@ function DesktopNotifications(props: Props) {
   return null
 }
 
-export default withRouter(DesktopNotifications)
+export default DesktopNotifications
