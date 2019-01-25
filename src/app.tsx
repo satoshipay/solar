@@ -2,8 +2,7 @@
 
 import React from "react"
 import ReactDOM from "react-dom"
-import { HashRouter as Router, Route } from "react-router-dom"
-import withProps from "recompose/withProps"
+import { HashRouter as Router, Route, Switch } from "react-router-dom"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
 import { VerticalLayout } from "./components/Layout/Box"
@@ -17,21 +16,23 @@ import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
 import CreateAccountPage from "./pages/create-account"
 import SettingsPage from "./pages/settings"
+import * as routes from "./routes"
 import theme from "./theme"
 
 Network.usePublicNetwork()
 
-const Providers = (props: { children: React.ReactNode }) => {
-  return (
-    <AccountsProvider>
-      <SettingsProvider>
-        <NotificationsProvider>
-          <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
-        </NotificationsProvider>
-      </SettingsProvider>
-    </AccountsProvider>
-  )
-}
+const CreateMainnetAccount = () => <CreateAccountPage testnet={false} />
+const CreateTestnetAccount = () => <CreateAccountPage testnet={true} />
+
+const Providers = (props: { children: React.ReactNode }) => (
+  <AccountsProvider>
+    <SettingsProvider>
+      <NotificationsProvider>
+        <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
+      </NotificationsProvider>
+    </SettingsProvider>
+  </AccountsProvider>
+)
 
 const App = () => (
   <Router>
@@ -39,11 +40,24 @@ const App = () => (
       <Providers>
         <VerticalLayout height="100%">
           <VerticalLayout height="100%" grow overflow="auto">
-            <Route exact path="/" component={AllAccountsPage} />
-            <Route exact path="/account/create/mainnet" component={withProps({ testnet: false })(CreateAccountPage)} />
-            <Route exact path="/account/create/testnet" component={withProps({ testnet: true })(CreateAccountPage)} />
-            <Route exact path="/account/:id" component={AccountPage} />
-            <Route exact path="/settings" component={SettingsPage} />
+            <Switch>
+              <Route exact path="/" component={AllAccountsPage} />
+              <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
+              <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
+              <Route
+                path="/account/:id/:action?"
+                render={props => (
+                  <AccountPage
+                    accountID={props.match.params.id}
+                    showAssetManagement={props.match.url === routes.manageAccountAssets(props.match.params.id)}
+                    showCreatePayment={props.match.url === routes.createPayment(props.match.params.id)}
+                    showReceivePayment={props.match.url === routes.receivePayment(props.match.params.id)}
+                    showSignersManagement={props.match.url === routes.manageAccountSigners(props.match.params.id)}
+                  />
+                )}
+              />
+              <Route exact path="/settings" component={SettingsPage} />
+            </Switch>
             <DesktopNotifications />
             <NotificationContainer />
           </VerticalLayout>
