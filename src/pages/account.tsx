@@ -16,6 +16,7 @@ import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
+import TradeAssetDialog from "../components/Dialog/TradeAsset"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import QRCodeIcon from "../components/Icon/QRCode"
 import { HorizontalLayout } from "../components/Layout/Box"
@@ -155,6 +156,7 @@ function Transactions(props: { account: Account }) {
 interface Props {
   accountID: string
   showAssetManagement: boolean
+  showAssetTrading: string | null
   showCreatePayment: boolean
   showReceivePayment: boolean
   showSignersManagement: boolean
@@ -198,6 +200,12 @@ function AccountPage(props: Props) {
       <ManageAssetsDialog account={account} open={props.showAssetManagement} onClose={onCloseDialog} />
       <ManageSignersDialog account={account} open={props.showSignersManagement} onClose={onCloseDialog} />
       <ReceivePaymentDialog account={account} open={props.showReceivePayment} onClose={onCloseDialog} />
+      <TradeAssetDialog
+        account={account}
+        assetCode={props.showAssetTrading || ""}
+        open={Boolean(props.showAssetTrading)}
+        onClose={() => router.history.push(routes.manageAccountAssets(props.accountID))}
+      />
     </>
   )
 }

@@ -8,6 +8,8 @@ import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useRouter } from "../../hooks"
+import * as routes from "../../routes"
 import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -28,8 +30,9 @@ interface Props {
 }
 
 function ManageAssets(props: Props) {
+  const router = useRouter()
   const [isCustomTrustlineDialogOpen, setCustomTrustlineDialogOpen] = useState(false)
-  const [removeTrustlineDialogAsset, setRemoveTrustlineDialogAsset] = useState<Asset | null>(null)
+  const [removalDialogAsset, setRemovalDialogAsset] = useState<Asset | null>(null)
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -44,13 +47,9 @@ function ManageAssets(props: Props) {
     }
   }
 
-  const tradeAsset = () => {
-    // FIXME
-  }
-
   const addCustomTrustline = () => setCustomTrustlineDialogOpen(true)
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
-  const onRemoveTrustline = (asset: Asset) => setRemoveTrustlineDialogAsset(asset)
+  const onRemoveTrustline = (asset: Asset) => setRemovalDialogAsset(asset)
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
@@ -70,7 +69,7 @@ function ManageAssets(props: Props) {
           account={props.account}
           onAddTrustline={addAsset}
           onRemoveTrustline={onRemoveTrustline}
-          onTradeAsset={tradeAsset}
+          onTradeAsset={asset => router.history.push(routes.tradeAsset(props.account.id, asset.code))}
         />
       </Box>
       <CustomTrustlineDialog
@@ -82,9 +81,9 @@ function ManageAssets(props: Props) {
       />
       <RemoveTrustlineDialog
         account={props.account}
-        asset={removeTrustlineDialogAsset || Asset.native()}
-        open={removeTrustlineDialogAsset !== null}
-        onClose={() => setRemoveTrustlineDialogAsset(null)}
+        asset={removalDialogAsset || Asset.native()}
+        open={removalDialogAsset !== null}
+        onClose={() => setRemovalDialogAsset(null)}
       />
     </Dialog>
   )

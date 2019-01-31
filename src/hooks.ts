@@ -3,6 +3,8 @@ import { __RouterContext, RouteComponentProps } from "react-router"
 import { Server } from "stellar-sdk"
 import { subscribeToAccount, subscribeToRecentTxs, ObservedAccountData, ObservedRecentTxs } from "./lib/subscriptions"
 
+export { ObservedAccountData, ObservedRecentTxs }
+
 // TODO: Should probably be stored in context
 const horizonLivenet = new Server("https://stellar-horizon.satoshipay.io/")
 const horizonTestnet = new Server("https://stellar-horizon-testnet.satoshipay.io/")
