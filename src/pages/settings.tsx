@@ -3,6 +3,7 @@ import { useContext } from "react"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
+import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import BackButton from "../components/BackButton"
 import { Box, HorizontalLayout, VerticalLayout } from "../components/Layout/Box"
@@ -15,10 +16,17 @@ import * as routes from "../routes"
 const pkg = require("../../package.json")
 
 function Settings() {
+  const { accounts } = useContext(AccountsContext)
   const settings = useContext(SettingsContext)
+  const hasTestnetAccount = accounts.some(account => account.testnet)
   return (
     <>
-      <ToggleSection checked={settings.showTestnet} onChange={settings.toggleTestnet} title="Show Testnet Accounts">
+      <ToggleSection
+        checked={settings.showTestnet}
+        disabled={hasTestnetAccount}
+        onChange={settings.toggleTestnet}
+        title="Show Testnet Accounts"
+      >
         <Typography
           color={settings.showTestnet ? "default" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
