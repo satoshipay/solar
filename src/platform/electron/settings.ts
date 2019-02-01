@@ -1,18 +1,29 @@
-import { ipcRenderer } from "electron"
 import { SettingsData } from "../types"
 
 export function loadSettings() {
-  return ipcRenderer.sendSync("storage:settings:readSync")
+  if (!window.electron) {
+    throw new Error("No electron runtime context available.")
+  }
+  return window.electron.readSettings()
 }
 
 export function saveSettings(updatedSettings: Partial<SettingsData>) {
-  ipcRenderer.sendSync("storage:settings:storeSync", updatedSettings)
+  if (!window.electron) {
+    throw new Error("No electron runtime context available.")
+  }
+  window.electron.updateSettings(updatedSettings)
 }
 
 export function loadIgnoredSignatureRequestHashes() {
-  return ipcRenderer.sendSync("storage:ignoredSignatureRequests:readSync")
+  if (!window.electron) {
+    throw new Error("No electron runtime context available.")
+  }
+  return window.electron.readIgnoredSignatureRequestHashes()
 }
 
-export function saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]) {
-  ipcRenderer.sendSync("storage:ignoredSignatureRequests:storeSync", updatedSignatureRequestHashes)
+export function saveIgnoredSignatureRequestHashes(updatedHashes: string[]) {
+  if (!window.electron) {
+    throw new Error("No electron runtime context available.")
+  }
+  window.electron.updateIgnoredSignatureRequestHashes(updatedHashes)
 }

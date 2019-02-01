@@ -17,11 +17,17 @@ function createMainWindow() {
     height: 600,
     minWidth: 400,
     minHeight: 300,
-    title: "SatoshiPay Wallet",
+    title: "Solar Wallet",
     icon: path.join(__dirname, "../build/icon.png"),
     backgroundColor: "#0196E8",
-    nodeIntegration: false,
-    titleBarStyle: process.platform === "darwin" ? "hidden" : "default"
+    titleBarStyle: process.platform === "darwin" ? "hidden" : "default",
+    webPreferences: {
+      nodeIntegration: false,
+      nodeIntegrationInWorker: false,
+      preload: path.join(__dirname, "preload.js"),
+      sandbox: true,
+      webviewTag: false
+    }
   })
 
   const pathname =

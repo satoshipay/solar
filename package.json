@@ -17,14 +17,14 @@
     "prettier": "prettier --write '{src,stories}/**/*.{ts,tsx}' *.md electron/*.js",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "test": "tslint --project .",
-    "prebuild:electron": "NODE_ENV=production parcel build ./src/index.prod.njk --public-url=./ --detailed-report --target=electron --no-source-maps",
+    "prebuild:electron": "NODE_ENV=production parcel build ./src/index.prod.njk --public-url=./ --detailed-report --no-source-maps",
     "build:linux": "PLATFORM=linux npm run prebuild:electron && build --linux --x64 --config ./electron-build.yml",
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && build --mac --x64 --config ./electron-build.yml",
     "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32  --config ./electron-build.yml",
     "dev": "run-p dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development run-electron -r ./electron/development .",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
-    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --public-url=./ --target=electron"
+    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./"
   },
   "lint-staged": {
     "ignore": [
