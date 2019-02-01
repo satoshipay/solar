@@ -9,11 +9,10 @@ interface SettingsStore {
   saveSettings(settingsUpdate: Partial<SettingsData>): void
 }
 
-const runningInElectron = () => Boolean(process.pid)
 const implementation = getImplementation()
 
 function getImplementation(): SettingsStore {
-  if (runningInElectron()) {
+  if (window.electron) {
     return require("./electron/settings")
   } else if (process.browser) {
     return require("./web/settings")

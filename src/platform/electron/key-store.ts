@@ -1,8 +1,8 @@
 import { createStore } from "key-store"
-import { ipcRenderer } from "electron"
 
 export default function createKeyStore() {
-  const readData = () => ipcRenderer.sendSync("storage:keys:readSync")
-  const saveData = (data: any) => ipcRenderer.sendSync("storage:keys:storeSync", data)
-  return createStore(saveData, readData())
+  if (!window.electron) {
+    throw new Error("No electron runtime context available.")
+  }
+  return createStore(window.electron.updateKeys, window.electron.readKeys())
 }

@@ -1,10 +1,8 @@
 import { KeyStore } from "key-store"
 import { PrivateKeyData, PublicKeyData } from "./types"
 
-const runningInElectron = () => Boolean(process.pid)
-
 export default function getKeyStore(): KeyStore<PrivateKeyData, PublicKeyData> {
-  if (runningInElectron()) {
+  if (window.electron) {
     const createElectronKeyStore = require("./electron/key-store").default
     return createElectronKeyStore()
   } else if (process.browser) {
