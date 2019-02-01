@@ -2,6 +2,7 @@ import fetch from "isomorphic-fetch"
 import qs from "qs"
 import { Transaction } from "stellar-sdk"
 import { trackError } from "../context/notifications"
+import { signatureMatchesPublicKey } from "./stellar"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -260,4 +261,10 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
   return function unsubscribe() {
     eventSource.close()
   }
+}
+
+export function isSignedByOneOf(transaction: Transaction, localPublicKeys: string[]) {
+  return localPublicKeys.some(publicKey =>
+    transaction.signatures.some(signature => signatureMatchesPublicKey(signature, publicKey))
+  )
 }

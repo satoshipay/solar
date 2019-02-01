@@ -4,6 +4,7 @@ import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Transaction, TransactionOperation } from "stellar-sdk"
 import { Account } from "../../context/accounts"
+import { SignatureRequest } from "../../lib/multisig-service"
 import TxConfirmationForm from "../Form/TxConfirmation"
 import { Box } from "../Layout/Box"
 import TestnetBadge from "./TestnetBadge"
@@ -18,6 +19,7 @@ interface TxConfirmationDialogProps {
   disabled?: boolean
   open: boolean
   passwordError?: Error | null
+  signatureRequest?: SignatureRequest
   submissionProgress?: React.ReactNode
   transaction: Transaction | null
   onClose: () => void
@@ -37,16 +39,17 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
           {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
         </Typography>
         {props.transaction ? (
-          <div style={{ marginTop: 8 }}>
+          <Box margin="8px 0 0">
             <TxConfirmationForm
-              transaction={props.transaction}
               account={props.account}
               disabled={props.disabled}
               onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
               onCancel={props.onClose}
               passwordError={props.passwordError}
+              signatureRequest={props.signatureRequest}
+              transaction={props.transaction}
             />
-          </div>
+          </Box>
         ) : null}
       </Box>
       {props.submissionProgress}

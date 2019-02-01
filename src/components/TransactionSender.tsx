@@ -210,7 +210,7 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   render() {
-    const { confirmationDialogOpen, passwordError, submissionPromise, transaction } = this.state
+    const { confirmationDialogOpen, passwordError, signatureRequest, submissionPromise, transaction } = this.state
 
     const content = this.props.children({
       horizon: this.props.horizon,
@@ -225,6 +225,7 @@ class TransactionSender extends React.Component<Props, State> {
           account={this.props.account}
           disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
           passwordError={passwordError}
+          signatureRequest={signatureRequest || undefined}
           transaction={transaction}
           onClose={this.onConfirmationDrawerCloseRequest}
           onSubmitTransaction={this.submitTransaction}

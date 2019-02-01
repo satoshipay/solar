@@ -4,6 +4,7 @@ import CheckIcon from "@material-ui/icons/Check"
 import { Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { renderFormFieldError } from "../../lib/errors"
+import { SignatureRequest } from "../../lib/multisig-service"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
 import TransactionSummary from "../TransactionSummary/TransactionSummary"
@@ -16,6 +17,7 @@ interface Props {
   account: Account
   disabled?: boolean
   passwordError?: Error | null
+  signatureRequest?: SignatureRequest
   transaction: Transaction
   onConfirm?: (formValues: FormValues) => any
   onCancel?: () => any
@@ -70,7 +72,7 @@ class TxConfirmationForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { account, disabled, transaction, onCancel = () => undefined } = this.props
+    const { account, disabled, signatureRequest, transaction, onCancel = () => undefined } = this.props
     const passwordError = this.props.passwordError || this.state.errors.password
 
     return (
@@ -78,6 +80,7 @@ class TxConfirmationForm extends React.Component<Props, State> {
         <VerticalLayout>
           <TransactionSummary
             showSource={account.publicKey !== transaction.source}
+            signatureRequest={signatureRequest}
             testnet={account.testnet}
             transaction={transaction}
           />
