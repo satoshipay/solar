@@ -24,6 +24,26 @@ function trimBalance(balance: number): string {
   }
 }
 
+export function formatBalance(
+  balance: string,
+  options: { minimumDecimals?: number; minimumSignificants?: number } = {}
+) {
+  const thousandsSeparator = ","
+  const { minimumDecimals = 0, minimumSignificants = 0 } = options
+
+  const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(balance)))
+  let [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
+
+  if (decimalPart.length < minimumDecimals) {
+    decimalPart += "0".repeat(minimumDecimals - decimalPart.length)
+  }
+  if (integerPart.length + decimalPart.length < minimumSignificants) {
+    decimalPart += "0".repeat(minimumSignificants - integerPart.length - decimalPart.length)
+  }
+
+  return `${addThousandsSeparators(integerPart, thousandsSeparator)}${decimalPart ? "." + decimalPart : ""}`
+}
+
 interface SingleBalanceProps {
   assetCode: string
   balance: string

@@ -6,6 +6,7 @@ import lightBlue from "@material-ui/core/colors/lightBlue"
 export const brandColor = {
   dark: "#0290c0",
   main: "#02b8f5",
+  main15: "#02b8f526",
   light: "#72dbfe"
 }
 
