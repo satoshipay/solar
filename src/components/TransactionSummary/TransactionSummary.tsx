@@ -58,37 +58,20 @@ function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }
 
 // tslint:disable-next-line no-shadowed-variable
 const Signer = React.memo(function Signer(props: {
-  accounts: Account[]
   hasSigned: boolean
   signer: { public_key: string; weight: number }
   transaction: Transaction
 }) {
-  const { accounts, signer } = props
-  const hints: string[] = []
-
-  if (signer.public_key === props.transaction.source) {
-    hints.push("Source account")
-  }
-  if (accounts.some(account => account.publicKey === signer.public_key)) {
-    hints.push("Local key")
-  }
-
   return (
     <HorizontalLayout alignItems="center">
       <>
         <SignerStatus hasSigned={props.hasSigned} style={{ marginRight: 8 }} />
         <div style={{ whiteSpace: "nowrap" }}>
           <PublicKey
-            publicKey={signer.public_key}
+            publicKey={props.signer.public_key}
             style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
             variant="full"
           />
-          {hints.length > 0 ? (
-            <>
-              &nbsp;(
-              {hints.join(", ")})
-            </>
-          ) : null}
         </div>
       </>
     </HorizontalLayout>
@@ -116,7 +99,6 @@ function Signers(props: {
             {props.accountData.signers.map(signer => (
               <Signer
                 key={signer.public_key}
-                accounts={props.accounts}
                 hasSigned={props.transaction.signatures.some(signature =>
                   signatureMatchesPublicKey(signature, signer.public_key)
                 )}
@@ -201,6 +183,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
 
   return (
     <List>
+      {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
@@ -222,10 +205,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
           style={noHPaddingStyle}
         />
       ) : null}
-      {props.showSource && !showSigners ? (
-        <SourceAccount transaction={props.transaction} style={noHPaddingStyle} />
-      ) : null}
-      {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
+      {props.showSource ? <SourceAccount transaction={props.transaction} style={noHPaddingStyle} /> : null}
     </List>
   )
 }
