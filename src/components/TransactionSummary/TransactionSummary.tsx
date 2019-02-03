@@ -5,17 +5,21 @@ import Divider from "@material-ui/core/Divider"
 import MuiListItem from "@material-ui/core/ListItem"
 import MuiListItemIcon from "@material-ui/core/ListItemIcon"
 import MuiListItemText from "@material-ui/core/ListItemText"
+import Tooltip from "@material-ui/core/Tooltip"
 import amber from "@material-ui/core/colors/amber"
+import CheckIcon from "@material-ui/icons/Check"
+import UpdateIcon from "@material-ui/icons/Update"
 import WarningIcon from "@material-ui/icons/Warning"
 import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
-import { getAllSources } from "../../lib/stellar"
+import { getAllSources, signatureMatchesPublicKey } from "../../lib/stellar"
 import { ObservedAccountData } from "../../lib/subscriptions"
+import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
+import { HorizontalLayout } from "../Layout/Box"
 import { List, ListItem } from "../List"
 import PublicKey from "../PublicKey"
 import OperationListItem from "./Operations"
-import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
 
 function makeOperationSourceExplicit(
   operation: TransactionOperation,
@@ -43,9 +47,19 @@ function TransactionMemo(props: { memo: Memo; style?: React.CSSProperties }) {
   return <ListItem heading={`${typeLabel} Memo`} primaryText={<MetaDetails>{memo}</MetaDetails>} style={props.style} />
 }
 
+function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }) {
+  const Icon = props.hasSigned ? CheckIcon : UpdateIcon
+  return (
+    <Tooltip title={props.hasSigned ? "Has signed the transaction" : "Awaiting their signature"}>
+      <Icon style={{ opacity: props.hasSigned ? 1 : 0.5, ...props.style }} />
+    </Tooltip>
+  )
+}
+
 // tslint:disable-next-line no-shadowed-variable
 const Signer = React.memo(function Signer(props: {
   accounts: Account[]
+  hasSigned: boolean
   signer: { public_key: string; weight: number }
   transaction: Transaction
 }) {
@@ -60,19 +74,24 @@ const Signer = React.memo(function Signer(props: {
   }
 
   return (
-    <div style={{ display: "block", whiteSpace: "nowrap" }}>
-      <PublicKey
-        publicKey={signer.public_key}
-        style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
-        variant="full"
-      />
-      {hints.length > 0 ? (
-        <>
-          &nbsp;(
-          {hints.join(", ")})
-        </>
-      ) : null}
-    </div>
+    <HorizontalLayout alignItems="center">
+      <>
+        <SignerStatus hasSigned={props.hasSigned} style={{ marginRight: 8 }} />
+        <div style={{ whiteSpace: "nowrap" }}>
+          <PublicKey
+            publicKey={signer.public_key}
+            style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
+            variant="full"
+          />
+          {hints.length > 0 ? (
+            <>
+              &nbsp;(
+              {hints.join(", ")})
+            </>
+          ) : null}
+        </div>
+      </>
+    </HorizontalLayout>
   )
 })
 
@@ -82,6 +101,9 @@ function Signers(props: {
   transaction: Transaction
   style?: React.CSSProperties
 }) {
+  // TODO: We should not get the signers from the source account data, but either
+  //       a) from the signature request or
+  //       b) by taking the tx source and all operation source accounts into account
   const headingDetails = props.accountData.signers.every(signer => signer.weight === 1)
     ? `${props.accountData.thresholds.high_threshold} of ${props.accountData.signers.length} multi-signature`
     : `Custom consensus multi-signature`
@@ -95,6 +117,9 @@ function Signers(props: {
               <Signer
                 key={signer.public_key}
                 accounts={props.accounts}
+                hasSigned={props.transaction.signatures.some(signature =>
+                  signatureMatchesPublicKey(signature, signer.public_key)
+                )}
                 signer={signer}
                 transaction={props.transaction}
               />
