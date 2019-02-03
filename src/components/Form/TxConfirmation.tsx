@@ -79,6 +79,7 @@ class TxConfirmationForm extends React.Component<Props, State> {
       <form onSubmit={this.onSubmit}>
         <VerticalLayout>
           <TransactionSummary
+            account={account}
             showSource={account.publicKey !== transaction.source}
             signatureRequest={signatureRequest}
             testnet={account.testnet}

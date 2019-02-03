@@ -1,6 +1,6 @@
 import React from "react"
 import { useContext, useMemo } from "react"
-import { Memo, Transaction } from "stellar-sdk"
+import { Memo, Transaction, TransactionOperation } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
 import MuiListItem from "@material-ui/core/ListItem"
 import MuiListItemIcon from "@material-ui/core/ListItemIcon"
@@ -16,6 +16,19 @@ import { List, ListItem } from "../List"
 import PublicKey from "../PublicKey"
 import OperationListItem from "./Operations"
 import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
+
+function makeOperationSourceExplicit(
+  operation: TransactionOperation,
+  transaction: Transaction,
+  localAccountPubKey?: string
+): TransactionOperation {
+  const effectiveSource = operation.source || transaction.source
+
+  // Don't show the source if the source === the tx source === this account (this is the default case)
+  return effectiveSource === transaction.source && (effectiveSource === localAccountPubKey || !localAccountPubKey)
+    ? operation
+    : { ...operation, source: effectiveSource }
+}
 
 function MetaDetails(props: { children: React.ReactNode }) {
   return <div style={{ fontSize: "80%", marginTop: 8, marginLeft: 16 }}>{props.children}</div>
@@ -123,6 +136,7 @@ function DangerousTransactionWarning(props: { style?: React.CSSProperties }) {
 }
 
 interface TransactionSummaryProps {
+  account: Account | null
   showSource?: boolean
   signatureRequest?: SignatureRequest
   testnet: boolean
@@ -136,6 +150,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
 
   const accountData = accountDataSet.find(someAccountData => someAccountData.id === props.transaction.source)
   const showSigners = accountDataSet.some(someAccountData => someAccountData.signers.length > 1)
+  const localAccountPublicKey = props.account ? props.account.publicKey : undefined
 
   const noHPaddingStyle = {
     paddingLeft: 0,
@@ -162,7 +177,15 @@ function TransactionSummary(props: TransactionSummaryProps) {
   return (
     <List>
       {props.transaction.operations.map((operation, index) => (
-        <OperationListItem key={index} operation={operation} style={noHPaddingStyle} />
+        <OperationListItem
+          key={index}
+          operation={
+            props.showSource
+              ? makeOperationSourceExplicit(operation, props.transaction, localAccountPublicKey)
+              : operation
+          }
+          style={noHPaddingStyle}
+        />
       ))}
       <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />
       {props.showSource || showSigners ? <Divider /> : null}
