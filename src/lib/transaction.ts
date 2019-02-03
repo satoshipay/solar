@@ -1,18 +1,21 @@
-import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
+import {
+  AccountRecord,
+  Asset,
+  Keypair,
+  Memo,
+  Network,
+  Operation,
+  Server,
+  TransactionBuilder,
+  Transaction,
+  xdr
+} from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
+import { getAllSources, isSignedByAnyOf } from "./stellar"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
-}
-
-const dedupe = <T>(array: T[]) => Array.from(new Set(array))
-
-function getAllSources(tx: Transaction) {
-  return dedupe([
-    tx.source,
-    ...(tx.operations.map(operation => operation.source).filter(source => Boolean(source)) as string[])
-  ])
 }
 
 export function selectNetwork(testnet = false) {
@@ -123,4 +126,34 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
     // requires another signature?
     return thisWalletSigner ? thisWalletSigner.weight < account.thresholds.high_threshold : true
   })
+}
+
+/**
+ * Checks remotely created transactions for potentially malicious content.
+ *
+ * Will return `true` if the transaction was created by an account not managed
+ * by our local wallet, but containing operations that affect a locally
+ * managed account (like sending funds from that local account).
+ */
+export function isPotentiallyDangerousTransaction(
+  transaction: Transaction,
+  localAccounts: Array<Pick<AccountRecord, "id" | "signers">>
+) {
+  const allTxSources = getAllSources(transaction)
+  const localAffectedAccounts = localAccounts.filter(account => allTxSources.indexOf(account.id) > -1)
+
+  const isSignedByLocalAccount = transaction.signatures.some(signature =>
+    isSignedByAnyOf(signature, localAccounts.map(account => account.id))
+  )
+
+  // Co-signers of local accounts
+  const knownCosigners = localAffectedAccounts.reduce(
+    (signers, affectedAccountData) => [...signers, ...affectedAccountData.signers],
+    [] as AccountRecord["signers"]
+  )
+  const isSignedByKnownCosigner = transaction.signatures.some(signature =>
+    isSignedByAnyOf(signature, knownCosigners.map(cosigner => cosigner.public_key))
+  )
+
+  return localAffectedAccounts.length > 0 && !isSignedByLocalAccount && !isSignedByKnownCosigner
 }

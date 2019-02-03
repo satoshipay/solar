@@ -54,14 +54,14 @@ function PaymentOperation(props: { operation: Operation.Payment; style?: React.C
         <SingleBalance assetCode={asset.code} balance={String(amount)} />
       </div>
       <div>
-        <div>
-          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
-        </div>
         {props.operation.source ? (
           <div>
             from <PublicKey publicKey={props.operation.source} style={{ fontWeight: "normal" }} variant="full" />
           </div>
         ) : null}
+        <div>
+          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
+        </div>
       </div>
     </OperationDetails>
   )
@@ -76,14 +76,14 @@ function CreateAccountOperation(props: { operation: Operation.CreateAccount; sty
         <SingleBalance assetCode="XLM" balance={String(startingBalance)} />
       </div>
       <div>
-        <div>
-          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
-        </div>
         {props.operation.source ? (
           <div>
             from <PublicKey publicKey={props.operation.source} style={{ fontWeight: "normal" }} variant="full" />
           </div>
         ) : null}
+        <div>
+          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
+        </div>
       </div>
     </OperationDetails>
   )
@@ -130,7 +130,17 @@ function SetOptionsOperation(props: { operation: Operation.SetOptions; style?: R
   if (props.operation.signer && typeof props.operation.signer.weight === "number") {
     const signerPublicKey = String(props.operation.signer.ed25519PublicKey)
     if (props.operation.signer.weight > 0) {
-      heading = <>Add signer</>
+      heading = (
+        <>
+          Add signer{" "}
+          {
+            <>
+              to{" "}
+              <PublicKey publicKey={props.operation.source || "XY"} style={{ fontWeight: "normal" }} variant="full" />
+            </>
+          }
+        </>
+      )
       primaryText = (
         <OperationDetails>
           <PublicKey publicKey={signerPublicKey} style={{ display: "block", fontWeight: "normal" }} variant="full" />

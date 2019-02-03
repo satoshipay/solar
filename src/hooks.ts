@@ -13,27 +13,49 @@ export function useHorizon(testnet: boolean = false) {
 
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
 
-export function useAccountData(accountID: string, testnet: boolean): ObservedAccountData {
+export function useAccountDataSet(accountIDs: string[], testnet: boolean): ObservedAccountData[] {
   const horizon = useHorizon(testnet)
 
   // Set up subscription to remote data immediately
-  const accountSubscription = useMemo(() => subscribeToAccount(horizon, accountID), [accountID, testnet])
+  const accountSubscriptions = useMemo(() => accountIDs.map(accountID => subscribeToAccount(horizon, accountID)), [
+    accountIDs.join(","),
+    testnet
+  ])
 
-  const [accountData, setAccountData] = useState<ObservedAccountData>(accountSubscription.getLatest())
+  const [accountDataSet, setAccountDataSet] = useState<ObservedAccountData[]>(
+    accountSubscriptions.map(subscription => subscription.getLatest())
+  )
+
+  const updateAccountData = (update: ObservedAccountData) =>
+    setAccountDataSet(
+      accountDataSet.map(prevAccountData => (prevAccountData.id === update.id ? update : prevAccountData))
+    )
 
   // Asynchronously subscribe to remote data to keep state in sync
   // `unsubscribe` will only unsubscribe state updating code, won't close remote data subscription itself
   useEffect(
     () => {
       // Some time has passed since the last `getLatest()`, so refresh
-      setAccountData(accountSubscription.getLatest())
+      setAccountDataSet(accountSubscriptions.map(subscription => subscription.getLatest()))
 
-      const unsubscribe = accountSubscription.subscribe(update => setAccountData(update))
+      const unsubscribeHandlers: Array<() => void> = []
+
+      for (const subscription of accountSubscriptions) {
+        const unsubscribeHandler = subscription.subscribe(update => updateAccountData(update))
+        unsubscribeHandlers.push(unsubscribeHandler)
+      }
+
+      const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
       return unsubscribe
     },
-    [accountSubscription]
+    [accountSubscriptions]
   )
 
+  return accountDataSet
+}
+
+export function useAccountData(accountID: string, testnet: boolean): ObservedAccountData {
+  const [accountData] = useAccountDataSet([accountID], testnet)
   return accountData
 }
 
