@@ -10,3 +10,20 @@ Thumbs.db
 *.sublime-workspace
 *.log
 .eslintcache
+
+# Android
+cordova/platforms/android/.gradle
+cordova/platforms/android/build
+cordova/platforms/android/app/build
+cordova/platforms/android/assets/www
+cordova/platforms/android/local.properties
+cordova/platforms/android/CordovaLib/build
+cordova/platforms/android/CordovaLib/gen
+cordova/platforms/android/CordovaLib/local.properties
+
+
+# iOS
+cordova/platforms/ios/build/
+cordova/platforms/ios/www/
+cordova/platforms/ios/cordova/console.log
+*.xcuserdatad
