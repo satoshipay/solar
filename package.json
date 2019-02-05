@@ -24,7 +24,13 @@
     "dev": "run-p dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development run-electron -r ./electron/development .",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
-    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./"
+    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./",
+    "dev:android": "run-p dev:bundle:android dev:cordova:android",
+    "dev:bundle:android": "PLATFORM=android NODE_ENV=development parcel serve ./src/index.dev-android.njk -p 1234",
+    "dev:cordova:android": "mkdir -p dist/ && cp cordova/index.dev-cordova.html dist/ && cd cordova && cordova build android",
+    "dev:ios": "run-p dev:bundle:ios dev:cordova:ios",
+    "dev:bundle:ios": "PLATFORM=ios NODE_ENV=development parcel serve ./src/index.dev-ios.njk -p 1234",
+    "dev:cordova:ios": "mkdir -p dist/ && cp cordova/index.dev-cordova.html dist/ && cd cordova && cordova build ios"
   },
   "lint-staged": {
     "ignore": [
