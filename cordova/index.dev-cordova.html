@@ -12,7 +12,11 @@
       if (navigator.connection.type == Connection.NONE) {
           navigator.notification.alert('An internet connection is required to continue');
       } else {
+        if (window.navigator.platform.includes('Linux')){
           window.location = "http://10.0.2.2:1234";
+        } else if (window.navigator.platform.includes('iPhone')){
+          window.location = "http://localhost:1234";
+        }
       }
   }
 
