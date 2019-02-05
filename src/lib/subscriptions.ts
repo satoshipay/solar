@@ -1,4 +1,4 @@
-import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
+import { AccountRecord, Asset, OrderbookRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
 import { getHorizonURL } from "./stellar"
@@ -31,8 +31,20 @@ export interface ObservedRecentTxs {
   transactions: Transaction[]
 }
 
+export interface ObservedTradingPair {
+  buying: Asset
+  loading: boolean
+  records: OrderbookRecord[]
+  selling: Asset
+}
+
 const accountDataSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountData>>()
+const orderSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedTradingPair>>()
 const recentTxsSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedRecentTxs>>()
+
+export function getAssetCacheKey(asset: Asset) {
+  return asset.isNative() ? "XLM" : asset.getIssuer() + asset.getCode()
+}
 
 function createSubscriptionTarget<Thing>(initialValue: Thing): SubscriptionTargetInternals<Thing> {
   let latestValue: Thing = initialValue
@@ -138,6 +150,59 @@ function createAccountDataSubscription(
   return subscriptionTarget
 }
 
+function createOrderbookSubscription(
+  horizon: Server,
+  selling: Asset,
+  buying: Asset
+): SubscriptionTarget<ObservedTradingPair> {
+  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ObservedTradingPair>({
+    buying,
+    loading: true,
+    records: [],
+    selling
+  })
+
+  const maxOrderCount = 30
+  const fetchOrders = async () => {
+    const { records } = await horizon
+      .orderbook(selling, buying)
+      .limit(maxOrderCount)
+      .call()
+
+    propagateUpdate({
+      ...subscriptionTarget.getLatest(),
+      loading: false,
+      records: [...subscriptionTarget.getLatest().records, ...records]
+    })
+  }
+  const subscribeToOrders = (cursor: string = "now") => {
+    horizon
+      .orderbook(selling, buying)
+      .cursor(cursor)
+      .stream({
+        onmessage(record: OrderbookRecord) {
+          propagateUpdate({
+            ...subscriptionTarget.getLatest(),
+            records: [...subscriptionTarget.getLatest().records, record]
+          })
+        },
+        onerror(error: any) {
+          // FIXME: We don't want to see errors for every single stream,
+          // unless it's really a stream-instance-specific error
+          trackError(new Error("Orderbook update stream errored."))
+
+          // tslint:disable-next-line:no-console
+          console.error(error)
+        }
+      } as any)
+  }
+
+  fetchOrders().catch(trackError)
+  subscribeToOrders()
+
+  return subscriptionTarget
+}
+
 async function createRecentTxsSubscription(
   { propagateUpdate, subscriptionTarget }: SubscriptionTargetInternals<ObservedRecentTxs>,
   horizon: Server,
@@ -227,6 +292,23 @@ export function subscribeToAccount(horizon: Server, accountPubKey: string): Subs
     const accountObservable = createAccountDataSubscription(horizon, accountPubKey)
     accountDataSubscriptionsCache.set(cacheKey, accountObservable)
     return accountObservable
+  }
+}
+
+export function subscribeToOrders(
+  horizon: Server,
+  selling: Asset,
+  buying: Asset
+): SubscriptionTarget<ObservedTradingPair> {
+  const cacheKey = getAssetCacheKey(selling) + getAssetCacheKey(buying)
+  const cached = orderSubscriptionsCache.get(cacheKey)
+
+  if (cached) {
+    return cached
+  } else {
+    const ordersObservable = createOrderbookSubscription(horizon, selling, buying)
+    orderSubscriptionsCache.set(cacheKey, ordersObservable)
+    return ordersObservable
   }
 }
 
