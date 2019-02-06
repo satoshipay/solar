@@ -1,5 +1,6 @@
 {
     "AudioToolbox.framework": 1,
     "SystemConfiguration.framework": 1,
-    "CoreTelephony.framework": 1
+    "CoreTelephony.framework": 1,
+    "Security.framework": 1
 }

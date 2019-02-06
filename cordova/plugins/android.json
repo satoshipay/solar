@@ -15,6 +15,9 @@
     },
     "cordova-plugin-whitelist": {
       "PACKAGE_NAME": "io.satoshipay.solar"
+    },
+    "cordova-plugin-secure-storage": {
+      "PACKAGE_NAME": "io.satoshipay.solar"
     }
   },
   "dependent_plugins": {}

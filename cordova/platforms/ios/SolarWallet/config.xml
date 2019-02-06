@@ -56,4 +56,7 @@
     <preference name="PageLength" value="0" />
     <preference name="PaginationBreakingMode" value="page" />
     <preference name="PaginationMode" value="unpaginated" />
+    <feature name="SecureStorage">
+        <param name="ios-package" value="SecureStorage" />
+    </feature>
 </widget>

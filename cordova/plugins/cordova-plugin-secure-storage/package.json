@@ -1,0 +1,83 @@
+{
+  "_from": "cordova-plugin-secure-storage",
+  "_id": "cordova-plugin-secure-storage@3.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-rLua9whaetSOLHEIvZ5G2HYTdf7z9GssoQVucJKPMJO7p5Aonjeh0khKoLLv+R+nTd2gOQcezvYCgvGc9YOUsg==",
+  "_location": "/cordova-plugin-secure-storage",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "cordova-plugin-secure-storage",
+    "name": "cordova-plugin-secure-storage",
+    "escapedName": "cordova-plugin-secure-storage",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-secure-storage/-/cordova-plugin-secure-storage-3.0.1.tgz",
+  "_shasum": "cb9b7c5b5fde31ce1b455f2cb98553dab815a59d",
+  "_spec": "cordova-plugin-secure-storage",
+  "_where": "/Users/marcelebert/Documents/WebProjects/wallet/cordova",
+  "author": {
+    "name": "Yiorgis Gozadinos",
+    "email": "ggozad@crypho.com"
+  },
+  "bugs": {
+    "url": "https://github.com/crypho/cordova-plugin-secure-storage/issues"
+  },
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Demetris Manikas",
+      "email": "demetris.manikas@gmail.com"
+    },
+    {
+      "name": "Sergey Grebnov",
+      "email": "sergei.grebnov@gmail.com"
+    }
+  ],
+  "cordova": {
+    "id": "cordova-plugin-secure-storage",
+    "platforms": [
+      "android",
+      "ios",
+      "wp8",
+      "windows"
+    ]
+  },
+  "deprecated": false,
+  "description": "Secure storage plugin for iOS & Android",
+  "devDependencies": {
+    "cordova-plugin-test-framework": ">=1.0.0",
+    "eslint": ""
+  },
+  "homepage": "https://github.com/crypho/cordova-plugin-secure-storage#readme",
+  "keywords": [
+    "cordova",
+    "security",
+    "encryption",
+    "storage",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+    "cordova-wp8",
+    "cordova-windows",
+    "cordova-browser"
+  ],
+  "license": "MIT",
+  "main": "www/securestorage.js",
+  "name": "cordova-plugin-secure-storage",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crypho/cordova-plugin-secure-storage.git"
+  },
+  "scripts": {
+    "eslint": "eslint www/securestorage.js tests/tests.js"
+  },
+  "version": "3.0.1"
+}

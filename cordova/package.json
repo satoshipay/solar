@@ -6,10 +6,14 @@
     "platforms": [
       "android",
       "ios"
-    ]
+    ],
+    "plugins": {
+      "cordova-plugin-secure-storage": {}
+    }
   },
   "dependencies": {
     "cordova-android": "^7.1.4",
-    "cordova-ios": "^4.5.5"
+    "cordova-ios": "^4.5.5",
+    "cordova-plugin-secure-storage": "^3.0.1"
   }
 }

@@ -32,6 +32,14 @@ module.exports = [
     "clobbers": [
       "Connection"
     ]
+  },
+  {
+    "id": "cordova-plugin-secure-storage.SecureStorage",
+    "file": "plugins/cordova-plugin-secure-storage/www/securestorage.js",
+    "pluginId": "cordova-plugin-secure-storage",
+    "clobbers": [
+      "SecureStorage"
+    ]
   }
 ];
 module.exports.metadata = 
@@ -39,7 +47,8 @@ module.exports.metadata =
 {
   "cordova-plugin-dialogs": "2.0.1",
   "cordova-plugin-network-information": "2.0.1",
-  "cordova-plugin-whitelist": "1.3.3"
+  "cordova-plugin-whitelist": "1.3.3",
+  "cordova-plugin-secure-storage": "3.0.1"
 };
 // BOTTOM OF METADATA
 });

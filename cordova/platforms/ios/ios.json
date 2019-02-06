@@ -15,6 +15,10 @@
             {
               "xml": "<feature name=\"NetworkStatus\"><param name=\"ios-package\" value=\"CDVConnection\" /></feature>",
               "count": 1
+            },
+            {
+              "xml": "<feature name=\"SecureStorage\"><param name=\"ios-package\" value=\"SecureStorage\" /></feature>",
+              "count": 1
             }
           ]
         }
@@ -29,6 +33,9 @@
       "PACKAGE_NAME": "io.satoshipay.solar"
     },
     "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "io.satoshipay.solar"
+    },
+    "cordova-plugin-secure-storage": {
       "PACKAGE_NAME": "io.satoshipay.solar"
     }
   },
@@ -58,11 +65,20 @@
       "clobbers": [
         "Connection"
       ]
+    },
+    {
+      "id": "cordova-plugin-secure-storage.SecureStorage",
+      "file": "plugins/cordova-plugin-secure-storage/www/securestorage.js",
+      "pluginId": "cordova-plugin-secure-storage",
+      "clobbers": [
+        "SecureStorage"
+      ]
     }
   ],
   "plugin_metadata": {
     "cordova-plugin-dialogs": "2.0.1",
     "cordova-plugin-network-information": "2.0.1",
-    "cordova-plugin-whitelist": "1.3.3"
+    "cordova-plugin-whitelist": "1.3.3",
+    "cordova-plugin-secure-storage": "3.0.1"
   }
 }
