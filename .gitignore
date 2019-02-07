@@ -16,10 +16,12 @@ cordova/platforms/android/.gradle
 cordova/platforms/android/build
 cordova/platforms/android/app/build
 cordova/platforms/android/app/src/main/assets/www
+cordova/platforms/android/app/app.iml
 cordova/platforms/android/local.properties
 cordova/platforms/android/CordovaLib/build
 cordova/platforms/android/CordovaLib/gen
 cordova/platforms/android/CordovaLib/local.properties
+cordova/platforms/android/CordovaLib/CordovaLib.iml
 
 
 # iOS
