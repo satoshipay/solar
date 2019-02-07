@@ -18,23 +18,16 @@
  */
 
 //
-//  MainViewController.h
-//  SolarWallet
+//  AppDelegate.h
+//  Solar
 //
 //  Created by ___FULLUSERNAME___ on ___DATE___.
 //  Copyright ___ORGANIZATIONNAME___ ___YEAR___. All rights reserved.
 //
 
 #import <Cordova/CDVViewController.h>
-#import <Cordova/CDVCommandDelegateImpl.h>
-#import <Cordova/CDVCommandQueue.h>
+#import <Cordova/CDVAppDelegate.h>
 
-@interface MainViewController : CDVViewController
+@interface AppDelegate : CDVAppDelegate {}
 
-@end
-
-@interface MainCommandDelegate : CDVCommandDelegateImpl
-@end
-
-@interface MainCommandQueue : CDVCommandQueue
 @end

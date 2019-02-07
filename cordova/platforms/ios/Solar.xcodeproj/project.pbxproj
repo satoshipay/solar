@@ -16,18 +16,18 @@
 		3047A5131AB8059700498E2A /* build-release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 3047A5101AB8059700498E2A /* build-release.xcconfig */; };
 		3047A5141AB8059700498E2A /* build.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 3047A5111AB8059700498E2A /* build.xcconfig */; };
 		6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */; };
-		ED5F48974EAC4A15B2700106 /* CDVNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BD08F89468C4DFD9E86DB26 /* CDVNotification.m */; };
-		5E531A8D086C4C9E874AE648 /* CDVNotification.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 952EBE1DBE62463A95A42D30 /* CDVNotification.bundle */; };
-		866829C53F5040CAA1FFB834 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84DE362F98C4471BBC53BA0F /* AudioToolbox.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		E900EEBB3AF344ECB159EA41 /* CDVConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 60D31E85B5F84373A71A6D00 /* CDVConnection.m */; };
-		F9D35A245B774ADF9F8AFB04 /* CDVReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 710F5B44164649978DF06B13 /* CDVReachability.m */; };
-		2716549E94D04E57B539035F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 83020FBFF04245469797F46F /* SystemConfiguration.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		237C3E7EA5064BA4A46130CC /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEA1B51082EC4F6D9CB23B4A /* CoreTelephony.framework */; };
-		26009083D5E84AF390BE4D64 /* SecureStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 766C9603D3274192ADAC220D /* SecureStorage.m */; };
-		53C9B93185D7446EA4A57D38 /* SAMKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B50B96FD6045409A699FEF /* SAMKeychain.m */; };
-		1FF3EBF2DCC74224AF730492 /* SAMKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A2A78A11D74EC2AFCC08D0 /* SAMKeychainQuery.m */; };
-		BF9CAE57F3C947E6A5DD9AAC /* SAMKeychain.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C924C35733614A078FD6B09D /* SAMKeychain.bundle */; };
-		0950F3D9280543C5851B216B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF907BB8174C43319FD9B3B3 /* Security.framework */; };
+		39AFBE0AFBA24FDF81FD485C /* CDVNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = E53CC083E17C4C74B28BE271 /* CDVNotification.m */; };
+		076C60A782A34D97BAD15B48 /* CDVNotification.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 414980AFA09D41B682B9B117 /* CDVNotification.bundle */; };
+		3E32DF2CA69C46D6ABF36308 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5E910F96A3C40FBB07179D8 /* AudioToolbox.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D7F1C4FFB8D34C559E35E633 /* CDVConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C6113F42A954734BDDDCEDC /* CDVConnection.m */; };
+		D8627D26BFFE4E6AB2E57FA6 /* CDVReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 98D5D55BE2284F4FB3E2F7EE /* CDVReachability.m */; };
+		E1B4B85DF5F147139D59BFDB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A575B6F34338479899092C3C /* SystemConfiguration.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		125ECD9E182A4B6A9E2BCBE1 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CEB7ADA520F42D4B0895593 /* CoreTelephony.framework */; };
+		D0106E0D671D496B8DC21F91 /* SecureStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 824D8F2A78624DF2BFAE657D /* SecureStorage.m */; };
+		656489F107A542CFB511B02C /* SAMKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 974F64E3DAC7423F95F70E42 /* SAMKeychain.m */; };
+		DFF101858096423ABEAB409F /* SAMKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 8537F10A6DDD402BB3745AD1 /* SAMKeychainQuery.m */; };
+		42727EE526C94B1DBF43FF1F /* SAMKeychain.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6275085A866B47C49E4B3AAF /* SAMKeychain.bundle */; };
+		EC6918A528764753B3685884 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2DC08AF2A2A4F82A6E070CC /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,10 +48,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0207DA571B56EA530066E2B4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "SolarWallet/Images.xcassets"; sourceTree = SOURCE_ROOT; };
+		0207DA571B56EA530066E2B4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Solar/Images.xcassets"; sourceTree = SOURCE_ROOT; };
 		1D3623240D0F684500981E51 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* SolarWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SolarWallet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* Solar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Solar.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		301BF52D109A57CC0062928A /* CordovaLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CordovaLib/CordovaLib.xcodeproj; sourceTree = "<group>"; };
 		301BF56E109A69640062928A /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = SOURCE_ROOT; };
@@ -61,31 +61,31 @@
 		3047A50F1AB8059700498E2A /* build-debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "build-debug.xcconfig"; path = cordova/build-debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		3047A5101AB8059700498E2A /* build-release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "build-release.xcconfig"; path = cordova/build-release.xcconfig; sourceTree = SOURCE_ROOT; };
 		3047A5111AB8059700498E2A /* build.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = build.xcconfig; path = cordova/build.xcconfig; sourceTree = SOURCE_ROOT; };
-		32CA4F630368D1EE00C91783 /* SolarWallet-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SolarWallet-Prefix.pch"; sourceTree = "<group>"; };
-		6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = CDVLaunchScreen.storyboard; path = "SolarWallet/CDVLaunchScreen.storyboard"; sourceTree = SOURCE_ROOT; };
-		8D1107310486CEB800E47090 /* SolarWallet-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "SolarWallet-Info.plist"; path = "SolarWallet/SolarWallet-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = SOURCE_ROOT; };
+		32CA4F630368D1EE00C91783 /* Solar-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Solar-Prefix.pch"; sourceTree = "<group>"; };
+		6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = CDVLaunchScreen.storyboard; path = "Solar/CDVLaunchScreen.storyboard"; sourceTree = SOURCE_ROOT; };
+		8D1107310486CEB800E47090 /* Solar-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Solar-Info.plist"; path = "Solar/Solar-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = SOURCE_ROOT; };
 		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
-		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "SolarWallet/config.xml"; sourceTree = "<group>"; };
+		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "Solar/config.xml"; sourceTree = "<group>"; };
 		ED33DF2A687741AEAF9F8254 /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Bridging-Header.h"; path = "Bridging-Header.h"; sourceTree = "<group>"; };
-		4BD08F89468C4DFD9E86DB26 /* CDVNotification.m */ = {isa = PBXFileReference; name = "CDVNotification.m"; path = "cordova-plugin-dialogs/CDVNotification.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		BE22C7C91D5447E78AFB4947 /* CDVNotification.h */ = {isa = PBXFileReference; name = "CDVNotification.h"; path = "cordova-plugin-dialogs/CDVNotification.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
-		952EBE1DBE62463A95A42D30 /* CDVNotification.bundle */ = {isa = PBXFileReference; name = "CDVNotification.bundle"; path = "CDVNotification.bundle"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.plug-in; explicitFileType = undefined; includeInIndex = 0; };
-		84DE362F98C4471BBC53BA0F /* AudioToolbox.framework */ = {isa = PBXFileReference; name = "AudioToolbox.framework"; path = "System/Library/Frameworks/AudioToolbox.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
-		60D31E85B5F84373A71A6D00 /* CDVConnection.m */ = {isa = PBXFileReference; name = "CDVConnection.m"; path = "cordova-plugin-network-information/CDVConnection.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		710F5B44164649978DF06B13 /* CDVReachability.m */ = {isa = PBXFileReference; name = "CDVReachability.m"; path = "cordova-plugin-network-information/CDVReachability.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		BFE2F41BB11A438BB35691B3 /* CDVConnection.h */ = {isa = PBXFileReference; name = "CDVConnection.h"; path = "cordova-plugin-network-information/CDVConnection.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
-		DDFE50EE2E6F4A8F9FF04009 /* CDVReachability.h */ = {isa = PBXFileReference; name = "CDVReachability.h"; path = "cordova-plugin-network-information/CDVReachability.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
-		83020FBFF04245469797F46F /* SystemConfiguration.framework */ = {isa = PBXFileReference; name = "SystemConfiguration.framework"; path = "System/Library/Frameworks/SystemConfiguration.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
-		AEA1B51082EC4F6D9CB23B4A /* CoreTelephony.framework */ = {isa = PBXFileReference; name = "CoreTelephony.framework"; path = "System/Library/Frameworks/CoreTelephony.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
-		766C9603D3274192ADAC220D /* SecureStorage.m */ = {isa = PBXFileReference; name = "SecureStorage.m"; path = "cordova-plugin-secure-storage/SecureStorage.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		72B50B96FD6045409A699FEF /* SAMKeychain.m */ = {isa = PBXFileReference; name = "SAMKeychain.m"; path = "cordova-plugin-secure-storage/SAMKeychain.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		59A2A78A11D74EC2AFCC08D0 /* SAMKeychainQuery.m */ = {isa = PBXFileReference; name = "SAMKeychainQuery.m"; path = "cordova-plugin-secure-storage/SAMKeychainQuery.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		3601CD2F9D3F47EABAF16D6C /* SecureStorage.h */ = {isa = PBXFileReference; name = "SecureStorage.h"; path = "cordova-plugin-secure-storage/SecureStorage.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
-		528BEB7C762D47C3A31772F4 /* SAMKeychain.h */ = {isa = PBXFileReference; name = "SAMKeychain.h"; path = "cordova-plugin-secure-storage/SAMKeychain.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
-		7E513CC50CB549ACB7926070 /* SAMKeychainQuery.h */ = {isa = PBXFileReference; name = "SAMKeychainQuery.h"; path = "cordova-plugin-secure-storage/SAMKeychainQuery.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
-		C924C35733614A078FD6B09D /* SAMKeychain.bundle */ = {isa = PBXFileReference; name = "SAMKeychain.bundle"; path = "SAMKeychain.bundle"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.plug-in; explicitFileType = undefined; includeInIndex = 0; };
-		AF907BB8174C43319FD9B3B3 /* Security.framework */ = {isa = PBXFileReference; name = "Security.framework"; path = "System/Library/Frameworks/Security.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		E53CC083E17C4C74B28BE271 /* CDVNotification.m */ = {isa = PBXFileReference; name = "CDVNotification.m"; path = "cordova-plugin-dialogs/CDVNotification.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		C7F2CB2B1F6349979E8501C0 /* CDVNotification.h */ = {isa = PBXFileReference; name = "CDVNotification.h"; path = "cordova-plugin-dialogs/CDVNotification.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		414980AFA09D41B682B9B117 /* CDVNotification.bundle */ = {isa = PBXFileReference; name = "CDVNotification.bundle"; path = "CDVNotification.bundle"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.plug-in; explicitFileType = undefined; includeInIndex = 0; };
+		F5E910F96A3C40FBB07179D8 /* AudioToolbox.framework */ = {isa = PBXFileReference; name = "AudioToolbox.framework"; path = "System/Library/Frameworks/AudioToolbox.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		0C6113F42A954734BDDDCEDC /* CDVConnection.m */ = {isa = PBXFileReference; name = "CDVConnection.m"; path = "cordova-plugin-network-information/CDVConnection.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		98D5D55BE2284F4FB3E2F7EE /* CDVReachability.m */ = {isa = PBXFileReference; name = "CDVReachability.m"; path = "cordova-plugin-network-information/CDVReachability.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		18B06899F20C403BAE8B9F5B /* CDVConnection.h */ = {isa = PBXFileReference; name = "CDVConnection.h"; path = "cordova-plugin-network-information/CDVConnection.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		18EDD3DD08124B8FA348098C /* CDVReachability.h */ = {isa = PBXFileReference; name = "CDVReachability.h"; path = "cordova-plugin-network-information/CDVReachability.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		A575B6F34338479899092C3C /* SystemConfiguration.framework */ = {isa = PBXFileReference; name = "SystemConfiguration.framework"; path = "System/Library/Frameworks/SystemConfiguration.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		1CEB7ADA520F42D4B0895593 /* CoreTelephony.framework */ = {isa = PBXFileReference; name = "CoreTelephony.framework"; path = "System/Library/Frameworks/CoreTelephony.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		824D8F2A78624DF2BFAE657D /* SecureStorage.m */ = {isa = PBXFileReference; name = "SecureStorage.m"; path = "cordova-plugin-secure-storage/SecureStorage.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		974F64E3DAC7423F95F70E42 /* SAMKeychain.m */ = {isa = PBXFileReference; name = "SAMKeychain.m"; path = "cordova-plugin-secure-storage/SAMKeychain.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		8537F10A6DDD402BB3745AD1 /* SAMKeychainQuery.m */ = {isa = PBXFileReference; name = "SAMKeychainQuery.m"; path = "cordova-plugin-secure-storage/SAMKeychainQuery.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		C2EB9AF44257416BBC8EAFB7 /* SecureStorage.h */ = {isa = PBXFileReference; name = "SecureStorage.h"; path = "cordova-plugin-secure-storage/SecureStorage.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		8FC672506B0B4D6BB2402E01 /* SAMKeychain.h */ = {isa = PBXFileReference; name = "SAMKeychain.h"; path = "cordova-plugin-secure-storage/SAMKeychain.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		0E74133AC2F84683ACD9EB34 /* SAMKeychainQuery.h */ = {isa = PBXFileReference; name = "SAMKeychainQuery.h"; path = "cordova-plugin-secure-storage/SAMKeychainQuery.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		6275085A866B47C49E4B3AAF /* SAMKeychain.bundle */ = {isa = PBXFileReference; name = "SAMKeychain.bundle"; path = "SAMKeychain.bundle"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.plug-in; explicitFileType = undefined; includeInIndex = 0; };
+		B2DC08AF2A2A4F82A6E070CC /* Security.framework */ = {isa = PBXFileReference; name = "Security.framework"; path = "System/Library/Frameworks/Security.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,10 +94,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				301BF552109A68D80062928A /* libCordova.a in Frameworks */,
-				866829C53F5040CAA1FFB834 /* AudioToolbox.framework in Frameworks */,
-				2716549E94D04E57B539035F /* SystemConfiguration.framework in Frameworks */,
-				237C3E7EA5064BA4A46130CC /* CoreTelephony.framework in Frameworks */,
-				0950F3D9280543C5851B216B /* Security.framework in Frameworks */,
+				3E32DF2CA69C46D6ABF36308 /* AudioToolbox.framework in Frameworks */,
+				E1B4B85DF5F147139D59BFDB /* SystemConfiguration.framework in Frameworks */,
+				125ECD9E182A4B6A9E2BCBE1 /* CoreTelephony.framework in Frameworks */,
+				EC6918A528764753B3685884 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,13 +114,13 @@
 				1D3623250D0F684500981E51 /* AppDelegate.m */,
 			);
 			name = Classes;
-			path = "SolarWallet/Classes";
+			path = "Solar/Classes";
 			sourceTree = SOURCE_ROOT;
 		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* SolarWallet.app */,
+				1D6058910D05DD3D006BFB54 /* Solar.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -145,12 +145,12 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				32CA4F630368D1EE00C91783 /* SolarWallet-Prefix.pch */,
+				32CA4F630368D1EE00C91783 /* Solar-Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				ED33DF2A687741AEAF9F8254 /* Bridging-Header.h */,
 			);
 			name = "Other Sources";
-			path = "SolarWallet";
+			path = "Solar";
 			sourceTree = "<group>";
 		};
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
@@ -158,22 +158,22 @@
 			children = (
 				0207DA571B56EA530066E2B4 /* Images.xcassets */,
 				3047A50E1AB8057F00498E2A /* config */,
-				8D1107310486CEB800E47090 /* SolarWallet-Info.plist */,
+				8D1107310486CEB800E47090 /* Solar-Info.plist */,
 				6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */,
-				952EBE1DBE62463A95A42D30 /* CDVNotification.bundle */,
-				C924C35733614A078FD6B09D /* SAMKeychain.bundle */,
+				414980AFA09D41B682B9B117 /* CDVNotification.bundle */,
+				6275085A866B47C49E4B3AAF /* SAMKeychain.bundle */,
 			);
 			name = Resources;
-			path = "SolarWallet/Resources";
+			path = "Solar/Resources";
 			sourceTree = "<group>";
 		};
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				84DE362F98C4471BBC53BA0F /* AudioToolbox.framework */,
-				83020FBFF04245469797F46F /* SystemConfiguration.framework */,
-				AEA1B51082EC4F6D9CB23B4A /* CoreTelephony.framework */,
-				AF907BB8174C43319FD9B3B3 /* Security.framework */,
+				F5E910F96A3C40FBB07179D8 /* AudioToolbox.framework */,
+				A575B6F34338479899092C3C /* SystemConfiguration.framework */,
+				1CEB7ADA520F42D4B0895593 /* CoreTelephony.framework */,
+				B2DC08AF2A2A4F82A6E070CC /* Security.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -199,21 +199,21 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				4BD08F89468C4DFD9E86DB26 /* CDVNotification.m */,
-				BE22C7C91D5447E78AFB4947 /* CDVNotification.h */,
-				60D31E85B5F84373A71A6D00 /* CDVConnection.m */,
-				710F5B44164649978DF06B13 /* CDVReachability.m */,
-				BFE2F41BB11A438BB35691B3 /* CDVConnection.h */,
-				DDFE50EE2E6F4A8F9FF04009 /* CDVReachability.h */,
-				766C9603D3274192ADAC220D /* SecureStorage.m */,
-				72B50B96FD6045409A699FEF /* SAMKeychain.m */,
-				59A2A78A11D74EC2AFCC08D0 /* SAMKeychainQuery.m */,
-				3601CD2F9D3F47EABAF16D6C /* SecureStorage.h */,
-				528BEB7C762D47C3A31772F4 /* SAMKeychain.h */,
-				7E513CC50CB549ACB7926070 /* SAMKeychainQuery.h */,
+				E53CC083E17C4C74B28BE271 /* CDVNotification.m */,
+				C7F2CB2B1F6349979E8501C0 /* CDVNotification.h */,
+				0C6113F42A954734BDDDCEDC /* CDVConnection.m */,
+				98D5D55BE2284F4FB3E2F7EE /* CDVReachability.m */,
+				18B06899F20C403BAE8B9F5B /* CDVConnection.h */,
+				18EDD3DD08124B8FA348098C /* CDVReachability.h */,
+				824D8F2A78624DF2BFAE657D /* SecureStorage.m */,
+				974F64E3DAC7423F95F70E42 /* SAMKeychain.m */,
+				8537F10A6DDD402BB3745AD1 /* SAMKeychainQuery.m */,
+				C2EB9AF44257416BBC8EAFB7 /* SecureStorage.h */,
+				8FC672506B0B4D6BB2402E01 /* SAMKeychain.h */,
+				0E74133AC2F84683ACD9EB34 /* SAMKeychainQuery.h */,
 			);
 			name = Plugins;
-			path = "SolarWallet/Plugins";
+			path = "Solar/Plugins";
 			sourceTree = SOURCE_ROOT;
 		};
 		EB87FDF11871DA420020F90C /* Staging */ = {
@@ -228,9 +228,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* SolarWallet */ = {
+		1D6058900D05DD3D006BFB54 /* Solar */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "SolarWallet" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Solar" */;
 			buildPhases = (
 				304B58A110DAC018002A0835 /* Copy www directory */,
 				1D60588D0D05DD3D006BFB54 /* Resources */,
@@ -242,9 +242,9 @@
 			dependencies = (
 				301BF551109A68C00062928A /* PBXTargetDependency */,
 			);
-			name = "SolarWallet";
-			productName = "SolarWallet";
-			productReference = 1D6058910D05DD3D006BFB54 /* SolarWallet.app */;
+			name = "Solar";
+			productName = "Solar";
+			productReference = 1D6058910D05DD3D006BFB54 /* Solar.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -269,7 +269,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* SolarWallet */,
+				1D6058900D05DD3D006BFB54 /* Solar */,
 			);
 		};
 /* End PBXProject section */
@@ -292,8 +292,8 @@
 				302D95F214D2391D003F00A1 /* MainViewController.xib in Resources */,
 				0207DA581B56EA530066E2B4 /* Images.xcassets in Resources */,
 				6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */,
-				5E531A8D086C4C9E874AE648 /* CDVNotification.bundle in Resources */,
-				BF9CAE57F3C947E6A5DD9AAC /* SAMKeychain.bundle in Resources */,
+				076C60A782A34D97BAD15B48 /* CDVNotification.bundle in Resources */,
+				42727EE526C94B1DBF43FF1F /* SAMKeychain.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,12 +325,12 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
-				ED5F48974EAC4A15B2700106 /* CDVNotification.m in Sources */,
-				E900EEBB3AF344ECB159EA41 /* CDVConnection.m in Sources */,
-				F9D35A245B774ADF9F8AFB04 /* CDVReachability.m in Sources */,
-				26009083D5E84AF390BE4D64 /* SecureStorage.m in Sources */,
-				53C9B93185D7446EA4A57D38 /* SAMKeychain.m in Sources */,
-				1FF3EBF2DCC74224AF730492 /* SAMKeychainQuery.m in Sources */,
+				39AFBE0AFBA24FDF81FD485C /* CDVNotification.m in Sources */,
+				D7F1C4FFB8D34C559E35E633 /* CDVConnection.m in Sources */,
+				D8627D26BFFE4E6AB2E57FA6 /* CDVReachability.m in Sources */,
+				D0106E0D671D496B8DC21F91 /* SecureStorage.m in Sources */,
+				656489F107A542CFB511B02C /* SAMKeychain.m in Sources */,
+				DFF101858096423ABEAB409F /* SAMKeychainQuery.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,14 +358,14 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SolarWallet/SolarWallet-Prefix.pch";
+				GCC_PREFIX_HEADER = "Solar/Solar-Prefix.pch";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				INFOPLIST_FILE = "SolarWallet/SolarWallet-Info.plist";
+				INFOPLIST_FILE = "Solar/Solar-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				PRODUCT_NAME = "SolarWallet";
+				PRODUCT_NAME = "Solar";
 			};
 			name = Debug;
 		};
@@ -380,14 +380,14 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SolarWallet/SolarWallet-Prefix.pch";
+				GCC_PREFIX_HEADER = "Solar/Solar-Prefix.pch";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				INFOPLIST_FILE = "SolarWallet/SolarWallet-Info.plist";
+				INFOPLIST_FILE = "Solar/Solar-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				PRODUCT_NAME = "SolarWallet";
+				PRODUCT_NAME = "Solar";
 			};
 			name = Release;
 		};
@@ -445,7 +445,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "SolarWallet" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Solar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,

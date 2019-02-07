@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
-               BuildableName = "SolarWallet.app"
-               BlueprintName = "SolarWallet"
-               ReferencedContainer = "container:SolarWallet.xcodeproj">
+               BuildableName = "Solar.app"
+               BlueprintName = "Solar"
+               ReferencedContainer = "container:Solar.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
-            BuildableName = "SolarWallet.app"
-            BlueprintName = "SolarWallet"
-            ReferencedContainer = "container:SolarWallet.xcodeproj">
+            BuildableName = "Solar.app"
+            BlueprintName = "Solar"
+            ReferencedContainer = "container:Solar.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -56,9 +56,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
-            BuildableName = "SolarWallet.app"
-            BlueprintName = "SolarWallet"
-            ReferencedContainer = "container:SolarWallet.xcodeproj">
+            BuildableName = "Solar.app"
+            BlueprintName = "Solar"
+            ReferencedContainer = "container:Solar.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -75,9 +75,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
-            BuildableName = "SolarWallet.app"
-            BlueprintName = "SolarWallet"
-            ReferencedContainer = "container:SolarWallet.xcodeproj">
+            BuildableName = "Solar.app"
+            BlueprintName = "Solar"
+            ReferencedContainer = "container:Solar.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

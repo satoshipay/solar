@@ -8,16 +8,16 @@
   },
   "installed_plugins": {
     "cordova-plugin-dialogs": {
-      "PACKAGE_NAME": "io.satoshipay.solar"
+      "PACKAGE_NAME": "io.solarwallet"
     },
     "cordova-plugin-network-information": {
-      "PACKAGE_NAME": "io.satoshipay.solar"
-    },
-    "cordova-plugin-whitelist": {
-      "PACKAGE_NAME": "io.satoshipay.solar"
+      "PACKAGE_NAME": "io.solarwallet"
     },
     "cordova-plugin-secure-storage": {
-      "PACKAGE_NAME": "io.satoshipay.solar"
+      "PACKAGE_NAME": "io.solarwallet"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "io.solarwallet"
     }
   },
   "dependent_plugins": {}

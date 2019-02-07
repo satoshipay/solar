@@ -17,7 +17,7 @@
  under the License.
  */
 //
-// Prefix header for all source files of the 'SolarWallet' target in the 'SolarWallet' project
+// Prefix header for all source files of the 'Solar' target in the 'Solar' project
 //
 
 #ifdef __OBJC__

@@ -17,7 +17,7 @@
        under the License.
  */
 
-package io.satoshipay.solar;
+package io.solarwallet;
 
 import android.os.Bundle;
 import org.apache.cordova.*;

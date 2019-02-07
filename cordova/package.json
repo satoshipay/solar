@@ -1,19 +1,25 @@
 {
-  "name": "io.satoshipay.solar",
+  "name": "io.solarwallet",
   "version": "1.0.0",
-  "displayName": "SolarWallet",
+  "displayName": "Solar",
   "cordova": {
     "platforms": [
       "android",
       "ios"
     ],
     "plugins": {
-      "cordova-plugin-secure-storage": {}
+      "cordova-plugin-secure-storage": {},
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-dialogs": {},
+      "cordova-plugin-network-information": {}
     }
   },
   "dependencies": {
     "cordova-android": "^7.1.4",
     "cordova-ios": "^4.5.5",
-    "cordova-plugin-secure-storage": "^3.0.1"
+    "cordova-plugin-secure-storage": "^3.0.1",
+    "cordova-plugin-whitelist": "1",
+    "cordova-plugin-dialogs": "~2.0.1",
+    "cordova-plugin-network-information": "~2.0.1"
   }
 }

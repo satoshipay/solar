@@ -18,16 +18,22 @@
  */
 
 //
-//  AppDelegate.h
-//  SolarWallet
+//  AppDelegate.m
+//  Solar
 //
 //  Created by ___FULLUSERNAME___ on ___DATE___.
 //  Copyright ___ORGANIZATIONNAME___ ___YEAR___. All rights reserved.
 //
 
-#import <Cordova/CDVViewController.h>
-#import <Cordova/CDVAppDelegate.h>
+#import "AppDelegate.h"
+#import "MainViewController.h"
 
-@interface AppDelegate : CDVAppDelegate {}
+@implementation AppDelegate
+
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
+{
+    self.viewController = [[MainViewController alloc] init];
+    return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
 
 @end
