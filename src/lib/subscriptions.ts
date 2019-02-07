@@ -1,6 +1,7 @@
 import { AccountRecord, Asset, OrderbookRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
+import { FixedOrderbookRecord } from "./orderbook"
 import { getHorizonURL } from "./stellar"
 
 type SubscriberFn<Thing> = (update: Thing) => void
@@ -31,11 +32,8 @@ export interface ObservedRecentTxs {
   transactions: Transaction[]
 }
 
-export interface ObservedTradingPair {
-  buying: Asset
+export interface ObservedTradingPair extends FixedOrderbookRecord {
   loading: boolean
-  records: OrderbookRecord[]
-  selling: Asset
 }
 
 const accountDataSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountData>>()
@@ -156,23 +154,27 @@ function createOrderbookSubscription(
   buying: Asset
 ): SubscriptionTarget<ObservedTradingPair> {
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ObservedTradingPair>({
-    buying,
-    loading: true,
-    records: [],
-    selling
+    asks: [],
+    base: selling,
+    bids: [],
+    counter: buying,
+    loading: true
   })
 
   const maxOrderCount = 30
   const fetchOrders = async () => {
-    const { records } = await horizon
+    const fetchResult = await horizon
       .orderbook(selling, buying)
       .limit(maxOrderCount)
       .call()
 
+    // @types/stellar-sdk types seem wrong
+    const orderbookRecord = (fetchResult as any) as FixedOrderbookRecord
+
     propagateUpdate({
       ...subscriptionTarget.getLatest(),
-      loading: false,
-      records: [...subscriptionTarget.getLatest().records, ...records]
+      ...orderbookRecord,
+      loading: false
     })
   }
   const subscribeToOrders = (cursor: string = "now") => {
@@ -180,10 +182,13 @@ function createOrderbookSubscription(
       .orderbook(selling, buying)
       .cursor(cursor)
       .stream({
-        onmessage(record: OrderbookRecord) {
+        onmessage(record: FixedOrderbookRecord) {
+          const previous = subscriptionTarget.getLatest()
           propagateUpdate({
-            ...subscriptionTarget.getLatest(),
-            records: [...subscriptionTarget.getLatest().records, record]
+            ...previous,
+            ...record,
+            asks: [...previous.asks, ...record.asks],
+            bids: [...previous.bids, ...record.bids]
           })
         },
         onerror(error: any) {
