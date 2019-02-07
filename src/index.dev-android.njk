@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src *; script-src 'self' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; connect-src *; script-src 'self' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:;">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Solar Wallet</title>
     <link href="./fonts.css" rel="stylesheet">
@@ -15,6 +15,6 @@
     {% include "splash.html" %}
 
     <script src="../cordova/platforms/android/platform_www/cordova.js"></script>    
-    <script src="./app.tsx"></script>
+    <script src="./app.cordova.ts"></script>
   </body>
 </html>
