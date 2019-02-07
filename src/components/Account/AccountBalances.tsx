@@ -29,6 +29,8 @@ export function formatBalance(
   options: { minimumDecimals?: number; minimumSignificants?: number } = {}
 ) {
   const thousandsSeparator = ","
+  const maximumDecimals = 7
+  const maximumSignificants = 13
   const { minimumDecimals = 0, minimumSignificants = 0 } = options
 
   const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(balance)))
@@ -36,9 +38,14 @@ export function formatBalance(
 
   if (decimalPart.length < minimumDecimals) {
     decimalPart += "0".repeat(minimumDecimals - decimalPart.length)
+  } else if (decimalPart.length > maximumDecimals) {
+    decimalPart = decimalPart.substr(0, maximumDecimals)
   }
   if (integerPart.length + decimalPart.length < minimumSignificants) {
     decimalPart += "0".repeat(minimumSignificants - integerPart.length - decimalPart.length)
+  }
+  if (integerPart.length + decimalPart.length > maximumSignificants && decimalPart.length > 0) {
+    decimalPart = decimalPart.substr(0, maximumSignificants - integerPart.length)
   }
 
   return `${addThousandsSeparators(integerPart, thousandsSeparator)}${decimalPart ? "." + decimalPart : ""}`
