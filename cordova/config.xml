@@ -4,7 +4,7 @@
     <description>
         Simple and secure Stellar wallet
     </description>
-    <author email="tech@satoshipay.io" href="https://solarwallet.io/">
+    <author email="solar@satoshipay.io" href="https://solarwallet.io/">
         SatoshiPay Team
     </author>
     <content src="index.dev-cordova.html" />
