@@ -26,12 +26,12 @@ function trimBalance(balance: number): string {
 
 export function formatBalance(
   balance: string,
-  options: { minimumDecimals?: number; minimumSignificants?: number } = {}
+  options: { groupThousands?: boolean; minimumDecimals?: number; minimumSignificants?: number } = {}
 ) {
   const thousandsSeparator = ","
   const maximumDecimals = 7
   const maximumSignificants = 13
-  const { minimumDecimals = 0, minimumSignificants = 0 } = options
+  const { groupThousands = true, minimumDecimals = 0, minimumSignificants = 0 } = options
 
   const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(balance)))
   let [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
@@ -48,7 +48,10 @@ export function formatBalance(
     decimalPart = decimalPart.substr(0, maximumSignificants - integerPart.length)
   }
 
-  return `${addThousandsSeparators(integerPart, thousandsSeparator)}${decimalPart ? "." + decimalPart : ""}`
+  return (
+    (groupThousands ? addThousandsSeparators(integerPart, thousandsSeparator) : integerPart) +
+    (decimalPart ? "." + decimalPart : "")
+  )
 }
 
 interface SingleBalanceProps {

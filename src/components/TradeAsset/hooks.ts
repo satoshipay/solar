@@ -1,44 +1,31 @@
 import { useMemo } from "react"
-import { FixedOrderbookOffer } from "../../lib/orderbook"
-import { ObservedTradingPair } from "../../lib/subscriptions"
+import { FixedOrderbookOffer, FixedOrderbookRecord } from "../../lib/orderbook"
 
 const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
 
-export function useTradingPair(tradePair: ObservedTradingPair, action: "buy" | "sell", price: number, amount: number) {
+export function useConversionOffers(orderbookRecord: FixedOrderbookRecord, amount: number, price: number) {
   // Best offers first
-  const bestOffers = useMemo(
-    () =>
-      action === "buy"
-        ? [...tradePair.asks].sort((a, b) => Number.parseFloat(a.price) - Number.parseFloat(b.price))
-        : [...tradePair.bids].sort((a, b) => Number.parseFloat(b.price) - Number.parseFloat(a.price)),
-    [action, action === "buy" ? tradePair.asks : tradePair.bids]
-  )
+  const bestOffers = orderbookRecord.asks
 
   const bestMatches = useMemo(
     () =>
-      bestOffers
-        .filter(
-          offer =>
-            Number.isNaN(price) ||
-            (action === "buy" ? parseFloat(offer.price) < price : parseFloat(offer.price) > price)
-        )
-        .reduce<{ offers: FixedOrderbookOffer[]; volume: number }>(
-          (aggregate, matchingOffer) =>
-            aggregate.volume >= amount
-              ? aggregate
-              : {
-                  offers: [...aggregate.offers, matchingOffer],
-                  volume: aggregate.volume + Number.parseFloat(matchingOffer.amount)
-                },
-          { offers: [], volume: 0 }
-        ),
-    [action, bestOffers, price, amount]
+      bestOffers.reduce<{ offers: FixedOrderbookOffer[]; volume: number }>(
+        (aggregate, matchingOffer) =>
+          aggregate.volume >= amount
+            ? aggregate
+            : {
+                offers: [...aggregate.offers, matchingOffer],
+                volume: aggregate.volume + Number.parseFloat(matchingOffer.amount)
+              },
+        { offers: [], volume: 0 }
+      ),
+    [bestOffers, amount]
   )
 
   const bestPrices = bestMatches.offers.map(offer => Number.parseFloat(offer.price))
-  const worstPriceOfBestMatches =
-    bestPrices.length > 0 ? (action === "buy" ? Math.max(...bestPrices) : Math.min(...bestPrices)) : undefined
+  const worstPriceOfBestMatches = bestPrices.length > 0 ? bestPrices[bestPrices.length - 1] : undefined
 
+  console.log(">", { worstPriceOfBestMatches, bestMatches })
   const firstBestOffers = bestMatches.offers.slice(0, -1)
   const lastBestOffer = bestMatches.offers[bestMatches.offers.length - 1]
 

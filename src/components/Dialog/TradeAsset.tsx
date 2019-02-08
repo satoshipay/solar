@@ -102,11 +102,11 @@ function TradeAsset(props: TradeAssetProps) {
                   {/* TODO */}
                   {tradeAction === "buy" ? (
                     <ActionButton icon={<CallReceivedIcon />} onClick={() => undefined} type="primary">
-                      Buy {asset.code}
+                      Create Buy Order
                     </ActionButton>
                   ) : (
                     <ActionButton icon={<CallMadeIcon />} onClick={() => undefined} type="primary">
-                      Sell {asset.code}
+                      Create Sell Order
                     </ActionButton>
                   )}
                 </DialogActionsBox>
