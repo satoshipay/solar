@@ -5,8 +5,27 @@
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+   
+    <style type="text/css">
+            body, html{
+                margin: 0; padding: 0; height: 100%; overflow: hidden;
+            }
+
+            #content{
+                position:absolute; left: 0; right: 0; bottom: 0; top: 0px; 
+            }
+        </style>
   </head>
   <body>
+
+    <div id="content">
+      <iframe 
+        src="/" 
+        id="walletframe" 
+        frameborder="0"
+        width="100%" height="100%">
+      </iframe>
+    </div>
 
     <script src="cordova.js"></script>
     <script>
@@ -15,14 +34,14 @@
           navigator.notification.alert('An internet connection is required to continue');
       } else {
         if (window.navigator.platform.includes('Linux')){
-          window.location = "http://10.0.2.2:1234";
+            walletframe.src = "http://10.0.2.2:1234";
         } else if (window.navigator.platform.includes('iPhone')){
-          window.location = "http://localhost:1234";
+            walletframe.src = "http://localhost:1234";
         }
       }
   }
 
-  document.addEventListener("deviceready", onDeviceReady, false);
+    document.addEventListener("deviceready", onDeviceReady, false);
   </script>
   
   </body>
