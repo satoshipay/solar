@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.solarwallet" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="io.solarwallet" version="0.15.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Solar</name>
     <description>
-        Simple and secure Stellar wallet
+        Wallet for the Stellar payment network by SatoshiPay.
     </description>
-    <author email="solar@satoshipay.io" href="https://solarwallet.io/">
-        SatoshiPay Team
+    <author email="hello@solarwallet.io" href="https://solarwallet.io/">
+        SatoshiPay Ltd
     </author>
+    <license>GPL-3.0</license>
     <content src="index.dev-cordova.html" />
     <access origin="*" />
     <allow-navigation href="*" />
