@@ -25,7 +25,6 @@ export function useConversionOffers(orderbookRecord: FixedOrderbookRecord, amoun
   const bestPrices = bestMatches.offers.map(offer => Number.parseFloat(offer.price))
   const worstPriceOfBestMatches = bestPrices.length > 0 ? bestPrices[bestPrices.length - 1] : undefined
 
-  console.log(">", { worstPriceOfBestMatches, bestMatches })
   const firstBestOffers = bestMatches.offers.slice(0, -1)
   const lastBestOffer = bestMatches.offers[bestMatches.offers.length - 1]
 
