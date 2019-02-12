@@ -8,7 +8,7 @@
         SatoshiPay Ltd
     </author>
     <license>GPL-3.0</license>
-    <content src="index.dev-cordova.html" />
+    <content src="index.dev-ios.html" />
     <access origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />

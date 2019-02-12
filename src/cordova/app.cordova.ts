@@ -1,3 +1,6 @@
+import initializeStorage from "./storage"
+import { trackError } from "./error"
+
 document.addEventListener("deviceready", onDeviceReady, false)
 
 function onDeviceReady() {
@@ -5,7 +8,7 @@ function onDeviceReady() {
   document.addEventListener("resume", onResume, false)
   document.addEventListener("backbutton", onBackKeyDown, false)
 
-  import("./app")
+  initializeStorage().catch(trackError)
 }
 
 function onPause() {
