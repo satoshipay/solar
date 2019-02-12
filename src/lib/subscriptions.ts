@@ -1,4 +1,4 @@
-import { AccountRecord, Asset, OrderbookRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
+import { AccountRecord, Asset, OfferRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
 import { FixedOrderbookRecord } from "./orderbook"
@@ -26,6 +26,11 @@ export interface ObservedAccountData {
   thresholds: AccountRecord["thresholds"]
 }
 
+export interface ObservedAccountOffers {
+  loading: boolean
+  offers: OfferRecord[]
+}
+
 export interface ObservedRecentTxs {
   activated: boolean
   loading: boolean
@@ -37,6 +42,7 @@ export interface ObservedTradingPair extends FixedOrderbookRecord {
 }
 
 const accountDataSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountData>>()
+const accountOffersSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountOffers>>()
 const orderSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedTradingPair>>()
 const recentTxsSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedRecentTxs>>()
 
@@ -144,6 +150,51 @@ function createAccountDataSubscription(
   }
 
   fetchAccount().catch(trackError)
+
+  return subscriptionTarget
+}
+
+function createAccountOffersSubscription(
+  horizon: Server,
+  accountPubKey: string
+): SubscriptionTarget<ObservedAccountOffers> {
+  const maxOffers = 100
+  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ObservedAccountOffers>({
+    loading: true,
+    offers: []
+  })
+
+  const subscribeToAccountOffersStream = (cursor: string = "now") => {
+    horizon
+      .offers("accounts", accountPubKey)
+      .cursor(cursor)
+      .stream({
+        onmessage(offer: OfferRecord) {
+          propagateUpdate({
+            ...subscriptionTarget.getLatest(),
+            ...(offer as any)
+          })
+        },
+        onerror(error: any) {
+          trackError(error)
+        }
+      } as any)
+  }
+
+  const fetchAccountOffers = async () => {
+    const initialAccountOffers = await horizon
+      .offers("accounts", accountPubKey)
+      .limit(maxOffers)
+      .call()
+    propagateUpdate({
+      ...subscriptionTarget.getLatest(),
+      loading: false,
+      offers: initialAccountOffers.records
+    })
+    subscribeToAccountOffersStream()
+  }
+
+  fetchAccountOffers().catch(trackError)
 
   return subscriptionTarget
 }
@@ -297,6 +348,22 @@ export function subscribeToAccount(horizon: Server, accountPubKey: string): Subs
     const accountObservable = createAccountDataSubscription(horizon, accountPubKey)
     accountDataSubscriptionsCache.set(cacheKey, accountObservable)
     return accountObservable
+  }
+}
+
+export function subscribeToAccountOffers(
+  horizon: Server,
+  accountPubKey: string
+): SubscriptionTarget<ObservedAccountOffers> {
+  const cacheKey = getHorizonURL(horizon) + accountPubKey
+  const cached = accountOffersSubscriptionsCache.get(cacheKey)
+
+  if (cached) {
+    return cached
+  } else {
+    const accountOffers = createAccountOffersSubscription(horizon, accountPubKey)
+    accountOffersSubscriptionsCache.set(cacheKey, accountOffers)
+    return accountOffers
   }
 }
 

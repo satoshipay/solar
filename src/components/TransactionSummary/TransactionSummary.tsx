@@ -111,7 +111,13 @@ function TransactionSummary(props: { showSource?: boolean; testnet: boolean; tra
   return (
     <List>
       {props.transaction.operations.map((operation, index) => (
-        <OperationListItem key={index} operation={operation} style={noHPaddingStyle} />
+        <OperationListItem
+          key={index}
+          accountData={accountData}
+          operation={operation}
+          style={noHPaddingStyle}
+          testnet={props.testnet}
+        />
       ))}
       <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />
       {props.showSource || showSigners ? <Divider /> : null}

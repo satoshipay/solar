@@ -4,9 +4,11 @@ import { Asset, Server } from "stellar-sdk"
 import {
   getAssetCacheKey,
   subscribeToAccount,
+  subscribeToAccountOffers,
   subscribeToOrders,
   subscribeToRecentTxs,
   ObservedAccountData,
+  ObservedAccountOffers,
   ObservedRecentTxs,
   ObservedTradingPair,
   SubscriptionTarget
@@ -48,6 +50,13 @@ export function useAccountData(accountID: string, testnet: boolean): ObservedAcc
   const accountSubscription = useMemo(() => subscribeToAccount(horizon, accountID), [accountID, testnet])
 
   return useDataSubscription(accountSubscription)
+}
+
+export function useAccountOffers(accountID: string, testnet: boolean): ObservedAccountOffers {
+  const horizon = useHorizon(testnet)
+  const offersSubscription = useMemo(() => subscribeToAccountOffers(horizon, accountID), [accountID, testnet])
+
+  return useDataSubscription(offersSubscription)
 }
 
 export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): ObservedTradingPair {
