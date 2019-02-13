@@ -28,12 +28,16 @@ export function formatBalance(
   balance: string,
   options: { groupThousands?: boolean; minimumDecimals?: number; minimumSignificants?: number } = {}
 ) {
+  if (Number.isNaN(Number.parseFloat(balance))) {
+    return "-"
+  }
+
   const thousandsSeparator = ","
   const maximumDecimals = 7
   const maximumSignificants = 13
   const { groupThousands = true, minimumDecimals = 0, minimumSignificants = 0 } = options
 
-  const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(balance)))
+  const trimmedUnformattedBalance = trimBalance(Math.abs(Number.parseFloat(balance)))
 
   // tslint:disable-next-line prefer-const
   let [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
