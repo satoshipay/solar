@@ -1,4 +1,13 @@
-import { AccountRecord, Asset, OfferRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
+import {
+  AccountRecord,
+  Asset,
+  OfferRecord,
+  OperationRecord,
+  Server,
+  Transaction,
+  TransactionRecord,
+  EffectRecord
+} from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
 import { FixedOrderbookRecord } from "./orderbook"
@@ -40,6 +49,19 @@ export interface ObservedRecentTxs {
 export interface ObservedTradingPair extends FixedOrderbookRecord {
   loading: boolean
 }
+
+type SerializedAsset =
+  | {
+      balance: string
+      asset_type: "native"
+    }
+  | {
+      balance: string
+      limit: string
+      asset_type: "credit_alphanum4" | "credit_alphanum12"
+      asset_code: string
+      asset_issuer: string
+    }
 
 const accountDataSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountData>>()
 const accountOffersSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountOffers>>()
@@ -154,6 +176,17 @@ function createAccountDataSubscription(
   return subscriptionTarget
 }
 
+function instantiateOffer(offer: OfferRecord) {
+  // Fix offer to match the TypeScript types by instantiating the assets
+  const buying: SerializedAsset = offer.buying as any
+  const selling: SerializedAsset = offer.selling as any
+  return {
+    ...offer,
+    buying: buying.asset_type === "native" ? Asset.native() : new Asset(buying.asset_code, buying.asset_issuer),
+    selling: selling.asset_type === "native" ? Asset.native() : new Asset(selling.asset_code, selling.asset_issuer)
+  }
+}
+
 function createAccountOffersSubscription(
   horizon: Server,
   accountPubKey: string
@@ -164,37 +197,35 @@ function createAccountOffersSubscription(
     offers: []
   })
 
-  const subscribeToAccountOffersStream = (cursor: string = "now") => {
-    horizon
-      .offers("accounts", accountPubKey)
-      .cursor(cursor)
-      .stream({
-        onmessage(offer: OfferRecord) {
-          propagateUpdate({
-            ...subscriptionTarget.getLatest(),
-            ...(offer as any)
-          })
-        },
-        onerror(error: any) {
-          trackError(error)
-        }
-      } as any)
+  const subscribeToAccountOffersStream = () => {
+    // horizon.offers("accounts", accountPubKey) does not seem to yield any updates, so falling back here...
+    const pollingIntervalMs = 5000
+    setInterval(() => {
+      if (window.navigator.onLine !== false) {
+        fetchAccountOffers().catch(trackError)
+      }
+    }, pollingIntervalMs)
   }
 
   const fetchAccountOffers = async () => {
-    const initialAccountOffers = await horizon
+    const accountOffers = await horizon
       .offers("accounts", accountPubKey)
       .limit(maxOffers)
       .call()
-    propagateUpdate({
-      ...subscriptionTarget.getLatest(),
-      loading: false,
-      offers: initialAccountOffers.records
-    })
-    subscribeToAccountOffersStream()
+
+    const offers = accountOffers.records.map(instantiateOffer)
+
+    if (JSON.stringify(offers) !== JSON.stringify(subscriptionTarget.getLatest().offers)) {
+      propagateUpdate({
+        ...subscriptionTarget.getLatest(),
+        loading: false,
+        offers
+      })
+    }
   }
 
   fetchAccountOffers().catch(trackError)
+  subscribeToAccountOffersStream()
 
   return subscriptionTarget
 }
