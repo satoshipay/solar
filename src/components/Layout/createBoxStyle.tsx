@@ -21,15 +21,7 @@ interface SizingStyles {
   padding?: React.CSSProperties["padding"]
 }
 
-const createSizingStyle = ({
-  width = null,
-  height = null,
-  minWidth = null,
-  maxWidth = null,
-  minHeight = null,
-  maxHeight = null,
-  padding = 0
-}: SizingStyles) => {
+const createSizingStyle = ({ width, height, minWidth, maxWidth, minHeight, maxHeight, padding = 0 }: SizingStyles) => {
   return {
     padding,
     width,
