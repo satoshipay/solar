@@ -119,22 +119,34 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
   }
 }
 
-interface ManageOfferOperationProps {
-  accountData: ObservedAccountData
-  operation: Operation.ManageOffer
-  style?: React.CSSProperties
-  testnet: boolean
+function OfferHeading(props: { amount: BigNumber; buying: Asset; offerId: string; selling: Asset }) {
+  let prefix: string
+
+  if (props.offerId === "0") {
+    // Offer creation
+    prefix = ""
+  } else if (props.amount.eq(0)) {
+    prefix = "Delete offer: "
+  } else {
+    prefix = "Update offer: "
+  }
+
+  return props.buying.isNative() ? (
+    <>
+      {prefix}
+      Sell {props.selling.code} for {props.buying.code}
+    </>
+  ) : (
+    <>
+      {prefix}
+      Buy {props.buying.code} with {props.selling.code}
+    </>
+  )
 }
 
-function ManageOfferOperation(props: ManageOfferOperationProps) {
-  const operation = props.operation
-  const offers = useAccountOffers(props.accountData.id, props.testnet)
-
-  const createHeading = (prefix: string, selling: Asset, buying: Asset) =>
-    buying.isNative()
-      ? `${prefix}Sell ${selling.code} for ${buying.code}`
-      : `${prefix}Buy ${buying.code} with ${selling.code}`
-  const createDetails = (selling: Asset, buying: Asset, amount: BigNumber, price: BigNumber) => (
+function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumber; selling: Asset }) {
+  const { amount, buying, price, selling } = props
+  return (
     <OperationDetails>
       {buying.isNative()
         ? `Sell ${formatBalance(amount.div(price).toString())} ${selling.code} at ${formatBalance(
@@ -147,6 +159,18 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
           }/${buying.code}`}
     </OperationDetails>
   )
+}
+
+interface ManageOfferOperationProps {
+  accountData: ObservedAccountData
+  operation: Operation.ManageOffer
+  style?: React.CSSProperties
+  testnet: boolean
+}
+
+function ManageOfferOperation(props: ManageOfferOperationProps) {
+  const operation = props.operation
+  const offers = useAccountOffers(props.accountData.id, props.testnet)
 
   if (operation.offerId === "0") {
     // Offer creation
@@ -154,41 +178,45 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
     const price = BigNumber(operation.price)
     return (
       <ListItem
-        heading={createHeading("Create offer: ", operation.selling, operation.buying)}
-        primaryText={createDetails(operation.selling, operation.buying, amount, price)}
+        heading={<OfferHeading {...operation} amount={amount} />}
+        primaryText={<OfferDetails {...operation} amount={amount} price={price} />}
         style={props.style}
       />
     )
   } else if (Number.parseFloat(operation.amount as string) === 0) {
     // Offer deletion
-    const offer = offers.offers.find(offer => offer.id === operation.offerId)
+    // Take care to cast to string before comparing IDs, since there are issues
+    const offer = offers.offers.find(someOffer => String(someOffer.id) === String(operation.offerId))
     return offer ? (
       <ListItem
-        heading={createHeading(`Delete offer ${operation.offerId}: `, offer.selling, offer.buying)}
-        primaryText={createDetails(offer.selling, offer.buying, BigNumber(offer.amount), BigNumber(offer.price))}
+        heading={<OfferHeading {...offer} amount={BigNumber(0)} offerId={offer.id} />}
+        primaryText={<OfferDetails {...offer} amount={BigNumber(offer.amount)} price={BigNumber(offer.price)} />}
         style={props.style}
       />
     ) : (
-      <ListItem heading={`Delete offer ${operation.offerId}`} primaryText="" style={props.style} />
+      <ListItem
+        heading={<OfferHeading {...operation} amount={BigNumber(0)} offerId={operation.offerId} />}
+        primaryText={
+          <OfferDetails {...operation} amount={BigNumber(operation.amount)} price={BigNumber(operation.price)} />
+        }
+        style={props.style}
+      />
     )
   } else {
     // Offer edit
     const offer = offers.offers.find(offer => offer.id === operation.offerId)
     return offer ? (
       <ListItem
-        heading={createHeading(`Update offer: ${operation.offerId}`, operation.selling, operation.buying)}
-        primaryText={createDetails(offer.selling, offer.buying, BigNumber(offer.amount), BigNumber(offer.price))}
+        heading={<OfferHeading {...operation} amount={BigNumber(offer.amount)} />}
+        primaryText={<OfferDetails {...offer} amount={BigNumber(offer.amount)} price={BigNumber(offer.price)} />}
         style={props.style}
       />
     ) : (
       <ListItem
-        heading={createHeading(`Update offer: ${operation.offerId}`, operation.selling, operation.buying)}
-        primaryText={createDetails(
-          operation.selling,
-          operation.buying,
-          BigNumber(operation.amount),
-          BigNumber(operation.price)
-        )}
+        heading={<OfferHeading {...operation} amount={BigNumber(operation.amount)} />}
+        primaryText={
+          <OfferDetails {...operation} amount={BigNumber(operation.amount)} price={BigNumber(operation.price)} />
+        }
         style={props.style}
       />
     )
