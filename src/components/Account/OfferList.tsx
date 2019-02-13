@@ -95,7 +95,6 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
   const offers = useAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
 
-  console.log(">>")
   const onCancel = async (offer: OfferRecord) => {
     try {
       const tx = await createDismissalTransaction(horizon, props.account, offer)

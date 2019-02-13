@@ -34,6 +34,8 @@ export function formatBalance(
   const { groupThousands = true, minimumDecimals = 0, minimumSignificants = 0 } = options
 
   const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(balance)))
+
+  // tslint:disable-next-line prefer-const
   let [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
 
   if (decimalPart.length < minimumDecimals) {

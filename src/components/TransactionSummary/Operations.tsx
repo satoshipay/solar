@@ -204,7 +204,7 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
     )
   } else {
     // Offer edit
-    const offer = offers.offers.find(offer => offer.id === operation.offerId)
+    const offer = offers.offers.find(someOffer => someOffer.id === operation.offerId)
     return offer ? (
       <ListItem
         heading={<OfferHeading {...operation} amount={BigNumber(offer.amount)} />}

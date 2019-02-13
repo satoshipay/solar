@@ -259,7 +259,7 @@ function createOrderbookSubscription(
       loading: false
     })
   }
-  const subscribeToOrders = (cursor: string = "now") => {
+  const streamOrderUpdates = (cursor: string = "now") => {
     horizon
       .orderbook(selling, buying)
       .cursor(cursor)
@@ -285,7 +285,7 @@ function createOrderbookSubscription(
   }
 
   fetchOrders().catch(trackError)
-  subscribeToOrders()
+  streamOrderUpdates()
 
   return subscriptionTarget
 }
