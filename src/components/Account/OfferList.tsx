@@ -55,14 +55,14 @@ function OfferListItem(props: OfferListItemProps) {
       <ListItemText
         primary={
           <span style={{ fontWeight: "bold" }}>
-            Buy&nbsp;&nbsp;
+            Sell&nbsp;&nbsp;
+            <SingleBalance assetCode={props.offer.selling.code} balance={props.offer.amount} inline />
+            &nbsp;&nbsp;for&nbsp;&nbsp;
             <SingleBalance
               assetCode={props.offer.buying.code}
               balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
               inline
             />
-            &nbsp;&nbsp;for&nbsp;&nbsp;
-            <SingleBalance assetCode={props.offer.selling.code} balance={props.offer.amount} inline />
           </span>
         }
       />

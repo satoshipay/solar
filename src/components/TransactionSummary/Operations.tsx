@@ -131,15 +131,10 @@ function OfferHeading(props: { amount: BigNumber; buying: Asset; offerId: string
     prefix = "Update offer: "
   }
 
-  return props.buying.isNative() ? (
+  return (
     <>
       {prefix}
       Sell {props.selling.code} for {props.buying.code}
-    </>
-  ) : (
-    <>
-      {prefix}
-      Buy {props.buying.code} with {props.selling.code}
     </>
   )
 }
@@ -148,15 +143,9 @@ function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumbe
   const { amount, buying, price, selling } = props
   return (
     <OperationDetails>
-      {buying.isNative()
-        ? `Sell ${formatBalance(amount.div(price).toString())} ${selling.code} at ${formatBalance(
-            BigNumber(1)
-              .div(price)
-              .toString()
-          )} ${buying.code}/${selling.code}`
-        : `Buy ${formatBalance(amount.toString())} ${buying.code} at ${formatBalance(price.toString())} ${
-            selling.code
-          }/${buying.code}`}
+      {`Sell ${formatBalance(amount.toString())} ${selling.code} at ${formatBalance(price.toString())} ${buying.code}/${
+        selling.code
+      }`}
     </OperationDetails>
   )
 }

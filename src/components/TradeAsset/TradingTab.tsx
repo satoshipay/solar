@@ -6,7 +6,6 @@ import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import ArrowRightIcon from "@material-ui/icons/ArrowRightAlt"
 import { useOrderbook } from "../../hooks"
-import { invertOrderbookRecord } from "../../lib/orderbook"
 import { brandColor } from "../../theme"
 import { formatBalance } from "../Account/AccountBalances"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
@@ -77,17 +76,17 @@ function TradingTab(props: TradingTabProps) {
   const DialogActions = props.DialogActions
   const assetCode = props.asset ? props.asset.code : ""
 
-  const buyingTradePair = useOrderbook(Asset.native(), props.asset, props.testnet)
+  const tradePair =
+    props.action === "buy"
+      ? useOrderbook(Asset.native(), props.asset, props.testnet)
+      : useOrderbook(props.asset, Asset.native(), props.testnet)
   const [amountString, setAmountString] = useState("")
   const [priceString, setPriceString] = useState("")
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? 1 : Number.parseFloat(amountString)
   const priceRaw = Number.parseFloat(priceString)
 
-  const { estimatedCost, worstPriceOfBestMatches } =
-    props.action === "buy"
-      ? useConversionOffers(buyingTradePair, amount, priceRaw)
-      : useConversionOffers(invertOrderbookRecord(buyingTradePair), amount, priceRaw)
+  const { estimatedCost, worstPriceOfBestMatches } = useConversionOffers(tradePair, amount, priceRaw)
 
   const arrow = <ArrowRightIcon style={{ fontSize: 64 }} />
   const price = Number.isNaN(priceRaw) ? worstPriceOfBestMatches || 0 : priceRaw
@@ -129,7 +128,11 @@ function TradingTab(props: TradingTabProps) {
           label={`Price Limit (${priceUnits})`}
           onChange={event => setPriceString(event.target.value)}
           style={{ flexGrow: 1, width: 200 }}
-          value={priceString || formatBalance(String(worstPriceOfBestMatches), { groupThousands: false }) || "0.00"}
+          value={
+            priceString ||
+            (worstPriceOfBestMatches ? formatBalance(String(worstPriceOfBestMatches), { groupThousands: false }) : 0) ||
+            "0.00"
+          }
         />
         <HorizontalMargin grow={1} shrink={1} size={16} />
         {/* Just to keep things aligned with the top row: */}

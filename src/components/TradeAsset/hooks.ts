@@ -30,7 +30,10 @@ export function useConversionOffers(orderbookRecord: FixedOrderbookRecord, amoun
 
   const estimatedCost = sum([
     ...firstBestOffers.slice(0, -1).map(offer => Number.parseFloat(offer.amount) * Number.parseFloat(offer.price)),
-    Number.parseFloat(lastBestOffer.price) * (Number.parseFloat(lastBestOffer.amount) - (bestMatches.volume - amount))
+    lastBestOffer
+      ? Number.parseFloat(lastBestOffer.price) *
+        (Number.parseFloat(lastBestOffer.amount) - (bestMatches.volume - amount))
+      : 0
   ])
 
   return {

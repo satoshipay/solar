@@ -31,25 +31,3 @@ export interface FixedOrderbookRecord {
   base: Asset
   counter: Asset
 }
-
-function invertOffer(offer: FixedOrderbookOffer): FixedOrderbookOffer {
-  return {
-    amount: offer.amount,
-    price_r: {
-      d: offer.price_r.n,
-      n: offer.price_r.d
-    },
-    price: BigNumber(1)
-      .div(BigNumber(offer.price))
-      .toString()
-  }
-}
-
-export function invertOrderbookRecord(record: FixedOrderbookRecord): FixedOrderbookRecord {
-  return {
-    asks: record.bids.map(invertOffer),
-    bids: record.asks.map(invertOffer),
-    base: record.counter,
-    counter: record.base
-  }
-}
