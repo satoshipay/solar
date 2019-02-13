@@ -10,7 +10,7 @@
     "jsx": "react",
     "noUnusedLocals": true
   },
-  "include": ["./src/**/*", "./types/**/*", "./node_modules/@types/recompose/index.d.ts"],
+  "include": ["./src/**/*", "./types/**/*", "./node_modules/@types/recompose/index.d.ts", "src/cordova/storage.ts"],
   "rules": {
     "no-submodule-imports": false
   }
