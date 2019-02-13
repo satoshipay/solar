@@ -11,8 +11,9 @@ import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useHorizon, ObservedAccountData } from "../../hooks"
+import { useAccountData, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
+import * as routes from "../../routes"
 import { formatBalance } from "../Account/AccountBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
@@ -174,8 +175,10 @@ function TradeAsset(props: TradeAssetProps) {
 }
 
 function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "assetCode" | "open" | "onClose">) {
+  const router = useRouter()
+  const navigateToAssets = () => router.history.push(routes.manageAccountAssets(props.account.id))
   return (
-    <TransactionSender account={props.account}>
+    <TransactionSender account={props.account} onSubmissionCompleted={navigateToAssets}>
       {txContext => <TradeAsset {...props} {...txContext} />}
     </TransactionSender>
   )
