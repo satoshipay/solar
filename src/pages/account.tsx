@@ -10,6 +10,7 @@ import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBalances from "../components/Account/AccountBalances"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
+import OfferList from "../components/Account/OfferList"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
 import TransactionList from "../components/Account/TransactionList"
 import CreatePaymentDialog from "../components/Dialog/CreatePayment"
@@ -128,6 +129,7 @@ function Transactions(props: { account: Account }) {
       ) : recentTxs.activated ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
+          <OfferList account={account} title="Open offers" />
           <TransactionList
             accountPublicKey={account.publicKey}
             background="transparent"
