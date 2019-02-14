@@ -27,6 +27,8 @@ const commandHandlers: CommandHandlers = {
   "storage:ignoredSignatureRequests:store": updateIgnoredSignatureRequests
 }
 
+const iframe = document.getElementById("walletframe") as HTMLIFrameElement
+
 const handleMessageEvent = (event: Event, secureStorage: CordovaSecureStorage) => {
   if (!(event instanceof MessageEvent)) {
     return
@@ -122,21 +124,27 @@ async function saveValueIntoStorage(storage: CordovaSecureStorage, keyName: stri
   })
 }
 
-const iframe = document.getElementById("walletframe") as HTMLIFrameElement
-
-export default async function initialize() {
-  if (!cordova) {
-    throw new Error("No cordova runtime available.")
-  }
-
-  const secureStorage = await new Promise<CordovaSecureStorage>((resolve, reject) => {
+function initSecureStorage() {
+  return new Promise<CordovaSecureStorage>((resolve, reject) => {
     const storage: CordovaSecureStorage = new cordova.plugins.SecureStorage(
       () => resolve(storage),
       reject, // might throw error e.g. if no lock screen is set for android
       cordovaSecureStorageName
     )
   })
+}
 
-  window.addEventListener("message", event => handleMessageEvent(event, secureStorage))
-  return secureStorage
+export default function initialize() {
+  if (!cordova) {
+    throw new Error("No cordova runtime available.")
+  }
+
+  const initPromise = initSecureStorage()
+
+  // Set up event listener synchronously, so it's working as early as possible
+  window.addEventListener("message", async event => {
+    handleMessageEvent(event, await initPromise)
+  })
+
+  return initPromise
 }
