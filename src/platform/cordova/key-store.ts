@@ -8,7 +8,7 @@ async function readKeys(): Promise<KeysData<PublicKeyData>> {
 }
 
 async function saveKeys(keysData: KeysData<PublicKeyData>) {
-  const event = await sendCommand("storage:keys:store", keysData)
+  const event = await sendCommand("storage:keys:store", { keys: keysData })
   return event.data
 }
 
@@ -16,5 +16,6 @@ export default async function createKeyStore() {
   const storeKeys = async (keysData: KeysData<PublicKeyData>) => {
     await saveKeys(keysData)
   }
+
   return createStore<PrivateKeyData, PublicKeyData>(storeKeys, await readKeys())
 }

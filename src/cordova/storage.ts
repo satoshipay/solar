@@ -55,7 +55,7 @@ async function respondWithKeys(event: MessageEvent, contentWindow: Window, secur
 async function updateKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
   const keysData = event.data.keys
 
-  if (!keysData || keysData !== "object") {
+  if (!keysData || typeof keysData !== "object") {
     throw new Error(`Invalid keys passed: ${keysData}`)
   }
 
@@ -71,7 +71,7 @@ async function respondWithSettings(event: MessageEvent, contentWindow: Window, s
 async function updateSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
   const settings = event.data.settings
 
-  if (!settings || settings !== "object") {
+  if (!settings || typeof settings !== "object") {
     throw new Error(`Invalid settings passed: ${settings}`)
   }
 
@@ -96,9 +96,9 @@ async function updateIgnoredSignatureRequests(
   contentWindow: Window,
   secureStorage: CordovaSecureStorage
 ) {
-  const ignoredSignatureRequests = event.data.ignoredSignatures
+  const ignoredSignatureRequests = event.data.ignoredSignatureRequests
 
-  if (!ignoredSignatureRequests || ignoredSignatureRequests !== "object") {
+  if (!ignoredSignatureRequests || typeof ignoredSignatureRequests !== "object") {
     throw new Error(`Invalid signatures passed: ${ignoredSignatureRequests}`)
   }
 
@@ -108,14 +108,18 @@ async function updateIgnoredSignatureRequests(
 
 async function getValueFromStorage(storage: CordovaSecureStorage, keyName: string) {
   return new Promise<object>((resolve, reject) => {
-    storage.get(key => resolve(JSON.parse(key)), reject, keyName)
+    storage.get(
+      key => resolve(JSON.parse(key)),
+      error => resolve({}), // return empty object because no value stored
+      keyName
+    )
   })
 }
 
 async function saveValueIntoStorage(storage: CordovaSecureStorage, keyName: string, value: object) {
   return new Promise((resolve, reject) => {
     storage.set(resolve, reject, keyName, JSON.stringify(value))
-  }).catch(trackError)
+  })
 }
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
@@ -133,6 +137,6 @@ export default async function initialize() {
     )
   })
 
-  iframe.addEventListener("message", event => handleMessageEvent(event, secureStorage))
+  window.addEventListener("message", event => handleMessageEvent(event, secureStorage))
   return secureStorage
 }

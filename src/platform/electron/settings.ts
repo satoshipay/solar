@@ -1,6 +1,6 @@
 import { SettingsData } from "../types"
 
-export function loadSettings() {
+export async function loadSettings() {
   if (!window.electron) {
     throw new Error("No electron runtime context available.")
   }
@@ -14,7 +14,7 @@ export function saveSettings(updatedSettings: Partial<SettingsData>) {
   window.electron.updateSettings(updatedSettings)
 }
 
-export function loadIgnoredSignatureRequestHashes() {
+export async function loadIgnoredSignatureRequestHashes() {
   if (!window.electron) {
     throw new Error("No electron runtime context available.")
   }

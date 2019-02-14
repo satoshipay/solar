@@ -1,6 +1,6 @@
 import { createStore } from "key-store"
 
-export default function createKeyStore() {
+export default async function createKeyStore() {
   if (!window.electron) {
     throw new Error("No electron runtime context available.")
   }

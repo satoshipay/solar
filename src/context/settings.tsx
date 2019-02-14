@@ -1,5 +1,5 @@
 import React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   loadIgnoredSignatureRequestHashes,
   loadSettings,
@@ -28,11 +28,10 @@ interface ContextType {
 const initialSettings: SettingsData = {
   agreedToTermsAt: undefined,
   multisignature: false,
-  testnet: false,
-  ...loadSettings()
+  testnet: false
 }
 
-const initialIgnoredSignatureRequests = loadIgnoredSignatureRequestHashes()
+const initialIgnoredSignatureRequests: string[] = []
 
 const multiSignatureServiceURL = process.env.MULTISIG_SERVICE || "https://multisig.satoshipay.io/"
 
@@ -51,6 +50,20 @@ const SettingsContext = React.createContext<ContextType>({
 export function SettingsProvider(props: Props) {
   const [ignoredSignatureRequests, setIgnoredSignatureRequests] = useState(initialIgnoredSignatureRequests)
   const [settings, setSettings] = useState(initialSettings)
+
+  useEffect(() => {
+    loadSettings()
+      .then(loadedSettings => setSettings({ ...settings, ...loadedSettings }))
+      .catch(trackError)
+
+    loadIgnoredSignatureRequestHashes()
+      .then(setIgnoredSignatureRequests)
+      .catch(trackError)
+
+    // Can't really cancel loading the settings
+    const unsubscribe = () => undefined
+    return unsubscribe
+  }, [])
 
   const ignoreSignatureRequest = (signatureRequestHash: string) => {
     if (ignoredSignatureRequests.indexOf(signatureRequestHash) === -1) {
