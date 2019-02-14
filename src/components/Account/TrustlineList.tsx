@@ -1,5 +1,5 @@
 import React from "react"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
@@ -13,6 +13,7 @@ import RemoveIcon from "@material-ui/icons/Close"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
+import { SettingsContext } from "../../context/settings"
 import { useAccountData } from "../../hooks"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
@@ -131,6 +132,7 @@ interface Props {
 
 function TrustlineList(props: Props) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const settings = useContext(SettingsContext)
 
   const isAssetAlreadyAdded = (asset: Asset) => {
     return accountData.balances.some(
@@ -166,11 +168,13 @@ function TrustlineList(props: Props) {
           account={account}
           balance={balance}
           hoverActions={
-            <Button onClick={() => props.onTradeAsset(new Asset(balance.asset_code, balance.asset_issuer))}>
-              <ButtonIconLabel label="Buy / Sell">
-                <SwapHorizIcon />
-              </ButtonIconLabel>
-            </Button>
+            settings.dexTrading ? (
+              <Button onClick={() => props.onTradeAsset(new Asset(balance.asset_code, balance.asset_issuer))}>
+                <ButtonIconLabel label="Buy / Sell">
+                  <SwapHorizIcon />
+                </ButtonIconLabel>
+              </Button>
+            ) : null
           }
           onRemoveTrustline={onRemoveTrustline}
         />

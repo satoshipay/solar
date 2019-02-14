@@ -369,6 +369,11 @@ async function createRecentTxsSubscription(
   return subscriptionTarget
 }
 
+export function createDeadSubscription<Value>(initialValue: Value): SubscriptionTarget<Value> {
+  const { subscriptionTarget } = createSubscriptionTarget(initialValue)
+  return subscriptionTarget
+}
+
 export function subscribeToAccount(horizon: Server, accountPubKey: string): SubscriptionTarget<ObservedAccountData> {
   const cacheKey = getHorizonURL(horizon) + accountPubKey
   const cached = accountDataSubscriptionsCache.get(cacheKey)

@@ -1,7 +1,9 @@
 import { useContext, useEffect, useMemo, useState } from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
+import { SettingsContext } from "./context/settings"
 import {
+  createDeadSubscription,
   getAssetCacheKey,
   subscribeToAccount,
   subscribeToAccountOffers,
@@ -54,7 +56,16 @@ export function useAccountData(accountID: string, testnet: boolean): ObservedAcc
 
 export function useAccountOffers(accountID: string, testnet: boolean): ObservedAccountOffers {
   const horizon = useHorizon(testnet)
-  const offersSubscription = useMemo(() => subscribeToAccountOffers(horizon, accountID), [accountID, testnet])
+  const settings = useContext(SettingsContext)
+
+  const offersSubscription = useMemo(
+    () => {
+      return settings.dexTrading
+        ? subscribeToAccountOffers(horizon, accountID)
+        : createDeadSubscription<ObservedAccountOffers>({ loading: false, offers: [] })
+    },
+    [accountID, testnet]
+  )
 
   return useDataSubscription(offersSubscription)
 }

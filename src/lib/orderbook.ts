@@ -1,4 +1,3 @@
-import BigNumber from "big.js"
 import { Asset } from "stellar-sdk"
 
 /*
