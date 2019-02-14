@@ -2,8 +2,8 @@ import { useContext, useEffect, useMemo, useState } from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
 import { SettingsContext } from "./context/settings"
+import { createDeadSubscription, SubscriptionTarget } from "./lib/subscription"
 import {
-  createDeadSubscription,
   getAssetCacheKey,
   subscribeToAccount,
   subscribeToAccountOffers,
@@ -12,9 +12,8 @@ import {
   ObservedAccountData,
   ObservedAccountOffers,
   ObservedRecentTxs,
-  ObservedTradingPair,
-  SubscriptionTarget
-} from "./lib/subscriptions"
+  ObservedTradingPair
+} from "./subscriptions"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
