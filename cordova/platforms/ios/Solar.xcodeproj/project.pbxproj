@@ -28,6 +28,10 @@
 		DFF101858096423ABEAB409F /* SAMKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 8537F10A6DDD402BB3745AD1 /* SAMKeychainQuery.m */; };
 		42727EE526C94B1DBF43FF1F /* SAMKeychain.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6275085A866B47C49E4B3AAF /* SAMKeychain.bundle */; };
 		EC6918A528764753B3685884 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2DC08AF2A2A4F82A6E070CC /* Security.framework */; };
+		B3485B6976C24562B80E66FF /* CDVBarcodeScanner.mm in Resources */ = {isa = PBXBuildFile; fileRef = 0A3964F117C44E5C9051DE0F /* CDVBarcodeScanner.mm */; };
+		4BF2F37022B64E05AEE8434B /* scannerOverlay.xib in Resources */ = {isa = PBXBuildFile; fileRef = C8F69A96ED864442A03865E5 /* scannerOverlay.xib */; };
+		C0D06F565B34442EBEF6CC91 /* CDVBarcodeScanner.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 12F1E37A26B84E50924F4407 /* CDVBarcodeScanner.bundle */; };
+		F386AF3BFAF941C3BA3B3195 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B8436F2800F4DBBA861E1A5 /* AVFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +90,10 @@
 		0E74133AC2F84683ACD9EB34 /* SAMKeychainQuery.h */ = {isa = PBXFileReference; name = "SAMKeychainQuery.h"; path = "cordova-plugin-secure-storage/SAMKeychainQuery.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 		6275085A866B47C49E4B3AAF /* SAMKeychain.bundle */ = {isa = PBXFileReference; name = "SAMKeychain.bundle"; path = "SAMKeychain.bundle"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.plug-in; explicitFileType = undefined; includeInIndex = 0; };
 		B2DC08AF2A2A4F82A6E070CC /* Security.framework */ = {isa = PBXFileReference; name = "Security.framework"; path = "System/Library/Frameworks/Security.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		0A3964F117C44E5C9051DE0F /* CDVBarcodeScanner.mm */ = {isa = PBXFileReference; name = "CDVBarcodeScanner.mm"; path = "phonegap-plugin-barcodescanner/CDVBarcodeScanner.mm"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C8F69A96ED864442A03865E5 /* scannerOverlay.xib */ = {isa = PBXFileReference; name = "scannerOverlay.xib"; path = "scannerOverlay.xib"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = file.xib; explicitFileType = undefined; includeInIndex = 0; };
+		12F1E37A26B84E50924F4407 /* CDVBarcodeScanner.bundle */ = {isa = PBXFileReference; name = "CDVBarcodeScanner.bundle"; path = "CDVBarcodeScanner.bundle"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.plug-in; explicitFileType = undefined; includeInIndex = 0; };
+		3B8436F2800F4DBBA861E1A5 /* AVFoundation.framework */ = {isa = PBXFileReference; name = "AVFoundation.framework"; path = "System/Library/Frameworks/AVFoundation.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +106,7 @@
 				E1B4B85DF5F147139D59BFDB /* SystemConfiguration.framework in Frameworks */,
 				125ECD9E182A4B6A9E2BCBE1 /* CoreTelephony.framework in Frameworks */,
 				EC6918A528764753B3685884 /* Security.framework in Frameworks */,
+				F386AF3BFAF941C3BA3B3195 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,6 +171,8 @@
 				6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */,
 				414980AFA09D41B682B9B117 /* CDVNotification.bundle */,
 				6275085A866B47C49E4B3AAF /* SAMKeychain.bundle */,
+				C8F69A96ED864442A03865E5 /* scannerOverlay.xib */,
+				12F1E37A26B84E50924F4407 /* CDVBarcodeScanner.bundle */,
 			);
 			name = Resources;
 			path = "Solar/Resources";
@@ -174,6 +185,7 @@
 				A575B6F34338479899092C3C /* SystemConfiguration.framework */,
 				1CEB7ADA520F42D4B0895593 /* CoreTelephony.framework */,
 				B2DC08AF2A2A4F82A6E070CC /* Security.framework */,
+				3B8436F2800F4DBBA861E1A5 /* AVFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -211,6 +223,7 @@
 				C2EB9AF44257416BBC8EAFB7 /* SecureStorage.h */,
 				8FC672506B0B4D6BB2402E01 /* SAMKeychain.h */,
 				0E74133AC2F84683ACD9EB34 /* SAMKeychainQuery.h */,
+				0A3964F117C44E5C9051DE0F /* CDVBarcodeScanner.mm */,
 			);
 			name = Plugins;
 			path = "Solar/Plugins";
@@ -294,6 +307,8 @@
 				6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */,
 				076C60A782A34D97BAD15B48 /* CDVNotification.bundle in Resources */,
 				42727EE526C94B1DBF43FF1F /* SAMKeychain.bundle in Resources */,
+				4BF2F37022B64E05AEE8434B /* scannerOverlay.xib in Resources */,
+				C0D06F565B34442EBEF6CC91 /* CDVBarcodeScanner.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,6 +346,7 @@
 				D0106E0D671D496B8DC21F91 /* SecureStorage.m in Sources */,
 				656489F107A542CFB511B02C /* SAMKeychain.m in Sources */,
 				DFF101858096423ABEAB409F /* SAMKeychainQuery.m in Sources */,
+				B3485B6976C24562B80E66FF /* CDVBarcodeScanner.mm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

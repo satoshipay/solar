@@ -19,6 +19,10 @@
             {
               "xml": "<feature name=\"SecureStorage\"><param name=\"ios-package\" value=\"SecureStorage\" /></feature>",
               "count": 1
+            },
+            {
+              "xml": "<feature name=\"BarcodeScanner\"><param name=\"ios-package\" value=\"CDVBarcodeScanner\" /></feature>",
+              "count": 1
             }
           ]
         }
@@ -36,6 +40,9 @@
       "PACKAGE_NAME": "io.solarwallet"
     },
     "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "io.solarwallet"
+    },
+    "phonegap-plugin-barcodescanner": {
       "PACKAGE_NAME": "io.solarwallet"
     }
   },
@@ -73,12 +80,21 @@
       "clobbers": [
         "SecureStorage"
       ]
+    },
+    {
+      "id": "phonegap-plugin-barcodescanner.BarcodeScanner",
+      "file": "plugins/phonegap-plugin-barcodescanner/www/barcodescanner.js",
+      "pluginId": "phonegap-plugin-barcodescanner",
+      "clobbers": [
+        "cordova.plugins.barcodeScanner"
+      ]
     }
   ],
   "plugin_metadata": {
     "cordova-plugin-dialogs": "2.0.1",
     "cordova-plugin-network-information": "2.0.1",
     "cordova-plugin-secure-storage": "3.0.1",
-    "cordova-plugin-whitelist": "1.3.3"
+    "cordova-plugin-whitelist": "1.3.3",
+    "phonegap-plugin-barcodescanner": "8.0.1"
   }
 }

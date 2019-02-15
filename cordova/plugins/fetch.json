@@ -30,5 +30,13 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "phonegap-plugin-barcodescanner": {
+    "source": {
+      "type": "registry",
+      "id": "phonegap-plugin-barcodescanner@8.0.1"
+    },
+    "is_top_level": true,
+    "variables": {}
   }
 }

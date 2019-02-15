@@ -11,15 +11,19 @@
       "cordova-plugin-secure-storage": {},
       "cordova-plugin-whitelist": {},
       "cordova-plugin-dialogs": {},
-      "cordova-plugin-network-information": {}
+      "cordova-plugin-network-information": {},
+      "phonegap-plugin-barcodescanner": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+      }
     }
   },
   "dependencies": {
     "cordova-android": "^7.1.4",
     "cordova-ios": "^4.5.5",
+    "cordova-plugin-dialogs": "~2.0.1",
+    "cordova-plugin-network-information": "~2.0.1",
     "cordova-plugin-secure-storage": "^3.0.1",
     "cordova-plugin-whitelist": "1",
-    "cordova-plugin-dialogs": "~2.0.1",
-    "cordova-plugin-network-information": "~2.0.1"
+    "phonegap-plugin-barcodescanner": "^8.0.1"
   }
 }
