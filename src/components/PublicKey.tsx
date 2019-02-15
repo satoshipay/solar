@@ -19,6 +19,21 @@ function getDigitCounts(variant?: Variant) {
   }
 }
 
+function shortenName(name: string, intendedLength: number) {
+  if (name.length <= intendedLength) {
+    return name
+  } else {
+    return (
+      name.substr(0, intendedLength - 3).trim() +
+      "…" +
+      name
+        .substr(intendedLength - 3)
+        .substr(-3)
+        .trim()
+    )
+  }
+}
+
 interface Props {
   publicKey: string
   variant?: Variant
@@ -40,10 +55,7 @@ const PublicKey = (props: Props) => {
       <Typography component="span" style={style}>
         {props.variant === "full" || !props.variant
           ? matchingLocalAccount.name
-          : [
-              matchingLocalAccount.name.substr(0, digits.leading + digits.trailing + 2 - 3).trim(),
-              matchingLocalAccount.name.substr(-3).trim()
-            ].join("…")}
+          : shortenName(matchingLocalAccount.name, digits.leading + digits.trailing + 6)}
       </Typography>
     )
   }
