@@ -1,17 +1,26 @@
 import React from "react"
 import { useState } from "react"
 import { Asset } from "stellar-sdk"
-import grey from "@material-ui/core/colors/grey"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
+import Tab from "@material-ui/core/Tab"
+import Tabs from "@material-ui/core/Tabs"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import { useOrderbook } from "../../hooks"
 import { formatBalance } from "../Account/AccountBalances"
-import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { VerticalMargin } from "../Layout/Spacing"
+import Explanation from "./Explanation"
 import { useConversionOffers } from "./hooks"
 
 type ToleranceValue = 0 | 0.01 | 0.02
+
+function isDisabled(amount: number, price: number, balance: number) {
+  return [Number.isNaN(amount), Number.isNaN(price), amount <= 0, amount > balance, price <= 0].some(
+    condition => condition === true
+  )
+}
 
 const AssetCodeAdornment = (props: { children: string }) => (
   <InputAdornment disableTypography position="end" style={{ pointerEvents: "none" }}>
@@ -45,53 +54,61 @@ const ReadOnlyTextfield = (props: {
 )
 
 interface TradingTabProps {
-  action: "buy" | "sell"
   asset: Asset
   testnet: boolean
   tokenBalance: string
   xlmBalance: string
-  DialogActions: React.ComponentType<{ amount: number; disabled?: boolean; price: number }>
+  DialogActions: React.ComponentType<{ amount: number; disabled?: boolean; price: number; tradeAction: "buy" | "sell" }>
 }
 
 function TradingTab(props: TradingTabProps) {
   const DialogActions = props.DialogActions
   const assetCode = props.asset ? props.asset.code : ""
 
+  const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy")
+  const handleTabsChange = (event: React.ChangeEvent<any>, value: "buy" | "sell") => setTradeAction(value)
+
   const tradePair =
-    props.action === "buy"
+    tradeAction === "buy"
       ? useOrderbook(Asset.native(), props.asset, props.testnet)
       : useOrderbook(props.asset, Asset.native(), props.testnet)
   const [amountString, setAmountString] = useState("")
   const [tolerance, setTolerance] = useState<ToleranceValue>(0)
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? 0 : Number.parseFloat(amountString)
+  const balance = tradeAction === "buy" ? Number.parseFloat(props.xlmBalance) : Number.parseFloat(props.tokenBalance)
 
   const { estimatedCost, worstPriceOfBestMatches } = useConversionOffers(tradePair, amount, Number.NaN)
   const price = worstPriceOfBestMatches || 0
 
   return (
-    <VerticalLayout padding="16px 0">
-      <HorizontalLayout minHeight="100%">
-        <VerticalLayout alignItems="stretch" grow={1} shrink={1}>
+    <VerticalLayout>
+      <HorizontalLayout shrink={0} wrap="wrap">
+        <VerticalLayout alignItems="stretch" basis="50%" grow={1} shrink={1}>
+          <Tabs indicatorColor="primary" onChange={handleTabsChange} textColor="primary" value={tradeAction}>
+            <Tab label="Buy" value="buy" />
+            <Tab label="Sell" value="sell" />
+          </Tabs>
+          <VerticalMargin size={24} />
           <TextField
             InputProps={{
-              endAdornment: <AssetCodeAdornment>{props.action === "buy" ? "XLM" : assetCode}</AssetCodeAdornment>,
+              endAdornment: <AssetCodeAdornment>{tradeAction === "buy" ? "XLM" : assetCode}</AssetCodeAdornment>,
               style: {
                 minWidth: "15em"
               }
             }}
             autoFocus
             label="Amount to convert"
-            placeholder={`Max. ${formatBalance(props.action === "buy" ? props.xlmBalance : props.tokenBalance)}`}
+            placeholder={`Max. ${formatBalance(tradeAction === "buy" ? props.xlmBalance : props.tokenBalance)}`}
             onChange={event => setAmountString(event.target.value)}
-            style={{ flexGrow: 1, flexShrink: 0 }}
+            style={{ marginBottom: 24 }}
             value={amountString}
           />
           <TextField
-            label="Price"
+            label={`Price per ${tradeAction === "buy" ? assetCode : "XLM"}`}
             onChange={event => setTolerance((event.target.value as any) as ToleranceValue)}
             select
-            style={{ flexGrow: 1, flexShrink: 0 }}
+            style={{ marginBottom: 24 }}
             value={tolerance}
           >
             <MenuItem value={0}>
@@ -101,7 +118,7 @@ function TradingTab(props: TradingTabProps) {
                   worstPriceOfBestMatches
                     ? formatBalance(String(1 / worstPriceOfBestMatches), { groupThousands: false })
                     : "0.00",
-                  props.action === "buy" ? "XLM" : assetCode
+                  tradeAction === "buy" ? "XLM" : assetCode
                 ].join(" ")}
                 tolerance={0}
               />
@@ -113,7 +130,7 @@ function TradingTab(props: TradingTabProps) {
                   worstPriceOfBestMatches
                     ? formatBalance(String((1 / worstPriceOfBestMatches) * 1.01), { groupThousands: false })
                     : "0.00",
-                  props.action === "buy" ? "XLM" : assetCode
+                  tradeAction === "buy" ? "XLM" : assetCode
                 ].join(" ")}
                 tolerance={0.01}
               />
@@ -125,7 +142,7 @@ function TradingTab(props: TradingTabProps) {
                   worstPriceOfBestMatches
                     ? formatBalance(String((1 / worstPriceOfBestMatches) * 1.02), { groupThousands: false })
                     : "0.00",
-                  props.action === "buy" ? "XLM" : assetCode
+                  tradeAction === "buy" ? "XLM" : assetCode
                 ].join(" ")}
                 tolerance={0.02}
               />
@@ -133,39 +150,31 @@ function TradingTab(props: TradingTabProps) {
           </TextField>
           <ReadOnlyTextfield
             label="Amount to receive"
-            style={{ flexGrow: 1, flexShrink: 0 }}
-            value={`${formatBalance(String(estimatedCost), { minimumSignificants: 3 })} ${
-              props.action === "buy" ? assetCode : "XLM"
-            }`}
+            style={{ marginBottom: 24 }}
+            value={[
+              formatBalance(String(estimatedCost), { minimumSignificants: 3 }),
+              tradeAction === "buy" ? assetCode : "XLM"
+            ].join(" ")}
           />
           {/* TODO: "Large spread" alert */}
         </VerticalLayout>
-        <VerticalLayout alignItems="stretch" justifyContent="stretch" grow={1} maxWidth="50%" shrink={1}>
-          <Box
-            alignItems="stretch"
-            justifyContent="stretch"
-            padding={16}
-            style={{ background: grey["100"], marginTop: -60, marginLeft: 32 }}
-          >
-            <Typography gutterBottom variant="title">
-              Trading assets
-            </Typography>
-            <Typography style={{ marginTop: 8 }} variant="body1">
-              Convert your funds held in one asset to another by trading it on the Stellar Decentralized Exchange (DEX).
-            </Typography>
-            <Typography style={{ marginTop: 8 }} variant="body1">
-              The trade will be made at the best price currently on offer and should happen immediately. High price
-              volatility and low market volume can lead to short-term price changes, potentially causing your order to
-              spend a prolonged time in the order book.
-            </Typography>
-            <Typography style={{ marginTop: 8 }} variant="body1">
-              For this reason you can opt for a higher price limit, increasing your chance of an immediate conversion.
-              The Stellar network will always try to buy at the lowest price within your limit first.
-            </Typography>
-          </Box>
+        <VerticalLayout
+          alignItems="stretch"
+          basis="50%"
+          grow={1}
+          shrink={1}
+          minWidth={350}
+          style={{ marginTop: 8, paddingLeft: 48 }}
+        >
+          <Explanation />
         </VerticalLayout>
       </HorizontalLayout>
-      <DialogActions amount={amount} disabled={amountString === ""} price={price} />
+      <DialogActions
+        amount={amount}
+        disabled={amountString === "" || isDisabled(amount, price, balance)}
+        price={price}
+        tradeAction={tradeAction}
+      />
     </VerticalLayout>
   )
 }

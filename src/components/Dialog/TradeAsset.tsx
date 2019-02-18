@@ -1,10 +1,7 @@
 import React from "react"
-import { useState } from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
-import Tab from "@material-ui/core/Tab"
-import Tabs from "@material-ui/core/Tabs"
 import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
@@ -14,6 +11,7 @@ import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import AccountBalances from "../Account/AccountBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { VerticalMargin } from "../Layout/Spacing"
 import TradingTab from "../TradeAsset/TradingTab"
 import TransactionSender from "../TransactionSender"
 import BackButton from "./BackButton"
@@ -62,15 +60,12 @@ const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
-  const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy")
 
   const { asset, balance: tokenBalance } = findMatchingBalance(accountData.balances, props.assetCode)
   const xlmBalance = accountData.balances.find(balance => balance.asset_type === "native") || {
     asset_type: "native",
     balance: "0"
   }
-
-  const handleTabsChange = (event: React.ChangeEvent<any>, value: "buy" | "sell") => setTradeAction(value)
 
   const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: number, price: number) => {
     const tx = createTransaction(
@@ -99,46 +94,25 @@ function TradeAsset(props: TradeAssetProps) {
     }
   }
 
-  const isDisabled = (amount: number, price: number) => {
-    const balance =
-      tradeAction === "buy"
-        ? Number.parseFloat(xlmBalance.balance)
-        : tokenBalance
-          ? Number.parseFloat(tokenBalance.balance)
-          : 0
-    return [Number.isNaN(amount), Number.isNaN(price), amount <= 0, amount > balance, price <= 0].some(
-      condition => condition === true
-    )
-  }
-
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <Title assetCode={props.assetCode} onClose={props.onClose} />
-        <Typography
-          color="inherit"
-          component="div"
-          variant="body1"
-          style={{ marginLeft: 48, marginBottom: 16, fontSize: "1.2rem" }}
-        >
+        <Typography color="inherit" component="div" variant="body1" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
           <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </Typography>
-        <Tabs indicatorColor="primary" onChange={handleTabsChange} textColor="primary" value={tradeAction}>
-          <Tab label="Buy" value="buy" />
-          <Tab label="Sell" value="sell" />
-        </Tabs>
+        <VerticalMargin size={24} />
         {asset ? (
           <TradingTab
-            action={tradeAction}
             asset={asset}
             testnet={props.account.testnet}
             tokenBalance={tokenBalance ? tokenBalance.balance : "0"}
             xlmBalance={xlmBalance.balance}
-            DialogActions={({ amount, disabled, price }) => (
-              <HorizontalLayout justifyContent="flex-end">
+            DialogActions={({ amount, disabled, price, tradeAction }) => (
+              <HorizontalLayout justifyContent="flex-end" shrink={0}>
                 <DialogActionsBox>
                   <ActionButton
-                    disabled={disabled || isDisabled(amount, price)}
+                    disabled={disabled}
                     icon={<GavelIcon />}
                     onClick={() =>
                       tradeAction === "buy"
