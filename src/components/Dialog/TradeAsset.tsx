@@ -2,22 +2,19 @@ import React from "react"
 import { useState } from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import Paper from "@material-ui/core/Paper"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
 import Typography from "@material-ui/core/Typography"
-import CallMadeIcon from "@material-ui/icons/CallMade"
-import CallReceivedIcon from "@material-ui/icons/CallReceived"
+import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
-import { formatBalance } from "../Account/AccountBalances"
+import AccountBalances from "../Account/AccountBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import { HorizontalMargin } from "../Layout/Spacing"
-import TradingTab, { ReadOnlyTextfield } from "../TradeAsset/TradingTab"
+import TradingTab from "../TradeAsset/TradingTab"
 import TransactionSender from "../TransactionSender"
 import BackButton from "./BackButton"
 import { ActionButton, DialogActionsBox } from "./Generic"
@@ -36,6 +33,19 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], assetCod
       balance: null
     }
   }
+}
+
+function Title(props: { assetCode: string; onClose: () => void }) {
+  return (
+    <HorizontalLayout justifyContent="space-between" margin="0" shrink={0}>
+      <HorizontalLayout alignItems="center" margin="0">
+        <BackButton onClick={props.onClose} style={{ marginLeft: -10, marginRight: 10 }} />
+        <Typography variant="headline" style={{ flexGrow: 1 }}>
+          Trade {props.assetCode}
+        </Typography>
+      </HorizontalLayout>
+    </HorizontalLayout>
+  )
 }
 
 interface TradeAssetProps {
@@ -104,71 +114,46 @@ function TradeAsset(props: TradeAssetProps) {
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <HorizontalLayout justifyContent="space-between" margin="0 0 24px" shrink={0}>
-          <HorizontalLayout alignItems="center" margin="0 0 24px">
-            <BackButton onClick={props.onClose} />
-            <Typography variant="headline" style={{ flexGrow: 1 }}>
-              Trade {props.assetCode}
-            </Typography>
-          </HorizontalLayout>
-          <HorizontalLayout justifyContent="flex-end">
-            <ReadOnlyTextfield
-              label={`${props.assetCode} Balance`}
-              textAlign="right"
-              value={tokenBalance ? formatBalance(tokenBalance.balance, { minimumSignificants: 3 }) : "0.00"}
-            />
-            <HorizontalMargin size={16} />
-            <ReadOnlyTextfield
-              label="XLM Balance"
-              textAlign="right"
-              value={formatBalance(xlmBalance.balance, { minimumSignificants: 3 })}
-            />
-          </HorizontalLayout>
-        </HorizontalLayout>
-        <Paper elevation={1} square>
-          <Tabs fullWidth indicatorColor="primary" onChange={handleTabsChange} textColor="primary" value={tradeAction}>
-            <Tab label={`Buy ${props.assetCode}`} value="buy" />
-            <Tab label={`Sell ${props.assetCode}`} value="sell" />
-          </Tabs>
-          {asset ? (
-            <TradingTab
-              action={tradeAction}
-              asset={asset}
-              testnet={props.account.testnet}
-              tokenBalance={tokenBalance ? tokenBalance.balance : "0"}
-              xlmBalance={xlmBalance.balance}
-              DialogActions={({ amount, disabled, price }) => (
-                <HorizontalLayout justifyContent="flex-end">
-                  <DialogActionsBox>
-                    {tradeAction === "buy" ? (
-                      <ActionButton
-                        disabled={disabled || isDisabled(amount, price)}
-                        icon={<CallReceivedIcon />}
-                        onClick={() =>
-                          awaitThenSendTransaction(createOfferCreationTransaction(Asset.native(), asset, amount, price))
-                        }
-                        type="primary"
-                      >
-                        Create Buy Order
-                      </ActionButton>
-                    ) : (
-                      <ActionButton
-                        disabled={disabled || isDisabled(amount, price)}
-                        icon={<CallMadeIcon />}
-                        onClick={() =>
-                          awaitThenSendTransaction(createOfferCreationTransaction(asset, Asset.native(), amount, price))
-                        }
-                        type="primary"
-                      >
-                        Create Sell Order
-                      </ActionButton>
-                    )}
-                  </DialogActionsBox>
-                </HorizontalLayout>
-              )}
-            />
-          ) : null}
-        </Paper>
+        <Title assetCode={props.assetCode} onClose={props.onClose} />
+        <Typography
+          color="inherit"
+          component="div"
+          variant="body1"
+          style={{ marginLeft: 48, marginBottom: 16, fontSize: "1.2rem" }}
+        >
+          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+        </Typography>
+        <Tabs indicatorColor="primary" onChange={handleTabsChange} textColor="primary" value={tradeAction}>
+          <Tab label="Buy" value="buy" />
+          <Tab label="Sell" value="sell" />
+        </Tabs>
+        {asset ? (
+          <TradingTab
+            action={tradeAction}
+            asset={asset}
+            testnet={props.account.testnet}
+            tokenBalance={tokenBalance ? tokenBalance.balance : "0"}
+            xlmBalance={xlmBalance.balance}
+            DialogActions={({ amount, disabled, price }) => (
+              <HorizontalLayout justifyContent="flex-end">
+                <DialogActionsBox>
+                  <ActionButton
+                    disabled={disabled || isDisabled(amount, price)}
+                    icon={<GavelIcon />}
+                    onClick={() =>
+                      tradeAction === "buy"
+                        ? awaitThenSendTransaction(createOfferCreationTransaction(Asset.native(), asset, amount, price))
+                        : awaitThenSendTransaction(createOfferCreationTransaction(asset, Asset.native(), amount, price))
+                    }
+                    type="primary"
+                  >
+                    Place order
+                  </ActionButton>
+                </DialogActionsBox>
+              </HorizontalLayout>
+            )}
+          />
+        ) : null}
       </VerticalLayout>
     </Dialog>
   )

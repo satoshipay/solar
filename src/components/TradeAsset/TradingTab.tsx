@@ -1,66 +1,47 @@
 import React from "react"
 import { useState } from "react"
 import { Asset } from "stellar-sdk"
+import grey from "@material-ui/core/colors/grey"
 import InputAdornment from "@material-ui/core/InputAdornment"
+import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
-import ArrowRightIcon from "@material-ui/icons/ArrowRightAlt"
 import { useOrderbook } from "../../hooks"
-import { brandColor } from "../../theme"
 import { formatBalance } from "../Account/AccountBalances"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { useConversionOffers } from "./hooks"
-import { HorizontalMargin, VerticalMargin } from "../Layout/Spacing"
+
+type ToleranceValue = 0 | 0.01 | 0.02
 
 const AssetCodeAdornment = (props: { children: string }) => (
-  <InputAdornment disableTypography position="end" style={{ alignItems: "flex-start", pointerEvents: "none" }}>
+  <InputAdornment disableTypography position="end" style={{ pointerEvents: "none" }}>
     <Typography color="textPrimary" style={{ fontSize: "100%", lineHeight: "100%" }}>
       {props.children}
     </Typography>
   </InputAdornment>
 )
 
-export const PrimaryTextfield = (props: {
-  adornment?: React.ReactNode
-  label: TextFieldProps["label"]
-  onChange: TextFieldProps["onChange"]
-  style?: React.CSSProperties
-  value: TextFieldProps["value"]
-}) => (
-  <TextField
-    InputProps={{
-      endAdornment: props.adornment,
-      style: {
-        background: brandColor.main15,
-        minWidth: "15em"
-      }
-    }}
-    label={props.label}
-    onChange={props.onChange}
-    style={props.style}
-    value={props.value}
-    variant="filled"
-  />
+const PriceTolerance = (props: { label: string; price: string; tolerance: ToleranceValue }) => (
+  <HorizontalLayout justifyContent="space-between" width="100%">
+    <span>{props.price}</span>
+    <span style={{ textAlign: "right" }}>
+      {props.label}
+      {props.tolerance > 0 ? (
+        <>
+          &nbsp;
+          <span style={{ opacity: 0.5 }}>+{props.tolerance * 100}%</span>
+        </>
+      ) : null}
+    </span>
+  </HorizontalLayout>
 )
 
-export const ReadOnlyTextfield = (props: {
+const ReadOnlyTextfield = (props: {
   label: TextFieldProps["label"]
   style?: React.CSSProperties
-  textAlign: React.CSSProperties["textAlign"]
   value: TextFieldProps["value"]
 }) => (
-  <TextField
-    disabled
-    inputProps={{
-      style: {
-        textAlign: props.textAlign
-      }
-    }}
-    label={props.label}
-    style={props.style}
-    value={props.value}
-    variant="outlined"
-  />
+  <TextField label={props.label} style={{ pointerEvents: "none", ...props.style }} tabIndex={-1} value={props.value} />
 )
 
 interface TradingTabProps {
@@ -81,77 +62,104 @@ function TradingTab(props: TradingTabProps) {
       ? useOrderbook(Asset.native(), props.asset, props.testnet)
       : useOrderbook(props.asset, Asset.native(), props.testnet)
   const [amountString, setAmountString] = useState("")
-  const [priceString, setPriceString] = useState("")
+  const [tolerance, setTolerance] = useState<ToleranceValue>(0)
 
-  const amount = Number.isNaN(Number.parseFloat(amountString)) ? 1 : Number.parseFloat(amountString)
-  const priceRaw = Number.parseFloat(priceString)
+  const amount = Number.isNaN(Number.parseFloat(amountString)) ? 0 : Number.parseFloat(amountString)
 
-  const { estimatedCost, worstPriceOfBestMatches } = useConversionOffers(tradePair, amount, priceRaw)
-
-  const arrow = <ArrowRightIcon style={{ fontSize: 64 }} />
-  const price = Number.isNaN(priceRaw) ? worstPriceOfBestMatches || 0 : priceRaw
-  const priceUnits = props.action === "buy" ? `${assetCode}s per XLM` : `XLMs per ${assetCode}`
+  const { estimatedCost, worstPriceOfBestMatches } = useConversionOffers(tradePair, amount, Number.NaN)
+  const price = worstPriceOfBestMatches || 0
 
   return (
-    <VerticalLayout alignItems="stretch" padding="32px">
-      <HorizontalLayout alignItems="center" justifyContent="space-evenly" margin="0 0 16px">
-        <HorizontalMargin grow={1} shrink={1} size={16} />
-        <PrimaryTextfield
-          adornment={<AssetCodeAdornment>{props.action === "buy" ? "XLM" : assetCode}</AssetCodeAdornment>}
-          label={"Amount to Convert"}
-          onChange={event => setAmountString(event.target.value)}
-          style={{ flexGrow: 1, width: 200 }}
-          value={amountString}
-        />
-        <HorizontalMargin grow={1} shrink={1} size={16} />
-        {arrow}
-        <HorizontalMargin grow={1} shrink={1} size={16} />
-        <ReadOnlyTextfield
-          label="About to Receive"
-          style={{ flexGrow: 1, width: 200 }}
-          textAlign="center"
-          value={`${formatBalance(String(estimatedCost), { minimumSignificants: 3 })} ${
-            props.action === "buy" ? assetCode : "XLM"
-          }`}
-        />
-        <HorizontalMargin grow={1} shrink={1} size={16} />
+    <VerticalLayout padding="16px 0">
+      <HorizontalLayout minHeight="100%">
+        <VerticalLayout alignItems="stretch" grow={1} shrink={1}>
+          <TextField
+            InputProps={{
+              endAdornment: <AssetCodeAdornment>{props.action === "buy" ? "XLM" : assetCode}</AssetCodeAdornment>,
+              style: {
+                minWidth: "15em"
+              }
+            }}
+            autoFocus
+            label="Amount to convert"
+            placeholder={`Max. ${formatBalance(props.action === "buy" ? props.xlmBalance : props.tokenBalance)}`}
+            onChange={event => setAmountString(event.target.value)}
+            style={{ flexGrow: 1, flexShrink: 0 }}
+            value={amountString}
+          />
+          <TextField
+            label="Price"
+            onChange={event => setTolerance((event.target.value as any) as ToleranceValue)}
+            select
+            style={{ flexGrow: 1, flexShrink: 0 }}
+            value={tolerance}
+          >
+            <MenuItem value={0}>
+              <PriceTolerance
+                label="Regular"
+                price={[
+                  worstPriceOfBestMatches
+                    ? formatBalance(String(1 / worstPriceOfBestMatches), { groupThousands: false })
+                    : "0.00",
+                  props.action === "buy" ? "XLM" : assetCode
+                ].join(" ")}
+                tolerance={0}
+              />
+            </MenuItem>
+            <MenuItem value={0.01}>
+              <PriceTolerance
+                label="Fast"
+                price={[
+                  worstPriceOfBestMatches
+                    ? formatBalance(String((1 / worstPriceOfBestMatches) * 1.01), { groupThousands: false })
+                    : "0.00",
+                  props.action === "buy" ? "XLM" : assetCode
+                ].join(" ")}
+                tolerance={0.01}
+              />
+            </MenuItem>
+            <MenuItem value={0.02}>
+              <PriceTolerance
+                label="Super fast"
+                price={[
+                  worstPriceOfBestMatches
+                    ? formatBalance(String((1 / worstPriceOfBestMatches) * 1.02), { groupThousands: false })
+                    : "0.00",
+                  props.action === "buy" ? "XLM" : assetCode
+                ].join(" ")}
+                tolerance={0.02}
+              />
+            </MenuItem>
+          </TextField>
+          <ReadOnlyTextfield
+            label="Amount to receive"
+            style={{ flexGrow: 1, flexShrink: 0 }}
+            value={`${formatBalance(String(estimatedCost), { minimumSignificants: 3 })} ${
+              props.action === "buy" ? assetCode : "XLM"
+            }`}
+          />
+          {/* TODO: "Large spread" alert */}
+        </VerticalLayout>
+        <VerticalLayout alignItems="stretch" justifyContent="stretch" grow={1} maxWidth="50%" shrink={1}>
+          <Box
+            alignItems="stretch"
+            justifyContent="stretch"
+            padding={16}
+            style={{ background: grey["100"], marginLeft: 32 }}
+          >
+            <Typography gutterBottom variant="title">
+              Trading assets
+            </Typography>
+            <Typography variant="body1">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+              ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+              fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+              mollit anim id est laborum.
+            </Typography>
+          </Box>
+        </VerticalLayout>
       </HorizontalLayout>
-      <HorizontalLayout alignItems="center" justifyContent="space-evenly">
-        <HorizontalMargin grow={1} shrink={1} size={16} />
-        <PrimaryTextfield
-          adornment={
-            /* Just to keep the size in sync with the textfield above */
-            <InputAdornment position="end" style={{ visibility: "hidden" }}>
-              <></>
-            </InputAdornment>
-          }
-          label={`Price Limit (${priceUnits})`}
-          onChange={event => setPriceString(event.target.value)}
-          style={{ flexGrow: 1, width: 200 }}
-          value={
-            priceString ||
-            (worstPriceOfBestMatches ? formatBalance(String(worstPriceOfBestMatches), { groupThousands: false }) : 0) ||
-            "0.00"
-          }
-        />
-        <HorizontalMargin grow={1} shrink={1} size={16} />
-        {/* Just to keep things aligned with the top row: */}
-        <Box style={{ visibility: "hidden" }}>{arrow}</Box>
-        <HorizontalMargin grow={1} shrink={1} size={16} />
-        <ReadOnlyTextfield
-          label="Best Price for this Amount"
-          style={{ flexGrow: 1, width: 200 }}
-          textAlign="center"
-          value={
-            worstPriceOfBestMatches
-              ? `${formatBalance(String(worstPriceOfBestMatches), { minimumSignificants: 3 })} ${priceUnits}`
-              : " "
-          }
-        />
-        <HorizontalMargin grow={1} shrink={1} size={16} />
-      </HorizontalLayout>
-      {/* TODO: "Large spread" alert */}
-      <VerticalMargin size={32} />
       <DialogActions amount={amount} disabled={amountString === ""} price={price} />
     </VerticalLayout>
   )
