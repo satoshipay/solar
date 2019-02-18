@@ -134,7 +134,7 @@ function OfferHeading(props: { amount: BigNumber; buying: Asset; offerId: string
   return (
     <>
       {prefix}
-      Sell {props.selling.code} for {props.buying.code}
+      Convert {props.selling.code} to {props.buying.code}
     </>
   )
 }
@@ -143,7 +143,7 @@ function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumbe
   const { amount, buying, price, selling } = props
   return (
     <OperationDetails>
-      {`Sell ${formatBalance(amount.toString())} ${selling.code} at ${formatBalance(price.toString())} ${buying.code}/${
+      {`Buy ${formatBalance(amount.mul(price).toString())} ${buying.code} for ${formatBalance(amount.toString())} ${
         selling.code
       }`}
     </OperationDetails>
