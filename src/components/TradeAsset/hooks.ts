@@ -1,11 +1,11 @@
 import { useMemo } from "react"
-import { FixedOrderbookOffer, FixedOrderbookRecord } from "../../lib/orderbook"
+import { FixedOrderbookOffer } from "../../lib/orderbook"
 
 const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
 
-export function useConversionOffers(orderbookRecord: FixedOrderbookRecord, amount: number, price: number) {
-  // Best offers first
-  const bestOffers = orderbookRecord.asks
+export function useConversionOffers(offers: FixedOrderbookOffer[], amount: number) {
+  // Best offers always returned first by horizon
+  const bestOffers = offers
 
   const bestMatches = useMemo(
     () =>

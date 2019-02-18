@@ -70,17 +70,18 @@ function TradingTabs(props: TradingTabProps) {
 
   const handleTabsChange = (event: React.ChangeEvent<any>, value: "buy" | "sell") => setTradeAction(value)
 
-  const tradePair =
-    tradeAction === "buy"
-      ? useOrderbook(Asset.native(), props.asset, props.testnet)
-      : useOrderbook(props.asset, Asset.native(), props.testnet)
+  const tradePair = useOrderbook(props.asset, Asset.native(), props.testnet)
+
   const [amountString, setAmountString] = useState("")
   const [tolerance, setTolerance] = useState<ToleranceValue>(0)
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? 0 : Number.parseFloat(amountString)
   const balance = tradeAction === "buy" ? Number.parseFloat(props.xlmBalance) : Number.parseFloat(props.tokenBalance)
 
-  const { estimatedCost, worstPriceOfBestMatches } = useConversionOffers(tradePair, amount, Number.NaN)
+  const { estimatedCost, worstPriceOfBestMatches } = useConversionOffers(
+    tradeAction === "buy" ? tradePair.asks : tradePair.bids,
+    amount || 0.01
+  )
   const price = worstPriceOfBestMatches || 0
 
   return (
@@ -118,7 +119,10 @@ function TradingTabs(props: TradingTabProps) {
                 label="Regular"
                 price={[
                   worstPriceOfBestMatches
-                    ? formatBalance(String(1 / worstPriceOfBestMatches), { groupThousands: false })
+                    ? formatBalance(
+                        String(tradeAction === "buy" ? worstPriceOfBestMatches : 1 / worstPriceOfBestMatches),
+                        { groupThousands: false }
+                      )
                     : "0.00",
                   tradeAction === "buy" ? "XLM" : assetCode
                 ].join(" ")}
@@ -130,7 +134,7 @@ function TradingTabs(props: TradingTabProps) {
                 label="Fast"
                 price={[
                   worstPriceOfBestMatches
-                    ? formatBalance(String((1 / worstPriceOfBestMatches) * 1.01), { groupThousands: false })
+                    ? formatBalance(String(worstPriceOfBestMatches * 1.01), { groupThousands: false })
                     : "0.00",
                   tradeAction === "buy" ? "XLM" : assetCode
                 ].join(" ")}
@@ -142,7 +146,7 @@ function TradingTabs(props: TradingTabProps) {
                 label="Super fast"
                 price={[
                   worstPriceOfBestMatches
-                    ? formatBalance(String((1 / worstPriceOfBestMatches) * 1.02), { groupThousands: false })
+                    ? formatBalance(String(worstPriceOfBestMatches * 1.02), { groupThousands: false })
                     : "0.00",
                   tradeAction === "buy" ? "XLM" : assetCode
                 ].join(" ")}
@@ -153,10 +157,14 @@ function TradingTabs(props: TradingTabProps) {
           <ReadOnlyTextfield
             label="Amount to receive"
             style={{ marginBottom: 24 }}
-            value={[
-              formatBalance(String(estimatedCost), { minimumSignificants: 3 }),
-              tradeAction === "buy" ? assetCode : "XLM"
-            ].join(" ")}
+            value={
+              amount
+                ? [
+                    formatBalance(String(estimatedCost), { minimumSignificants: 3 }),
+                    tradeAction === "buy" ? assetCode : "XLM"
+                  ].join(" ")
+                : "-"
+            }
           />
           {/* TODO: "Large spread" alert */}
         </VerticalLayout>
