@@ -145,17 +145,22 @@ function TradingTab(props: TradingTabProps) {
             alignItems="stretch"
             justifyContent="stretch"
             padding={16}
-            style={{ background: grey["100"], marginLeft: 32 }}
+            style={{ background: grey["100"], marginTop: -60, marginLeft: 32 }}
           >
             <Typography gutterBottom variant="title">
               Trading assets
             </Typography>
-            <Typography variant="body1">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-              ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-              fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-              mollit anim id est laborum.
+            <Typography style={{ marginTop: 8 }} variant="body1">
+              Convert your funds held in one asset to another by trading it on the Stellar Decentralized Exchange (DEX).
+            </Typography>
+            <Typography style={{ marginTop: 8 }} variant="body1">
+              The trade will be made at the best price currently on offer and should happen immediately. High price
+              volatility and low market volume can lead to short-term price changes, potentially causing your order to
+              spend a prolonged time in the order book.
+            </Typography>
+            <Typography style={{ marginTop: 8 }} variant="body1">
+              For this reason you can opt for a higher price limit, increasing your chance of an immediate conversion.
+              The Stellar network will always try to buy at the lowest price within your limit first.
             </Typography>
           </Box>
         </VerticalLayout>
