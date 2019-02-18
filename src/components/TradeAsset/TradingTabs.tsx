@@ -61,7 +61,7 @@ interface TradingTabProps {
   DialogActions: React.ComponentType<{ amount: number; disabled?: boolean; price: number; tradeAction: "buy" | "sell" }>
 }
 
-function TradingTab(props: TradingTabProps) {
+function TradingTabs(props: TradingTabProps) {
   const DialogActions = props.DialogActions
   const assetCode = props.asset ? props.asset.code : ""
 
@@ -179,4 +179,4 @@ function TradingTab(props: TradingTabProps) {
   )
 }
 
-export default TradingTab
+export default TradingTabs

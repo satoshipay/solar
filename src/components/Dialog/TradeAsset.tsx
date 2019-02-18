@@ -12,7 +12,7 @@ import * as routes from "../../routes"
 import AccountBalances from "../Account/AccountBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
-import TradingTab from "../TradeAsset/TradingTab"
+import TradingTabs from "../TradeAsset/TradingTabs"
 import TransactionSender from "../TransactionSender"
 import BackButton from "./BackButton"
 import { ActionButton, DialogActionsBox } from "./Generic"
@@ -103,7 +103,7 @@ function TradeAsset(props: TradeAssetProps) {
         </Typography>
         <VerticalMargin size={24} />
         {asset ? (
-          <TradingTab
+          <TradingTabs
             asset={asset}
             testnet={props.account.testnet}
             tokenBalance={tokenBalance ? tokenBalance.balance : "0"}
