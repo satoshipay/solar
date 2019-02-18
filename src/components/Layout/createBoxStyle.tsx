@@ -60,14 +60,17 @@ const createFlexParentStyle = ({ alignItems, justifyContent, wrap }: FlexParentS
 }
 
 interface FlexChildStyles {
+  basis?: number | string
   grow?: boolean | number
   shrink?: boolean | number
   fixed?: boolean
   alignSelf?: React.CSSProperties["alignSelf"]
 }
 
-const createFlexChildStyle = ({ grow, shrink, fixed, alignSelf }: FlexChildStyles) => {
-  const style: React.CSSProperties = {}
+const createFlexChildStyle = ({ basis, grow, shrink, fixed, alignSelf }: FlexChildStyles) => {
+  const style: React.CSSProperties = {
+    flexBasis: basis
+  }
 
   if (typeof grow === "boolean") {
     style.flexGrow = grow ? 1 : 0
