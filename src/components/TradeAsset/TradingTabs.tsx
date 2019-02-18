@@ -55,6 +55,8 @@ const ReadOnlyTextfield = (props: {
 
 interface TradingTabProps {
   asset: Asset
+  setTradeAction: (action: "buy" | "sell") => void
+  tradeAction: "buy" | "sell"
   testnet: boolean
   tokenBalance: string
   xlmBalance: string
@@ -64,8 +66,8 @@ interface TradingTabProps {
 function TradingTabs(props: TradingTabProps) {
   const DialogActions = props.DialogActions
   const assetCode = props.asset ? props.asset.code : ""
+  const { setTradeAction, tradeAction } = props
 
-  const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy")
   const handleTabsChange = (event: React.ChangeEvent<any>, value: "buy" | "sell") => setTradeAction(value)
 
   const tradePair =

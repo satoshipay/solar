@@ -93,6 +93,7 @@ export function SingleBalance(props: SingleBalanceProps) {
 
 interface MultipleBalancesProps {
   balances: AccountResponse["balances"]
+  component?: React.ComponentType<SingleBalanceProps>
   inline?: boolean
 }
 
@@ -101,6 +102,7 @@ export function MultipleBalances(props: MultipleBalancesProps) {
     return <></>
   }
 
+  const Balance = props.component || SingleBalance
   const byAssetCode = (balance1: any, balance2: any) => (balance1.asset_code < balance2.asset_code ? -1 : 1)
   const nativeBalance = props.balances.find(balance => balance.asset_type === "native")
 
@@ -113,7 +115,7 @@ export function MultipleBalances(props: MultipleBalancesProps) {
     <>
       {balances.map((balance: any, index) => (
         <React.Fragment key={balance.asset_code || "XLM"}>
-          <SingleBalance
+          <Balance
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
             inline={props.inline}
@@ -130,14 +132,18 @@ const zeroXLMBalance = {
   balance: "0"
 }
 
-function AccountBalances(props: { publicKey: string; testnet: boolean }) {
+function AccountBalances(props: {
+  component?: React.ComponentType<SingleBalanceProps>
+  publicKey: string
+  testnet: boolean
+}) {
   const accountData = useAccountData(props.publicKey, props.testnet)
   return accountData.loading ? (
     <InlineLoader />
   ) : accountData.activated ? (
-    <MultipleBalances balances={accountData.balances} />
+    <MultipleBalances balances={accountData.balances} component={props.component} />
   ) : (
-    <MultipleBalances balances={[zeroXLMBalance] as any} />
+    <MultipleBalances balances={[zeroXLMBalance] as any} component={props.component} />
   )
 }
 

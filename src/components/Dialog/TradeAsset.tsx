@@ -1,4 +1,5 @@
 import React from "react"
+import { useState } from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
@@ -9,7 +10,7 @@ import { trackError } from "../../context/notifications"
 import { useAccountData, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
-import AccountBalances from "../Account/AccountBalances"
+import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
 import TradingTabs from "../TradeAsset/TradingTabs"
@@ -60,12 +61,15 @@ const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
+  const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy")
 
   const { asset, balance: tokenBalance } = findMatchingBalance(accountData.balances, props.assetCode)
   const xlmBalance = accountData.balances.find(balance => balance.asset_type === "native") || {
     asset_type: "native",
     balance: "0"
   }
+
+  const sellingAsset = tradeAction === "buy" ? Asset.native() : asset
 
   const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: number, price: number) => {
     const tx = createTransaction(
@@ -99,14 +103,28 @@ function TradeAsset(props: TradeAssetProps) {
       <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <Title assetCode={props.assetCode} onClose={props.onClose} />
         <Typography color="inherit" component="div" variant="body1" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
-          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+          <AccountBalances
+            component={balanceProps => (
+              <SingleBalance
+                {...balanceProps}
+                style={{
+                  ...balanceProps.style,
+                  opacity: sellingAsset && balanceProps.assetCode === sellingAsset.getCode() ? 1 : 0.4
+                }}
+              />
+            )}
+            publicKey={props.account.publicKey}
+            testnet={props.account.testnet}
+          />
         </Typography>
         <VerticalMargin size={24} />
         {asset ? (
           <TradingTabs
             asset={asset}
+            setTradeAction={setTradeAction}
             testnet={props.account.testnet}
             tokenBalance={tokenBalance ? tokenBalance.balance : "0"}
+            tradeAction={tradeAction}
             xlmBalance={xlmBalance.balance}
             DialogActions={({ amount, disabled, price, tradeAction }) => (
               <HorizontalLayout justifyContent="flex-end" shrink={0}>
