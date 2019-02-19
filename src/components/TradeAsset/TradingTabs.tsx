@@ -60,7 +60,7 @@ interface TradingTabProps {
   testnet: boolean
   tokenBalance: string
   xlmBalance: string
-  DialogActions: React.ComponentType<{ amount: number; disabled?: boolean; price: number; tradeAction: "buy" | "sell" }>
+  DialogActions: React.ComponentType<{ amount: number; disabled?: boolean; price: number }>
 }
 
 function TradingTabs(props: TradingTabProps) {
@@ -183,7 +183,6 @@ function TradingTabs(props: TradingTabProps) {
         amount={amount}
         disabled={amountString === "" || isDisabled(amount, price, balance)}
         price={price}
-        tradeAction={tradeAction}
       />
     </VerticalLayout>
   )

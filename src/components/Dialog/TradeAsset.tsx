@@ -126,7 +126,7 @@ function TradeAsset(props: TradeAssetProps) {
             tokenBalance={tokenBalance ? tokenBalance.balance : "0"}
             tradeAction={tradeAction}
             xlmBalance={xlmBalance.balance}
-            DialogActions={({ amount, disabled, price, tradeAction }) => (
+            DialogActions={({ amount, disabled, price }) => (
               <HorizontalLayout justifyContent="flex-end" shrink={0}>
                 <DialogActionsBox>
                   <ActionButton
