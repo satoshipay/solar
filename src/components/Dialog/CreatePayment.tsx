@@ -1,5 +1,5 @@
 import React from "react"
-import { AccountRecord, Asset, Memo, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Memo, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
@@ -15,9 +15,15 @@ import TestnetBadge from "./TestnetBadge"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
-function getAssetsFromBalances(balances: AccountRecord["balances"]) {
+function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   return balances.map(
-    balance => (balance.asset_type === "native" ? Asset.native() : new Asset(balance.asset_code, balance.asset_issuer))
+    balance =>
+      balance.asset_type === "native"
+        ? Asset.native()
+        : new Asset(
+            (balance as Horizon.BalanceLineAsset).asset_code,
+            (balance as Horizon.BalanceLineAsset).asset_issuer
+          )
   )
 }
 
@@ -25,7 +31,7 @@ const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
-  balances: AccountRecord["balances"]
+  balances: Horizon.BalanceLine[]
   horizon: Server
   open: boolean
   onClose: () => void

@@ -1,6 +1,6 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { Operation, TransactionOperation } from "stellar-sdk"
+import { Operation } from "stellar-sdk"
 import { SingleBalance } from "../Account/AccountBalances"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { ListItem } from "../List"
@@ -16,7 +16,7 @@ function someThresholdSet(operation: Operation.SetOptions) {
   )
 }
 
-export function formatOperation(operation: TransactionOperation) {
+export function formatOperation(operation: Operation) {
   if (operation.type === "setOptions" && operation.signer && typeof operation.signer.weight === "number") {
     return operation.signer.weight > 0 ? "Add signer" : "Remove signer"
   } else if (operation.type === "setOptions" && someThresholdSet(operation)) {
@@ -31,7 +31,7 @@ function prettifyCamelcase(identifier: string) {
   return prettified.charAt(0).toUpperCase() + prettified.substr(1)
 }
 
-function prettifyOperationObject(operation: TransactionOperation) {
+function prettifyOperationObject(operation: Operation) {
   const operationPropNames = Object.keys(operation)
     .filter(key => key !== "type")
     .filter(propName => Boolean((operation as any)[propName]))
@@ -127,7 +127,11 @@ function SetOptionsOperation(props: { operation: Operation.SetOptions; style?: R
     </OperationDetails>
   )
 
-  if (props.operation.signer && typeof props.operation.signer.weight === "number") {
+  if (
+    props.operation.signer &&
+    "ed25519PublicKey" in props.operation.signer &&
+    typeof props.operation.signer.weight === "number"
+  ) {
     const signerPublicKey = String(props.operation.signer.ed25519PublicKey)
     if (props.operation.signer.weight > 0) {
       heading = (
@@ -172,7 +176,7 @@ function SetOptionsOperation(props: { operation: Operation.SetOptions; style?: R
   return <ListItem heading={heading} primaryText={primaryText} style={props.style} />
 }
 
-function GenericOperation(props: { operation: TransactionOperation; style?: React.CSSProperties }) {
+function GenericOperation(props: { operation: Operation; style?: React.CSSProperties }) {
   return (
     <ListItem
       heading={<Typography>{formatOperation(props.operation)}</Typography>}
@@ -188,7 +192,7 @@ function GenericOperation(props: { operation: TransactionOperation; style?: Reac
   )
 }
 
-function OperationListItem(props: { operation: TransactionOperation; style?: React.CSSProperties }) {
+function OperationListItem(props: { operation: Operation; style?: React.CSSProperties }) {
   // TODO: Add more operation types!
 
   if (props.operation.type === "payment") {

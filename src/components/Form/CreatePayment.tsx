@@ -1,5 +1,5 @@
 import React from "react"
-import { AccountRecord, Asset } from "stellar-sdk"
+import { Asset, Horizon } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -28,10 +28,10 @@ export interface PaymentCreationValues {
 
 type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
 
-function validateFormValues(formValues: PaymentCreationValues, balances: AccountRecord["balances"]) {
+function validateFormValues(formValues: PaymentCreationValues, balances: Horizon.BalanceLine[]) {
   const errors: PaymentCreationErrors = {}
 
-  const xlmBalance = balances.find(someBalance => someBalance.asset_type === "native") as AccountRecord["balances"][0]
+  const xlmBalance = balances.find(someBalance => someBalance.asset_type === "native") as Horizon.BalanceLine
   const balance = balances.find((someBalance: any) => someBalance.asset_code === formValues.asset) || xlmBalance
 
   if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
@@ -176,7 +176,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
 }
 
 interface Props {
-  balances: AccountRecord["balances"]
+  balances: Horizon.BalanceLine[]
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onCancel: () => void

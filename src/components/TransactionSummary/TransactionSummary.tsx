@@ -1,6 +1,6 @@
 import React from "react"
 import { useContext, useMemo } from "react"
-import { Memo, Transaction, TransactionOperation } from "stellar-sdk"
+import { Memo, Operation, Transaction } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
 import MuiListItem from "@material-ui/core/ListItem"
 import MuiListItemIcon from "@material-ui/core/ListItemIcon"
@@ -22,10 +22,10 @@ import PublicKey from "../PublicKey"
 import OperationListItem from "./Operations"
 
 function makeOperationSourceExplicit(
-  operation: TransactionOperation,
+  operation: Operation,
   transaction: Transaction,
   localAccountPubKey?: string
-): TransactionOperation {
+): Operation {
   const effectiveSource = operation.source || transaction.source
 
   // Don't show the source if the source === the tx source === this account (this is the default case)

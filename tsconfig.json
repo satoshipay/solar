@@ -8,7 +8,8 @@
     "target": "es5",
     "lib": ["es6", "dom"],
     "jsx": "react",
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "skipLibCheck": true
   },
   "include": ["./src/**/*", "./types/**/*", "./node_modules/@types/recompose/index.d.ts"],
   "rules": {
