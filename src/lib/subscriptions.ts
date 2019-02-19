@@ -1,4 +1,4 @@
-import { AccountRecord, Server, Transaction, TransactionRecord } from "stellar-sdk"
+import { Horizon, Server, Transaction } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "./account"
 import { getHorizonURL } from "./stellar"
@@ -18,11 +18,11 @@ interface SubscriptionTargetInternals<Thing> {
 
 export interface ObservedAccountData {
   activated: boolean
-  balances: AccountRecord["balances"]
+  balances: Horizon.BalanceLine[]
   id: string
   loading: boolean
-  signers: AccountRecord["signers"]
-  thresholds: AccountRecord["thresholds"]
+  signers: Horizon.AccountSigner[]
+  thresholds: Horizon.AccountThresholds
 }
 
 export interface ObservedRecentTxs {
@@ -89,7 +89,7 @@ function createAccountDataSubscription(
       .accountId(accountPubKey)
       .cursor(cursor)
       .stream({
-        onmessage(accountData: AccountRecord) {
+        onmessage(accountData: Server.AccountRecord) {
           const serialized = JSON.stringify(accountData)
           if (serialized !== lastMessageJson) {
             // Deduplicate messages. Every few seconds there is a new message with an unchanged value.
@@ -144,7 +144,7 @@ async function createRecentTxsSubscription(
   accountPubKey: string
 ): Promise<SubscriptionTarget<ObservedRecentTxs>> {
   const maxTxsToLoadCount = 15
-  const deserializeTx = (txResponse: TransactionRecord) =>
+  const deserializeTx = (txResponse: Server.TransactionRecord) =>
     Object.assign(new Transaction(txResponse.envelope_xdr), {
       created_at: txResponse.created_at
     })
@@ -168,7 +168,7 @@ async function createRecentTxsSubscription(
       .forAccount(accountPubKey)
       .cursor(cursor)
       .stream({
-        onmessage(txResponse: TransactionRecord) {
+        onmessage(txResponse: Server.TransactionRecord) {
           // Important: Insert new transactions in the front, since order is descending
           propagateUpdate({
             ...subscriptionTarget.getLatest(),

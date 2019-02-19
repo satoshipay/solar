@@ -1,5 +1,5 @@
 import React from "react"
-import { AccountResponse, Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -17,7 +17,7 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 interface Props {
   account: Account
   asset: Asset
-  balances: AccountResponse["balances"]
+  balances: Horizon.BalanceLine[]
   horizon: Server
   open: boolean
   onClose: () => void

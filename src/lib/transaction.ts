@@ -1,15 +1,4 @@
-import {
-  AccountRecord,
-  Asset,
-  Keypair,
-  Memo,
-  Network,
-  Operation,
-  Server,
-  TransactionBuilder,
-  Transaction,
-  xdr
-} from "stellar-sdk"
+import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
 import { getAllSources, isSignedByAnyOf } from "./stellar"
@@ -71,7 +60,7 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
     builder.addOperation(operation)
   }
 
-  const tx = builder.build()
+  const tx = builder.setTimeout(20).build()
   return tx
 }
 
@@ -137,7 +126,7 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
  */
 export function isPotentiallyDangerousTransaction(
   transaction: Transaction,
-  localAccounts: Array<Pick<AccountRecord, "id" | "signers">>
+  localAccounts: Array<Pick<Server.AccountRecord, "id" | "signers">>
 ) {
   const allTxSources = getAllSources(transaction)
   const localAffectedAccounts = localAccounts.filter(account => allTxSources.indexOf(account.id) > -1)
@@ -149,7 +138,7 @@ export function isPotentiallyDangerousTransaction(
   // Co-signers of local accounts
   const knownCosigners = localAffectedAccounts.reduce(
     (signers, affectedAccountData) => [...signers, ...affectedAccountData.signers],
-    [] as AccountRecord["signers"]
+    [] as Server.AccountRecord["signers"]
   )
   const isSignedByKnownCosigner = transaction.signatures.some(signature =>
     isSignedByAnyOf(signature, knownCosigners.map(cosigner => cosigner.public_key))
