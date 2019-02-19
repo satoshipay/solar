@@ -1,13 +1,38 @@
 import React from "react"
-import { useContext } from "react"
-import { Memo, Transaction } from "stellar-sdk"
+import { useContext, useMemo } from "react"
+import { Memo, Transaction, TransactionOperation } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
-import { useAccountData } from "../../hooks"
+import MuiListItem from "@material-ui/core/ListItem"
+import MuiListItemIcon from "@material-ui/core/ListItemIcon"
+import MuiListItemText from "@material-ui/core/ListItemText"
+import Tooltip from "@material-ui/core/Tooltip"
+import amber from "@material-ui/core/colors/amber"
+import CheckIcon from "@material-ui/icons/Check"
+import UpdateIcon from "@material-ui/icons/Update"
+import WarningIcon from "@material-ui/icons/Warning"
+import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
+import { SignatureRequest } from "../../lib/multisig-service"
+import { getAllSources, signatureMatchesPublicKey } from "../../lib/stellar"
+import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
 import { ObservedAccountData } from "../../subscriptions"
+import { HorizontalLayout } from "../Layout/Box"
 import { List, ListItem } from "../List"
 import PublicKey from "../PublicKey"
 import OperationListItem from "./Operations"
+
+function makeOperationSourceExplicit(
+  operation: TransactionOperation,
+  transaction: Transaction,
+  localAccountPubKey?: string
+): TransactionOperation {
+  const effectiveSource = operation.source || transaction.source
+
+  // Don't show the source if the source === the tx source === this account (this is the default case)
+  return effectiveSource === transaction.source && (effectiveSource === localAccountPubKey || !localAccountPubKey)
+    ? operation
+    : { ...operation, source: effectiveSource }
+}
 
 function MetaDetails(props: { children: React.ReactNode }) {
   return <div style={{ fontSize: "80%", marginTop: 8, marginLeft: 16 }}>{props.children}</div>
@@ -22,36 +47,34 @@ function TransactionMemo(props: { memo: Memo; style?: React.CSSProperties }) {
   return <ListItem heading={`${typeLabel} Memo`} primaryText={<MetaDetails>{memo}</MetaDetails>} style={props.style} />
 }
 
+function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }) {
+  const Icon = props.hasSigned ? CheckIcon : UpdateIcon
+  return (
+    <Tooltip title={props.hasSigned ? "Has signed the transaction" : "Awaiting their signature"}>
+      <Icon style={{ opacity: props.hasSigned ? 1 : 0.5, ...props.style }} />
+    </Tooltip>
+  )
+}
+
 // tslint:disable-next-line no-shadowed-variable
 const Signer = React.memo(function Signer(props: {
-  accounts: Account[]
+  hasSigned: boolean
   signer: { public_key: string; weight: number }
   transaction: Transaction
 }) {
-  const { accounts, signer } = props
-  const hints: string[] = []
-
-  if (signer.public_key === props.transaction.source) {
-    hints.push("Source account")
-  }
-  if (accounts.some(account => account.publicKey === signer.public_key)) {
-    hints.push("Local key")
-  }
-
   return (
-    <div style={{ display: "block", whiteSpace: "nowrap" }}>
-      <PublicKey
-        publicKey={signer.public_key}
-        style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
-        variant="full"
-      />
-      {hints.length > 0 ? (
-        <>
-          &nbsp;(
-          {hints.join(", ")})
-        </>
-      ) : null}
-    </div>
+    <HorizontalLayout alignItems="center">
+      <>
+        <SignerStatus hasSigned={props.hasSigned} style={{ marginRight: 8 }} />
+        <div style={{ whiteSpace: "nowrap" }}>
+          <PublicKey
+            publicKey={props.signer.public_key}
+            style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
+            variant="full"
+          />
+        </div>
+      </>
+    </HorizontalLayout>
   )
 })
 
@@ -61,6 +84,9 @@ function Signers(props: {
   transaction: Transaction
   style?: React.CSSProperties
 }) {
+  // TODO: We should not get the signers from the source account data, but either
+  //       a) from the signature request or
+  //       b) by taking the tx source and all operation source accounts into account
   const headingDetails = props.accountData.signers.every(signer => signer.weight === 1)
     ? `${props.accountData.thresholds.high_threshold} of ${props.accountData.signers.length} multi-signature`
     : `Custom consensus multi-signature`
@@ -73,7 +99,9 @@ function Signers(props: {
             {props.accountData.signers.map(signer => (
               <Signer
                 key={signer.public_key}
-                accounts={props.accounts}
+                hasSigned={props.transaction.signatures.some(signature =>
+                  signatureMatchesPublicKey(signature, signer.public_key)
+                )}
                 signer={signer}
                 transaction={props.transaction}
               />
@@ -100,21 +128,71 @@ function SourceAccount(props: { transaction: Transaction; style?: React.CSSPrope
   )
 }
 
-function TransactionSummary(props: { showSource?: boolean; testnet: boolean; transaction: Transaction }) {
+function DangerousTransactionWarning(props: { style?: React.CSSProperties }) {
+  return (
+    <MuiListItem style={{ background: amber["500"], ...props.style }}>
+      <MuiListItemIcon>
+        <WarningIcon />
+      </MuiListItemIcon>
+      <MuiListItemText
+        primary="Transaction initiated by unrecognized account"
+        secondary="Please review carefully. In case of doubt, prefer dismissing."
+      />
+    </MuiListItem>
+  )
+}
+
+interface TransactionSummaryProps {
+  account: Account | null
+  showSource?: boolean
+  signatureRequest?: SignatureRequest
+  testnet: boolean
+  transaction: Transaction
+}
+
+function TransactionSummary(props: TransactionSummaryProps) {
+  const allTxSources = getAllSources(props.transaction)
   const { accounts } = useContext(AccountsContext)
-  const accountData = useAccountData(props.transaction.source, props.testnet)
+  const accountDataSet = useAccountDataSet(allTxSources, props.testnet)
+
+  const accountData = accountDataSet.find(someAccountData => someAccountData.id === props.transaction.source)
+  const showSigners = accountDataSet.some(someAccountData => someAccountData.signers.length > 1)
+  const localAccountPublicKey = props.account ? props.account.publicKey : undefined
+
   const noHPaddingStyle = {
     paddingLeft: 0,
     paddingRight: 0
   }
-  const showSigners = accountData.signers.length > 1
+
+  if (!accountData) {
+    throw new Error(
+      "Invariant violation: " +
+        "Cannot find the transaction source account's account data in set of account data subscriptions."
+    )
+  }
+
+  const isDangerousSignatureRequest = useMemo(
+    () => {
+      const localAccounts = accountDataSet.filter(someAccountData =>
+        accounts.some(account => account.publicKey === someAccountData.id)
+      )
+      return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
+    },
+    [accountDataSet, accounts, props.signatureRequest, props.transaction]
+  )
+
   return (
     <List>
+      {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
           accountData={accountData}
-          operation={operation}
+          operation={
+            props.showSource
+              ? makeOperationSourceExplicit(operation, props.transaction, localAccountPublicKey)
+              : operation
+          }
           style={noHPaddingStyle}
           testnet={props.testnet}
         />
@@ -129,9 +207,7 @@ function TransactionSummary(props: { showSource?: boolean; testnet: boolean; tra
           style={noHPaddingStyle}
         />
       ) : null}
-      {props.showSource && !showSigners ? (
-        <SourceAccount transaction={props.transaction} style={noHPaddingStyle} />
-      ) : null}
+      {props.showSource ? <SourceAccount transaction={props.transaction} style={noHPaddingStyle} /> : null}
     </List>
   )
 }

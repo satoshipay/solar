@@ -143,7 +143,7 @@ function TransactionItemText(props: TitleTextProps) {
       <ListItemText
         primary={
           <span>
-            <RemotePublicKeys publicKeys={remotePublicKeys} />
+            From <RemotePublicKeys publicKeys={remotePublicKeys} />
           </span>
         }
         primaryTypographyProps={{ style: props.style }}
@@ -159,7 +159,7 @@ function TransactionItemText(props: TitleTextProps) {
       <ListItemText
         primary={
           <span>
-            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
+            To <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;from <PublicKey publicKey={props.accountPublicKey} variant="short" />{" "}

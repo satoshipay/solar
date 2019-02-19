@@ -49,13 +49,22 @@ function ManageSignersDialog(props: Props) {
           Operation.setOptions({
             signer: { ed25519PublicKey: signer.public_key, weight: signer.weight }
           })
-        ),
-        Operation.setOptions({
-          lowThreshold: update.weightThreshold,
-          medThreshold: update.weightThreshold,
-          highThreshold: update.weightThreshold
-        })
+        )
       ]
+
+      if (
+        update.weightThreshold !== props.accountData.thresholds.low_threshold &&
+        update.weightThreshold !== props.accountData.thresholds.med_threshold &&
+        update.weightThreshold !== props.accountData.thresholds.high_threshold
+      ) {
+        operations.push(
+          Operation.setOptions({
+            lowThreshold: update.weightThreshold,
+            medThreshold: update.weightThreshold,
+            highThreshold: update.weightThreshold
+          })
+        )
+      }
 
       const tx = await createTransaction(operations, {
         horizon: props.horizon,

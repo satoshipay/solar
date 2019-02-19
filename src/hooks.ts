@@ -27,30 +27,57 @@ export function useHorizon(testnet: boolean = false) {
 
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
 
-function useDataSubscription<ObservedData>(subscription: SubscriptionTarget<ObservedData>): ObservedData {
-  const [currentData, setCurrentData] = useState<ObservedData>(subscription.getLatest())
+function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTarget<ObservedData>>): ObservedData[] {
+  const [currentDataSets, setCurrentDataSets] = useState<ObservedData[]>(
+    subscriptions.map(subscription => subscription.getLatest())
+  )
+
+  const updateDataSets = (
+    prevDataSets: ObservedData[],
+    update: ObservedData,
+    indexToUpdate: number
+  ): ObservedData[] => {
+    return prevDataSets.map((data, index) => (index === indexToUpdate ? update : data))
+  }
 
   // Asynchronously subscribe to remote data to keep state in sync
   // `unsubscribe` will only unsubscribe state updating code, won't close remote data subscription itself
   useEffect(
     () => {
       // Some time has passed since the last `getLatest()`, so refresh
-      setCurrentData(subscription.getLatest())
+      setCurrentDataSets(subscriptions.map(subscription => subscription.getLatest()))
 
-      const unsubscribe = subscription.subscribe(update => setCurrentData(update))
+      const unsubscribeHandlers = subscriptions.map((subscription, index) =>
+        subscription.subscribe(update =>
+          setCurrentDataSets(prevDataSets => updateDataSets(prevDataSets, update, index))
+        )
+      )
+
+      const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
       return unsubscribe
     },
-    [subscription]
+    [subscriptions]
   )
 
-  return currentData
+  return currentDataSets
+}
+
+function useDataSubscription<ObservedData>(subscription: SubscriptionTarget<ObservedData>): ObservedData {
+  return useDataSubscriptions([subscription])[0]
+}
+
+export function useAccountDataSet(accountIDs: string[], testnet: boolean): ObservedAccountData[] {
+  const horizon = useHorizon(testnet)
+  const accountSubscriptions = useMemo(() => accountIDs.map(accountID => subscribeToAccount(horizon, accountID)), [
+    accountIDs.join(","),
+    testnet
+  ])
+
+  return useDataSubscriptions(accountSubscriptions)
 }
 
 export function useAccountData(accountID: string, testnet: boolean): ObservedAccountData {
-  const horizon = useHorizon(testnet)
-  const accountSubscription = useMemo(() => subscribeToAccount(horizon, accountID), [accountID, testnet])
-
-  return useDataSubscription(accountSubscription)
+  return useAccountDataSet([accountID], testnet)[0]
 }
 
 export function useAccountOffers(accountID: string, testnet: boolean): ObservedAccountOffers {

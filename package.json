@@ -1,12 +1,12 @@
 {
   "name": "satoshipay-stellar-wallet",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Wallet for the Stellar payment network by SatoshiPay.",
   "license": "GPL-3.0",
   "private": true,
   "author": {
     "name": "SatoshiPay Ltd",
-    "email": "feedback@satoshipay.io"
+    "email": "hello@solarwallet.io"
   },
   "homepage": "https://solarwallet.io/",
   "repository": "github:satoshipay/solar",
@@ -17,7 +17,7 @@
     "prettier": "prettier --write '{src,stories}/**/*.{ts,tsx}' *.md electron/*.js",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "test": "tslint --project .",
-    "prebuild:electron": "NODE_ENV=production parcel build ./src/index.prod.njk --public-url=./ --detailed-report --no-source-maps",
+    "prebuild:electron": "NODE_ENV=production parcel build ./src/index.prod.njk --detailed-report --no-cache --no-source-maps --public-url=./",
     "build:linux": "PLATFORM=linux npm run prebuild:electron && build --linux --x64 --config ./electron-build.yml",
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && build --mac --x64 --config ./electron-build.yml",
     "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32  --config ./electron-build.yml",
@@ -57,8 +57,8 @@
     "@types/storybook__react": "^3.0.7",
     "awesome-typescript-loader": "~3.5.0",
     "babel-core": "^6.26.3",
-    "electron": "^3.0.9",
-    "electron-builder": "^20.26.1",
+    "electron": "^4.0.4",
+    "electron-builder": "^20.38.5",
     "electron-reload": "^1.2.5",
     "husky": "^0.14.3",
     "lint-staged": "^7.2.0",
