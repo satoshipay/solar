@@ -1,11 +1,11 @@
-import { Asset, OfferRecord, Server } from "stellar-sdk"
+import { Asset, Server } from "stellar-sdk"
 import { waitForAccountData } from "../lib/account"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { trackError } from "../context/notifications"
 
 export interface ObservedAccountOffers {
   loading: boolean
-  offers: OfferRecord[]
+  offers: Server.OfferRecord[]
 }
 
 type SerializedAsset =
@@ -21,7 +21,7 @@ type SerializedAsset =
       asset_issuer: string
     }
 
-function instantiateOffer(offer: OfferRecord) {
+function instantiateOffer(offer: Server.OfferRecord) {
   // Fix offer to match the TypeScript types by instantiating the assets
   const buying: SerializedAsset = offer.buying as any
   const selling: SerializedAsset = offer.selling as any

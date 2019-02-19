@@ -68,8 +68,10 @@ const theme = createMuiTheme({
   },
   palette: {
     primary: {
-      ...brandColor,
-      contrastText: "white"
+      contrastText: "white",
+      dark: brandColor.dark,
+      main: brandColor.main,
+      light: brandColor.light
     }
   }
 })

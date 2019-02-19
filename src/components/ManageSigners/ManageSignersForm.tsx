@@ -1,6 +1,6 @@
 import React from "react"
 import { useState } from "react"
-import { AccountRecord } from "stellar-sdk"
+import { Horizon } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
@@ -17,11 +17,9 @@ import SignersEditor from "./SignersEditor"
 const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
 const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
 
-export type Signer = AccountRecord["signers"][0]
-
 export interface SignerUpdate {
-  signersToAdd: Signer[]
-  signersToRemove: Signer[]
+  signersToAdd: Horizon.AccountSigner[]
+  signersToRemove: Horizon.AccountSigner[]
   weightThreshold: number
 }
 
@@ -37,12 +35,16 @@ function getEffectiveWeightThreshold(accountData: ObservedAccountData) {
   return weightThresholdOnLedger || 1
 }
 
-function getUpdatedSigners(accountData: ObservedAccountData, signersToAdd: Signer[], signersToRemove: Signer[]) {
+function getUpdatedSigners(
+  accountData: ObservedAccountData,
+  signersToAdd: Horizon.AccountSigner[],
+  signersToRemove: Horizon.AccountSigner[]
+) {
   const signersPubKeysToAdd = signersToAdd.map(signer => signer.public_key)
   const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
 
-  const isNotToBeAdded = (signer: Signer) => signersPubKeysToAdd.indexOf(signer.public_key) === -1
-  const isNotToBeRemoved = (signer: Signer) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
+  const isNotToBeAdded = (signer: Horizon.AccountSigner) => signersPubKeysToAdd.indexOf(signer.public_key) === -1
+  const isNotToBeRemoved = (signer: Horizon.AccountSigner) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
 
   const updatedSigners = [...accountData.signers.filter(isNotToBeAdded).filter(isNotToBeRemoved), ...signersToAdd]
 
@@ -52,7 +54,7 @@ function getUpdatedSigners(accountData: ObservedAccountData, signersToAdd: Signe
   ]
 }
 
-function validateFormValues(weightThreshold: string, updatedSigners: Signer[]): Error | undefined {
+function validateFormValues(weightThreshold: string, updatedSigners: Horizon.AccountSigner[]): Error | undefined {
   if (updatedSigners.length === 0) {
     throw new Error("No signers left. Don't lock yourself out!")
   }
@@ -92,17 +94,17 @@ interface Props {
 function ManageSignersForm(props: Props) {
   const { accountData } = props
 
-  const [signersToAdd, setSignersToAdd] = useState<Signer[]>([])
-  const [signersToRemove, setSignersToRemove] = useState<Signer[]>([])
+  const [signersToAdd, setSignersToAdd] = useState<Horizon.AccountSigner[]>([])
+  const [signersToRemove, setSignersToRemove] = useState<Horizon.AccountSigner[]>([])
   const [weightThresholdError, setWeightThresholdError] = useState<Error | undefined>(undefined)
   const [weightThreshold, setWeightThreshold] = useState(getEffectiveWeightThreshold(accountData).toString())
 
   const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
 
-  const addSigner = (signer: Signer) => setSignersToAdd([...signersToAdd, signer])
+  const addSigner = (signer: Horizon.AccountSigner) => setSignersToAdd([...signersToAdd, signer])
 
-  const removeSigner = (signer: Signer) => {
+  const removeSigner = (signer: Horizon.AccountSigner) => {
     setSignersToAdd(signersToAdd.filter(someSignerToBeAddd => someSignerToBeAddd.public_key !== signer.public_key))
     setSignersToRemove([...signersToRemove, signer])
   }

@@ -2,15 +2,14 @@ import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
-import { Transaction, TransactionOperation } from "stellar-sdk"
+import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import TxConfirmationForm from "../Form/TxConfirmation"
 import { Box } from "../Layout/Box"
 import TestnetBadge from "./TestnetBadge"
 
-const isPaymentOperation = (operation: TransactionOperation) =>
-  ["createAccount", "payment"].indexOf(operation.type) > -1
+const isPaymentOperation = (operation: Operation) => ["createAccount", "payment"].indexOf(operation.type) > -1
 
 const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
 

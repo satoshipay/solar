@@ -1,5 +1,5 @@
 import React from "react"
-import { AccountResponse } from "stellar-sdk"
+import { Horizon } from "stellar-sdk"
 import { useAccountData } from "../../hooks"
 import InlineLoader from "../InlineLoader"
 
@@ -92,7 +92,7 @@ export function SingleBalance(props: SingleBalanceProps) {
 }
 
 interface MultipleBalancesProps {
-  balances: AccountResponse["balances"]
+  balances: Horizon.BalanceLine[]
   component?: React.ComponentType<SingleBalanceProps>
   inline?: boolean
 }

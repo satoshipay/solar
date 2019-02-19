@@ -1,4 +1,4 @@
-import { AccountRecord, Server } from "stellar-sdk"
+import { Horizon, Server } from "stellar-sdk"
 import { loadAccount, waitForAccountData } from "../lib/account"
 import { createStreamDebouncer } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
@@ -6,11 +6,11 @@ import { trackError } from "../context/notifications"
 
 export interface ObservedAccountData {
   activated: boolean
-  balances: AccountRecord["balances"]
+  balances: Horizon.BalanceLine[]
   id: string
   loading: boolean
-  signers: AccountRecord["signers"]
-  thresholds: AccountRecord["thresholds"]
+  signers: Horizon.AccountSigner[]
+  thresholds: Horizon.AccountThresholds
 }
 
 const createEmptyAccountData = (accountID: string): ObservedAccountData => ({
@@ -30,7 +30,7 @@ export function createAccountDataSubscription(
   horizon: Server,
   accountPubKey: string
 ): SubscriptionTarget<ObservedAccountData> {
-  const { debounceError, debounceMessage } = createStreamDebouncer<AccountRecord>()
+  const { debounceError, debounceMessage } = createStreamDebouncer<Server.AccountRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyAccountData(accountPubKey))
 
   const subscribeToStream = (cursor: string = "now") => {
@@ -39,7 +39,7 @@ export function createAccountDataSubscription(
       .accountId(accountPubKey)
       .cursor(cursor)
       .stream({
-        onmessage(accountData: AccountRecord) {
+        onmessage(accountData: Server.AccountRecord) {
           debounceMessage(accountData, () => {
             propagateUpdate({
               ...subscriptionTarget.getLatest(),

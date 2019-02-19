@@ -1,4 +1,4 @@
-import { Server, Transaction, TransactionRecord } from "stellar-sdk"
+import { Server, Transaction } from "stellar-sdk"
 import { waitForAccountData } from "../lib/account"
 import { createStreamDebouncer } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
@@ -16,7 +16,7 @@ const createEmptyTransactionSet = (): ObservedRecentTxs => ({
   transactions: []
 })
 
-function deserializeTx(txResponse: TransactionRecord) {
+function deserializeTx(txResponse: Server.TransactionRecord) {
   return Object.assign(new Transaction(txResponse.envelope_xdr), {
     created_at: txResponse.created_at
   })
@@ -27,7 +27,7 @@ export function createRecentTxsSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedRecentTxs> {
   const maxTxsToLoadCount = 15
-  const { debounceError, debounceMessage } = createStreamDebouncer<TransactionRecord>()
+  const { debounceError, debounceMessage } = createStreamDebouncer<Server.TransactionRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
 
   const loadRecentTxs = async () => {
@@ -49,7 +49,7 @@ export function createRecentTxsSubscription(
       .forAccount(accountPubKey)
       .cursor(cursor)
       .stream({
-        onmessage(txResponse: TransactionRecord) {
+        onmessage(txResponse: Server.TransactionRecord) {
           debounceMessage(txResponse, () => {
             // Important: Insert new transactions in the front, since order is descending
             propagateUpdate({

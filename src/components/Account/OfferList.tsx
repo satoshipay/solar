@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { useState } from "react"
-import { OfferRecord, Operation, Server, Transaction } from "stellar-sdk"
+import { Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -19,7 +19,11 @@ import { List } from "../List"
 import TransactionSender from "../TransactionSender"
 import { SingleBalance } from "./AccountBalances"
 
-function createDismissalTransaction(horizon: Server, account: Account, offer: OfferRecord): Promise<Transaction> {
+function createDismissalTransaction(
+  horizon: Server,
+  account: Account,
+  offer: Server.OfferRecord
+): Promise<Transaction> {
   return createTransaction(
     [
       Operation.manageOffer({
@@ -36,7 +40,7 @@ function createDismissalTransaction(horizon: Server, account: Account, offer: Of
 
 interface OfferListItemProps {
   accountPublicKey: string
-  offer: OfferRecord
+  offer: Server.OfferRecord
   onCancel?: () => void
   style?: React.CSSProperties
 }
@@ -95,7 +99,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
   const offers = useAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
 
-  const onCancel = async (offer: OfferRecord) => {
+  const onCancel = async (offer: Server.OfferRecord) => {
     try {
       const tx = await createDismissalTransaction(horizon, props.account, offer)
       await props.sendTransaction(tx)
