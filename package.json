@@ -90,7 +90,6 @@
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
     "react-human-time": "^1.1.0",
-    "react-icons": "^2.2.7",
     "react-promise": "^2.0.1",
     "react-qr-reader": "^2.1.0",
     "react-router": "^4.4.0-beta.6",
