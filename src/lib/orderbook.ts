@@ -30,3 +30,21 @@ export interface FixedOrderbookRecord {
   base: Asset
   counter: Asset
 }
+
+export function calculateSpread(asks: FixedOrderbookOffer[], bids: FixedOrderbookOffer[]) {
+  // TODO: Calculate according to trade volume (because larger volumes will likely lead to larger spreads)
+
+  if (asks.length === 0 || bids.length === 0) {
+    return {
+      absoluteSpread: 0,
+      relativeSpread: 0
+    }
+  }
+
+  const absoluteSpread = Number.parseFloat(asks[0].price) - Number.parseFloat(bids[0].price)
+  const relativeSpread = absoluteSpread / Math.min(Number.parseFloat(asks[0].price), Number.parseFloat(bids[0].price))
+  return {
+    absoluteSpread,
+    relativeSpread
+  }
+}

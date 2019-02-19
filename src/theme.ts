@@ -1,4 +1,5 @@
 import { createMuiTheme } from "@material-ui/core/styles"
+import amber from "@material-ui/core/colors/amber"
 import grey from "@material-ui/core/colors/grey"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 
@@ -12,6 +13,8 @@ export const brandColor = {
 
 export const primaryBackground = "linear-gradient(to left bottom, #01B3F3, #0176DC)"
 export const primaryBackgroundColor = "#0194E7"
+
+export const warningColor = amber["500"]
 
 const theme = createMuiTheme({
   overrides: {

@@ -8,9 +8,11 @@ import Tabs from "@material-ui/core/Tabs"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import { useOrderbook } from "../../hooks"
+import { calculateSpread } from "../../lib/orderbook"
 import { formatBalance } from "../Account/AccountBalances"
-import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
+import { warningColor } from "../../theme"
 import Explanation from "./Explanation"
 import { useConversionOffers } from "./hooks"
 
@@ -82,7 +84,9 @@ function TradingTabs(props: TradingTabProps) {
     tradeAction === "buy" ? tradePair.asks : tradePair.bids,
     amount || 0.01
   )
+
   const price = worstPriceOfBestMatches || 0
+  const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
   return (
     <VerticalLayout>
@@ -166,7 +170,14 @@ function TradingTabs(props: TradingTabProps) {
                 : "-"
             }
           />
-          {/* TODO: "Large spread" alert */}
+          {relativeSpread > 0.01 ? (
+            <Box padding="8px 12px" style={{ background: warningColor }}>
+              <b>Warning</b>
+              <br />
+              Large spread ({(relativeSpread * 100).toFixed(1)}
+              %) between buying and selling price. Converting the funds back could be expensive.
+            </Box>
+          ) : null}
         </VerticalLayout>
         <VerticalLayout
           alignItems="stretch"
