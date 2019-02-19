@@ -9,3 +9,8 @@ directories:
 files:
   - "./dist/*"
   - "./electron/lib/**"
+
+publish:
+  - provider: github
+    owner: satoshipay
+    repo: solar
