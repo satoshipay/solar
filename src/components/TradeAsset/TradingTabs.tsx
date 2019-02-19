@@ -93,8 +93,8 @@ function TradingTabs(props: TradingTabProps) {
       <HorizontalLayout shrink={0} wrap="wrap">
         <VerticalLayout alignItems="stretch" basis="50%" grow={1} shrink={1}>
           <Tabs indicatorColor="primary" onChange={handleTabsChange} textColor="primary" value={tradeAction}>
-            <Tab label="Buy" value="buy" />
-            <Tab label="Sell" value="sell" />
+            <Tab label="Buy" style={{ minWidth: 72 }} value="buy" />
+            <Tab label="Sell" style={{ minWidth: 72 }} value="sell" />
           </Tabs>
           <VerticalMargin size={24} />
           <TextField
@@ -161,14 +161,10 @@ function TradingTabs(props: TradingTabProps) {
           <ReadOnlyTextfield
             label="Amount to receive"
             style={{ marginBottom: 24 }}
-            value={
-              amount
-                ? [
-                    formatBalance(String(estimatedCost), { minimumSignificants: 3 }),
-                    tradeAction === "buy" ? assetCode : "XLM"
-                  ].join(" ")
-                : "-"
-            }
+            value={[
+              formatBalance(String(amount ? estimatedCost : 0), { minimumSignificants: 3 }),
+              tradeAction === "buy" ? assetCode : "XLM"
+            ].join(" ")}
           />
           {relativeSpread > 0.01 ? (
             <Box padding="8px 12px" style={{ background: warningColor }}>
