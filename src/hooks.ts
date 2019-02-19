@@ -56,7 +56,7 @@ function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTar
       const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
       return unsubscribe
     },
-    [subscriptions]
+    [subscriptions.map(subscription => subscription.id).join(",")]
   )
 
   return currentDataSets
