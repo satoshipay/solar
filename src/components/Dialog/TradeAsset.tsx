@@ -135,7 +135,7 @@ function TradeAsset(props: TradeAssetProps) {
             testnet={props.account.testnet}
           />
         </Typography>
-        <VerticalMargin size={64} />
+        <VerticalMargin size={16} />
         {buyingBalance && sellingBalance ? (
           <TradingForm
             buying={buyingAsset}

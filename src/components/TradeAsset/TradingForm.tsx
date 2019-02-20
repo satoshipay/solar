@@ -88,8 +88,8 @@ function TradingForm(props: TradingFormProps) {
 
   return (
     <VerticalLayout>
-      <HorizontalLayout shrink={0} wrap="wrap">
-        <VerticalLayout alignItems="stretch" basis="50%" grow={1} shrink={1}>
+      <HorizontalLayout shrink={0} justifyContent="space-between" margin="0 -24px" wrap="wrap">
+        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="56px 24px 0">
           <HorizontalLayout margin="0 0 24px">
             <TextField
               label="From"
@@ -205,14 +205,7 @@ function TradingForm(props: TradingFormProps) {
             price={price}
           />
         </VerticalLayout>
-        <VerticalLayout
-          alignItems="stretch"
-          basis="50%"
-          grow={1}
-          shrink={1}
-          minWidth={350}
-          style={{ marginTop: 8, paddingLeft: 48 }}
-        >
+        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 0" minWidth={350}>
           <Explanation />
         </VerticalLayout>
       </HorizontalLayout>
