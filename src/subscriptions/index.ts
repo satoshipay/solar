@@ -2,6 +2,7 @@ import { Asset, Server } from "stellar-sdk"
 import { getHorizonURL } from "../lib/stellar"
 import { SubscriptionTarget } from "../lib/subscription"
 import { createAccountDataSubscription, ObservedAccountData } from "./account-data"
+import { createAccountEffectsSubscription } from "./account-effects"
 import { createAccountOffersSubscription, ObservedAccountOffers } from "./account-offers"
 import { createOrderbookSubscription, ObservedTradingPair } from "./orderbook"
 import { createRecentTxsSubscription, ObservedRecentTxs } from "./recent-txs"
@@ -9,6 +10,7 @@ import { createRecentTxsSubscription, ObservedRecentTxs } from "./recent-txs"
 export { ObservedAccountData, ObservedAccountOffers, ObservedRecentTxs, ObservedTradingPair }
 
 const accountDataSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountData>>()
+const accountEffectsSubscriptionsCache = new Map<string, SubscriptionTarget<Server.EffectRecord | null>>()
 const accountOffersSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountOffers>>()
 const orderbookSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedTradingPair>>()
 const recentTxsSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedRecentTxs>>()
@@ -27,6 +29,22 @@ export function subscribeToAccount(horizon: Server, accountPubKey: string): Subs
     const accountDataSubscription = createAccountDataSubscription(horizon, accountPubKey)
     accountDataSubscriptionsCache.set(cacheKey, accountDataSubscription)
     return accountDataSubscription
+  }
+}
+
+export function subscribeToAccountEffects(
+  horizon: Server,
+  accountPubKey: string
+): SubscriptionTarget<Server.EffectRecord | null> {
+  const cacheKey = getHorizonURL(horizon) + accountPubKey
+  const cached = accountEffectsSubscriptionsCache.get(cacheKey)
+
+  if (cached) {
+    return cached
+  } else {
+    const accountEffectsSubscription = createAccountEffectsSubscription(horizon, accountPubKey)
+    accountEffectsSubscriptionsCache.set(cacheKey, accountEffectsSubscription)
+    return accountEffectsSubscription
   }
 }
 
