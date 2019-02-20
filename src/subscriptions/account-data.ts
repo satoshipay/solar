@@ -43,7 +43,7 @@ export function createAccountDataSubscription(
           debounceMessage(accountData, () => {
             propagateUpdate({
               ...subscriptionTarget.getLatest(),
-              ...accountData
+              ...(accountData as any)
             })
           })
         },
@@ -67,7 +67,7 @@ export function createAccountDataSubscription(
 
     propagateUpdate({
       ...subscriptionTarget.getLatest(),
-      ...accountData,
+      ...(accountData as any),
       activated: true
     })
     subscribeToStream(accountWasJustCreated ? "0" : "now")

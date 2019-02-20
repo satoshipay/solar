@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
-import { Account, AccountsContext } from "./context/accounts"
+import { Account } from "./context/accounts"
 import { SettingsContext } from "./context/settings"
 import { createDeadSubscription, SubscriptionTarget } from "./lib/subscription"
 import {
