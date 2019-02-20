@@ -103,9 +103,14 @@ type EffectHandler = (account: Account, effect: Server.EffectRecord) => void
 export function useAccountEffectSubscriptions(accounts: Account[], handler: EffectHandler) {
   const mainnetHorizon = useHorizon(false)
   const testnetHorizon = useHorizon(true)
+  const settings = useContext(SettingsContext)
 
   return useEffect(
     () => {
+      if (!settings.dexTrading) {
+        return () => undefined
+      }
+
       const unsubscribeHandlers = accounts.map(account => {
         const horizon = account.testnet ? testnetHorizon : mainnetHorizon
         const subscription = subscribeToAccountEffects(horizon, account.publicKey)
