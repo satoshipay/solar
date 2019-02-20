@@ -69,7 +69,7 @@ function ManageAssets(props: Props) {
           account={props.account}
           onAddTrustline={addAsset}
           onRemoveTrustline={onRemoveTrustline}
-          onTradeAsset={asset => router.history.push(routes.tradeAsset(props.account.id, asset.code))}
+          onTradeAsset={asset => router.history.push(routes.tradeAsset(props.account.id))}
         />
       </Box>
       <CustomTrustlineDialog

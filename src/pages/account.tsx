@@ -158,7 +158,7 @@ function Transactions(props: { account: Account }) {
 interface Props {
   accountID: string
   showAssetManagement: boolean
-  showAssetTrading: string | null
+  showAssetTrading: boolean
   showCreatePayment: boolean
   showReceivePayment: boolean
   showSignersManagement: boolean
@@ -204,9 +204,8 @@ function AccountPage(props: Props) {
       <ReceivePaymentDialog account={account} open={props.showReceivePayment} onClose={onCloseDialog} />
       <TradeAssetDialog
         account={account}
-        assetCode={props.showAssetTrading || ""}
         open={Boolean(props.showAssetTrading)}
-        onClose={() => router.history.push(routes.manageAccountAssets(props.accountID))}
+        onClose={() => router.history.push(routes.account(props.accountID))}
       />
     </>
   )

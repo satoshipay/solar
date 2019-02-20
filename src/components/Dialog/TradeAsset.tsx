@@ -1,6 +1,6 @@
 import React from "react"
 import { useState } from "react"
-import { Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
@@ -13,17 +13,26 @@ import * as routes from "../../routes"
 import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
-import TradingTabs from "../TradeAsset/TradingTabs"
+import TradingForm from "../TradeAsset/TradingForm"
 import TransactionSender from "../TransactionSender"
 import BackButton from "./BackButton"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
 function findMatchingBalance(balances: ObservedAccountData["balances"], assetCode: string) {
-  const matchingBalance = balances.find(balance => balance.asset_type !== "native" && balance.asset_code === assetCode)
+  const matchingBalance = balances.find(
+    balance =>
+      (balance.asset_type !== "native" && balance.asset_code === assetCode) ||
+      (balance.asset_type === "native" && assetCode === "XLM")
+  )
 
   if (matchingBalance && matchingBalance.asset_type !== "native") {
     return {
       asset: new Asset(matchingBalance.asset_code, matchingBalance.asset_issuer),
+      balance: matchingBalance
+    }
+  } else if (matchingBalance && matchingBalance.asset_type === "native") {
+    return {
+      asset: Asset.native(),
       balance: matchingBalance
     }
   } else {
@@ -34,13 +43,13 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], assetCod
   }
 }
 
-function Title(props: { assetCode: string; onClose: () => void }) {
+function Title(props: { onClose: () => void }) {
   return (
     <HorizontalLayout justifyContent="space-between" margin="0" shrink={0}>
       <HorizontalLayout alignItems="center" margin="0">
         <BackButton onClick={props.onClose} style={{ marginLeft: -10, marginRight: 10 }} />
         <Typography variant="headline" style={{ flexGrow: 1 }}>
-          Trade {props.assetCode}
+          Trade
         </Typography>
       </HorizontalLayout>
     </HorizontalLayout>
@@ -49,7 +58,6 @@ function Title(props: { assetCode: string; onClose: () => void }) {
 
 interface TradeAssetProps {
   account: Account
-  assetCode: string
   horizon: Server
   open: boolean
   onClose: () => void
@@ -61,15 +69,24 @@ const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
-  const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy")
 
-  const { asset, balance: tokenBalance } = findMatchingBalance(accountData.balances, props.assetCode)
-  const xlmBalance = accountData.balances.find(balance => balance.asset_type === "native") || {
-    asset_type: "native",
-    balance: "0"
-  }
+  const trustlines = (accountData.balances.filter(balance => balance.asset_type !== "native") as any) as Array<
+    Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
+  >
 
-  const sellingAsset = tradeAction === "buy" ? Asset.native() : asset
+  const [rawBuyingAssetCode, setBuyingAssetCode] = useState<string | null>(null)
+  const buyingAssetCode = rawBuyingAssetCode || (trustlines.length > 0 ? trustlines[0].asset_code : "XLM")
+  const [rawSellingAssetCode, setSellingAssetCode] = useState<string | null>(null)
+  const sellingAssetCode = rawSellingAssetCode || "XLM"
+
+  const { asset: rawBuyingAsset, balance: buyingBalance } = findMatchingBalance(accountData.balances, buyingAssetCode)
+  const { asset: rawSellingAsset, balance: sellingBalance } = findMatchingBalance(
+    accountData.balances,
+    sellingAssetCode
+  )
+
+  const buyingAsset = rawBuyingAsset || Asset.native()
+  const sellingAsset = rawSellingAsset || Asset.native()
 
   const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: number, price: number) => {
     const tx = createTransaction(
@@ -101,7 +118,7 @@ function TradeAsset(props: TradeAssetProps) {
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <Title assetCode={props.assetCode} onClose={props.onClose} />
+        <Title onClose={props.onClose} />
         <Typography color="inherit" component="div" variant="body1" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
           <AccountBalances
             component={balanceProps => (
@@ -109,7 +126,8 @@ function TradeAsset(props: TradeAssetProps) {
                 {...balanceProps}
                 style={{
                   ...balanceProps.style,
-                  opacity: sellingAsset && balanceProps.assetCode === sellingAsset.getCode() ? 1 : 0.4
+                  opacity:
+                    [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
                 }}
               />
             )}
@@ -117,15 +135,17 @@ function TradeAsset(props: TradeAssetProps) {
             testnet={props.account.testnet}
           />
         </Typography>
-        <VerticalMargin size={24} />
-        {asset ? (
-          <TradingTabs
-            asset={asset}
-            setTradeAction={setTradeAction}
+        <VerticalMargin size={64} />
+        {buyingBalance && sellingBalance ? (
+          <TradingForm
+            buying={buyingAsset}
+            buyingBalance={buyingBalance.balance}
+            onSetBuying={setBuyingAssetCode}
+            onSetSelling={setSellingAssetCode}
+            selling={sellingAsset}
+            sellingBalance={sellingBalance.balance}
             testnet={props.account.testnet}
-            tokenBalance={tokenBalance ? tokenBalance.balance : "0"}
-            tradeAction={tradeAction}
-            xlmBalance={xlmBalance.balance}
+            trustlines={trustlines}
             DialogActions={({ amount, disabled, price }) => (
               <HorizontalLayout justifyContent="flex-end" shrink={0}>
                 <DialogActionsBox>
@@ -133,9 +153,7 @@ function TradeAsset(props: TradeAssetProps) {
                     disabled={disabled}
                     icon={<GavelIcon />}
                     onClick={() =>
-                      tradeAction === "buy"
-                        ? awaitThenSendTransaction(createOfferCreationTransaction(Asset.native(), asset, amount, price))
-                        : awaitThenSendTransaction(createOfferCreationTransaction(asset, Asset.native(), amount, price))
+                      awaitThenSendTransaction(createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price))
                     }
                     type="primary"
                   >
@@ -151,7 +169,7 @@ function TradeAsset(props: TradeAssetProps) {
   )
 }
 
-function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "assetCode" | "open" | "onClose">) {
+function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "open" | "onClose">) {
   const router = useRouter()
   const navigateToAssets = () => router.history.push(routes.manageAccountAssets(props.account.id))
   return (

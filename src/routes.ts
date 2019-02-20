@@ -6,4 +6,4 @@ export const receivePayment = (accountID: string) => `/account/${accountID}/rece
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/assets`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/signers`
 export const settings = () => "/settings"
-export const tradeAsset = (accountID: string, assetCode: string) => `/account/${accountID}/assets/${assetCode}`
+export const tradeAsset = (accountID: string) => `/account/${accountID}/trade`
