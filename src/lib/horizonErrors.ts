@@ -64,15 +64,22 @@ function explainSubmissionErrorByOpResultCodes(error: HorizonError, resultCodes:
 
 function explainSubmissionErrorByTxResultCode(error: HorizonError, resultCode: string) {
   // See <https://github.com/stellar/horizon/blob/master/src/github.com/stellar/horizon/codes/main.go>
+  // See <https://www.stellar.org/developers/guides/concepts/transactions.html#possible-errors>
   switch (resultCode) {
+    case "insufficient_fee":
+      return deriveError(error, new Error("Network demands higher fees than set in the transaction."))
+    case "internal_error":
+      return deriveError(error, new Error("An unknown error occured on the Stellar server."))
+    case "no_account":
+      return deriveError(error, new Error("Source account not found."))
     case "tx_bad_auth":
-      return deriveError(error, new Error("Transaction authentication failed."))
+      return deriveError(error, new Error("Too few valid signatures or wrong network."))
     case "tx_bad_auth_extra":
-      return deriveError(error, new Error("Transaction authentication failed: More signatures than required."))
+      return deriveError(error, new Error("Unused signatures attached to transaction."))
     case "tx_bad_seq":
       return deriveError(error, new Error("Sequence number mismatch. Please re-create the transaction."))
     case "tx_insufficient_balance":
-      return deriveError(error, new Error("Insufficient balance."))
+      return deriveError(error, new Error("Insufficient balance. Balance would fall below the minimum reserve."))
     default:
       return deriveError(error, new Error(`Transaction rejected by the network. Result code: ${resultCode}`))
   }
