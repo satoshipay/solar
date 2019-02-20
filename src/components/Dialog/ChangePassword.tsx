@@ -93,7 +93,7 @@ interface Props {
 }
 
 function ChangePasswordDialog(props: Props) {
-  const { addError, addNotification } = useContext(NotificationsContext)
+  const { showError, showNotification } = useContext(NotificationsContext)
   const [errors, setErrors] = useState<Errors>({})
   const [formValues, setFormValues] = useState<FormValues>({
     nextPassword: "",
@@ -116,10 +116,10 @@ function ChangePasswordDialog(props: Props) {
       props
         .changePassword(accountID, prevPassword, nextPassword)
         .then(() => {
-          addNotification("success", requiresPassword ? "Password changed." : "Password set.")
+          showNotification("success", requiresPassword ? "Password changed." : "Password set.")
           props.onClose()
         })
-        .catch(addError)
+        .catch(showError)
     }
   }
   const onClose = () => {
@@ -139,10 +139,10 @@ function ChangePasswordDialog(props: Props) {
       props
         .removePassword(props.account.id, formValues.prevPassword)
         .then(() => {
-          addNotification("success", "Password removed.")
+          showNotification("success", "Password removed.")
           props.onClose()
         })
-        .catch(addError)
+        .catch(showError)
     }
   }
   const setFormValue = (name: keyof FormValues, value: string) => {
