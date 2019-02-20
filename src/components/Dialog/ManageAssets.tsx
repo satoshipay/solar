@@ -8,8 +8,6 @@ import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useRouter } from "../../hooks"
-import * as routes from "../../routes"
 import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -30,7 +28,6 @@ interface Props {
 }
 
 function ManageAssets(props: Props) {
-  const router = useRouter()
   const [isCustomTrustlineDialogOpen, setCustomTrustlineDialogOpen] = useState(false)
   const [removalDialogAsset, setRemovalDialogAsset] = useState<Asset | null>(null)
 
@@ -65,12 +62,7 @@ function ManageAssets(props: Props) {
             </ButtonIconLabel>
           </Button>
         </HorizontalLayout>
-        <TrustlineList
-          account={props.account}
-          onAddTrustline={addAsset}
-          onRemoveTrustline={onRemoveTrustline}
-          onTradeAsset={asset => router.history.push(routes.tradeAsset(props.account.id))}
-        />
+        <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
       </Box>
       <CustomTrustlineDialog
         account={props.account}

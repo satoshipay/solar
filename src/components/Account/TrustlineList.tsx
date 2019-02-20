@@ -1,5 +1,5 @@
 import React from "react"
-import { useContext, useState } from "react"
+import { useState } from "react"
 import { Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
@@ -10,14 +10,11 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import Tooltip from "@material-ui/core/Tooltip"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import RemoveIcon from "@material-ui/icons/Close"
-import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
-import { SettingsContext } from "../../context/settings"
 import { useAccountData } from "../../hooks"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
-import ButtonIconLabel from "../ButtonIconLabel"
 import SpaciousList from "../List/SpaciousList"
 import { AccountName } from "../Fetchers"
 import { SingleBalance } from "./AccountBalances"
@@ -127,12 +124,10 @@ interface Props {
   account: Account
   onAddTrustline: (asset: Asset, options?: { limit?: string }) => Promise<void>
   onRemoveTrustline: (asset: Asset) => void
-  onTradeAsset: (asset: Asset) => void
 }
 
 function TrustlineList(props: Props) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const settings = useContext(SettingsContext)
 
   const isAssetAlreadyAdded = (asset: Asset) => {
     return accountData.balances.some(
@@ -163,21 +158,7 @@ function TrustlineList(props: Props) {
         <ListItemSecondaryAction />
       </ListItem>
       {accountData.balances.filter(balance => balance.asset_type !== "native").map((balance: any, index) => (
-        <TrustedAsset
-          key={index}
-          account={account}
-          balance={balance}
-          hoverActions={
-            settings.dexTrading ? (
-              <Button onClick={() => props.onTradeAsset(new Asset(balance.asset_code, balance.asset_issuer))}>
-                <ButtonIconLabel label="Buy / Sell">
-                  <SwapHorizIcon />
-                </ButtonIconLabel>
-              </Button>
-            ) : null
-          }
-          onRemoveTrustline={onRemoveTrustline}
-        />
+        <TrustedAsset key={index} account={account} balance={balance} onRemoveTrustline={onRemoveTrustline} />
       ))}
       {popularAssetsNotYetAdded.map(asset => (
         <UntrustedAsset
