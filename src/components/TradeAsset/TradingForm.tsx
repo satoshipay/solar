@@ -35,12 +35,14 @@ function TradingForm(props: Props) {
   const tradePair = useOrderbook(props.selling, props.buying, props.testnet)
 
   const [amountString, setAmountString] = useState("")
+  const [manualPriceString, setManualPriceString] = useState("")
   const [tolerance, setTolerance] = useState<ToleranceValue>(0)
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? 0 : Number.parseFloat(amountString)
+  const manualPrice = Number.isNaN(Number.parseFloat(manualPriceString)) ? 0 : Number.parseFloat(manualPriceString)
   const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(tradePair.bids, amount || 0.01, tolerance)
 
-  const price = worstPriceOfBestMatches || 0
+  const price = worstPriceOfBestMatches || manualPrice || 0
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
   return (
@@ -50,8 +52,10 @@ function TradingForm(props: Props) {
           <TradePropertiesForm
             {...props}
             amount={amountString}
-            estimatedReturn={amount ? estimatedReturn : BigNumber(0)}
+            estimatedReturn={estimatedReturn}
+            manualPrice={manualPriceString}
             onSetAmount={setAmountString}
+            onSetManualPrice={setManualPriceString}
             onSetTolerance={setTolerance}
             price={worstPriceOfBestMatches ? BigNumber(1).div(worstPriceOfBestMatches) : BigNumber(0)}
             tolerance={tolerance}

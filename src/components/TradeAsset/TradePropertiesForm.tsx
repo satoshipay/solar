@@ -1,6 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
+import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import { HorizontalLayout } from "../Layout/Box"
@@ -49,9 +50,32 @@ function PriceTolerance(props: { label: string; price: string; tolerance: Tolera
   )
 }
 
-function ToleranceSelector(
-  props: { assetCode: string; price: BigNumber } & Pick<TextFieldProps, "label" | "onChange" | "value">
-) {
+type ToleranceSelectorProps = Pick<TextFieldProps, "label" | "onChange" | "value"> & {
+  assetCode: string
+  price: BigNumber
+  manualPrice: string
+  onSetManualPrice: (value: string) => void
+}
+
+function ToleranceSelector(props: ToleranceSelectorProps) {
+  if (props.price.eq(0)) {
+    return (
+      <TextField
+        label={props.label}
+        placeholder="No offers yet. Enter a price manually..."
+        onChange={event => props.onSetManualPrice(event.target.value)}
+        style={{ marginBottom: 24 }}
+        value={props.manualPrice}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment disableTypography position="end" style={{ pointerEvents: "none" }}>
+              {props.assetCode}
+            </InputAdornment>
+          )
+        }}
+      />
+    )
+  }
   return (
     <TextField
       label={props.label}
@@ -107,9 +131,11 @@ interface TradePropertiesFormProps {
   amount: string
   buying: Asset
   estimatedReturn: BigNumber
+  manualPrice: string
   onSetAmount: (amount: string) => void
   onSetBuying: (assetCode: string) => void
   onSetSelling: (assetCode: string) => void
+  onSetManualPrice: (priceString: string) => void
   onSetTolerance: (tolerance: ToleranceValue) => void
   price: BigNumber
   selling: Asset
@@ -119,6 +145,13 @@ interface TradePropertiesFormProps {
 }
 
 function TradePropertiesForm(props: TradePropertiesFormProps) {
+  const estimatedReturn = (() => {
+    if (!props.amount || (props.price.eq(0) && !props.manualPrice)) {
+      return BigNumber(0)
+    }
+    return props.price.eq(0) ? BigNumber(props.amount).div(props.manualPrice) : props.estimatedReturn
+  })()
+
   const setBuying = (newBuyingAssetCode: string) => {
     if (newBuyingAssetCode === props.selling.getCode() && newBuyingAssetCode !== props.buying.getCode()) {
       // Swap buying and selling asset
@@ -159,7 +192,9 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
       <ToleranceSelector
         assetCode={props.selling.getCode()}
         label={`Price per ${props.buying.getCode()}`}
+        manualPrice={props.manualPrice}
         onChange={event => props.onSetTolerance((event.target.value as any) as ToleranceValue)}
+        onSetManualPrice={props.onSetManualPrice}
         price={props.price}
         value={props.tolerance}
       />
@@ -174,7 +209,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
         <ReadOnlyTextfield
           label="Amount to receive"
           style={{ flexGrow: 1, flexShrink: 1, fontWeight: "bold" }}
-          value={formatBalance(String(props.estimatedReturn), { minimumSignificants: 3 })}
+          value={formatBalance(String(estimatedReturn), { minimumSignificants: 3 })}
         />
       </HorizontalLayout>
     </>
