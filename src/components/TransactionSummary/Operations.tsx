@@ -139,15 +139,16 @@ function OfferHeading(props: { amount: BigNumber; buying: Asset; offerId: string
   )
 }
 
-function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumber; selling: Asset }) {
+export function OfferDetailsString(props: { amount: BigNumber; buying: Asset; price: BigNumber; selling: Asset }) {
   const { amount, buying, price, selling } = props
   return (
-    <OperationDetails>
-      {`Buy ${formatBalance(amount.mul(price).toString())} ${buying.code} for ${formatBalance(amount.toString())} ${
-        selling.code
-      }`}
-    </OperationDetails>
+    `Buy ${formatBalance(amount.mul(price).toString())} ${buying.code} ` +
+    `for ${formatBalance(amount.toString())} ${selling.code}`
   )
+}
+
+function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumber; selling: Asset }) {
+  return <OperationDetails>{OfferDetailsString(props)}</OperationDetails>
 }
 
 interface ManageOfferOperationProps {

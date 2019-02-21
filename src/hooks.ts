@@ -1,11 +1,13 @@
 import { useContext, useEffect, useMemo, useState } from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
+import { Account } from "./context/accounts"
 import { SettingsContext } from "./context/settings"
 import { createDeadSubscription, SubscriptionTarget } from "./lib/subscription"
 import {
   getAssetCacheKey,
   subscribeToAccount,
+  subscribeToAccountEffects,
   subscribeToAccountOffers,
   subscribeToOrders,
   subscribeToRecentTxs,
@@ -94,6 +96,32 @@ export function useAccountOffers(accountID: string, testnet: boolean): ObservedA
   )
 
   return useDataSubscription(offersSubscription)
+}
+
+type EffectHandler = (account: Account, effect: Server.EffectRecord) => void
+
+export function useAccountEffectSubscriptions(accounts: Account[], handler: EffectHandler) {
+  const mainnetHorizon = useHorizon(false)
+  const testnetHorizon = useHorizon(true)
+  const settings = useContext(SettingsContext)
+
+  return useEffect(
+    () => {
+      if (!settings.dexTrading) {
+        return () => undefined
+      }
+
+      const unsubscribeHandlers = accounts.map(account => {
+        const horizon = account.testnet ? testnetHorizon : mainnetHorizon
+        const subscription = subscribeToAccountEffects(horizon, account.publicKey)
+        const unsubscribe = subscription.subscribe(effect => effect && handler(account, effect))
+        return unsubscribe
+      })
+
+      return () => unsubscribeHandlers.forEach(unsubscribe => unsubscribe())
+    },
+    [accounts]
+  )
 }
 
 export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): ObservedTradingPair {
