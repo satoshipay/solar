@@ -171,7 +171,7 @@ function TradeAsset(props: TradeAssetProps) {
 
 function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "open" | "onClose">) {
   const router = useRouter()
-  const navigateToAssets = () => router.history.push(routes.manageAccountAssets(props.account.id))
+  const navigateToAssets = () => router.history.push(routes.account(props.account.id))
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={navigateToAssets}>
       {txContext => <TradeAsset {...props} {...txContext} />}
