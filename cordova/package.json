@@ -14,7 +14,8 @@
       "cordova-plugin-network-information": {},
       "phonegap-plugin-barcodescanner": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
-      }
+      },
+      "cordova-plugin-splashscreen": {}
     }
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "cordova-plugin-dialogs": "~2.0.1",
     "cordova-plugin-network-information": "~2.0.1",
     "cordova-plugin-secure-storage": "^3.0.1",
+    "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-whitelist": "1",
     "phonegap-plugin-barcodescanner": "^8.0.1"
   }

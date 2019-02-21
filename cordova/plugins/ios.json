@@ -21,6 +21,9 @@
     },
     "phonegap-plugin-barcodescanner": {
       "PACKAGE_NAME": "io.solarwallet"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "io.solarwallet"
     }
   },
   "dependent_plugins": {}

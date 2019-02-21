@@ -22,6 +22,9 @@
     "phonegap-plugin-barcodescanner": {
       "ANDROID_SUPPORT_V4_VERSION": "27.+",
       "PACKAGE_NAME": "io.solarwallet"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "io.solarwallet"
     }
   },
   "dependent_plugins": {}
