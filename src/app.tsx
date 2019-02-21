@@ -45,11 +45,12 @@ const App = () => (
               <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
               <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
               <Route
-                path="/account/:id/:action?"
+                path={["/account/:id/:action", "/account/:id"]}
                 render={props => (
                   <AccountPage
                     accountID={props.match.params.id}
-                    showAssetManagement={props.match.url === routes.manageAccountAssets(props.match.params.id)}
+                    showAssetManagement={props.match.url.startsWith(routes.manageAccountAssets(props.match.params.id))}
+                    showAssetTrading={props.match.url === routes.tradeAsset(props.match.params.id)}
                     showCreatePayment={props.match.url === routes.createPayment(props.match.params.id)}
                     showReceivePayment={props.match.url === routes.receivePayment(props.match.params.id)}
                     showSignersManagement={props.match.url === routes.manageAccountSigners(props.match.params.id)}

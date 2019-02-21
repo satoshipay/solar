@@ -35,6 +35,8 @@ function explainSubmissionErrorByOpResultCodes(error: HorizonError, resultCodes:
 
   if (errorCodes.length === 1) {
     switch (errorCodes[0]) {
+      case "op_cross_self":
+        return deriveError(error, new Error("The order would counter an open order of yours."))
       case "op_line_full":
         return deriveError(
           error,

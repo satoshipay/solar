@@ -6,7 +6,6 @@ import MuiListItem from "@material-ui/core/ListItem"
 import MuiListItemIcon from "@material-ui/core/ListItemIcon"
 import MuiListItemText from "@material-ui/core/ListItemText"
 import Tooltip from "@material-ui/core/Tooltip"
-import amber from "@material-ui/core/colors/amber"
 import CheckIcon from "@material-ui/icons/Check"
 import UpdateIcon from "@material-ui/icons/Update"
 import WarningIcon from "@material-ui/icons/Warning"
@@ -14,8 +13,9 @@ import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources, signatureMatchesPublicKey } from "../../lib/stellar"
-import { ObservedAccountData } from "../../lib/subscriptions"
 import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
+import { ObservedAccountData } from "../../subscriptions"
+import { warningColor } from "../../theme"
 import { HorizontalLayout } from "../Layout/Box"
 import { List, ListItem } from "../List"
 import PublicKey from "../PublicKey"
@@ -130,7 +130,7 @@ function SourceAccount(props: { transaction: Transaction; style?: React.CSSPrope
 
 function DangerousTransactionWarning(props: { style?: React.CSSProperties }) {
   return (
-    <MuiListItem style={{ background: amber["500"], ...props.style }}>
+    <MuiListItem style={{ background: warningColor, ...props.style }}>
       <MuiListItemIcon>
         <WarningIcon />
       </MuiListItemIcon>
@@ -187,12 +187,14 @@ function TransactionSummary(props: TransactionSummaryProps) {
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
+          accountData={accountData}
           operation={
             props.showSource
               ? makeOperationSourceExplicit(operation, props.transaction, localAccountPublicKey)
               : operation
           }
           style={noHPaddingStyle}
+          testnet={props.testnet}
         />
       ))}
       <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />

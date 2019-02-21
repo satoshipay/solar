@@ -1,7 +1,9 @@
+import BigNumber from "big.js"
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { Operation } from "stellar-sdk"
-import { SingleBalance } from "../Account/AccountBalances"
+import { Asset, Operation } from "stellar-sdk"
+import { formatBalance, SingleBalance } from "../Account/AccountBalances"
+import { useAccountOffers, ObservedAccountData } from "../../hooks"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { ListItem } from "../List"
 import PublicKey from "../PublicKey"
@@ -117,6 +119,99 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
   }
 }
 
+function OfferHeading(props: { amount: BigNumber; buying: Asset; offerId: string; selling: Asset }) {
+  let prefix: string
+
+  if (props.offerId === "0") {
+    // Offer creation
+    prefix = ""
+  } else if (props.amount.eq(0)) {
+    prefix = "Delete offer: "
+  } else {
+    prefix = "Update offer: "
+  }
+
+  return (
+    <>
+      {prefix}
+      Convert {props.selling.code} to {props.buying.code}
+    </>
+  )
+}
+
+function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumber; selling: Asset }) {
+  const { amount, buying, price, selling } = props
+  return (
+    <OperationDetails>
+      {`Buy ${formatBalance(amount.mul(price).toString())} ${buying.code} for ${formatBalance(amount.toString())} ${
+        selling.code
+      }`}
+    </OperationDetails>
+  )
+}
+
+interface ManageOfferOperationProps {
+  accountData: ObservedAccountData
+  operation: Operation.ManageOffer
+  style?: React.CSSProperties
+  testnet: boolean
+}
+
+function ManageOfferOperation(props: ManageOfferOperationProps) {
+  const operation = props.operation
+  const offers = useAccountOffers(props.accountData.id, props.testnet)
+
+  if (operation.offerId === "0") {
+    // Offer creation
+    const amount = BigNumber(operation.amount)
+    const price = BigNumber(operation.price)
+    return (
+      <ListItem
+        heading={<OfferHeading {...operation} amount={amount} />}
+        primaryText={<OfferDetails {...operation} amount={amount} price={price} />}
+        style={props.style}
+      />
+    )
+  } else if (Number.parseFloat(operation.amount as string) === 0) {
+    // Offer deletion
+    // Take care to cast to string before comparing IDs, since there are issues
+    const offer = offers.offers.find(someOffer => String(someOffer.id) === String(operation.offerId))
+    return offer ? (
+      <ListItem
+        heading={<OfferHeading {...offer} amount={BigNumber(0)} offerId={offer.id} />}
+        primaryText={<OfferDetails {...offer} amount={BigNumber(offer.amount)} price={BigNumber(offer.price)} />}
+        style={props.style}
+      />
+    ) : (
+      <ListItem
+        heading={<OfferHeading {...operation} amount={BigNumber(0)} offerId={operation.offerId} />}
+        primaryText={
+          <OfferDetails {...operation} amount={BigNumber(operation.amount)} price={BigNumber(operation.price)} />
+        }
+        style={props.style}
+      />
+    )
+  } else {
+    // Offer edit
+    const offer = offers.offers.find(someOffer => someOffer.id === operation.offerId)
+    return offer ? (
+      <ListItem
+        heading={<OfferHeading {...operation} amount={BigNumber(offer.amount)} />}
+        primaryText={<OfferDetails {...offer} amount={BigNumber(offer.amount)} price={BigNumber(offer.price)} />}
+        style={props.style}
+      />
+    ) : (
+      <ListItem
+        heading={<OfferHeading {...operation} amount={BigNumber(operation.amount)} />}
+        primaryText={
+          <OfferDetails {...operation} amount={BigNumber(operation.amount)} price={BigNumber(operation.price)} />
+        }
+        style={props.style}
+      />
+    )
+  }
+}
+
 function SetOptionsOperation(props: { operation: Operation.SetOptions; style?: React.CSSProperties }) {
   let heading = <></>
   let primaryText = (
@@ -192,15 +287,31 @@ function GenericOperation(props: { operation: Operation; style?: React.CSSProper
   )
 }
 
-function OperationListItem(props: { operation: Operation; style?: React.CSSProperties }) {
+interface Props {
+  accountData: ObservedAccountData
+  operation: Operation
+  style?: React.CSSProperties
+  testnet: boolean
+}
+
+function OperationListItem(props: Props) {
   // TODO: Add more operation types!
 
-  if (props.operation.type === "payment") {
-    return <PaymentOperation operation={props.operation} style={props.style} />
+  if (props.operation.type === "changeTrust") {
+    return <ChangeTrustOperation operation={props.operation} style={props.style} />
   } else if (props.operation.type === "createAccount") {
     return <CreateAccountOperation operation={props.operation} style={props.style} />
-  } else if (props.operation.type === "changeTrust") {
-    return <ChangeTrustOperation operation={props.operation} style={props.style} />
+  } else if (props.operation.type === "payment") {
+    return <PaymentOperation operation={props.operation} style={props.style} />
+  } else if (props.operation.type === "manageOffer") {
+    return (
+      <ManageOfferOperation
+        accountData={props.accountData}
+        operation={props.operation}
+        style={props.style}
+        testnet={props.testnet}
+      />
+    )
   } else if (props.operation.type === "setOptions") {
     return <SetOptionsOperation operation={props.operation} style={props.style} />
   } else {
