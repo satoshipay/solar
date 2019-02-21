@@ -106,7 +106,7 @@ function ReadOnlyTextfield(props: {
 interface TradePropertiesFormProps {
   amount: string
   buying: Asset
-  estimatedCost: number
+  estimatedReturn: BigNumber
   onSetAmount: (amount: string) => void
   onSetBuying: (assetCode: string) => void
   onSetSelling: (assetCode: string) => void
@@ -174,7 +174,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
         <ReadOnlyTextfield
           label="Amount to receive"
           style={{ flexGrow: 1, flexShrink: 1, fontWeight: "bold" }}
-          value={formatBalance(String(props.estimatedCost), { minimumSignificants: 3 })}
+          value={formatBalance(String(props.estimatedReturn), { minimumSignificants: 3 })}
         />
       </HorizontalLayout>
     </>

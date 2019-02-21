@@ -1,11 +1,13 @@
+import BigNumber from "big.js"
 import { useMemo } from "react"
 import { FixedOrderbookOffer } from "../../lib/orderbook"
 
-const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
+const sum = (numbers: BigNumber[]) => numbers.reduce((total, no) => total.add(no), BigNumber(0))
 
-export function useConversionOffers(offers: FixedOrderbookOffer[], amount: number) {
+export function useConversionOffers(offers: FixedOrderbookOffer[], amount: number, tolerance: number) {
   // Best offers always returned first by horizon
   const bestOffers = offers
+  const priceMultiplier = 1 - tolerance
 
   const bestMatches = useMemo(
     () =>
@@ -28,16 +30,21 @@ export function useConversionOffers(offers: FixedOrderbookOffer[], amount: numbe
   const firstBestOffers = bestMatches.offers.slice(0, -1)
   const lastBestOffer = bestMatches.offers[bestMatches.offers.length - 1]
 
-  const estimatedCost = sum([
-    ...firstBestOffers.slice(0, -1).map(offer => Number.parseFloat(offer.amount) * Number.parseFloat(offer.price)),
+  const estimatedReturn = sum([
+    ...firstBestOffers.slice(0, -1).map(offer =>
+      BigNumber(offer.amount)
+        .mul(offer.price)
+        .mul(priceMultiplier)
+    ),
     lastBestOffer
-      ? Number.parseFloat(lastBestOffer.price) *
-        (Number.parseFloat(lastBestOffer.amount) - (bestMatches.volume - amount))
-      : 0
+      ? BigNumber(lastBestOffer.price)
+          .mul(priceMultiplier)
+          .mul(BigNumber(lastBestOffer.amount).sub(bestMatches.volume - amount))
+      : BigNumber(0)
   ])
 
   return {
-    estimatedCost,
+    estimatedReturn,
     worstPriceOfBestMatches
   }
 }

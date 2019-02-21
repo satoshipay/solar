@@ -38,7 +38,7 @@ function TradingForm(props: Props) {
   const [tolerance, setTolerance] = useState<ToleranceValue>(0)
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? 0 : Number.parseFloat(amountString)
-  const { estimatedCost, worstPriceOfBestMatches } = useConversionOffers(tradePair.bids, amount || 0.01)
+  const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(tradePair.bids, amount || 0.01, tolerance)
 
   const price = worstPriceOfBestMatches || 0
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
@@ -50,7 +50,7 @@ function TradingForm(props: Props) {
           <TradePropertiesForm
             {...props}
             amount={amountString}
-            estimatedCost={amount ? estimatedCost : 0}
+            estimatedReturn={amount ? estimatedReturn : BigNumber(0)}
             onSetAmount={setAmountString}
             onSetTolerance={setTolerance}
             price={worstPriceOfBestMatches ? BigNumber(1).div(worstPriceOfBestMatches) : BigNumber(0)}
