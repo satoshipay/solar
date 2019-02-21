@@ -2,56 +2,28 @@
  * THIS WILL RUN IN EMULATOR OUTSIDE OF SANDBOXED APP IFRAME!
  */
 
-import { trackError } from "../context/notifications"
+import { commands, events } from "./ipc"
+import { registerCommandHandler } from "./ipc"
 
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
 const cordovaSecureStorageName = "solar:keystore"
-const keystoreKeyName = "keys"
-const settingsKeyName = "settings"
-const ignoredSignatureRequestsKeyName = "ignored-signature-requests"
 
-interface CommandHandlers {
-  [eventName: string]: (
-    event: MessageEvent,
-    contentWindow: Window,
-    secureStorage: CordovaSecureStorage
-  ) => Promise<void>
+const storeKeys = {
+  keystore: "keys",
+  settings: "settings",
+  ignoredSignatureRequests: "ignored-signature-requests"
 }
 
-const commandHandlers: CommandHandlers = {
-  "storage:keys:read": respondWithKeys,
-  "storage:keys:store": updateKeys,
-  "storage:settings:read": respondWithSettings,
-  "storage:settings:store": updateSettings,
-  "storage:ignoredSignatureRequests:read": respondWithIgnoredSignatureRequests,
-  "storage:ignoredSignatureRequests:store": updateIgnoredSignatureRequests
-}
-
-const iframe = document.getElementById("walletframe") as HTMLIFrameElement
-
-const handleMessageEvent = (event: Event, secureStorage: CordovaSecureStorage) => {
-  if (!(event instanceof MessageEvent)) {
-    return
-  }
-  if (!iframe.contentWindow) {
-    // Should never happen...
-    throw new Error("iframe.contentWindow is not set.")
-  }
-
-  // TODO: Check whether we should double-check event.source/event.origin
-
-  const messageHandler = commandHandlers[event.data.commandType]
-
-  if (messageHandler) {
-    messageHandler(event, iframe.contentWindow, secureStorage).catch(trackError)
-  } else {
-    throw new Error(`No message handler defined for event type "${event.data.commandType}"`)
-  }
-}
+registerCommandHandler(commands.readKeysCommand, respondWithKeys)
+registerCommandHandler(commands.storeKeysCommand, updateKeys)
+registerCommandHandler(commands.readSettingsCommand, respondWithSettings)
+registerCommandHandler(commands.storeSettingsCommand, updateSettings)
+registerCommandHandler(commands.readIgnoredSignatureRequestsCommand, respondWithIgnoredSignatureRequests)
+registerCommandHandler(commands.storeIgnoredSignatureRequestsCommand, updateIgnoredSignatureRequests)
 
 async function respondWithKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  const keys = await getValueFromStorage(secureStorage, keystoreKeyName)
-  contentWindow.postMessage({ eventType: "storage:keys", id: event.data.id, keys }, "*")
+  const keys = await getValueFromStorage(secureStorage, storeKeys.keystore)
+  contentWindow.postMessage({ eventType: events.keyResponseEvent, id: event.data.id, keys }, "*")
 }
 
 async function updateKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
@@ -61,13 +33,13 @@ async function updateKeys(event: MessageEvent, contentWindow: Window, secureStor
     throw new Error(`Invalid keys passed: ${keysData}`)
   }
 
-  await saveValueIntoStorage(secureStorage, keystoreKeyName, keysData)
-  contentWindow.postMessage({ eventType: "storage:keys:stored", id: event.data.id }, "*")
+  await saveValueIntoStorage(secureStorage, storeKeys.keystore, keysData)
+  contentWindow.postMessage({ eventType: events.keysStoredEvent, id: event.data.id }, "*")
 }
 
 async function respondWithSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  const settings = await getValueFromStorage(secureStorage, settingsKeyName)
-  contentWindow.postMessage({ eventType: "storage:settings", id: event.data.id, settings }, "*")
+  const settings = await getValueFromStorage(secureStorage, storeKeys.settings)
+  contentWindow.postMessage({ eventType: events.settingsResponseEvent, id: event.data.id, settings }, "*")
 }
 
 async function updateSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
@@ -77,8 +49,8 @@ async function updateSettings(event: MessageEvent, contentWindow: Window, secure
     throw new Error(`Invalid settings passed: ${settings}`)
   }
 
-  await saveValueIntoStorage(secureStorage, settingsKeyName, settings)
-  contentWindow.postMessage({ eventType: "storage:settings:stored", id: event.data.id }, "*")
+  await saveValueIntoStorage(secureStorage, storeKeys.settings, settings)
+  contentWindow.postMessage({ eventType: events.settingsStoredEvent, id: event.data.id }, "*")
 }
 
 async function respondWithIgnoredSignatureRequests(
@@ -86,9 +58,9 @@ async function respondWithIgnoredSignatureRequests(
   contentWindow: Window,
   secureStorage: CordovaSecureStorage
 ) {
-  const ignoredSignatureRequests = await getValueFromStorage(secureStorage, ignoredSignatureRequestsKeyName)
+  const ignoredSignatureRequests = await getValueFromStorage(secureStorage, storeKeys.ignoredSignatureRequests)
   contentWindow.postMessage(
-    { eventType: "storage:ignoredSignatureRequests", id: event.data.id, ignoredSignatureRequests },
+    { eventType: events.ignoredSignatureRequestsResponseEvent, id: event.data.id, ignoredSignatureRequests },
     "*"
   )
 }
@@ -100,21 +72,17 @@ async function updateIgnoredSignatureRequests(
 ) {
   const ignoredSignatureRequests = event.data.ignoredSignatureRequests
 
-  if (!ignoredSignatureRequests || typeof ignoredSignatureRequests !== "object") {
-    throw new Error(`Invalid signatures passed: ${ignoredSignatureRequests}`)
+  if (!Array.isArray(ignoredSignatureRequests)) {
+    throw new Error(`Expected signature requests to be an array: ${ignoredSignatureRequests}`)
   }
 
-  await saveValueIntoStorage(secureStorage, ignoredSignatureRequestsKeyName, ignoredSignatureRequests)
-  contentWindow.postMessage({ eventType: "storage:ignoredSignatureRequests:stored", id: event.data.id }, "*")
+  await saveValueIntoStorage(secureStorage, storeKeys.ignoredSignatureRequests, ignoredSignatureRequests)
+  contentWindow.postMessage({ eventType: events.storedIgnoredSignatureRequestsEvent, id: event.data.id }, "*")
 }
 
 async function getValueFromStorage(storage: CordovaSecureStorage, keyName: string) {
   return new Promise<object>((resolve, reject) => {
-    storage.get(
-      key => resolve(JSON.parse(key)),
-      error => resolve({}), // return empty object because no value stored
-      keyName
-    )
+    storage.get(value => resolve(JSON.parse(value)), reject, keyName)
   })
 }
 
@@ -124,27 +92,35 @@ async function saveValueIntoStorage(storage: CordovaSecureStorage, keyName: stri
   })
 }
 
-function initSecureStorage() {
-  return new Promise<CordovaSecureStorage>((resolve, reject) => {
+async function prepareStorage(secureStorage: CordovaSecureStorage) {
+  const keys = await new Promise<string[]>((resolve, reject) => {
+    secureStorage.keys(result => resolve(result), reject)
+  })
+
+  const addPlaceholderKey = async (keyName: string, defaultValue: any) => {
+    if (keys.indexOf(keyName) === -1) {
+      await saveValueIntoStorage(secureStorage, keyName, defaultValue)
+    }
+  }
+
+  await Promise.all([
+    addPlaceholderKey(storeKeys.keystore, {}),
+    addPlaceholderKey(storeKeys.settings, {}),
+    addPlaceholderKey(storeKeys.ignoredSignatureRequests, [])
+  ])
+}
+
+export function initSecureStorage() {
+  const secureStoragePromise = new Promise<CordovaSecureStorage>((resolve, reject) => {
     const storage: CordovaSecureStorage = new cordova.plugins.SecureStorage(
-      () => resolve(storage),
+      () =>
+        prepareStorage(storage)
+          .then(() => resolve(storage))
+          .catch(reject),
       reject, // might throw error e.g. if no lock screen is set for android
       cordovaSecureStorageName
     )
   })
-}
 
-export default function initialize() {
-  if (!cordova) {
-    throw new Error("No cordova runtime available.")
-  }
-
-  const initPromise = initSecureStorage()
-
-  // Set up event listener synchronously, so it's working as early as possible
-  window.addEventListener("message", async event => {
-    handleMessageEvent(event, await initPromise)
-  })
-
-  return initPromise
+  return secureStoragePromise
 }
