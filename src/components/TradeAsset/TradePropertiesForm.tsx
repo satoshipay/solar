@@ -8,6 +8,29 @@ import { formatBalance } from "../Account/AccountBalances"
 import { HorizontalMargin } from "../Layout/Spacing"
 
 type ToleranceValue = 0 | 0.01 | 0.02
+type Trustline = Horizon.BalanceLineAsset<AssetType.credit4 | AssetType.credit12>
+
+function AssetSelector(props: { trustlines: Trustline[] } & Pick<TextFieldProps, "label" | "onChange" | "value">) {
+  return (
+    <TextField
+      label={props.label}
+      onChange={props.onChange}
+      select
+      SelectProps={{
+        style: { fontWeight: "bold" }
+      }}
+      style={{ flexGrow: 0, flexShrink: 0 }}
+      value={props.value}
+    >
+      <MenuItem value="XLM">XLM</MenuItem>
+      {props.trustlines.map(trustline => (
+        <MenuItem key={trustline.asset_code} value={trustline.asset_code}>
+          {trustline.asset_code}
+        </MenuItem>
+      ))}
+    </TextField>
+  )
+}
 
 function PriceTolerance(props: { label: string; price: string; tolerance: ToleranceValue }) {
   return (
@@ -23,6 +46,45 @@ function PriceTolerance(props: { label: string; price: string; tolerance: Tolera
         ) : null}
       </span>
     </HorizontalLayout>
+  )
+}
+
+function ToleranceSelector(
+  props: { assetCode: string; price: BigNumber } & Pick<TextFieldProps, "label" | "onChange" | "value">
+) {
+  return (
+    <TextField
+      label={props.label}
+      onChange={props.onChange}
+      select
+      SelectProps={{
+        style: { fontWeight: "bold" }
+      }}
+      style={{ marginBottom: 24 }}
+      value={props.value}
+    >
+      <MenuItem value={0}>
+        <PriceTolerance
+          label="Regular"
+          price={[formatBalance(String(props.price), { groupThousands: false }), props.assetCode].join(" ")}
+          tolerance={0}
+        />
+      </MenuItem>
+      <MenuItem value={0.01}>
+        <PriceTolerance
+          label="Fast"
+          price={[formatBalance(String(props.price.mul(1.01)), { groupThousands: false }), props.assetCode].join(" ")}
+          tolerance={0.01}
+        />
+      </MenuItem>
+      <MenuItem value={0.02}>
+        <PriceTolerance
+          label="Super fast"
+          price={[formatBalance(String(props.price.mul(1.02)), { groupThousands: false }), props.assetCode].join(" ")}
+          tolerance={0.02}
+        />
+      </MenuItem>
+    </TextField>
   )
 }
 
@@ -53,7 +115,7 @@ interface TradePropertiesFormProps {
   selling: Asset
   sellingBalance: string
   tolerance: ToleranceValue
-  trustlines: Array<Horizon.BalanceLineAsset<AssetType.credit4 | AssetType.credit12>>
+  trustlines: Trustline[]
 }
 
 function TradePropertiesForm(props: TradePropertiesFormProps) {
@@ -75,23 +137,12 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
   return (
     <>
       <HorizontalLayout margin="0 0 24px">
-        <TextField
+        <AssetSelector
           label="From"
           onChange={event => setSelling(event.target.value)}
-          select
-          SelectProps={{
-            style: { fontWeight: "bold" }
-          }}
-          style={{ flexGrow: 0, flexShrink: 0 }}
+          trustlines={props.trustlines}
           value={props.selling.getCode()}
-        >
-          <MenuItem value="XLM">XLM</MenuItem>
-          {props.trustlines.map(trustline => (
-            <MenuItem key={trustline.asset_code} value={trustline.asset_code}>
-              {trustline.asset_code}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
         <HorizontalMargin size={16} />
         <TextField
           autoFocus
@@ -105,62 +156,20 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           value={props.amount}
         />
       </HorizontalLayout>
-      <TextField
+      <ToleranceSelector
+        assetCode={props.selling.getCode()}
         label={`Price per ${props.buying.getCode()}`}
         onChange={event => props.onSetTolerance((event.target.value as any) as ToleranceValue)}
-        select
-        SelectProps={{
-          style: { fontWeight: "bold" }
-        }}
-        style={{ marginBottom: 24 }}
+        price={props.price}
         value={props.tolerance}
-      >
-        <MenuItem value={0}>
-          <PriceTolerance
-            label="Regular"
-            price={[formatBalance(String(props.price), { groupThousands: false }), props.selling.getCode()].join(" ")}
-            tolerance={0}
-          />
-        </MenuItem>
-        <MenuItem value={0.01}>
-          <PriceTolerance
-            label="Fast"
-            price={[
-              formatBalance(String(props.price.mul(1.01)), { groupThousands: false }),
-              props.selling.getCode()
-            ].join(" ")}
-            tolerance={0.01}
-          />
-        </MenuItem>
-        <MenuItem value={0.02}>
-          <PriceTolerance
-            label="Super fast"
-            price={[
-              formatBalance(String(props.price.mul(1.02)), { groupThousands: false }),
-              props.selling.getCode()
-            ].join(" ")}
-            tolerance={0.02}
-          />
-        </MenuItem>
-      </TextField>
+      />
       <HorizontalLayout margin="0 0 24px">
-        <TextField
+        <AssetSelector
           label="To"
           onChange={event => setBuying(event.target.value)}
-          select
-          SelectProps={{
-            style: { fontWeight: "bold" }
-          }}
-          style={{ flexGrow: 0, flexShrink: 0 }}
+          trustlines={props.trustlines}
           value={props.buying.getCode()}
-        >
-          <MenuItem value="XLM">XLM</MenuItem>
-          {props.trustlines.map(trustline => (
-            <MenuItem key={trustline.asset_code} value={trustline.asset_code}>
-              {trustline.asset_code}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
         <HorizontalMargin size={16} />
         <ReadOnlyTextfield
           label="Amount to receive"
