@@ -42,7 +42,7 @@ function PriceTolerance(props: { label: string; price: string; tolerance: Tolera
         {props.tolerance > 0 ? (
           <>
             &nbsp;
-            <span style={{ opacity: 0.5 }}>+{props.tolerance * 100}%</span>
+            <span style={{ opacity: 0.5 }}>-{props.tolerance * 100}%</span>
           </>
         ) : null}
       </span>
@@ -77,14 +77,18 @@ function ToleranceSelector(props: ToleranceSelectorProps) {
       <MenuItem value={0.01}>
         <PriceTolerance
           label="Fast"
-          price={[formatBalance(String(props.price.mul(1.01)), { groupThousands: false }), props.assetCode].join(" ")}
+          price={[formatBalance(String(props.price.mul(1 / 1.01)), { groupThousands: false }), props.assetCode].join(
+            " "
+          )}
           tolerance={0.01}
         />
       </MenuItem>
       <MenuItem value={0.02}>
         <PriceTolerance
           label="Super fast"
-          price={[formatBalance(String(props.price.mul(1.02)), { groupThousands: false }), props.assetCode].join(" ")}
+          price={[formatBalance(String(props.price.mul(1 / 1.02)), { groupThousands: false }), props.assetCode].join(
+            " "
+          )}
           tolerance={0.02}
         />
       </MenuItem>
@@ -103,6 +107,9 @@ function ReadOnlyTextfield(props: {
       style={{ pointerEvents: "none", ...props.style }}
       tabIndex={-1}
       value={props.value}
+      InputProps={{
+        readOnly: true
+      }}
     />
   )
 }
@@ -171,7 +178,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
       </HorizontalLayout>
       {props.price.eq(0) ? (
         <TextField
-          label={`Price per ${props.buying.getCode()}`}
+          label={`Price per ${props.selling.getCode()}`}
           placeholder="No offers yet. Enter a price manually..."
           onChange={event => props.onSetManualPrice(event.target.value)}
           style={{ marginBottom: 24 }}
@@ -179,15 +186,18 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           InputProps={{
             endAdornment: (
               <InputAdornment disableTypography position="end" style={{ pointerEvents: "none" }}>
-                {props.selling.getCode()}
+                {props.buying.getCode()}
               </InputAdornment>
             )
+          }}
+          InputLabelProps={{
+            shrink: true
           }}
         />
       ) : (
         <ToleranceSelector
-          assetCode={props.selling.getCode()}
-          label={`Price per ${props.buying.getCode()}`}
+          assetCode={props.buying.getCode()}
+          label={`Price per ${props.selling.getCode()}`}
           onChange={event => props.onSetTolerance((event.target.value as any) as ToleranceValue)}
           price={props.price}
           value={props.tolerance}
