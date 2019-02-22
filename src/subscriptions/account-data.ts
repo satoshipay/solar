@@ -1,8 +1,8 @@
 import { Horizon, Server } from "stellar-sdk"
-import { loadAccount, waitForAccountData } from "../lib/account"
-import { createStreamDebouncer } from "../lib/stream"
-import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { trackError } from "../context/notifications"
+import { loadAccount, waitForAccountData } from "../lib/account"
+import { createStreamDebouncer, trackStreamError } from "../lib/stream"
+import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export interface ObservedAccountData {
   activated: boolean
@@ -49,7 +49,7 @@ export function createAccountDataSubscription(
         },
         onerror(error: any) {
           debounceError(error, () => {
-            trackError(new Error("Account data update stream errored."))
+            trackStreamError(new Error("Account data update stream errored."))
           })
         }
       } as any)
