@@ -146,8 +146,8 @@ function TradeAsset(props: TradeAssetProps) {
             sellingBalance={sellingBalance.balance}
             testnet={props.account.testnet}
             trustlines={trustlines}
-            DialogActions={({ amount, disabled, price }) => (
-              <HorizontalLayout justifyContent="flex-end" shrink={0}>
+            DialogActions={({ amount, disabled, price, style }) => (
+              <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
                 <DialogActionsBox>
                   <ActionButton
                     disabled={disabled}

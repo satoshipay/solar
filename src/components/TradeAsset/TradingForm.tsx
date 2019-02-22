@@ -18,6 +18,13 @@ function isDisabled(amount: number, price: number, balance: number) {
   )
 }
 
+interface DialogActionsProps {
+  amount: number
+  disabled?: boolean
+  price: number
+  style?: React.CSSProperties
+}
+
 interface Props {
   buying: Asset
   buyingBalance: string
@@ -27,7 +34,7 @@ interface Props {
   sellingBalance: string
   testnet: boolean
   trustlines: Array<Horizon.BalanceLineAsset<AssetType.credit4 | AssetType.credit12>>
-  DialogActions: React.ComponentType<{ amount: number; disabled?: boolean; price: number }>
+  DialogActions: React.ComponentType<DialogActionsProps>
 }
 
 function TradingForm(props: Props) {
@@ -48,7 +55,7 @@ function TradingForm(props: Props) {
   return (
     <VerticalLayout>
       <HorizontalLayout shrink={0} justifyContent="space-between" margin="0 -24px" wrap="wrap">
-        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="56px 24px 0">
+        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="40px 24px 0">
           <TradePropertiesForm
             {...props}
             amount={amountString}
@@ -57,7 +64,7 @@ function TradingForm(props: Props) {
             onSetAmount={setAmountString}
             onSetManualPrice={setManualPriceString}
             onSetTolerance={setTolerance}
-            price={worstPriceOfBestMatches ? BigNumber(1).div(worstPriceOfBestMatches) : BigNumber(0)}
+            price={worstPriceOfBestMatches ? BigNumber(worstPriceOfBestMatches) : BigNumber(0)}
             tolerance={tolerance}
           />
           {relativeSpread > 0.01 ? (
@@ -68,13 +75,15 @@ function TradingForm(props: Props) {
               %) between buying and selling price. Converting the funds back could be expensive.
             </Box>
           ) : null}
+          <div style={{ flexGrow: 1 }} />
           <DialogActions
             amount={amount}
             disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
             price={price}
+            style={{ justifySelf: "flex-end" }}
           />
         </VerticalLayout>
-        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 0" minWidth={350}>
+        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 8px" minWidth={350}>
           <Explanation />
         </VerticalLayout>
       </HorizontalLayout>

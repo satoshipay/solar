@@ -7,7 +7,7 @@ const sum = (numbers: BigNumber[]) => numbers.reduce((total, no) => total.add(no
 export function useConversionOffers(offers: FixedOrderbookOffer[], amount: number, tolerance: number) {
   // Best offers always returned first by horizon
   const bestOffers = offers
-  const priceMultiplier = 1 - tolerance
+  const priceMultiplier = 1 + tolerance
 
   const bestMatches = useMemo(
     () =>
