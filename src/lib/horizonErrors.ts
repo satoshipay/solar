@@ -53,6 +53,8 @@ function explainSubmissionErrorByOpResultCodes(error: HorizonError, resultCodes:
         return deriveError(error, new Error("Asset is invalid. Incorrect asset issuer."))
       case "op_no_trust":
         return deriveError(error, new Error("Destination account does not trust the asset you are attempting to send."))
+      case "op_underfunded":
+        return deriveError(error, new Error("Not enough funds to perform this operation."))
     }
   }
 
