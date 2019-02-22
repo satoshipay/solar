@@ -23,8 +23,8 @@ interface NotificationOptions {
 
 interface ContextValue {
   notifications: Notification[]
-  addError(error: any): void
-  addNotification(type: NotificationType, message: string, props?: NotificationOptions): void
+  showError(error: any): void
+  showNotification(type: NotificationType, message: string, props?: NotificationOptions): void
 }
 
 interface Props {
@@ -33,8 +33,8 @@ interface Props {
 
 const NotificationsContext = React.createContext<ContextValue>({
   notifications: [],
-  addError: () => undefined,
-  addNotification: () => undefined
+  showError: () => undefined,
+  showNotification: () => undefined
 })
 
 export function NotificationsProvider(props: Props) {
@@ -42,7 +42,7 @@ export function NotificationsProvider(props: Props) {
   const nextIDRef = useRef(1)
   const [notifications, setNotifications] = useState<Notification[]>([])
 
-  const addNotification = (type: NotificationType, message: string, options: NotificationOptions = {}) => {
+  const showNotification = (type: NotificationType, message: string, options: NotificationOptions = {}) => {
     const id = nextIDRef.current++
 
     setNotifications(prevNotifications => prevNotifications.concat({ ...options, id, message, type }))
@@ -51,8 +51,8 @@ export function NotificationsProvider(props: Props) {
     setTimeout(() => removeNotificationByID(id), 10000)
   }
 
-  const addError = (error: any) => {
-    addNotification("error", String(error.message || error))
+  const showError = (error: any) => {
+    showNotification("error", String(error.message || error))
 
     // tslint:disable-next-line:no-console
     console.error(error)
@@ -62,11 +62,11 @@ export function NotificationsProvider(props: Props) {
     setNotifications(prevNotifications => prevNotifications.filter(notification => notification.id !== notificationID))
   }
 
-  trackErrorImplementation = addError
+  trackErrorImplementation = showError
 
   const contextValue: ContextValue = {
-    addError,
-    addNotification,
+    showError,
+    showNotification,
     notifications
   }
   return <NotificationsContext.Provider value={contextValue}>{props.children}</NotificationsContext.Provider>

@@ -1,7 +1,8 @@
 import { Asset, Server } from "stellar-sdk"
+import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
-import { trackError } from "../context/notifications"
+import { trackStreamError } from "../lib/stream"
 
 export interface ObservedAccountOffers {
   loading: boolean
@@ -47,7 +48,7 @@ export function createAccountOffersSubscription(
     const pollingIntervalMs = 5000
     setInterval(() => {
       if (window.navigator.onLine !== false) {
-        fetchAccountOffers().catch(trackError)
+        fetchAccountOffers().catch(trackStreamError)
       }
     }, pollingIntervalMs)
   }

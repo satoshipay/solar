@@ -18,11 +18,11 @@ interface Props {
 }
 
 function ReceivePaymentDialog(props: Props) {
-  const { addNotification } = useContext(NotificationsContext)
+  const { showNotification } = useContext(NotificationsContext)
 
   const copyToClipboard = async () => {
     await (navigator as any).clipboard.writeText(props.account.publicKey)
-    addNotification("info", "Copied to clipboard.")
+    showNotification("info", "Copied to clipboard.")
   }
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>

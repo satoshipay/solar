@@ -1,3 +1,5 @@
+import { trackError } from "../context/notifications"
+
 export function createStreamDebouncer<MessageType>() {
   let lastMessageJson = ""
   let lastMessageTime = 0
@@ -30,4 +32,18 @@ export function createStreamDebouncer<MessageType>() {
     debounceError,
     debounceMessage
   }
+}
+
+export function trackStreamError(error: Error) {
+  if (window.navigator.onLine === false) {
+    // ignore the error if we are offline; the online/offline status is handled separately
+    return
+  }
+
+  // Wait a little bit, then check again (in case the offline status isn't updated in time)
+  setTimeout(() => {
+    if (window.navigator.onLine !== false) {
+      trackError(error)
+    }
+  }, 200)
 }
