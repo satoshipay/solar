@@ -124,6 +124,21 @@ export function useAccountEffectSubscriptions(accounts: Account[], handler: Effe
   )
 }
 
+export function useOnlineStatus() {
+  const [isOnline, setOnlineStatus] = useState(window.navigator.onLine)
+  const setOffline = () => setOnlineStatus(false)
+  const setOnline = () => setOnlineStatus(true)
+
+  useEffect(() => {
+    window.addEventListener("offline", setOffline)
+    window.addEventListener("online", setOnline)
+  }, [])
+
+  return {
+    isOnline
+  }
+}
+
 export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): ObservedTradingPair {
   const horizon = useHorizon(testnet)
 
