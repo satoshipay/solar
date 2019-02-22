@@ -107,6 +107,9 @@ function ReadOnlyTextfield(props: {
       style={{ pointerEvents: "none", ...props.style }}
       tabIndex={-1}
       value={props.value}
+      InputProps={{
+        readOnly: true
+      }}
     />
   )
 }
@@ -186,6 +189,9 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
                 {props.buying.getCode()}
               </InputAdornment>
             )
+          }}
+          InputLabelProps={{
+            shrink: true
           }}
         />
       ) : (
