@@ -43,6 +43,13 @@ To run the storybook:
 npm run storybook
 ```
 
+### Run dev server without electron
+
+```
+cd web/
+npm run dev
+```
+
 ### Production build
 
 ```
@@ -51,12 +58,15 @@ npm run build:win
 npm run build:linux
 ```
 
-### Run dev server without electron
+To sign the binaries, make sure you imported the code signing certificate into your keychain. Create a `signing.env` file with the following content:
 
 ```
-cd web/
-npm run dev
+CSC_NAME="SatoshiPay Ltd"   # or whatever the name of the certificate in your keychain is
 ```
+
+Signing should then happen automatically during the production build.
+
+Note: Application signing has only been tested on a Mac OS development machine so far.
 
 ## License
 

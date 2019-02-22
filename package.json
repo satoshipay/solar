@@ -19,12 +19,13 @@
     "test": "tslint --project .",
     "prebuild:electron": "NODE_ENV=production parcel build ./src/index.prod.njk --detailed-report --no-cache --no-source-maps --public-url=./",
     "build:linux": "PLATFORM=linux npm run prebuild:electron && build --linux --x64 --config ./electron-build.yml",
-    "build:mac": "PLATFORM=darwin npm run prebuild:electron && build --mac --x64 --config ./electron-build.yml",
-    "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32  --config ./electron-build.yml",
+    "build:mac": "PLATFORM=darwin npm run prebuild:electron && source ./signing.env && build --mac --x64 --config ./electron-build.yml",
+    "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32 --config ./electron-build.yml && npm run sign:win",
     "dev": "run-p dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development run-electron -r ./electron/development .",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
-    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./"
+    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./",
+    "sign:win": "source ./signing.env && codesign -s \"$CSC_NAME\" ./electron/dist/*$npm_package_version.exe"
   },
   "lint-staged": {
     "ignore": [
