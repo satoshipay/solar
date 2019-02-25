@@ -23,20 +23,20 @@ storiesOf("Notifications", module).add("All", () => (
   <NotificationsProvider>
     <NotificationContainer />
     <NotificationsContext.Consumer>
-      {({ addError, addNotification }) => (
+      {({ showError, showNotification }) => (
         <Buttons>
-          <Button variant="contained" onClick={() => addError(new Error("An error happened."))}>
+          <Button variant="contained" onClick={() => showError(new Error("An error happened."))}>
             Show error notification
           </Button>
-          <Button variant="contained" onClick={() => addNotification("info", "This is an informational message.")}>
+          <Button variant="contained" onClick={() => showNotification("info", "This is an informational message.")}>
             Show info notification
           </Button>
-          <Button variant="contained" onClick={() => addNotification("success", "Action successful!")}>
+          <Button variant="contained" onClick={() => showNotification("success", "Action successful!")}>
             Show success notification
           </Button>
           <Button
             variant="contained"
-            onClick={() => addNotification("info", "Click me.", { onClick: () => window.alert("Clicked!") })}
+            onClick={() => showNotification("info", "Click me.", { onClick: () => window.alert("Clicked!") })}
           >
             Show clickable notification
           </Button>

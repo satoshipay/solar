@@ -1,7 +1,23 @@
 import { useContext, useEffect, useMemo, useState } from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
-import { Server } from "stellar-sdk"
-import { subscribeToAccount, subscribeToRecentTxs, ObservedAccountData, ObservedRecentTxs } from "./lib/subscriptions"
+import { Asset, Server } from "stellar-sdk"
+import { Account } from "./context/accounts"
+import { SettingsContext } from "./context/settings"
+import { createDeadSubscription, SubscriptionTarget } from "./lib/subscription"
+import {
+  getAssetCacheKey,
+  subscribeToAccount,
+  subscribeToAccountEffects,
+  subscribeToAccountOffers,
+  subscribeToOrders,
+  subscribeToRecentTxs,
+  ObservedAccountData,
+  ObservedAccountOffers,
+  ObservedRecentTxs,
+  ObservedTradingPair
+} from "./subscriptions"
+
+export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
 // TODO: Should probably be stored in context
 const horizonLivenet = new Server("https://stellar-horizon.satoshipay.io/")
@@ -13,74 +29,132 @@ export function useHorizon(testnet: boolean = false) {
 
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
 
+function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTarget<ObservedData>>): ObservedData[] {
+  const [currentDataSets, setCurrentDataSets] = useState<ObservedData[]>(
+    subscriptions.map(subscription => subscription.getLatest())
+  )
+
+  const updateDataSets = (
+    prevDataSets: ObservedData[],
+    update: ObservedData,
+    indexToUpdate: number
+  ): ObservedData[] => {
+    return prevDataSets.map((data, index) => (index === indexToUpdate ? update : data))
+  }
+
+  // Asynchronously subscribe to remote data to keep state in sync
+  // `unsubscribe` will only unsubscribe state updating code, won't close remote data subscription itself
+  useEffect(
+    () => {
+      // Some time has passed since the last `getLatest()`, so refresh
+      setCurrentDataSets(subscriptions.map(subscription => subscription.getLatest()))
+
+      const unsubscribeHandlers = subscriptions.map((subscription, index) =>
+        subscription.subscribe(update =>
+          setCurrentDataSets(prevDataSets => updateDataSets(prevDataSets, update, index))
+        )
+      )
+
+      const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
+      return unsubscribe
+    },
+    [subscriptions.map(subscription => subscription.id).join(",")]
+  )
+
+  return currentDataSets
+}
+
+function useDataSubscription<ObservedData>(subscription: SubscriptionTarget<ObservedData>): ObservedData {
+  return useDataSubscriptions([subscription])[0]
+}
+
 export function useAccountDataSet(accountIDs: string[], testnet: boolean): ObservedAccountData[] {
   const horizon = useHorizon(testnet)
-
-  // Set up subscription to remote data immediately
   const accountSubscriptions = useMemo(() => accountIDs.map(accountID => subscribeToAccount(horizon, accountID)), [
     accountIDs.join(","),
     testnet
   ])
 
-  const [accountDataSet, setAccountDataSet] = useState<ObservedAccountData[]>(
-    accountSubscriptions.map(subscription => subscription.getLatest())
-  )
-
-  const updateAccountData = (update: ObservedAccountData) =>
-    setAccountDataSet(
-      accountDataSet.map(prevAccountData => (prevAccountData.id === update.id ? update : prevAccountData))
-    )
-
-  // Asynchronously subscribe to remote data to keep state in sync
-  // `unsubscribe` will only unsubscribe state updating code, won't close remote data subscription itself
-  useEffect(
-    () => {
-      // Some time has passed since the last `getLatest()`, so refresh
-      setAccountDataSet(accountSubscriptions.map(subscription => subscription.getLatest()))
-
-      const unsubscribeHandlers: Array<() => void> = []
-
-      for (const subscription of accountSubscriptions) {
-        const unsubscribeHandler = subscription.subscribe(update => updateAccountData(update))
-        unsubscribeHandlers.push(unsubscribeHandler)
-      }
-
-      const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
-      return unsubscribe
-    },
-    [accountSubscriptions]
-  )
-
-  return accountDataSet
+  return useDataSubscriptions(accountSubscriptions)
 }
 
 export function useAccountData(accountID: string, testnet: boolean): ObservedAccountData {
-  const [accountData] = useAccountDataSet([accountID], testnet)
-  return accountData
+  return useAccountDataSet([accountID], testnet)[0]
+}
+
+export function useAccountOffers(accountID: string, testnet: boolean): ObservedAccountOffers {
+  const horizon = useHorizon(testnet)
+  const settings = useContext(SettingsContext)
+
+  const offersSubscription = useMemo(
+    () => {
+      return settings.dexTrading
+        ? subscribeToAccountOffers(horizon, accountID)
+        : createDeadSubscription<ObservedAccountOffers>({ loading: false, offers: [] })
+    },
+    [accountID, testnet]
+  )
+
+  return useDataSubscription(offersSubscription)
+}
+
+type EffectHandler = (account: Account, effect: Server.EffectRecord) => void
+
+export function useAccountEffectSubscriptions(accounts: Account[], handler: EffectHandler) {
+  const mainnetHorizon = useHorizon(false)
+  const testnetHorizon = useHorizon(true)
+  const settings = useContext(SettingsContext)
+
+  return useEffect(
+    () => {
+      if (!settings.dexTrading) {
+        return () => undefined
+      }
+
+      const unsubscribeHandlers = accounts.map(account => {
+        const horizon = account.testnet ? testnetHorizon : mainnetHorizon
+        const subscription = subscribeToAccountEffects(horizon, account.publicKey)
+        const unsubscribe = subscription.subscribe(effect => effect && handler(account, effect))
+        return unsubscribe
+      })
+
+      return () => unsubscribeHandlers.forEach(unsubscribe => unsubscribe())
+    },
+    [accounts]
+  )
+}
+
+export function useOnlineStatus() {
+  const [isOnline, setOnlineStatus] = useState(window.navigator.onLine)
+  const setOffline = () => setOnlineStatus(false)
+  const setOnline = () => setOnlineStatus(true)
+
+  useEffect(() => {
+    window.addEventListener("offline", setOffline)
+    window.addEventListener("online", setOnline)
+  }, [])
+
+  return {
+    isOnline
+  }
+}
+
+export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): ObservedTradingPair {
+  const horizon = useHorizon(testnet)
+
+  const ordersSubscription = useMemo(() => subscribeToOrders(horizon, selling, buying), [
+    getAssetCacheKey(selling),
+    getAssetCacheKey(buying)
+  ])
+
+  return useDataSubscription(ordersSubscription)
 }
 
 export function useRecentTransactions(accountID: string, testnet: boolean): ObservedRecentTxs {
   const horizon = useHorizon(testnet)
-
-  // Set up subscription to remote data immediately
   const recentTxsSubscription = useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, testnet])
 
-  const [recentTxs, setRecentTxs] = useState<ObservedRecentTxs>(recentTxsSubscription.getLatest())
-
-  // Asynchronously subscribe to remote data to keep state in sync
-  // `unsubscribe` will only unsubscribe state updating code, won't close remote data subscription itself
-  useEffect(
-    () => {
-      // Some time has passed since the last `getLatest()`, so refresh
-      setRecentTxs(recentTxsSubscription.getLatest())
-
-      const unsubscribe = recentTxsSubscription.subscribe(update => setRecentTxs(update))
-      return unsubscribe
-    },
-    [recentTxsSubscription]
-  )
-
-  return recentTxs
+  return useDataSubscription(recentTxsSubscription)
 }
 
 // TODO: Get rid of this hook once react-router is shipped with a hook out-of-the-box

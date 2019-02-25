@@ -31,7 +31,6 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
     : undefined
   return (
     <TransactionListItem
-      key={signatureRequest.hash}
       alwaysShowSource
       accountPublicKey={signatureRequest.meta.transaction.source}
       createdAt={signatureRequest.created_at}

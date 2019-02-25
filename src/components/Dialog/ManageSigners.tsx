@@ -9,8 +9,8 @@ import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData } from "../../hooks"
-import { ObservedAccountData } from "../../lib/subscriptions"
 import { createTransaction } from "../../lib/transaction"
+import { ObservedAccountData } from "../../subscriptions"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import ManageSignersForm, { SignerUpdate } from "../ManageSigners/ManageSignersForm"
 import TransactionSender from "../TransactionSender"
@@ -49,13 +49,22 @@ function ManageSignersDialog(props: Props) {
           Operation.setOptions({
             signer: { ed25519PublicKey: signer.public_key, weight: signer.weight }
           })
-        ),
-        Operation.setOptions({
-          lowThreshold: update.weightThreshold,
-          medThreshold: update.weightThreshold,
-          highThreshold: update.weightThreshold
-        })
+        )
       ]
+
+      if (
+        update.weightThreshold !== props.accountData.thresholds.low_threshold &&
+        update.weightThreshold !== props.accountData.thresholds.med_threshold &&
+        update.weightThreshold !== props.accountData.thresholds.high_threshold
+      ) {
+        operations.push(
+          Operation.setOptions({
+            lowThreshold: update.weightThreshold,
+            medThreshold: update.weightThreshold,
+            highThreshold: update.weightThreshold
+          })
+        )
+      }
 
       const tx = await createTransaction(operations, {
         horizon: props.horizon,

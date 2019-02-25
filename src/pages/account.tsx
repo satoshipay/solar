@@ -10,12 +10,14 @@ import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBalances from "../components/Account/AccountBalances"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
+import OfferList from "../components/Account/OfferList"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
 import TransactionList from "../components/Account/TransactionList"
 import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
+import TradeAssetDialog from "../components/Dialog/TradeAsset"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import QRCodeIcon from "../components/Icon/QRCode"
 import { HorizontalLayout } from "../components/Layout/Box"
@@ -127,6 +129,7 @@ function Transactions(props: { account: Account }) {
       ) : recentTxs.activated ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
+          <OfferList account={account} title="Open offers" />
           <TransactionList
             accountPublicKey={account.publicKey}
             background="transparent"
@@ -155,6 +158,7 @@ function Transactions(props: { account: Account }) {
 interface Props {
   accountID: string
   showAssetManagement: boolean
+  showAssetTrading: boolean
   showCreatePayment: boolean
   showReceivePayment: boolean
   showSignersManagement: boolean
@@ -198,6 +202,11 @@ function AccountPage(props: Props) {
       <ManageAssetsDialog account={account} open={props.showAssetManagement} onClose={onCloseDialog} />
       <ManageSignersDialog account={account} open={props.showSignersManagement} onClose={onCloseDialog} />
       <ReceivePaymentDialog account={account} open={props.showReceivePayment} onClose={onCloseDialog} />
+      <TradeAssetDialog
+        account={account}
+        open={Boolean(props.showAssetTrading)}
+        onClose={() => router.history.push(routes.account(props.accountID))}
+      />
     </>
   )
 }

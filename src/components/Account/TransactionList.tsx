@@ -1,6 +1,7 @@
+import BigNumber from "big.js"
 import React from "react"
 import { useState } from "react"
-import { Memo, Operation, Transaction } from "stellar-sdk"
+import { Asset, Memo, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -16,7 +17,7 @@ import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
 import PublicKey from "../PublicKey"
 import { formatOperation } from "../TransactionSummary/Operations"
-import { SingleBalance } from "./AccountBalances"
+import { formatBalance, SingleBalance } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -33,6 +34,42 @@ function MemoMessage(props: { memo: Memo }) {
   } else {
     return <>Memo: {memo.value}</>
   }
+}
+
+function OfferDescription(props: {
+  amount: BigNumber
+  buying: Asset
+  offerId: string
+  price: BigNumber
+  selling: Asset
+}) {
+  const { amount, buying, offerId, price, selling } = props
+  let prefix: string
+
+  if (amount.eq(0)) {
+    return (
+      <>
+        Delete offer: Sell {selling.code} for {buying.code}
+      </>
+    )
+  }
+
+  if (offerId === "0") {
+    // Offer creation
+    prefix = ""
+  } else if (amount.eq(0)) {
+    prefix = "Delete offer: "
+  } else {
+    prefix = "Update offer: "
+  }
+
+  return (
+    <>
+      {prefix}
+      Sell {formatBalance(amount.toString())} {selling.code} for {formatBalance(amount.mul(price).toString())}{" "}
+      {buying.code}
+    </>
+  )
 }
 
 function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
@@ -59,8 +96,10 @@ function Time(props: { time: Date }) {
   )
 }
 
-function TransactionIcon(props: { paymentSummary: PaymentSummary }) {
-  if (props.paymentSummary.length === 0) {
+function TransactionIcon(props: { paymentSummary: PaymentSummary; transaction: Transaction }) {
+  if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageOffer") {
+    return <SwapHorizIcon />
+  } else if (props.paymentSummary.length === 0) {
     return <SettingsIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return <CallReceivedIcon />
@@ -104,7 +143,7 @@ function TransactionItemText(props: TitleTextProps) {
       <ListItemText
         primary={
           <span>
-            <RemotePublicKeys publicKeys={remotePublicKeys} />
+            From <RemotePublicKeys publicKeys={remotePublicKeys} />
           </span>
         }
         primaryTypographyProps={{ style: props.style }}
@@ -120,7 +159,7 @@ function TransactionItemText(props: TitleTextProps) {
       <ListItemText
         primary={
           <span>
-            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
+            To <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;from <PublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
@@ -171,6 +210,78 @@ function TransactionItemText(props: TitleTextProps) {
         style={props.style}
       />
     )
+  } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageOffer") {
+    const operation = props.transaction.operations[0] as Operation.ManageOffer
+
+    if (String(operation.offerId) === "0") {
+      // Create offer
+      return (
+        <ListItemText
+          primary={
+            <span>
+              <OfferDescription
+                {...operation}
+                amount={BigNumber(operation.amount)}
+                price={BigNumber(operation.price)}
+              />
+              {props.alwaysShowSource ? (
+                <>
+                  {" "}
+                  (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                </>
+              ) : null}
+            </span>
+          }
+          primaryTypographyProps={{ style: props.style }}
+          secondary={secondary}
+          style={props.style}
+        />
+      )
+    } else if (String(operation.amount) === "0") {
+      // Delete offer
+      return (
+        <ListItemText
+          primary={
+            <span>
+              <OfferDescription {...operation} amount={BigNumber(0)} price={BigNumber(operation.price)} />
+              {props.alwaysShowSource ? (
+                <>
+                  {" "}
+                  (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                </>
+              ) : null}
+            </span>
+          }
+          primaryTypographyProps={{ style: props.style }}
+          secondary={secondary}
+          style={props.style}
+        />
+      )
+    } else {
+      // Update offer
+      return (
+        <ListItemText
+          primary={
+            <span>
+              <OfferDescription
+                {...operation}
+                amount={BigNumber(operation.amount)}
+                price={BigNumber(operation.price)}
+              />
+              {props.alwaysShowSource ? (
+                <>
+                  {" "}
+                  (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                </>
+              ) : null}
+            </span>
+          }
+          primaryTypographyProps={{ style: props.style }}
+          secondary={secondary}
+          style={props.style}
+        />
+      )
+    }
   } else {
     const formattedOperations = props.transaction.operations.map(formatOperation)
     return (
@@ -221,7 +332,9 @@ export function TransactionListItem(props: TransactionListItemProps) {
       onMouseLeave={() => setHoveringStatus(false)}
       style={props.style}
     >
-      <ListItemIcon>{props.icon || <TransactionIcon paymentSummary={paymentSummary} />}</ListItemIcon>
+      <ListItemIcon>
+        {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
+      </ListItemIcon>
       <TransactionItemText
         accountPublicKey={props.accountPublicKey}
         alwaysShowSource={props.alwaysShowSource}

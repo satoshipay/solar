@@ -1,5 +1,6 @@
 import React from "react"
 import { useContext, useState } from "react"
+import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
@@ -7,6 +8,7 @@ import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import GroupIcon from "@material-ui/icons/Group"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
+import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
@@ -14,6 +16,7 @@ import { useAccountData, useRouter } from "../../hooks"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
+import ButtonIconLabel from "../ButtonIconLabel"
 import AccountDeletionDialog from "../Dialog/AccountDeletion"
 import ChangePasswordDialog from "../Dialog/ChangePassword"
 import ExportKeyDialog from "../Dialog/ExportKey"
@@ -104,6 +107,17 @@ function AccountHeaderCard(props: Props) {
             <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
           </HorizontalLayout>
           <Box grow style={{ textAlign: "right" }}>
+            {settings.dexTrading ? (
+              <Button
+                onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
+                style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: 8 }}
+                variant="outlined"
+              >
+                <ButtonIconLabel label="Trade">
+                  <SwapHorizIcon />
+                </ButtonIconLabel>
+              </Button>
+            ) : null}
             <AccountContextMenu
               account={props.account}
               activated={accountData.activated}

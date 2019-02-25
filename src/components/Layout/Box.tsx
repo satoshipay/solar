@@ -18,23 +18,31 @@ const Box = ({ children, component, onClick, style, ...styleProps }: BoxProps) =
   )
 }
 
-const HorizontalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
-  const style: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "row",
-    width: "100%",
-    ...createBoxStyle(styleProps)
-  }
-  return <div style={style}>{children}</div>
+interface BoxLayoutProps extends BoxStyles {
+  children: React.ReactNode
+  inline?: boolean
+  style?: React.CSSProperties
 }
 
-const VerticalLayout = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
-  const style: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    ...createBoxStyle(styleProps)
+const HorizontalLayout = ({ children, inline, style, ...styleProps }: BoxLayoutProps) => {
+  const effectiveStyle: React.CSSProperties = {
+    display: inline ? "inline-flex" : "flex",
+    flexDirection: "row",
+    width: "100%",
+    ...createBoxStyle(styleProps),
+    ...style
   }
-  return <div style={style}>{children}</div>
+  return <div style={effectiveStyle}>{children}</div>
+}
+
+const VerticalLayout = ({ children, inline, style, ...styleProps }: BoxLayoutProps) => {
+  const effectiveStyle: React.CSSProperties = {
+    display: inline ? "inline-flex" : "flex",
+    flexDirection: "column",
+    ...createBoxStyle(styleProps),
+    ...style
+  }
+  return <div style={effectiveStyle}>{children}</div>
 }
 
 const AspectRatioBox = ({

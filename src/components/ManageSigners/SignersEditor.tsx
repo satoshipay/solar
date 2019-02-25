@@ -1,6 +1,6 @@
 import React from "react"
 import { useState } from "react"
-import { AccountRecord } from "stellar-sdk"
+import { Horizon } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -12,8 +12,6 @@ import SpaciousList from "../List/SpaciousList"
 import PublicKey from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
 
-type Signer = AccountRecord["signers"][0]
-
 interface SignerFormValues {
   publicKey: string
   weight: string
@@ -24,7 +22,7 @@ interface SignerFormErrors {
   weight?: Error
 }
 
-function validateNewSignerValues(values: SignerFormValues, signers: Signer[]): SignerFormErrors {
+function validateNewSignerValues(values: SignerFormValues, signers: Horizon.AccountSigner[]): SignerFormErrors {
   const errors: SignerFormErrors = {}
 
   if (!values.publicKey.match(/^G[A-Z0-9]{55}$/)) {
@@ -43,9 +41,9 @@ interface SignersEditorProps {
   isEditingNewSigner: boolean
   setIsEditingNewSigner: (isEditingNewSigner: boolean) => void
   localPublicKey: string
-  signers: Signer[]
-  addSigner: (signer: Signer) => void
-  removeSigner: (signer: Signer) => void
+  signers: Horizon.AccountSigner[]
+  addSigner: (signer: Horizon.AccountSigner) => void
+  removeSigner: (signer: Horizon.AccountSigner) => void
   showKeyWeights?: boolean
 }
 
