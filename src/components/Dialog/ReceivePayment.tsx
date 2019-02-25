@@ -38,7 +38,7 @@ function ReceivePaymentDialog(props: Props) {
           <Box onClick={copyToClipboard} margin="0 auto" style={{ cursor: "pointer" }}>
             <QRCode size={256} value={props.account.publicKey} />
           </Box>
-          <Box margin="24px auto 0">
+          <Box margin="12px auto 12px">
             <Typography align="center" style={{ marginBottom: 12 }}>
               Tap to copy:
             </Typography>
@@ -47,8 +47,8 @@ function ReceivePaymentDialog(props: Props) {
               component="p"
               onClick={copyToClipboard}
               role="button"
-              style={{ cursor: "pointer" }}
-              variant="subtitle1"
+              style={{ cursor: "pointer", wordWrap: "break-word", maxWidth: window.innerWidth - 75 }}
+              variant="subheading"
             >
               <b>{props.account.publicKey}</b>
             </Typography>
