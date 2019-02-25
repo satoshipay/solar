@@ -66,6 +66,12 @@ CSC_NAME="SatoshiPay Ltd"   # or whatever the name of the certificate in your ke
 
 Signing should then happen automatically during the production build.
 
+To check the signature, run:
+
+```
+codesign -dv --verbose=4 ./electron/dist/<file>
+```
+
 Note: Application signing has only been tested on a Mac OS development machine so far.
 
 ## License
