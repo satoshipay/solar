@@ -12,31 +12,49 @@ import { SettingsContext } from "../context/settings"
 import { useRouter } from "../hooks"
 import * as routes from "../routes"
 
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+
 function AllAccountsPage() {
   const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
   const testnetAccounts = accounts.filter(account => account.testnet)
 
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+
   const networkSwitchButton = (
     <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
-      {networkSwitch === "testnet" ? "Switch to Mainnet" : "Switch to Testnet"}
+      {isSmallScreen
+        ? networkSwitch === "testnet"
+          ? "Mainnet"
+          : "Testnet"
+        : networkSwitch === "testnet"
+          ? "Switch to Mainnet"
+          : "Switch to Testnet"}
     </Button>
   )
   return (
     <Section top brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
         <HorizontalLayout alignItems="center">
-          <Typography color="inherit" variant="h5" style={{ flexGrow: 1, marginRight: 180 }}>
+          <Typography
+            color="inherit"
+            variant="h5"
+            style={
+              isSmallScreen
+                ? { flexGrow: 1, whiteSpace: "nowrap", alignSelf: "flex-end", paddingBottom: 8 }
+                : { flexGrow: 1 }
+            }
+          >
             {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
           </Typography>
-          <Box>
+          <Box style={isSmallScreen ? { display: "flex", flexDirection: "column" } : {}}>
             {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
               ? networkSwitchButton
               : null}
             <IconButton
               onClick={() => router.history.push(routes.settings())}
-              style={{ marginLeft: 8, marginRight: -10, color: "inherit" }}
+              style={{ marginLeft: 0, marginRight: 0, color: "inherit" }}
             >
               <SettingsIcon />
             </IconButton>
