@@ -19,7 +19,6 @@ cordova/platforms/android/android.iml
 cordova/platforms/android/build
 cordova/platforms/android/app/build
 cordova/platforms/android/app/src/main/assets/www
-cordova/platforms/android/app/src/main/res/xml/config.xml
 cordova/platforms/android/app/app.iml
 cordova/platforms/android/local.properties
 cordova/platforms/android/CordovaLib/build
