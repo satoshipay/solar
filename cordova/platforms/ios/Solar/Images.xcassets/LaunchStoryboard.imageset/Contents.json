@@ -138,7 +138,8 @@
     },
     {
       "idiom": "iphone",
-      "scale": "2x"
+      "scale": "2x",
+      "filename": "Default@2x~iphone~anyany.png"
     },
     {
       "idiom": "iphone",
@@ -158,7 +159,8 @@
     },
     {
       "idiom": "iphone",
-      "scale": "3x"
+      "scale": "3x",
+      "filename": "Default@3x~iphone~anyany.png"
     }
   ],
   "info": {
