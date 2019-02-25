@@ -2,8 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
 import { Account } from "./context/accounts"
-import { SettingsContext } from "./context/settings"
-import { createDeadSubscription, SubscriptionTarget } from "./lib/subscription"
+import { SubscriptionTarget } from "./lib/subscription"
 import {
   getAssetCacheKey,
   subscribeToAccount,
@@ -84,16 +83,8 @@ export function useAccountData(accountID: string, testnet: boolean): ObservedAcc
 
 export function useAccountOffers(accountID: string, testnet: boolean): ObservedAccountOffers {
   const horizon = useHorizon(testnet)
-  const settings = useContext(SettingsContext)
 
-  const offersSubscription = useMemo(
-    () => {
-      return settings.dexTrading
-        ? subscribeToAccountOffers(horizon, accountID)
-        : createDeadSubscription<ObservedAccountOffers>({ loading: false, offers: [] })
-    },
-    [accountID, testnet]
-  )
+  const offersSubscription = useMemo(() => subscribeToAccountOffers(horizon, accountID), [accountID, testnet])
 
   return useDataSubscription(offersSubscription)
 }
@@ -103,14 +94,9 @@ type EffectHandler = (account: Account, effect: Server.EffectRecord) => void
 export function useAccountEffectSubscriptions(accounts: Account[], handler: EffectHandler) {
   const mainnetHorizon = useHorizon(false)
   const testnetHorizon = useHorizon(true)
-  const settings = useContext(SettingsContext)
 
   return useEffect(
     () => {
-      if (!settings.dexTrading) {
-        return () => undefined
-      }
-
       const unsubscribeHandlers = accounts.map(account => {
         const horizon = account.testnet ? testnetHorizon : mainnetHorizon
         const subscription = subscribeToAccountEffects(horizon, account.publicKey)

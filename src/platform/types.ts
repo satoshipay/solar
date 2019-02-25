@@ -11,7 +11,6 @@ export interface PrivateKeyData {
 
 export interface SettingsData {
   agreedToTermsAt?: string
-  dexTrading: boolean
   multisignature: boolean
   testnet: boolean
 }
