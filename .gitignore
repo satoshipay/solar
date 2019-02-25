@@ -6,7 +6,9 @@ node_modules/
 storybook-static/
 .DS_Store
 Thumbs.db
+*.env
 *.sublime-project
 *.sublime-workspace
 *.log
+*.p12
 .eslintcache
