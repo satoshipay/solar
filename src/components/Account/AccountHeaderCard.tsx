@@ -107,17 +107,15 @@ function AccountHeaderCard(props: Props) {
             <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
           </HorizontalLayout>
           <Box grow style={{ textAlign: "right" }}>
-            {settings.dexTrading ? (
-              <Button
-                onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
-                style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: 8 }}
-                variant="outlined"
-              >
-                <ButtonIconLabel label="Trade">
-                  <SwapHorizIcon />
-                </ButtonIconLabel>
-              </Button>
-            ) : null}
+            <Button
+              onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
+              style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: 8 }}
+              variant="outlined"
+            >
+              <ButtonIconLabel label="Trade">
+                <SwapHorizIcon />
+              </ButtonIconLabel>
+            </Button>
             <AccountContextMenu
               account={props.account}
               activated={accountData.activated}

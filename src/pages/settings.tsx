@@ -58,20 +58,6 @@ function Settings() {
           transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.
         </Typography>
       </ToggleSection>
-      <ToggleSection
-        checked={settings.dexTrading}
-        onChange={settings.toggleDexTrading}
-        title="Enable Decentralized Exchange (DEX) Features"
-      >
-        <Typography
-          color={settings.dexTrading ? "default" : "textSecondary"}
-          style={{ margin: "12px 0 0" }}
-          variant="body1"
-        >
-          <b>Experimental feature:</b> Convert your XLM into third-party assets like USD, EURT, ... and vice versa using
-          the Stellar network's decentralized exchange.
-        </Typography>
-      </ToggleSection>
     </>
   )
 }
