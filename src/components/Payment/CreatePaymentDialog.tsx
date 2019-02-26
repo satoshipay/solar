@@ -8,10 +8,10 @@ import { trackError } from "../../context/notifications"
 import { useAccountData, ObservedAccountData } from "../../hooks"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
-import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
+import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import TransactionSender from "../TransactionSender"
-import TestnetBadge from "./TestnetBadge"
+import CreatePaymentForm, { PaymentCreationValues } from "./CreatePaymentForm"
 
 function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   return balances.map(
@@ -82,7 +82,7 @@ function CreatePaymentDialog(props: Props) {
         <Typography variant="h5" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
           Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
         </Typography>
-        <Box margin="0 0 36px">
+        <Box margin="0 0 18px">
           <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </Box>
         <CreatePaymentForm
