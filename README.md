@@ -58,19 +58,17 @@ npm run build:win
 npm run build:linux
 ```
 
-To sign the binaries, make sure you imported the code signing certificate into your keychain. Create a `signing.env` file with the following content:
+To sign the binaries, make sure you have the code signing certificate on your local filesystem as a `.p12` file and have the password for it. Make sure not to save the certificate in the Solar directory to make sure it cannot accidentally be bundled into the app installer!
+
+You can create a `signing.env` file to set the CSC_LINK variable:
 
 ```
-CSC_NAME="SatoshiPay Ltd"   # or whatever the name of the certificate in your keychain is
+CSC_LINK=~/secret-certificates/SatoshiPayLtd.p12   # point to your local certificate file
 ```
 
-Signing should then happen automatically during the production build.
+Now run `npm run build:*:signed` to create a signed application build.
 
-To check the signature, run:
-
-```
-codesign -dv --verbose=4 ./electron/dist/<file>
-```
+To check the Mac DMG signature, run `codesign -dv --verbose=4 ./electron/dist/<file>`. To verify the Windows installer signature, you can upload the file to `virustotal.com`.
 
 Note: Application signing has only been tested on a Mac OS development machine so far.
 
