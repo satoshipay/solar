@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
@@ -74,9 +73,9 @@ function TradeAsset(props: TradeAssetProps) {
     Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
   >
 
-  const [rawBuyingAssetCode, setBuyingAssetCode] = useState<string | null>(null)
+  const [rawBuyingAssetCode, setBuyingAssetCode] = React.useState<string | null>(null)
   const buyingAssetCode = rawBuyingAssetCode || (trustlines.length > 0 ? trustlines[0].asset_code : "XLM")
-  const [rawSellingAssetCode, setSellingAssetCode] = useState<string | null>(null)
+  const [rawSellingAssetCode, setSellingAssetCode] = React.useState<string | null>(null)
   const sellingAssetCode = rawSellingAssetCode || "XLM"
 
   const { asset: rawBuyingAsset, balance: buyingBalance } = findMatchingBalance(accountData.balances, buyingAssetCode)

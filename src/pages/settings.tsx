@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
@@ -16,8 +15,8 @@ import * as routes from "../routes"
 const pkg = require("../../package.json")
 
 function Settings() {
-  const { accounts } = useContext(AccountsContext)
-  const settings = useContext(SettingsContext)
+  const { accounts } = React.useContext(AccountsContext)
+  const settings = React.useContext(SettingsContext)
   const hasTestnetAccount = accounts.some(account => account.testnet)
   return (
     <>

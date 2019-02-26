@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Slide, { SlideProps } from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
@@ -18,7 +17,7 @@ interface Props {
 }
 
 function ReceivePaymentDialog(props: Props) {
-  const { showNotification } = useContext(NotificationsContext)
+  const { showNotification } = React.useContext(NotificationsContext)
 
   const copyToClipboard = async () => {
     await (navigator as any).clipboard.writeText(props.account.publicKey)

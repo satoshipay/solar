@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
@@ -135,7 +134,7 @@ interface AccountListProps {
 
 function AccountList(props: AccountListProps) {
   const accounts = props.accounts.filter(account => account.testnet === props.testnet)
-  const { pendingSignatureRequests } = useContext(SignatureDelegationContext)
+  const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
 
   return (
     <CardList addInvisibleCard={accounts.length % 2 === 0}>

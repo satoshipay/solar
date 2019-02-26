@@ -1,5 +1,5 @@
 import BigNumber from "big.js"
-import { useContext, useEffect } from "react"
+import React from "react"
 import { Asset, Horizon, Server } from "stellar-sdk"
 import { Account, AccountsContext } from "../context/accounts"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
@@ -28,8 +28,8 @@ type TradeEffect = Server.EffectRecord & {
 const isTradeEffect = (effect: Server.EffectRecord): effect is TradeEffect => effect.type === "trade"
 
 function DesktopNotifications() {
-  const { accounts } = useContext(AccountsContext)
-  const { subscribeToNewSignatureRequests } = useContext(SignatureDelegationContext)
+  const { accounts } = React.useContext(AccountsContext)
+  const { subscribeToNewSignatureRequests } = React.useContext(SignatureDelegationContext)
   const router = useRouter()
 
   const handleNewSignatureRequest = (signatureRequest: SignatureRequest) => {
@@ -41,7 +41,7 @@ function DesktopNotifications() {
     notification.addEventListener("click", () => router.history.push(routes.allAccounts()))
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     const unsubscribeFromNewSignatureRequests = subscribeToNewSignatureRequests(handleNewSignatureRequest)
     return unsubscribeFromNewSignatureRequests
   }, [])

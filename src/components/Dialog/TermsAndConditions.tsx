@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Checkbox from "@material-ui/core/Checkbox"
@@ -26,7 +25,7 @@ interface Props {
 }
 
 function TermsAndConditions(props: Props) {
-  const [checkedNotes, setCheckedNotes] = useState([false, false])
+  const [checkedNotes, setCheckedNotes] = React.useState([false, false])
   const allConfirmed = checkedNotes.every(isChecked => isChecked)
 
   const toggleNoteChecked = (index: number) => {

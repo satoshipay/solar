@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Horizon } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -94,10 +93,10 @@ interface Props {
 function ManageSignersForm(props: Props) {
   const { accountData } = props
 
-  const [signersToAdd, setSignersToAdd] = useState<Horizon.AccountSigner[]>([])
-  const [signersToRemove, setSignersToRemove] = useState<Horizon.AccountSigner[]>([])
-  const [weightThresholdError, setWeightThresholdError] = useState<Error | undefined>(undefined)
-  const [weightThreshold, setWeightThreshold] = useState(getEffectiveWeightThreshold(accountData).toString())
+  const [signersToAdd, setSignersToAdd] = React.useState<Horizon.AccountSigner[]>([])
+  const [signersToRemove, setSignersToRemove] = React.useState<Horizon.AccountSigner[]>([])
+  const [weightThresholdError, setWeightThresholdError] = React.useState<Error | undefined>(undefined)
+  const [weightThreshold, setWeightThreshold] = React.useState(getEffectiveWeightThreshold(accountData).toString())
 
   const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)

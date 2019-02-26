@@ -1,6 +1,5 @@
 import BigNumber from "big.js"
 import React from "react"
-import { useState } from "react"
 import { Asset, Memo, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import List from "@material-ui/core/List"
@@ -322,7 +321,7 @@ interface TransactionListItemProps {
 }
 
 export function TransactionListItem(props: TransactionListItemProps) {
-  const [hovering, setHoveringStatus] = useState(false)
+  const [hovering, setHoveringStatus] = React.useState(false)
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
   return (
     <ListItem

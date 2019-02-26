@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Server } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ButtonIconLabel from "../ButtonIconLabel"
@@ -12,7 +11,7 @@ interface Props {
 }
 
 function FriendbotButton(props: Props) {
-  const [isPending, setPending] = useState(false)
+  const [isPending, setPending] = React.useState(false)
 
   const topup = async () => {
     try {

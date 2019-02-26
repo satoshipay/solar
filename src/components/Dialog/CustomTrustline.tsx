@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -23,10 +22,10 @@ interface Props {
 }
 
 function CustomTrustlineDialog(props: Props) {
-  const [code, setCode] = useState("")
-  const [issuerPublicKey, setIssuerPublicKey] = useState("")
-  const [limit, setLimit] = useState("")
-  const [txCreationPending, setTxCreationPending] = useState(false)
+  const [code, setCode] = React.useState("")
+  const [issuerPublicKey, setIssuerPublicKey] = React.useState("")
+  const [limit, setLimit] = React.useState("")
+  const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {

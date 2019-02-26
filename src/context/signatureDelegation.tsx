@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useEffect, useRef, useState } from "react"
 import { fetchSignatureRequests, subscribeToSignatureRequests, SignatureRequest } from "../lib/multisig-service"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
@@ -24,11 +23,11 @@ const SignatureDelegationContext = React.createContext<ContextValue>({
 function useSignatureRequestSubscription(multiSignatureServiceURL: string, accounts: Account[]) {
   const accountIDs = accounts.map(account => account.publicKey)
 
-  const { ignoredSignatureRequests } = useContext(SettingsContext)
-  const subscribersRef = useRef<SubscribersState>({ newRequestSubscribers: [] })
-  const [pendingSignatureRequests, setPendingSignatureRequests] = useState<SignatureRequest[]>([])
+  const { ignoredSignatureRequests } = React.useContext(SettingsContext)
+  const subscribersRef = React.useRef<SubscribersState>({ newRequestSubscribers: [] })
+  const [pendingSignatureRequests, setPendingSignatureRequests] = React.useState<SignatureRequest[]>([])
 
-  useEffect(
+  React.useEffect(
     () => {
       if (accounts.length === 0) {
         // The GET request will otherwise fail if there are no accounts to be queried
@@ -81,8 +80,8 @@ interface Props {
 }
 
 function SignatureDelegationProvider(props: Props) {
-  const { accounts } = useContext(AccountsContext)
-  const settings = useContext(SettingsContext)
+  const { accounts } = React.useContext(AccountsContext)
+  const settings = React.useContext(SettingsContext)
   const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureServiceURL, accounts)
 
   return (
@@ -91,7 +90,7 @@ function SignatureDelegationProvider(props: Props) {
 }
 
 function FeatureFlaggedProvider(props: Props) {
-  const settings = useContext(SettingsContext)
+  const settings = React.useContext(SettingsContext)
 
   if (settings.multiSignature) {
     return <SignatureDelegationProvider {...props} />

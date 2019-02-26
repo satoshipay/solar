@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
@@ -14,9 +13,9 @@ import { useRouter } from "../hooks"
 import * as routes from "../routes"
 
 function AllAccountsPage() {
-  const { accounts, networkSwitch, toggleNetwork } = useContext(AccountsContext)
+  const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)
   const router = useRouter()
-  const settings = useContext(SettingsContext)
+  const settings = React.useContext(SettingsContext)
   const testnetAccounts = accounts.filter(account => account.testnet)
 
   const networkSwitchButton = (

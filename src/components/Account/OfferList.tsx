@@ -1,6 +1,5 @@
 import BigNumber from "big.js"
 import React from "react"
-import { useState } from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ListItem from "@material-ui/core/ListItem"
@@ -46,7 +45,7 @@ interface OfferListItemProps {
 }
 
 function OfferListItem(props: OfferListItemProps) {
-  const [hovering, setHoveringStatus] = useState(false)
+  const [hovering, setHoveringStatus] = React.useState(false)
   return (
     <ListItem
       onMouseEnter={() => setHoveringStatus(true)}

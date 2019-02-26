@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useMemo } from "react"
 import { Memo, Operation, Transaction } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
 import MuiListItem from "@material-ui/core/ListItem"
@@ -152,7 +151,7 @@ interface TransactionSummaryProps {
 
 function TransactionSummary(props: TransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
-  const { accounts } = useContext(AccountsContext)
+  const { accounts } = React.useContext(AccountsContext)
   const accountDataSet = useAccountDataSet(allTxSources, props.testnet)
 
   const accountData = accountDataSet.find(someAccountData => someAccountData.id === props.transaction.source)
@@ -171,7 +170,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
     )
   }
 
-  const isDangerousSignatureRequest = useMemo(
+  const isDangerousSignatureRequest = React.useMemo(
     () => {
       const localAccounts = accountDataSet.filter(someAccountData =>
         accounts.some(account => account.publicKey === someAccountData.id)

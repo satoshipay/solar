@@ -1,5 +1,4 @@
 import React from "react"
-import { useRef, useState } from "react"
 
 export type NotificationType = "error" | "info" | "success"
 
@@ -39,8 +38,8 @@ const NotificationsContext = React.createContext<ContextValue>({
 
 export function NotificationsProvider(props: Props) {
   // Not in the state, since state updates would be performed asyncronously
-  const nextIDRef = useRef(1)
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const nextIDRef = React.useRef(1)
+  const [notifications, setNotifications] = React.useState<Notification[]>([])
 
   const showNotification = (type: NotificationType, message: string, options: NotificationOptions = {}) => {
     const id = nextIDRef.current++

@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useState } from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
@@ -28,8 +27,8 @@ interface Props {
 }
 
 function ManageAssets(props: Props) {
-  const [isCustomTrustlineDialogOpen, setCustomTrustlineDialogOpen] = useState(false)
-  const [removalDialogAsset, setRemovalDialogAsset] = useState<Asset | null>(null)
+  const [isCustomTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
+  const [removalDialogAsset, setRemovalDialogAsset] = React.useState<Asset | null>(null)
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -82,7 +81,7 @@ function ManageAssets(props: Props) {
 }
 
 function ManageAssetsContainer(props: Pick<Props, "account" | "open" | "onClose">) {
-  const accountsContext = useContext(AccountsContext)
+  const accountsContext = React.useContext(AccountsContext)
   return (
     <TransactionSender account={props.account}>
       {txContext => <ManageAssets {...props} {...accountsContext} {...txContext} />}

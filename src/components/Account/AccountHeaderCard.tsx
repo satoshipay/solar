@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useState } from "react"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -66,11 +65,11 @@ interface Props {
 }
 
 function AccountHeaderCard(props: Props) {
-  const { changePassword, removePassword } = useContext(AccountsContext)
-  const settings = useContext(SettingsContext)
+  const { changePassword, removePassword } = React.useContext(AccountsContext)
+  const settings = React.useContext(SettingsContext)
   const router = useRouter()
 
-  const [openDialog, setOpenDialog] = useState<DialogID | null>(null)
+  const [openDialog, setOpenDialog] = React.useState<DialogID | null>(null)
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
   return (

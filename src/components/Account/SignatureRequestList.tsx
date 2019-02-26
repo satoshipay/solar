@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useState } from "react"
 import { Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ListSubheader from "@material-ui/core/ListSubheader"
@@ -63,8 +62,8 @@ interface SignatureRequestListProps {
 }
 
 export function SignatureRequestList(props: SignatureRequestListProps) {
-  const settings = useContext(SettingsContext)
-  const [pendingConfirmation, setPendingConfirmation] = useState<SignatureRequest | null>(null)
+  const settings = React.useContext(SettingsContext)
+  const [pendingConfirmation, setPendingConfirmation] = React.useState<SignatureRequest | null>(null)
 
   const onConfirmDismissal = () => {
     if (!pendingConfirmation) return
