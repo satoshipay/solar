@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useRef, useState } from "react"
 import Snackbar, { SnackbarOrigin } from "@material-ui/core/Snackbar"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
 import CheckIcon from "@material-ui/icons/CheckCircle"
@@ -92,10 +91,10 @@ function NotificationSnackbar(props: NotificationProps) {
 const StyledNotification = withStyles(styles)(NotificationSnackbar)
 
 function NotificationsContainer() {
-  const { notifications } = useContext(NotificationsContext)
+  const { notifications } = React.useContext(NotificationsContext)
   const { isOnline } = useOnlineStatus()
-  const [lastClosedNotificationID, setLastClosedNotificationID] = useState(0)
-  const lastShownNotification = useRef<Notification | null>(null)
+  const [lastClosedNotificationID, setLastClosedNotificationID] = React.useState(0)
+  const lastShownNotification = React.useRef<Notification | null>(null)
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
   const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID

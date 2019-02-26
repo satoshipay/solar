@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
@@ -31,8 +30,8 @@ interface Props {
 }
 
 function ManageSignersDialog(props: Props) {
-  const [isEditingNewSigner, setIsEditingNewSigner] = useState(false)
-  const [, setTxCreationPending] = useState(false)
+  const [isEditingNewSigner, setIsEditingNewSigner] = React.useState(false)
+  const [, setTxCreationPending] = React.useState(false)
 
   const submitTransaction = async (update: SignerUpdate) => {
     try {

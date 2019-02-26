@@ -1,5 +1,5 @@
 import BigNumber from "big.js"
-import { useMemo } from "react"
+import React from "react"
 import { FixedOrderbookOffer } from "../../lib/orderbook"
 
 const sum = (numbers: BigNumber[]) => numbers.reduce((total, no) => total.add(no), BigNumber(0))
@@ -9,7 +9,7 @@ export function useConversionOffers(offers: FixedOrderbookOffer[], amount: numbe
   const bestOffers = offers
   const priceMultiplier = 1 + tolerance
 
-  const bestMatches = useMemo(
+  const bestMatches = React.useMemo(
     () =>
       bestOffers.reduce<{ offers: FixedOrderbookOffer[]; volume: number }>(
         (aggregate, matchingOffer) =>

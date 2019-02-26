@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import { Keypair } from "stellar-sdk"
 import { useRouter } from "../hooks"
 import * as routes from "../routes"
@@ -10,7 +9,7 @@ import { AccountsContext } from "../context/accounts"
 import { trackError } from "../context/notifications"
 
 function CreateAccountPage(props: { testnet: boolean }) {
-  const { accounts, createAccount } = useContext(AccountsContext)
+  const { accounts, createAccount } = React.useContext(AccountsContext)
   const router = useRouter()
 
   const onCreateAccount = async (formValues: AccountCreationValues) => {

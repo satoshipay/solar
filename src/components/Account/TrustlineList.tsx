@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Asset } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
@@ -49,7 +48,7 @@ interface TrustedAssetProps {
 
 function TrustedAsset(props: TrustedAssetProps) {
   const { account, balance } = props
-  const [hovering, setHovering] = useState(false)
+  const [hovering, setHovering] = React.useState(false)
   return (
     <ListItem onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
       <ListItemIcon style={{ color: "inherit" }}>

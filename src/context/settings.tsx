@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import {
   loadIgnoredSignatureRequestHashes,
   loadSettings,
@@ -49,8 +48,8 @@ const SettingsContext = React.createContext<ContextType>({
 })
 
 export function SettingsProvider(props: Props) {
-  const [ignoredSignatureRequests, setIgnoredSignatureRequests] = useState(initialIgnoredSignatureRequests)
-  const [settings, setSettings] = useState(initialSettings)
+  const [ignoredSignatureRequests, setIgnoredSignatureRequests] = React.useState(initialIgnoredSignatureRequests)
+  const [settings, setSettings] = React.useState(initialSettings)
 
   const ignoreSignatureRequest = (signatureRequestHash: string) => {
     if (ignoredSignatureRequests.indexOf(signatureRequestHash) === -1) {

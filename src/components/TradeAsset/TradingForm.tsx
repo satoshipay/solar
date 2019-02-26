@@ -1,6 +1,5 @@
 import BigNumber from "big.js"
 import React from "react"
-import { useState } from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
 import { useOrderbook } from "../../hooks"
 import { calculateSpread } from "../../lib/orderbook"
@@ -41,9 +40,9 @@ function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
   const tradePair = useOrderbook(props.selling, props.buying, props.testnet)
 
-  const [amountString, setAmountString] = useState("")
-  const [manualPriceString, setManualPriceString] = useState("")
-  const [tolerance, setTolerance] = useState<ToleranceValue>(0)
+  const [amountString, setAmountString] = React.useState("")
+  const [manualPriceString, setManualPriceString] = React.useState("")
+  const [tolerance, setTolerance] = React.useState<ToleranceValue>(0)
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? 0 : Number.parseFloat(amountString)
   const manualPrice = Number.isNaN(Number.parseFloat(manualPriceString)) ? 0 : Number.parseFloat(manualPriceString)

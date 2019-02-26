@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
@@ -21,7 +20,7 @@ interface Props {
 
 function AccountDeletionDialog(props: Props) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const { deleteAccount } = useContext(AccountsContext)
+  const { deleteAccount } = React.useContext(AccountsContext)
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <Background opacity={0.08}>

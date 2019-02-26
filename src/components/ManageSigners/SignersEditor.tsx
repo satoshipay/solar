@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Horizon } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import ListItem from "@material-ui/core/ListItem"
@@ -50,8 +49,8 @@ interface SignersEditorProps {
 function SignersEditor(props: SignersEditorProps) {
   const { isEditingNewSigner, setIsEditingNewSigner } = props
 
-  const [newSignerErrors, setNewSignerErrors] = useState<SignerFormErrors>({})
-  const [newSignerValues, setNewSignerValues] = useState<SignerFormValues>({
+  const [newSignerErrors, setNewSignerErrors] = React.useState<SignerFormErrors>({})
+  const [newSignerValues, setNewSignerValues] = React.useState<SignerFormValues>({
     publicKey: "",
     weight: "1"
   })

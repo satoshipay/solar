@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
 
@@ -42,7 +41,7 @@ interface Props {
 
 const PublicKey = (props: Props) => {
   const digits = getDigitCounts(props.variant)
-  const { accounts } = useContext(AccountsContext)
+  const { accounts } = React.useContext(AccountsContext)
 
   const matchingLocalAccount = accounts.find(account => account.publicKey === props.publicKey)
   const style: React.CSSProperties = { display: "inline", fontSize: "inherit", fontWeight: "bold", ...props.style }

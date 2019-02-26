@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -99,11 +98,11 @@ interface Props {
 }
 
 function ExportKeyDialog(props: Props) {
-  const [password, setPassword] = useState("")
-  const [passwordError, setPasswordError] = useState<Error | null>(null)
-  const [qrDialogOpen, setQrDialogOpen] = useState(false)
-  const [isRevealed, setIsRevealed] = useState(false)
-  const [secretKey, setSecretKey] = useState<string | null>(null)
+  const [password, setPassword] = React.useState("")
+  const [passwordError, setPasswordError] = React.useState<Error | null>(null)
+  const [qrDialogOpen, setQrDialogOpen] = React.useState(false)
+  const [isRevealed, setIsRevealed] = React.useState(false)
+  const [secretKey, setSecretKey] = React.useState<string | null>(null)
 
   const updatePassword = (event: React.SyntheticEvent<HTMLInputElement>) => setPassword(event.currentTarget.value)
 
