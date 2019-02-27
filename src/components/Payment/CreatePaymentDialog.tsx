@@ -7,7 +7,7 @@ import Tabs from "@material-ui/core/Tabs"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData } from "../../hooks"
+import { useAccountData, ObservedAccountData } from "../../hooks"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
 import TestnetBadge from "../Dialog/TestnetBadge"
@@ -45,23 +45,22 @@ const Transition = (props: any) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
-  balances: Horizon.BalanceLine[]
+  accountData: ObservedAccountData
   horizon: Server
   open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
-  trustedAssets: Asset[]
 }
 
 function CreatePaymentDialog(props: Props) {
   const [selectedTab, setSelectedTab] = React.useState<ActionMode>("native")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
-  const trustedAssets = props.trustedAssets || [Asset.native()]
+  const trustedAssets = getAssetsFromBalances(props.accountData.balances) || [Asset.native()]
 
   const handleSubmit = async (formValues: PaymentCreationValues) => {
     try {
       setTxCreationPending(true)
-      const asset = props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+      const asset = trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
 
       const payment = await createPaymentOperation({
         asset: asset || Asset.native(),
@@ -92,21 +91,29 @@ function CreatePaymentDialog(props: Props) {
           <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </Box>
         <Box margin="0 0 18px">
-          <Tabs indicatorColor="primary" onChange={(event, value) => setSelectedTab(value)} value={selectedTab}>
+          <Tabs
+            fullWidth
+            indicatorColor="primary"
+            onChange={(event, value) => setSelectedTab(value)}
+            value={selectedTab}
+          >
             <Tab label="Send payment" value="native" />
             <Tab label="Withdraw asset" value="sep-6" />
           </Tabs>
         </Box>
         {selectedTab === "native" ? (
           <CreatePaymentForm
-            balances={props.balances}
+            balances={props.accountData.balances}
             onCancel={props.onClose}
             onSubmit={handleSubmit}
             trustedAssets={trustedAssets}
             txCreationPending={txCreationPending}
           />
         ) : (
-          <AnchorWithdrawalForm />
+          <AnchorWithdrawalForm
+            assets={trustedAssets.filter(asset => !asset.isNative())}
+            testnet={props.account.testnet}
+          />
         )}
       </Box>
     </Dialog>
@@ -122,13 +129,7 @@ function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "open" | "o
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <CreatePaymentDialog
-          {...props}
-          balances={accountData.balances}
-          horizon={horizon}
-          sendTransaction={sendTransaction}
-          trustedAssets={getAssetsFromBalances(accountData.balances)}
-        />
+        <CreatePaymentDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}
     </TransactionSender>
   )
