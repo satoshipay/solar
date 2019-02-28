@@ -30,7 +30,7 @@ export function getAllSources(tx: Transaction) {
 
 // Hacky fix for the breaking change recently introduced to the horizon's account endpoint
 export function getSignerKey(signer: Horizon.AccountSigner | { key: string; weight: number }) {
-  return ((signer as any).key as string) || signer.public_key
+  return "key" in signer ? signer.key : signer.public_key
 }
 
 export async function friendbotTopup(horizon: Server, publicKey: string) {
