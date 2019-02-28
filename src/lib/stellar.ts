@@ -1,4 +1,4 @@
-import { xdr, Keypair, Server, Transaction } from "stellar-sdk"
+import { xdr, Horizon, Keypair, Server, Transaction } from "stellar-sdk"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
@@ -26,6 +26,11 @@ export function getAllSources(tx: Transaction) {
     tx.source,
     ...(tx.operations.map(operation => operation.source).filter(source => Boolean(source)) as string[])
   ])
+}
+
+// Hacky fix for the breaking change recently introduced to the horizon's account endpoint
+export function getSignerKey(signer: Horizon.AccountSigner | { key: string; weight: number }) {
+  return ((signer as any).key as string) || signer.public_key
 }
 
 export async function friendbotTopup(horizon: Server, publicKey: string) {

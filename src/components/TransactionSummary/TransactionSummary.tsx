@@ -1,5 +1,5 @@
 import React from "react"
-import { Memo, Operation, Transaction } from "stellar-sdk"
+import { Memo, Operation, Transaction, Horizon } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
 import MuiListItem from "@material-ui/core/ListItem"
 import MuiListItemIcon from "@material-ui/core/ListItemIcon"
@@ -11,7 +11,7 @@ import WarningIcon from "@material-ui/icons/Warning"
 import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
-import { getAllSources, signatureMatchesPublicKey } from "../../lib/stellar"
+import { getAllSources, getSignerKey, signatureMatchesPublicKey } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
 import { ObservedAccountData } from "../../subscriptions"
 import { warningColor } from "../../theme"
@@ -58,7 +58,7 @@ function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }
 // tslint:disable-next-line no-shadowed-variable
 const Signer = React.memo(function Signer(props: {
   hasSigned: boolean
-  signer: { public_key: string; weight: number }
+  signer: Horizon.AccountSigner | { key: string; weight: number }
   transaction: Transaction
 }) {
   return (
@@ -67,7 +67,7 @@ const Signer = React.memo(function Signer(props: {
         <SignerStatus hasSigned={props.hasSigned} style={{ marginRight: 8 }} />
         <div style={{ whiteSpace: "nowrap" }}>
           <PublicKey
-            publicKey={props.signer.public_key}
+            publicKey={getSignerKey(props.signer)}
             style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
             variant="full"
           />
@@ -97,9 +97,9 @@ function Signers(props: {
           <>
             {props.accountData.signers.map(signer => (
               <Signer
-                key={signer.public_key}
+                key={getSignerKey(signer)}
                 hasSigned={props.transaction.signatures.some(signature =>
-                  signatureMatchesPublicKey(signature, signer.public_key)
+                  signatureMatchesPublicKey(signature, getSignerKey(signer))
                 )}
                 signer={signer}
                 transaction={props.transaction}

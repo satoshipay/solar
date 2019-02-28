@@ -1,7 +1,7 @@
 import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
-import { getAllSources, isSignedByAnyOf } from "./stellar"
+import { getAllSources, getSignerKey, isSignedByAnyOf } from "./stellar"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
@@ -110,7 +110,7 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
   const accounts = await Promise.all(sources.map(sourcePublicKey => horizon.loadAccount(sourcePublicKey)))
 
   return accounts.some(account => {
-    const thisWalletSigner = account.signers.find(signer => signer.public_key === walletPublicKey)
+    const thisWalletSigner = account.signers.find(signer => getSignerKey(signer) === walletPublicKey)
 
     // requires another signature?
     return thisWalletSigner ? thisWalletSigner.weight < account.thresholds.high_threshold : true
@@ -141,7 +141,7 @@ export function isPotentiallyDangerousTransaction(
     [] as Server.AccountRecord["signers"]
   )
   const isSignedByKnownCosigner = transaction.signatures.some(signature =>
-    isSignedByAnyOf(signature, knownCosigners.map(cosigner => cosigner.public_key))
+    isSignedByAnyOf(signature, knownCosigners.map(cosigner => getSignerKey(cosigner)))
   )
 
   return localAffectedAccounts.length > 0 && !isSignedByLocalAccount && !isSignedByKnownCosigner
