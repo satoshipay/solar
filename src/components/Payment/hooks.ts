@@ -9,7 +9,7 @@ import {
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks"
 
-interface AssetTransferInfos {
+export interface AssetTransferInfos {
   data: {
     [assetCode: string]: AssetTransferInfo | EmptyAssetTransferInfo
   }
