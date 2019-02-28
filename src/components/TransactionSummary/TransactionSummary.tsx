@@ -194,6 +194,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
           }
           style={noHPaddingStyle}
           testnet={props.testnet}
+          transaction={props.transaction}
         />
       ))}
       <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />

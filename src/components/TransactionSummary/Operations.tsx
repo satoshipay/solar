@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { Asset, Operation } from "stellar-sdk"
+import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
 import { useAccountOffers, ObservedAccountData } from "../../hooks"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
@@ -213,7 +213,11 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
   }
 }
 
-function SetOptionsOperation(props: { operation: Operation.SetOptions; style?: React.CSSProperties }) {
+function SetOptionsOperation(props: {
+  operation: Operation.SetOptions
+  style?: React.CSSProperties
+  transaction: Transaction
+}) {
   let heading = <></>
   let primaryText = (
     <OperationDetails>
@@ -232,13 +236,12 @@ function SetOptionsOperation(props: { operation: Operation.SetOptions; style?: R
     if (props.operation.signer.weight > 0) {
       heading = (
         <>
-          Add signer{" "}
-          {
-            <>
-              to{" "}
-              <PublicKey publicKey={props.operation.source || "XY"} style={{ fontWeight: "normal" }} variant="full" />
-            </>
-          }
+          Add signer to{" "}
+          <PublicKey
+            publicKey={props.operation.source || props.transaction.source}
+            style={{ fontWeight: "normal" }}
+            variant="full"
+          />
         </>
       )
       primaryText = (
@@ -248,7 +251,16 @@ function SetOptionsOperation(props: { operation: Operation.SetOptions; style?: R
         </OperationDetails>
       )
     } else if (props.operation.signer.weight === 0) {
-      heading = <>Remove signer</>
+      heading = (
+        <>
+          Remove signer from{" "}
+          <PublicKey
+            publicKey={props.operation.source || props.transaction.source}
+            style={{ fontWeight: "normal" }}
+            variant="full"
+          />
+        </>
+      )
       primaryText = (
         <OperationDetails>
           <PublicKey publicKey={signerPublicKey} style={{ fontWeight: "normal" }} variant="full" />
@@ -293,6 +305,7 @@ interface Props {
   operation: Operation
   style?: React.CSSProperties
   testnet: boolean
+  transaction: Transaction
 }
 
 function OperationListItem(props: Props) {
@@ -314,7 +327,7 @@ function OperationListItem(props: Props) {
       />
     )
   } else if (props.operation.type === "setOptions") {
-    return <SetOptionsOperation operation={props.operation} style={props.style} />
+    return <SetOptionsOperation operation={props.operation} style={props.style} transaction={props.transaction} />
   } else {
     return <GenericOperation operation={props.operation} style={props.style} />
   }
