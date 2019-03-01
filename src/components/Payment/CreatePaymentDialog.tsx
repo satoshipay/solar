@@ -86,7 +86,7 @@ function CreatePaymentDialog(props: Props) {
           <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </Box>
         <CreatePaymentForm
-          balances={props.accountData.balances}
+          accountData={props.accountData}
           onCancel={props.onClose}
           onSubmit={handleSubmit}
           trustedAssets={trustedAssets}
