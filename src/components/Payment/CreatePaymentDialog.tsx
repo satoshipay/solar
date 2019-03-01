@@ -103,7 +103,7 @@ function CreatePaymentDialog(props: Props) {
         </Box>
         {selectedTab === "native" ? (
           <CreatePaymentForm
-            balances={props.accountData.balances}
+            accountData={props.accountData}
             onCancel={props.onClose}
             onSubmit={handleSubmit}
             trustedAssets={trustedAssets}

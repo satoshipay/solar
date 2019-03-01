@@ -7,6 +7,7 @@ import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscriptio
 export interface ObservedAccountData {
   activated: boolean
   balances: Horizon.BalanceLine[]
+  data: Horizon.AccountResponse["data"]
   id: string
   loading: boolean
   signers: Horizon.AccountSigner[]
@@ -16,6 +17,7 @@ export interface ObservedAccountData {
 const createEmptyAccountData = (accountID: string): ObservedAccountData => ({
   activated: false,
   balances: [],
+  data: {},
   id: accountID,
   loading: true,
   signers: [],
