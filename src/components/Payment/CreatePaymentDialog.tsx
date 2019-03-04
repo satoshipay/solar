@@ -60,10 +60,11 @@ function CreatePaymentDialog(props: Props) {
   }
 
   const Actions = React.useCallback(
-    (actionProps: { onSubmit: () => void }) => (
+    (actionProps: { disabled?: boolean; onSubmit: () => void }) => (
       <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
         <ActionButton onClick={props.onClose}>Cancel</ActionButton>
         <ActionButton
+          disabled={actionProps.disabled}
           icon={<SendIcon style={{ fontSize: 16 }} />}
           loading={txCreationPending}
           onClick={actionProps.onSubmit}
@@ -107,7 +108,10 @@ function CreatePaymentDialog(props: Props) {
         ) : (
           <AnchorWithdrawalForm
             Actions={Actions}
+            account={props.account}
             assets={trustedAssets.filter(asset => !asset.isNative())}
+            horizon={props.horizon}
+            onCancel={props.onClose}
             onSubmit={handleSubmit}
             testnet={props.account.testnet}
           />

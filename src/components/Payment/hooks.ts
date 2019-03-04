@@ -4,7 +4,8 @@ import {
   fetchAssetTransferInfos,
   fetchTransferServers,
   AssetTransferInfo,
-  EmptyAssetTransferInfo
+  EmptyAssetTransferInfo,
+  TransferServer
 } from "@satoshipay/sep-6"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks"
@@ -14,6 +15,7 @@ export interface AssetTransferInfos {
     [assetCode: string]: AssetTransferInfo | EmptyAssetTransferInfo
   }
   loading: boolean
+  transferServers: Map<Asset, TransferServer | null>
 }
 
 const emptyTransferInfo = {
@@ -32,13 +34,16 @@ function getAssetCacheKey(asset: Asset, testnet: boolean) {
 export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): AssetTransferInfos {
   // To force-update the component once an async fetch is completed
   const [completedFetches, setCompletedFetches] = React.useState(0)
+  const [transferServers, setTransferServers] = React.useState<Map<Asset, TransferServer | null>>(new Map())
 
   const horizon = useHorizon(testnet)
   const loadingPromiseCacheKey = assets.map(asset => getAssetCacheKey(asset, testnet)).join(",")
   const uncachedAssets = assets.filter(asset => !transferInfosCache.has(asset.getCode()))
 
   const fetchData = async () => {
-    const transferServers = await fetchTransferServers(horizon, uncachedAssets)
+    const updatedTransferServers = await fetchTransferServers(horizon, uncachedAssets)
+    setTransferServers(updatedTransferServers)
+
     const transferInfos = await fetchAssetTransferInfos(transferServers)
 
     for (const [asset, transferInfo] of Array.from(transferInfos.entries())) {
@@ -70,6 +75,7 @@ export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): 
   }, {})
   return {
     data,
-    loading: uncachedAssets.length > 0
+    loading: uncachedAssets.length > 0,
+    transferServers
   }
 }
