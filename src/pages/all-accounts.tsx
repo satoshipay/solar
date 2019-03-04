@@ -36,29 +36,31 @@ function AllAccountsPage() {
   return (
     <Section top brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
-        <HorizontalLayout alignItems="center">
+        <HorizontalLayout alignItems="center" wrap="wrap">
           <Typography
             color="inherit"
             variant="h5"
             style={
               isSmallScreen
-                ? { flexGrow: 1, whiteSpace: "nowrap", alignSelf: "flex-end", paddingBottom: 8 }
+                ? { flexGrow: 1, whiteSpace: "nowrap", alignSelf: "flex-end", minWidth: 200, paddingBottom: 8 }
                 : { flexGrow: 1 }
             }
           >
             {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
           </Typography>
-          <Box style={isSmallScreen ? { display: "flex", flexDirection: "column" } : {}}>
-            {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
-              ? networkSwitchButton
-              : null}
-            <IconButton
-              onClick={() => router.history.push(routes.settings())}
-              style={{ marginLeft: 0, marginRight: 0, color: "inherit" }}
-            >
-              <SettingsIcon />
-            </IconButton>
-          </Box>
+          <HorizontalLayout style={{ marginLeft: "auto" }}>
+            <Box>
+              {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
+                ? networkSwitchButton
+                : null}
+              <IconButton
+                onClick={() => router.history.push(routes.settings())}
+                style={{ marginLeft: 0, marginRight: 0, color: "inherit" }}
+              >
+                <SettingsIcon />
+              </IconButton>
+            </Box>
+          </HorizontalLayout>
         </HorizontalLayout>
         <Box margin="16px 0 0">
           <AccountList
