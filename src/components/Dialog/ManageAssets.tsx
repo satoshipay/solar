@@ -4,6 +4,7 @@ import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -50,6 +51,8 @@ function ManageAssets(props: Props) {
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
   const onRemoveTrustline = (asset: Asset) => setRemovalDialogAsset(asset)
 
+  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
@@ -58,7 +61,12 @@ function ManageAssets(props: Props) {
           <Typography variant="h5" style={{ flexGrow: 1 }}>
             Manage Assets
           </Typography>
-          <Button color="primary" onClick={addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">
+          <Button
+            color="primary"
+            onClick={addCustomTrustline}
+            style={isSmallScreen ? { fontSize: "0.7rem", marginLeft: 12 } : { marginLeft: 32 }}
+            variant="contained"
+          >
             <ButtonIconLabel label="Add Custom Asset">
               <AddIcon />
             </ButtonIconLabel>

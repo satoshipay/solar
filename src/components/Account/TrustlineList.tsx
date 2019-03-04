@@ -7,6 +7,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import Tooltip from "@material-ui/core/Tooltip"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import RemoveIcon from "@material-ui/icons/Close"
 import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
@@ -49,6 +50,9 @@ interface TrustedAssetProps {
 function TrustedAsset(props: TrustedAssetProps) {
   const { account, balance } = props
   const [hovering, setHovering] = React.useState(false)
+
+  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+
   return (
     <ListItem onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
       <ListItemIcon style={{ color: "inherit" }}>
@@ -63,7 +67,11 @@ function TrustedAsset(props: TrustedAssetProps) {
         {hovering && props.hoverActions ? (
           props.hoverActions
         ) : (
-          <SingleBalance assetCode="" balance={balance.balance} style={{ fontSize: "1.6rem" }} />
+          <SingleBalance
+            assetCode=""
+            balance={balance.balance}
+            style={isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }}
+          />
         )}
       </ListItemText>
       <ListItemSecondaryAction>
@@ -140,6 +148,8 @@ function TrustlineList(props: Props) {
 
   const xlmBalance = accountData.balances.find(balance => balance.asset_type === "native")
 
+  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+
   return (
     <SpaciousList fitHorizontal>
       <ListItem>
@@ -151,7 +161,7 @@ function TrustlineList(props: Props) {
           <SingleBalance
             assetCode=""
             balance={xlmBalance ? xlmBalance.balance : "0.00"}
-            style={{ fontSize: "1.6rem" }}
+            style={isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }}
           />
         </ListItemText>
         <ListItemSecondaryAction />
