@@ -68,13 +68,15 @@ interface AssetSelectorProps {
 
 const AssetSelector = (props: AssetSelectorProps) => {
   return (
-    <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
-      {props.assets.map(assetCode => (
-        <MenuItem key={assetCode} value={assetCode}>
-          {assetCode}
-        </MenuItem>
-      ))}
-    </Select>
+    <FormControl>
+      <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
+        {props.assets.map(assetCode => (
+          <MenuItem key={assetCode} value={assetCode}>
+            {assetCode}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   )
 }
 
