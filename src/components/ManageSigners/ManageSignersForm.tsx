@@ -161,7 +161,7 @@ function ManageSignersForm(props: Props) {
           showKeyWeights={!allDefaultKeyweights}
         />
       </Box>
-      <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0">
+      <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0" wrap="wrap">
         <TextField
           error={!!weightThresholdError}
           label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
@@ -172,7 +172,7 @@ function ManageSignersForm(props: Props) {
             endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
           }}
         />
-        <HorizontalLayout justifyContent="end" alignItems="center" width="auto">
+        <HorizontalLayout justifyContent="end" alignItems="center" width="auto" margin="20px 0px">
           <DialogActionsBox style={{ margin: 0 }}>
             <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
               Cancel

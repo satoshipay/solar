@@ -4,6 +4,7 @@ import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -82,6 +83,8 @@ function ManageSignersDialog(props: Props) {
     }
   }
 
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
@@ -93,7 +96,7 @@ function ManageSignersDialog(props: Props) {
           <Button
             color="primary"
             onClick={() => setIsEditingNewSigner(true)}
-            style={{ marginLeft: 32 }}
+            style={isSmallScreen ? { fontSize: "0.7rem", marginLeft: 12 } : { marginLeft: 32 }}
             variant="contained"
           >
             <ButtonIconLabel label="Add Co-Signer">
