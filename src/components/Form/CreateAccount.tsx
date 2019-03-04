@@ -3,6 +3,7 @@ import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import EditIcon from "@material-ui/icons/Edit"
@@ -73,6 +74,8 @@ interface AccountCreationFormProps {
 }
 
 const AccountCreationForm = (props: AccountCreationFormProps) => {
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+
   const { errors, formValues, setFormValue } = props
   return (
     <form onSubmit={props.onSubmit}>
@@ -97,7 +100,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 fontSize: "1.5rem"
               }
             }}
-            style={{ minWidth: 300, maxWidth: "70%", margin: 0 }}
+            style={{ minWidth: 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
           />
         </Box>
         <ToggleSection
@@ -127,7 +130,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 onChange={event => setFormValue("password", event.target.value)}
                 type="password"
               />
-              <HorizontalMargin size={32} />
+              <HorizontalMargin size={isSmallScreen ? 12 : 32} />
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.passwordRepeat)}
@@ -162,9 +165,9 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               disabled={Boolean(formValues.createNewKey)}
               variant="outlined"
               onClick={props.onOpenQRScanner}
-              style={{ height: 48 }}
+              style={{ height: 48, minWidth: 80 }}
             >
-              <QRCodeIcon style={{ marginRight: 16 }} />
+              <QRCodeIcon style={isSmallScreen ? { marginRight: 8 } : { marginRight: 16 }} />
               Scan
             </Button>
           </HorizontalLayout>
