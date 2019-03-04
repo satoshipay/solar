@@ -1,18 +1,18 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset } from "stellar-sdk"
+import { Asset, Memo, Server, Transaction } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
-import SendIcon from "@material-ui/icons/Send"
-import { formatBalance } from "../Account/AccountBalances"
-import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import { Box, HorizontalLayout } from "../Layout/Box"
+import { Account } from "../../context/accounts"
 import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
+import { createPaymentOperation, createTransaction } from "../../lib/transaction"
+import { formatBalance } from "../Account/AccountBalances"
+import { Box, HorizontalLayout } from "../Layout/Box"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
 
@@ -20,6 +20,17 @@ const memoInputLabels: MemoLabels = {
   id: "Integer identifier",
   none: "",
   text: "Memo"
+}
+
+function createMemo(formValues: PaymentCreationValues) {
+  switch (formValues.memoType) {
+    case "id":
+      return Memo.id(formValues.memoValue)
+    case "text":
+      return Memo.text(formValues.memoValue)
+    default:
+      return Memo.none()
+  }
 }
 
 export interface PaymentCreationValues {
@@ -82,15 +93,15 @@ function AssetSelector(props: AssetSelectorProps) {
 }
 
 interface Props {
+  Actions: React.ComponentType<{ onSubmit: () => void }>
   accountData: ObservedAccountData
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  onCancel: () => void
-  onSubmit?: (formValues: PaymentCreationValues) => any
+  onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
 }
 
 function PaymentCreationForm(props: Props) {
-  const { onSubmit = () => undefined } = props
+  const { Actions } = props
 
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
   const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
@@ -116,13 +127,30 @@ function PaymentCreationForm(props: Props) {
     })
   }
 
+  const createPaymentTx = async (horizon: Server, account: Account) => {
+    const asset = props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+
+    const payment = await createPaymentOperation({
+      asset: asset || Asset.native(),
+      amount: formValues.amount,
+      destination: formValues.destination,
+      horizon
+    })
+    const tx = await createTransaction([payment], {
+      memo: createMemo(formValues),
+      horizon,
+      walletAccount: account
+    })
+    return tx
+  }
+
   const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
     const { errors, success } = validateFormValues(formValues, spendableBalance)
     setErrors(errors)
 
     if (success) {
-      onSubmit(formValues)
+      props.onSubmit(createPaymentTx)
     }
   }
 
@@ -194,17 +222,7 @@ function PaymentCreationForm(props: Props) {
           <div />
         )}
       </Box>
-      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
-        <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
-        <ActionButton
-          icon={<SendIcon style={{ fontSize: 16 }} />}
-          loading={props.txCreationPending}
-          onClick={() => undefined}
-          type="submit"
-        >
-          Send
-        </ActionButton>
-      </DialogActionsBox>
+      <Actions onSubmit={() => undefined /* Form submission done via form.onSubmit() */} />
     </form>
   )
 }

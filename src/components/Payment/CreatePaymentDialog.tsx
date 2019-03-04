@@ -1,19 +1,20 @@
 import React from "react"
-import { Asset, Horizon, Memo, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
 import Typography from "@material-ui/core/Typography"
+import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, ObservedAccountData } from "../../hooks"
-import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import TransactionSender from "../TransactionSender"
-import CreatePaymentForm, { PaymentCreationValues } from "./CreatePaymentForm"
+import CreatePaymentForm from "./CreatePaymentForm"
 import AnchorWithdrawalForm from "./AnchorWithdrawalForm"
 
 type ActionMode = "native" | "anchor"
@@ -28,17 +29,6 @@ function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
             (balance as Horizon.BalanceLineAsset).asset_issuer
           )
   )
-}
-
-function createMemo(formValues: PaymentCreationValues) {
-  switch (formValues.memoType) {
-    case "id":
-      return Memo.id(formValues.memoValue)
-    case "text":
-      return Memo.text(formValues.memoValue)
-    default:
-      return Memo.none()
-  }
 }
 
 const Transition = (props: any) => <Slide {...props} direction="up" />
@@ -57,22 +47,10 @@ function CreatePaymentDialog(props: Props) {
   const [txCreationPending, setTxCreationPending] = React.useState(false)
   const trustedAssets = getAssetsFromBalances(props.accountData.balances) || [Asset.native()]
 
-  const handleSubmit = async (formValues: PaymentCreationValues) => {
+  const handleSubmit = async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
     try {
       setTxCreationPending(true)
-      const asset = trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
-
-      const payment = await createPaymentOperation({
-        asset: asset || Asset.native(),
-        amount: formValues.amount,
-        destination: formValues.destination,
-        horizon: props.horizon
-      })
-      const tx = await createTransaction([payment], {
-        memo: createMemo(formValues),
-        horizon: props.horizon,
-        walletAccount: props.account
-      })
+      const tx = await createTx(props.horizon, props.account)
       props.sendTransaction(tx)
     } catch (error) {
       trackError(error)
@@ -80,6 +58,23 @@ function CreatePaymentDialog(props: Props) {
       setTxCreationPending(false)
     }
   }
+
+  const Actions = React.useCallback(
+    (actionProps: { onSubmit: () => void }) => (
+      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+        <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+        <ActionButton
+          icon={<SendIcon style={{ fontSize: 16 }} />}
+          loading={txCreationPending}
+          onClick={actionProps.onSubmit}
+          type="submit"
+        >
+          Send
+        </ActionButton>
+      </DialogActionsBox>
+    ),
+    [props.onClose, txCreationPending]
+  )
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
@@ -103,15 +98,17 @@ function CreatePaymentDialog(props: Props) {
         </Box>
         {selectedTab === "native" ? (
           <CreatePaymentForm
+            Actions={Actions}
             accountData={props.accountData}
-            onCancel={props.onClose}
             onSubmit={handleSubmit}
             trustedAssets={trustedAssets}
             txCreationPending={txCreationPending}
           />
         ) : (
           <AnchorWithdrawalForm
+            Actions={Actions}
             assets={trustedAssets.filter(asset => !asset.isNative())}
+            onSubmit={handleSubmit}
             testnet={props.account.testnet}
           />
         )}
