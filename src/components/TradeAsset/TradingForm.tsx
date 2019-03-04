@@ -82,7 +82,7 @@ function TradingForm(props: Props) {
             style={{ justifySelf: "flex-end" }}
           />
         </VerticalLayout>
-        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 8px" minWidth={350}>
+        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 8px" minWidth={320}>
           <Explanation />
         </VerticalLayout>
       </HorizontalLayout>
