@@ -3,6 +3,7 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import EditIcon from "@material-ui/icons/Edit"
 import { trackError } from "../../context/notifications"
 import CloseButton from "./CloseButton"
@@ -31,12 +32,14 @@ function RenameDialog(props: Props) {
     props.onClose()
   }
 
+  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
-        <form style={{ minWidth: 300 }} onSubmit={handleSubmit}>
+        <form style={isSmallScreen ? { minWidth: 200 } : { minWidth: 300 }} onSubmit={handleSubmit}>
           <TextField label="Name" fullWidth autoFocus margin="dense" value={newName} onChange={handleInput} />
           <DialogActionsBox>
             <ActionButton onClick={props.onClose}>Cancel</ActionButton>
