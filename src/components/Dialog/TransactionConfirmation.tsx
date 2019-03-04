@@ -1,6 +1,6 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
@@ -11,7 +11,7 @@ import TestnetBadge from "./TestnetBadge"
 
 const isPaymentOperation = (operation: Operation) => ["createAccount", "payment"].indexOf(operation.type) > -1
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
+const Transition = (props: any) => <Slide {...props} direction="up" />
 
 interface TxConfirmationDialogProps {
   account: Account

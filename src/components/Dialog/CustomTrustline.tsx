@@ -3,7 +3,7 @@ import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
@@ -11,7 +11,7 @@ import { trackError } from "../../context/notifications"
 import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
+const Transition = (props: any) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
