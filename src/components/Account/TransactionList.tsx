@@ -18,6 +18,8 @@ import PublicKey from "../PublicKey"
 import { formatOperation } from "../TransactionSummary/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
 }
@@ -308,6 +310,8 @@ function TransactionItemText(props: TitleTextProps) {
 }
 
 function TransactionListItemBalance(props: { paymentSummary: ReturnType<typeof getPaymentSummary> }) {
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+
   const { paymentSummary } = props
   return (
     <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
@@ -315,7 +319,7 @@ function TransactionListItemBalance(props: { paymentSummary: ReturnType<typeof g
         <SingleBalance
           assetCode={paymentSummary[0].asset.getCode()}
           balance={paymentSummary[0].balanceChange.toString()}
-          style={{ fontSize: "1.6rem" }}
+          style={isSmallScreen ? { fontSize: "1rem" } : { fontSize: "1.6rem" }}
         />
       )}
     </ListItemText>
@@ -336,13 +340,16 @@ interface TransactionListItemProps {
 export function TransactionListItem(props: TransactionListItemProps) {
   const [hovering, setHoveringStatus] = React.useState(false)
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
+
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+
   return (
     <ListItem
       button={Boolean(props.onClick)}
       onClick={props.onClick}
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
-      style={props.style}
+      style={{ padding: 8, ...props.style }}
     >
       <ListItemIcon>
         {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
@@ -352,7 +359,11 @@ export function TransactionListItem(props: TransactionListItemProps) {
         alwaysShowSource={props.alwaysShowSource}
         createdAt={new Date(props.createdAt)}
         paymentSummary={paymentSummary}
-        style={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }}
+        style={
+          isSmallScreen
+            ? { fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis", fontSize: "0.8rem", maxWidth: 100 }
+            : { fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }
+        }
         transaction={props.transaction}
       />
       {hovering && props.hoverActions ? (
