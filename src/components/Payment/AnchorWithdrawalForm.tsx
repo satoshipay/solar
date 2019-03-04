@@ -53,6 +53,7 @@ function AnchorWithdrawalForm(props: Props) {
     <VerticalLayout>
       <HorizontalLayout>
         <TextField
+          InputLabelProps={{ shrink: true }}
           label="Asset to Withdraw"
           onChange={event => setAssetCode(event.target.value || null)}
           select
@@ -74,6 +75,7 @@ function AnchorWithdrawalForm(props: Props) {
           ) : null}
         </TextField>
         <TextField
+          InputLabelProps={{ shrink: true }}
           label="Type of Withdrawal"
           onChange={event => setMethodID(event.target.value || null)}
           select
@@ -92,6 +94,7 @@ function AnchorWithdrawalForm(props: Props) {
       </HorizontalLayout>
       <HorizontalLayout margin="16px 0">
         <TextField
+          InputLabelProps={{ shrink: true }}
           label="Destination Account"
           placeholder={getFieldDescription("dest")}
           style={{ flexGrow: 3, marginRight: fields["dest_extra"] ? 24 : undefined }}
@@ -99,6 +102,7 @@ function AnchorWithdrawalForm(props: Props) {
         />
         {fields["dest_extra"] ? (
           <TextField
+            InputLabelProps={{ shrink: true }}
             label={getFieldDescription("dest_extra", true) || "Destination Extra Data (no description)"}
             placeholder={getFieldDescription("dest_extra")}
             style={{ flexGrow: 1 }}

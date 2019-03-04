@@ -3,12 +3,13 @@ import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { TransferFields } from "@satoshipay/sep-6"
 import { HorizontalLayout } from "../Layout/Box"
-import { formatDescriptionText, formatFieldDescription, formatIdentifier } from "./formatters"
+import { formatFieldDescription, formatIdentifier } from "./formatters"
 
 interface FormBuilderFieldProps {
   descriptor: TransferFields[""]
   name: string
   onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
+  style?: React.CSSProperties
   value?: string
 }
 
@@ -18,11 +19,12 @@ function FormBuilderField(props: FormBuilderFieldProps) {
   if (choices) {
     return (
       <TextField
+        InputLabelProps={{ shrink: true }}
         label={formatIdentifier(props.name)}
         onChange={props.onChange}
         placeholder={formatFieldDescription(description, optional)}
         select
-        style={{ flexGrow: 1 }}
+        style={{ flexGrow: 1, ...props.style }}
         value={props.value}
       >
         {choices.map(choice => (
@@ -33,10 +35,11 @@ function FormBuilderField(props: FormBuilderFieldProps) {
   } else {
     return (
       <TextField
+        InputLabelProps={{ shrink: true }}
         label={formatIdentifier(props.name)}
         onChange={props.onChange}
         placeholder={formatFieldDescription(description, optional)}
-        style={{ flexGrow: 1 }}
+        style={{ flexGrow: 1, ...props.style }}
         value={props.value}
       />
     )
@@ -55,13 +58,14 @@ function FormBuilder(props: Props) {
     ([fieldName, descriptor]) => descriptor && typeof descriptor === "object"
   )
   return (
-    <HorizontalLayout margin="16px 0">
+    <HorizontalLayout margin="0 -12px" wrap="wrap">
       {fields.map(([fieldName, descriptor]) => (
         <FormBuilderField
           key={fieldName}
           descriptor={descriptor}
           name={fieldName}
           onChange={event => props.onSetFormValue(fieldName, event.target.value)}
+          style={{ margin: "24px 12px 0", minWidth: "40%" }}
           value={props.formValues[fieldName]}
         />
       ))}
