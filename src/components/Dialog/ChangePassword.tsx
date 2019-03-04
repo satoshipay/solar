@@ -7,6 +7,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -66,6 +67,8 @@ interface ActionsProps {
 }
 
 function Actions(props: ActionsProps) {
+  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+
   return (
     <HorizontalLayout justifyContent="space-between">
       {props.isPasswordProtected ? (
@@ -76,7 +79,12 @@ function Actions(props: ActionsProps) {
       ) : (
         <div />
       )}
-      <ActionButton icon={<LockIcon />} onClick={props.onSubmit} type="primary">
+      <ActionButton
+        style={isSmallScreen ? { fontSize: "0.5rem" } : {}}
+        icon={<LockIcon />}
+        onClick={props.onSubmit}
+        type="primary"
+      >
         {props.removePassword ? "Remove password" : "Change password"}
       </ActionButton>
     </HorizontalLayout>
@@ -152,11 +160,17 @@ function ChangePasswordDialog(props: Props) {
   }
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
+  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+
   return (
     <Dialog
       open={props.open}
       onClose={onClose}
-      PaperProps={{ style: { minWidth: 500, transition: "width 2s, min-width 2s" } }}
+      PaperProps={{
+        style: isSmallScreen
+          ? { minWidth: 200, transition: "width 2s, min-width 2s" }
+          : { minWidth: 500, transition: "width 2s, min-width 2s" }
+      }}
     >
       <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>
