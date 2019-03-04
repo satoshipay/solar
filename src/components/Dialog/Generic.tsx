@@ -4,12 +4,12 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { HorizontalMargin } from "../Layout/Spacing"
 import ButtonIconLabel from "../ButtonIconLabel"
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
+const Transition = (props: any) => <Slide {...props} direction="up" />
 
 function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
   return (

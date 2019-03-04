@@ -2,7 +2,7 @@ import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
@@ -16,7 +16,7 @@ import BackButton from "./BackButton"
 import CustomTrustlineDialog from "./CustomTrustline"
 import RemoveTrustlineDialog from "./RemoveTrustline"
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
+const Transition = (props: any) => <Slide {...props} direction="left" />
 
 interface Props {
   account: Account

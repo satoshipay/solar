@@ -1,7 +1,7 @@
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
@@ -63,7 +63,7 @@ interface TradeAssetProps {
   sendTransaction: (transaction: Transaction) => void
 }
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
+const Transition = (props: any) => <Slide {...props} direction="left" />
 
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)

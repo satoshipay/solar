@@ -1,6 +1,6 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import QRCode from "qrcode.react"
 import { Account } from "../../context/accounts"
@@ -8,7 +8,7 @@ import { NotificationsContext } from "../../context/notifications"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import BackButton from "./BackButton"
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
+const Transition = (props: any) => <Slide {...props} direction="left" />
 
 interface Props {
   account: Account

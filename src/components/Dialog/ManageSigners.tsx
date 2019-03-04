@@ -2,7 +2,7 @@ import React from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
@@ -19,7 +19,7 @@ import BackButton from "./BackButton"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
+const Transition = (props: any) => <Slide {...props} direction="left" />
 
 interface Props {
   account: Account

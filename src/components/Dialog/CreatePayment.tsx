@@ -1,7 +1,7 @@
 import React from "react"
 import { Asset, Horizon, Memo, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -27,7 +27,7 @@ function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   )
 }
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
+const Transition = (props: any) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
