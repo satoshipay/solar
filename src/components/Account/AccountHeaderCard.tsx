@@ -23,6 +23,8 @@ import RenameDialog from "../Dialog/Rename"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+
 enum DialogID {
   changePassword,
   deleteAccount,
@@ -72,6 +74,8 @@ function AccountHeaderCard(props: Props) {
   const [openDialog, setOpenDialog] = React.useState<DialogID | null>(null)
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+
   return (
     <Card
       style={{
@@ -82,29 +86,36 @@ function AccountHeaderCard(props: Props) {
       }}
     >
       <CardContent>
-        <HorizontalLayout alignItems="center" margin="-12px 0 -10px">
-          <BackButton
-            onClick={() => router.history.push(routes.allAccounts())}
-            style={{ marginLeft: -10, marginRight: 10 }}
-          />
-          <Typography
-            align="center"
-            color="inherit"
-            variant="h5"
-            component="h2"
-            style={{ marginRight: 20, fontSize: "2rem" }}
-          >
-            {props.account.name}
-          </Typography>
-          <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
-            {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
-            {accountData.signers.length > 1 ? (
-              <Tooltip title="Multi-Signature Account">
-                <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
-              </Tooltip>
-            ) : null}
-            <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
+        <HorizontalLayout alignItems="center" margin="-12px 0 -10px" wrap="wrap">
+          <HorizontalLayout>
+            <BackButton
+              onClick={() => router.history.push(routes.allAccounts())}
+              style={{ marginLeft: -10, marginRight: 10 }}
+            />
+            <Typography
+              align="center"
+              color="inherit"
+              variant="h5"
+              component="h2"
+              style={
+                isSmallScreen
+                  ? { marginRight: 10, marginTop: 6, fontSize: "1.5rem" }
+                  : { marginRight: 20, fontSize: "2rem" }
+              }
+            >
+              {props.account.name}
+            </Typography>
+            <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
+              {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
+              {accountData.signers.length > 1 ? (
+                <Tooltip title="Multi-Signature Account">
+                  <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
+                </Tooltip>
+              ) : null}
+              <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
+            </HorizontalLayout>
           </HorizontalLayout>
+
           <Box grow style={{ textAlign: "right" }}>
             <Button
               color="secondary"
@@ -136,7 +147,6 @@ function AccountHeaderCard(props: Props) {
             </AccountContextMenu>
           </Box>
         </HorizontalLayout>
-
         {props.children}
 
         <AccountDeletionDialog
