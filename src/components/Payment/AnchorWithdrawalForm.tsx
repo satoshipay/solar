@@ -8,6 +8,7 @@ import { trackError } from "../../context/notifications"
 import { useRouter } from "../../hooks"
 import * as routes from "../../routes"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
 import { useAssetTransferServerInfos } from "./hooks"
 import AnchorWithdrawalFinishForm from "./AnchorWithdrawalFinishForm"
@@ -99,7 +100,13 @@ function AnchorWithdrawalForm(props: Props) {
     []
   )
 
-  if (withdrawableAssetCodes.length === 0) {
+  if (transferInfos.loading) {
+    return (
+      <Box margin="64px auto" textAlign="center">
+        <InlineLoader />
+      </Box>
+    )
+  } else if (withdrawableAssetCodes.length === 0) {
     return <NoWithdrawableAssets account={props.account} />
   }
 

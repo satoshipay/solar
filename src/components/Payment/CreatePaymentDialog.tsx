@@ -88,10 +88,10 @@ function CreatePaymentDialog(props: Props) {
         </Box>
         <Box margin="0 0 18px">
           <Tabs
-            fullWidth
             indicatorColor="primary"
             onChange={(event, value) => setSelectedTab(value)}
             value={selectedTab}
+            variant="fullWidth"
           >
             <Tab label="Send payment" value="native" />
             <Tab label="Withdraw" value="sep-6" />
