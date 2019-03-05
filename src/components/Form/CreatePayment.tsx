@@ -109,10 +109,10 @@ function PaymentCreationForm(props: Props) {
 
   const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    const { errors, success } = validateFormValues(formValues, props.balances)
-    setErrors(errors)
+    const validation = validateFormValues(formValues, props.balances)
+    setErrors(validation.errors)
 
-    if (success) {
+    if (validation.success) {
       onSubmit(formValues)
     }
   }
