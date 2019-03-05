@@ -94,7 +94,7 @@ function CreatePaymentDialog(props: Props) {
             value={selectedTab}
           >
             <Tab label="Send payment" value="native" />
-            <Tab label="Withdraw asset" value="sep-6" />
+            <Tab label="Withdraw" value="sep-6" />
           </Tabs>
         </Box>
         {selectedTab === "native" ? (
