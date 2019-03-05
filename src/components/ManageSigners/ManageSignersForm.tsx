@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Horizon } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -9,6 +8,7 @@ import CloseIcon from "@material-ui/icons/Close"
 import InfoIcon from "@material-ui/icons/Info"
 import { trackError } from "../../context/notifications"
 import { renderFormFieldError } from "../../lib/errors"
+import { getSignerKey } from "../../lib/stellar"
 import { ObservedAccountData } from "../../subscriptions"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
@@ -40,17 +40,18 @@ function getUpdatedSigners(
   signersToAdd: Horizon.AccountSigner[],
   signersToRemove: Horizon.AccountSigner[]
 ) {
-  const signersPubKeysToAdd = signersToAdd.map(signer => signer.public_key)
-  const signersPubKeysToRemove = signersToRemove.map(signer => signer.public_key)
+  const signersPubKeysToAdd = signersToAdd.map(signer => getSignerKey(signer))
+  const signersPubKeysToRemove = signersToRemove.map(signer => getSignerKey(signer))
 
-  const isNotToBeAdded = (signer: Horizon.AccountSigner) => signersPubKeysToAdd.indexOf(signer.public_key) === -1
-  const isNotToBeRemoved = (signer: Horizon.AccountSigner) => signersPubKeysToRemove.indexOf(signer.public_key) === -1
+  const isNotToBeAdded = (signer: Horizon.AccountSigner) => signersPubKeysToAdd.indexOf(getSignerKey(signer)) === -1
+  const isNotToBeRemoved = (signer: Horizon.AccountSigner) =>
+    signersPubKeysToRemove.indexOf(getSignerKey(signer)) === -1
 
   const updatedSigners = [...accountData.signers.filter(isNotToBeAdded).filter(isNotToBeRemoved), ...signersToAdd]
 
   return [
-    ...updatedSigners.filter(signer => signer.public_key === accountData.id),
-    ...updatedSigners.filter(signer => signer.public_key !== accountData.id)
+    ...updatedSigners.filter(signer => getSignerKey(signer) === accountData.id),
+    ...updatedSigners.filter(signer => getSignerKey(signer) !== accountData.id)
   ]
 }
 
@@ -94,10 +95,10 @@ interface Props {
 function ManageSignersForm(props: Props) {
   const { accountData } = props
 
-  const [signersToAdd, setSignersToAdd] = useState<Horizon.AccountSigner[]>([])
-  const [signersToRemove, setSignersToRemove] = useState<Horizon.AccountSigner[]>([])
-  const [weightThresholdError, setWeightThresholdError] = useState<Error | undefined>(undefined)
-  const [weightThreshold, setWeightThreshold] = useState(getEffectiveWeightThreshold(accountData).toString())
+  const [signersToAdd, setSignersToAdd] = React.useState<Horizon.AccountSigner[]>([])
+  const [signersToRemove, setSignersToRemove] = React.useState<Horizon.AccountSigner[]>([])
+  const [weightThresholdError, setWeightThresholdError] = React.useState<Error | undefined>(undefined)
+  const [weightThreshold, setWeightThreshold] = React.useState(getEffectiveWeightThreshold(accountData).toString())
 
   const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
@@ -105,7 +106,9 @@ function ManageSignersForm(props: Props) {
   const addSigner = (signer: Horizon.AccountSigner) => setSignersToAdd([...signersToAdd, signer])
 
   const removeSigner = (signer: Horizon.AccountSigner) => {
-    setSignersToAdd(signersToAdd.filter(someSignerToBeAddd => someSignerToBeAddd.public_key !== signer.public_key))
+    setSignersToAdd(
+      signersToAdd.filter(someSignerToBeAddd => getSignerKey(someSignerToBeAddd) !== getSignerKey(signer))
+    )
     setSignersToRemove([...signersToRemove, signer])
   }
 

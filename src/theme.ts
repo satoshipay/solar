@@ -18,11 +18,6 @@ export const warningColor = amber["500"]
 
 const theme = createMuiTheme({
   overrides: {
-    MuiBottomNavigationAction: {
-      selected: {
-        color: `${brandColor.dark} !important`
-      }
-    },
     MuiButton: {
       root: {
         borderRadius: 3
@@ -48,8 +43,10 @@ const theme = createMuiTheme({
       raisedPrimary: {}
     },
     MuiFormLabel: {
-      focused: {
-        color: "inherit !important"
+      root: {
+        "&$focused": {
+          color: "inherit !important"
+        }
       }
     },
     MuiLinearProgress: {
@@ -73,6 +70,9 @@ const theme = createMuiTheme({
       main: brandColor.main,
       light: brandColor.light
     }
+  },
+  typography: {
+    useNextVariants: true
   }
 })
 

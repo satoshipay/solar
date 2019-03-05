@@ -43,6 +43,13 @@ To run the storybook:
 npm run storybook
 ```
 
+### Run dev server without electron
+
+```
+cd web/
+npm run dev
+```
+
 ### Production build
 
 ```
@@ -51,12 +58,19 @@ npm run build:win
 npm run build:linux
 ```
 
-### Run dev server without electron
+To sign the binaries, make sure you have the code signing certificate on your local filesystem as a `.p12` file and have the password for it. Make sure not to save the certificate in the Solar directory to make sure it cannot accidentally be bundled into the app installer!
+
+You can create a `signing.env` file to set the CSC_LINK variable:
 
 ```
-cd web/
-npm run dev
+CSC_LINK=~/secret-certificates/SatoshiPayLtd.p12   # point to your local certificate file
 ```
+
+Now run `npm run build:*:signed` to create a signed application build.
+
+To check the Mac DMG signature, run `codesign -dv --verbose=4 ./electron/dist/<file>`. To verify the Windows installer signature, you can upload the file to `virustotal.com`.
+
+Note: Application signing has only been tested on a Mac OS development machine so far.
 
 ## License
 

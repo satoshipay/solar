@@ -1,6 +1,6 @@
 {
   "name": "satoshipay-stellar-wallet",
-  "version": "0.16.0",
+  "version": "0.17.1",
   "description": "Wallet for the Stellar payment network by SatoshiPay.",
   "license": "GPL-3.0",
   "private": true,
@@ -22,7 +22,9 @@
     "prebuild:ios": "NODE_ENV=production PLATFORM=ios parcel build ./src/index.prod-ios.njk --public-url=./ --detailed-report --no-source-maps && cp cordova/config/config-prod-ios.xml cordova/config.xml",
     "build:linux": "PLATFORM=linux npm run prebuild:electron && build --linux --x64 --config ./electron-build.yml",
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && build --mac --x64 --config ./electron-build.yml",
-    "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32  --config ./electron-build.yml",
+    "build:mac:signed": "source ./scripts/signing-env.sh && npm run build:mac -- -c.forceCodeSigning=true",
+    "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32 --config ./electron-build.yml",
+    "build:win:signed": "source ./scripts/signing-env.sh && npm run build:win -- -c.forceCodeSigning=true",
     "build:android": "npm run prebuild:android && cd cordova && cordova build android",
     "build:ios": "npm run prebuild:ios && cd cordova && cordova build ios",
     "dev": "run-p dev:bundle dev:app:delayed",
@@ -62,6 +64,7 @@
     "@types/react-qr-reader": "^2.1.1",
     "@types/react-router": "^4.4.3",
     "@types/react-router-dom": "^4.3.1",
+    "@types/stellar-base": "^0.10.2",
     "@types/stellar-sdk": "^0.11.1",
     "@types/storybook__react": "^3.0.7",
     "awesome-typescript-loader": "~3.5.0",
@@ -80,10 +83,10 @@
     "storybook-addon-material-ui": "^0.9.0-alpha.17",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "~2.8.4"
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "@material-ui/core": "^3.1.2",
+    "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.1",
     "@types/cordova": "0.0.34",
     "big.js": "^5.0.3",
@@ -104,6 +107,7 @@
     "react-qr-reader": "^2.1.0",
     "react-router": "^4.4.0-beta.6",
     "react-router-dom": "^4.4.0-beta.6",
+    "stellar-base": "^0.12.0",
     "stellar-sdk": "^0.13.0"
   }
 }

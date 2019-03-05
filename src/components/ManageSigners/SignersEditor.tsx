@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import { Horizon } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import ListItem from "@material-ui/core/ListItem"
@@ -8,6 +7,7 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import ListItemText from "@material-ui/core/ListItemText"
 import PersonIcon from "@material-ui/icons/Person"
 import RemoveIcon from "@material-ui/icons/Close"
+import { getSignerKey } from "../../lib/stellar"
 import SpaciousList from "../List/SpaciousList"
 import PublicKey from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
@@ -27,7 +27,7 @@ function validateNewSignerValues(values: SignerFormValues, signers: Horizon.Acco
 
   if (!values.publicKey.match(/^G[A-Z0-9]{55}$/)) {
     errors.publicKey = new Error("Not a valid public key.")
-  } else if (signers.find(existingSigner => existingSigner.public_key === values.publicKey)) {
+  } else if (signers.find(existingSigner => getSignerKey(existingSigner) === values.publicKey)) {
     errors.publicKey = new Error("Cannot add existing signer.")
   }
   if (!values.weight.match(/^[0-9]+$/)) {
@@ -50,8 +50,8 @@ interface SignersEditorProps {
 function SignersEditor(props: SignersEditorProps) {
   const { isEditingNewSigner, setIsEditingNewSigner } = props
 
-  const [newSignerErrors, setNewSignerErrors] = useState<SignerFormErrors>({})
-  const [newSignerValues, setNewSignerValues] = useState<SignerFormValues>({
+  const [newSignerErrors, setNewSignerErrors] = React.useState<SignerFormErrors>({})
+  const [newSignerValues, setNewSignerValues] = React.useState<SignerFormValues>({
     publicKey: "",
     weight: "1"
   })
@@ -63,10 +63,11 @@ function SignersEditor(props: SignersEditorProps) {
       return setNewSignerErrors(errors)
     }
 
-    props.addSigner({
+    props.addSigner(({
       public_key: newSignerValues.publicKey,
+      key: newSignerValues.publicKey,
       weight: parseInt(newSignerValues.weight, 10)
-    })
+    } as any) as Horizon.AccountSigner)
 
     setIsEditingNewSigner(false)
     setNewSignerErrors({})
@@ -86,16 +87,16 @@ function SignersEditor(props: SignersEditorProps) {
   return (
     <SpaciousList fitHorizontal>
       {props.signers.map(signer => (
-        <ListItem key={signer.public_key}>
+        <ListItem key={getSignerKey(signer)}>
           <ListItemIcon>
             <PersonIcon style={{ fontSize: "2rem" }} />
           </ListItemIcon>
           <ListItemText
-            primary={<PublicKey publicKey={signer.public_key} variant="full" />}
+            primary={<PublicKey publicKey={getSignerKey(signer)} variant="full" />}
             secondary={
               <>
                 {props.showKeyWeights ? <span style={{ marginRight: 24 }}>Weight: {signer.weight}</span> : null}
-                {signer.public_key === props.localPublicKey ? <span>Local key</span> : null}
+                {getSignerKey(signer) === props.localPublicKey ? <span>Local key</span> : null}
               </>
             }
           />

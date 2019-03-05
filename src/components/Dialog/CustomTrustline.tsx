@@ -1,18 +1,18 @@
 import React from "react"
-import { useState } from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
+const Transition = (props: any) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
@@ -23,10 +23,11 @@ interface Props {
 }
 
 function CustomTrustlineDialog(props: Props) {
-  const [code, setCode] = useState("")
-  const [issuerPublicKey, setIssuerPublicKey] = useState("")
-  const [limit, setLimit] = useState("")
-  const [txCreationPending, setTxCreationPending] = useState(false)
+  const [code, setCode] = React.useState("")
+  const [issuerPublicKey, setIssuerPublicKey] = React.useState("")
+  const [limit, setLimit] = React.useState("")
+  const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -34,6 +35,7 @@ function CustomTrustlineDialog(props: Props) {
 
       setTxCreationPending(true)
       const transaction = await createTransaction(operations, {
+        accountData,
         horizon: props.horizon,
         walletAccount: props.account
       })

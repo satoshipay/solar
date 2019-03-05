@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
@@ -32,7 +31,7 @@ import * as routes from "../routes"
 
 function DetailContent(props: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <Typography color="inherit" component="div" variant="body1" style={{ fontSize: "1.2rem", ...props.style }}>
+    <Typography color="inherit" component="div" variant="body2" style={{ fontSize: "1.2rem", ...props.style }}>
       {props.children}
     </Typography>
   )
@@ -87,7 +86,7 @@ function AccountActions(props: AccountActionsProps) {
 }
 
 function PendingMultisigTransactions(props: { account: Account }) {
-  const { pendingSignatureRequests } = useContext(SignatureDelegationContext)
+  const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
   return (
     <>
       <InteractiveSignatureRequestList
@@ -118,7 +117,7 @@ function Transactions(props: { account: Account }) {
   const { account } = props
   const horizon = useHorizon(account.testnet)
   const recentTxs = useRecentTransactions(account.publicKey, account.testnet)
-  const settings = useContext(SettingsContext)
+  const settings = React.useContext(SettingsContext)
 
   return (
     <>
@@ -165,7 +164,7 @@ interface Props {
 }
 
 function AccountPage(props: Props) {
-  const { accounts, renameAccount } = useContext(AccountsContext)
+  const { accounts, renameAccount } = React.useContext(AccountsContext)
   const router = useRouter()
 
   const onCloseDialog = () => router.history.push(routes.account(props.accountID))

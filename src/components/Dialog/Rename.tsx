@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -18,7 +17,7 @@ interface Props {
 }
 
 function RenameDialog(props: Props) {
-  const [newName, setNewName] = useState("")
+  const [newName, setNewName] = React.useState("")
 
   const handleInput = (event: React.SyntheticEvent) => {
     setNewName((event.target as HTMLInputElement).value)

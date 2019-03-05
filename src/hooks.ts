@@ -1,9 +1,8 @@
-import { useContext, useEffect, useMemo, useState } from "react"
+import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
 import { Account } from "./context/accounts"
-import { SettingsContext } from "./context/settings"
-import { createDeadSubscription, SubscriptionTarget } from "./lib/subscription"
+import { SubscriptionTarget } from "./lib/subscription"
 import {
   getAssetCacheKey,
   subscribeToAccount,
@@ -30,7 +29,7 @@ export function useHorizon(testnet: boolean = false) {
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
 
 function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTarget<ObservedData>>): ObservedData[] {
-  const [currentDataSets, setCurrentDataSets] = useState<ObservedData[]>(
+  const [currentDataSets, setCurrentDataSets] = React.useState<ObservedData[]>(
     subscriptions.map(subscription => subscription.getLatest())
   )
 
@@ -44,7 +43,7 @@ function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTar
 
   // Asynchronously subscribe to remote data to keep state in sync
   // `unsubscribe` will only unsubscribe state updating code, won't close remote data subscription itself
-  useEffect(
+  React.useEffect(
     () => {
       // Some time has passed since the last `getLatest()`, so refresh
       setCurrentDataSets(subscriptions.map(subscription => subscription.getLatest()))
@@ -70,10 +69,10 @@ function useDataSubscription<ObservedData>(subscription: SubscriptionTarget<Obse
 
 export function useAccountDataSet(accountIDs: string[], testnet: boolean): ObservedAccountData[] {
   const horizon = useHorizon(testnet)
-  const accountSubscriptions = useMemo(() => accountIDs.map(accountID => subscribeToAccount(horizon, accountID)), [
-    accountIDs.join(","),
-    testnet
-  ])
+  const accountSubscriptions = React.useMemo(
+    () => accountIDs.map(accountID => subscribeToAccount(horizon, accountID)),
+    [accountIDs.join(","), testnet]
+  )
 
   return useDataSubscriptions(accountSubscriptions)
 }
@@ -84,16 +83,8 @@ export function useAccountData(accountID: string, testnet: boolean): ObservedAcc
 
 export function useAccountOffers(accountID: string, testnet: boolean): ObservedAccountOffers {
   const horizon = useHorizon(testnet)
-  const settings = useContext(SettingsContext)
 
-  const offersSubscription = useMemo(
-    () => {
-      return settings.dexTrading
-        ? subscribeToAccountOffers(horizon, accountID)
-        : createDeadSubscription<ObservedAccountOffers>({ loading: false, offers: [] })
-    },
-    [accountID, testnet]
-  )
+  const offersSubscription = React.useMemo(() => subscribeToAccountOffers(horizon, accountID), [accountID, testnet])
 
   return useDataSubscription(offersSubscription)
 }
@@ -103,14 +94,9 @@ type EffectHandler = (account: Account, effect: Server.EffectRecord) => void
 export function useAccountEffectSubscriptions(accounts: Account[], handler: EffectHandler) {
   const mainnetHorizon = useHorizon(false)
   const testnetHorizon = useHorizon(true)
-  const settings = useContext(SettingsContext)
 
-  return useEffect(
+  return React.useEffect(
     () => {
-      if (!settings.dexTrading) {
-        return () => undefined
-      }
-
       const unsubscribeHandlers = accounts.map(account => {
         const horizon = account.testnet ? testnetHorizon : mainnetHorizon
         const subscription = subscribeToAccountEffects(horizon, account.publicKey)
@@ -125,11 +111,11 @@ export function useAccountEffectSubscriptions(accounts: Account[], handler: Effe
 }
 
 export function useOnlineStatus() {
-  const [isOnline, setOnlineStatus] = useState(window.navigator.onLine)
+  const [isOnline, setOnlineStatus] = React.useState(window.navigator.onLine)
   const setOffline = () => setOnlineStatus(false)
   const setOnline = () => setOnlineStatus(true)
 
-  useEffect(() => {
+  React.useEffect(() => {
     window.addEventListener("offline", setOffline)
     window.addEventListener("online", setOnline)
   }, [])
@@ -142,7 +128,7 @@ export function useOnlineStatus() {
 export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): ObservedTradingPair {
   const horizon = useHorizon(testnet)
 
-  const ordersSubscription = useMemo(() => subscribeToOrders(horizon, selling, buying), [
+  const ordersSubscription = React.useMemo(() => subscribeToOrders(horizon, selling, buying), [
     getAssetCacheKey(selling),
     getAssetCacheKey(buying)
   ])
@@ -152,15 +138,15 @@ export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): O
 
 export function useRecentTransactions(accountID: string, testnet: boolean): ObservedRecentTxs {
   const horizon = useHorizon(testnet)
-  const recentTxsSubscription = useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, testnet])
+  const recentTxsSubscription = React.useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, testnet])
 
   return useDataSubscription(recentTxsSubscription)
 }
 
 // TODO: Get rid of this hook once react-router is shipped with a hook out-of-the-box
 export function useRouter<Params = {}>() {
-  const routerContext = useContext<RouteComponentProps<Params>>(__RouterContext)
-  const [updateEnforcementState, setUpdateEnforcementState] = useState(0)
+  const routerContext = React.useContext<RouteComponentProps<Params>>(__RouterContext)
+  const [updateEnforcementState, setUpdateEnforcementState] = React.useState(0)
 
   const forceUpdate = () => setUpdateEnforcementState(updateEnforcementState + 1)
 
@@ -168,7 +154,7 @@ export function useRouter<Params = {}>() {
     throw new Error("useRouter() hook can only be used within a react-router provider.")
   }
 
-  useEffect(
+  React.useEffect(
     () => {
       const unsubscribe = routerContext.history.listen(() => forceUpdate())
       return unsubscribe

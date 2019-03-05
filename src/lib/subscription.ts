@@ -12,11 +12,6 @@ interface SubscriptionTargetInternals<Thing> {
   propagateUpdate(update: Thing): void
 }
 
-export function createDeadSubscription<Value>(initialValue: Value): SubscriptionTarget<Value> {
-  const { subscriptionTarget } = createSubscriptionTarget(initialValue)
-  return subscriptionTarget
-}
-
 let nextSubscriptionTargetID = 1
 
 export function createSubscriptionTarget<Thing>(initialValue: Thing): SubscriptionTargetInternals<Thing> {

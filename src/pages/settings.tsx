@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
@@ -16,8 +15,8 @@ import * as routes from "../routes"
 const pkg = require("../../package.json")
 
 function Settings() {
-  const { accounts } = useContext(AccountsContext)
-  const settings = useContext(SettingsContext)
+  const { accounts } = React.useContext(AccountsContext)
+  const settings = React.useContext(SettingsContext)
   const hasTestnetAccount = accounts.some(account => account.testnet)
   return (
     <>
@@ -30,7 +29,7 @@ function Settings() {
         <Typography
           color={settings.showTestnet ? "default" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
-          variant="body1"
+          variant="body2"
         >
           The test network is a copy of the main Stellar network were the traded tokens have no real-world value. You
           can request free testnet XLM from the so-called friendbot to activate a testnet account and get started
@@ -39,7 +38,7 @@ function Settings() {
         <Typography
           color={settings.showTestnet ? "default" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
-          variant="body1"
+          variant="body2"
         >
           Note: Testnet accounts will always be shown if you have got testnet accounts already.
         </Typography>
@@ -52,24 +51,10 @@ function Settings() {
         <Typography
           color={settings.multiSignature ? "default" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
-          variant="body1"
+          variant="body2"
         >
           <b>Experimental feature:</b> Add co-signers to an account, define that all signers of an account have to sign
           transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.
-        </Typography>
-      </ToggleSection>
-      <ToggleSection
-        checked={settings.dexTrading}
-        onChange={settings.toggleDexTrading}
-        title="Enable Decentralized Exchange (DEX) Features"
-      >
-        <Typography
-          color={settings.dexTrading ? "default" : "textSecondary"}
-          style={{ margin: "12px 0 0" }}
-          variant="body1"
-        >
-          <b>Experimental feature:</b> Convert your XLM into third-party assets like USD, EURT, ... and vice versa using
-          the Stellar network's decentralized exchange.
         </Typography>
       </ToggleSection>
     </>
@@ -94,7 +79,7 @@ function SettingsPage() {
                 onClick={() => router.history.push(routes.allAccounts())}
                 style={{ marginLeft: -10, marginRight: 10 }}
               />
-              <Typography align="center" color="inherit" variant="headline" component="h2" style={{ marginRight: 20 }}>
+              <Typography align="center" color="inherit" variant="h5" component="h2" style={{ marginRight: 20 }}>
                 Settings
               </Typography>
             </HorizontalLayout>

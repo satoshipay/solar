@@ -1,6 +1,5 @@
 import BigNumber from "big.js"
 import React from "react"
-import { useState } from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ListItem from "@material-ui/core/ListItem"
@@ -12,7 +11,7 @@ import BarChartIcon from "@material-ui/icons/BarChart"
 import CloseIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountOffers, useHorizon } from "../../hooks"
+import { useAccountData, useAccountOffers, useHorizon, ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
 import { List } from "../List"
@@ -22,6 +21,7 @@ import { SingleBalance } from "./AccountBalances"
 function createDismissalTransaction(
   horizon: Server,
   account: Account,
+  accountData: ObservedAccountData,
   offer: Server.OfferRecord
 ): Promise<Transaction> {
   return createTransaction(
@@ -34,7 +34,7 @@ function createDismissalTransaction(
         selling: offer.selling
       })
     ],
-    { horizon, walletAccount: account }
+    { accountData, horizon, walletAccount: account }
   )
 }
 
@@ -46,7 +46,7 @@ interface OfferListItemProps {
 }
 
 function OfferListItem(props: OfferListItemProps) {
-  const [hovering, setHoveringStatus] = useState(false)
+  const [hovering, setHoveringStatus] = React.useState(false)
   return (
     <ListItem
       onMouseEnter={() => setHoveringStatus(true)}
@@ -96,12 +96,13 @@ interface Props {
 }
 
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const offers = useAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
 
   const onCancel = async (offer: Server.OfferRecord) => {
     try {
-      const tx = await createDismissalTransaction(horizon, props.account, offer)
+      const tx = await createDismissalTransaction(horizon, props.account, accountData, offer)
       await props.sendTransaction(tx)
     } catch (error) {
       trackError(error)

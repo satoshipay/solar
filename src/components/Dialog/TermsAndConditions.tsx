@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Checkbox from "@material-ui/core/Checkbox"
@@ -26,7 +25,7 @@ interface Props {
 }
 
 function TermsAndConditions(props: Props) {
-  const [checkedNotes, setCheckedNotes] = useState([false, false])
+  const [checkedNotes, setCheckedNotes] = React.useState([false, false])
   const allConfirmed = checkedNotes.every(isChecked => isChecked)
 
   const toggleNoteChecked = (index: number) => {
@@ -40,7 +39,7 @@ function TermsAndConditions(props: Props) {
     <Dialog open={props.open} fullScreen TransitionComponent={Transition} TransitionProps={{ unmountOnExit: true }}>
       <Section brandColored top style={{ display: "flex", flexDirection: "column" }}>
         <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
-          <Typography color="inherit" variant="display1">
+          <Typography color="inherit" variant="h4">
             Welcome to Solar
           </Typography>
           <FormGroup style={{ margin: "3em 0" }}>

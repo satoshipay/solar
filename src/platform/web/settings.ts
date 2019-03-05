@@ -2,7 +2,6 @@ import { SettingsData } from "../types"
 
 let settings: SettingsData = {
   agreedToTermsAt: "2019-01-17T07:34:05.688Z",
-  dexTrading: true,
   multisignature: true,
   testnet: true
 }

@@ -1,5 +1,4 @@
 import React from "react"
-import { useEffect, useState } from "react"
 import { Keypair } from "stellar-sdk"
 import { createWrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"
@@ -127,10 +126,10 @@ interface Props {
 }
 
 export function AccountsProvider(props: Props) {
-  const [accounts, setAccounts] = useState<Account[]>(initialAccounts)
-  const [networkSwitch, setNetworkSwitch] = useState<NetworkID>(initialNetwork)
+  const [accounts, setAccounts] = React.useState<Account[]>(initialAccounts)
+  const [networkSwitch, setNetworkSwitch] = React.useState<NetworkID>(initialNetwork)
 
-  useEffect(() => {
+  React.useEffect(() => {
     getKeyStore()
       .then(keyStore => {
         const loadedAccounts = keyStore.getKeyIDs().map(keyID => createAccountInstance(keyStore, keyID))

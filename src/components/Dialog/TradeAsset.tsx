@@ -1,8 +1,7 @@
 import React from "react"
-import { useState } from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
@@ -48,7 +47,7 @@ function Title(props: { onClose: () => void }) {
     <HorizontalLayout justifyContent="space-between" margin="0" shrink={0}>
       <HorizontalLayout alignItems="center" margin="0">
         <BackButton onClick={props.onClose} style={{ marginLeft: -10, marginRight: 10 }} />
-        <Typography variant="headline" style={{ flexGrow: 1 }}>
+        <Typography variant="h5" style={{ flexGrow: 1 }}>
           Trade
         </Typography>
       </HorizontalLayout>
@@ -64,7 +63,7 @@ interface TradeAssetProps {
   sendTransaction: (transaction: Transaction) => void
 }
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="left" />
+const Transition = (props: any) => <Slide {...props} direction="left" />
 
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
@@ -74,9 +73,9 @@ function TradeAsset(props: TradeAssetProps) {
     Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
   >
 
-  const [rawBuyingAssetCode, setBuyingAssetCode] = useState<string | null>(null)
+  const [rawBuyingAssetCode, setBuyingAssetCode] = React.useState<string | null>(null)
   const buyingAssetCode = rawBuyingAssetCode || (trustlines.length > 0 ? trustlines[0].asset_code : "XLM")
-  const [rawSellingAssetCode, setSellingAssetCode] = useState<string | null>(null)
+  const [rawSellingAssetCode, setSellingAssetCode] = React.useState<string | null>(null)
   const sellingAssetCode = rawSellingAssetCode || "XLM"
 
   const { asset: rawBuyingAsset, balance: buyingBalance } = findMatchingBalance(accountData.balances, buyingAssetCode)
@@ -100,6 +99,7 @@ function TradeAsset(props: TradeAssetProps) {
         })
       ],
       {
+        accountData,
         horizon,
         walletAccount: props.account
       }
@@ -119,7 +119,7 @@ function TradeAsset(props: TradeAssetProps) {
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <Title onClose={props.onClose} />
-        <Typography color="inherit" component="div" variant="body1" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
+        <Typography color="inherit" component="div" variant="body2" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
           <AccountBalances
             component={balanceProps => (
               <SingleBalance
