@@ -40,7 +40,7 @@ function FormBuilderField(props: FormBuilderFieldProps) {
         onChange={props.onChange}
         placeholder={formatFieldDescription(description, optional)}
         style={{ flexGrow: 1, ...props.style }}
-        value={props.value}
+        value={props.value || ""}
       />
     )
   }

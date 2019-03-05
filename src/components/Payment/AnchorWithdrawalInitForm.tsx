@@ -58,7 +58,9 @@ function AnchorWithdrawalInitForm(props: Props) {
     return description ? formatFieldDescription(description, fields[name].optional || false, keepShort) : undefined
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
     const asset = props.assets.find(someAsset => someAsset.getCode() === assetCode)
     if (!asset) {
       throw new Error("No asset selected.")
@@ -73,7 +75,11 @@ function AnchorWithdrawalInitForm(props: Props) {
     props.onSubmit(transferServer, asset, methodID, formValues)
   }
 
-  const hasEmptyMandatoryFields = Object.keys(fields).some(key => !fields[key].optional && !formValues[key])
+  // The .filter() is necessary due to a misplaced prop in the response of an anchor
+  const hasEmptyMandatoryFields = Object.keys(fields)
+    .filter(key => fields[key] && typeof fields[key] === "object")
+    .some(key => !fields[key].optional && !formValues[key])
+
   const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields
 
   return (
@@ -127,7 +133,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             onChange={event => setFormValue("dest", event.target.value)}
             placeholder={getFieldDescription("dest")}
             style={{ flexGrow: 3, marginRight: fields["dest_extra"] ? 24 : undefined }}
-            value={formValues.dest}
+            value={formValues.dest || ""}
           />
           {fields["dest_extra"] ? (
             <TextField
@@ -136,7 +142,7 @@ function AnchorWithdrawalInitForm(props: Props) {
               onChange={event => setFormValue("dest_extra", event.target.value)}
               placeholder={getFieldDescription("dest_extra")}
               style={{ flexGrow: 1 }}
-              value={formValues.dest_extra}
+              value={formValues.dest_extra || ""}
             />
           ) : null}
         </HorizontalLayout>
