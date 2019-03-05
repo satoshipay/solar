@@ -108,7 +108,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
           <>
             <Typography
               color={formValues.setPassword ? "default" : "textSecondary"}
-              variant="body1"
+              variant="body2"
               style={{ margin: "12px 0 0" }}
             >
               <b>Note:</b> The key to your account will be encrypted using the password you set here. If you forget your

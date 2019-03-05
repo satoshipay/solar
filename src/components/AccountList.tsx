@@ -85,7 +85,7 @@ function AccountCard(props: {
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
         <VerticalLayout height="100px" justifyContent="space-evenly" textAlign="left">
           <HorizontalLayout margin="0 0 20px">
-            <Typography variant="headline" style={{ flexGrow: 1 }}>
+            <Typography variant="h5" style={{ flexGrow: 1 }}>
               {props.account.name}
             </Typography>
             <Box>

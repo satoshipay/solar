@@ -27,7 +27,7 @@ function AllAccountsPage() {
     <Section top brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
         <HorizontalLayout alignItems="center">
-          <Typography color="inherit" variant="headline" style={{ flexGrow: 1, marginRight: 180 }}>
+          <Typography color="inherit" variant="h5" style={{ flexGrow: 1, marginRight: 180 }}>
             {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
           </Typography>
           <Box>

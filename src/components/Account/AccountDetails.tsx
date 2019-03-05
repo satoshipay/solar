@@ -5,7 +5,7 @@ import AccountBalances from "./AccountBalances"
 
 const DetailContent = (props: { children: React.ReactNode }) => {
   return (
-    <Typography color="inherit" component="div" variant="body1" style={{ marginTop: 8, fontSize: "1.2rem" }}>
+    <Typography color="inherit" component="div" variant="body2" style={{ marginTop: 8, fontSize: "1.2rem" }}>
       {props.children}
     </Typography>
   )

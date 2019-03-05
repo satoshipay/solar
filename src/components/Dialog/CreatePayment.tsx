@@ -90,7 +90,7 @@ class CreatePaymentDialog extends React.Component<Props, State> {
     return (
       <Dialog open={this.props.open} fullScreen onClose={this.props.onClose} TransitionComponent={Transition}>
         <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
-          <Typography variant="headline" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
+          <Typography variant="h5" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
             Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
           </Typography>
           <Box margin="0 0 36px">

@@ -47,7 +47,7 @@ function Title(props: { onClose: () => void }) {
     <HorizontalLayout justifyContent="space-between" margin="0" shrink={0}>
       <HorizontalLayout alignItems="center" margin="0">
         <BackButton onClick={props.onClose} style={{ marginLeft: -10, marginRight: 10 }} />
-        <Typography variant="headline" style={{ flexGrow: 1 }}>
+        <Typography variant="h5" style={{ flexGrow: 1 }}>
           Trade
         </Typography>
       </HorizontalLayout>
@@ -118,7 +118,7 @@ function TradeAsset(props: TradeAssetProps) {
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <Title onClose={props.onClose} />
-        <Typography color="inherit" component="div" variant="body1" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
+        <Typography color="inherit" component="div" variant="body2" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
           <AccountBalances
             component={balanceProps => (
               <SingleBalance
