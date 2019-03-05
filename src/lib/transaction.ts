@@ -1,3 +1,4 @@
+import { TimeoutInfinite } from "stellar-base"
 import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
@@ -42,25 +43,31 @@ async function accountExists(horizon: Server, publicKey: string) {
   }
 }
 
+function selectTransactionTimeout(accountData: Pick<Server.AccountRecord, "signers">): number {
+  return accountData.signers.length > 1 ? TimeoutInfinite : 20
+}
+
 interface TxBlueprint {
+  accountData: Pick<Server.AccountRecord, "id" | "signers">
   horizon: Server
   memo?: Memo | null
   walletAccount: Account
 }
 
 export async function createTransaction(operations: Array<xdr.Operation<any>>, options: TxBlueprint) {
-  const { horizon, memo, walletAccount } = options
+  const { horizon, walletAccount } = options
+  const timeout = selectTransactionTimeout(options.accountData)
 
   selectNetwork(walletAccount.testnet)
 
   const account = await horizon.loadAccount(walletAccount.publicKey)
-  const builder = new TransactionBuilder(account, { memo: memo || undefined })
+  const builder = new TransactionBuilder(account, { memo: options.memo || undefined })
 
   for (const operation of operations) {
     builder.addOperation(operation)
   }
 
-  const tx = builder.setTimeout(20).build()
+  const tx = builder.setTimeout(timeout).build()
   return tx
 }
 
