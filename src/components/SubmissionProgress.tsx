@@ -19,7 +19,7 @@ const Container = (props: { children: React.ReactNode }) => {
 
 const Heading = (props: { children: React.ReactNode }) => {
   return (
-    <Typography align="center" variant="subheading">
+    <Typography align="center" variant="subtitle1">
       {props.children}
     </Typography>
   )

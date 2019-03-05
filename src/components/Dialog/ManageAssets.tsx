@@ -52,7 +52,7 @@ function ManageAssets(props: Props) {
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <HorizontalLayout alignItems="center" margin="0 0 24px">
           <BackButton onClick={props.onClose} />
-          <Typography variant="headline" style={{ flexGrow: 1 }}>
+          <Typography variant="h5" style={{ flexGrow: 1 }}>
             Manage Assets
           </Typography>
           <Button color="primary" onClick={addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">

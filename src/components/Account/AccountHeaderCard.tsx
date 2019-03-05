@@ -90,7 +90,7 @@ function AccountHeaderCard(props: Props) {
           <Typography
             align="center"
             color="inherit"
-            variant="headline"
+            variant="h5"
             component="h2"
             style={{ marginRight: 20, fontSize: "2rem" }}
           >

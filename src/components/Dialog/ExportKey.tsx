@@ -24,7 +24,7 @@ function KeyExport(props: { account: Account; secretKey: string }) {
       <Background opacity={0.08}>
         <LockFilledIcon style={{ fontSize: 220 }} />
       </Background>
-      <Typography variant="subheading" style={{ marginBottom: 8 }}>
+      <Typography variant="subtitle1" style={{ marginBottom: 8 }}>
         Plain Secret Key
       </Typography>
       <Typography
@@ -54,10 +54,10 @@ function WarningBox(props: WarningBoxProps) {
       <Background opacity={0.08}>
         <WarnIcon style={{ fontSize: 220 }} />
       </Background>
-      <Typography component="p" variant="body2">
+      <Typography component="p" variant="body1">
         Your secret key must be stored in a safe place and must not be shared with anyone.
       </Typography>
-      <Typography component="p" variant="body2" style={{ marginTop: 16 }}>
+      <Typography component="p" variant="body1" style={{ marginTop: 16 }}>
         A backup is important, though, since losing your secret key also means losing access to your account.
       </Typography>
       <HorizontalLayout justifyContent="center" margin="24px 0 0">

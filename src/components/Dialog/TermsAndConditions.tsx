@@ -39,7 +39,7 @@ function TermsAndConditions(props: Props) {
     <Dialog open={props.open} fullScreen TransitionComponent={Transition} TransitionProps={{ unmountOnExit: true }}>
       <Section brandColored top style={{ display: "flex", flexDirection: "column" }}>
         <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
-          <Typography color="inherit" variant="display1">
+          <Typography color="inherit" variant="h4">
             Welcome to Solar
           </Typography>
           <FormGroup style={{ margin: "3em 0" }}>

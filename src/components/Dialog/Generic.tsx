@@ -92,7 +92,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
     <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
-        <Typography variant="body1">{props.children}</Typography>
+        <Typography variant="body2">{props.children}</Typography>
         <DialogActionsBox>
           {props.cancelButton}
           {props.confirmButton}

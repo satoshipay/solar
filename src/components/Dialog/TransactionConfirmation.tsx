@@ -34,7 +34,7 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   return (
     <Dialog open={props.open} onClose={props.onClose} maxWidth="lg" TransitionComponent={Transition}>
       <Box padding="24px 36px" overflow="auto">
-        <Typography variant="headline" component="h2">
+        <Typography variant="h5" component="h2">
           {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
         </Typography>
         {props.transaction ? (

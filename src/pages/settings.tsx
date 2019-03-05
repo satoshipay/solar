@@ -29,7 +29,7 @@ function Settings() {
         <Typography
           color={settings.showTestnet ? "default" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
-          variant="body1"
+          variant="body2"
         >
           The test network is a copy of the main Stellar network were the traded tokens have no real-world value. You
           can request free testnet XLM from the so-called friendbot to activate a testnet account and get started
@@ -38,7 +38,7 @@ function Settings() {
         <Typography
           color={settings.showTestnet ? "default" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
-          variant="body1"
+          variant="body2"
         >
           Note: Testnet accounts will always be shown if you have got testnet accounts already.
         </Typography>
@@ -51,7 +51,7 @@ function Settings() {
         <Typography
           color={settings.multiSignature ? "default" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
-          variant="body1"
+          variant="body2"
         >
           <b>Experimental feature:</b> Add co-signers to an account, define that all signers of an account have to sign
           transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.
@@ -79,7 +79,7 @@ function SettingsPage() {
                 onClick={() => router.history.push(routes.allAccounts())}
                 style={{ marginLeft: -10, marginRight: 10 }}
               />
-              <Typography align="center" color="inherit" variant="headline" component="h2" style={{ marginRight: 20 }}>
+              <Typography align="center" color="inherit" variant="h5" component="h2" style={{ marginRight: 20 }}>
                 Settings
               </Typography>
             </HorizontalLayout>

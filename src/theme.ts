@@ -70,6 +70,9 @@ const theme = createMuiTheme({
       main: brandColor.main,
       light: brandColor.light
     }
+  },
+  typography: {
+    useNextVariants: true
   }
 })
 

@@ -28,7 +28,7 @@ function ReceivePaymentDialog(props: Props) {
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto 32px">
         <HorizontalLayout alignItems="center">
           <BackButton onClick={props.onClose} />
-          <Typography variant="headline" style={{ flexGrow: 1 }}>
+          <Typography variant="h5" style={{ flexGrow: 1 }}>
             Receive Funds
           </Typography>
         </HorizontalLayout>
@@ -48,7 +48,7 @@ function ReceivePaymentDialog(props: Props) {
               onClick={copyToClipboard}
               role="button"
               style={{ cursor: "pointer" }}
-              variant="subheading"
+              variant="subtitle1"
             >
               <b>{props.account.publicKey}</b>
             </Typography>

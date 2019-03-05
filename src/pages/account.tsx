@@ -31,7 +31,7 @@ import * as routes from "../routes"
 
 function DetailContent(props: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <Typography color="inherit" component="div" variant="body1" style={{ fontSize: "1.2rem", ...props.style }}>
+    <Typography color="inherit" component="div" variant="body2" style={{ fontSize: "1.2rem", ...props.style }}>
       {props.children}
     </Typography>
   )
