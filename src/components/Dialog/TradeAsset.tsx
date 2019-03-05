@@ -99,6 +99,7 @@ function TradeAsset(props: TradeAssetProps) {
         })
       ],
       {
+        accountData,
         horizon,
         walletAccount: props.account
       }

@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -29,11 +30,13 @@ interface Props {
 function ManageAssets(props: Props) {
   const [isCustomTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [removalDialogAsset, setRemovalDialogAsset] = React.useState<Asset | null>(null)
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
       const operations = [Operation.changeTrust({ asset, limit: options.limit })]
       const transaction = await createTransaction(operations, {
+        accountData,
         horizon: props.horizon,
         walletAccount: props.account
       })
@@ -72,6 +75,7 @@ function ManageAssets(props: Props) {
       />
       <RemoveTrustlineDialog
         account={props.account}
+        accountData={accountData}
         asset={removalDialogAsset || Asset.native()}
         open={removalDialogAsset !== null}
         onClose={() => setRemovalDialogAsset(null)}

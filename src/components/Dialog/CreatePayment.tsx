@@ -5,15 +5,13 @@ import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData } from "../../hooks"
+import { useAccountData, ObservedAccountData } from "../../hooks"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
 import CreatePaymentForm, { PaymentCreationValues } from "../Form/CreatePayment"
 import { Box } from "../Layout/Box"
 import TransactionSender from "../TransactionSender"
 import TestnetBadge from "./TestnetBadge"
-
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   return balances.map(
@@ -27,91 +25,79 @@ function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   )
 }
 
+function createMemo(formValues: PaymentCreationValues) {
+  switch (formValues.memoType) {
+    case "id":
+      return Memo.id(formValues.memoValue)
+    case "text":
+      return Memo.text(formValues.memoValue)
+    default:
+      return Memo.none()
+  }
+}
+
 const Transition = (props: any) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
-  balances: Horizon.BalanceLine[]
+  accountData: ObservedAccountData
   horizon: Server
   open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
-  trustedAssets: Asset[]
 }
 
-interface State {
-  transaction: Transaction | null
-  txCreationPending: boolean
-}
+function CreatePaymentDialog(props: Props) {
+  const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const trustedAssets = getAssetsFromBalances(props.accountData.balances) || [Asset.native()]
 
-class CreatePaymentDialog extends React.Component<Props, State> {
-  state: State = {
-    transaction: null,
-    txCreationPending: false
-  }
-
-  createMemo = (formValues: PaymentCreationValues) => {
-    switch (formValues.memoType) {
-      case "id":
-        return Memo.id(formValues.memoValue)
-      case "text":
-        return Memo.text(formValues.memoValue)
-      default:
-        return Memo.none()
-    }
-  }
-
-  createTransaction = async (formValues: PaymentCreationValues) => {
+  const handleSubmit = async (formValues: PaymentCreationValues) => {
     try {
-      this.setState({ txCreationPending: true })
-      const asset = this.props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+      setTxCreationPending(true)
+      const asset = trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
 
       const payment = await createPaymentOperation({
         asset: asset || Asset.native(),
         amount: formValues.amount,
         destination: formValues.destination,
-        horizon: this.props.horizon
+        horizon: props.horizon
       })
       const tx = await createTransaction([payment], {
-        memo: this.createMemo(formValues),
-        horizon: this.props.horizon,
-        walletAccount: this.props.account
+        accountData: props.accountData,
+        memo: createMemo(formValues),
+        horizon: props.horizon,
+        walletAccount: props.account
       })
-      this.props.sendTransaction(tx)
+      props.sendTransaction(tx)
     } catch (error) {
       trackError(error)
     } finally {
-      this.setState({ txCreationPending: false })
+      setTxCreationPending(false)
     }
   }
 
-  render() {
-    const trustedAssets = this.props.trustedAssets || [Asset.native()]
-    return (
-      <Dialog open={this.props.open} fullScreen onClose={this.props.onClose} TransitionComponent={Transition}>
-        <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
-          <Typography variant="h5" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
-            Send funds {this.props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-          </Typography>
-          <Box margin="0 0 36px">
-            <AccountBalances publicKey={this.props.account.publicKey} testnet={this.props.account.testnet} />
-          </Box>
-          <CreatePaymentForm
-            balances={this.props.balances}
-            onCancel={this.props.onClose}
-            onSubmit={this.createTransaction}
-            trustedAssets={trustedAssets}
-            txCreationPending={this.state.txCreationPending}
-          />
+  return (
+    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
+      <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
+        <Typography variant="h5" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
+          Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+        </Typography>
+        <Box margin="0 0 36px">
+          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </Box>
-      </Dialog>
-    )
-  }
+        <CreatePaymentForm
+          balances={props.accountData.balances}
+          onCancel={props.onClose}
+          onSubmit={handleSubmit}
+          trustedAssets={trustedAssets}
+          txCreationPending={txCreationPending}
+        />
+      </Box>
+    </Dialog>
+  )
 }
 
-function ConnectedCreatePaymentDialog(
-  props: Omit<Props, "balances" | "horizon" | "sendTransaction" | "trustedAssets">
-) {
+function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "open" | "onClose">) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
@@ -120,13 +106,7 @@ function ConnectedCreatePaymentDialog(
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <CreatePaymentDialog
-          {...props}
-          balances={accountData.balances}
-          horizon={horizon}
-          sendTransaction={sendTransaction}
-          trustedAssets={getAssetsFromBalances(accountData.balances)}
-        />
+        <CreatePaymentDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}
     </TransactionSender>
   )

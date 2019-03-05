@@ -4,6 +4,7 @@ import { storiesOf } from "@storybook/react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import TxConfirmationDrawer from "../src/components/Dialog/TransactionConfirmation"
 import { Account, AccountsContext, AccountsProvider } from "../src/context/accounts"
+import { useAccountData } from "../src/hooks"
 import { createPaymentOperation, createTransaction } from "../src/lib/transaction"
 
 interface DialogContainerProps {
@@ -11,45 +12,46 @@ interface DialogContainerProps {
   children: (props: { open: boolean; onClose: () => void; transaction: Transaction }) => React.ReactNode
 }
 
-class DialogContainer extends React.Component<DialogContainerProps> {
-  state = {
-    open: false,
-    transaction: null
-  }
+function DialogContainer(props: DialogContainerProps) {
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [transaction, setTransaction] = React.useState<Transaction | null>(null)
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
-  async componentDidMount() {
-    createTransaction(
-      [
-        await createPaymentOperation({
-          amount: "1",
-          asset: Asset.native(),
-          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
-          horizon: new Server("https://horizon-testnet.stellar.org")
-        })
-      ],
-      {
-        horizon: new Server("https://horizon-testnet.stellar.org"),
-        walletAccount: this.props.account
-      }
-    ).then(transaction => this.setState({ transaction }))
-  }
+  React.useEffect(() => {
+    const createDemoTx = async () => {
+      return createTransaction(
+        [
+          await createPaymentOperation({
+            amount: "1",
+            asset: Asset.native(),
+            destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
+            horizon: new Server("https://horizon-testnet.stellar.org")
+          })
+        ],
+        {
+          accountData,
+          horizon: new Server("https://horizon-testnet.stellar.org"),
+          walletAccount: props.account
+        }
+      )
+    }
+    createDemoTx().then(tx => setTransaction(tx))
+  }, [])
 
-  render() {
-    return (
-      <AccountsProvider>
-        <Button onClick={() => this.setState({ open: true })} variant="contained">
-          Open
-        </Button>
-        {this.state.transaction
-          ? this.props.children({
-              open: this.state.open,
-              onClose: () => this.setState({ open: false }),
-              transaction: (this.state.transaction as any) as Transaction
-            })
-          : null}
-      </AccountsProvider>
-    )
-  }
+  return (
+    <AccountsProvider>
+      <Button onClick={() => setIsOpen(true)} variant="contained">
+        Open
+      </Button>
+      {transaction
+        ? props.children({
+            open: isOpen,
+            onClose: () => setIsOpen(false),
+            transaction: (transaction as any) as Transaction
+          })
+        : null}
+    </AccountsProvider>
+  )
 }
 
 storiesOf("Dialogs", module)

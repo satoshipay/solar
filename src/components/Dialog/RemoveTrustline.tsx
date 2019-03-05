@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -7,7 +7,7 @@ import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData } from "../../hooks"
+import { ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import TransactionSender from "../TransactionSender"
 import { ActionButton, DialogActionsBox } from "./Generic"
@@ -16,8 +16,8 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 interface Props {
   account: Account
+  accountData: ObservedAccountData
   asset: Asset
-  balances: Horizon.BalanceLine[]
   horizon: Server
   open: boolean
   onClose: () => void
@@ -29,6 +29,7 @@ function RemoveTrustlineDialog(props: Props) {
     try {
       const operations = [Operation.changeTrust({ asset: props.asset, limit: "0" })]
       const transaction = await createTransaction(operations, {
+        accountData: props.accountData,
         horizon: props.horizon,
         walletAccount: props.account
       })
@@ -38,7 +39,7 @@ function RemoveTrustlineDialog(props: Props) {
     }
   }
 
-  const assetBalance = props.balances.find((balance: any) => balance.asset_code === props.asset.code)
+  const assetBalance = props.accountData.balances.find((balance: any) => balance.asset_code === props.asset.code)
   const stillOwnsTokens = assetBalance && parseFloat(assetBalance.balance) > 0
 
   return (
@@ -67,8 +68,6 @@ function RemoveTrustlineDialog(props: Props) {
 }
 
 function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon" | "sendTransaction">) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
@@ -78,7 +77,7 @@ function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon
       {({ horizon, sendTransaction }) => (
         <RemoveTrustlineDialog
           {...props}
-          balances={accountData.balances}
+          accountData={props.accountData}
           horizon={horizon}
           sendTransaction={sendTransaction}
         />
