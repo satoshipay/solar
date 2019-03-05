@@ -69,6 +69,7 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
     if (!pendingConfirmation) return
 
     settings.ignoreSignatureRequest(pendingConfirmation.hash)
+    setPendingConfirmation(null)
   }
 
   if (props.signatureRequests.length === 0) {
