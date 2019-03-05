@@ -38,13 +38,13 @@ export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): 
 
   const horizon = useHorizon(testnet)
   const loadingPromiseCacheKey = assets.map(asset => getAssetCacheKey(asset, testnet)).join(",")
-  const uncachedAssets = assets.filter(asset => !transferInfosCache.has(asset.getCode()))
+  const uncachedAssets = assets.filter(asset => !transferInfosCache.has(getAssetCacheKey(asset, testnet)))
 
   const fetchData = async () => {
     const updatedTransferServers = await fetchTransferServers(horizon, uncachedAssets)
     setTransferServers(updatedTransferServers)
 
-    const transferInfos = await fetchAssetTransferInfos(transferServers)
+    const transferInfos = await fetchAssetTransferInfos(updatedTransferServers)
 
     for (const [asset, transferInfo] of Array.from(transferInfos.entries())) {
       transferInfosCache.set(getAssetCacheKey(asset, testnet), transferInfo)
