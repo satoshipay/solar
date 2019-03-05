@@ -106,11 +106,10 @@ function getInitialNetwork(accounts: Account[]) {
 }
 
 const initialAccounts: Account[] = []
-const initialNetwork = getInitialNetwork(initialAccounts)
 
 const AccountsContext = React.createContext<ContextValue>({
   accounts: initialAccounts,
-  networkSwitch: initialNetwork,
+  networkSwitch: "mainnet",
   changePassword: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
   createAccount: () => {
     throw new Error("AccountsProvider not yet ready.")
@@ -127,13 +126,14 @@ interface Props {
 
 export function AccountsProvider(props: Props) {
   const [accounts, setAccounts] = React.useState<Account[]>(initialAccounts)
-  const [networkSwitch, setNetworkSwitch] = React.useState<NetworkID>(initialNetwork)
+  const [networkSwitch, setNetworkSwitch] = React.useState<NetworkID>("mainnet")
 
   React.useEffect(() => {
     getKeyStore()
       .then(keyStore => {
         const loadedAccounts = keyStore.getKeyIDs().map(keyID => createAccountInstance(keyStore, keyID))
-        setAccounts(prevAccounts => [...prevAccounts, ...loadedAccounts])
+        setAccounts(loadedAccounts)
+        setNetworkSwitch(getInitialNetwork(loadedAccounts))
       })
       .catch(trackError)
 
