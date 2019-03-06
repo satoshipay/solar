@@ -2,10 +2,16 @@ import { TimeoutInfinite } from "stellar-base"
 import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
-import { getAllSources, getSignerKey, isSignedByAnyOf } from "./stellar"
+import { getAllSources, getSignerKey, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
+}
+
+// See <https://github.com/stellar/go/issues/926>
+const highFeePreset: SmartFeePreset = {
+  capacityTrigger: 0.5,
+  percentile: 90
 }
 
 export function selectNetwork(testnet = false) {
@@ -43,8 +49,20 @@ async function accountExists(horizon: Server, publicKey: string) {
   }
 }
 
+async function selectTransactionFeeWithFallback(horizon: Server, fallbackFee: number) {
+  try {
+    return await selectSmartTransactionFee(horizon, highFeePreset)
+  } catch (error) {
+    // Don't show error notification, since our horizon's endpoint is non-functional anyway
+    // tslint:disable-next-line no-console
+    console.error("Smart fee selection failed:", error)
+    return fallbackFee
+  }
+}
+
 function selectTransactionTimeout(accountData: Pick<Server.AccountRecord, "signers">): number {
-  return accountData.signers.length > 1 ? TimeoutInfinite : 20
+  // Don't forget that we must give the user enough time to enter their password and click ok
+  return accountData.signers.length > 1 ? TimeoutInfinite : 40
 }
 
 interface TxBlueprint {
@@ -58,10 +76,13 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   const { horizon, walletAccount } = options
   const timeout = selectTransactionTimeout(options.accountData)
 
-  selectNetwork(walletAccount.testnet)
+  const [account, txFee] = await Promise.all([
+    horizon.loadAccount(walletAccount.publicKey),
+    selectTransactionFeeWithFallback(horizon, 1500)
+  ])
 
-  const account = await horizon.loadAccount(walletAccount.publicKey)
-  const builder = new TransactionBuilder(account, { memo: options.memo || undefined })
+  selectNetwork(walletAccount.testnet)
+  const builder = new TransactionBuilder(account, { fee: txFee, memo: options.memo || undefined })
 
   for (const operation of operations) {
     builder.addOperation(operation)
