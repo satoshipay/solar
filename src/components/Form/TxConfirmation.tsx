@@ -9,6 +9,8 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
 import TransactionSummary from "../TransactionSummary/TransactionSummary"
 
+type FormErrors = { [formField in keyof FormValues]: Error | null }
+
 interface FormValues {
   password: string | null
 }
@@ -23,93 +25,73 @@ interface Props {
   onCancel?: () => any
 }
 
-interface State {
-  errors: Partial<{ [formField in keyof FormValues]: Error | null }>
-  formValues: FormValues
-}
+function TxConfirmationForm(props: Props) {
+  const { onCancel = () => undefined, onConfirm = () => undefined } = props
 
-class TxConfirmationForm extends React.Component<Props, State> {
-  state: State = {
-    errors: {},
-    formValues: {
-      password: null
-    }
+  const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
+  const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
+
+  const passwordError = props.passwordError || errors.password
+
+  const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
+    setFormValues(prevValues => ({
+      ...prevValues,
+      [key]: value
+    }))
   }
 
-  setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
-    this.setState({
-      formValues: {
-        ...this.state.formValues,
-        [key]: value
-      }
-    })
-  }
-
-  onSubmit = (event: React.SyntheticEvent) => {
-    const { onConfirm = () => undefined } = this.props
-    const { errors, formValues } = this.state
-
-    if (this.props.disabled) {
+  const onSubmit = (event: React.SyntheticEvent) => {
+    if (props.disabled) {
       // Just a precaution; we shouldn't even get here if the component is disabled
       return
     }
 
-    if (this.props.account.requiresPassword && !formValues.password) {
-      return this.setState({
-        errors: {
-          ...errors,
-          password: new Error("Password required")
-        }
+    if (props.account.requiresPassword && !formValues.password) {
+      return setErrors({
+        ...errors,
+        password: new Error("Password required")
       })
     }
 
-    this.setState({
-      errors: {}
-    })
-
     event.preventDefault()
+    setErrors({})
     onConfirm(formValues)
   }
 
-  render() {
-    const { account, disabled, signatureRequest, transaction, onCancel = () => undefined } = this.props
-    const passwordError = this.props.passwordError || this.state.errors.password
-
-    return (
-      <form onSubmit={this.onSubmit}>
-        <VerticalLayout>
-          <TransactionSummary
-            account={account}
-            showSource={account.publicKey !== transaction.source}
-            signatureRequest={signatureRequest}
-            testnet={account.testnet}
-            transaction={transaction}
+  return (
+    <form onSubmit={onSubmit}>
+      <VerticalLayout>
+        <TransactionSummary
+          account={props.account}
+          showSource={props.account.publicKey !== props.transaction.source}
+          signatureRequest={props.signatureRequest}
+          testnet={props.account.testnet}
+          transaction={props.transaction}
+        />
+        {props.account.requiresPassword && !props.disabled ? (
+          <TextField
+            error={Boolean(passwordError)}
+            label={passwordError ? renderFormFieldError(passwordError) : "Password"}
+            type="password"
+            autoFocus
+            fullWidth
+            margin="dense"
+            value={formValues.password || ""}
+            onChange={event => setFormValue("password", event.target.value)}
+            style={{ marginBottom: 32 }}
           />
-          {account.requiresPassword && !disabled ? (
-            <TextField
-              error={Boolean(passwordError)}
-              label={passwordError ? renderFormFieldError(passwordError) : "Password"}
-              type="password"
-              autoFocus
-              fullWidth
-              margin="dense"
-              value={this.state.formValues.password || ""}
-              onChange={event => this.setFormValue("password", event.target.value)}
-              style={{ marginBottom: 32 }}
-            />
-          ) : null}
-          <DialogActionsBox style={{ justifyContent: "center" }}>
-            <ActionButton onClick={onCancel}>Cancel</ActionButton>
-            {disabled ? null : (
-              <ActionButton icon={<CheckIcon />} onClick={() => undefined} type="submit">
-                Confirm
-              </ActionButton>
-            )}
-          </DialogActionsBox>
-        </VerticalLayout>
-      </form>
-    )
-  }
+        ) : null}
+        <DialogActionsBox style={{ justifyContent: "center" }}>
+          <ActionButton onClick={onCancel}>Cancel</ActionButton>
+          {props.disabled ? null : (
+            <ActionButton icon={<CheckIcon />} onClick={() => undefined} type="submit">
+              Confirm
+            </ActionButton>
+          )}
+        </DialogActionsBox>
+      </VerticalLayout>
+    </form>
+  )
 }
 
 export default TxConfirmationForm
