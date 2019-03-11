@@ -3,6 +3,7 @@ import { Asset } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { TransferServer } from "@satoshipay/sep-6"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { formatFieldDescription, formatIdentifier } from "./formatters"
 import { useAssetTransferServerInfos, AssetTransferInfos } from "./hooks"
@@ -20,15 +21,14 @@ interface FormValues {
 }
 
 interface Props {
-  Actions: React.ComponentType<{ disabled?: boolean; onSubmit: () => void }>
   assets: Asset[]
+  onCancel: () => void
   onSubmit: (transferServer: TransferServer, asset: Asset, method: string, formValues: FormValues) => void
   testnet: boolean
+  withdrawalResponsePending?: boolean
 }
 
 function AnchorWithdrawalInitForm(props: Props) {
-  const { Actions } = props
-
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {
     const deposit = transferInfos.data[assetCode].deposit
@@ -151,7 +151,17 @@ function AnchorWithdrawalInitForm(props: Props) {
           formValues={formValues}
           onSetFormValue={setFormValue}
         />
-        <Actions disabled={isDisabled} onSubmit={() => undefined /* Form submission done via form.onSubmit() */} />
+        <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+          <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
+          <ActionButton
+            disabled={isDisabled}
+            loading={props.withdrawalResponsePending}
+            onClick={() => undefined}
+            type="submit"
+          >
+            Proceed
+          </ActionButton>
+        </DialogActionsBox>
       </VerticalLayout>
     </form>
   )

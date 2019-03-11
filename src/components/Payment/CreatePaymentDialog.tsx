@@ -5,12 +5,10 @@ import Slide from "@material-ui/core/Slide"
 import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
 import Typography from "@material-ui/core/Typography"
-import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, ObservedAccountData } from "../../hooks"
 import AccountBalances from "../Account/AccountBalances"
-import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import TransactionSender from "../TransactionSender"
@@ -59,24 +57,6 @@ function CreatePaymentDialog(props: Props) {
     }
   }
 
-  const Actions = React.useCallback(
-    (actionProps: { disabled?: boolean; onSubmit: () => void }) => (
-      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
-        <ActionButton onClick={props.onClose}>Cancel</ActionButton>
-        <ActionButton
-          disabled={actionProps.disabled}
-          icon={<SendIcon style={{ fontSize: 16 }} />}
-          loading={txCreationPending}
-          onClick={actionProps.onSubmit}
-          type="submit"
-        >
-          Send
-        </ActionButton>
-      </DialogActionsBox>
-    ),
-    [props.onClose, txCreationPending]
-  )
-
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
@@ -99,15 +79,14 @@ function CreatePaymentDialog(props: Props) {
         </Box>
         {selectedTab === "native" ? (
           <CreatePaymentForm
-            Actions={Actions}
             accountData={props.accountData}
+            onCancel={props.onClose}
             onSubmit={handleSubmit}
             trustedAssets={trustedAssets}
             txCreationPending={txCreationPending}
           />
         ) : (
           <AnchorWithdrawalForm
-            Actions={Actions}
             account={props.account}
             assets={trustedAssets.filter(asset => !asset.isNative())}
             horizon={props.horizon}

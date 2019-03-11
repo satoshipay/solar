@@ -7,7 +7,6 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useRouter } from "../../hooks"
 import * as routes from "../../routes"
-import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
 import { useAssetTransferServerInfos } from "./hooks"
@@ -29,7 +28,6 @@ function NoWithdrawableAssets(props: { account: Account }) {
 }
 
 interface Props {
-  Actions: React.ComponentType<{ disabled?: boolean; onSubmit: () => void }>
   account: Account
   assets: Asset[]
   horizon: Server
@@ -83,23 +81,6 @@ function AnchorWithdrawalForm(props: Props) {
     }
   }
 
-  const Actions = React.useCallback(
-    (actionProps: { disabled?: boolean; onSubmit: () => void }) => (
-      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
-        <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
-        <ActionButton
-          disabled={actionProps.disabled}
-          loading={withdrawalResponsePending}
-          onClick={actionProps.onSubmit}
-          type="submit"
-        >
-          Proceed
-        </ActionButton>
-      </DialogActionsBox>
-    ),
-    []
-  )
-
   if (transferInfos.loading) {
     return (
       <Box margin="64px auto" textAlign="center">
@@ -112,17 +93,18 @@ function AnchorWithdrawalForm(props: Props) {
 
   return withdrawalResponse ? (
     <AnchorWithdrawalFinishForm
-      Actions={props.Actions}
       assets={props.assets}
+      onCancel={props.onCancel}
       onSubmit={sendWithdrawalTx}
       testnet={props.testnet}
     />
   ) : (
     <AnchorWithdrawalInitForm
-      Actions={Actions}
       assets={props.assets}
+      onCancel={props.onCancel}
       onSubmit={requestWithdrawal}
       testnet={props.testnet}
+      withdrawalResponsePending={withdrawalResponsePending}
     />
   )
 }

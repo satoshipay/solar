@@ -67,6 +67,7 @@ function ManageSignersDialog(props: Props) {
       }
 
       const tx = await createTransaction(operations, {
+        accountData: props.accountData,
         horizon: props.horizon,
         walletAccount: props.account
       })

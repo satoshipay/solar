@@ -1,7 +1,12 @@
 const { app, Menu } = require("electron")
 const { createAppMenu } = require("./menu")
 const { createMainWindow, getOpenWindows, trackWindow } = require("./window")
+
+// Needs to match the value in electron-build.yml
+app.setAppUserModelId("io.solarwallet.app")
+
 require("./storage")
+require("./updater")
 
 // Enable opening dev tools in production using keyboard shortcut
 require("electron-debug")({

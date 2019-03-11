@@ -6,12 +6,14 @@ import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
+import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, HorizontalLayout } from "../Layout/Box"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
@@ -93,16 +95,14 @@ function AssetSelector(props: AssetSelectorProps) {
 }
 
 interface Props {
-  Actions: React.ComponentType<{ onSubmit: () => void }>
   accountData: ObservedAccountData
   trustedAssets: Asset[]
   txCreationPending?: boolean
+  onCancel: () => void
   onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
 }
 
 function PaymentCreationForm(props: Props) {
-  const { Actions } = props
-
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
   const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
     amount: "",
@@ -137,6 +137,7 @@ function PaymentCreationForm(props: Props) {
       horizon
     })
     const tx = await createTransaction([payment], {
+      accountData: props.accountData,
       memo: createMemo(formValues),
       horizon,
       walletAccount: account
@@ -146,10 +147,10 @@ function PaymentCreationForm(props: Props) {
 
   const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    const { errors, success } = validateFormValues(formValues, spendableBalance)
-    setErrors(errors)
+    const validation = validateFormValues(formValues, spendableBalance)
+    setErrors(validation.errors)
 
-    if (success) {
+    if (validation.success) {
       props.onSubmit(createPaymentTx)
     }
   }
@@ -222,7 +223,17 @@ function PaymentCreationForm(props: Props) {
           <div />
         )}
       </Box>
-      <Actions onSubmit={() => undefined /* Form submission done via form.onSubmit() */} />
+      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+        <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
+        <ActionButton
+          icon={<SendIcon style={{ fontSize: 16 }} />}
+          loading={props.txCreationPending}
+          onClick={() => undefined}
+          type="submit"
+        >
+          Send
+        </ActionButton>
+      </DialogActionsBox>
     </form>
   )
 }

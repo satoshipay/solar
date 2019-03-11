@@ -8,6 +8,7 @@ import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
@@ -26,6 +27,7 @@ function CustomTrustlineDialog(props: Props) {
   const [issuerPublicKey, setIssuerPublicKey] = React.useState("")
   const [limit, setLimit] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -33,6 +35,7 @@ function CustomTrustlineDialog(props: Props) {
 
       setTxCreationPending(true)
       const transaction = await createTransaction(operations, {
+        accountData,
         horizon: props.horizon,
         walletAccount: props.account
       })
