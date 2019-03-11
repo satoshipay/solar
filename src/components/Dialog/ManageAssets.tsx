@@ -51,20 +51,22 @@ function ManageAssets(props: Props) {
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
   const onRemoveTrustline = (asset: Asset) => setRemovalDialogAsset(asset)
 
-  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+  const isSmallScreen = useMediaQuery("(max-device-width:550px)")
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <HorizontalLayout alignItems="center" margin="0 0 24px">
-          <BackButton onClick={props.onClose} />
-          <Typography variant="h5" style={{ flexGrow: 1 }}>
-            Manage Assets
-          </Typography>
+        <HorizontalLayout alignItems="center" margin="0 0 24px" wrap="wrap">
+          <HorizontalLayout>
+            <BackButton onClick={props.onClose} />
+            <Typography variant="h5" style={{ flexGrow: 1 }}>
+              Manage Assets
+            </Typography>
+          </HorizontalLayout>
           <Button
             color="primary"
             onClick={addCustomTrustline}
-            style={isSmallScreen ? { fontSize: "0.7rem", marginLeft: 12 } : { marginLeft: 32 }}
+            style={isSmallScreen ? { marginLeft: "auto", alignSelf: "flex-end" } : { marginLeft: 32 }}
             variant="contained"
           >
             <ButtonIconLabel label="Add Custom Asset">
