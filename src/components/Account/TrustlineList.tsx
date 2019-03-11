@@ -106,6 +106,9 @@ function UntrustedAsset(props: UntrustedAssetProps) {
       <ListItemText
         inset
         primary={asset.code}
+        secondaryTypographyProps={{
+          style: { overflow: "hidden", textOverflow: "ellipsis" }
+        }}
         secondary={<AccountName publicKey={asset.issuer} testnet={account.testnet} />}
       />
       <ListItemText primaryTypographyProps={{ align: "right" }}>
