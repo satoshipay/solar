@@ -19,7 +19,6 @@ function FormBuilderField(props: FormBuilderFieldProps) {
   if (choices) {
     return (
       <TextField
-        InputLabelProps={{ shrink: true }}
         label={formatIdentifier(props.name)}
         onChange={props.onChange}
         placeholder={formatFieldDescription(description, optional)}
@@ -35,7 +34,6 @@ function FormBuilderField(props: FormBuilderFieldProps) {
   } else {
     return (
       <TextField
-        InputLabelProps={{ shrink: true }}
         label={formatIdentifier(props.name)}
         onChange={props.onChange}
         placeholder={formatFieldDescription(description, optional)}
