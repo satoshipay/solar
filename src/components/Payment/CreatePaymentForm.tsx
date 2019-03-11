@@ -129,7 +129,6 @@ function PaymentCreationForm(props: Props) {
   return (
     <form onSubmit={submit}>
       <TextField
-        InputLabelProps={{ shrink: true }}
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
         placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
@@ -141,7 +140,6 @@ function PaymentCreationForm(props: Props) {
       />
       <HorizontalLayout justifyContent="space-between" alignItems="center">
         <TextField
-          InputLabelProps={{ shrink: true }}
           error={Boolean(errors.amount)}
           label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
           margin="dense"
@@ -181,7 +179,6 @@ function PaymentCreationForm(props: Props) {
       <Box>
         {formValues.memoType !== "none" ? (
           <TextField
-            InputLabelProps={{ shrink: true }}
             inputProps={{ maxLength: 28 }}
             error={Boolean(errors.memoValue)}
             label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
