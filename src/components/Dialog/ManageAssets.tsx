@@ -3,18 +3,16 @@ import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
-import Typography from "@material-ui/core/Typography"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
-import { Box, HorizontalLayout } from "../Layout/Box"
+import { Box } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
+import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import BackButton from "./BackButton"
 import CustomTrustlineDialog from "./CustomTrustline"
 import RemoveTrustlineDialog from "./RemoveTrustline"
 
@@ -51,29 +49,22 @@ function ManageAssets(props: Props) {
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
   const onRemoveTrustline = (asset: Asset) => setRemovalDialogAsset(asset)
 
-  const isSmallScreen = useMediaQuery("(max-device-width:550px)")
-
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <HorizontalLayout alignItems="center" margin="0 0 24px" wrap="wrap">
-          <HorizontalLayout>
-            <BackButton onClick={props.onClose} />
-            <Typography variant="h5" style={{ flexGrow: 1 }}>
-              Manage Assets
-            </Typography>
-          </HorizontalLayout>
-          <Button
-            color="primary"
-            onClick={addCustomTrustline}
-            style={isSmallScreen ? { marginLeft: "auto", alignSelf: "flex-end" } : { marginLeft: 32 }}
-            variant="contained"
-          >
-            <ButtonIconLabel label="Add Custom Asset">
-              <AddIcon />
-            </ButtonIconLabel>
-          </Button>
-        </HorizontalLayout>
+        <MainTitle
+          title="Manage Assets"
+          onClose={props.onClose}
+          actions={
+            <>
+              <Button color="primary" onClick={addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">
+                <ButtonIconLabel label="Add Custom Asset">
+                  <AddIcon />
+                </ButtonIconLabel>
+              </Button>
+            </>
+          }
+        />
         <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
       </Box>
       <CustomTrustlineDialog

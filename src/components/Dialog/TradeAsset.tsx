@@ -14,8 +14,8 @@ import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
 import TradingForm from "../TradeAsset/TradingForm"
 import TransactionSender from "../TransactionSender"
-import BackButton from "./BackButton"
 import { ActionButton, DialogActionsBox } from "./Generic"
+import MainTitle from "../MainTitle"
 
 function findMatchingBalance(balances: ObservedAccountData["balances"], assetCode: string) {
   const matchingBalance = balances.find(
@@ -43,16 +43,7 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], assetCod
 }
 
 function Title(props: { onClose: () => void }) {
-  return (
-    <HorizontalLayout justifyContent="space-between" margin="0" shrink={0}>
-      <HorizontalLayout alignItems="center" margin="0">
-        <BackButton onClick={props.onClose} style={{ marginLeft: -10, marginRight: 10 }} />
-        <Typography variant="h5" style={{ flexGrow: 1 }}>
-          Trade
-        </Typography>
-      </HorizontalLayout>
-    </HorizontalLayout>
-  )
+  return <MainTitle title="Trade" onClose={props.onClose} />
 }
 
 interface TradeAssetProps {
