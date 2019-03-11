@@ -2,7 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
-import { TransferServer } from "@satoshipay/sep-6"
+import { TransferServer, WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/sep-6"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 
@@ -11,16 +11,13 @@ interface ExtraValues {
 }
 
 interface Props {
-  assets: Asset[]
+  anchorResponse: WithdrawalRequestKYC | WithdrawalRequestSuccess
   onCancel: () => void
   onSubmit: (transferServer: TransferServer, asset: Asset, amount: BigNumber, extraFields: ExtraValues) => void
   testnet: boolean
 }
 
 function AnchorWithdrawalFinishForm(props: Props) {
-  const [amount, setAmount] = React.useState("")
-  const [extraFields, setExtraFields] = React.useState<ExtraValues>({})
-
   const handleSubmit = () => {
     // FIXME
   }

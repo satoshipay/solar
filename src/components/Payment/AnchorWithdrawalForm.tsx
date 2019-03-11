@@ -93,7 +93,7 @@ function AnchorWithdrawalForm(props: Props) {
 
   return withdrawalResponse ? (
     <AnchorWithdrawalFinishForm
-      assets={props.assets}
+      anchorResponse={withdrawalResponse}
       onCancel={props.onCancel}
       onSubmit={sendWithdrawalTx}
       testnet={props.testnet}

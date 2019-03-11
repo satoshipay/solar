@@ -1,5 +1,6 @@
 import "../src/base-styles.css"
 
+import "./AnchorWithdrawal"
 import "./Balance"
 import "./Dialogs"
 import "./Notifications"
