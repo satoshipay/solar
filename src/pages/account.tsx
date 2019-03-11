@@ -171,7 +171,8 @@ function AccountPage(props: Props) {
 
   const account = accounts.find(someAccount => someAccount.id === props.accountID)
   if (!account) {
-    throw new Error(`Wallet account not found. ID: ${props.accountID}`)
+    // FIXME: Use error boundaries
+    return <div>Wallet account not found. ID: {props.accountID}</div>
   }
 
   return (
