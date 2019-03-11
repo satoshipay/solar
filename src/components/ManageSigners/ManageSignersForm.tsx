@@ -3,6 +3,7 @@ import { Horizon } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import InfoIcon from "@material-ui/icons/Info"
@@ -148,6 +149,8 @@ function ManageSignersForm(props: Props) {
     ? `Every transaction needs to be signed by ${sanitizedKeyWeight} signers`
     : `Every transaction needs to be signed by signers with a combined key weight of ${sanitizedKeyWeight} `
 
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+
   return (
     <VerticalLayout minHeight="400px" justifyContent="space-between">
       <Box margin="20px 0 0">
@@ -168,11 +171,17 @@ function ManageSignersForm(props: Props) {
           onChange={event => setWeightThreshold(event.target.value)}
           value={weightThreshold}
           variant="outlined"
+          style={isSmallScreen ? { width: "100%" } : {}}
           InputProps={{
             endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
           }}
         />
-        <HorizontalLayout justifyContent="end" alignItems="center" width="auto" margin="20px 0px">
+        <HorizontalLayout
+          justifyContent={isSmallScreen ? "center" : "end"}
+          alignItems="center"
+          width={isSmallScreen ? "100%" : "auto"}
+          margin="20px 0px"
+        >
           <DialogActionsBox style={{ margin: 0 }}>
             <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
               Cancel
