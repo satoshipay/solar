@@ -12,6 +12,20 @@ export function formatDescriptionText(description: string) {
   return description
 }
 
+export function formatDuration(seconds: number) {
+  if (seconds < 0 || seconds > 365 * 24 * 60 * 60) {
+    return "<illegal value>"
+  } else if (seconds < 90) {
+    return `${Math.round(seconds)} seconds`
+  } else if (seconds < 90 * 60) {
+    return `${Math.round(seconds / 60)} minutes`
+  } else if (seconds < 48 * 60 * 60) {
+    return `${Math.round(seconds / 60 / 60)} hours`
+  } else {
+    return `${Math.round(seconds / 24 / 60 / 60)} days`
+  }
+}
+
 export function formatFieldDescription(description: string, isOptional: boolean, keepShort: boolean = false) {
   const formattedDescription = formatDescriptionText(description)
   const prefix = isOptional && !keepShort ? "(Optional) " : ""

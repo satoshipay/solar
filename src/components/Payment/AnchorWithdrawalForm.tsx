@@ -12,6 +12,7 @@ import { Box } from "../Layout/Box"
 import { useAssetTransferServerInfos } from "./hooks"
 import AnchorWithdrawalFinishForm from "./AnchorWithdrawalFinishForm"
 import AnchorWithdrawalInitForm from "./AnchorWithdrawalInitForm"
+import AnchorWithdrawalKYCForm from "./AnchorWithdrawalKYCForm"
 
 function NoWithdrawableAssets(props: { account: Account }) {
   const router = useRouter()
@@ -91,22 +92,29 @@ function AnchorWithdrawalForm(props: Props) {
     return <NoWithdrawableAssets account={props.account} />
   }
 
-  return withdrawalResponse ? (
-    <AnchorWithdrawalFinishForm
-      anchorResponse={withdrawalResponse}
-      onCancel={props.onCancel}
-      onSubmit={sendWithdrawalTx}
-      testnet={props.testnet}
-    />
-  ) : (
-    <AnchorWithdrawalInitForm
-      assets={props.assets}
-      onCancel={props.onCancel}
-      onSubmit={requestWithdrawal}
-      testnet={props.testnet}
-      withdrawalResponsePending={withdrawalResponsePending}
-    />
-  )
+  if (withdrawalResponse && withdrawalResponse.type === "success") {
+    return (
+      <AnchorWithdrawalFinishForm
+        anchorResponse={withdrawalResponse}
+        onCancel={props.onCancel}
+        onSubmit={sendWithdrawalTx}
+        testnet={props.testnet}
+      />
+    )
+  } else if (withdrawalResponse && withdrawalResponse.type === "kyc") {
+    // FIXME: Poll until KYC done
+    return <AnchorWithdrawalKYCForm anchorResponse={withdrawalResponse} onCancel={props.onCancel} />
+  } else {
+    return (
+      <AnchorWithdrawalInitForm
+        assets={props.assets}
+        onCancel={props.onCancel}
+        onSubmit={requestWithdrawal}
+        testnet={props.testnet}
+        withdrawalResponsePending={withdrawalResponsePending}
+      />
+    )
+  }
 }
 
 export default AnchorWithdrawalForm
