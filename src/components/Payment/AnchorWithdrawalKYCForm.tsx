@@ -26,7 +26,7 @@ function AnchorWithdrawalKYCRedirect(props: KYCRedirectProps) {
   return (
     <form onSubmit={handleSubmit}>
       <VerticalLayout grow>
-        <VerticalLayout alignItems="center" margin="0 auto" maxWidth="500px" textAlign="center" width="80%">
+        <VerticalLayout alignItems="center" margin="48px auto 0" maxWidth="500px" textAlign="center" width="80%">
           <Typography variant="h5">Additional information needed</Typography>
           <Typography style={{ margin: "8px 0 24px" }} variant="body2">
             The anchor responsible for this operation requires that you provide additional information before accessing

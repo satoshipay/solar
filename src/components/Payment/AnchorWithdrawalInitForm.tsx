@@ -2,12 +2,21 @@ import React from "react"
 import { Asset } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
-import { TransferServer } from "@satoshipay/sep-6"
+import { AssetTransferInfo, EmptyAssetTransferInfo, TransferServer } from "@satoshipay/sep-6"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { formatFieldDescription, formatIdentifier } from "./formatters"
-import { useAssetTransferServerInfos, AssetTransferInfos } from "./hooks"
+import { useAssetTransferServerInfos } from "./hooks"
 import FormBuilder from "./FormBuilder"
+
+type FormValueTransform<Value = string> = (input: Value) => Value
+
+function maybeIBAN(value: string) {
+  if (value && value.length >= 15 && value.match(/^[A-Z]{2}[0-9]{2}\s?[A-Z0-9]{4}\s?[A-Z0-9]{4}/)) {
+    return value.replace(/\s+/g, "")
+  }
+  return value
+}
 
 function filterObject<V>(obj: { [key: string]: V }, filter: (value: V, key: string) => boolean) {
   return Object.keys(obj).reduce<{ [key: string]: V }>((filtered, key) => {
@@ -31,7 +40,7 @@ interface Props {
 function AnchorWithdrawalInitForm(props: Props) {
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {
-    const deposit = transferInfos.data[assetCode].deposit
+    const deposit = transferInfos.data[assetCode].transferInfo.deposit
     return deposit && deposit.enabled
   })
 
@@ -42,7 +51,10 @@ function AnchorWithdrawalInitForm(props: Props) {
   const setFormValue = (fieldName: string, newValue: string) =>
     setFormValues(prevFormValues => ({ ...prevFormValues, [fieldName]: newValue }))
 
-  const withdrawalMetadata: AssetTransferInfos["data"][""] | undefined = transferInfos.data[assetCode || ""]
+  const withdrawalMetadata: AssetTransferInfo | EmptyAssetTransferInfo | undefined = transferInfos.data[assetCode || ""]
+    ? transferInfos.data[assetCode || ""].transferInfo
+    : undefined
+
   const methodNames =
     withdrawalMetadata && withdrawalMetadata.withdraw && withdrawalMetadata.withdraw.types
       ? Object.keys(withdrawalMetadata.withdraw.types)
@@ -58,6 +70,20 @@ function AnchorWithdrawalInitForm(props: Props) {
     return description ? formatFieldDescription(description, fields[name].optional || false, keepShort) : undefined
   }
 
+  const postprocessFormValue = (fieldName: string, transforms: FormValueTransform[]) => {
+    const originalValue = formValues[fieldName]
+    let fieldValue = originalValue
+
+    for (const transform of transforms) {
+      fieldValue = transform(fieldValue)
+    }
+
+    if (fieldValue !== originalValue) {
+      setFormValue(fieldName, fieldValue)
+    }
+    return fieldValue
+  }
+
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
 
@@ -65,12 +91,16 @@ function AnchorWithdrawalInitForm(props: Props) {
     if (!asset) {
       throw new Error("No asset selected.")
     }
-    const transferServer = transferInfos.transferServers.get(asset)
+
+    const transferServer = transferInfos.data[asset.getCode()].transferServer
     if (!transferServer) {
       throw new Error(`No transfer server found for asset ${asset.getCode()}`)
     }
     if (!methodID) {
       throw new Error("No withdrawal method selected.")
+    }
+    if (methodID === "bank_account") {
+      formValues.dest = postprocessFormValue("dest", [maybeIBAN])
     }
     props.onSubmit(transferServer, asset, methodID, formValues)
   }
@@ -94,7 +124,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             value={assetCode || ""}
           >
             {Object.keys(transferInfos.data).map(assetCode => {
-              const deposit = transferInfos.data[assetCode].deposit
+              const deposit = transferInfos.data[assetCode].transferInfo.deposit
               return deposit && deposit.enabled ? (
                 <MenuItem key={assetCode} value={assetCode}>
                   {assetCode}
@@ -115,7 +145,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             value={methodID || ""}
           >
             <MenuItem disabled value="">
-              Please select one
+              {assetCode ? "Please select a type" : "Select an asset first"}
             </MenuItem>
             {methodNames.map(methodName => (
               <MenuItem key={methodName} value={methodName}>

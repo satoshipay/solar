@@ -23,7 +23,7 @@ interface KYCStatusProps {
 function AnchorWithdrawalKYCStatus(props: KYCStatusProps) {
   return (
     <VerticalLayout grow>
-      <VerticalLayout alignItems="center" margin="0 auto" maxWidth="550px" textAlign="center" width="80%">
+      <VerticalLayout alignItems="center" margin="48px auto 0" maxWidth="550px" textAlign="center" width="80%">
         {mapTo(props.meta.status, {
           denied: (
             <>

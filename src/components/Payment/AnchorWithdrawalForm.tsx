@@ -45,7 +45,7 @@ function AnchorWithdrawalForm(props: Props) {
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {
-    const transferInfo = transferInfos.data[assetCode]
+    const transferInfo = transferInfos.data[assetCode].transferInfo
     return transferInfo.withdraw && transferInfo.withdraw.enabled
   })
 

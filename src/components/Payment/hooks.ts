@@ -10,12 +10,16 @@ import {
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks"
 
+interface ExtendedTransferInfo {
+  transferInfo: AssetTransferInfo | EmptyAssetTransferInfo
+  transferServer: TransferServer | null
+}
+
 export interface AssetTransferInfos {
   data: {
-    [assetCode: string]: AssetTransferInfo | EmptyAssetTransferInfo
+    [assetCode: string]: ExtendedTransferInfo
   }
   loading: boolean
-  transferServers: Map<Asset, TransferServer | null>
 }
 
 const emptyTransferInfo = {
@@ -24,7 +28,7 @@ const emptyTransferInfo = {
   withdraw: undefined
 }
 
-const transferInfosCache = new Map<string, AssetTransferInfo | EmptyAssetTransferInfo>()
+const transferInfosCache = new Map<string, ExtendedTransferInfo>()
 const transferInfosLoading = new Map<string, Promise<any>>()
 
 function getAssetCacheKey(asset: Asset, testnet: boolean) {
@@ -34,7 +38,6 @@ function getAssetCacheKey(asset: Asset, testnet: boolean) {
 export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): AssetTransferInfos {
   // To force-update the component once an async fetch is completed
   const [completedFetches, setCompletedFetches] = React.useState(0)
-  const [transferServers, setTransferServers] = React.useState<Map<Asset, TransferServer | null>>(new Map())
 
   const horizon = useHorizon(testnet)
   const loadingPromiseCacheKey = assets.map(asset => getAssetCacheKey(asset, testnet)).join(",")
@@ -42,12 +45,11 @@ export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): 
 
   const fetchData = async () => {
     const updatedTransferServers = await fetchTransferServers(horizon, uncachedAssets)
-    setTransferServers(updatedTransferServers)
-
     const transferInfos = await fetchAssetTransferInfos(updatedTransferServers)
 
     for (const [asset, transferInfo] of Array.from(transferInfos.entries())) {
-      transferInfosCache.set(getAssetCacheKey(asset, testnet), transferInfo)
+      const transferServer = updatedTransferServers.get(asset) || null
+      transferInfosCache.set(getAssetCacheKey(asset, testnet), { transferInfo, transferServer })
     }
 
     setCompletedFetches(completedFetches + 1)
@@ -70,12 +72,12 @@ export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): 
     const cacheItem = transferInfosCache.get(getAssetCacheKey(asset, testnet))
     return {
       ...reduced,
-      [asset.getCode()]: cacheItem || emptyTransferInfo
+      [asset.getCode()]: cacheItem || { transferInfo: emptyTransferInfo, transferServer: null }
     }
   }, {})
+
   return {
     data,
-    loading: uncachedAssets.length > 0,
-    transferServers
+    loading: uncachedAssets.length > 0
   }
 }
