@@ -1,7 +1,29 @@
+import BigNumber from "big.js"
+import { formatBalance } from "../Account/AccountBalances"
+
 const isCommonAbbreviation = (str: string) => ["bic", "iban", "sepa", "swift"].indexOf(str) > -1
 const uppercaseIfCommonAbbreviation = (str: string) => (isCommonAbbreviation(str) ? str.toUpperCase() : str)
 
 const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
+
+export function formatBalanceRange(
+  balance: BigNumber,
+  minAmount: BigNumber | undefined,
+  maxAmount: BigNumber | undefined
+): string {
+  const min = minAmount ? formatBalance(minAmount) : undefined
+  const max = maxAmount ? formatBalance(maxAmount) : undefined
+
+  if (min && max) {
+    return `${min} - ${max}`
+  } else if (min) {
+    return `Min. ${min}`
+  } else if (max) {
+    return `Max. ${max}`
+  } else {
+    return ""
+  }
+}
 
 export function formatDescriptionText(description: string) {
   if (description === description.toLowerCase() || description === description.toUpperCase()) {

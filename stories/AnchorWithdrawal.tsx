@@ -6,8 +6,20 @@ import { storiesOf } from "@storybook/react"
 import AnchorWithdrawalFinishForm from "../src/components/Payment/AnchorWithdrawalFinishForm"
 import AnchorWithdrawalInitForm from "../src/components/Payment/AnchorWithdrawalInitForm"
 import AnchorWithdrawalKYCForm from "../src/components/Payment/AnchorWithdrawalKYCForm"
+import { Account } from "../src/context/accounts"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
+
+const account: Account = {
+  id: "1",
+  name: "Test account",
+  publicKey: "GD6C4QCD5AMPX3IWTY5MPCGELPIRCNNGI3TEAFJOCFJS6MZFUF2BRTM4",
+  requiresPassword: false,
+  testnet: false,
+  getPrivateKey() {
+    throw new Error("Not implemented")
+  }
+}
 
 const withdrawalSuccessResponse: WithdrawalRequestSuccess = {
   type: "success",
@@ -61,10 +73,11 @@ storiesOf("Withdrawal", module)
   ))
   .add("Finish", () => (
     <AnchorWithdrawalFinishForm
+      account={account}
+      asset={eurt}
       anchorResponse={withdrawalSuccessResponse}
       onCancel={action("cancel")}
       onSubmit={action("submit")}
-      testnet={false}
     />
   ))
   .add("Interactive KYC", () => (

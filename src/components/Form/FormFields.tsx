@@ -2,7 +2,7 @@ import React from "react"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 
-export function PriceInput(props: TextFieldProps & { assetCode: string }) {
+export function PriceInput(props: TextFieldProps & { assetCode: string; readOnly?: boolean }) {
   return (
     <TextField
       {...props}
@@ -12,7 +12,12 @@ export function PriceInput(props: TextFieldProps & { assetCode: string }) {
             {props.assetCode}
           </InputAdornment>
         ),
+        readOnly: props.readOnly,
         ...props.InputProps
+      }}
+      style={{
+        pointerEvents: props.readOnly ? "none" : undefined,
+        ...props.style
       }}
     />
   )

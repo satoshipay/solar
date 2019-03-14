@@ -42,6 +42,7 @@ function AnchorWithdrawalForm(props: Props) {
     WithdrawalRequestKYC | WithdrawalRequestSuccess | null
   >(null)
   const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
+  const [selectedAsset, setSelectedAsset] = React.useState<Asset | null>(null)
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {
@@ -74,6 +75,7 @@ function AnchorWithdrawalForm(props: Props) {
         account: props.account.publicKey,
         ...formValues
       } as any)
+      setSelectedAsset(asset)
       setWithdrawalResponse(response)
     } catch (error) {
       trackError(error)
@@ -93,12 +95,16 @@ function AnchorWithdrawalForm(props: Props) {
   }
 
   if (withdrawalResponse && withdrawalResponse.type === "success") {
+    if (!selectedAsset) {
+      throw new Error("No asset set.")
+    }
     return (
       <AnchorWithdrawalFinishForm
+        account={props.account}
+        asset={selectedAsset}
         anchorResponse={withdrawalResponse}
         onCancel={props.onCancel}
         onSubmit={sendWithdrawalTx}
-        testnet={props.testnet}
       />
     )
   } else if (withdrawalResponse && withdrawalResponse.type === "kyc") {
