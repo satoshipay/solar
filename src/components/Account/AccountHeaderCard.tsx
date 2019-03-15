@@ -108,6 +108,7 @@ function AccountHeaderCard(props: Props) {
           <Box grow style={{ textAlign: "right" }}>
             <Button
               color="secondary"
+              disabled={!accountData.activated}
               onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
               style={{ marginRight: 8 }}
               variant="outlined"
