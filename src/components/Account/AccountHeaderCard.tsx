@@ -107,8 +107,9 @@ function AccountHeaderCard(props: Props) {
           </HorizontalLayout>
           <Box grow style={{ textAlign: "right" }}>
             <Button
+              color="secondary"
               onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
-              style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: 8 }}
+              style={{ marginRight: 8 }}
               variant="outlined"
             >
               <ButtonIconLabel label="Trade">
