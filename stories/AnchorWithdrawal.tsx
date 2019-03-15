@@ -28,7 +28,7 @@ const withdrawalSuccessResponse: WithdrawalRequestSuccess = {
     eta: 24 * 60 * 60,
     memo_type: "hash",
     memo: "6391dd190f15f7d1665ba53c63842e368f485651a53d8d852ed442a446d1c69a",
-    max_amount: 5000,
+    min_amount: 5,
     fee_fixed: 2.0
   }
 }

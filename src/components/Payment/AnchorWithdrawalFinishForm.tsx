@@ -10,7 +10,7 @@ import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import { formatBalanceRange, formatDuration } from "./formatters"
+import { formatBalanceRange, formatDescriptionText, formatDuration } from "./formatters"
 
 interface ExtraValues {
   [fieldName: string]: string
@@ -67,7 +67,7 @@ function AnchorWithdrawalFinishForm(props: Props) {
             label="Fees"
             readOnly
             style={{ flexGrow: 0, width: 160 }}
-            value={formatBalance(fees)}
+            value={`- ${formatBalance(fees)}`}
           />
         </HorizontalLayout>
         <HorizontalLayout margin="24px 0 0">
@@ -80,6 +80,12 @@ function AnchorWithdrawalFinishForm(props: Props) {
           />
           <ReadOnlyTextfield label="ETA" style={{ flexGrow: 0, width: 160 }} value={eta} />
         </HorizontalLayout>
+        {Object.keys(props.anchorResponse.data.extra_info || {}).map(extraKey => (
+          <ReadOnlyTextfield
+            label={formatDescriptionText(extraKey)}
+            value={props.anchorResponse.data.extra_info[extraKey]}
+          />
+        ))}
         {/* TODO: extra_fields */}
         <HorizontalLayout margin="24px 0 0">{null}</HorizontalLayout>
         <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
