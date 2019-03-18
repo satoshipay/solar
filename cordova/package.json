@@ -4,8 +4,8 @@
   "displayName": "Solar",
   "cordova": {
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ],
     "plugins": {
       "cordova-plugin-secure-storage": {},
@@ -21,29 +21,30 @@
     "cordova": "^8.1.2",
     "cordova-android": "^7.1.4",
     "cordova-ios": "^4.5.5",
-    "cordova-plugin-dialogs": "~2.0.1",
-    "cordova-plugin-network-information": "~2.0.1",
+    "cordova-plugin-dialogs": "^2.0.1",
+    "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-secure-storage": "^3.0.1",
-    "cordova-plugin-whitelist": "1",
+    "cordova-plugin-whitelist": "^1.3.3",
     "phonegap-plugin-barcodescanner": "^8.0.1"
   },
   "devDependencies": {
+    "dotenv-cli": "^2.0.0",
     "npm-run-all": "^4.1.5"
   },
   "scripts": {
-    "install:android": "cordova platform add android",
-    "remove:android": "cordova platform rm android",
-    "prebuild:android": "NODE_ENV=production PLATFORM=android ../node_modules/.bin/parcel build ../src/index.prod-android.njk --public-url=./ --detailed-report --no-source-maps && cp config/config-prod-android.xml config.xml",
-    "build:android": "npm run prebuild:android && cordova build android",
-    "dev:android": "run-p dev:bundle:android dev:cordova:android",
-    "dev:bundle:android": "PLATFORM=android NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 1234",
-    "dev:cordova:android": "../node_modules/.bin/parcel build ../src/index.dev-android.njk --public-url=./ && cp config/config-dev-android.xml config.xml && cordova build android",
+    "install:android": "cordova platform add android && source scripts/patch-android-config.sh",
     "install:ios": "cordova platform add ios",
+    "remove:android": "cordova platform rm android",
     "remove:ios": "cordova platform rm ios",
+    "prebuild:android": "NODE_ENV=production PLATFORM=android ../node_modules/.bin/parcel build ../src/index.prod-android.njk --public-url=./ --detailed-report --no-source-maps && cp config/config-prod-android.xml config.xml",
     "prebuild:ios": "NODE_ENV=production PLATFORM=ios ../node_modules/.bin/parcel build ../src/index.prod-ios.njk --public-url=./ --detailed-report --no-source-maps && cp config/config-prod-ios.xml config.xml",
+    "build:android": "npm run prebuild:android && dotenv -- cordova build android",
     "build:ios": "npm run prebuild:ios && cordova build ios",
+    "dev:android": "run-p dev:bundle:android dev:cordova:android",
     "dev:ios": "run-p dev:bundle:ios dev:cordova:ios",
+    "dev:bundle:android": "PLATFORM=android NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 1234",
     "dev:bundle:ios": "PLATFORM=ios NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 1234",
+    "dev:cordova:android": "../node_modules/.bin/parcel build ../src/index.dev-android.njk --public-url=./ && cp config/config-dev-android.xml config.xml && dotenv -- cordova build android",
     "dev:cordova:ios": "../node_modules/.bin/parcel build ../src/index.dev-ios.njk --public-url=./ && cp config/config-dev-ios.xml config.xml && cordova build ios"
   }
 }
