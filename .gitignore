@@ -14,3 +14,4 @@ Thumbs.db
 
 cordova/config.xml
 cordova/platforms/
+cordova/plugins/
