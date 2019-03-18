@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
@@ -50,14 +51,14 @@ function AnchorWithdrawalForm(props: Props) {
     return transferInfo.withdraw && transferInfo.withdraw.enabled
   })
 
-  const createWithdrawalTx = async () => {
+  const createWithdrawalTx = async (amount: BigNumber) => {
     // FIXME
     debugger
     return new Transaction("")
   }
 
-  const sendWithdrawalTx = () => {
-    props.onSubmit(createWithdrawalTx)
+  const sendWithdrawalTx = (amount: BigNumber) => {
+    props.onSubmit(() => createWithdrawalTx(amount))
   }
 
   const requestWithdrawal = async (

@@ -12,19 +12,17 @@ import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { formatBalanceRange, formatDescriptionText, formatDuration } from "./formatters"
 
-interface ExtraValues {
-  [fieldName: string]: string
-}
-
 interface Props {
   account: Account
   asset: Asset
   anchorResponse: WithdrawalRequestSuccess
   onCancel: () => void
-  onSubmit: (extraFields: ExtraValues) => void
+  onSubmit: (amount: BigNumber) => void
 }
 
 function AnchorWithdrawalFinishForm(props: Props) {
+  // TODO: extra_info is not handled
+
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const [amountString, setAmountString] = React.useState("")
 
@@ -33,22 +31,25 @@ function AnchorWithdrawalFinishForm(props: Props) {
   const minAmount = data.min_amount ? BigNumber(data.min_amount) : undefined
   const maxAmount = data.max_amount ? BigNumber(data.max_amount) : undefined
 
-  const handleSubmit = () => {
-    // FIXME
-  }
-
   const amount = amountString.match(/^[0-9]+(\.[0-9]+)?$/) ? BigNumber(amountString) : BigNumber(0)
   const eta = data.eta ? formatDuration(data.eta) : "N/A"
 
-  // FIXME
+  const isAmountOutOfBounds = (minAmount && amount.lt(minAmount)) || (maxAmount && amount.gt(maxAmount))
+  const isDisabled = !amount.gt(0) || amount.gt(balance) || isAmountOutOfBounds
+
   const fees = BigNumber(data.fee_fixed || 0).add(
     BigNumber(data.fee_percent || 0)
       .div(100)
       .mul(amount)
   )
 
-  // FIXME
-  const isDisabled = true
+  const handleSubmit = React.useCallback(
+    (event: React.SyntheticEvent) => {
+      event.preventDefault()
+      props.onSubmit(amount)
+    },
+    [props.onSubmit, amount]
+  )
 
   return (
     <form onSubmit={handleSubmit}>
@@ -86,7 +87,6 @@ function AnchorWithdrawalFinishForm(props: Props) {
             value={props.anchorResponse.data.extra_info[extraKey]}
           />
         ))}
-        {/* TODO: extra_fields */}
         <HorizontalLayout margin="24px 0 0">{null}</HorizontalLayout>
         <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
           <ActionButton onClick={props.onCancel}>Cancel</ActionButton>

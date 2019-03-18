@@ -12,8 +12,8 @@ const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMO
 
 const account: Account = {
   id: "1",
-  name: "Test account",
-  publicKey: "GD6C4QCD5AMPX3IWTY5MPCGELPIRCNNGI3TEAFJOCFJS6MZFUF2BRTM4",
+  name: "Mainnet account",
+  publicKey: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",
   requiresPassword: false,
   testnet: false,
   getPrivateKey() {
@@ -66,8 +66,8 @@ storiesOf("Withdrawal", module)
   .add("Request", () => (
     <AnchorWithdrawalInitForm
       assets={[eurt]}
-      onCancel={action("clicked cancel")}
-      onSubmit={action("clicked submit")}
+      onCancel={action("Clicked cancel")}
+      onSubmit={action("Clicked submit")}
       testnet={false}
     />
   ))
@@ -76,8 +76,8 @@ storiesOf("Withdrawal", module)
       account={account}
       asset={eurt}
       anchorResponse={withdrawalSuccessResponse}
-      onCancel={action("cancel")}
-      onSubmit={action("submit")}
+      onCancel={action("Clicked cancel")}
+      onSubmit={action("Clicked submit")}
     />
   ))
   .add("Interactive KYC", () => (
