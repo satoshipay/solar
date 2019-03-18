@@ -177,7 +177,7 @@ function TransactionItemText(props: TitleTextProps) {
   } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "changeTrust") {
     const operation = props.transaction.operations[0] as Operation.ChangeTrust
 
-    return String(operation.limit) === "0" ? (
+    return BigNumber(operation.limit).eq(0) ? (
       <ListItemText
         primary={
           <span>
@@ -239,7 +239,7 @@ function TransactionItemText(props: TitleTextProps) {
           style={props.style}
         />
       )
-    } else if (String(operation.amount) === "0") {
+    } else if (BigNumber(operation.amount).eq(0)) {
       // Delete offer
       return (
         <ListItemText

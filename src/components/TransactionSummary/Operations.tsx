@@ -93,7 +93,7 @@ function CreateAccountOperation(props: { operation: Operation.CreateAccount; sty
 }
 
 function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?: React.CSSProperties }) {
-  if (String(props.operation.limit) === "0") {
+  if (BigNumber(props.operation.limit).eq(0)) {
     const content = (
       <OperationDetails>
         <b>{props.operation.line.code}</b> by{" "}
