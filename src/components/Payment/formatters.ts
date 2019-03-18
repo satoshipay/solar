@@ -33,11 +33,10 @@ export function formatBalanceRange(
 
 export function formatDescriptionText(description: string) {
   if (description === description.toLowerCase() || description === description.toUpperCase()) {
-    description = uppercaseFirstLetter(description)
     description = description.replace(/\. ([a-z])/g, (match, letter) => `. ${letter.toUpperCase()}`)
     description = description.replace(/\b([A-Za-z]+)\b/g, match => uppercaseIfCommonAbbreviation(match))
   }
-  return description
+  return uppercaseFirstLetter(description)
 }
 
 export function formatDuration(seconds: number) {
@@ -64,7 +63,7 @@ export function formatIdentifier(identifier: string) {
   return identifier
     .replace(/[-_]/g, " ")
     .split(" ")
-    .map(word => uppercaseFirstLetter(word))
+    .map((word, index) => (index === 0 ? uppercaseFirstLetter(word) : word))
     .map(word => uppercaseIfCommonAbbreviation(word))
     .join(" ")
 }

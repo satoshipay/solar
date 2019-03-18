@@ -117,7 +117,7 @@ function AnchorWithdrawalInitForm(props: Props) {
       <VerticalLayout>
         <HorizontalLayout>
           <TextField
-            label="Asset to Withdraw"
+            label="Asset to withdraw"
             onChange={event => setAssetCode(event.target.value || null)}
             select
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 180 }}
@@ -138,7 +138,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             ) : null}
           </TextField>
           <TextField
-            label="Type of Withdrawal"
+            label="Type of withdrawal"
             onChange={event => setMethodID(event.target.value || null)}
             select
             style={{ flexGrow: 1 }}
@@ -156,7 +156,7 @@ function AnchorWithdrawalInitForm(props: Props) {
         </HorizontalLayout>
         <HorizontalLayout margin="24px 0 0">
           <TextField
-            label="Destination Account"
+            label="Destination account"
             onChange={event => setFormValue("dest", event.target.value)}
             placeholder={getFieldDescription("dest")}
             style={{ flexGrow: 3, marginRight: fields.dest_extra ? 24 : undefined }}
@@ -164,7 +164,7 @@ function AnchorWithdrawalInitForm(props: Props) {
           />
           {fields.dest_extra ? (
             <TextField
-              label={getFieldDescription("dest_extra", true) || "Destination Extra Data (no description)"}
+              label={getFieldDescription("dest_extra", true) || "Extra destination data (no description)"}
               onChange={event => setFormValue("dest_extra", event.target.value)}
               placeholder={getFieldDescription("dest_extra")}
               style={{ flexGrow: 1 }}
