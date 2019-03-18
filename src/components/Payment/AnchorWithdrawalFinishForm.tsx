@@ -17,7 +17,7 @@ interface Props {
   asset: Asset
   anchorResponse: WithdrawalRequestSuccess
   onCancel: () => void
-  onSubmit: (amount: BigNumber) => void
+  onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalRequestSuccess) => void
 }
 
 function AnchorWithdrawalFinishForm(props: Props) {
@@ -46,7 +46,7 @@ function AnchorWithdrawalFinishForm(props: Props) {
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent) => {
       event.preventDefault()
-      props.onSubmit(amount)
+      props.onSubmit(amount, props.asset, props.anchorResponse)
     },
     [props.onSubmit, amount]
   )

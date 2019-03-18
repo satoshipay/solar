@@ -1,12 +1,14 @@
 import BigNumber from "big.js"
+import { Buffer } from "buffer"
 import React from "react"
-import { Asset, Server, Transaction } from "stellar-sdk"
+import { Asset, Memo, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import { TransferServer, WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/sep-6"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useRouter } from "../../hooks"
+import { useAccountData, useRouter } from "../../hooks"
+import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
@@ -14,6 +16,26 @@ import { useAssetTransferServerInfos } from "./hooks"
 import AnchorWithdrawalFinishForm from "./AnchorWithdrawalFinishForm"
 import AnchorWithdrawalInitForm from "./AnchorWithdrawalInitForm"
 import AnchorWithdrawalKYCForm from "./AnchorWithdrawalKYCForm"
+
+function createMemo(withdrawalResponse: WithdrawalRequestSuccess): Memo | null {
+  const { memo, memo_type: type } = withdrawalResponse.data
+
+  if (!memo || !type) {
+    return null
+  }
+
+  switch (type) {
+    case "hash":
+      const hash = Buffer.from(memo, "base64")
+      return Memo.hash(hash.toString("hex"))
+    case "id":
+      return Memo.id(memo)
+    case "text":
+      return Memo.text(memo)
+    default:
+      return null
+  }
+}
 
 function NoWithdrawableAssets(props: { account: Account }) {
   const router = useRouter()
@@ -34,7 +56,7 @@ interface Props {
   assets: Asset[]
   horizon: Server
   onCancel: () => void
-  onSubmit: (createTx: () => Promise<Transaction>) => any
+  onSubmit: (createTx: () => Promise<Transaction>) => Promise<any>
   testnet: boolean
 }
 
@@ -44,6 +66,9 @@ function AnchorWithdrawalForm(props: Props) {
   >(null)
   const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
   const [selectedAsset, setSelectedAsset] = React.useState<Asset | null>(null)
+  const router = useRouter()
+
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {
@@ -51,14 +76,24 @@ function AnchorWithdrawalForm(props: Props) {
     return transferInfo.withdraw && transferInfo.withdraw.enabled
   })
 
-  const createWithdrawalTx = async (amount: BigNumber) => {
-    // FIXME
-    debugger
-    return new Transaction("")
+  const createWithdrawalTx = async (amount: BigNumber, asset: Asset, response: WithdrawalRequestSuccess) => {
+    const memo = createMemo(response)
+    const payment = Operation.payment({
+      amount: amount.toString(),
+      asset,
+      destination: response.data.account_id
+    })
+    return createTransaction([payment], {
+      accountData,
+      horizon: props.horizon,
+      memo,
+      walletAccount: props.account
+    })
   }
 
-  const sendWithdrawalTx = (amount: BigNumber) => {
-    props.onSubmit(() => createWithdrawalTx(amount))
+  const sendWithdrawalTx = async (amount: BigNumber, asset: Asset, response: WithdrawalRequestSuccess) => {
+    await props.onSubmit(() => createWithdrawalTx(amount, asset, response))
+    router.history.push(routes.account(props.account.id))
   }
 
   const requestWithdrawal = async (

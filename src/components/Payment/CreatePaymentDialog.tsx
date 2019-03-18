@@ -37,7 +37,7 @@ interface Props {
   horizon: Server
   open: boolean
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (transaction: Transaction) => Promise<any>
 }
 
 function CreatePaymentDialog(props: Props) {
@@ -49,7 +49,7 @@ function CreatePaymentDialog(props: Props) {
     try {
       setTxCreationPending(true)
       const tx = await createTx(props.horizon, props.account)
-      props.sendTransaction(tx)
+      await props.sendTransaction(tx)
     } catch (error) {
       trackError(error)
     } finally {
