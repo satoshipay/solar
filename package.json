@@ -18,25 +18,15 @@
     "storybook": "start-storybook -p 9001 -c .storybook",
     "test": "tslint --project .",
     "prebuild:electron": "NODE_ENV=production parcel build ./src/index.prod.njk --public-url=./ --detailed-report --no-source-maps --no-cache",
-    "prebuild:android": "NODE_ENV=production PLATFORM=android parcel build ./src/index.prod-android.njk --public-url=./ --detailed-report --no-source-maps && cp cordova/config/config-prod-android.xml cordova/config.xml",
-    "prebuild:ios": "NODE_ENV=production PLATFORM=ios parcel build ./src/index.prod-ios.njk --public-url=./ --detailed-report --no-source-maps && cp cordova/config/config-prod-ios.xml cordova/config.xml",
     "build:linux": "PLATFORM=linux npm run prebuild:electron && build --linux --x64 --config ./electron-build.yml",
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && build --mac --x64 --config ./electron-build.yml",
     "build:mac:signed": "source ./scripts/signing-env.sh && npm run build:mac -- -c.forceCodeSigning=true",
     "build:win": "PLATFORM=win32 npm run prebuild:electron && build --win --ia32 --config ./electron-build.yml",
     "build:win:signed": "source ./scripts/signing-env.sh && npm run build:win -- -c.forceCodeSigning=true",
-    "build:android": "npm run prebuild:android && cd cordova && cordova build android",
-    "build:ios": "npm run prebuild:ios && cd cordova && cordova build ios",
     "dev": "run-p dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development run-electron -r ./electron/development .",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
-    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./",
-    "dev:android": "run-p dev:bundle:android dev:cordova:android",
-    "dev:bundle:android": "PLATFORM=android NODE_ENV=development parcel serve ./src/index.dev.njk -p 1234",
-    "dev:cordova:android": "parcel build ./src/index.dev-android.njk --public-url=./ && cp cordova/config/config-dev-android.xml cordova/config.xml && cd cordova && cordova build android",
-    "dev:ios": "run-p dev:bundle:ios dev:cordova:ios",
-    "dev:bundle:ios": "PLATFORM=ios NODE_ENV=development parcel serve ./src/index.dev.njk -p 1234",
-    "dev:cordova:ios": "parcel build ./src/index.dev-ios.njk --public-url=./ && cp cordova/config/config-dev-ios.xml cordova/config.xml && cd cordova && cordova build ios"
+    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./"
   },
   "lint-staged": {
     "ignore": [

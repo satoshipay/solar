@@ -13,24 +13,6 @@ Thumbs.db
 .eslintcache
 
 cordova/config.xml
-
-# Android
-cordova/platforms/android/.gradle
-cordova/platforms/android/android.iml
-cordova/platforms/android/build
-cordova/platforms/android/app/build
-cordova/platforms/android/app/src/main/assets/www
-cordova/platforms/android/app/app.iml
-cordova/platforms/android/local.properties
-cordova/platforms/android/CordovaLib/build
-cordova/platforms/android/CordovaLib/gen
-cordova/platforms/android/CordovaLib/local.properties
-cordova/platforms/android/CordovaLib/CordovaLib.iml
-
-# iOS
-cordova/platforms/ios/build/
-cordova/platforms/ios/www/
-cordova/platforms/ios/cordova/console.log
-cordova/platforms/ios/Solar/config.xml
-cordova/platforms/ios/Solar/Solar-Info.plist
-*.xcuserdatad
+cordova/platforms/
+cordova/plugins/
+!cordova/.env
