@@ -39,8 +39,8 @@ interface Props {
 
 function AnchorWithdrawalInitForm(props: Props) {
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
-  const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {
-    const deposit = transferInfos.data[assetCode].transferInfo.deposit
+  const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(someAssetCode => {
+    const deposit = transferInfos.data[someAssetCode].transferInfo.deposit
     return deposit && deposit.enabled
   })
 
@@ -123,11 +123,11 @@ function AnchorWithdrawalInitForm(props: Props) {
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 180 }}
             value={assetCode || ""}
           >
-            {Object.keys(transferInfos.data).map(assetCode => {
-              const deposit = transferInfos.data[assetCode].transferInfo.deposit
+            {Object.keys(transferInfos.data).map(thisAssetCode => {
+              const deposit = transferInfos.data[thisAssetCode].transferInfo.deposit
               return deposit && deposit.enabled ? (
-                <MenuItem key={assetCode} value={assetCode}>
-                  {assetCode}
+                <MenuItem key={thisAssetCode} value={thisAssetCode}>
+                  {thisAssetCode}
                 </MenuItem>
               ) : null
             })}
@@ -159,10 +159,10 @@ function AnchorWithdrawalInitForm(props: Props) {
             label="Destination Account"
             onChange={event => setFormValue("dest", event.target.value)}
             placeholder={getFieldDescription("dest")}
-            style={{ flexGrow: 3, marginRight: fields["dest_extra"] ? 24 : undefined }}
+            style={{ flexGrow: 3, marginRight: fields.dest_extra ? 24 : undefined }}
             value={formValues.dest || ""}
           />
-          {fields["dest_extra"] ? (
+          {fields.dest_extra ? (
             <TextField
               label={getFieldDescription("dest_extra", true) || "Destination Extra Data (no description)"}
               onChange={event => setFormValue("dest_extra", event.target.value)}
