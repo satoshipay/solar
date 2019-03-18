@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import React from "react"
 import { sendCommand } from "./message-handler"
 import { trackError } from "../../context/notifications"
 import { commands } from "../../cordova/ipc"
@@ -10,7 +10,7 @@ interface Props {
 }
 
 function CordovaQRReader(props: Props): ReturnType<React.FunctionComponent<Props>> {
-  useEffect(() => {
+  React.useEffect(() => {
     sendCommand(commands.scanQRCodeCommand)
       .then(event => {
         props.onScan(event.data.qrdata)

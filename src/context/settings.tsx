@@ -1,5 +1,4 @@
 import React from "react"
-import { useEffect, useState } from "react"
 import {
   loadIgnoredSignatureRequestHashes,
   loadSettings,
@@ -48,10 +47,10 @@ const SettingsContext = React.createContext<ContextType>({
 })
 
 export function SettingsProvider(props: Props) {
-  const [ignoredSignatureRequests, setIgnoredSignatureRequests] = useState(initialIgnoredSignatureRequests)
-  const [settings, setSettings] = useState(initialSettings)
+  const [ignoredSignatureRequests, setIgnoredSignatureRequests] = React.useState(initialIgnoredSignatureRequests)
+  const [settings, setSettings] = React.useState(initialSettings)
 
-  useEffect(() => {
+  React.useEffect(() => {
     loadSettings()
       .then(loadedSettings => setSettings({ ...settings, ...loadedSettings }))
       .catch(trackError)
@@ -73,7 +72,7 @@ export function SettingsProvider(props: Props) {
     }
   }
 
-  const updateSettings = (update: Partial<Pick<SettingsData, "agreedToTermsAt" | "multisignature" | "testnet">>) => {
+  const updateSettings = (update: Partial<SettingsData>) => {
     try {
       const updatedSettings = {
         ...settings,

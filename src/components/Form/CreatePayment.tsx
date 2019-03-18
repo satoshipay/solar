@@ -1,5 +1,5 @@
 import React from "react"
-import { AccountRecord, Asset } from "stellar-sdk"
+import { Asset, Horizon } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -28,10 +28,10 @@ export interface PaymentCreationValues {
 
 type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
 
-function validateFormValues(formValues: PaymentCreationValues, balances: AccountRecord["balances"]) {
+function validateFormValues(formValues: PaymentCreationValues, balances: Horizon.BalanceLine[]) {
   const errors: PaymentCreationErrors = {}
 
-  const xlmBalance = balances.find(someBalance => someBalance.asset_type === "native") as AccountRecord["balances"][0]
+  const xlmBalance = balances.find(someBalance => someBalance.asset_type === "native") as Horizon.BalanceLine
   const balance = balances.find((someBalance: any) => someBalance.asset_code === formValues.asset) || xlmBalance
 
   if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
@@ -66,38 +66,59 @@ interface AssetSelectorProps {
   style: React.CSSProperties
 }
 
-const AssetSelector = (props: AssetSelectorProps) => {
+function AssetSelector(props: AssetSelectorProps) {
   return (
-    <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
-      {props.assets.map(assetCode => (
-        <MenuItem key={assetCode} value={assetCode}>
-          {assetCode}
-        </MenuItem>
-      ))}
-    </Select>
+    <FormControl>
+      <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
+        {props.assets.map(assetCode => (
+          <MenuItem key={assetCode} value={assetCode}>
+            {assetCode}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   )
 }
 
-interface PaymentCreationFormProps {
-  errors: PaymentCreationErrors
-  formValues: PaymentCreationValues
+interface Props {
+  balances: Horizon.BalanceLine[]
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  setFormValue: (fieldName: keyof PaymentCreationValues, value: string) => void
   onCancel: () => void
-  onSubmit: () => void
+  onSubmit?: (formValues: PaymentCreationValues) => any
 }
 
-const PaymentCreationForm = (props: PaymentCreationFormProps) => {
-  const { errors, formValues, setFormValue, onCancel, onSubmit } = props
+function PaymentCreationForm(props: Props) {
+  const { onSubmit = () => undefined } = props
 
-  const handleSubmitEvent = (event: React.SyntheticEvent) => {
+  const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
+  const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
+    amount: "",
+    asset: "XLM",
+    destination: "",
+    memoType: "none",
+    memoValue: ""
+  })
+
+  const setFormValue = (fieldName: keyof PaymentCreationValues, value: string | null) => {
+    setFormValues({
+      ...formValues,
+      [fieldName]: value
+    })
+  }
+
+  const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    onSubmit()
+    const validation = validateFormValues(formValues, props.balances)
+    setErrors(validation.errors)
+
+    if (validation.success) {
+      onSubmit(formValues)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmitEvent}>
+    <form onSubmit={submit}>
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
@@ -161,7 +182,7 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
         )}
       </Box>
       <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
-        <ActionButton onClick={onCancel}>Cancel</ActionButton>
+        <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
         <ActionButton
           icon={<SendIcon style={{ fontSize: 16 }} />}
           loading={props.txCreationPending}
@@ -175,56 +196,4 @@ const PaymentCreationForm = (props: PaymentCreationFormProps) => {
   )
 }
 
-interface Props {
-  balances: AccountRecord["balances"]
-  trustedAssets: Asset[]
-  txCreationPending?: boolean
-  onCancel: () => void
-  onSubmit?: (formValues: PaymentCreationValues) => any
-}
-
-interface State {
-  errors: PaymentCreationErrors
-  formValues: PaymentCreationValues
-}
-
-class StatefulPaymentCreationForm extends React.Component<Props, State> {
-  state: State = {
-    errors: {},
-    formValues: {
-      amount: "",
-      asset: "XLM",
-      destination: "",
-      memoType: "none",
-      memoValue: ""
-    }
-  }
-
-  setFormValue = (fieldName: keyof PaymentCreationValues, value: string | null) => {
-    this.setState({
-      formValues: {
-        ...this.state.formValues,
-        [fieldName]: value
-      }
-    })
-  }
-
-  submit = () => {
-    const { onSubmit = () => undefined } = this.props
-
-    const { errors, success } = validateFormValues(this.state.formValues, this.props.balances)
-    this.setState({ errors })
-
-    if (success) {
-      onSubmit(this.state.formValues)
-    }
-  }
-
-  render() {
-    return (
-      <PaymentCreationForm {...this.props} {...this.state} onSubmit={this.submit} setFormValue={this.setFormValue} />
-    )
-  }
-}
-
-export default StatefulPaymentCreationForm
+export default PaymentCreationForm

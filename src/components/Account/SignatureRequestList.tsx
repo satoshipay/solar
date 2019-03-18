@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useState } from "react"
 import { Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ListSubheader from "@material-ui/core/ListSubheader"
@@ -31,7 +30,6 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
     : undefined
   return (
     <TransactionListItem
-      key={signatureRequest.hash}
       alwaysShowSource
       accountPublicKey={signatureRequest.meta.transaction.source}
       createdAt={signatureRequest.created_at}
@@ -64,13 +62,14 @@ interface SignatureRequestListProps {
 }
 
 export function SignatureRequestList(props: SignatureRequestListProps) {
-  const settings = useContext(SettingsContext)
-  const [pendingConfirmation, setPendingConfirmation] = useState<SignatureRequest | null>(null)
+  const settings = React.useContext(SettingsContext)
+  const [pendingConfirmation, setPendingConfirmation] = React.useState<SignatureRequest | null>(null)
 
   const onConfirmDismissal = () => {
     if (!pendingConfirmation) return
 
     settings.ignoreSignatureRequest(pendingConfirmation.hash)
+    setPendingConfirmation(null)
   }
 
   if (props.signatureRequests.length === 0) {

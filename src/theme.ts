@@ -1,4 +1,5 @@
 import { createMuiTheme } from "@material-ui/core/styles"
+import amber from "@material-ui/core/colors/amber"
 import grey from "@material-ui/core/colors/grey"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 
@@ -6,19 +7,17 @@ import lightBlue from "@material-ui/core/colors/lightBlue"
 export const brandColor = {
   dark: "#0290c0",
   main: "#02b8f5",
+  main15: "#02b8f526",
   light: "#72dbfe"
 }
 
 export const primaryBackground = "linear-gradient(to left bottom, #01B3F3, #0176DC)"
 export const primaryBackgroundColor = "#0194E7"
 
+export const warningColor = amber["500"]
+
 const theme = createMuiTheme({
   overrides: {
-    MuiBottomNavigationAction: {
-      selected: {
-        color: `${brandColor.dark} !important`
-      }
-    },
     MuiButton: {
       root: {
         borderRadius: 3
@@ -44,8 +43,10 @@ const theme = createMuiTheme({
       raisedPrimary: {}
     },
     MuiFormLabel: {
-      focused: {
-        color: "inherit !important"
+      root: {
+        "&$focused": {
+          color: "inherit !important"
+        }
       }
     },
     MuiLinearProgress: {
@@ -64,9 +65,14 @@ const theme = createMuiTheme({
   },
   palette: {
     primary: {
-      ...brandColor,
-      contrastText: "white"
+      contrastText: "white",
+      dark: brandColor.dark,
+      main: brandColor.main,
+      light: brandColor.light
     }
+  },
+  typography: {
+    useNextVariants: true
   }
 })
 

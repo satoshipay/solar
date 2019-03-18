@@ -1,5 +1,5 @@
 import React from "react"
-import { useContext, useState } from "react"
+import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
@@ -7,6 +7,7 @@ import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
 import GroupIcon from "@material-ui/icons/Group"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
+import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
@@ -14,6 +15,7 @@ import { useAccountData, useRouter } from "../../hooks"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import BackButton from "../BackButton"
+import ButtonIconLabel from "../ButtonIconLabel"
 import AccountDeletionDialog from "../Dialog/AccountDeletion"
 import ChangePasswordDialog from "../Dialog/ChangePassword"
 import ExportKeyDialog from "../Dialog/ExportKey"
@@ -63,11 +65,11 @@ interface Props {
 }
 
 function AccountHeaderCard(props: Props) {
-  const { changePassword, removePassword } = useContext(AccountsContext)
-  const settings = useContext(SettingsContext)
+  const { changePassword, removePassword } = React.useContext(AccountsContext)
+  const settings = React.useContext(SettingsContext)
   const router = useRouter()
 
-  const [openDialog, setOpenDialog] = useState<DialogID | null>(null)
+  const [openDialog, setOpenDialog] = React.useState<DialogID | null>(null)
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
   return (
@@ -88,7 +90,7 @@ function AccountHeaderCard(props: Props) {
           <Typography
             align="center"
             color="inherit"
-            variant="headline"
+            variant="h5"
             component="h2"
             style={{ marginRight: 20, fontSize: "2rem" }}
           >
@@ -104,6 +106,15 @@ function AccountHeaderCard(props: Props) {
             <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
           </HorizontalLayout>
           <Box grow style={{ textAlign: "right" }}>
+            <Button
+              onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
+              style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: 8 }}
+              variant="outlined"
+            >
+              <ButtonIconLabel label="Trade">
+                <SwapHorizIcon />
+              </ButtonIconLabel>
+            </Button>
             <AccountContextMenu
               account={props.account}
               activated={accountData.activated}

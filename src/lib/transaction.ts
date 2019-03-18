@@ -1,18 +1,8 @@
-import {
-  AccountRecord,
-  Asset,
-  Keypair,
-  Memo,
-  Network,
-  Operation,
-  Server,
-  TransactionBuilder,
-  Transaction,
-  xdr
-} from "stellar-sdk"
+import { TimeoutInfinite } from "stellar-base"
+import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
-import { getAllSources, isSignedByAnyOf } from "./stellar"
+import { getAllSources, getSignerKey, isSignedByAnyOf } from "./stellar"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
@@ -53,25 +43,31 @@ async function accountExists(horizon: Server, publicKey: string) {
   }
 }
 
+function selectTransactionTimeout(accountData: Pick<Server.AccountRecord, "signers">): number {
+  return accountData.signers.length > 1 ? TimeoutInfinite : 20
+}
+
 interface TxBlueprint {
+  accountData: Pick<Server.AccountRecord, "id" | "signers">
   horizon: Server
   memo?: Memo | null
   walletAccount: Account
 }
 
 export async function createTransaction(operations: Array<xdr.Operation<any>>, options: TxBlueprint) {
-  const { horizon, memo, walletAccount } = options
+  const { horizon, walletAccount } = options
+  const timeout = selectTransactionTimeout(options.accountData)
 
   selectNetwork(walletAccount.testnet)
 
   const account = await horizon.loadAccount(walletAccount.publicKey)
-  const builder = new TransactionBuilder(account, { memo: memo || undefined })
+  const builder = new TransactionBuilder(account, { memo: options.memo || undefined })
 
   for (const operation of operations) {
     builder.addOperation(operation)
   }
 
-  const tx = builder.build()
+  const tx = builder.setTimeout(timeout).build()
   return tx
 }
 
@@ -121,7 +117,7 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
   const accounts = await Promise.all(sources.map(sourcePublicKey => horizon.loadAccount(sourcePublicKey)))
 
   return accounts.some(account => {
-    const thisWalletSigner = account.signers.find(signer => signer.public_key === walletPublicKey)
+    const thisWalletSigner = account.signers.find(signer => getSignerKey(signer) === walletPublicKey)
 
     // requires another signature?
     return thisWalletSigner ? thisWalletSigner.weight < account.thresholds.high_threshold : true
@@ -137,7 +133,7 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
  */
 export function isPotentiallyDangerousTransaction(
   transaction: Transaction,
-  localAccounts: Array<Pick<AccountRecord, "id" | "signers">>
+  localAccounts: Array<Pick<Server.AccountRecord, "id" | "signers">>
 ) {
   const allTxSources = getAllSources(transaction)
   const localAffectedAccounts = localAccounts.filter(account => allTxSources.indexOf(account.id) > -1)
@@ -149,10 +145,10 @@ export function isPotentiallyDangerousTransaction(
   // Co-signers of local accounts
   const knownCosigners = localAffectedAccounts.reduce(
     (signers, affectedAccountData) => [...signers, ...affectedAccountData.signers],
-    [] as AccountRecord["signers"]
+    [] as Server.AccountRecord["signers"]
   )
   const isSignedByKnownCosigner = transaction.signatures.some(signature =>
-    isSignedByAnyOf(signature, knownCosigners.map(cosigner => cosigner.public_key))
+    isSignedByAnyOf(signature, knownCosigners.map(cosigner => getSignerKey(cosigner)))
   )
 
   return localAffectedAccounts.length > 0 && !isSignedByLocalAccount && !isSignedByKnownCosigner

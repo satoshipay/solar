@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -25,7 +24,7 @@ function KeyExport(props: { account: Account; secretKey: string }) {
       <Background opacity={0.08}>
         <LockFilledIcon style={{ fontSize: 220 }} />
       </Background>
-      <Typography variant="subheading" style={{ marginBottom: 8 }}>
+      <Typography variant="subtitle1" style={{ marginBottom: 8 }}>
         Plain Secret Key
       </Typography>
       <Typography
@@ -55,10 +54,10 @@ function WarningBox(props: WarningBoxProps) {
       <Background opacity={0.08}>
         <WarnIcon style={{ fontSize: 220 }} />
       </Background>
-      <Typography component="p" variant="body2">
+      <Typography component="p" variant="body1">
         Your secret key must be stored in a safe place and must not be shared with anyone.
       </Typography>
-      <Typography component="p" variant="body2" style={{ marginTop: 16 }}>
+      <Typography component="p" variant="body1" style={{ marginTop: 16 }}>
         A backup is important, though, since losing your secret key also means losing access to your account.
       </Typography>
       <HorizontalLayout justifyContent="center" margin="24px 0 0">
@@ -99,11 +98,11 @@ interface Props {
 }
 
 function ExportKeyDialog(props: Props) {
-  const [password, setPassword] = useState("")
-  const [passwordError, setPasswordError] = useState<Error | null>(null)
-  const [qrDialogOpen, setQrDialogOpen] = useState(false)
-  const [isRevealed, setIsRevealed] = useState(false)
-  const [secretKey, setSecretKey] = useState<string | null>(null)
+  const [password, setPassword] = React.useState("")
+  const [passwordError, setPasswordError] = React.useState<Error | null>(null)
+  const [qrDialogOpen, setQrDialogOpen] = React.useState(false)
+  const [isRevealed, setIsRevealed] = React.useState(false)
+  const [secretKey, setSecretKey] = React.useState<string | null>(null)
 
   const updatePassword = (event: React.SyntheticEvent<HTMLInputElement>) => setPassword(event.currentTarget.value)
 

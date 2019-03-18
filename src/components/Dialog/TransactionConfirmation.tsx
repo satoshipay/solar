@@ -1,18 +1,17 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
-import Slide, { SlideProps } from "@material-ui/core/Slide"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
-import { Transaction, TransactionOperation } from "stellar-sdk"
+import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import TxConfirmationForm from "../Form/TxConfirmation"
 import { Box } from "../Layout/Box"
 import TestnetBadge from "./TestnetBadge"
 
-const isPaymentOperation = (operation: TransactionOperation) =>
-  ["createAccount", "payment"].indexOf(operation.type) > -1
+const isPaymentOperation = (operation: Operation) => ["createAccount", "payment"].indexOf(operation.type) > -1
 
-const Transition = (props: SlideProps) => <Slide {...props} direction="up" />
+const Transition = (props: any) => <Slide {...props} direction="up" />
 
 interface TxConfirmationDialogProps {
   account: Account
@@ -35,7 +34,7 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   return (
     <Dialog open={props.open} onClose={props.onClose} maxWidth="lg" TransitionComponent={Transition}>
       <Box padding="24px 36px" overflow="auto">
-        <Typography variant="headline" component="h2">
+        <Typography variant="h5" component="h2">
           {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
         </Typography>
         {props.transaction ? (

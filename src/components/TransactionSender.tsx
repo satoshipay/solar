@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
@@ -238,7 +237,7 @@ class TransactionSender extends React.Component<Props, State> {
 
 function TransactionSenderWithHorizon(props: Omit<Props, "horizon" | "settings">) {
   const horizon = useHorizon(props.account.testnet)
-  const settings = useContext(SettingsContext)
+  const settings = React.useContext(SettingsContext)
   return <TransactionSender {...props} horizon={horizon} settings={settings} />
 }
 

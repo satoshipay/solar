@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext, useState } from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -93,14 +92,14 @@ interface Props {
 }
 
 function ChangePasswordDialog(props: Props) {
-  const { addError, addNotification } = useContext(NotificationsContext)
-  const [errors, setErrors] = useState<Errors>({})
-  const [formValues, setFormValues] = useState<FormValues>({
+  const { showError, showNotification } = React.useContext(NotificationsContext)
+  const [errors, setErrors] = React.useState<Errors>({})
+  const [formValues, setFormValues] = React.useState<FormValues>({
     nextPassword: "",
     nextPasswordRepeat: "",
     prevPassword: ""
   })
-  const [removingPassword, setRemovingPassword] = useState(false)
+  const [removingPassword, setRemovingPassword] = React.useState(false)
 
   const changePassword = () => {
     const { id: accountID, requiresPassword } = props.account
@@ -116,10 +115,10 @@ function ChangePasswordDialog(props: Props) {
       props
         .changePassword(accountID, prevPassword, nextPassword)
         .then(() => {
-          addNotification("success", requiresPassword ? "Password changed." : "Password set.")
+          showNotification("success", requiresPassword ? "Password changed." : "Password set.")
           props.onClose()
         })
-        .catch(addError)
+        .catch(showError)
     }
   }
   const onClose = () => {
@@ -139,10 +138,10 @@ function ChangePasswordDialog(props: Props) {
       props
         .removePassword(props.account.id, formValues.prevPassword)
         .then(() => {
-          addNotification("success", "Password removed.")
+          showNotification("success", "Password removed.")
           props.onClose()
         })
-        .catch(addError)
+        .catch(showError)
     }
   }
   const setFormValue = (name: keyof FormValues, value: string) => {

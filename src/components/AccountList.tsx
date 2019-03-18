@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
@@ -86,7 +85,7 @@ function AccountCard(props: {
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
         <VerticalLayout height="100px" justifyContent="space-evenly" textAlign="left">
           <HorizontalLayout margin="0 0 20px">
-            <Typography variant="headline" style={{ flexGrow: 1 }}>
+            <Typography variant="h5" style={{ flexGrow: 1 }}>
               {props.account.name}
             </Typography>
             <Box>
@@ -135,7 +134,7 @@ interface AccountListProps {
 
 function AccountList(props: AccountListProps) {
   const accounts = props.accounts.filter(account => account.testnet === props.testnet)
-  const { pendingSignatureRequests } = useContext(SignatureDelegationContext)
+  const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
 
   return (
     <CardList addInvisibleCard={accounts.length % 2 === 0}>

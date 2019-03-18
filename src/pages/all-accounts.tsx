@@ -1,5 +1,4 @@
 import React from "react"
-import { useContext } from "react"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
@@ -14,9 +13,9 @@ import { useRouter } from "../hooks"
 import * as routes from "../routes"
 
 function AllAccountsPage() {
-  const { accounts, networkSwitch, toggleNetwork } = useContext(AccountsContext)
+  const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)
   const router = useRouter()
-  const settings = useContext(SettingsContext)
+  const settings = React.useContext(SettingsContext)
   const testnetAccounts = accounts.filter(account => account.testnet)
 
   const networkSwitchButton = (
@@ -28,7 +27,7 @@ function AllAccountsPage() {
     <Section top brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
         <HorizontalLayout alignItems="center">
-          <Typography color="inherit" variant="headline" style={{ flexGrow: 1, marginRight: 180 }}>
+          <Typography color="inherit" variant="h5" style={{ flexGrow: 1, marginRight: 180 }}>
             {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
           </Typography>
           <Box>

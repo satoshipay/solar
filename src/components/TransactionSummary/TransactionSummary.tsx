@@ -1,31 +1,30 @@
 import React from "react"
-import { useContext, useMemo } from "react"
-import { Memo, Transaction, TransactionOperation } from "stellar-sdk"
+import { Memo, Operation, Transaction, Horizon } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
 import MuiListItem from "@material-ui/core/ListItem"
 import MuiListItemIcon from "@material-ui/core/ListItemIcon"
 import MuiListItemText from "@material-ui/core/ListItemText"
 import Tooltip from "@material-ui/core/Tooltip"
-import amber from "@material-ui/core/colors/amber"
 import CheckIcon from "@material-ui/icons/Check"
 import UpdateIcon from "@material-ui/icons/Update"
 import WarningIcon from "@material-ui/icons/Warning"
 import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
-import { getAllSources, signatureMatchesPublicKey } from "../../lib/stellar"
-import { ObservedAccountData } from "../../lib/subscriptions"
+import { getAllSources, getSignerKey, signatureMatchesPublicKey } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
+import { ObservedAccountData } from "../../subscriptions"
+import { warningColor } from "../../theme"
 import { HorizontalLayout } from "../Layout/Box"
 import { List, ListItem } from "../List"
 import PublicKey from "../PublicKey"
 import OperationListItem from "./Operations"
 
 function makeOperationSourceExplicit(
-  operation: TransactionOperation,
+  operation: Operation,
   transaction: Transaction,
   localAccountPubKey?: string
-): TransactionOperation {
+): Operation {
   const effectiveSource = operation.source || transaction.source
 
   // Don't show the source if the source === the tx source === this account (this is the default case)
@@ -59,7 +58,7 @@ function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }
 // tslint:disable-next-line no-shadowed-variable
 const Signer = React.memo(function Signer(props: {
   hasSigned: boolean
-  signer: { public_key: string; weight: number }
+  signer: Horizon.AccountSigner | { key: string; weight: number }
   transaction: Transaction
 }) {
   return (
@@ -68,7 +67,7 @@ const Signer = React.memo(function Signer(props: {
         <SignerStatus hasSigned={props.hasSigned} style={{ marginRight: 8 }} />
         <div style={{ whiteSpace: "nowrap" }}>
           <PublicKey
-            publicKey={props.signer.public_key}
+            publicKey={getSignerKey(props.signer)}
             style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
             variant="full"
           />
@@ -98,9 +97,9 @@ function Signers(props: {
           <>
             {props.accountData.signers.map(signer => (
               <Signer
-                key={signer.public_key}
+                key={getSignerKey(signer)}
                 hasSigned={props.transaction.signatures.some(signature =>
-                  signatureMatchesPublicKey(signature, signer.public_key)
+                  signatureMatchesPublicKey(signature, getSignerKey(signer))
                 )}
                 signer={signer}
                 transaction={props.transaction}
@@ -130,7 +129,7 @@ function SourceAccount(props: { transaction: Transaction; style?: React.CSSPrope
 
 function DangerousTransactionWarning(props: { style?: React.CSSProperties }) {
   return (
-    <MuiListItem style={{ background: amber["500"], ...props.style }}>
+    <MuiListItem style={{ background: warningColor, ...props.style }}>
       <MuiListItemIcon>
         <WarningIcon />
       </MuiListItemIcon>
@@ -152,7 +151,7 @@ interface TransactionSummaryProps {
 
 function TransactionSummary(props: TransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
-  const { accounts } = useContext(AccountsContext)
+  const { accounts } = React.useContext(AccountsContext)
   const accountDataSet = useAccountDataSet(allTxSources, props.testnet)
 
   const accountData = accountDataSet.find(someAccountData => someAccountData.id === props.transaction.source)
@@ -171,7 +170,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
     )
   }
 
-  const isDangerousSignatureRequest = useMemo(
+  const isDangerousSignatureRequest = React.useMemo(
     () => {
       const localAccounts = accountDataSet.filter(someAccountData =>
         accounts.some(account => account.publicKey === someAccountData.id)
@@ -187,12 +186,15 @@ function TransactionSummary(props: TransactionSummaryProps) {
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
+          accountData={accountData}
           operation={
             props.showSource
               ? makeOperationSourceExplicit(operation, props.transaction, localAccountPublicKey)
               : operation
           }
           style={noHPaddingStyle}
+          testnet={props.testnet}
+          transaction={props.transaction}
         />
       ))}
       <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />

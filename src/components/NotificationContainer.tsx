@@ -1,6 +1,5 @@
 import React from "react"
-import { useContext, useRef, useState } from "react"
-import Snackbar from "@material-ui/core/Snackbar"
+import Snackbar, { SnackbarOrigin } from "@material-ui/core/Snackbar"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import ErrorIcon from "@material-ui/icons/Error"
@@ -9,6 +8,7 @@ import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
 import withStyles, { ClassNameMap, StyleRulesCallback } from "@material-ui/core/styles/withStyles"
 import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
+import { useOnlineStatus } from "../hooks"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   error: ErrorIcon,
@@ -42,13 +42,16 @@ const styles: StyleRulesCallback = theme => ({
 })
 
 interface NotificationProps {
+  anchorOrigin?: SnackbarOrigin
   autoHideDuration?: number
   classes: ClassNameMap<keyof ReturnType<typeof styles>>
+  contentStyle?: React.CSSProperties
   message: string
   type: NotificationType
   open?: boolean
   onClick?: () => void
   onClose?: () => void
+  style?: React.CSSProperties
 }
 
 function NotificationSnackbar(props: NotificationProps) {
@@ -63,11 +66,13 @@ function NotificationSnackbar(props: NotificationProps) {
 
   return (
     <Snackbar
+      anchorOrigin={props.anchorOrigin}
       autoHideDuration={props.autoHideDuration}
       className={props.onClick ? classes.clickable : undefined}
       open={open}
       onClick={props.onClick}
       onClose={props.onClose}
+      style={props.style}
     >
       <SnackbarContent
         className={contentClassnames[props.type]}
@@ -77,6 +82,7 @@ function NotificationSnackbar(props: NotificationProps) {
             {props.message}
           </span>
         }
+        style={props.contentStyle}
       />
     </Snackbar>
   )
@@ -85,9 +91,10 @@ function NotificationSnackbar(props: NotificationProps) {
 const StyledNotification = withStyles(styles)(NotificationSnackbar)
 
 function NotificationsContainer() {
-  const { notifications } = useContext(NotificationsContext)
-  const [lastClosedNotificationID, setLastClosedNotificationID] = useState(0)
-  const lastShownNotification = useRef<Notification | null>(null)
+  const { notifications } = React.useContext(NotificationsContext)
+  const { isOnline } = useOnlineStatus()
+  const [lastClosedNotificationID, setLastClosedNotificationID] = React.useState(0)
+  const lastShownNotification = React.useRef<Notification | null>(null)
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
   const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID
@@ -103,14 +110,27 @@ function NotificationsContainer() {
   }
 
   return (
-    <StyledNotification
-      autoHideDuration={5000}
-      message={notification ? notification.message : ""}
-      type={notification ? notification.type : "error"}
-      open={open}
-      onClick={notification ? notification.onClick : undefined}
-      onClose={() => closeNotification(notification)}
-    />
+    <>
+      <StyledNotification
+        autoHideDuration={5000}
+        message={notification ? notification.message : ""}
+        type={notification ? notification.type : "error"}
+        open={open}
+        onClick={notification ? notification.onClick : undefined}
+        onClose={() => closeNotification(notification)}
+      />
+      <StyledNotification
+        anchorOrigin={{
+          horizontal: "left",
+          vertical: "bottom"
+        }}
+        contentStyle={{ minWidth: 0 }}
+        message="Offline"
+        open={!isOnline}
+        style={{ bottom: 0 }}
+        type="error"
+      />
+    </>
   )
 }
 

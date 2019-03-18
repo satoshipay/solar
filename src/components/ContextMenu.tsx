@@ -1,5 +1,4 @@
 import React from "react"
-import { useState } from "react"
 
 export interface AnchorRenderProps {
   onOpen: (event: React.SyntheticEvent<HTMLElement>) => void
@@ -18,8 +17,8 @@ interface Props {
 }
 
 function ContextMenu({ anchor, menu }: Props) {
-  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null)
-  const [isOpen, setOpenState] = useState(false)
+  const [anchorElement, setAnchorElement] = React.useState<HTMLElement | null>(null)
+  const [isOpen, setOpenState] = React.useState(false)
 
   const show = (event: React.SyntheticEvent<HTMLElement>) => {
     setAnchorElement(event.currentTarget)
