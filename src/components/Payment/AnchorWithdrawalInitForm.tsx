@@ -154,26 +154,29 @@ function AnchorWithdrawalInitForm(props: Props) {
             ))}
           </TextField>
         </HorizontalLayout>
-        <HorizontalLayout margin="24px 0 0">
-          <TextField
-            label="Destination account"
-            onChange={event => setFormValue("dest", event.target.value)}
-            placeholder={getFieldDescription("dest")}
-            style={{ flexGrow: 3, marginRight: fields.dest_extra ? 24 : undefined }}
-            value={formValues.dest || ""}
-          />
+        <HorizontalLayout>
+          {fields.dest ? (
+            <TextField
+              label="Destination account"
+              onChange={event => setFormValue("dest", event.target.value)}
+              placeholder={getFieldDescription("dest")}
+              style={{ flexGrow: 3, marginTop: 24, marginRight: fields.dest_extra ? 24 : undefined }}
+              value={formValues.dest || ""}
+            />
+          ) : null}
           {fields.dest_extra ? (
             <TextField
               label={getFieldDescription("dest_extra", true) || "Extra destination data (no description)"}
               onChange={event => setFormValue("dest_extra", event.target.value)}
               placeholder={getFieldDescription("dest_extra")}
-              style={{ flexGrow: 1 }}
+              style={{ flexGrow: 1, marginTop: 24 }}
               value={formValues.dest_extra || ""}
             />
           ) : null}
         </HorizontalLayout>
         <FormBuilder
           fields={filterObject(fields, (value, key) => ["dest", "dest_extra"].indexOf(key) === -1)}
+          fieldStyle={{ marginTop: 24 }}
           formValues={formValues}
           onSetFormValue={setFormValue}
         />

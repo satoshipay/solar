@@ -32,7 +32,7 @@ function AnchorWithdrawalKYCRedirect(props: KYCRedirectProps) {
             The anchor responsible for this operation requires that you provide additional information before accessing
             the service.
           </Typography>
-          <Button color="primary" type="submit" variant="raised">
+          <Button color="primary" type="submit" variant="contained">
             Continue
           </Button>
         </VerticalLayout>

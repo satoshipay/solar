@@ -104,9 +104,6 @@ function AnchorWithdrawalForm(props: Props) {
   ) => {
     try {
       setWithdrawalResponsePending(true)
-      if (!formValues.dest) {
-        throw new Error("")
-      }
       const response = await transferServer.withdraw(method, asset.getCode(), {
         account: props.account.publicKey,
         ...formValues

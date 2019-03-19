@@ -46,6 +46,7 @@ function FormBuilderField(props: FormBuilderFieldProps) {
 
 interface Props {
   fields: TransferFields
+  fieldStyle?: React.CSSProperties
   formValues: { [fieldName: string]: string }
   onSetFormValue: (fieldName: string, newValue: string) => void
 }
@@ -63,7 +64,7 @@ function FormBuilder(props: Props) {
           descriptor={descriptor}
           name={fieldName}
           onChange={event => props.onSetFormValue(fieldName, event.target.value)}
-          style={{ margin: "24px 12px 0", minWidth: "40%" }}
+          style={{ marginLeft: 12, marginRight: 12, minWidth: "40%", ...props.fieldStyle }}
           value={props.formValues[fieldName]}
         />
       ))}
