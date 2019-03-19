@@ -4,6 +4,7 @@ import { joinURL } from "./url"
 
 export interface SmartFeePreset {
   capacityTrigger: number
+  maxFee: number
   percentile: number
 }
 
@@ -75,9 +76,12 @@ export async function selectSmartTransactionFee(horizon: Server, preset: SmartFe
   const capacityUsage = Number.parseFloat(feeStats.ledger_capacity_usage)
   const percentileFees = (feeStats as any) as { [key: string]: string }
 
-  return capacityUsage > preset.capacityTrigger
-    ? Number.parseInt(percentileFees[`p${preset.percentile}_accepted_fee`] || feeStats.mode_accepted_fee, 10)
-    : Number.parseInt(feeStats.min_accepted_fee, 10)
+  const smartFee =
+    capacityUsage > preset.capacityTrigger
+      ? Number.parseInt(percentileFees[`p${preset.percentile}_accepted_fee`] || feeStats.mode_accepted_fee, 10)
+      : Number.parseInt(feeStats.min_accepted_fee, 10)
+
+  return Math.min(smartFee, preset.maxFee)
 }
 
 export async function friendbotTopup(horizon: Server, publicKey: string) {
