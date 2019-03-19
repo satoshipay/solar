@@ -12,10 +12,12 @@ import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
-import { useAssetTransferServerInfos } from "./hooks"
+import { useAssetTransferServerInfos, usePolling } from "./hooks"
 import AnchorWithdrawalFinishForm from "./AnchorWithdrawalFinishForm"
 import AnchorWithdrawalInitForm from "./AnchorWithdrawalInitForm"
 import AnchorWithdrawalKYCForm from "./AnchorWithdrawalKYCForm"
+
+const kycPollIntervalMs = 6000
 
 function createMemo(withdrawalResponse: WithdrawalRequestSuccess): Memo | null {
   const { memo, memo_type: type } = withdrawalResponse.data
@@ -37,6 +39,11 @@ function createMemo(withdrawalResponse: WithdrawalRequestSuccess): Memo | null {
   }
 }
 
+function sendWithdrawalRequest(request: WithdrawalRequestData) {
+  const { account, asset, formValues, method, transferServer } = request
+  return transferServer.withdraw(method, asset.getCode(), { account, ...formValues } as any)
+}
+
 function NoWithdrawableAssets(props: { account: Account }) {
   const router = useRouter()
   return (
@@ -49,6 +56,14 @@ function NoWithdrawableAssets(props: { account: Account }) {
       </Box>
     </Box>
   )
+}
+
+interface WithdrawalRequestData {
+  account: string
+  asset: Asset
+  method: string
+  formValues: { [fieldName: string]: string }
+  transferServer: TransferServer
 }
 
 interface Props {
@@ -64,8 +79,8 @@ function AnchorWithdrawalForm(props: Props) {
   const [withdrawalResponse, setWithdrawalResponse] = React.useState<
     WithdrawalRequestKYC | WithdrawalRequestSuccess | null
   >(null)
-  const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
   const [selectedAsset, setSelectedAsset] = React.useState<Asset | null>(null)
+  const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
   const router = useRouter()
 
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
@@ -103,19 +118,39 @@ function AnchorWithdrawalForm(props: Props) {
     formValues: { [fieldName: string]: string }
   ) => {
     try {
-      setWithdrawalResponsePending(true)
-      const response = await transferServer.withdraw(method, asset.getCode(), {
+      const newWithdrawalRequest: WithdrawalRequestData = {
         account: props.account.publicKey,
-        ...formValues
-      } as any)
+        asset,
+        formValues,
+        method,
+        transferServer
+      }
       setSelectedAsset(asset)
+      setWithdrawalResponsePending(true)
+      const response = await sendWithdrawalRequest(newWithdrawalRequest)
       setWithdrawalResponse(response)
+      startKYCPolling(() => pollKYCStatus(newWithdrawalRequest))
     } catch (error) {
       trackError(error)
     } finally {
       setWithdrawalResponsePending(false)
     }
   }
+
+  const pollKYCStatus = async (request: WithdrawalRequestData) => {
+    if (window.navigator.onLine !== false) {
+      const response = await sendWithdrawalRequest(request)
+      setWithdrawalResponse(response)
+
+      const kycDenied =
+        response.type === "kyc" && response.data.type === "customer_info_status" && response.data.status === "denied"
+      if (response.type === "success" || kycDenied) {
+        stopKYCPolling()
+      }
+    }
+  }
+
+  const { start: startKYCPolling, stop: stopKYCPolling } = usePolling(kycPollIntervalMs)
 
   if (transferInfos.loading) {
     return (
@@ -141,7 +176,6 @@ function AnchorWithdrawalForm(props: Props) {
       />
     )
   } else if (withdrawalResponse && withdrawalResponse.type === "kyc") {
-    // FIXME: Poll until KYC done
     return <AnchorWithdrawalKYCForm anchorResponse={withdrawalResponse} onCancel={props.onCancel} />
   } else {
     return (
