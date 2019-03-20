@@ -40,7 +40,7 @@ function AnchorWithdrawalKYCRedirect(props: KYCRedirectProps) {
           {null}
         </Box>
         <Box>
-          <Button variant="text">
+          <Button onClick={props.onCancel} variant="text">
             <ButtonIconLabel label="Back" style={{ paddingRight: 8 }}>
               <ChevronLeftIcon />
             </ButtonIconLabel>

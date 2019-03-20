@@ -152,6 +152,12 @@ function AnchorWithdrawalForm(props: Props) {
 
   const { start: startKYCPolling, stop: stopKYCPolling } = usePolling(kycPollIntervalMs)
 
+  const startOver = () => {
+    stopKYCPolling()
+    setWithdrawalResponse(null)
+    setWithdrawalResponsePending(false)
+  }
+
   if (transferInfos.loading) {
     return (
       <Box margin="64px auto" textAlign="center">
@@ -171,12 +177,12 @@ function AnchorWithdrawalForm(props: Props) {
         account={props.account}
         asset={selectedAsset}
         anchorResponse={withdrawalResponse}
-        onCancel={props.onCancel}
+        onCancel={startOver}
         onSubmit={sendWithdrawalTx}
       />
     )
   } else if (withdrawalResponse && withdrawalResponse.type === "kyc") {
-    return <AnchorWithdrawalKYCForm anchorResponse={withdrawalResponse} onCancel={props.onCancel} />
+    return <AnchorWithdrawalKYCForm anchorResponse={withdrawalResponse} onCancel={startOver} />
   } else {
     return (
       <AnchorWithdrawalInitForm

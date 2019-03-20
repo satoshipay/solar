@@ -56,13 +56,12 @@ function AnchorWithdrawalKYCStatus(props: KYCStatusProps) {
             </a>
           </Typography>
         ) : null}
-        {/* TODO: Show more_info_url */}
       </VerticalLayout>
       <Box grow margin="24px 0 64px">
         {null}
       </Box>
       <Box>
-        <Button variant="text">
+        <Button onClick={props.onCancel} variant="text">
           <ButtonIconLabel label="Back" style={{ paddingRight: 8 }}>
             <ChevronLeftIcon />
           </ButtonIconLabel>
