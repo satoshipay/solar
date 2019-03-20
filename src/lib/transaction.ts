@@ -11,6 +11,7 @@ interface SignatureWithHint extends xdr.DecoratedSignature {
 // See <https://github.com/stellar/go/issues/926>
 const highFeePreset: SmartFeePreset = {
   capacityTrigger: 0.5,
+  maxFee: 1_000_000,
   percentile: 90
 }
 
