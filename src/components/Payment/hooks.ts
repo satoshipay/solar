@@ -93,7 +93,7 @@ export function usePolling(pollIntervalMs: number) {
         } catch (error) {
           trackError(error)
         }
-      }, pollIntervalMs)
+      }, pollIntervalMs) as any
     }
   }
 
