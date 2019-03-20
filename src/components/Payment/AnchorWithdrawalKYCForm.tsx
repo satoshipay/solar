@@ -1,5 +1,6 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
 import { WithdrawalKYCInteractiveResponse, WithdrawalRequestKYC } from "@satoshipay/sep-6"
@@ -14,10 +15,13 @@ interface KYCRedirectProps {
 }
 
 function AnchorWithdrawalKYCRedirect(props: KYCRedirectProps) {
+  const [isPending, setPending] = React.useState(false)
+
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
     window.open(props.meta.url, "_blank")
 
+    setPending(true)
     if (props.onRedirect) {
       props.onRedirect()
     }
@@ -36,8 +40,8 @@ function AnchorWithdrawalKYCRedirect(props: KYCRedirectProps) {
             Continue
           </Button>
         </VerticalLayout>
-        <Box grow margin="24px 0 64px">
-          {null}
+        <Box grow margin="48px 0 40px" textAlign="center">
+          {isPending ? <CircularProgress /> : null}
         </Box>
         <Box>
           <Button onClick={props.onCancel} variant="text">
