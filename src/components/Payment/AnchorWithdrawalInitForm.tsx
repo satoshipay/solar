@@ -105,12 +105,17 @@ function AnchorWithdrawalInitForm(props: Props) {
     props.onSubmit(transferServer, asset, methodID, formValues)
   }
 
+  const automaticallySetValues = ["account", "asset_code", "type"]
+
   // The .filter() is necessary due to a misplaced prop in the response of an anchor
   const hasEmptyMandatoryFields = Object.keys(fields)
     .filter(key => fields[key] && typeof fields[key] === "object")
-    .some(key => !fields[key].optional && !formValues[key])
+    .some(key => !fields[key].optional && !formValues[key] && automaticallySetValues.indexOf(key) === -1)
 
-  const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields
+  const invalidAmount = fields.amount && !/^[0-9]+(\.[0-9]+)?$/.test(formValues.amount)
+  const invalidEmail =
+    (fields.email || fields.email_address) && !/^[^@]+@[^@]+$/.test(formValues.email || formValues.email_address)
+  const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || invalidAmount || invalidEmail
 
   return (
     <form onSubmit={handleSubmit}>
@@ -175,7 +180,10 @@ function AnchorWithdrawalInitForm(props: Props) {
           ) : null}
         </HorizontalLayout>
         <FormBuilder
-          fields={filterObject(fields, (value, key) => ["dest", "dest_extra"].indexOf(key) === -1)}
+          fields={filterObject(
+            fields,
+            (value, key) => [...automaticallySetValues, "dest", "dest_extra"].indexOf(key) === -1
+          )}
           fieldStyle={{ marginTop: 24 }}
           formValues={formValues}
           onSetFormValue={setFormValue}
