@@ -29,9 +29,19 @@ function MemoMessage(props: { memo: Memo }) {
   if (!memo.value) {
     return null
   } else if (Buffer.isBuffer(memo.value)) {
-    return <>Memo: {memo.value.toString("hex")}</>
+    return (
+      <>
+        Memo:&nbsp;
+        {memo.value.toString("hex")}
+      </>
+    )
   } else {
-    return <>Memo: {memo.value}</>
+    return (
+      <>
+        Memo:&nbsp;
+        {memo.value}
+      </>
+    )
   }
 }
 
@@ -88,7 +98,7 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
 function Time(props: { time: Date }) {
   return (
     <Tooltip title={<span style={{ fontSize: "110%" }}>{props.time.toLocaleString()}</span>}>
-      <span>
+      <span style={{ whiteSpace: "nowrap" }}>
         <HumanTime time={props.time.getTime()} />
       </span>
     </Tooltip>
@@ -121,7 +131,7 @@ interface TitleTextProps {
 // TODO: Re-use code of transaction summary operation heading
 function TransactionItemText(props: TitleTextProps) {
   const secondary = (
-    <>
+    <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
       <Time time={props.createdAt} />
       {props.transaction.memo.type !== "none" ? (
         <>
@@ -129,7 +139,7 @@ function TransactionItemText(props: TitleTextProps) {
           <MemoMessage memo={props.transaction.memo} />
         </>
       ) : null}
-    </>
+    </span>
   )
 
   const remotePublicKeys = props.paymentSummary.reduce(
