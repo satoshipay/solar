@@ -114,7 +114,7 @@ function AnchorWithdrawalInitForm(props: Props) {
 
   const invalidAmount = fields.amount && !/^[0-9]+(\.[0-9]+)?$/.test(formValues.amount)
   const invalidEmail =
-    (fields.email || fields.email_address) && !/^[^@]+@[^@]+$/.test(formValues.email || formValues.email_address)
+    (fields.email || fields.email_address) && !/^[^@]+@[^@]+\.[^@]+$/.test(formValues.email || formValues.email_address)
   const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || invalidAmount || invalidEmail
 
   return (
