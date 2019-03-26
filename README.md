@@ -58,15 +58,17 @@ npm run build:win
 npm run build:linux
 ```
 
-To sign the binaries, make sure you have the code signing certificate on your local filesystem as a `.p12` file and have the password for it. Make sure not to save the certificate in the Solar directory to make sure it cannot accidentally be bundled into the app installer!
+### Signed binaries
 
-You can create a `signing.env` file to set the CSC_LINK variable:
+To sign the binaries, make sure you have the code signing certificates on your local filesystem as a `.p12` file and have the password for them. Make sure not to save the certificates in the Solar directory in order to not accidentally bundling them into the app installer!
+
+You can create a `signing-mac.env` and a `signing-win.env` file, pointing `electron-builder` to the right certificate to use for each target platform:
 
 ```
 CSC_LINK=~/secret-certificates/SatoshiPayLtd.p12   # point to your local certificate file
 ```
 
-Now run `npm run build:*:signed` to create a signed application build.
+Now run `npm run build:*:signed` to create a signed application build. You will be prompted for the certificate's password.
 
 To check the Mac DMG signature, run `codesign -dv --verbose=4 ./electron/dist/<file>`. To verify the Windows installer signature, you can upload the file to `virustotal.com`.
 
