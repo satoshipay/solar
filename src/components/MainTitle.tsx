@@ -23,7 +23,7 @@ const MainTitle = (props: Props) => {
         <Typography
           variant="h5"
           color={props.titleColor}
-          style={{ overflow: "hidden", maxWidth: "40vw", flexGrow: 1, marginTop: 8, marginRight: 12 }}
+          style={{ overflow: "hidden", flexGrow: 1, marginTop: 8, marginRight: 12 }}
         >
           {props.title}
         </Typography>

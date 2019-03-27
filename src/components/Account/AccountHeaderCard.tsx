@@ -89,7 +89,8 @@ function AccountHeaderCard(props: Props) {
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                width: "100%"
+                width: "100%",
+                maxWidth: "40vw"
               }}
             >
               {props.account.name}{" "}
