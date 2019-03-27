@@ -27,21 +27,46 @@ export function createRecentTxsSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedRecentTxs> {
   const maxTxsToLoadCount = 15
+  const pollIntervalMs = 10000
+
   const { debounceError, debounceMessage } = createStreamDebouncer<Server.TransactionRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
 
-  const loadRecentTxs = async () => {
+  const getUnknownTransactions = (fetchedTxs: Server.TransactionRecord[]) => {
+    const knownTxHashes = subscriptionTarget.getLatest().transactions.map(tx => tx.hash().toString("hex"))
+    return fetchedTxs.filter(loadedTx => knownTxHashes.indexOf(loadedTx.hash) === -1)
+  }
+
+  const handleNewTxs = (newTxs: Server.TransactionRecord[]) => {
+    const trulyNewTxs = getUnknownTransactions(newTxs)
+    // Important: Insert new transactions in the front, since order is descending
+    propagateUpdate({
+      ...subscriptionTarget.getLatest(),
+      transactions: [...trulyNewTxs.map(deserializeTx), ...subscriptionTarget.getLatest().transactions]
+    })
+  }
+
+  const syncRecentTxs = async (limit: number) => {
+    try {
+      const loadedTxs = await fetchRecentTxs(limit)
+      handleNewTxs(getUnknownTransactions(loadedTxs))
+    } catch (error) {
+      trackError(error)
+    }
+  }
+
+  // We also poll every few seconds, as a fallback, since the horizon's SSE stream seems unreliable (#437)
+  const schedulePolling = (intervalMs: number) => setInterval(() => syncRecentTxs(3), intervalMs)
+  schedulePolling(pollIntervalMs)
+
+  const fetchRecentTxs = async (limit: number) => {
     const { records } = await horizon
       .transactions()
       .forAccount(accountPubKey)
-      .limit(maxTxsToLoadCount)
+      .limit(limit)
       .order("desc")
       .call()
-
-    propagateUpdate({
-      ...subscriptionTarget.getLatest(),
-      transactions: [...subscriptionTarget.getLatest().transactions, ...records.map(deserializeTx)]
-    })
+    return records
   }
   const subscribeToTxs = (cursor: string = "now") => {
     horizon
@@ -51,11 +76,7 @@ export function createRecentTxsSubscription(
       .stream({
         onmessage(txResponse: Server.TransactionRecord) {
           debounceMessage(txResponse, () => {
-            // Important: Insert new transactions in the front, since order is descending
-            propagateUpdate({
-              ...subscriptionTarget.getLatest(),
-              transactions: [deserializeTx(txResponse), ...subscriptionTarget.getLatest().transactions]
-            })
+            handleNewTxs(getUnknownTransactions([txResponse]))
           })
         },
         onerror(error: Error) {
@@ -68,9 +89,10 @@ export function createRecentTxsSubscription(
 
   const setup = async () => {
     try {
-      await loadRecentTxs()
+      const loadedTxs = await fetchRecentTxs(maxTxsToLoadCount)
       propagateUpdate({
         ...subscriptionTarget.getLatest(),
+        transactions: [...subscriptionTarget.getLatest().transactions, ...loadedTxs.map(deserializeTx)],
         activated: true,
         loading: false
       })

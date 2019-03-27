@@ -40,6 +40,13 @@ const theme = createMuiTheme({
       flatPrimary: {
         color: brandColor.dark
       },
+      outlinedSecondary: {
+        borderColor: "rgba(255, 255, 255, 0.87)",
+        color: "white",
+        "&:hover": {
+          borderColor: "white"
+        }
+      },
       raisedPrimary: {}
     },
     MuiFormLabel: {
