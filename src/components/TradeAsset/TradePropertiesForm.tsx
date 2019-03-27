@@ -1,11 +1,11 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
-import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
-import { HorizontalLayout } from "../Layout/Box"
 import { formatBalance } from "../Account/AccountBalances"
+import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
+import { HorizontalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 
 type ToleranceValue = 0 | 0.01 | 0.02
@@ -96,24 +96,6 @@ function ToleranceSelector(props: ToleranceSelectorProps) {
   )
 }
 
-function ReadOnlyTextfield(props: {
-  label: TextFieldProps["label"]
-  style?: React.CSSProperties
-  value: TextFieldProps["value"]
-}) {
-  return (
-    <TextField
-      label={props.label}
-      style={{ pointerEvents: "none", ...props.style }}
-      tabIndex={-1}
-      value={props.value}
-      InputProps={{
-        readOnly: true
-      }}
-    />
-  )
-}
-
 interface TradePropertiesFormProps {
   amount: string
   buying: Asset
@@ -177,22 +159,13 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
         />
       </HorizontalLayout>
       {props.price.eq(0) ? (
-        <TextField
+        <PriceInput
+          assetCode={props.buying.getCode()}
           label={`Price per ${props.selling.getCode()}`}
           placeholder="No offers yet. Enter a price manually..."
           onChange={event => props.onSetManualPrice(event.target.value)}
           style={{ marginBottom: 24 }}
           value={props.manualPrice}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment disableTypography position="end" style={{ pointerEvents: "none" }}>
-                {props.buying.getCode()}
-              </InputAdornment>
-            )
-          }}
-          InputLabelProps={{
-            shrink: true
-          }}
         />
       ) : (
         <ToleranceSelector

@@ -17,6 +17,11 @@ export const primaryBackgroundColor = "#0194E7"
 export const warningColor = amber["500"]
 
 const theme = createMuiTheme({
+  props: {
+    MuiInputLabel: {
+      shrink: true
+    }
+  },
   overrides: {
     MuiButton: {
       root: {
