@@ -1,3 +1,4 @@
+# Don't change the appId! See <https://www.electron.build/configuration/nsis#guid-vs-application-name>
 appId: io.solarwallet.app
 productName: Solar Wallet
 copyright: Copyright © 2019 SatoshiPay Ltd
