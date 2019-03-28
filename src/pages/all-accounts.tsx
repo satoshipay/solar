@@ -1,4 +1,5 @@
 import React from "react"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
@@ -12,8 +13,6 @@ import { SettingsContext } from "../context/settings"
 import { useRouter } from "../hooks"
 import * as routes from "../routes"
 
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
-
 function AllAccountsPage() {
   const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)
   const router = useRouter()
@@ -21,16 +20,12 @@ function AllAccountsPage() {
   const testnetAccounts = accounts.filter(account => account.testnet)
 
   const isSmallScreen = useMediaQuery("(max-device-width:600px)")
+  const switchToMainnetLabel = isSmallScreen ? "Mainnet" : "Switch To Mainnet"
+  const switchToTestnetLabel = isSmallScreen ? "Testnet" : "Switch To Testnet"
 
   const networkSwitchButton = (
     <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
-      {isSmallScreen
-        ? networkSwitch === "testnet"
-          ? "Mainnet"
-          : "Testnet"
-        : networkSwitch === "testnet"
-          ? "Switch to Mainnet"
-          : "Switch to Testnet"}
+      {networkSwitch === "testnet" ? switchToMainnetLabel : switchToTestnetLabel}
     </Button>
   )
   return (
@@ -40,11 +35,13 @@ function AllAccountsPage() {
           <Typography
             color="inherit"
             variant="h5"
-            style={
-              isSmallScreen
-                ? { flexGrow: 1, whiteSpace: "nowrap", alignSelf: "flex-end", minWidth: 200, paddingBottom: 8 }
-                : { flexGrow: 1 }
-            }
+            style={{
+              alignSelf: "flex-end",
+              flexGrow: 1,
+              minWidth: 200,
+              paddingBottom: 8,
+              whiteSpace: "nowrap"
+            }}
           >
             {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
           </Typography>
@@ -55,7 +52,7 @@ function AllAccountsPage() {
                 : null}
               <IconButton
                 onClick={() => router.history.push(routes.settings())}
-                style={{ marginLeft: 0, marginRight: 0, color: "inherit" }}
+                style={{ marginLeft: 0, marginRight: -12, color: "inherit" }}
               >
                 <SettingsIcon />
               </IconButton>
