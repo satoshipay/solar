@@ -13,6 +13,7 @@ import { Box, HorizontalLayout } from "../Layout/Box"
 import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
+import { PriceInput } from "../Form/FormFields"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
 
@@ -70,7 +71,12 @@ interface AssetSelectorProps {
 function AssetSelector(props: AssetSelectorProps) {
   return (
     <FormControl>
-      <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
+      <Select
+        disableUnderline
+        onChange={event => props.onSelect(event.target.value)}
+        style={props.style}
+        value={props.selected}
+      >
         {props.assets.map(assetCode => (
           <MenuItem key={assetCode} value={assetCode}>
             {assetCode}
@@ -134,28 +140,26 @@ function PaymentCreationForm(props: Props) {
         placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
         autoFocus
-        margin="dense"
+        margin="normal"
         value={formValues.destination}
         onChange={event => setFormValue("destination", event.target.value)}
       />
       <HorizontalLayout justifyContent="space-between" alignItems="center">
-        <TextField
+        <PriceInput
+          assetCode={
+            <AssetSelector
+              assets={props.trustedAssets.map(asset => asset.code)}
+              onSelect={code => setFormValue("asset", code)}
+              selected={formValues.asset}
+              style={{ alignSelf: "center" }}
+            />
+          }
           error={Boolean(errors.amount)}
           label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
-          margin="dense"
+          margin="normal"
           placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
-          InputProps={{
-            endAdornment: (
-              <AssetSelector
-                assets={props.trustedAssets.map(asset => asset.code)}
-                onSelect={code => setFormValue("asset", code)}
-                selected={formValues.asset}
-                style={{ alignSelf: "center" }}
-              />
-            )
-          }}
           style={{
             minWidth: "30%"
           }}
@@ -182,7 +186,7 @@ function PaymentCreationForm(props: Props) {
             inputProps={{ maxLength: 28 }}
             error={Boolean(errors.memoValue)}
             label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
-            margin="dense"
+            margin="normal"
             onChange={event => setFormValue("memoValue", event.target.value)}
             value={formValues.memoValue}
             style={{ width: "70%" }}

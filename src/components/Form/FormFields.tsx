@@ -2,14 +2,18 @@ import React from "react"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 
-export function PriceInput(props: TextFieldProps & { assetCode: string; readOnly?: boolean }) {
+export function PriceInput(props: TextFieldProps & { assetCode: React.ReactNode; readOnly?: boolean }) {
   const { assetCode, readOnly, ...textfieldProps } = props
   return (
     <TextField
       {...textfieldProps}
       InputProps={{
         endAdornment: (
-          <InputAdornment disableTypography position="end" style={{ pointerEvents: "none" }}>
+          <InputAdornment
+            disableTypography
+            position="end"
+            style={{ pointerEvents: typeof assetCode === "string" ? "none" : undefined }}
+          >
             {assetCode}
           </InputAdornment>
         ),
