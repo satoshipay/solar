@@ -25,19 +25,28 @@ function trimBalance(balance: BigNumber): string {
   }
 }
 
-export function formatBalance(
-  input: BigNumber | string,
-  options: { groupThousands?: boolean; minimumDecimals?: number; minimumSignificants?: number } = {}
-) {
+interface BalanceFormattingOptions {
+  groupThousands: boolean
+  maximumDecimals: number
+  maximumSignificants: number
+  minimumDecimals: number
+  minimumSignificants: number
+}
+
+export function formatBalance(input: BigNumber | string, options: Partial<BalanceFormattingOptions> = {}) {
   if (typeof input === "string" && Number.isNaN(Number.parseFloat(input))) {
     return "-"
   }
 
   const balance = BigNumber(input)
   const thousandsSeparator = ","
-  const maximumDecimals = 7
-  const maximumSignificants = 13
-  const { groupThousands = true, minimumDecimals = 0, minimumSignificants = 0 } = options
+  const {
+    groupThousands = true,
+    maximumDecimals = 7,
+    maximumSignificants = 13,
+    minimumDecimals = 0,
+    minimumSignificants = 0
+  } = options
 
   const trimmedUnformattedBalance = trimBalance(balance.abs())
 

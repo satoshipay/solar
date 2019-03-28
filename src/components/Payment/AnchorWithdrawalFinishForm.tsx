@@ -42,6 +42,7 @@ function AnchorWithdrawalFinishForm(props: Props) {
       .div(100)
       .mul(amount)
   )
+  const feeMaxDecimals = fees.round(2).eq(fees) ? 2 : undefined
 
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent) => {
@@ -57,6 +58,7 @@ function AnchorWithdrawalFinishForm(props: Props) {
         <HorizontalLayout>
           <PriceInput
             assetCode={props.asset.getCode()}
+            autoFocus
             label="Amount to withdraw"
             onChange={event => setAmountString(event.target.value)}
             placeholder={accountData.loading ? "" : formatBalanceRange(balance, minAmount, maxAmount)}
@@ -68,7 +70,7 @@ function AnchorWithdrawalFinishForm(props: Props) {
             label="Fees"
             readOnly
             style={{ flexGrow: 0, width: 160 }}
-            value={`- ${formatBalance(fees)}`}
+            value={`- ${formatBalance(fees, { maximumDecimals: feeMaxDecimals })}`}
           />
         </HorizontalLayout>
         <HorizontalLayout margin="24px 0 0">
