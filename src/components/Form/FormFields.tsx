@@ -3,21 +3,22 @@ import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 
 export function PriceInput(props: TextFieldProps & { assetCode: string; readOnly?: boolean }) {
+  const { assetCode, readOnly, ...textfieldProps } = props
   return (
     <TextField
-      {...props}
+      {...textfieldProps}
       InputProps={{
         endAdornment: (
           <InputAdornment disableTypography position="end" style={{ pointerEvents: "none" }}>
-            {props.assetCode}
+            {assetCode}
           </InputAdornment>
         ),
-        readOnly: props.readOnly,
-        ...props.InputProps
+        readOnly,
+        ...textfieldProps.InputProps
       }}
       style={{
         pointerEvents: props.readOnly ? "none" : undefined,
-        ...props.style
+        ...textfieldProps.style
       }}
     />
   )
