@@ -15,7 +15,9 @@ Keys are encrypted with a key derived from the user's password before storing th
 The encryption key is derived from the password using `PBKDF2` with `SHA256`. The actual encryption is performed using `xsalsa20-poly1305`.
 
 ## Development
+
 ### Desktop
+
 Install the dependencies first:
 
 ```
@@ -42,57 +44,6 @@ To run the storybook:
 ```
 npm run storybook
 ```
-### Android/iOS
-Install the dependencies:
-
-```
-npm install
-```
-
-Navigate to cordova folder:
-```
-cd cordova/
-```
-
-Install cordova dependencies:
-```
-npm install
-```
-
-#### Android
-Create the Android platform:
-```
-npm run install:android
-```
-
-Create the development build:
-```
-npm run dev:android
-```
-
-Follow the steps in [Cordova Android - Installing the Requirements](https://cordova.apache.org/docs/en/latest/guide/platforms/android/index.html#installing-the-requirements) to setup your development environment.
-
-In Android Studio choose "Import project" and select the `cordova/platforms/android` folder. 
-You should now be able to run the app on device or emulator.
-
-#### iOS
-Create the iOS platform:
-```
-npm run install:ios
-```
-
-Create the development build:
-```
-npm run dev:ios
-```
-
-Follow the steps in [Cordova iOS - Installing the Requirements](https://cordova.apache.org/docs/en/latest/guide/platforms/ios/index.html#installing-the-requirements) to setup your development environment.
-
-Open the Project folder in Xcode:
-```
-open ./platforms/ios/Solar.xcworkspace/
-```
-You can now select a device from the dropdown in the upper-left corner and run the application.
 
 ### Run dev server without electron
 
@@ -101,8 +52,14 @@ cd web/
 npm run dev
 ```
 
+### Android/iOS
+
+See [Cordova build readme](./cordova/README.md).
+
 ### Production build
+
 #### Desktop
+
 ```
 npm run build:mac
 npm run build:win
@@ -126,11 +83,8 @@ To check the Mac DMG signature, run `codesign -dv --verbose=4 ./electron/dist/<f
 Note: Application signing has only been tested on a Mac OS development machine so far.
 
 #### Android/iOS
-Follow the setup of the development builds but instead of `npm run dev:android/ios` use:
-```
-npm run build:android
-npm run build:ios
-```
+
+See [Cordova build readme](./cordova/README.md).
 
 ## License
 

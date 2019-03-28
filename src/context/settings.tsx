@@ -51,12 +51,11 @@ export function SettingsProvider(props: Props) {
   const [settings, setSettings] = React.useState(initialSettings)
 
   React.useEffect(() => {
-    loadSettings()
-      .then(loadedSettings => setSettings({ ...settings, ...loadedSettings }))
-      .catch(trackError)
-
-    loadIgnoredSignatureRequestHashes()
-      .then(setIgnoredSignatureRequests)
+    Promise.all([loadIgnoredSignatureRequestHashes(), loadSettings()])
+      .then(([loadedSignatureReqHashes, loadedSettings]) => {
+        setIgnoredSignatureRequests(loadedSignatureReqHashes)
+        setSettings({ ...settings, ...loadedSettings })
+      })
       .catch(trackError)
 
     // Can't really cancel loading the settings
