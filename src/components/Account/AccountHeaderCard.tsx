@@ -82,20 +82,7 @@ function AccountHeaderCard(props: Props) {
     >
       <CardContent>
         <MainTitle
-          title={
-            <span
-              style={{
-                display: "block",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                width: "100%",
-                maxWidth: "40vw"
-              }}
-            >
-              {props.account.name}{" "}
-            </span>
-          }
+          title={props.account.name + " "}
           titleColor="inherit"
           onClose={() => router.history.push(routes.allAccounts())}
           style={{ marginTop: -12, marginLeft: 0 }}
