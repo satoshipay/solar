@@ -1,4 +1,5 @@
 import React from "react"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
@@ -165,6 +166,7 @@ interface Props {
 
 function AccountPage(props: Props) {
   const { accounts, renameAccount } = React.useContext(AccountsContext)
+  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
   const router = useRouter()
 
   const onCloseDialog = () => router.history.push(routes.account(props.accountID))
@@ -184,7 +186,7 @@ function AccountPage(props: Props) {
           onManageSigners={() => router.history.push(routes.manageAccountSigners(props.accountID))}
           onRenameAccount={renameAccount}
         >
-          <DetailContent style={{ marginTop: 12, marginLeft: 48 }}>
+          <DetailContent style={{ marginTop: 12, marginLeft: isSmallScreen ? 0 : 48 }}>
             <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
           </DetailContent>
           <VerticalMargin size={40} />
