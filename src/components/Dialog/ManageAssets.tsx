@@ -1,5 +1,6 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
@@ -29,7 +30,9 @@ interface Props {
 function ManageAssets(props: Props) {
   const [isCustomTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [removalDialogAsset, setRemovalDialogAsset] = React.useState<Asset | null>(null)
+
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const isWidthMax500 = useMediaQuery("(max-width:500px)")
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -56,8 +59,8 @@ function ManageAssets(props: Props) {
           title="Manage Assets"
           actions={
             <>
-              <Button color="primary" onClick={addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">
-                <ButtonIconLabel label="Add Custom Asset">
+              <Button color="primary" onClick={addCustomTrustline} variant="contained">
+                <ButtonIconLabel label={isWidthMax500 ? "Custom" : "Add Custom Asset"}>
                   <AddIcon />
                 </ButtonIconLabel>
               </Button>

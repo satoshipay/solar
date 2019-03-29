@@ -1,5 +1,6 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -27,7 +28,9 @@ function CustomTrustlineDialog(props: Props) {
   const [issuerPublicKey, setIssuerPublicKey] = React.useState("")
   const [limit, setLimit] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const isWidthMax450 = useMediaQuery("(max-width:450px)")
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -97,7 +100,7 @@ function CustomTrustlineDialog(props: Props) {
               onClick={addCustomAsset}
               type="primary"
             >
-              Trust Asset
+              {isWidthMax450 ? "Trust" : "Trust Asset"}
             </ActionButton>
           </DialogActionsBox>
         </form>

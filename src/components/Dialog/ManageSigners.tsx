@@ -1,12 +1,13 @@
 import React from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData } from "../../hooks"
+import { useAccountData, useIsMobile } from "../../hooks"
 import { getSignerKey } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import { ObservedAccountData } from "../../subscriptions"
@@ -32,6 +33,9 @@ interface Props {
 function ManageSignersDialog(props: Props) {
   const [isEditingNewSigner, setIsEditingNewSigner] = React.useState(false)
   const [, setTxCreationPending] = React.useState(false)
+
+  const isSmallScreen = useIsMobile()
+  const isWidthMax450 = useMediaQuery("(max-width:450px)")
 
   const submitTransaction = async (update: SignerUpdate) => {
     try {
@@ -85,16 +89,11 @@ function ManageSignersDialog(props: Props) {
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <MainTitle
-          title="Manage Account Signers"
+          title={isSmallScreen ? "Manage Signers" : "Manage Account Signers"}
           actions={
             <>
-              <Button
-                color="primary"
-                onClick={() => setIsEditingNewSigner(true)}
-                style={{ marginLeft: 32 }}
-                variant="contained"
-              >
-                <ButtonIconLabel label="Add Co-Signer">
+              <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
+                <ButtonIconLabel label={isWidthMax450 ? "Signer" : "Add Co-Signer"}>
                   <PersonAddIcon />
                 </ButtonIconLabel>
               </Button>
