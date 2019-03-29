@@ -53,34 +53,6 @@ function AllAccountsPage() {
             </Box>
           }
         />
-        {/* <HorizontalLayout alignItems="center" wrap="wrap">
-          <Typography
-            color="inherit"
-            variant="h5"
-            style={{
-              alignSelf: "flex-end",
-              flexGrow: 1,
-              minWidth: 200,
-              paddingBottom: 8,
-              whiteSpace: "nowrap"
-            }}
-          >
-            {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
-          </Typography>
-          <HorizontalLayout style={{ marginLeft: "auto" }}>
-            <Box>
-              {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
-                ? networkSwitchButton
-                : null}
-              <IconButton
-                onClick={() => router.history.push(routes.settings())}
-                style={{ marginLeft: 8, marginRight: -12, color: "inherit" }}
-              >
-                <SettingsIcon />
-              </IconButton>
-            </Box>
-          </HorizontalLayout>
-        </HorizontalLayout> */}
         <Box margin="16px 0 0">
           <AccountList
             accounts={accounts}
