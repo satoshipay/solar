@@ -147,7 +147,8 @@ function PaymentCreationForm(props: Props) {
             )
           }}
           style={{
-            minWidth: "30%"
+            minWidth: "30%",
+            maxWidth: "60%"
           }}
         />
         <FormControl style={{ width: "30%" }}>

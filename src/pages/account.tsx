@@ -25,7 +25,7 @@ import { Section } from "../components/Layout/Page"
 import { Account, AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
-import { useAccountData, useHorizon, useRecentTransactions, useRouter } from "../hooks"
+import { useIsMobile, useAccountData, useHorizon, useRecentTransactions, useRouter } from "../hooks"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 
@@ -167,11 +167,13 @@ function AccountPage(props: Props) {
   const { accounts, renameAccount } = React.useContext(AccountsContext)
   const router = useRouter()
 
+  const isSmallScreen = useIsMobile()
   const onCloseDialog = () => router.history.push(routes.account(props.accountID))
 
   const account = accounts.find(someAccount => someAccount.id === props.accountID)
   if (!account) {
-    throw new Error(`Wallet account not found. ID: ${props.accountID}`)
+    // FIXME: Use error boundaries
+    return <div>Wallet account not found. ID: {props.accountID}</div>
   }
 
   return (
@@ -183,7 +185,7 @@ function AccountPage(props: Props) {
           onManageSigners={() => router.history.push(routes.manageAccountSigners(props.accountID))}
           onRenameAccount={renameAccount}
         >
-          <DetailContent style={{ marginTop: 12, marginLeft: 48 }}>
+          <DetailContent style={{ marginTop: 12, marginLeft: isSmallScreen ? 0 : 48 }}>
             <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
           </DetailContent>
           <VerticalMargin size={40} />

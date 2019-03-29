@@ -40,11 +40,19 @@ interface Props {
 }
 
 const PublicKey = (props: Props) => {
+  const { variant = "full" } = props
   const digits = getDigitCounts(props.variant)
   const { accounts } = React.useContext(AccountsContext)
 
   const matchingLocalAccount = accounts.find(account => account.publicKey === props.publicKey)
-  const style: React.CSSProperties = { display: "inline", fontSize: "inherit", fontWeight: "bold", ...props.style }
+
+  const style: React.CSSProperties = {
+    display: "inline",
+    fontSize: "inherit",
+    fontWeight: "bold",
+    whiteSpace: variant !== "full" ? "pre" : undefined,
+    ...props.style
+  }
 
   if (props.publicKey.length !== 56) {
     return <>{props.publicKey}</>
@@ -52,7 +60,7 @@ const PublicKey = (props: Props) => {
     // Note: We don't check for mainnet/testnet here...
     return (
       <Typography component="span" style={style}>
-        {props.variant === "full" || !props.variant
+        {variant === "full"
           ? matchingLocalAccount.name
           : shortenName(matchingLocalAccount.name, digits.leading + digits.trailing + 6)}
       </Typography>

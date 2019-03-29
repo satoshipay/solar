@@ -6,7 +6,7 @@ import QRCode from "qrcode.react"
 import { Account } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import BackButton from "./BackButton"
+import MainTitle from "../MainTitle"
 
 const Transition = (props: any) => <Slide {...props} direction="left" />
 
@@ -26,19 +26,14 @@ function ReceivePaymentDialog(props: Props) {
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto 32px">
-        <HorizontalLayout alignItems="center">
-          <BackButton onClick={props.onClose} />
-          <Typography variant="h5" style={{ flexGrow: 1 }}>
-            Receive Funds
-          </Typography>
-        </HorizontalLayout>
+        <MainTitle onBack={props.onClose} title="Receive Funds" />
       </Box>
       <HorizontalLayout justifyContent="center">
         <VerticalLayout>
           <Box onClick={copyToClipboard} margin="0 auto" style={{ cursor: "pointer" }}>
             <QRCode size={256} value={props.account.publicKey} />
           </Box>
-          <Box margin="24px auto 0">
+          <Box margin="12px auto 12px">
             <Typography align="center" style={{ marginBottom: 12 }}>
               Tap to copy:
             </Typography>
@@ -47,8 +42,8 @@ function ReceivePaymentDialog(props: Props) {
               component="p"
               onClick={copyToClipboard}
               role="button"
-              style={{ cursor: "pointer" }}
-              variant="subtitle1"
+              style={{ cursor: "pointer", wordWrap: "break-word", maxWidth: window.innerWidth - 75 }}
+              variant="subheading"
             >
               <b>{props.account.publicKey}</b>
             </Typography>

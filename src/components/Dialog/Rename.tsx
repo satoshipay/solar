@@ -3,6 +3,7 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import EditIcon from "@material-ui/icons/Edit"
 import { trackError } from "../../context/notifications"
 import CloseButton from "./CloseButton"
@@ -18,6 +19,7 @@ interface Props {
 
 function RenameDialog(props: Props) {
   const [newName, setNewName] = React.useState("")
+  const isWidthMax500 = useMediaQuery("(max-width:500px)")
 
   const handleInput = (event: React.SyntheticEvent) => {
     setNewName((event.target as HTMLInputElement).value)
@@ -36,7 +38,7 @@ function RenameDialog(props: Props) {
       <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
-        <form style={{ minWidth: 300 }} onSubmit={handleSubmit}>
+        <form style={isWidthMax500 ? { minWidth: 200 } : { minWidth: 300 }} onSubmit={handleSubmit}>
           <TextField label="Name" fullWidth autoFocus margin="dense" value={newName} onChange={handleInput} />
           <DialogActionsBox>
             <ActionButton onClick={props.onClose}>Cancel</ActionButton>

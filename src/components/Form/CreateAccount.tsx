@@ -9,6 +9,7 @@ import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
@@ -74,6 +75,7 @@ interface AccountCreationFormProps {
 
 const AccountCreationForm = (props: AccountCreationFormProps) => {
   const { errors, formValues, setFormValue } = props
+  const isSmallScreen = useIsMobile()
   return (
     <form onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between">
@@ -97,7 +99,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 fontSize: "1.5rem"
               }
             }}
-            style={{ minWidth: 300, maxWidth: "70%", margin: 0 }}
+            style={{ minWidth: 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
           />
         </Box>
         <ToggleSection
@@ -127,7 +129,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 onChange={event => setFormValue("password", event.target.value)}
                 type="password"
               />
-              <HorizontalMargin size={32} />
+              <HorizontalMargin size={isSmallScreen ? 12 : 32} />
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.passwordRepeat)}
@@ -162,9 +164,9 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               disabled={Boolean(formValues.createNewKey)}
               variant="outlined"
               onClick={props.onOpenQRScanner}
-              style={{ height: 48 }}
+              style={{ height: 48, minWidth: 80 }}
             >
-              <QRCodeIcon style={{ marginRight: 16 }} />
+              <QRCodeIcon style={isSmallScreen ? { marginRight: 8 } : { marginRight: 16 }} />
               Scan
             </Button>
           </HorizontalLayout>

@@ -7,11 +7,13 @@ import FormControlLabel from "@material-ui/core/FormControlLabel"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { Account, AccountsContextType } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import CloseButton from "./CloseButton"
 import { ActionButton } from "./Generic"
@@ -66,6 +68,7 @@ interface ActionsProps {
 }
 
 function Actions(props: ActionsProps) {
+  const isSmallScreen = useIsMobile()
   return (
     <HorizontalLayout justifyContent="space-between">
       {props.isPasswordProtected ? (
@@ -76,7 +79,12 @@ function Actions(props: ActionsProps) {
       ) : (
         <div />
       )}
-      <ActionButton icon={<LockIcon />} onClick={props.onSubmit} type="primary">
+      <ActionButton
+        style={isSmallScreen ? { fontSize: "0.5rem" } : {}}
+        icon={<LockIcon />}
+        onClick={props.onSubmit}
+        type="primary"
+      >
         {props.removePassword ? "Remove password" : "Change password"}
       </ActionButton>
     </HorizontalLayout>
@@ -100,6 +108,7 @@ function ChangePasswordDialog(props: Props) {
     prevPassword: ""
   })
   const [removingPassword, setRemovingPassword] = React.useState(false)
+  const isWidthMax500 = useMediaQuery("(max-width:500px)")
 
   const changePassword = () => {
     const { id: accountID, requiresPassword } = props.account
@@ -156,7 +165,11 @@ function ChangePasswordDialog(props: Props) {
     <Dialog
       open={props.open}
       onClose={onClose}
-      PaperProps={{ style: { minWidth: 500, transition: "width 2s, min-width 2s" } }}
+      PaperProps={{
+        style: isWidthMax500
+          ? { minWidth: 200, transition: "width 2s, min-width 2s" }
+          : { minWidth: 500, transition: "width 2s, min-width 2s" }
+      }}
     >
       <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>

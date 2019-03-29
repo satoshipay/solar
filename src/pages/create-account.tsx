@@ -1,6 +1,6 @@
 import React from "react"
 import { Keypair } from "stellar-sdk"
-import { useRouter } from "../hooks"
+import { useIsMobile, useRouter } from "../hooks"
 import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
@@ -10,6 +10,7 @@ import { trackError } from "../context/notifications"
 
 function CreateAccountPage(props: { testnet: boolean }) {
   const { accounts, createAccount } = React.useContext(AccountsContext)
+  const isSmallScreen = useIsMobile()
   const router = useRouter()
 
   const onCreateAccount = async (formValues: AccountCreationValues) => {
@@ -30,7 +31,7 @@ function CreateAccountPage(props: { testnet: boolean }) {
 
   return (
     <Section top>
-      <Box padding="16px 24px" style={{ position: "relative" }}>
+      <Box padding={isSmallScreen ? "12px 12px 0px 0px" : "16px 24px"} style={{ position: "relative" }}>
         <AccountCreationForm
           accounts={accounts}
           onCancel={onClose}
