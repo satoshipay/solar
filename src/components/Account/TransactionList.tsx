@@ -131,6 +131,13 @@ interface TitleTextProps {
 
 // TODO: Re-use code of transaction summary operation heading
 function TransactionItemText(props: TitleTextProps) {
+  const isSmallScreen = useIsMobile()
+
+  const remotePublicKeys = props.paymentSummary.reduce(
+    (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
+    [] as string[]
+  )
+
   const secondary = (
     <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
       <Time time={props.createdAt} />
@@ -143,18 +150,13 @@ function TransactionItemText(props: TitleTextProps) {
     </span>
   )
 
-  const remotePublicKeys = props.paymentSummary.reduce(
-    (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
-    [] as string[]
-  )
-
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return (
       <ListItemText
         primary={
           <span>
             From&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short={isSmallScreen} />
           </span>
         }
         primaryTypographyProps={{ style: props.style }}
@@ -171,7 +173,7 @@ function TransactionItemText(props: TitleTextProps) {
         primary={
           <span>
             To&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource || isSmallScreen} />
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;from&nbsp;
@@ -356,11 +358,13 @@ export function TransactionListItem(props: TransactionListItemProps) {
         alwaysShowSource={props.alwaysShowSource}
         createdAt={new Date(props.createdAt)}
         paymentSummary={paymentSummary}
-        style={
-          isSmallScreen
-            ? { fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis", fontSize: "0.8rem", maxWidth: 100 }
-            : { fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }
-        }
+        style={{
+          fontSize: isSmallScreen ? "0.8rem" : undefined,
+          fontWeight: "bold",
+          overflow: "hidden",
+          paddingRight: 0,
+          textOverflow: "ellipsis"
+        }}
         transaction={props.transaction}
       />
       {hovering && props.hoverActions ? (
