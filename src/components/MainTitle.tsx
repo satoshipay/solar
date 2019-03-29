@@ -1,9 +1,28 @@
 import React from "react"
+import IconButton from "@material-ui/core/IconButton"
 import Typography from "@material-ui/core/Typography"
+import ArrowBackIcon from "@material-ui/icons/ArrowBack"
 import { useIsMobile } from "../hooks"
 import { Box, HorizontalLayout } from "./Layout/Box"
-import BackButton from "./BackButton"
 import { PropTypes } from "@material-ui/core"
+
+interface BackButtonProps {
+  onClick: () => void
+  style?: React.CSSProperties
+}
+
+const BackButton = (props: BackButtonProps) => {
+  const style = {
+    padding: 6,
+    fontSize: 32,
+    ...props.style
+  }
+  return (
+    <IconButton color="inherit" onClick={props.onClick} style={style}>
+      <ArrowBackIcon style={{ fontSize: "inherit" }} />
+    </IconButton>
+  )
+}
 
 interface Props {
   actions?: React.ReactNode
