@@ -19,6 +19,7 @@ interface Props {
 
 function RenameDialog(props: Props) {
   const [newName, setNewName] = React.useState("")
+  const isWidthMax500 = useMediaQuery("(max-width:500px)")
 
   const handleInput = (event: React.SyntheticEvent) => {
     setNewName((event.target as HTMLInputElement).value)
@@ -32,14 +33,12 @@ function RenameDialog(props: Props) {
     props.onClose()
   }
 
-  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
-
   return (
     <Dialog open={props.open} onClose={props.onClose}>
       <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
-        <form style={isSmallScreen ? { minWidth: 200 } : { minWidth: 300 }} onSubmit={handleSubmit}>
+        <form style={isWidthMax500 ? { minWidth: 200 } : { minWidth: 300 }} onSubmit={handleSubmit}>
           <TextField label="Name" fullWidth autoFocus margin="dense" value={newName} onChange={handleInput} />
           <DialogActionsBox>
             <ActionButton onClick={props.onClose}>Cancel</ActionButton>

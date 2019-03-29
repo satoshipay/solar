@@ -3,13 +3,13 @@ import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
@@ -74,9 +74,8 @@ interface AccountCreationFormProps {
 }
 
 const AccountCreationForm = (props: AccountCreationFormProps) => {
-  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
-
   const { errors, formValues, setFormValue } = props
+  const isSmallScreen = useIsMobile()
   return (
     <form onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between">

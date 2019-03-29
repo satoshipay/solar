@@ -12,13 +12,12 @@ import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
+import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
 import PublicKey from "../PublicKey"
 import { formatOperation } from "../TransactionSummary/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
-
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -310,9 +309,8 @@ function TransactionItemText(props: TitleTextProps) {
 }
 
 function TransactionListItemBalance(props: { paymentSummary: ReturnType<typeof getPaymentSummary> }) {
-  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
-
   const { paymentSummary } = props
+  const isSmallScreen = useIsMobile()
   return (
     <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
       {paymentSummary.length === 0 ? null : (
@@ -339,9 +337,8 @@ interface TransactionListItemProps {
 
 export function TransactionListItem(props: TransactionListItemProps) {
   const [hovering, setHoveringStatus] = React.useState(false)
+  const isSmallScreen = useIsMobile()
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
-
-  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
 
   return (
     <ListItem

@@ -1,5 +1,4 @@
 import React from "react"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
@@ -26,7 +25,7 @@ import { Section } from "../components/Layout/Page"
 import { Account, AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
-import { useAccountData, useHorizon, useRecentTransactions, useRouter } from "../hooks"
+import { useIsMobile, useAccountData, useHorizon, useRecentTransactions, useRouter } from "../hooks"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 
@@ -166,9 +165,9 @@ interface Props {
 
 function AccountPage(props: Props) {
   const { accounts, renameAccount } = React.useContext(AccountsContext)
-  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
   const router = useRouter()
 
+  const isSmallScreen = useIsMobile()
   const onCloseDialog = () => router.history.push(routes.account(props.accountID))
 
   const account = accounts.find(someAccount => someAccount.id === props.accountID)

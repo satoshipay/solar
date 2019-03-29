@@ -1,6 +1,6 @@
 import React from "react"
 import { Keypair } from "stellar-sdk"
-import { useRouter } from "../hooks"
+import { useIsMobile, useRouter } from "../hooks"
 import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
@@ -8,13 +8,10 @@ import { Box } from "../components/Layout/Box"
 import { AccountsContext } from "../context/accounts"
 import { trackError } from "../context/notifications"
 
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
-
 function CreateAccountPage(props: { testnet: boolean }) {
   const { accounts, createAccount } = React.useContext(AccountsContext)
+  const isSmallScreen = useIsMobile()
   const router = useRouter()
-
-  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
 
   const onCreateAccount = async (formValues: AccountCreationValues) => {
     try {

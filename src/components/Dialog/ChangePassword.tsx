@@ -13,6 +13,7 @@ import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { Account, AccountsContextType } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import CloseButton from "./CloseButton"
 import { ActionButton } from "./Generic"
@@ -67,8 +68,7 @@ interface ActionsProps {
 }
 
 function Actions(props: ActionsProps) {
-  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
-
+  const isSmallScreen = useIsMobile()
   return (
     <HorizontalLayout justifyContent="space-between">
       {props.isPasswordProtected ? (
@@ -108,6 +108,7 @@ function ChangePasswordDialog(props: Props) {
     prevPassword: ""
   })
   const [removingPassword, setRemovingPassword] = React.useState(false)
+  const isWidthMax500 = useMediaQuery("(max-width:500px)")
 
   const changePassword = () => {
     const { id: accountID, requiresPassword } = props.account
@@ -160,14 +161,12 @@ function ChangePasswordDialog(props: Props) {
   }
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
-  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
-
   return (
     <Dialog
       open={props.open}
       onClose={onClose}
       PaperProps={{
-        style: isSmallScreen
+        style: isWidthMax500
           ? { minWidth: 200, transition: "width 2s, min-width 2s" }
           : { minWidth: 500, transition: "width 2s, min-width 2s" }
       }}

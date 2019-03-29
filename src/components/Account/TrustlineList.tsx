@@ -7,12 +7,11 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import Tooltip from "@material-ui/core/Tooltip"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import RemoveIcon from "@material-ui/icons/Close"
 import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
-import { useAccountData } from "../../hooks"
+import { useIsMobile, useAccountData } from "../../hooks"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import SpaciousList from "../List/SpaciousList"
@@ -50,8 +49,7 @@ interface TrustedAssetProps {
 function TrustedAsset(props: TrustedAssetProps) {
   const { account, balance } = props
   const [hovering, setHovering] = React.useState(false)
-
-  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
+  const isSmallScreen = useIsMobile()
 
   return (
     <ListItem onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
@@ -138,6 +136,7 @@ interface Props {
 
 function TrustlineList(props: Props) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const isSmallScreen = useIsMobile()
 
   const isAssetAlreadyAdded = (asset: Asset) => {
     return accountData.balances.some(
@@ -150,8 +149,6 @@ function TrustlineList(props: Props) {
   const popularAssetsNotYetAdded = popularAssets.filter(asset => !isAssetAlreadyAdded(asset))
 
   const xlmBalance = accountData.balances.find(balance => balance.asset_type === "native")
-
-  const isSmallScreen = useMediaQuery("(max-device-width:500px)")
 
   return (
     <SpaciousList fitHorizontal>

@@ -3,11 +3,11 @@ import { Horizon } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import InfoIcon from "@material-ui/icons/Info"
 import { trackError } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getSignerKey } from "../../lib/stellar"
 import { ObservedAccountData } from "../../subscriptions"
@@ -100,6 +100,7 @@ function ManageSignersForm(props: Props) {
   const [signersToRemove, setSignersToRemove] = React.useState<Horizon.AccountSigner[]>([])
   const [weightThresholdError, setWeightThresholdError] = React.useState<Error | undefined>(undefined)
   const [weightThreshold, setWeightThreshold] = React.useState(getEffectiveWeightThreshold(accountData).toString())
+  const isSmallScreen = useIsMobile()
 
   const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
@@ -148,8 +149,6 @@ function ManageSignersForm(props: Props) {
   const weightThresholdExplanation = allDefaultKeyweights
     ? `Every transaction needs to be signed by ${sanitizedKeyWeight} signers`
     : `Every transaction needs to be signed by signers with a combined key weight of ${sanitizedKeyWeight} `
-
-  const isSmallScreen = useMediaQuery("(max-device-width:600px)")
 
   return (
     <VerticalLayout minHeight="400px" justifyContent="space-between">
