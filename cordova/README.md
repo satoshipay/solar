@@ -77,3 +77,24 @@ Follow the setup of the development builds but instead of `npm run dev:android/i
 npm run build:android
 npm run build:ios
 ```
+
+## Creating signed builds
+
+### Android
+
+Make sure that you have access to the required `.keystore` file.
+
+Create a `signing.env` file inside of the `cordova/` directory. Insert the path to the keystore file and the alias of the signing key.
+
+```
+KEYSTORE_LOCATION=/location/of/my.keystore
+SIGNINGKEY_ALIAS=AliasOfMyKey
+```
+
+Run the following npm script to start the build process of the signed apk.
+
+```
+npm run build:android:signed
+```
+
+Enter the passwords for keystore and key when prompted. The location of the generated .apk file will appear in the output log once the build process succeeds. 

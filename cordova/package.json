@@ -1,6 +1,7 @@
 {
   "name": "io.solarwallet",
-  "version": "1.0.0",
+  "version": "0.0.0",
+  "private": true,
   "displayName": "Solar",
   "cordova": {
     "platforms": [
@@ -41,6 +42,7 @@
     "prebuild:android": "NODE_ENV=production PLATFORM=android ../node_modules/.bin/parcel build ../src/index.prod-android.njk --out-dir ../dist --public-url=./ --detailed-report --no-source-maps && cp config/config-prod-android.xml config.xml",
     "prebuild:ios": "NODE_ENV=production PLATFORM=ios ../node_modules/.bin/parcel build ../src/index.prod-ios.njk --out-dir ../dist --public-url=./ --detailed-report --no-source-maps && cp config/config-prod-ios.xml config.xml",
     "build:android": "npm run prebuild:android && dotenv -- cordova build android",
+    "build:android:signed": "npm run prebuild:android && source ./scripts/signing-env-android.sh && dotenv -- cordova build android --release -- --keystore=$KEYSTORE_LOCATION --storePassword=$KEYSTORE_PASSWORD --alias=$SIGNINGKEY_ALIAS --password=$SIGNINGKEY_PASSWORD",
     "build:ios": "npm run prebuild:ios && cordova build ios",
     "dev:android": "run-p dev:bundle:android dev:cordova:android",
     "dev:ios": "run-p dev:bundle:ios dev:cordova:ios",
