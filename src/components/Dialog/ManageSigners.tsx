@@ -86,7 +86,6 @@ function ManageSignersDialog(props: Props) {
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <MainTitle
           title="Manage Account Signers"
-          onClose={props.onClose}
           actions={
             <>
               <Button
@@ -101,6 +100,8 @@ function ManageSignersDialog(props: Props) {
               </Button>
             </>
           }
+          onBack={props.onClose}
+          style={{ marginBottom: 24 }}
         />
         <ManageSignersForm
           accountData={props.accountData}

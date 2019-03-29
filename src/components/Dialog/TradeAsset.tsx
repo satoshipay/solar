@@ -43,7 +43,7 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], assetCod
 }
 
 function Title(props: { onClose: () => void }) {
-  return <MainTitle title="Trade" onClose={props.onClose} />
+  return <MainTitle title="Trade" onBack={props.onClose} />
 }
 
 interface TradeAssetProps {

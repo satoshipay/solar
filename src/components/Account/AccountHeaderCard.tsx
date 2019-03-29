@@ -82,9 +82,9 @@ function AccountHeaderCard(props: Props) {
     >
       <CardContent>
         <MainTitle
-          title={props.account.name + " "}
+          title={<span style={{ fontSize: "2rem", marginRight: 20 }}>{props.account.name}</span>}
           titleColor="inherit"
-          onClose={() => router.history.push(routes.allAccounts())}
+          onBack={() => router.history.push(routes.allAccounts())}
           style={{ marginTop: -12, marginLeft: 0 }}
           badges={
             <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">

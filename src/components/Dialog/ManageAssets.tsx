@@ -54,7 +54,6 @@ function ManageAssets(props: Props) {
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <MainTitle
           title="Manage Assets"
-          onClose={props.onClose}
           actions={
             <>
               <Button color="primary" onClick={addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">
@@ -64,6 +63,8 @@ function ManageAssets(props: Props) {
               </Button>
             </>
           }
+          onBack={props.onClose}
+          style={{ marginBottom: 24 }}
         />
         <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
       </Box>
