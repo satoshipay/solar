@@ -57,7 +57,6 @@ export function createRecentTxsSubscription(
 
   // We also poll every few seconds, as a fallback, since the horizon's SSE stream seems unreliable (#437)
   const schedulePolling = (intervalMs: number) => setInterval(() => syncRecentTxs(3), intervalMs)
-  schedulePolling(pollIntervalMs)
 
   const fetchRecentTxs = async (limit: number) => {
     const { records } = await horizon
@@ -69,6 +68,7 @@ export function createRecentTxsSubscription(
     return records
   }
   const subscribeToTxs = (cursor: string = "now") => {
+    schedulePolling(pollIntervalMs)
     horizon
       .transactions()
       .forAccount(accountPubKey)
