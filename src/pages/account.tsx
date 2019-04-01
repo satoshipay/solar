@@ -52,7 +52,6 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onReceivePayment}
         style={{
           border: "none",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
           fontSize: "1rem",
           flexGrow: 1,
           padding: "20px"
@@ -70,7 +69,6 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onCreatePayment}
         style={{
           border: "none",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
           fontSize: "1rem",
           flexGrow: 1,
           paddingLeft: 20,
