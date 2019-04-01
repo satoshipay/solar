@@ -15,6 +15,7 @@ import { Box, HorizontalLayout } from "../Layout/Box"
 import ManageSignersForm, { SignerUpdate } from "../ManageSigners/ManageSignersForm"
 import TransactionSender from "../TransactionSender"
 import ButtonIconLabel from "../ButtonIconLabel"
+import ErrorBoundary from "../ErrorBoundary"
 import BackButton from "./BackButton"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
@@ -84,31 +85,33 @@ function ManageSignersDialog(props: Props) {
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <HorizontalLayout alignItems="center" margin="0 0 24px">
-          <BackButton onClick={props.onClose} />
-          <Typography variant="h5" style={{ flexGrow: 1 }}>
-            Manage Account Signers
-          </Typography>
-          <Button
-            color="primary"
-            onClick={() => setIsEditingNewSigner(true)}
-            style={{ marginLeft: 32 }}
-            variant="contained"
-          >
-            <ButtonIconLabel label="Add Co-Signer">
-              <PersonAddIcon />
-            </ButtonIconLabel>
-          </Button>
-        </HorizontalLayout>
-        <ManageSignersForm
-          accountData={props.accountData}
-          isEditingNewSigner={isEditingNewSigner}
-          setIsEditingNewSigner={setIsEditingNewSigner}
-          onCancel={props.onClose}
-          onSubmit={submitTransaction}
-        />
-      </Box>
+      <ErrorBoundary>
+        <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+          <HorizontalLayout alignItems="center" margin="0 0 24px">
+            <BackButton onClick={props.onClose} />
+            <Typography variant="h5" style={{ flexGrow: 1 }}>
+              Manage Account Signers
+            </Typography>
+            <Button
+              color="primary"
+              onClick={() => setIsEditingNewSigner(true)}
+              style={{ marginLeft: 32 }}
+              variant="contained"
+            >
+              <ButtonIconLabel label="Add Co-Signer">
+                <PersonAddIcon />
+              </ButtonIconLabel>
+            </Button>
+          </HorizontalLayout>
+          <ManageSignersForm
+            accountData={props.accountData}
+            isEditingNewSigner={isEditingNewSigner}
+            setIsEditingNewSigner={setIsEditingNewSigner}
+            onCancel={props.onClose}
+            onSubmit={submitTransaction}
+          />
+        </Box>
+      </ErrorBoundary>
     </Dialog>
   )
 }
