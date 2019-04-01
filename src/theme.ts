@@ -1,6 +1,5 @@
 import { createMuiTheme } from "@material-ui/core/styles"
 import amber from "@material-ui/core/colors/amber"
-import grey from "@material-ui/core/colors/grey"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 
 // TODO: The dark and light derivation of the brand color have not been design-reviewed!
@@ -25,30 +24,34 @@ const theme = createMuiTheme({
   overrides: {
     MuiButton: {
       root: {
-        borderRadius: 3
+        borderRadius: 3,
+        boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+        minHeight: 48
       },
       contained: {
         backgroundColor: "white",
-        border: `1px solid ${grey["400"]}`,
-        boxShadow: "none",
-        color: brandColor.dark,
-        "&$disabled": {
-          borderColor: "rgba(128, 128, 128, 0.5)"
-        }
+        boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+        border: `none`,
+        color: brandColor.dark
       },
       containedPrimary: {
-        borderColor: grey["200"],
         "&$disabled": {
-          borderColor: "rgba(64, 64, 64, 0.5)"
+          backgroundColor: brandColor.main,
+          border: "none",
+          boxShadow: "none",
+          color: "rgba(255, 255, 255, 0.7)"
         }
       },
       flatPrimary: {
         color: brandColor.dark
       },
       outlinedSecondary: {
+        backgroundColor: "transparent",
         borderColor: "rgba(255, 255, 255, 0.87)",
+        boxShadow: "none",
         color: "white",
         "&:hover": {
+          backgroundColor: "rgba(255, 255, 255, 0.10)",
           borderColor: "white"
         }
       },
