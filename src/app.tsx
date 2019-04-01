@@ -5,6 +5,7 @@ import ReactDOM from "react-dom"
 import { HashRouter as Router, Route, Switch } from "react-router-dom"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
+import ErrorBoundary from "./components/ErrorBoundary"
 import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
 import NotificationContainer from "./components/NotificationContainer"
@@ -40,27 +41,31 @@ const App = () => (
       <Providers>
         <VerticalLayout height="100%">
           <VerticalLayout height="100%" grow overflow="auto">
-            <Switch>
-              <Route exact path="/" component={AllAccountsPage} />
-              <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
-              <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
-              <Route
-                path={["/account/:id/:action", "/account/:id"]}
-                render={props => (
-                  <AccountPage
-                    accountID={props.match.params.id}
-                    showAssetManagement={props.match.url.startsWith(routes.manageAccountAssets(props.match.params.id))}
-                    showAssetTrading={props.match.url === routes.tradeAsset(props.match.params.id)}
-                    showCreatePayment={props.match.url === routes.createPayment(props.match.params.id)}
-                    showReceivePayment={props.match.url === routes.receivePayment(props.match.params.id)}
-                    showSignersManagement={props.match.url === routes.manageAccountSigners(props.match.params.id)}
-                  />
-                )}
-              />
-              <Route exact path="/settings" component={SettingsPage} />
-            </Switch>
-            <DesktopNotifications />
-            <NotificationContainer />
+            <ErrorBoundary>
+              <Switch>
+                <Route exact path="/" component={AllAccountsPage} />
+                <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
+                <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
+                <Route
+                  path={["/account/:id/:action", "/account/:id"]}
+                  render={props => (
+                    <AccountPage
+                      accountID={props.match.params.id}
+                      showAssetManagement={props.match.url.startsWith(
+                        routes.manageAccountAssets(props.match.params.id)
+                      )}
+                      showAssetTrading={props.match.url === routes.tradeAsset(props.match.params.id)}
+                      showCreatePayment={props.match.url === routes.createPayment(props.match.params.id)}
+                      showReceivePayment={props.match.url === routes.receivePayment(props.match.params.id)}
+                      showSignersManagement={props.match.url === routes.manageAccountSigners(props.match.params.id)}
+                    />
+                  )}
+                />
+                <Route exact path="/settings" component={SettingsPage} />
+              </Switch>
+              <DesktopNotifications />
+              <NotificationContainer />
+            </ErrorBoundary>
           </VerticalLayout>
         </VerticalLayout>
       </Providers>

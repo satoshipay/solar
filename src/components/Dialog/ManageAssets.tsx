@@ -12,6 +12,7 @@ import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
+import ErrorBoundary from "../ErrorBoundary"
 import TransactionSender from "../TransactionSender"
 import BackButton from "./BackButton"
 import CustomTrustlineDialog from "./CustomTrustline"
@@ -52,34 +53,36 @@ function ManageAssets(props: Props) {
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <HorizontalLayout alignItems="center" margin="0 0 24px">
-          <BackButton onClick={props.onClose} />
-          <Typography variant="h5" style={{ flexGrow: 1 }}>
-            Manage Assets
-          </Typography>
-          <Button color="primary" onClick={addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">
-            <ButtonIconLabel label="Add Custom Asset">
-              <AddIcon />
-            </ButtonIconLabel>
-          </Button>
-        </HorizontalLayout>
-        <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
-      </Box>
-      <CustomTrustlineDialog
-        account={props.account}
-        horizon={props.horizon}
-        open={isCustomTrustlineDialogOpen}
-        onClose={closeCustomTrustlineDialog}
-        sendTransaction={props.sendTransaction}
-      />
-      <RemoveTrustlineDialog
-        account={props.account}
-        accountData={accountData}
-        asset={removalDialogAsset || Asset.native()}
-        open={removalDialogAsset !== null}
-        onClose={() => setRemovalDialogAsset(null)}
-      />
+      <ErrorBoundary>
+        <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+          <HorizontalLayout alignItems="center" margin="0 0 24px">
+            <BackButton onClick={props.onClose} />
+            <Typography variant="h5" style={{ flexGrow: 1 }}>
+              Manage Assets
+            </Typography>
+            <Button color="primary" onClick={addCustomTrustline} style={{ marginLeft: 32 }} variant="contained">
+              <ButtonIconLabel label="Add Custom Asset">
+                <AddIcon />
+              </ButtonIconLabel>
+            </Button>
+          </HorizontalLayout>
+          <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
+        </Box>
+        <CustomTrustlineDialog
+          account={props.account}
+          horizon={props.horizon}
+          open={isCustomTrustlineDialogOpen}
+          onClose={closeCustomTrustlineDialog}
+          sendTransaction={props.sendTransaction}
+        />
+        <RemoveTrustlineDialog
+          account={props.account}
+          accountData={accountData}
+          asset={removalDialogAsset || Asset.native()}
+          open={removalDialogAsset !== null}
+          onClose={() => setRemovalDialogAsset(null)}
+        />
+      </ErrorBoundary>
     </Dialog>
   )
 }
