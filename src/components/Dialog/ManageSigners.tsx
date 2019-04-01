@@ -15,6 +15,7 @@ import { Box } from "../Layout/Box"
 import ManageSignersForm, { SignerUpdate } from "../ManageSigners/ManageSignersForm"
 import TransactionSender from "../TransactionSender"
 import ButtonIconLabel from "../ButtonIconLabel"
+import ErrorBoundary from "../ErrorBoundary"
 import MainTitle from "../MainTitle"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
@@ -87,29 +88,31 @@ function ManageSignersDialog(props: Props) {
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <MainTitle
-          title={isSmallScreen ? "Manage Signers" : "Manage Account Signers"}
-          actions={
-            <>
-              <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
-                <ButtonIconLabel label={isWidthMax450 ? "Signer" : "Add Co-Signer"}>
-                  <PersonAddIcon />
-                </ButtonIconLabel>
-              </Button>
-            </>
-          }
-          onBack={props.onClose}
-          style={{ marginBottom: 24 }}
-        />
-        <ManageSignersForm
-          accountData={props.accountData}
-          isEditingNewSigner={isEditingNewSigner}
-          setIsEditingNewSigner={setIsEditingNewSigner}
-          onCancel={props.onClose}
-          onSubmit={submitTransaction}
-        />
-      </Box>
+      <ErrorBoundary>
+        <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+          <MainTitle
+            title={isSmallScreen ? "Manage Signers" : "Manage Account Signers"}
+            actions={
+              <>
+                <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
+                  <ButtonIconLabel label={isWidthMax450 ? "Signer" : "Add Co-Signer"}>
+                    <PersonAddIcon />
+                  </ButtonIconLabel>
+                </Button>
+              </>
+            }
+            onBack={props.onClose}
+            style={{ marginBottom: 24 }}
+          />
+          <ManageSignersForm
+            accountData={props.accountData}
+            isEditingNewSigner={isEditingNewSigner}
+            setIsEditingNewSigner={setIsEditingNewSigner}
+            onCancel={props.onClose}
+            onSubmit={submitTransaction}
+          />
+        </Box>
+      </ErrorBoundary>
     </Dialog>
   )
 }

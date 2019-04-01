@@ -116,6 +116,7 @@ export type BoxStyles = SizingStyles &
     hidden?: boolean
     margin?: React.CSSProperties["margin"]
     overflow?: React.CSSProperties["overflow"]
+    position?: React.CSSProperties["position"]
   }
 
 const createBoxStyle = (styleProps: BoxStyles) => {
@@ -133,6 +134,9 @@ const createBoxStyle = (styleProps: BoxStyles) => {
   }
   if (styleProps.display) {
     style.display = styleProps.display
+  }
+  if (styleProps.position) {
+    style.position = styleProps.position
   }
   return removeNullValueProps(style)
 }

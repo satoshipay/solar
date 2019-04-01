@@ -122,23 +122,25 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.password)}
-                label={errors.password ? renderFormFieldError(errors.password) : "Password"}
                 fullWidth
+                label={errors.password ? renderFormFieldError(errors.password) : "Password"}
+                placeholder="Enter a password"
                 margin="normal"
-                value={formValues.password}
                 onChange={event => setFormValue("password", event.target.value)}
                 type="password"
+                value={formValues.password}
               />
               <HorizontalMargin size={isSmallScreen ? 12 : 32} />
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.passwordRepeat)}
+                fullWidth
                 label={errors.passwordRepeat ? renderFormFieldError(errors.passwordRepeat) : "Repeat password"}
                 margin="normal"
-                fullWidth
-                value={formValues.passwordRepeat}
                 onChange={event => setFormValue("passwordRepeat", event.target.value)}
+                placeholder="Repeat your password"
                 type="password"
+                value={formValues.passwordRepeat}
               />
             </HorizontalLayout>
           </>

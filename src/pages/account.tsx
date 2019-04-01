@@ -12,7 +12,6 @@ import FriendbotButton from "../components/Account/FriendbotButton"
 import OfferList from "../components/Account/OfferList"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
 import TransactionList from "../components/Account/TransactionList"
-import CreatePaymentDialog from "../components/Dialog/CreatePayment"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
@@ -22,6 +21,7 @@ import QRCodeIcon from "../components/Icon/QRCode"
 import { HorizontalLayout } from "../components/Layout/Box"
 import { HorizontalMargin, VerticalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
+import CreatePaymentDialog from "../components/Payment/CreatePaymentDialog"
 import { Account, AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
@@ -52,7 +52,6 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onReceivePayment}
         style={{
           border: "none",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
           fontSize: "1rem",
           flexGrow: 1,
           padding: "20px"
@@ -70,7 +69,6 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onCreatePayment}
         style={{
           border: "none",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.4)",
           fontSize: "1rem",
           flexGrow: 1,
           paddingLeft: 20,

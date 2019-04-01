@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography"
 import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
+import ErrorBoundary from "../ErrorBoundary"
 import TxConfirmationForm from "../Form/TxConfirmation"
 import { Box } from "../Layout/Box"
 import TestnetBadge from "./TestnetBadge"
@@ -33,25 +34,27 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
 
   return (
     <Dialog open={props.open} onClose={props.onClose} maxWidth="lg" TransitionComponent={Transition}>
-      <Box padding="24px 36px" overflow="auto">
-        <Typography variant="h5" component="h2">
-          {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-        </Typography>
-        {props.transaction ? (
-          <Box margin="8px 0 0">
-            <TxConfirmationForm
-              account={props.account}
-              disabled={props.disabled}
-              onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
-              onCancel={props.onClose}
-              passwordError={props.passwordError}
-              signatureRequest={props.signatureRequest}
-              transaction={props.transaction}
-            />
-          </Box>
-        ) : null}
-      </Box>
-      {props.submissionProgress}
+      <ErrorBoundary>
+        <Box padding="24px 36px" overflow="auto">
+          <Typography variant="h5" component="h2">
+            {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+          </Typography>
+          {props.transaction ? (
+            <Box margin="8px 0 0">
+              <TxConfirmationForm
+                account={props.account}
+                disabled={props.disabled}
+                onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
+                onCancel={props.onClose}
+                passwordError={props.passwordError}
+                signatureRequest={props.signatureRequest}
+                transaction={props.transaction}
+              />
+            </Box>
+          ) : null}
+        </Box>
+        {props.submissionProgress}
+      </ErrorBoundary>
     </Dialog>
   )
 }

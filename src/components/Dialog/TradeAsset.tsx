@@ -13,6 +13,7 @@ import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
 import TradingForm from "../TradeAsset/TradingForm"
+import ErrorBoundary from "../ErrorBoundary"
 import TransactionSender from "../TransactionSender"
 import { ActionButton, DialogActionsBox } from "./Generic"
 import MainTitle from "../MainTitle"
@@ -108,54 +109,58 @@ function TradeAsset(props: TradeAssetProps) {
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <Title onClose={props.onClose} />
-        <Typography color="inherit" component="div" variant="body2" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
-          <AccountBalances
-            component={balanceProps => (
-              <SingleBalance
-                {...balanceProps}
-                style={{
-                  ...balanceProps.style,
-                  opacity:
-                    [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
-                }}
-              />
-            )}
-            publicKey={props.account.publicKey}
-            testnet={props.account.testnet}
-          />
-        </Typography>
-        <VerticalMargin size={16} />
-        {buyingBalance && sellingBalance ? (
-          <TradingForm
-            buying={buyingAsset}
-            buyingBalance={buyingBalance.balance}
-            onSetBuying={setBuyingAssetCode}
-            onSetSelling={setSellingAssetCode}
-            selling={sellingAsset}
-            sellingBalance={sellingBalance.balance}
-            testnet={props.account.testnet}
-            trustlines={trustlines}
-            DialogActions={({ amount, disabled, price, style }) => (
-              <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
-                <DialogActionsBox>
-                  <ActionButton
-                    disabled={disabled}
-                    icon={<GavelIcon />}
-                    onClick={() =>
-                      awaitThenSendTransaction(createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price))
-                    }
-                    type="primary"
-                  >
-                    Place order
-                  </ActionButton>
-                </DialogActionsBox>
-              </HorizontalLayout>
-            )}
-          />
-        ) : null}
-      </VerticalLayout>
+      <ErrorBoundary>
+        <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
+          <Title onClose={props.onClose} />
+          <Typography color="inherit" component="div" variant="body2" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
+            <AccountBalances
+              component={balanceProps => (
+                <SingleBalance
+                  {...balanceProps}
+                  style={{
+                    ...balanceProps.style,
+                    opacity:
+                      [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
+                  }}
+                />
+              )}
+              publicKey={props.account.publicKey}
+              testnet={props.account.testnet}
+            />
+          </Typography>
+          <VerticalMargin size={16} />
+          {buyingBalance && sellingBalance ? (
+            <TradingForm
+              buying={buyingAsset}
+              buyingBalance={buyingBalance.balance}
+              onSetBuying={setBuyingAssetCode}
+              onSetSelling={setSellingAssetCode}
+              selling={sellingAsset}
+              sellingBalance={sellingBalance.balance}
+              testnet={props.account.testnet}
+              trustlines={trustlines}
+              DialogActions={({ amount, disabled, price, style }) => (
+                <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
+                  <DialogActionsBox>
+                    <ActionButton
+                      disabled={disabled}
+                      icon={<GavelIcon />}
+                      onClick={() =>
+                        awaitThenSendTransaction(
+                          createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price)
+                        )
+                      }
+                      type="primary"
+                    >
+                      Place order
+                    </ActionButton>
+                  </DialogActionsBox>
+                </HorizontalLayout>
+              )}
+            />
+          ) : null}
+        </VerticalLayout>
+      </ErrorBoundary>
     </Dialog>
   )
 }

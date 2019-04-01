@@ -12,6 +12,7 @@ import { createTransaction } from "../../lib/transaction"
 import TrustlineList from "../Account/TrustlineList"
 import { Box } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
+import ErrorBoundary from "../ErrorBoundary"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import CustomTrustlineDialog from "./CustomTrustline"
@@ -54,37 +55,39 @@ function ManageAssets(props: Props) {
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <MainTitle
-          title="Manage Assets"
-          actions={
-            <>
-              <Button color="primary" onClick={addCustomTrustline} variant="contained">
-                <ButtonIconLabel label={isWidthMax500 ? "Custom" : "Add Custom Asset"}>
-                  <AddIcon />
-                </ButtonIconLabel>
-              </Button>
-            </>
-          }
-          onBack={props.onClose}
-          style={{ marginBottom: 24 }}
+      <ErrorBoundary>
+        <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+          <MainTitle
+            title="Manage Assets"
+            actions={
+              <>
+                <Button color="primary" onClick={addCustomTrustline} variant="contained">
+                  <ButtonIconLabel label={isWidthMax500 ? "Custom" : "Add Custom Asset"}>
+                    <AddIcon />
+                  </ButtonIconLabel>
+                </Button>
+              </>
+            }
+            onBack={props.onClose}
+            style={{ marginBottom: 24 }}
+          />
+          <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
+        </Box>
+        <CustomTrustlineDialog
+          account={props.account}
+          horizon={props.horizon}
+          open={isCustomTrustlineDialogOpen}
+          onClose={closeCustomTrustlineDialog}
+          sendTransaction={props.sendTransaction}
         />
-        <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
-      </Box>
-      <CustomTrustlineDialog
-        account={props.account}
-        horizon={props.horizon}
-        open={isCustomTrustlineDialogOpen}
-        onClose={closeCustomTrustlineDialog}
-        sendTransaction={props.sendTransaction}
-      />
-      <RemoveTrustlineDialog
-        account={props.account}
-        accountData={accountData}
-        asset={removalDialogAsset || Asset.native()}
-        open={removalDialogAsset !== null}
-        onClose={() => setRemovalDialogAsset(null)}
-      />
+        <RemoveTrustlineDialog
+          account={props.account}
+          accountData={accountData}
+          asset={removalDialogAsset || Asset.native()}
+          open={removalDialogAsset !== null}
+          onClose={() => setRemovalDialogAsset(null)}
+        />
+      </ErrorBoundary>
     </Dialog>
   )
 }

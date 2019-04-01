@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import fetch from "isomorphic-fetch"
 import { xdr, Horizon, Keypair, Server, Transaction } from "stellar-sdk"
 import { joinURL } from "./url"
@@ -90,6 +91,30 @@ export async function friendbotTopup(horizon: Server, publicKey: string) {
 
   const response = await fetch(friendBotHref + `?addr=${publicKey}`)
   return response.json()
+}
+
+export function getAccountMinimumBalance(
+  accountData: Pick<Horizon.AccountResponse, "balances" | "data" | "signers">,
+  openOfferCount: number = 0
+) {
+  // FIXME: Needs to be queried from horizon
+  const baseReserve = BigNumber(0.5)
+
+  const trustlineCount = accountData.balances.filter(balance => balance.asset_type !== "native").length
+
+  return BigNumber(1)
+    .add(accountData.signers.length)
+    .add(Object.keys(accountData.data).length)
+    .add(openOfferCount)
+    .add(trustlineCount)
+    .mul(baseReserve)
+}
+
+export function getMatchingAccountBalance(balances: Horizon.BalanceLine[], assetCode: string) {
+  const matchingBalanceLine = balances.find(balance => {
+    return balance.asset_type === "native" ? assetCode === "XLM" : balance.asset_code === assetCode
+  })
+  return matchingBalanceLine ? BigNumber(matchingBalanceLine.balance) : BigNumber(0)
 }
 
 export function getHorizonURL(horizon: Server) {

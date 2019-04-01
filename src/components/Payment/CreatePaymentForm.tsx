@@ -1,14 +1,19 @@
+import BigNumber from "big.js"
 import React from "react"
-import { Asset, Horizon } from "stellar-sdk"
+import { Asset } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
+import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, HorizontalLayout } from "../Layout/Box"
+import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
+import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
+import { PriceInput } from "../Form/FormFields"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
 
@@ -28,18 +33,15 @@ export interface PaymentCreationValues {
 
 type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
 
-function validateFormValues(formValues: PaymentCreationValues, balances: Horizon.BalanceLine[]) {
+function validateFormValues(formValues: PaymentCreationValues, spendableBalance: BigNumber) {
   const errors: PaymentCreationErrors = {}
-
-  const xlmBalance = balances.find(someBalance => someBalance.asset_type === "native") as Horizon.BalanceLine
-  const balance = balances.find((someBalance: any) => someBalance.asset_code === formValues.asset) || xlmBalance
 
   if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
     errors.destination = new Error(`Invalid stellar public key.`)
   }
   if (!formValues.amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
     errors.amount = new Error("Invalid number.")
-  } else if (Number.parseFloat(formValues.amount) > Number.parseFloat(balance.balance)) {
+  } else if (spendableBalance.lt(formValues.amount)) {
     errors.amount = new Error("Not enough funds.")
   }
 
@@ -69,7 +71,12 @@ interface AssetSelectorProps {
 function AssetSelector(props: AssetSelectorProps) {
   return (
     <FormControl>
-      <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
+      <Select
+        disableUnderline
+        onChange={event => props.onSelect(event.target.value)}
+        style={props.style}
+        value={props.selected}
+      >
         {props.assets.map(assetCode => (
           <MenuItem key={assetCode} value={assetCode}>
             {assetCode}
@@ -81,7 +88,7 @@ function AssetSelector(props: AssetSelectorProps) {
 }
 
 interface Props {
-  balances: Horizon.BalanceLine[]
+  accountData: ObservedAccountData
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onCancel: () => void
@@ -100,6 +107,14 @@ function PaymentCreationForm(props: Props) {
     memoValue: ""
   })
 
+  const selectedAssetBalance = getMatchingAccountBalance(props.accountData.balances, formValues.asset)
+
+  // FIXME: Pass no. of open offers to getAccountMinimumBalance()
+  const spendableBalance =
+    formValues.asset === "XLM"
+      ? selectedAssetBalance.minus(getAccountMinimumBalance(props.accountData))
+      : selectedAssetBalance
+
   const setFormValue = (fieldName: keyof PaymentCreationValues, value: string | null) => {
     setFormValues({
       ...formValues,
@@ -109,7 +124,7 @@ function PaymentCreationForm(props: Props) {
 
   const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    const validation = validateFormValues(formValues, props.balances)
+    const validation = validateFormValues(formValues, spendableBalance)
     setErrors(validation.errors)
 
     if (validation.success) {
@@ -125,34 +140,35 @@ function PaymentCreationForm(props: Props) {
         placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
         fullWidth
         autoFocus
-        margin="dense"
+        margin="normal"
         value={formValues.destination}
         onChange={event => setFormValue("destination", event.target.value)}
       />
       <HorizontalLayout justifyContent="space-between" alignItems="center">
-        <TextField
+        <PriceInput
+          assetCode={
+            <AssetSelector
+              assets={props.trustedAssets.map(asset => asset.code)}
+              onSelect={code => setFormValue("asset", code)}
+              selected={formValues.asset}
+              style={{ alignSelf: "center" }}
+            />
+          }
           error={Boolean(errors.amount)}
           label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
-          margin="dense"
+          margin="normal"
+          placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
-          InputProps={{
-            endAdornment: (
-              <AssetSelector
-                assets={props.trustedAssets.map(asset => asset.code)}
-                onSelect={code => setFormValue("asset", code)}
-                selected={formValues.asset}
-                style={{ alignSelf: "center" }}
-              />
-            )
-          }}
           style={{
             minWidth: "30%",
             maxWidth: "60%"
           }}
         />
         <FormControl style={{ width: "30%" }}>
-          <InputLabel htmlFor="select-memo-type">Memo type</InputLabel>
+          <InputLabel htmlFor="select-memo-type" shrink>
+            Memo type
+          </InputLabel>
           <Select
             inputProps={{ id: "select-memo-type" }}
             onChange={event => setFormValue("memoType", event.target.value)}
@@ -168,14 +184,12 @@ function PaymentCreationForm(props: Props) {
       <Box>
         {formValues.memoType !== "none" ? (
           <TextField
+            inputProps={{ maxLength: 28 }}
             error={Boolean(errors.memoValue)}
             label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
-            margin="dense"
+            margin="normal"
             onChange={event => setFormValue("memoValue", event.target.value)}
             value={formValues.memoValue}
-            inputProps={{
-              maxLength: 28
-            }}
             style={{ width: "70%" }}
           />
         ) : (
