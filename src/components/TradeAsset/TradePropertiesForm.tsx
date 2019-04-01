@@ -115,7 +115,10 @@ interface TradePropertiesFormProps {
 
 function TradePropertiesForm(props: TradePropertiesFormProps) {
   const estimatedReturn = (() => {
-    if (!props.amount || (props.price.eq(0) && !props.manualPrice)) {
+    if (!props.amount) {
+      return BigNumber(0)
+    }
+    if (props.price.eq(0) && (!props.manualPrice || BigNumber(props.manualPrice).eq(0))) {
       return BigNumber(0)
     }
     return props.price.eq(0) ? BigNumber(props.amount).div(props.manualPrice) : props.estimatedReturn
