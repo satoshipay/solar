@@ -7,6 +7,7 @@ import SendIcon from "@material-ui/icons/Send"
 import UpdateIcon from "@material-ui/icons/Update"
 import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBalances from "../components/Account/AccountBalances"
+import AccountBalancesContainer from "../components/Account/AccountBalancesContainer"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
 import OfferList from "../components/Account/OfferList"
@@ -28,20 +29,6 @@ import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { useIsMobile, useAccountData, useHorizon, useRecentTransactions, useRouter } from "../hooks"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
-
-function DetailContent(props: { children: React.ReactNode; style?: React.CSSProperties }) {
-  const isSmallScreen = useIsMobile()
-  return (
-    <Typography
-      color="inherit"
-      component="div"
-      variant="body2"
-      style={{ fontSize: isSmallScreen ? 16 : 18, ...props.style }}
-    >
-      {props.children}
-    </Typography>
-  )
-}
 
 interface AccountActionsProps {
   account: Account
@@ -191,9 +178,9 @@ function AccountPage(props: Props) {
           onManageSigners={() => router.history.push(routes.manageAccountSigners(props.accountID))}
           onRenameAccount={renameAccount}
         >
-          <DetailContent style={{ marginTop: 12, marginLeft: isSmallScreen ? 0 : 40 }}>
+          <AccountBalancesContainer>
             <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
-          </DetailContent>
+          </AccountBalancesContainer>
           <VerticalMargin size={isSmallScreen ? 24 : 40} />
           <AccountActions
             account={account}

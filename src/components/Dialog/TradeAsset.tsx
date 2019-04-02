@@ -2,7 +2,6 @@ import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
-import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -10,6 +9,7 @@ import { useAccountData, useIsMobile, useHorizon, useRouter, ObservedAccountData
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
+import AccountBalancesContainer from "../Account/AccountBalancesContainer"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
 import TradingForm from "../TradeAsset/TradingForm"
@@ -107,18 +107,9 @@ function TradeAsset(props: TradeAssetProps) {
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <ErrorBoundary>
-        <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
+        <VerticalLayout width="100%" maxWidth={900} padding="24px 32px" margin="0 auto">
           <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
-          <Typography
-            color="inherit"
-            component="div"
-            variant="body2"
-            style={{
-              marginTop: 12,
-              marginLeft: isSmallScreen ? 0 : 40,
-              fontSize: isSmallScreen ? 16 : 18
-            }}
-          >
+          <AccountBalancesContainer>
             <AccountBalances
               component={balanceProps => (
                 <SingleBalance
@@ -133,7 +124,7 @@ function TradeAsset(props: TradeAssetProps) {
               publicKey={props.account.publicKey}
               testnet={props.account.testnet}
             />
-          </Typography>
+          </AccountBalancesContainer>
           <VerticalMargin size={isSmallScreen ? 12 : 40} />
           {buyingBalance && sellingBalance ? (
             <TradingForm
