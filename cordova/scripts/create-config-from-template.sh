@@ -14,8 +14,12 @@ if [ -f "../config/$TEMPLATE_FILE" ]; then
   export ANDROID_VERSIONCODE="$(date +%s)"
   export IOS_BUNDLE_VERSION="$PACKAGE_VERSION.$(date +%s)"
 
-  if [ $PLATFORM == 'ios' ]
-  then
+  if [ "$PACKAGE_VERSION" == "" ]; then
+    echo "Error: Could not read app version." 1>&2
+    exit 1
+  fi
+
+  if [ $PLATFORM == "ios" ]; then
     export SPLASH_SCREEN_DELAY="3000"
   else 
     export SPLASH_SCREEN_DELAY="0"
