@@ -37,6 +37,7 @@ interface Props {
 
 function MainTitle(props: Props) {
   const isSmallScreen = useIsMobile()
+  const isTitleOnSecondRow = isSmallScreen && props.actions
   return (
     <HorizontalLayout alignItems="center" wrap={isSmallScreen ? "wrap" : "nowrap"} style={props.style}>
       {props.hideBackButton ? null : (
@@ -45,9 +46,9 @@ function MainTitle(props: Props) {
       <HorizontalLayout
         alignItems="center"
         grow={isSmallScreen ? 1 : undefined}
-        minWidth={isSmallScreen ? "100%" : undefined}
+        minWidth={isTitleOnSecondRow ? "100%" : undefined}
         maxWidth="100%"
-        order={isSmallScreen ? 4 : undefined}
+        order={isTitleOnSecondRow ? 4 : undefined}
       >
         <Typography
           variant="h5"
