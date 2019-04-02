@@ -30,8 +30,14 @@ import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 
 function DetailContent(props: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const isSmallScreen = useIsMobile()
   return (
-    <Typography color="inherit" component="div" variant="body2" style={{ fontSize: "1.2rem", ...props.style }}>
+    <Typography
+      color="inherit"
+      component="div"
+      variant="body2"
+      style={{ fontSize: isSmallScreen ? 16 : 18, ...props.style }}
+    >
       {props.children}
     </Typography>
   )
@@ -185,7 +191,7 @@ function AccountPage(props: Props) {
           onManageSigners={() => router.history.push(routes.manageAccountSigners(props.accountID))}
           onRenameAccount={renameAccount}
         >
-          <DetailContent style={{ marginTop: isSmallScreen ? 20 : 12, marginLeft: isSmallScreen ? 0 : 48 }}>
+          <DetailContent style={{ marginTop: 12, marginLeft: isSmallScreen ? 0 : 40 }}>
             <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
           </DetailContent>
           <VerticalMargin size={isSmallScreen ? 24 : 40} />

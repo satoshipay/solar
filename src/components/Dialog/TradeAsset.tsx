@@ -108,15 +108,15 @@ function TradeAsset(props: TradeAssetProps) {
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <ErrorBoundary>
         <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
-          <MainTitle title="Trade" onBack={props.onClose} />
+          <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
           <Typography
             color="inherit"
             component="div"
             variant="body2"
             style={{
-              marginTop: isSmallScreen ? 20 : 0,
-              marginLeft: isSmallScreen ? 0 : 48,
-              fontSize: "1.2rem"
+              marginTop: 12,
+              marginLeft: isSmallScreen ? 0 : 40,
+              fontSize: isSmallScreen ? 16 : 18
             }}
           >
             <AccountBalances

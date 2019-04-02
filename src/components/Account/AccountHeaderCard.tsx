@@ -84,7 +84,7 @@ function AccountHeaderCard(props: Props) {
     >
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
         <MainTitle
-          title={<span style={{ fontSize: "2rem", marginRight: 20 }}>{props.account.name}</span>}
+          title={<span style={{ marginRight: 20 }}>{props.account.name}</span>}
           titleColor="inherit"
           onBack={() => router.history.push(routes.allAccounts())}
           style={{ marginTop: -12, marginLeft: 0 }}
@@ -103,7 +103,13 @@ function AccountHeaderCard(props: Props) {
             <>
               <Button
                 onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
-                style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: isSmallScreen ? 0 : 8 }}
+                style={{
+                  borderColor: "rgba(255, 255, 255, 0.9)",
+                  color: "white",
+                  padding: "0 12px",
+                  marginRight: isSmallScreen ? 0 : 8,
+                  minHeight: 36
+                }}
                 variant="outlined"
               >
                 <ButtonIconLabel label="Trade">

@@ -41,7 +41,10 @@ function MainTitle(props: Props) {
   return (
     <HorizontalLayout alignItems="center" wrap={isSmallScreen ? "wrap" : "nowrap"} style={props.style}>
       {props.hideBackButton ? null : (
-        <BackButton onClick={props.onBack} style={{ flexGrow: 0, flexShrink: 0, marginLeft: -8, marginRight: 8 }} />
+        <BackButton
+          onClick={props.onBack}
+          style={{ fontSize: 24, flexGrow: 0, flexShrink: 0, marginLeft: -8, marginRight: 8 }}
+        />
       )}
       <HorizontalLayout
         alignItems="center"
@@ -56,6 +59,7 @@ function MainTitle(props: Props) {
           style={{
             flexGrow: 1,
             flexShrink: 1,
+            fontSize: isSmallScreen ? 20 : 24,
             marginRight: 12,
             minWidth: "40%",
             overflow: "hidden",
