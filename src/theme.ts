@@ -1,4 +1,5 @@
 import { createMuiTheme } from "@material-ui/core/styles"
+import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 
@@ -15,6 +16,8 @@ export const primaryBackgroundColor = "#0194E7"
 
 export const warningColor = amber["500"]
 
+const breakpoints = createBreakpoints({})
+
 const theme = createMuiTheme({
   props: {
     MuiInputLabel: {
@@ -26,7 +29,12 @@ const theme = createMuiTheme({
       root: {
         borderRadius: 3,
         boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-        minHeight: 48
+        [breakpoints.up(600)]: {
+          minHeight: 48
+        },
+        [breakpoints.down(600)]: {
+          minHeight: 36
+        }
       },
       contained: {
         backgroundColor: "white",
@@ -56,6 +64,13 @@ const theme = createMuiTheme({
         }
       },
       raisedPrimary: {}
+    },
+    MuiCardContent: {
+      root: {
+        [breakpoints.down(600)]: {
+          padding: 8
+        }
+      }
     },
     MuiFormLabel: {
       root: {
