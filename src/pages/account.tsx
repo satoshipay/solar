@@ -53,6 +53,7 @@ function AccountActions(props: AccountActionsProps) {
         style={{
           border: "none",
           fontSize: "1rem",
+          flexBasis: 1,
           flexGrow: 1,
           padding: "20px"
         }}
@@ -70,6 +71,7 @@ function AccountActions(props: AccountActionsProps) {
         style={{
           border: "none",
           fontSize: "1rem",
+          flexBasis: 1,
           flexGrow: 1,
           paddingLeft: 20,
           paddingRight: 20
@@ -183,10 +185,10 @@ function AccountPage(props: Props) {
           onManageSigners={() => router.history.push(routes.manageAccountSigners(props.accountID))}
           onRenameAccount={renameAccount}
         >
-          <DetailContent style={{ marginTop: 12, marginLeft: isSmallScreen ? 0 : 48 }}>
+          <DetailContent style={{ marginTop: isSmallScreen ? 20 : 12, marginLeft: isSmallScreen ? 0 : 48 }}>
             <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
           </DetailContent>
-          <VerticalMargin size={40} />
+          <VerticalMargin size={isSmallScreen ? 24 : 40} />
           <AccountActions
             account={account}
             onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
