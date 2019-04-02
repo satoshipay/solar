@@ -37,16 +37,29 @@ interface Props {
 
 function MainTitle(props: Props) {
   const isSmallScreen = useIsMobile()
+  const isTitleOnSecondRow = isSmallScreen && props.actions
   return (
-    <HorizontalLayout alignItems="center" wrap="wrap" style={props.style}>
-      <HorizontalLayout alignItems="center" grow={isSmallScreen ? 1 : undefined} maxWidth="100%">
-        {props.hideBackButton ? null : <BackButton onClick={props.onBack} style={{ marginLeft: -8, marginRight: 8 }} />}
+    <HorizontalLayout alignItems="center" wrap={isSmallScreen ? "wrap" : "nowrap"} style={props.style}>
+      {props.hideBackButton ? null : (
+        <BackButton
+          onClick={props.onBack}
+          style={{ fontSize: 24, flexGrow: 0, flexShrink: 0, marginLeft: -8, marginRight: 8 }}
+        />
+      )}
+      <HorizontalLayout
+        alignItems="center"
+        grow={isSmallScreen ? 1 : undefined}
+        minWidth={isTitleOnSecondRow ? "100%" : undefined}
+        maxWidth="100%"
+        order={isTitleOnSecondRow ? 4 : undefined}
+      >
         <Typography
           variant="h5"
           color={props.titleColor}
           style={{
             flexGrow: 1,
             flexShrink: 1,
+            fontSize: isSmallScreen ? 20 : 24,
             marginRight: 12,
             minWidth: "40%",
             overflow: "hidden",

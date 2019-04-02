@@ -7,6 +7,7 @@ import SendIcon from "@material-ui/icons/Send"
 import UpdateIcon from "@material-ui/icons/Update"
 import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBalances from "../components/Account/AccountBalances"
+import AccountBalancesContainer from "../components/Account/AccountBalancesContainer"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
 import OfferList from "../components/Account/OfferList"
@@ -29,14 +30,6 @@ import { useIsMobile, useAccountData, useHorizon, useRecentTransactions, useRout
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 
-function DetailContent(props: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <Typography color="inherit" component="div" variant="body2" style={{ fontSize: "1.2rem", ...props.style }}>
-      {props.children}
-    </Typography>
-  )
-}
-
 interface AccountActionsProps {
   account: Account
   onCreatePayment: () => void
@@ -53,6 +46,7 @@ function AccountActions(props: AccountActionsProps) {
         style={{
           border: "none",
           fontSize: "1rem",
+          flexBasis: 1,
           flexGrow: 1,
           padding: "20px"
         }}
@@ -70,6 +64,7 @@ function AccountActions(props: AccountActionsProps) {
         style={{
           border: "none",
           fontSize: "1rem",
+          flexBasis: 1,
           flexGrow: 1,
           paddingLeft: 20,
           paddingRight: 20
@@ -183,10 +178,10 @@ function AccountPage(props: Props) {
           onManageSigners={() => router.history.push(routes.manageAccountSigners(props.accountID))}
           onRenameAccount={renameAccount}
         >
-          <DetailContent style={{ marginTop: 12, marginLeft: isSmallScreen ? 0 : 48 }}>
+          <AccountBalancesContainer>
             <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
-          </DetailContent>
-          <VerticalMargin size={40} />
+          </AccountBalancesContainer>
+          <VerticalMargin size={isSmallScreen ? 24 : 40} />
           <AccountActions
             account={account}
             onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
