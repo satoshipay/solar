@@ -10,7 +10,7 @@ import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useAccountData, useRouter } from "../../hooks"
+import { useAccountData, useIsMobile, useRouter } from "../../hooks"
 import * as routes from "../../routes"
 import { primaryBackgroundColor } from "../../theme"
 import AccountDeletionDialog from "../Dialog/AccountDeletion"
@@ -65,6 +65,7 @@ interface Props {
 
 function AccountHeaderCard(props: Props) {
   const { changePassword, removePassword } = React.useContext(AccountsContext)
+  const isSmallScreen = useIsMobile()
   const settings = React.useContext(SettingsContext)
   const router = useRouter()
 
@@ -77,10 +78,11 @@ function AccountHeaderCard(props: Props) {
         position: "relative",
         background: "transparent",
         boxShadow: "none",
+        overflow: "visible",
         ...props.style
       }}
     >
-      <CardContent>
+      <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
         <MainTitle
           title={<span style={{ fontSize: "2rem", marginRight: 20 }}>{props.account.name}</span>}
           titleColor="inherit"
@@ -101,7 +103,7 @@ function AccountHeaderCard(props: Props) {
             <>
               <Button
                 onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
-                style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: 8 }}
+                style={{ borderColor: "rgba(255, 255, 255, 0.9)", color: "white", marginRight: isSmallScreen ? 0 : 8 }}
                 variant="outlined"
               >
                 <ButtonIconLabel label="Trade">
@@ -121,7 +123,7 @@ function AccountHeaderCard(props: Props) {
                 onRename={() => setOpenDialog(DialogID.renameAccount)}
               >
                 {({ onOpen }) => (
-                  <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -12, fontSize: 32 }}>
+                  <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -16, fontSize: 32 }}>
                     <MoreVertIcon style={{ fontSize: "inherit" }} />
                   </IconButton>
                 )}
