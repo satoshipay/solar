@@ -54,7 +54,7 @@ function TradingForm(props: Props) {
   return (
     <VerticalLayout>
       <HorizontalLayout shrink={0} justifyContent="space-between" margin="0 -24px" wrap="wrap">
-        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="40px 24px 0">
+        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 0">
           <TradePropertiesForm
             {...props}
             amount={amountString}

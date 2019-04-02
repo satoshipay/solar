@@ -6,7 +6,7 @@ import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
+import { useAccountData, useIsMobile, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
@@ -43,10 +43,6 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], assetCod
   }
 }
 
-function Title(props: { onClose: () => void }) {
-  return <MainTitle title="Trade" onBack={props.onClose} />
-}
-
 interface TradeAssetProps {
   account: Account
   horizon: Server
@@ -60,6 +56,7 @@ const Transition = (props: any) => <Slide {...props} direction="left" />
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
+  const isSmallScreen = useIsMobile()
 
   const trustlines = (accountData.balances.filter(balance => balance.asset_type !== "native") as any) as Array<
     Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
@@ -111,8 +108,17 @@ function TradeAsset(props: TradeAssetProps) {
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <ErrorBoundary>
         <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
-          <Title onClose={props.onClose} />
-          <Typography color="inherit" component="div" variant="body2" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
+          <MainTitle title="Trade" onBack={props.onClose} />
+          <Typography
+            color="inherit"
+            component="div"
+            variant="body2"
+            style={{
+              marginTop: isSmallScreen ? 20 : 0,
+              marginLeft: isSmallScreen ? 0 : 48,
+              fontSize: "1.2rem"
+            }}
+          >
             <AccountBalances
               component={balanceProps => (
                 <SingleBalance
@@ -128,7 +134,7 @@ function TradeAsset(props: TradeAssetProps) {
               testnet={props.account.testnet}
             />
           </Typography>
-          <VerticalMargin size={16} />
+          <VerticalMargin size={isSmallScreen ? 12 : 40} />
           {buyingBalance && sellingBalance ? (
             <TradingForm
               buying={buyingAsset}
