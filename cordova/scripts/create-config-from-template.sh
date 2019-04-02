@@ -21,8 +21,10 @@ if [ -f "../config/$TEMPLATE_FILE" ]; then
 
   if [ $PLATFORM == "ios" ]; then
     export SPLASH_SCREEN_DELAY="3000"
+    export AUTO_HIDE="false"
   else 
     export SPLASH_SCREEN_DELAY="0"
+    export AUTO_HIDE="true"
   fi
 
   ./envsubst.js ../config/config.template > ../config.xml

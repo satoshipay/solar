@@ -43,6 +43,10 @@
       function onDeviceReady() {
         // Need to delay iframe initialization, so we have time to set up our event listeners first
         walletframe.src = preloadLink.getAttribute("href");
+
+        setTimeout(function() {
+          navigator.splashscreen.hide();
+        }, 100);
       }
 
       document.addEventListener("deviceready", onDeviceReady, false);

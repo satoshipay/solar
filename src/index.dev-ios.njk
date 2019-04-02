@@ -35,6 +35,10 @@
         } else if (window.navigator.platform.includes('iPhone')) {
           walletframe.src = "http://localhost:1234";
         }
+
+        setTimeout(function() {
+          navigator.splashscreen.hide();
+        }, 100);
       }
 
       document.addEventListener("deviceready", onDeviceReady, false);

@@ -99,7 +99,7 @@
     <engine name="android" spec="^7.1.4" />
     <engine name="ios" spec="^4.5.5" />
 
-    <preference name="AutoHideSplashScreen" value="false" />    
+    <preference name="AutoHideSplashScreen" value="$AUTO_HIDE" />    
     <preference name="ShowSplashScreenSpinner" value="false"/>
     <preference name="SplashScreenDelay" value="$SPLASH_SCREEN_DELAY"/>
 </widget>
