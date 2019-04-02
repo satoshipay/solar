@@ -310,11 +310,14 @@ function TransactionItemText(props: TitleTextProps) {
   }
 }
 
-function TransactionListItemBalance(props: { paymentSummary: ReturnType<typeof getPaymentSummary> }) {
+function TransactionListItemBalance(props: {
+  paymentSummary: ReturnType<typeof getPaymentSummary>
+  style?: React.CSSProperties
+}) {
   const { paymentSummary } = props
   const isSmallScreen = useIsMobile()
   return (
-    <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+    <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0, ...props.style }}>
       {paymentSummary.length === 0 ? null : (
         <SingleBalance
           assetCode={paymentSummary[0].asset.getCode()}
@@ -348,7 +351,7 @@ export function TransactionListItem(props: TransactionListItemProps) {
       onClick={props.onClick}
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
-      style={{ padding: 8, ...props.style }}
+      style={{ padding: "8px 16px", ...props.style }}
     >
       <ListItemIcon>
         {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
@@ -370,7 +373,7 @@ export function TransactionListItem(props: TransactionListItemProps) {
       {hovering && props.hoverActions ? (
         props.hoverActions
       ) : (
-        <TransactionListItemBalance paymentSummary={paymentSummary} />
+        <TransactionListItemBalance paymentSummary={paymentSummary} style={{ paddingRight: 0 }} />
       )}
     </ListItem>
   )
