@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.solarwallet" version="0.15.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<widget id="io.solarwallet" version="$PACKAGE_VERSION" android-versionCode="$ANDROID_VERSIONCODE" ios-CFBundleVersion="$IOS_BUNDLE_VERSION" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>Solar</name>
     <description>
         Wallet for the Stellar payment network by SatoshiPay.
@@ -8,7 +8,7 @@
         SatoshiPay Ltd
     </author>
     <license>GPL-3.0</license>
-    <content src="$CONTENT_FILE" />
+    <content src="$HTML_ENTRYPOINT" />
     <access origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
@@ -95,7 +95,7 @@
     <engine name="android" spec="^7.1.4" />
     <engine name="ios" spec="^4.5.5" />
 
-    <preference name="AutoHideSplashScreen" value="true" />    
+    <preference name="AutoHideSplashScreen" value="false" />    
     <preference name="ShowSplashScreenSpinner" value="false"/>
     <preference name="SplashScreenDelay" value="$SPLASH_SCREEN_DELAY"/>
 </widget>
