@@ -19,8 +19,8 @@ import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
 import TradeAssetDialog from "../components/Dialog/TradeAsset"
 import { MinimumAccountBalance } from "../components/Fetchers"
 import QRCodeIcon from "../components/Icon/QRCode"
-import { HorizontalLayout } from "../components/Layout/Box"
-import { HorizontalMargin, VerticalMargin } from "../components/Layout/Spacing"
+import { HorizontalLayout, VerticalLayout } from "../components/Layout/Box"
+import { HorizontalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import CreatePaymentDialog from "../components/Payment/CreatePaymentDialog"
 import { Account, AccountsContext } from "../context/accounts"
@@ -32,19 +32,23 @@ import * as routes from "../routes"
 
 interface AccountActionsProps {
   account: Account
+  horizontalMargin: number
   onCreatePayment: () => void
   onReceivePayment: () => void
+  squareButtons?: boolean
+  style?: React.CSSProperties
 }
 
 function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   return (
-    <HorizontalLayout>
+    <HorizontalLayout style={props.style}>
       <Button
         variant="contained"
         onClick={props.onReceivePayment}
         style={{
           border: "none",
+          borderRadius: props.squareButtons ? 0 : undefined,
           fontSize: "1rem",
           flexBasis: 1,
           flexGrow: 1,
@@ -55,7 +59,7 @@ function AccountActions(props: AccountActionsProps) {
           <QRCodeIcon style={{ fontSize: "110%" }} />
         </ButtonIconLabel>
       </Button>
-      <HorizontalMargin size={40} />
+      {props.horizontalMargin > 0 ? <HorizontalMargin size={props.horizontalMargin} /> : null}
       <Button
         color="primary"
         variant="contained"
@@ -63,6 +67,7 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onCreatePayment}
         style={{
           border: "none",
+          borderRadius: props.squareButtons ? 0 : undefined,
           fontSize: "1rem",
           flexBasis: 1,
           flexGrow: 1,
@@ -170,7 +175,7 @@ function AccountPage(props: Props) {
   }
 
   return (
-    <>
+    <VerticalLayout height="100%">
       <Section top brandColored grow={0}>
         <AccountHeaderCard
           account={account}
@@ -181,17 +186,31 @@ function AccountPage(props: Props) {
           <AccountBalancesContainer>
             <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
           </AccountBalancesContainer>
-          <VerticalMargin size={isSmallScreen ? 24 : 40} />
-          <AccountActions
-            account={account}
-            onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
-            onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
-          />
+          {isSmallScreen ? null : (
+            <AccountActions
+              account={account}
+              horizontalMargin={40}
+              onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
+              onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
+              style={{ marginTop: 40 }}
+            />
+          )}
         </AccountHeaderCard>
       </Section>
-      <Section backgroundColor="#f6f6f6">
+      <Section backgroundColor="#f6f6f6" style={{ flexGrow: 1, flexShrink: 1, overflowY: "auto" }}>
         <Transactions account={account} />
       </Section>
+      {isSmallScreen ? (
+        <AccountActions
+          account={account}
+          horizontalMargin={0}
+          onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
+          onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
+          squareButtons
+          style={{ boxShadow: "0 -8px 16px 0 rgba(0, 0, 0, 0.1)", zIndex: 1 }}
+        />
+      ) : null}
+
       <CreatePaymentDialog account={account} open={props.showCreatePayment} onClose={onCloseDialog} />
       <ManageAssetsDialog account={account} open={props.showAssetManagement} onClose={onCloseDialog} />
       <ManageSignersDialog account={account} open={props.showSignersManagement} onClose={onCloseDialog} />
@@ -201,7 +220,7 @@ function AccountPage(props: Props) {
         open={Boolean(props.showAssetTrading)}
         onClose={() => router.history.push(routes.account(props.accountID))}
       />
-    </>
+    </VerticalLayout>
   )
 }
 
