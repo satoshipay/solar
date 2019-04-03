@@ -6,6 +6,8 @@ import { Box, VerticalLayout } from "./Layout/Box"
 // tslint:disable-next-line
 const pkg = require("../../package.json")
 
+const buttonLabels = ["Aha", "Drats!", "Nevermind", "Ok then", "Well well"]
+
 interface Props {
   children: React.ReactNode
 }
@@ -44,7 +46,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
               {error.message || error}
             </Typography>
             <Button color="primary" onClick={this.reload} variant="contained">
-              Reload
+              {buttonLabels[Math.floor(Math.random() * buttonLabels.length)]}
             </Button>
           </Box>
           <Box style={{ position: "absolute", bottom: 8, left: 0, width: "100%", opacity: 0.5 }}>
