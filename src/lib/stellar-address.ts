@@ -14,6 +14,10 @@ const reverseLookupCache = new LRUCache<AccountID, StellarAddress>({
   maxAge: 60 * 60 * 1000 // 60 mins (long TTL, since reverse lookup is purely informational)
 })
 
+export const isPublicKey = (str: string) => Boolean(str.match(/^G[A-Z0-9]{55}$/))
+export const isStellarAddress = (str: string) =>
+  Boolean(str.match(/^[^\*> \t\n\r]+\*[^\*\.> \t\n\r]+\.[^\*> \t\n\r]+$/))
+
 export async function lookupFederationRecord(stellarAddress: string) {
   const cached = lookupCache.get(stellarAddress)
   if (cached) {

@@ -13,6 +13,7 @@ import { Box, HorizontalLayout } from "../Layout/Box"
 import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
+import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import { PriceInput } from "../Form/FormFields"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
@@ -36,8 +37,8 @@ type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Erro
 function validateFormValues(formValues: PaymentCreationValues, spendableBalance: BigNumber) {
   const errors: PaymentCreationErrors = {}
 
-  if (!formValues.destination.match(/^(G[A-Z0-9]{55})|([^\*> \t\n\r]+\*[^\*\.> \t\n\r]+\.[^\*> \t\n\r]+)$/)) {
-    errors.destination = new Error(`Expected a public key or stellar address.`)
+  if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
+    errors.destination = new Error("Expected a public key or stellar address.")
   }
   if (!formValues.amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
     errors.amount = new Error("Invalid amount.")
