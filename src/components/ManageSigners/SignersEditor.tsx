@@ -9,7 +9,7 @@ import PersonIcon from "@material-ui/icons/Person"
 import RemoveIcon from "@material-ui/icons/Close"
 import { getSignerKey } from "../../lib/stellar"
 import SpaciousList from "../List/SpaciousList"
-import PublicKey from "../PublicKey"
+import { PublicKey } from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
 
 interface SignerFormValues {

@@ -6,7 +6,7 @@ import { formatBalance, SingleBalance } from "../Account/AccountBalances"
 import { useAccountOffers, ObservedAccountData } from "../../hooks"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { ListItem } from "../List"
-import PublicKey from "../PublicKey"
+import { Address } from "../PublicKey"
 
 const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 
@@ -44,7 +44,7 @@ function prettifyOperationObject(operation: Operation) {
   return operationDetailLines.join("\n")
 }
 
-function OperationDetails(props: { children: React.ReactNode }) {
+export function OperationDetails(props: { children: React.ReactNode }) {
   return <div style={{ fontSize: "80%", marginTop: 8, marginLeft: 16 }}>{props.children}</div>
 }
 
@@ -58,11 +58,11 @@ function PaymentOperation(props: { operation: Operation.Payment; style?: React.C
       <div>
         {props.operation.source ? (
           <div>
-            from <PublicKey publicKey={props.operation.source} style={{ fontWeight: "normal" }} variant="full" />
+            from <Address address={props.operation.source} style={{ fontWeight: "normal" }} variant="short" />
           </div>
         ) : null}
         <div>
-          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
+          to <Address address={destination} style={{ fontWeight: "normal" }} variant="short" />
         </div>
       </div>
     </OperationDetails>
@@ -80,11 +80,11 @@ function CreateAccountOperation(props: { operation: Operation.CreateAccount; sty
       <div>
         {props.operation.source ? (
           <div>
-            from <PublicKey publicKey={props.operation.source} style={{ fontWeight: "normal" }} variant="full" />
+            from <Address address={props.operation.source} style={{ fontWeight: "normal" }} variant="short" />
           </div>
         ) : null}
         <div>
-          to <PublicKey publicKey={destination} style={{ fontWeight: "normal" }} variant="full" />
+          to <Address address={destination} style={{ fontWeight: "normal" }} variant="short" />
         </div>
       </div>
     </OperationDetails>
@@ -97,7 +97,7 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
     const content = (
       <OperationDetails>
         <b>{props.operation.line.code}</b> by{" "}
-        <PublicKey publicKey={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
+        <Address address={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
       </OperationDetails>
     )
     return <ListItem heading="Remove trust in asset" primaryText={content} style={props.style} />
@@ -106,7 +106,7 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
       <OperationDetails>
         <div>
           <b>{props.operation.line.code}</b> by{" "}
-          <PublicKey publicKey={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
+          <Address address={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
         </div>
         <div>
           {trustlineLimitEqualsUnlimited(props.operation.limit)
@@ -237,16 +237,16 @@ function SetOptionsOperation(props: {
       heading = (
         <>
           Add signer to{" "}
-          <PublicKey
-            publicKey={props.operation.source || props.transaction.source}
+          <Address
+            address={props.operation.source || props.transaction.source}
             style={{ fontWeight: "normal" }}
-            variant="full"
+            variant="short"
           />
         </>
       )
       primaryText = (
         <OperationDetails>
-          <PublicKey publicKey={signerPublicKey} style={{ display: "block", fontWeight: "normal" }} variant="full" />
+          <Address address={signerPublicKey} style={{ display: "block", fontWeight: "normal" }} variant="short" />
           <div>Key weight: {props.operation.signer.weight}</div>
         </OperationDetails>
       )
@@ -254,16 +254,16 @@ function SetOptionsOperation(props: {
       heading = (
         <>
           Remove signer from{" "}
-          <PublicKey
-            publicKey={props.operation.source || props.transaction.source}
+          <Address
+            address={props.operation.source || props.transaction.source}
             style={{ fontWeight: "normal" }}
-            variant="full"
+            variant="short"
           />
         </>
       )
       primaryText = (
         <OperationDetails>
-          <PublicKey publicKey={signerPublicKey} style={{ fontWeight: "normal" }} variant="full" />
+          <Address address={signerPublicKey} style={{ fontWeight: "normal" }} variant="short" />
         </OperationDetails>
       )
     }

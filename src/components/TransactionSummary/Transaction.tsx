@@ -16,7 +16,7 @@ import { warningColor } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 import { HorizontalLayout } from "../Layout/Box"
 import { ListItem } from "../List"
-import PublicKey from "../PublicKey"
+import { Address } from "../PublicKey"
 
 function MetaDetails(props: { children: React.ReactNode }) {
   return <div style={{ fontSize: "80%", marginTop: 8, marginLeft: 16 }}>{props.children}</div>
@@ -65,8 +65,8 @@ const Signer = React.memo(function Signer(props: {
       <>
         <SignerStatus hasSigned={props.hasSigned} style={{ marginRight: 8 }} />
         <div style={{ whiteSpace: "nowrap" }}>
-          <PublicKey
-            publicKey={getSignerKey(props.signer)}
+          <Address
+            address={getSignerKey(props.signer)}
             style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
             variant="full"
           />
@@ -118,7 +118,7 @@ export function SourceAccount(props: { transaction: Transaction; style?: React.C
       heading="Source Account"
       primaryText={
         <MetaDetails>
-          <PublicKey publicKey={props.transaction.source} style={{ fontWeight: "normal" }} variant="full" />
+          <Address address={props.transaction.source} style={{ fontWeight: "normal" }} variant="full" />
         </MetaDetails>
       }
       style={props.style}
