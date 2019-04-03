@@ -36,11 +36,11 @@ type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Erro
 function validateFormValues(formValues: PaymentCreationValues, spendableBalance: BigNumber) {
   const errors: PaymentCreationErrors = {}
 
-  if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
-    errors.destination = new Error(`Invalid stellar public key.`)
+  if (!formValues.destination.match(/^(G[A-Z0-9]{55})|([^\*> \t\n\r]+\*[^\*\.> \t\n\r]+\.[^\*> \t\n\r]+)$/)) {
+    errors.destination = new Error(`Expected a public key or stellar address.`)
   }
   if (!formValues.amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
-    errors.amount = new Error("Invalid number.")
+    errors.amount = new Error("Invalid amount.")
   } else if (spendableBalance.lt(formValues.amount)) {
     errors.amount = new Error("Not enough funds.")
   }
@@ -107,6 +107,7 @@ function PaymentCreationForm(props: Props) {
     memoValue: ""
   })
 
+  const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
   const selectedAssetBalance = getMatchingAccountBalance(props.accountData.balances, formValues.asset)
 
   // FIXME: Pass no. of open offers to getAccountMinimumBalance()
@@ -137,7 +138,7 @@ function PaymentCreationForm(props: Props) {
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
-        placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
+        placeholder="GABCDEFGHIJK... or alice@example.org"
         fullWidth
         autoFocus
         margin="normal"
@@ -198,6 +199,7 @@ function PaymentCreationForm(props: Props) {
       <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
         <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
         <ActionButton
+          disabled={isDisabled}
           icon={<SendIcon style={{ fontSize: 16 }} />}
           loading={props.txCreationPending}
           onClick={() => undefined}
