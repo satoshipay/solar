@@ -38,7 +38,8 @@ function NewSignerForm(props: Props) {
           <TextField
             autoFocus
             error={!!props.errors.publicKey}
-            label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key"}
+            label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key or Stellar Address"}
+            placeholder="GABCDEFGHIJK... or alice@example.org"
             onChange={event => props.onUpdate({ publicKey: event.target.value })}
             style={{ flexGrow: 1 }}
             value={props.values.publicKey}

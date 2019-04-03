@@ -7,9 +7,11 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import ListItemText from "@material-ui/core/ListItemText"
 import PersonIcon from "@material-ui/icons/Person"
 import RemoveIcon from "@material-ui/icons/Close"
+import { trackError } from "../../context/notifications"
 import { getSignerKey } from "../../lib/stellar"
+import { isPublicKey, isStellarAddress, lookupFederationRecord } from "../../lib/stellar-address"
 import SpaciousList from "../List/SpaciousList"
-import PublicKey from "../PublicKey"
+import { Address } from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
 
 interface SignerFormValues {
@@ -25,8 +27,8 @@ interface SignerFormErrors {
 function validateNewSignerValues(values: SignerFormValues, signers: Horizon.AccountSigner[]): SignerFormErrors {
   const errors: SignerFormErrors = {}
 
-  if (!values.publicKey.match(/^G[A-Z0-9]{55}$/)) {
-    errors.publicKey = new Error("Not a valid public key.")
+  if (!isPublicKey(values.publicKey) && !isStellarAddress(values.publicKey)) {
+    errors.publicKey = new Error("Expected a public key or stellar address.")
   } else if (signers.find(existingSigner => getSignerKey(existingSigner) === values.publicKey)) {
     errors.publicKey = new Error("Cannot add existing signer.")
   }
@@ -56,25 +58,33 @@ function SignersEditor(props: SignersEditorProps) {
     weight: "1"
   })
 
-  const createCosigner = () => {
-    const errors = validateNewSignerValues(newSignerValues, props.signers)
+  const createCosigner = async () => {
+    try {
+      const federationRecord =
+        newSignerValues.publicKey.indexOf("*") > -1 ? await lookupFederationRecord(newSignerValues.publicKey) : null
 
-    if (Object.keys(errors).length > 0) {
-      return setNewSignerErrors(errors)
+      const cosignerPublicKey = federationRecord ? federationRecord.account_id : newSignerValues.publicKey
+      const errors = validateNewSignerValues(newSignerValues, props.signers)
+
+      if (Object.keys(errors).length > 0) {
+        return setNewSignerErrors(errors)
+      }
+
+      props.addSigner(({
+        public_key: cosignerPublicKey,
+        key: cosignerPublicKey,
+        weight: parseInt(newSignerValues.weight, 10)
+      } as any) as Horizon.AccountSigner)
+
+      setIsEditingNewSigner(false)
+      setNewSignerErrors({})
+      setNewSignerValues({
+        publicKey: "",
+        weight: "1"
+      })
+    } catch (error) {
+      trackError(error)
     }
-
-    props.addSigner(({
-      public_key: newSignerValues.publicKey,
-      key: newSignerValues.publicKey,
-      weight: parseInt(newSignerValues.weight, 10)
-    } as any) as Horizon.AccountSigner)
-
-    setIsEditingNewSigner(false)
-    setNewSignerErrors({})
-    setNewSignerValues({
-      publicKey: "",
-      weight: "1"
-    })
   }
 
   const updateNewSignerValues = (values: Partial<SignerFormValues>) => {
@@ -92,7 +102,7 @@ function SignersEditor(props: SignersEditorProps) {
             <PersonIcon style={{ fontSize: "2rem" }} />
           </ListItemIcon>
           <ListItemText
-            primary={<PublicKey publicKey={getSignerKey(signer)} variant="full" />}
+            primary={<Address address={getSignerKey(signer)} variant="full" />}
             secondary={
               <>
                 {props.showKeyWeights ? <span style={{ marginRight: 24 }}>Weight: {signer.weight}</span> : null}
