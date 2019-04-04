@@ -7,6 +7,7 @@ import { trackError } from "../../context/notifications"
 import { useAccountData, ObservedAccountData } from "../../hooks"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
+import AccountBalancesContainer from "../Account/AccountBalancesContainer"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
@@ -83,15 +84,17 @@ function CreatePaymentDialog(props: Props) {
           title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
           onBack={props.onClose}
         />
-        <Box margin="0 0 18px">
+        <AccountBalancesContainer>
           <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+        </AccountBalancesContainer>
+        <Box margin="24px 0 0">
+          <CreatePaymentForm
+            accountData={props.accountData}
+            onSubmit={handleSubmit}
+            trustedAssets={trustedAssets}
+            txCreationPending={txCreationPending}
+          />
         </Box>
-        <CreatePaymentForm
-          accountData={props.accountData}
-          onSubmit={handleSubmit}
-          trustedAssets={trustedAssets}
-          txCreationPending={txCreationPending}
-        />
       </Box>
     </Dialog>
   )
