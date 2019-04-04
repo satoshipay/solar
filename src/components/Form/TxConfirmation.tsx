@@ -22,11 +22,10 @@ interface Props {
   signatureRequest?: SignatureRequest
   transaction: Transaction
   onConfirm?: (formValues: FormValues) => any
-  onCancel?: () => any
 }
 
 function TxConfirmationForm(props: Props) {
-  const { onCancel = () => undefined, onConfirm = () => undefined } = props
+  const { onConfirm = () => undefined } = props
 
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
@@ -82,7 +81,6 @@ function TxConfirmationForm(props: Props) {
           />
         ) : null}
         <DialogActionsBox style={{ justifyContent: "center" }}>
-          <ActionButton onClick={onCancel}>Cancel</ActionButton>
           {props.disabled ? null : (
             <ActionButton icon={<CheckIcon />} onClick={() => undefined} type="submit">
               Confirm
