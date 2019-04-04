@@ -17,7 +17,7 @@
     "prettier": "prettier --write '{src,stories}/**/*.{ts,tsx}' *.md electron/*.js",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "test": "tslint --project .",
-    "prebuild:electron": "NODE_ENV=production parcel build ./src/index.prod.njk --detailed-report --no-cache --no-source-maps --public-url=./",
+    "prebuild:electron": "rm -rf dist/* && NODE_ENV=production parcel build ./src/index.prod.njk --detailed-report --no-cache --no-source-maps --public-url=./",
     "build:linux": "PLATFORM=linux npm run prebuild:electron && build --linux --x64 --config ./electron-build.yml",
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && build --mac --x64 --config ./electron-build.yml",
     "build:mac:signed": "source ./scripts/signing-env.sh mac && npm run build:mac -- -c.forceCodeSigning=true",
