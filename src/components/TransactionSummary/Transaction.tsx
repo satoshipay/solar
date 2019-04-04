@@ -5,7 +5,6 @@ import MuiListItem from "@material-ui/core/ListItem"
 import MuiListItemIcon from "@material-ui/core/ListItemIcon"
 import MuiListItemText from "@material-ui/core/ListItemText"
 import Tooltip from "@material-ui/core/Tooltip"
-import Typography from "@material-ui/core/Typography"
 import CheckIcon from "@material-ui/icons/Check"
 import UpdateIcon from "@material-ui/icons/Update"
 import WarningIcon from "@material-ui/icons/Warning"
@@ -16,7 +15,8 @@ import { warningColor } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 import { HorizontalLayout } from "../Layout/Box"
 import { ListItem } from "../List"
-import PublicKey from "../PublicKey"
+import { Address } from "../PublicKey"
+import { OperationDetails } from "./Operations"
 
 function MetaDetails(props: { children: React.ReactNode }) {
   return <div style={{ fontSize: "80%", marginTop: 8, marginLeft: 16 }}>{props.children}</div>
@@ -65,8 +65,8 @@ const Signer = React.memo(function Signer(props: {
       <>
         <SignerStatus hasSigned={props.hasSigned} style={{ marginRight: 8 }} />
         <div style={{ whiteSpace: "nowrap" }}>
-          <PublicKey
-            publicKey={getSignerKey(props.signer)}
+          <Address
+            address={getSignerKey(props.signer)}
             style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
             variant="full"
           />
@@ -118,7 +118,7 @@ export function SourceAccount(props: { transaction: Transaction; style?: React.C
       heading="Source Account"
       primaryText={
         <MetaDetails>
-          <PublicKey publicKey={props.transaction.source} style={{ fontWeight: "normal" }} variant="full" />
+          <Address address={props.transaction.source} style={{ fontWeight: "normal" }} variant="full" />
         </MetaDetails>
       }
       style={props.style}
@@ -132,14 +132,11 @@ export function TransactionMetadata(props: { style?: React.CSSProperties; transa
     .div(1e7)
   return (
     <ListItem
+      heading="Fee"
       primaryText={
-        <Typography component="div" variant="body1">
-          <HorizontalLayout justifyContent="space-between">
-            <span style={{ marginLeft: "auto", fontSize: "80%" }}>
-              Fee: <SingleBalance assetCode="XLM" balance={fee.toString()} inline />
-            </span>
-          </HorizontalLayout>
-        </Typography>
+        <OperationDetails>
+          <SingleBalance assetCode="XLM" balance={fee.toString()} inline />
+        </OperationDetails>
       }
       style={props.style}
     />

@@ -1,11 +1,12 @@
 import React from "react"
-import { Asset, Horizon, Memo, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, ObservedAccountData } from "../../hooks"
+import { lookupFederationRecord } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
 import TestnetBadge from "../Dialog/TestnetBadge"
@@ -55,16 +56,31 @@ function CreatePaymentDialog(props: Props) {
     try {
       setTxCreationPending(true)
       const asset = trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+      const federationRecord =
+        formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
+      const destination = federationRecord ? federationRecord.account_id : formValues.destination
+
+      const userMemo = createMemo(formValues)
+      const federationMemo =
+        federationRecord && federationRecord.memo && federationRecord.memo_type
+          ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
+          : Memo.none()
+
+      if (userMemo.type !== "none" && federationMemo.type !== "none") {
+        throw new Error(
+          `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
+        )
+      }
 
       const payment = await createPaymentOperation({
         asset: asset || Asset.native(),
         amount: formValues.amount,
-        destination: formValues.destination,
+        destination,
         horizon: props.horizon
       })
       const tx = await createTransaction([payment], {
         accountData: props.accountData,
-        memo: createMemo(formValues),
+        memo: federationMemo.type !== "none" ? federationMemo : userMemo,
         horizon: props.horizon,
         walletAccount: props.account
       })

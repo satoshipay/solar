@@ -15,7 +15,7 @@ import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
-import PublicKey from "../PublicKey"
+import { PublicKey } from "../PublicKey"
 import { formatOperation } from "../TransactionSummary/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
