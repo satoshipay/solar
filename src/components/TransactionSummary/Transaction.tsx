@@ -11,6 +11,7 @@ import WarningIcon from "@material-ui/icons/Warning"
 import { Account } from "../../context/accounts"
 import { getSignerKey, signatureMatchesPublicKey } from "../../lib/stellar"
 import { ObservedAccountData } from "../../subscriptions"
+import { useIsMobile } from "../../hooks"
 import { warningColor } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 import { HorizontalLayout } from "../Layout/Box"
@@ -113,12 +114,18 @@ export function Signers(props: {
 }
 
 export function SourceAccount(props: { transaction: Transaction; style?: React.CSSProperties }) {
+  const isSmallScreen = useIsMobile()
+
   return (
     <ListItem
       heading="Source Account"
       primaryText={
         <MetaDetails>
-          <Address address={props.transaction.source} style={{ fontWeight: "normal" }} variant="full" />
+          <Address
+            address={props.transaction.source}
+            style={{ fontWeight: "normal" }}
+            variant={isSmallScreen ? "short" : "full"}
+          />
         </MetaDetails>
       }
       style={props.style}
