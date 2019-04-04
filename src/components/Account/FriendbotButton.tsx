@@ -26,7 +26,8 @@ function FriendbotButton(props: Props) {
   }
 
   return (
-    <Button variant="outlined" onClick={() => topup().catch(trackError)}>
+    // Extra padding especially for mobile
+    <Button variant="outlined" onClick={() => topup().catch(trackError)} style={{ padding: "10px 20px" }}>
       <ButtonIconLabel label="Request top-up from friendbot" loading={isPending} loaderColor="inherit" />
     </Button>
   )
