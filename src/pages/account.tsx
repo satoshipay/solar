@@ -32,6 +32,7 @@ import * as routes from "../routes"
 
 interface AccountActionsProps {
   account: Account
+  bottomOfScreen?: boolean
   horizontalMargin: number
   onCreatePayment: () => void
   onReceivePayment: () => void
@@ -41,20 +42,17 @@ interface AccountActionsProps {
 
 function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const buttonStyle = {
+    border: "none",
+    borderRadius: props.squareButtons ? 0 : undefined,
+    fontSize: "1rem",
+    flexBasis: 1,
+    flexGrow: 1,
+    padding: 20
+  }
   return (
     <HorizontalLayout style={props.style}>
-      <Button
-        variant="contained"
-        onClick={props.onReceivePayment}
-        style={{
-          border: "none",
-          borderRadius: props.squareButtons ? 0 : undefined,
-          fontSize: "1rem",
-          flexBasis: 1,
-          flexGrow: 1,
-          padding: "20px"
-        }}
-      >
+      <Button variant="contained" onClick={props.onReceivePayment} style={buttonStyle}>
         <ButtonIconLabel label="Receive">
           <QRCodeIcon style={{ fontSize: "110%" }} />
         </ButtonIconLabel>
@@ -65,15 +63,7 @@ function AccountActions(props: AccountActionsProps) {
         variant="contained"
         disabled={!accountData.activated}
         onClick={props.onCreatePayment}
-        style={{
-          border: "none",
-          borderRadius: props.squareButtons ? 0 : undefined,
-          fontSize: "1rem",
-          flexBasis: 1,
-          flexGrow: 1,
-          paddingLeft: 20,
-          paddingRight: 20
-        }}
+        style={buttonStyle}
       >
         <ButtonIconLabel label="Send">
           <SendIcon style={{ fontSize: "110%" }} />
@@ -203,6 +193,7 @@ function AccountPage(props: Props) {
       {isSmallScreen ? (
         <AccountActions
           account={account}
+          bottomOfScreen
           horizontalMargin={0}
           onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
           onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
