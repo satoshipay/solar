@@ -30,7 +30,7 @@ function CreateAccountPage(props: { testnet: boolean }) {
   const onClose = () => router.history.push(routes.allAccounts())
 
   return (
-    <Section top>
+    <Section top bottom>
       <Box padding={isSmallScreen ? "12px 12px 0px 0px" : "16px 24px"} style={{ position: "relative" }}>
         <AccountCreationForm
           accounts={accounts}

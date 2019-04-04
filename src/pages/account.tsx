@@ -51,7 +51,15 @@ function AccountActions(props: AccountActionsProps) {
     padding: 20
   }
   return (
-    <HorizontalLayout style={props.style}>
+    <HorizontalLayout
+      style={{
+        flexGrow: 0,
+        flexShrink: 0,
+        background: props.bottomOfScreen ? "white" : undefined,
+        paddingBottom: "env(safe-area-inset-bottom)",
+        ...props.style
+      }}
+    >
       <Button variant="contained" onClick={props.onReceivePayment} style={buttonStyle}>
         <ButtonIconLabel label="Receive">
           <QRCodeIcon style={{ fontSize: "110%" }} />
@@ -187,7 +195,11 @@ function AccountPage(props: Props) {
           )}
         </AccountHeaderCard>
       </Section>
-      <Section backgroundColor="#f6f6f6" style={{ flexGrow: 1, flexShrink: 1, overflowY: "auto" }}>
+      <Section
+        bottom={!isSmallScreen}
+        backgroundColor="#f6f6f6"
+        style={{ flexGrow: 1, flexShrink: 1, overflowY: "auto" }}
+      >
         <Transactions account={account} />
       </Section>
       {isSmallScreen ? (

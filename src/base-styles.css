@@ -1,3 +1,12 @@
+html,
+body,
+#app {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   background-color: white;
   cursor: default;
@@ -6,13 +15,24 @@ body {
   line-height: 20px;
 }
 
-html,
-body,
-#app {
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
+.iphone-notch-top-spacing {
+  padding-top: constant(safe-area-inset-top); /* iOS 11.0 */
+  padding-top: env(safe-area-inset-top); /* iOS 11.2 */
+}
+
+.iphone-notch-left-spacing {
+  padding-left: constant(safe-area-inset-left); /* iOS 11.0 */
+  padding-left: env(safe-area-inset-left); /* iOS 11.2 */
+}
+
+.iphone-notch-right-spacing {
+  padding-right: constant(safe-area-inset-right); /* iOS 11.0 */
+  padding-right: env(safe-area-inset-right); /* iOS 11.2 */
+}
+
+.iphone-notch-bottom-spacing {
+  padding-bottom: constant(safe-area-inset-bottom); /* iOS 11.0 */
+  padding-bottom: env(safe-area-inset-bottom); /* iOS 11.2 */
 }
 
 .mac-frameless-window-invisible-title-bar {

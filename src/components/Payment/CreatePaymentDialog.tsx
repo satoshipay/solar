@@ -95,7 +95,7 @@ function CreatePaymentDialog(props: Props) {
 
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
+      <Box width="100%" maxHeight="100%" maxWidth={900} overflow="hidden" padding="24px 36px" margin="0 auto">
         <MainTitle
           title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
           onBack={props.onClose}

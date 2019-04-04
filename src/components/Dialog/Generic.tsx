@@ -63,8 +63,16 @@ interface DialogActionsBoxProps {
 }
 
 export function DialogActionsBox(props: DialogActionsBoxProps) {
+  const style: React.CSSProperties = {
+    alignItems: "stretch",
+    marginTop: 32,
+    marginLeft: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    ...props.style
+  }
   return (
-    <DialogActions style={{ alignItems: "stretch", marginTop: 32, ...props.style }}>
+    <DialogActions style={style}>
       {React.Children.map(
         props.children,
         (child, index) =>
