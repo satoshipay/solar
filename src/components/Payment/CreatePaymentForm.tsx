@@ -91,7 +91,6 @@ interface Props {
   accountData: ObservedAccountData
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  onCancel: () => void
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 
@@ -197,7 +196,6 @@ function PaymentCreationForm(props: Props) {
         )}
       </Box>
       <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
-        <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
         <ActionButton
           icon={<SendIcon style={{ fontSize: 16 }} />}
           loading={props.txCreationPending}

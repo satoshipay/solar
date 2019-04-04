@@ -88,7 +88,6 @@ function CreatePaymentDialog(props: Props) {
         </Box>
         <CreatePaymentForm
           accountData={props.accountData}
-          onCancel={props.onClose}
           onSubmit={handleSubmit}
           trustedAssets={trustedAssets}
           txCreationPending={txCreationPending}
