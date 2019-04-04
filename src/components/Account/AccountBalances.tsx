@@ -112,7 +112,7 @@ export function MultipleBalances(props: MultipleBalancesProps) {
   ]
 
   return (
-    <>
+    <div style={{ maxWidth: "100%", whiteSpace: "nowrap", overflowX: "auto" }}>
       {balances.map((balance: any, index) => (
         <React.Fragment key={balance.asset_code || "XLM"}>
           <Balance
@@ -123,7 +123,7 @@ export function MultipleBalances(props: MultipleBalancesProps) {
           />{" "}
         </React.Fragment>
       ))}
-    </>
+    </div>
   )
 }
 
