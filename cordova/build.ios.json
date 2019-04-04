@@ -1,0 +1,11 @@
+{
+  "ios": {
+    "debug": {
+      "buildFlag": ["-allowProvisioningUpdates", "-UseModernBuildSystem=0"]
+    },
+    "release": {
+      "buildFlag": ["-allowProvisioningUpdates", "-UseModernBuildSystem=0"],
+      "developmentTeam": "YP676N38BS"
+    }
+  }
+}
