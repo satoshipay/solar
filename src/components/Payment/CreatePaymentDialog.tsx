@@ -2,15 +2,16 @@ import React from "react"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
-import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, ObservedAccountData } from "../../hooks"
 import { lookupFederationRecord } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
+import AccountBalancesContainer from "../Account/AccountBalancesContainer"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
+import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import CreatePaymentForm, { PaymentCreationValues } from "./CreatePaymentForm"
 
@@ -95,19 +96,21 @@ function CreatePaymentDialog(props: Props) {
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
       <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
-        <Typography variant="h5" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
-          Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-        </Typography>
-        <Box margin="0 0 18px">
-          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-        </Box>
-        <CreatePaymentForm
-          accountData={props.accountData}
-          onCancel={props.onClose}
-          onSubmit={handleSubmit}
-          trustedAssets={trustedAssets}
-          txCreationPending={txCreationPending}
+        <MainTitle
+          title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+          onBack={props.onClose}
         />
+        <AccountBalancesContainer>
+          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+        </AccountBalancesContainer>
+        <Box margin="24px 0 0">
+          <CreatePaymentForm
+            accountData={props.accountData}
+            onSubmit={handleSubmit}
+            trustedAssets={trustedAssets}
+            txCreationPending={txCreationPending}
+          />
+        </Box>
       </Box>
     </Dialog>
   )
