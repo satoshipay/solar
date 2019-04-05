@@ -5,8 +5,10 @@ import { primaryBackground } from "../../theme"
 // tslint:disable-next-line
 const platform = process.env.PLATFORM || require("os").platform()
 
-const FramelessWindowInvisibleTitleBar = (props: { background?: React.CSSProperties["background"] }) => {
-  if (platform === "darwin") {
+const isFramelessWindow = platform === "darwin"
+
+function FramelessWindowInvisibleTitleBar(props: { background?: React.CSSProperties["background"] }) {
+  if (isFramelessWindow) {
     // Add invisible window-drag area and a bit of additional v-space on top
     // Need to define a static CSS class for it, since `-webkit-app-region` in CSS-in-JS might lead to trouble
     return (
@@ -19,17 +21,26 @@ const FramelessWindowInvisibleTitleBar = (props: { background?: React.CSSPropert
   }
 }
 
+function PageInset(props: { children: React.ReactNode }) {
+  return (
+    <Box padding={isFramelessWindow ? "16px 24px 8px" : "8px 16px"} style={{ position: "relative" }}>
+      {props.children}
+    </Box>
+  )
+}
+
 interface SectionProps {
   children: React.ReactNode
   backgroundColor?: React.CSSProperties["backgroundColor"]
   brandColored?: boolean
   grow?: number
   shrink?: number
+  pageInset?: boolean
   top?: boolean
   style?: React.CSSProperties
 }
 
-const Section = (props: SectionProps) => {
+function Section(props: SectionProps) {
   const background = props.brandColored ? primaryBackground : props.backgroundColor || "white"
   const style: React.CSSProperties = {
     background,
@@ -40,13 +51,14 @@ const Section = (props: SectionProps) => {
     zIndex: props.top ? undefined : 1,
     ...props.style
   }
+  const MaybeInset = props.pageInset ? PageInset : (subprops: { children: React.ReactNode }) => <>{subprops.children}</>
   return (
     <>
       {props.top ? <FramelessWindowInvisibleTitleBar background={background} /> : null}
       <Box component="section" padding={16} style={style}>
         {/* Add a little padding to the top if window is frameless */}
         {props.top ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
-        {props.children}
+        <MaybeInset>{props.children}</MaybeInset>
       </Box>
     </>
   )

@@ -24,32 +24,30 @@ function AllAccountsPage() {
     </Button>
   )
   return (
-    <Section top brandColored>
-      <Box margin="16px 24px" style={{ position: "relative" }}>
-        <HorizontalLayout alignItems="center">
-          <Typography color="inherit" variant="h5" style={{ flexGrow: 1, marginRight: 180 }}>
-            {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
-          </Typography>
-          <Box>
-            {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
-              ? networkSwitchButton
-              : null}
-            <IconButton
-              onClick={() => router.history.push(routes.settings())}
-              style={{ marginLeft: 8, marginRight: -10, color: "inherit" }}
-            >
-              <SettingsIcon />
-            </IconButton>
-          </Box>
-        </HorizontalLayout>
-        <Box margin="16px 0 0">
-          <AccountList
-            accounts={accounts}
-            testnet={networkSwitch === "testnet"}
-            onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
-            onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
-          />
+    <Section top brandColored pageInset>
+      <HorizontalLayout alignItems="center">
+        <Typography color="inherit" variant="h5" style={{ flexGrow: 1, marginRight: 180 }}>
+          {networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
+        </Typography>
+        <Box>
+          {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
+            ? networkSwitchButton
+            : null}
+          <IconButton
+            onClick={() => router.history.push(routes.settings())}
+            style={{ marginLeft: 8, marginRight: -10, color: "inherit" }}
+          >
+            <SettingsIcon />
+          </IconButton>
         </Box>
+      </HorizontalLayout>
+      <Box margin="16px 0 0">
+        <AccountList
+          accounts={accounts}
+          testnet={networkSwitch === "testnet"}
+          onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
+          onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
+        />
       </Box>
       <TermsAndConditions open={!settings.agreedToTermsAt} onConfirm={settings.confirmToC} />
     </Section>
