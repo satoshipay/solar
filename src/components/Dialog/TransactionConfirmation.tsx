@@ -36,7 +36,13 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   const isSmallScreen = useIsMobile()
 
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} maxWidth="lg" TransitionComponent={Transition}>
+    <Dialog
+      open={props.open}
+      fullScreen={isSmallScreen}
+      onClose={props.onClose}
+      maxWidth="lg"
+      TransitionComponent={Transition}
+    >
       <ErrorBoundary>
         <Box padding="24px 36px" overflow="auto">
           <MainTitle
@@ -48,7 +54,7 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
             onBack={props.onClose}
           />
           {props.transaction ? (
-            <Box margin="8px 0 0">
+            <Box margin="12px auto 0" style={isSmallScreen ? { width: "fit-content" } : {}} textAlign="center">
               <TxConfirmationForm
                 account={props.account}
                 disabled={props.disabled}
