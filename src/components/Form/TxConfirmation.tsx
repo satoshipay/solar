@@ -70,10 +70,10 @@ function TxConfirmationForm(props: Props) {
         />
         {props.account.requiresPassword && !props.disabled ? (
           <TextField
+            autoFocus={process.env.PLATFORM !== "ios"}
             error={Boolean(passwordError)}
             label={passwordError ? renderFormFieldError(passwordError) : "Password"}
             type="password"
-            autoFocus
             fullWidth
             margin="dense"
             value={formValues.password || ""}

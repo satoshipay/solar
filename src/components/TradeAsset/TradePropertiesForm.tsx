@@ -150,7 +150,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
         />
         <HorizontalMargin size={16} />
         <TextField
-          autoFocus
+          autoFocus={process.env.PLATFORM !== "ios"}
           inputProps={{
             style: { fontWeight: "bold" }
           }}

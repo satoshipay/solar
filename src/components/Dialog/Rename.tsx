@@ -39,7 +39,14 @@ function RenameDialog(props: Props) {
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <form style={isWidthMax500 ? { minWidth: 200 } : { minWidth: 300 }} onSubmit={handleSubmit}>
-          <TextField label="Name" fullWidth autoFocus margin="dense" value={newName} onChange={handleInput} />
+          <TextField
+            autoFocus={process.env.PLATFORM !== "ios"}
+            fullWidth
+            label="Name"
+            margin="dense"
+            onChange={handleInput}
+            value={newName}
+          />
           <DialogActionsBox>
             <ActionButton onClick={props.onClose}>Cancel</ActionButton>
             <ActionButton icon={<EditIcon />} onClick={handleSubmit} type="primary">
