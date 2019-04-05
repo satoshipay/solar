@@ -31,7 +31,7 @@ function AllAccountsPage() {
     </Button>
   )
   return (
-    <Section top brandColored>
+    <Section top bottom brandColored>
       <Box margin="16px 24px" style={{ position: "relative" }}>
         <MainTitle
           title={networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}

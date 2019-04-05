@@ -72,6 +72,19 @@ const theme = createMuiTheme({
         }
       }
     },
+    MuiDialog: {
+      paperFullScreen: {
+        boxSizing: "border-box",
+        "&": {
+          // iOS 11
+          paddingTop: "constant(safe-area-inset-top)",
+          paddingBottom: "constant(safe-area-inset-bottom)"
+        },
+        // iOS 12
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)"
+      }
+    },
     MuiFormLabel: {
       root: {
         "&$focused": {
@@ -87,7 +100,31 @@ const theme = createMuiTheme({
         backgroundColor: lightBlue.A200
       }
     },
+    MuiList: {
+      root: {
+        paddingLeft: 8,
+        paddingRight: 8,
+        [breakpoints.down(600)]: {
+          paddingLeft: 0,
+          paddingRight: 0
+        }
+      }
+    },
+    MuiListItem: {
+      root: {
+        [breakpoints.down(600)]: {
+          paddingLeft: 8,
+          paddingRight: 8
+        }
+      }
+    },
     MuiListSubheader: {
+      root: {
+        [breakpoints.down(600)]: {
+          paddingLeft: 8,
+          paddingRight: 8
+        }
+      },
       sticky: {
         background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
       }

@@ -92,9 +92,7 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
             style={{
               background: "#ffffff",
               boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-              minHeight: 72,
-              paddingLeft: 24,
-              paddingRight: 24
+              minHeight: 72
             }}
           />
         ))}

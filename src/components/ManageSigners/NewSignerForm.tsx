@@ -36,7 +36,7 @@ function NewSignerForm(props: Props) {
       <ListItemText>
         <HorizontalLayout>
           <TextField
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             error={!!props.errors.publicKey}
             label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key or Stellar Address"}
             placeholder="GABCDEFGHIJK... or alice@example.org"

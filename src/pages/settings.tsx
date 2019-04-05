@@ -83,7 +83,7 @@ function SettingsPage() {
           </CardContent>
         </Card>
       </Section>
-      <Section style={{ display: "flex", flexDirection: "column" }}>
+      <Section bottom style={{ display: "flex", flexDirection: "column" }}>
         <VerticalLayout height="100%" padding="0 8px" grow>
           <Box grow>
             <Settings />

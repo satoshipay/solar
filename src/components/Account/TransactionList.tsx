@@ -351,7 +351,7 @@ export function TransactionListItem(props: TransactionListItemProps) {
       onClick={props.onClick}
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
-      style={{ padding: "8px 16px", ...props.style }}
+      style={{ paddingTop: 8, paddingBottom: 8, ...props.style }}
     >
       <ListItemIcon>
         {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}

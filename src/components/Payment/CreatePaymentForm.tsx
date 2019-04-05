@@ -140,7 +140,7 @@ function PaymentCreationForm(props: Props) {
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
         placeholder="GABCDEFGHIJK... or alice@example.org"
         fullWidth
-        autoFocus
+        autoFocus={process.env.PLATFORM !== "ios"}
         margin="normal"
         value={formValues.destination}
         onChange={event => setFormValue("destination", event.target.value)}

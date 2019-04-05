@@ -69,7 +69,7 @@ function WarningBox(props: WarningBoxProps) {
       {props.requiresPassword ? (
         <form onSubmit={props.onReveal}>
           <TextField
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             fullWidth
             error={props.passwordError !== null}
             label={props.passwordError ? props.passwordError.message : "Password"}

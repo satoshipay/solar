@@ -36,8 +36,17 @@ function TermsAndConditions(props: Props) {
 
   // Super important to make sure that the Dialog unmounts on exit, so it won't act as an invisible click blocker!
   return (
-    <Dialog open={props.open} fullScreen TransitionComponent={Transition} TransitionProps={{ unmountOnExit: true }}>
-      <Section brandColored top style={{ display: "flex", flexDirection: "column" }}>
+    <Dialog
+      open={props.open}
+      fullScreen
+      PaperProps={{
+        // let the <Section> set the padding, so it will color the iPhone X top notch
+        style: { padding: 0 }
+      }}
+      TransitionComponent={Transition}
+      TransitionProps={{ unmountOnExit: true }}
+    >
+      <Section brandColored top bottom style={{ display: "flex", flexDirection: "column" }}>
         <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
           <Typography color="inherit" variant="h4">
             Welcome to Solar
