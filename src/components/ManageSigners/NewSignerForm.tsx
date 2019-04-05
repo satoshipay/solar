@@ -39,7 +39,7 @@ function NewSignerForm(props: Props) {
             autoFocus={process.env.PLATFORM !== "ios"}
             error={!!props.errors.publicKey}
             label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key or Stellar Address"}
-            placeholder="GABCDEFGHIJK... or alice@example.org"
+            placeholder="GABCDEFGHIJK... or alice*example.org"
             onChange={event => props.onUpdate({ publicKey: event.target.value })}
             style={{ flexGrow: 1 }}
             value={props.values.publicKey}

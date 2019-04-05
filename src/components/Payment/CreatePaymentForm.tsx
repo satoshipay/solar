@@ -138,7 +138,7 @@ function PaymentCreationForm(props: Props) {
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
-        placeholder="GABCDEFGHIJK... or alice@example.org"
+        placeholder="GABCDEFGHIJK... or alice*example.org"
         fullWidth
         autoFocus={process.env.PLATFORM !== "ios"}
         margin="normal"
