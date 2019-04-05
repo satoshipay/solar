@@ -44,7 +44,10 @@ export function ActionButton(props: ActionButtonProps) {
       color={type === "primary" || type === "submit" ? "primary" : undefined}
       disabled={props.disabled}
       onClick={props.onClick}
-      style={props.style}
+      style={{
+        padding: "10px 20px",
+        ...props.style
+      }}
       type={type === "submit" ? "submit" : undefined}
       variant="contained"
     >
