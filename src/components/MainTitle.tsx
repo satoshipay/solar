@@ -39,7 +39,11 @@ function MainTitle(props: Props) {
   const isSmallScreen = useIsMobile()
   const isTitleOnSecondRow = isSmallScreen && props.actions
   return (
-    <HorizontalLayout alignItems="center" wrap={isSmallScreen ? "wrap" : "nowrap"} style={props.style}>
+    <HorizontalLayout
+      alignItems="center"
+      wrap={isSmallScreen ? "wrap" : "nowrap"}
+      style={{ minHeight: isSmallScreen ? undefined : 56, ...props.style }}
+    >
       {props.hideBackButton ? null : (
         <BackButton
           onClick={props.onBack}
