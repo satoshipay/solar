@@ -61,6 +61,8 @@ const Signer = React.memo(function Signer(props: {
   signer: Horizon.AccountSigner | { key: string; weight: number }
   transaction: Transaction
 }) {
+  const isSmallScreen = useIsMobile()
+
   return (
     <HorizontalLayout alignItems="center">
       <>
@@ -69,7 +71,7 @@ const Signer = React.memo(function Signer(props: {
           <Address
             address={getSignerKey(props.signer)}
             style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
-            variant="full"
+            variant={isSmallScreen ? "short" : "full"}
           />
         </div>
       </>
