@@ -100,7 +100,31 @@ const theme = createMuiTheme({
         backgroundColor: lightBlue.A200
       }
     },
+    MuiList: {
+      root: {
+        paddingLeft: 8,
+        paddingRight: 8,
+        [breakpoints.down(600)]: {
+          paddingLeft: 0,
+          paddingRight: 0
+        }
+      }
+    },
+    MuiListItem: {
+      root: {
+        [breakpoints.down(600)]: {
+          paddingLeft: 8,
+          paddingRight: 8
+        }
+      }
+    },
     MuiListSubheader: {
+      root: {
+        [breakpoints.down(600)]: {
+          paddingLeft: 8,
+          paddingRight: 8
+        }
+      },
       sticky: {
         background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
       }
