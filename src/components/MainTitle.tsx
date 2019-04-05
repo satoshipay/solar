@@ -37,11 +37,11 @@ interface Props {
 
 function MainTitle(props: Props) {
   const isSmallScreen = useIsMobile()
-  const isTitleOnSecondRow = isSmallScreen && props.actions
+  const isTitleOnSecondRow = isSmallScreen && props.actions && !props.hideBackButton
   return (
     <HorizontalLayout
       alignItems="center"
-      wrap={isSmallScreen ? "wrap" : "nowrap"}
+      wrap={isSmallScreen ? (props.hideBackButton ? "wrap-reverse" : "wrap") : "nowrap"}
       style={{ minHeight: isSmallScreen ? undefined : 56, ...props.style }}
     >
       {props.hideBackButton ? null : (
