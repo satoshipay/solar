@@ -1,12 +1,15 @@
 import React from "react"
 import { Box } from "./Box"
+import { useIsMobile } from "../../hooks"
 import { primaryBackground } from "../../theme"
 
 // tslint:disable-next-line
 const platform = process.env.PLATFORM || require("os").platform()
 
+const isFramelessWindow = platform === "darwin"
+
 function TopOfTopSection(props: { background?: React.CSSProperties["background"] }) {
-  if (platform === "darwin") {
+  if (isFramelessWindow) {
     // Add invisible window-drag area and a bit of additional v-space on top
     // Need to define a static CSS class for it, since `-webkit-app-region` in CSS-in-JS might lead to trouble
     return (
@@ -22,6 +25,16 @@ function TopOfTopSection(props: { background?: React.CSSProperties["background"]
   }
 }
 
+function PageInset(props: { children: React.ReactNode }) {
+  const isSmallScreen = useIsMobile()
+  const padding = isSmallScreen ? "8px" : isFramelessWindow ? "16px 24px 8px" : "8px 16px"
+  return (
+    <Box padding={padding} style={{ position: "relative" }}>
+      {props.children}
+    </Box>
+  )
+}
+
 interface SectionProps {
   children: React.ReactNode
   backgroundColor?: React.CSSProperties["backgroundColor"]
@@ -29,6 +42,7 @@ interface SectionProps {
   brandColored?: boolean
   grow?: number
   shrink?: number
+  pageInset?: boolean
   top?: boolean
   style?: React.CSSProperties
 }
@@ -50,13 +64,14 @@ function Section(props: SectionProps) {
     zIndex: props.top ? undefined : 1,
     ...props.style
   }
+  const MaybeInset = props.pageInset ? PageInset : (subprops: { children: React.ReactNode }) => <>{subprops.children}</>
   return (
     <>
       <Box className={className} component="section" padding={16} style={style}>
         {props.top ? <TopOfTopSection background={background} /> : null}
         {/* Add a little padding to the top if window is frameless */}
         {props.top ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
-        {props.children}
+        <MaybeInset>{props.children}</MaybeInset>
       </Box>
     </>
   )

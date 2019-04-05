@@ -31,36 +31,34 @@ function AllAccountsPage() {
     </Button>
   )
   return (
-    <Section top bottom brandColored>
-      <Box margin="16px 24px" style={{ position: "relative" }}>
-        <MainTitle
-          title={networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
-          titleColor="inherit"
-          titleStyle={isWidthMax450 ? { marginRight: 0 } : {}}
-          hideBackButton
-          onBack={() => undefined}
-          actions={
-            <Box style={{ marginLeft: "auto" }}>
-              {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
-                ? networkSwitchButton
-                : null}
-              <IconButton
-                onClick={() => router.history.push(routes.settings())}
-                style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
-              >
-                <SettingsIcon />
-              </IconButton>
-            </Box>
-          }
+    <Section top bottom brandColored pageInset>
+      <MainTitle
+        title={networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
+        titleColor="inherit"
+        titleStyle={isWidthMax450 ? { marginRight: 0 } : {}}
+        hideBackButton
+        onBack={() => undefined}
+        actions={
+          <Box style={{ marginLeft: "auto" }}>
+            {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
+              ? networkSwitchButton
+              : null}
+            <IconButton
+              onClick={() => router.history.push(routes.settings())}
+              style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </Box>
+        }
+      />
+      <Box margin="16px 0 0">
+        <AccountList
+          accounts={accounts}
+          testnet={networkSwitch === "testnet"}
+          onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
+          onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
         />
-        <Box margin="16px 0 0">
-          <AccountList
-            accounts={accounts}
-            testnet={networkSwitch === "testnet"}
-            onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
-            onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
-          />
-        </Box>
       </Box>
       <TermsAndConditions open={!settings.agreedToTermsAt} onConfirm={settings.confirmToC} />
     </Section>

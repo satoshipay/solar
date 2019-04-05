@@ -30,10 +30,11 @@ function MemoMessage(props: { memo: Memo }) {
   if (!memo.value) {
     return null
   } else if (Buffer.isBuffer(memo.value)) {
+    const text = memo.type === "text" ? memo.value.toString("utf8") : memo.value.toString("hex")
     return (
       <>
         Memo:&nbsp;
-        {memo.value.toString("hex")}
+        {text}
       </>
     )
   } else {
