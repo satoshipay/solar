@@ -4,6 +4,7 @@ import Slide from "@material-ui/core/Slide"
 import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
+import { useIsMobile } from "../../hooks"
 import ErrorBoundary from "../ErrorBoundary"
 import TxConfirmationForm from "../Form/TxConfirmation"
 import { Box } from "../Layout/Box"
@@ -32,13 +33,15 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
       ? "Confirm Payment"
       : "Confirm Transaction"
 
+  const isSmallScreen = useIsMobile()
+
   return (
     <Dialog open={props.open} fullScreen onClose={props.onClose} maxWidth="lg" TransitionComponent={Transition}>
       <ErrorBoundary>
         <Box padding="24px 36px" overflow="auto">
           <MainTitle
             title={
-              <span>
+              <span style={isSmallScreen ? { fontSize: 18 } : undefined}>
                 {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
               </span>
             }
