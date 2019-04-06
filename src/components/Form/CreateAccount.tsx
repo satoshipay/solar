@@ -1,4 +1,5 @@
 import React from "react"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -76,6 +77,14 @@ interface AccountCreationFormProps {
 const AccountCreationForm = (props: AccountCreationFormProps) => {
   const { errors, formValues, setFormValue } = props
   const isSmallScreen = useIsMobile()
+  const isWidthMax400 = useMediaQuery("(max-width:400px)")
+  const primaryButtonLabel = formValues.createNewKey
+    ? isWidthMax400
+      ? "Create"
+      : "Create Account"
+    : isWidthMax400
+      ? "Import"
+      : "Import Account"
   return (
     <form onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between">
@@ -198,7 +207,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
           </Button>
           <HorizontalMargin size={16} />
           <Button color="primary" variant="contained" onClick={props.onSubmit} type="submit">
-            <ButtonIconLabel label={formValues.createNewKey ? "Create Account" : "Import Account"}>
+            <ButtonIconLabel label={primaryButtonLabel}>
               <CheckIcon />
             </ButtonIconLabel>
           </Button>
