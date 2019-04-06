@@ -118,7 +118,13 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               private key at any time.
             </Typography>
 
-            <HorizontalLayout>
+            <HorizontalLayout
+              wrap="wrap"
+              style={{
+                marginLeft: isSmallScreen ? -6 : -16,
+                marginRight: isSmallScreen ? -6 : -16
+              }}
+            >
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.password)}
@@ -127,10 +133,15 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 placeholder="Enter a password"
                 margin="normal"
                 onChange={event => setFormValue("password", event.target.value)}
+                style={{
+                  flex: "1 0 0",
+                  marginLeft: isSmallScreen ? 6 : 16,
+                  marginRight: isSmallScreen ? 6 : 16,
+                  minWidth: 250
+                }}
                 type="password"
                 value={formValues.password}
               />
-              <HorizontalMargin size={isSmallScreen ? 12 : 32} />
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.passwordRepeat)}
@@ -139,6 +150,12 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 margin="normal"
                 onChange={event => setFormValue("passwordRepeat", event.target.value)}
                 placeholder="Repeat your password"
+                style={{
+                  flex: "1 0 0",
+                  marginLeft: isSmallScreen ? 6 : 16,
+                  marginRight: isSmallScreen ? 6 : 16,
+                  minWidth: 250
+                }}
                 type="password"
                 value={formValues.passwordRepeat}
               />
@@ -155,7 +172,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               disabled={Boolean(formValues.createNewKey)}
               error={Boolean(errors.privateKey)}
               label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Secret key"}
-              placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
+              placeholder="SABCDEFGH…"
               fullWidth
               margin="normal"
               value={formValues.privateKey}
@@ -168,8 +185,8 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               onClick={props.onOpenQRScanner}
               style={{ height: 48, minWidth: 80 }}
             >
-              <QRCodeIcon style={isSmallScreen ? { marginRight: 8 } : { marginRight: 16 }} />
-              Scan
+              <QRCodeIcon />
+              {isSmallScreen ? null : <span style={{ marginLeft: isSmallScreen ? 8 : 16 }}>Scan</span>}
             </Button>
           </HorizontalLayout>
         </ToggleSection>
