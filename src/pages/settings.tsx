@@ -28,7 +28,7 @@ function Settings() {
       >
         <Typography
           color={settings.showTestnet ? "default" : "textSecondary"}
-          style={{ margin: "12px 0 0" }}
+          style={{ margin: "8px 0 0" }}
           variant="body2"
         >
           The test network is a copy of the main Stellar network were the traded tokens have no real-world value. You
@@ -50,7 +50,7 @@ function Settings() {
       >
         <Typography
           color={settings.multiSignature ? "default" : "textSecondary"}
-          style={{ margin: "12px 0 0" }}
+          style={{ margin: "8px 0 0" }}
           variant="body2"
         >
           <b>Experimental feature:</b> Add co-signers to an account, define that all signers of an account have to sign
