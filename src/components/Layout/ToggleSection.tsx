@@ -12,7 +12,7 @@ interface Props {
   style?: React.CSSProperties
 }
 
-const ToggleSection = (props: Props) => {
+function ToggleSection(props: Props) {
   const onChange = () => {
     if (props.onChange && !props.disabled) {
       props.onChange()
@@ -24,7 +24,7 @@ const ToggleSection = (props: Props) => {
         <Switch color="primary" checked={props.checked} disabled={props.disabled} onChange={props.onChange} />
       </Box>
       <Box grow shrink={0} width="calc(100% - 70px)">
-        <Typography variant="h6" style={{ marginTop: 12 }}>
+        <Typography variant="h6" style={{ display: "flex", alignItems: "center", height: 48 }}>
           <span onClick={onChange} style={{ cursor: "pointer" }}>
             {props.title}
           </span>
