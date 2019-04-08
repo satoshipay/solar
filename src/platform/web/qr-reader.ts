@@ -1,3 +1,5 @@
 import QRScanner from "react-qr-reader"
 
-export default QRScanner
+const isFullscreenQRPreview = false
+
+export { isFullscreenQRPreview, QRScanner as QRReader }

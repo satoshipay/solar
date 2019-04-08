@@ -3,6 +3,8 @@ import { sendCommand } from "./message-handler"
 import { trackError } from "../../context/notifications"
 import { commands } from "../../cordova/ipc"
 
+const isFullscreenQRPreview = true
+
 interface Props {
   onError: (error: Error) => void
   onScan: (data: string) => void
@@ -23,4 +25,4 @@ function CordovaQRReader(props: Props): ReturnType<React.FunctionComponent<Props
   return null
 }
 
-export default CordovaQRReader
+export { isFullscreenQRPreview, CordovaQRReader as QRReader }
