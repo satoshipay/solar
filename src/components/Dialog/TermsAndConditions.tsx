@@ -73,6 +73,9 @@ function TermsAndConditions(props: Props) {
                   <Link href="https://solarwallet.io/privacy.html">Privacy policy</Link> of Solar.
                 </CheckboxLabel>
               }
+              style={{
+                marginTop: 16
+              }}
             />
           </FormGroup>
           <Button
