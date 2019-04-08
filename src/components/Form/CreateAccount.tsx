@@ -87,7 +87,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
       : "Import Account"
   return (
     <form onSubmit={props.onSubmit}>
-      <VerticalLayout minHeight="400px" justifyContent="space-between">
+      <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
         <Box>
           <TextField
             error={Boolean(errors.name)}
@@ -192,7 +192,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               disabled={Boolean(formValues.createNewKey)}
               variant="outlined"
               onClick={props.onOpenQRScanner}
-              style={{ height: 48, minWidth: 80 }}
+              style={{ height: 48, minWidth: isSmallScreen ? 0 : 110, marginTop: 8 }}
             >
               <QRCodeIcon />
               {isSmallScreen ? null : <span style={{ marginLeft: isSmallScreen ? 8 : 16 }}>Scan</span>}
