@@ -24,9 +24,5 @@ async function startQRReader(event: MessageEvent, contentWindow: Window) {
 }
 
 export default function initialize() {
-  if (!cordova) {
-    throw new Error("No cordova runtime available.")
-  }
-
   registerCommandHandler(commands.scanQRCodeCommand, startQRReader)
 }

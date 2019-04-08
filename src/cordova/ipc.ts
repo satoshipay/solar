@@ -15,7 +15,9 @@ export const commands = {
   readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
   storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
 
-  scanQRCodeCommand: "qr-code:scan"
+  scanQRCodeCommand: "qr-code:scan",
+
+  copyToClipboard: "clipboard:write"
 }
 
 // event types
