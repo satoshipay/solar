@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography"
 import QRCode from "qrcode.react"
 import { Account } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
+import * as clipboard from "../../platform/clipboard"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 
@@ -20,7 +21,7 @@ function ReceivePaymentDialog(props: Props) {
   const { showNotification } = React.useContext(NotificationsContext)
 
   const copyToClipboard = async () => {
-    await (navigator as any).clipboard.writeText(props.account.publicKey)
+    await clipboard.copyToClipboard(props.account.publicKey)
     showNotification("info", "Copied to clipboard.")
   }
   return (
@@ -43,7 +44,7 @@ function ReceivePaymentDialog(props: Props) {
               onClick={copyToClipboard}
               role="button"
               style={{ cursor: "pointer", wordWrap: "break-word", maxWidth: window.innerWidth - 75 }}
-              variant="subheading"
+              variant="subtitle1"
             >
               <b>{props.account.publicKey}</b>
             </Typography>

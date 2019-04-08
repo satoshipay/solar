@@ -16,12 +16,14 @@
       "phonegap-plugin-barcodescanner": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
-      "cordova-plugin-splashscreen": {}
+      "cordova-plugin-splashscreen": {},
+      "cordova-clipboard": {}
     }
   },
   "dependencies": {
     "cordova": "^8.1.2",
     "cordova-android": "^7.1.4",
+    "cordova-clipboard": "^1.2.1",
     "cordova-ios": "^4.5.5",
     "cordova-plugin-dialogs": "^2.0.1",
     "cordova-plugin-network-information": "^2.0.1",
