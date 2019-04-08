@@ -103,6 +103,4 @@
     <preference name="DisallowOverscroll" value="true" />
     <preference name="ShowSplashScreenSpinner" value="false"/>
     <preference name="SplashScreenDelay" value="$SPLASH_SCREEN_DELAY"/>
-
-    <preference name="android-minSdkVersion" value="11" />
 </widget>
