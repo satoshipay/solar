@@ -1,3 +1,19 @@
+interface BarcodeScanner {
+  scan(success: (result: BarcodeScanResult) => void, error: (error: any) => void, properties: Object): any
+}
+
+interface BarcodeScanResult {
+  text: string
+  format: string
+  cancelled: boolean
+}
+
+interface CordovaClipboard {
+  clear(onSuccess: () => void, onError: (error: Error) => void): void
+  copy(text: string, onSuccess: () => void, onError: (error: Error) => void): void
+  paste(onSuccess: () => void, onError: (error: Error) => void): void
+}
+
 interface CordovaSecureStorage {
   new (success: () => void, error: (error: any) => void, storage_name: string): CordovaSecureStorage
 
@@ -9,5 +25,7 @@ interface CordovaSecureStorage {
 }
 
 interface CordovaPlugins {
+  barcodeScanner: BarcodeScanner
+  clipboard: CordovaClipboard
   SecureStorage: CordovaSecureStorage
 }
