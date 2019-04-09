@@ -114,26 +114,28 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
   )
 }
 
-export const InteractiveSignatureRequestList = (props: {
-  account: Account
-  icon?: React.ReactElement<any>
-  signatureRequests: SignatureRequest[]
-  title: React.ReactNode
-}) => {
-  if (props.signatureRequests.length === 0) {
-    return null
+export const InteractiveSignatureRequestList = React.memo(
+  (props: {
+    account: Account
+    icon?: React.ReactElement<any>
+    signatureRequests: SignatureRequest[]
+    title: React.ReactNode
+  }) => {
+    if (props.signatureRequests.length === 0) {
+      return null
+    }
+    return (
+      <TransactionSender account={props.account}>
+        {({ sendTransaction }) => (
+          <SignatureRequestList
+            accountPublicKey={props.account.publicKey}
+            icon={props.icon}
+            onOpenTransaction={sendTransaction}
+            signatureRequests={props.signatureRequests}
+            title={props.title}
+          />
+        )}
+      </TransactionSender>
+    )
   }
-  return (
-    <TransactionSender account={props.account}>
-      {({ sendTransaction }) => (
-        <SignatureRequestList
-          accountPublicKey={props.account.publicKey}
-          icon={props.icon}
-          onOpenTransaction={sendTransaction}
-          signatureRequests={props.signatureRequests}
-          title={props.title}
-        />
-      )}
-    </TransactionSender>
-  )
-}
+)

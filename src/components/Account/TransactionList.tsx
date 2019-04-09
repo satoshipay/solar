@@ -96,11 +96,22 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
   }
 }
 
-function Time(props: { time: Date }) {
+function Time(props: { time: string }) {
+  const { localeString, unixTime } = React.useMemo(
+    () => {
+      // Turns out that this takes more time than expected
+      const date = new Date(props.time)
+      return {
+        localeString: date.toLocaleString(),
+        unixTime: date.getTime()
+      }
+    },
+    [props.time]
+  )
   return (
-    <Tooltip title={<span style={{ fontSize: "110%" }}>{props.time.toLocaleString()}</span>}>
+    <Tooltip title={<span style={{ fontSize: "110%" }}>{localeString}</span>}>
       <span style={{ whiteSpace: "nowrap" }}>
-        <HumanTime time={props.time.getTime()} />
+        <HumanTime time={unixTime} />
       </span>
     </Tooltip>
   )
@@ -123,7 +134,7 @@ function TransactionIcon(props: { paymentSummary: PaymentSummary; transaction: T
 interface TitleTextProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
-  createdAt: Date
+  createdAt: string
   paymentSummary: PaymentSummary
   style?: React.CSSProperties
   transaction: Transaction
@@ -334,7 +345,8 @@ interface TransactionListItemProps {
   transaction: Transaction
 }
 
-export function TransactionListItem(props: TransactionListItemProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const TransactionListItem = React.memo(function TransactionListItem(props: TransactionListItemProps) {
   const [hovering, setHoveringStatus] = React.useState(false)
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
   return (
@@ -351,7 +363,7 @@ export function TransactionListItem(props: TransactionListItemProps) {
       <TransactionItemText
         accountPublicKey={props.accountPublicKey}
         alwaysShowSource={props.alwaysShowSource}
-        createdAt={new Date(props.createdAt)}
+        createdAt={props.createdAt}
         paymentSummary={paymentSummary}
         style={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }}
         transaction={props.transaction}
@@ -363,7 +375,7 @@ export function TransactionListItem(props: TransactionListItemProps) {
       )}
     </ListItem>
   )
-}
+})
 
 function TransactionList(props: {
   accountPublicKey: string
@@ -392,4 +404,4 @@ function TransactionList(props: {
   )
 }
 
-export default TransactionList
+export default React.memo(TransactionList)
