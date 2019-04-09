@@ -51,7 +51,7 @@ function Section(props: SectionProps) {
     zIndex: props.top ? undefined : 1,
     ...props.style
   }
-  const MaybeInset = props.pageInset ? PageInset : (subprops: { children: React.ReactNode }) => <>{subprops.children}</>
+  const MaybeInset = props.pageInset ? PageInset : React.Fragment
   return (
     <>
       {props.top ? <FramelessWindowInvisibleTitleBar background={background} /> : null}
