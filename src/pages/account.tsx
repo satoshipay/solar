@@ -198,7 +198,7 @@ function AccountPage(props: Props) {
       <Section
         bottom={!isSmallScreen}
         backgroundColor="#f6f6f6"
-        style={{ flexGrow: 1, flexShrink: 1, overflowY: "auto" }}
+        style={{ flexGrow: 1, flexShrink: 1, overflowY: "auto", WebkitOverflowScrolling: "touch" }}
       >
         <Transactions account={account} />
       </Section>
