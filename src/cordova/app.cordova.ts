@@ -15,8 +15,6 @@ document.addEventListener("deviceready", onDeviceReady, false)
 function onDeviceReady() {
   const contentWindow = iframe.contentWindow
 
-  document.addEventListener("backbutton", onBackKeyDown, false)
-
   if (!cordova) {
     throw new Error("No cordova runtime available.")
   }
@@ -28,6 +26,9 @@ function onDeviceReady() {
   initializeStorage(contentWindow).catch(trackError)
   initializeQRReader()
   initializeClipboard(cordova)
+
+  document.addEventListener("backbutton", onBackKeyDown, false)
+  iframe.addEventListener("load", () => setupLinkListeners(contentWindow), false)
 }
 
 function initializeClipboard(cordova: Cordova) {
@@ -51,4 +52,16 @@ function initializeStorage(contentWindow: Window) {
 
 function onBackKeyDown() {
   // FIXME: Handle the back button
+}
+
+function setupLinkListeners(contentWindow: Window) {
+  contentWindow.document.body.addEventListener("click", event => {
+    const link = event.target as Element | null
+    if (link && link.tagName === "A" && link.getAttribute("href")) {
+      const href = link.getAttribute("href") as string
+      const target = link.getAttribute("target") || "_self"
+      event.preventDefault()
+      window.cordova.InAppBrowser.open(href, target === "_blank" ? "_system" : target)
+    }
+  })
 }

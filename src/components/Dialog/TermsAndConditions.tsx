@@ -12,12 +12,15 @@ import { Section } from "../Layout/Page"
 const CheckboxLabel = (props: { children: React.ReactNode }) => (
   <span style={{ color: "white", fontSize: "120%" }}>{props.children}</span>
 )
-const Link = (props: { children: React.ReactNode; href: string }) => (
-  <a href={props.href} style={{ color: "inherit", fontWeight: "bold", textDecoration: "underline" }} target="_blank">
-    {props.children}
-  </a>
-)
 const Transition = (props: FadeProps) => <Fade {...props} appear={false} />
+
+function ExternalLink(props: { children: React.ReactNode; href: string }) {
+  return (
+    <a href={props.href} style={{ color: "inherit", fontWeight: "bold", textDecoration: "underline" }} target="_blank">
+      {props.children}
+    </a>
+  )
+}
 
 interface Props {
   open: boolean
@@ -78,8 +81,8 @@ function TermsAndConditions(props: Props) {
               label={
                 <CheckboxLabel>
                   I have read, understood and agree to the{" "}
-                  <Link href="https://solarwallet.io/terms.html">Terms and Conditions</Link> &amp;{" "}
-                  <Link href="https://solarwallet.io/privacy.html">Privacy policy</Link> of Solar.
+                  <ExternalLink href="https://solarwallet.io/terms.html">Terms and Conditions</ExternalLink> &amp;{" "}
+                  <ExternalLink href="https://solarwallet.io/privacy.html">Privacy policy</ExternalLink> of Solar.
                 </CheckboxLabel>
               }
               style={{
