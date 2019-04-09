@@ -118,9 +118,9 @@ function Transactions(props: { account: Account }) {
   return (
     <>
       {recentTxs.loading ? (
-        <div style={{ padding: "16px", textAlign: "center" }}>
+        <HorizontalLayout alignItems="center" justifyContent="center" height="100%" padding={16} width="100%">
           <CircularProgress />
-        </div>
+        </HorizontalLayout>
       ) : recentTxs.activated ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
