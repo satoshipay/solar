@@ -1,8 +1,6 @@
 import React from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
-import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
@@ -20,13 +18,10 @@ import BackButton from "./BackButton"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
-const Transition = (props: any) => <Slide {...props} direction="left" />
-
 interface Props {
   account: Account
   accountData: ObservedAccountData
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (tx: Transaction) => void
 }
@@ -84,35 +79,33 @@ function ManageSignersDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <ErrorBoundary>
-        <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-          <HorizontalLayout alignItems="center" margin="0 0 24px">
-            <BackButton onClick={props.onClose} />
-            <Typography variant="h5" style={{ flexGrow: 1 }}>
-              Manage Account Signers
-            </Typography>
-            <Button
-              color="primary"
-              onClick={() => setIsEditingNewSigner(true)}
-              style={{ marginLeft: 32 }}
-              variant="contained"
-            >
-              <ButtonIconLabel label="Add Co-Signer">
-                <PersonAddIcon />
-              </ButtonIconLabel>
-            </Button>
-          </HorizontalLayout>
-          <ManageSignersForm
-            accountData={props.accountData}
-            isEditingNewSigner={isEditingNewSigner}
-            setIsEditingNewSigner={setIsEditingNewSigner}
-            onCancel={props.onClose}
-            onSubmit={submitTransaction}
-          />
-        </Box>
-      </ErrorBoundary>
-    </Dialog>
+    <ErrorBoundary>
+      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+        <HorizontalLayout alignItems="center" margin="0 0 24px">
+          <BackButton onClick={props.onClose} />
+          <Typography variant="h5" style={{ flexGrow: 1 }}>
+            Manage Account Signers
+          </Typography>
+          <Button
+            color="primary"
+            onClick={() => setIsEditingNewSigner(true)}
+            style={{ marginLeft: 32 }}
+            variant="contained"
+          >
+            <ButtonIconLabel label="Add Co-Signer">
+              <PersonAddIcon />
+            </ButtonIconLabel>
+          </Button>
+        </HorizontalLayout>
+        <ManageSignersForm
+          accountData={props.accountData}
+          isEditingNewSigner={isEditingNewSigner}
+          setIsEditingNewSigner={setIsEditingNewSigner}
+          onCancel={props.onClose}
+          onSubmit={submitTransaction}
+        />
+      </Box>
+    </ErrorBoundary>
   )
 }
 
