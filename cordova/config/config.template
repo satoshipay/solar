@@ -96,8 +96,8 @@
     <plugin name="cordova-plugin-dialogs" spec="~2.0.1" />
     <plugin name="cordova-plugin-network-information" spec="~2.0.1" />
     <plugin name="cordova-plugin-secure-storage" spec="~3.0.1" />
-    <engine name="android" spec="^7.1.4" />
-    <engine name="ios" spec="^4.5.5" />
+    <engine name="android" spec="^8.0.0" />
+    <engine name="ios" spec="^5.0.0" />
 
     <preference name="AutoHideSplashScreen" value="$AUTO_HIDE" />
     <preference name="DisallowOverscroll" value="true" />
