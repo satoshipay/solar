@@ -1,5 +1,4 @@
 import React from "react"
-import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -85,7 +84,6 @@ function Actions(props: ActionsProps) {
 
 interface Props {
   account: Account
-  open: boolean
   changePassword: AccountsContextType["changePassword"]
   removePassword: AccountsContextType["removePassword"]
   onClose: () => void
@@ -153,12 +151,8 @@ function ChangePasswordDialog(props: Props) {
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
   return (
-    <Dialog
-      open={props.open}
-      onClose={onClose}
-      PaperProps={{ style: { minWidth: 500, transition: "width 2s, min-width 2s" } }}
-    >
-      <CloseButton onClick={props.onClose} />
+    <>
+      <CloseButton onClick={onClose} />
       <DialogTitle>{props.account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>
       <DialogContent>
         <Box hidden={!props.account.requiresPassword} margin="0 0 16px">
@@ -204,8 +198,8 @@ function ChangePasswordDialog(props: Props) {
           />
         </DialogActions>
       </DialogContent>
-    </Dialog>
+    </>
   )
 }
 
-export default ChangePasswordDialog
+export default React.memo(ChangePasswordDialog)

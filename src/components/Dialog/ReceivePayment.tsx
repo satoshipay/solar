@@ -1,6 +1,4 @@
 import React from "react"
-import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import QRCode from "qrcode.react"
 import { Account } from "../../context/accounts"
@@ -8,11 +6,8 @@ import { NotificationsContext } from "../../context/notifications"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import BackButton from "./BackButton"
 
-const Transition = (props: any) => <Slide {...props} direction="left" />
-
 interface Props {
   account: Account
-  open: boolean
   onClose: () => void
 }
 
@@ -24,7 +19,7 @@ function ReceivePaymentDialog(props: Props) {
     showNotification("info", "Copied to clipboard.")
   }
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
+    <>
       <Box width="100%" maxWidth={900} padding="32px" margin="0 auto 32px">
         <HorizontalLayout alignItems="center">
           <BackButton onClick={props.onClose} />
@@ -55,7 +50,7 @@ function ReceivePaymentDialog(props: Props) {
           </Box>
         </VerticalLayout>
       </HorizontalLayout>
-    </Dialog>
+    </>
   )
 }
 

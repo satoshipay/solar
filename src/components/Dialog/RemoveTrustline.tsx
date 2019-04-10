@@ -1,7 +1,6 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
-import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -19,12 +18,12 @@ interface Props {
   accountData: ObservedAccountData
   asset: Asset
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }
 
-function RemoveTrustlineDialog(props: Props) {
+// tslint:disable-next-line no-shadowed-variable
+const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: Props) {
   const removeAsset = async () => {
     try {
       const operations = [Operation.changeTrust({ asset: props.asset, limit: "0" })]
@@ -43,7 +42,7 @@ function RemoveTrustlineDialog(props: Props) {
   const stillOwnsTokens = assetBalance && parseFloat(assetBalance.balance) > 0
 
   return (
-    <Dialog open={props.open} onClose={props.onClose}>
+    <>
       <DialogTitle>Confirm Removing Asset</DialogTitle>
       <DialogContent>
         <DialogContentText>
@@ -63,9 +62,9 @@ function RemoveTrustlineDialog(props: Props) {
           </ActionButton>
         </DialogActionsBox>
       </DialogContent>
-    </Dialog>
+    </>
   )
-}
+})
 
 function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon" | "sendTransaction">) {
   const closeAfterTimeout = () => {
