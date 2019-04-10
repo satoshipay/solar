@@ -11,7 +11,7 @@ function AccountBalancesContainer(props: { children: React.ReactNode }) {
       variant="body2"
       style={{
         marginTop: 12,
-        marginLeft: isSmallScreen ? 0 : 40,
+        marginLeft: isSmallScreen ? 0 : 42,
         fontSize: isSmallScreen ? 16 : 18
       }}
     >

@@ -47,7 +47,7 @@ function MainTitle(props: Props) {
       {props.hideBackButton ? null : (
         <BackButton
           onClick={props.onBack}
-          style={{ fontSize: 24, flexGrow: 0, flexShrink: 0, marginLeft: -8, marginRight: 8 }}
+          style={{ fontSize: 28, flexGrow: 0, flexShrink: 0, marginLeft: -8, marginRight: 8 }}
         />
       )}
       <HorizontalLayout
