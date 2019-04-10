@@ -1,6 +1,5 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
-import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import InputAdornment from "@material-ui/core/InputAdornment"
@@ -93,7 +92,6 @@ function WarningBox(props: WarningBoxProps) {
 
 interface Props {
   account: Account
-  open: boolean
   onClose: () => void
 }
 
@@ -128,7 +126,7 @@ function ExportKeyDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} onClose={props.onClose}>
+    <>
       <DialogTitle>Export Secret Key</DialogTitle>
       <DialogContent>
         {isRevealed && secretKey ? (
@@ -150,8 +148,8 @@ function ExportKeyDialog(props: Props) {
         </DialogActionsBox>
       </DialogContent>
       <QRExportDialog data={secretKey || ""} open={qrDialogOpen} onClose={() => setQrDialogOpen(false)} />
-    </Dialog>
+    </>
   )
 }
 
-export default ExportKeyDialog
+export default React.memo(ExportKeyDialog)

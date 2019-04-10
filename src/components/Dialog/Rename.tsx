@@ -1,5 +1,4 @@
 import React from "react"
-import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
@@ -9,7 +8,6 @@ import CloseButton from "./CloseButton"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
 interface Props {
-  open: boolean
   onClose: () => void
   performRenaming: (newValue: string) => Promise<void>
   prevValue: string
@@ -17,7 +15,7 @@ interface Props {
 }
 
 function RenameDialog(props: Props) {
-  const [newName, setNewName] = React.useState("")
+  const [newName, setNewName] = React.useState(props.prevValue)
 
   const handleInput = (event: React.SyntheticEvent) => {
     setNewName((event.target as HTMLInputElement).value)
@@ -32,7 +30,7 @@ function RenameDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} onClose={props.onClose}>
+    <>
       <CloseButton onClick={props.onClose} />
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
@@ -46,8 +44,8 @@ function RenameDialog(props: Props) {
           </DialogActionsBox>
         </form>
       </DialogContent>
-    </Dialog>
+    </>
   )
 }
 
-export default RenameDialog
+export default React.memo(RenameDialog)
