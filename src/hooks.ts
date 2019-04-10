@@ -21,6 +21,8 @@ export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
 export const useIsMobile = () => useMediaQuery("(max-width:600px)")
 
+export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
+
 // TODO: Should probably be stored in context
 const horizonLivenet = new Server("https://stellar-horizon.satoshipay.io/")
 const horizonTestnet = new Server("https://stellar-horizon-testnet.satoshipay.io/")
