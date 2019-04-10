@@ -1,6 +1,8 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import Dialog from "@material-ui/core/Dialog"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
@@ -15,6 +17,8 @@ import TransactionSender from "../TransactionSender"
 import BackButton from "./BackButton"
 import CustomTrustlineDialog from "./CustomTrustline"
 import RemoveTrustlineDialog from "./RemoveTrustline"
+
+const DialogTransition = (props: any) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
@@ -42,9 +46,22 @@ function ManageAssets(props: Props) {
     }
   }
 
-  const addCustomTrustline = () => setCustomTrustlineDialogOpen(true)
-  const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
-  const onRemoveTrustline = (asset: Asset) => setRemovalDialogAsset(asset)
+  const {
+    addCustomTrustline,
+    closeCustomTrustlineDialog,
+    closeRemoveTrustlineDialog,
+    onRemoveTrustline
+  } = React.useMemo(
+    () => {
+      return {
+        addCustomTrustline: () => setCustomTrustlineDialogOpen(true),
+        closeCustomTrustlineDialog: () => setCustomTrustlineDialogOpen(false),
+        closeRemoveTrustlineDialog: () => setRemovalDialogAsset(null),
+        onRemoveTrustline: (asset: Asset) => setRemovalDialogAsset(asset)
+      }
+    },
+    [setCustomTrustlineDialogOpen, setRemovalDialogAsset]
+  )
 
   return (
     <ErrorBoundary>
@@ -62,20 +79,31 @@ function ManageAssets(props: Props) {
         </HorizontalLayout>
         <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
       </Box>
-      <CustomTrustlineDialog
-        account={props.account}
-        horizon={props.horizon}
+      <Dialog
         open={isCustomTrustlineDialogOpen}
         onClose={closeCustomTrustlineDialog}
-        sendTransaction={props.sendTransaction}
-      />
-      <RemoveTrustlineDialog
-        account={props.account}
-        accountData={accountData}
-        asset={removalDialogAsset || Asset.native()}
+        TransitionComponent={DialogTransition}
+      >
+        <CustomTrustlineDialog
+          account={props.account}
+          accountData={accountData}
+          horizon={props.horizon}
+          onClose={closeCustomTrustlineDialog}
+          sendTransaction={props.sendTransaction}
+        />
+      </Dialog>
+      <Dialog
         open={removalDialogAsset !== null}
-        onClose={() => setRemovalDialogAsset(null)}
-      />
+        onClose={closeRemoveTrustlineDialog}
+        TransitionComponent={DialogTransition}
+      >
+        <RemoveTrustlineDialog
+          account={props.account}
+          accountData={accountData}
+          asset={removalDialogAsset || Asset.native()}
+          onClose={closeRemoveTrustlineDialog}
+        />
+      </Dialog>
     </ErrorBoundary>
   )
 }
