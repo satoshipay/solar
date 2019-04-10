@@ -1,5 +1,4 @@
 import React from "react"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -10,7 +9,7 @@ import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useIsMobile } from "../../hooks"
+import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
@@ -77,12 +76,12 @@ interface AccountCreationFormProps {
 const AccountCreationForm = (props: AccountCreationFormProps) => {
   const { errors, formValues, setFormValue } = props
   const isSmallScreen = useIsMobile()
-  const isWidthMax400 = useMediaQuery("(max-width:400px)")
+  const isTinyScreen = useIsSmallMobile()
   const primaryButtonLabel = formValues.createNewKey
-    ? isWidthMax400
+    ? isTinyScreen
       ? "Create"
       : "Create Account"
-    : isWidthMax400
+    : isTinyScreen
       ? "Import"
       : "Import Account"
   return (
@@ -105,10 +104,10 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 </InputAdornment>
               ),
               style: {
-                fontSize: "1.5rem"
+                fontSize: isTinyScreen ? "1.3rem" : "1.5rem"
               }
             }}
-            style={{ minWidth: 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
+            style={{ minWidth: isTinyScreen ? 230 : 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
           />
         </Box>
         <ToggleSection
@@ -146,7 +145,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                   flex: "1 0 0",
                   marginLeft: isSmallScreen ? 6 : 16,
                   marginRight: isSmallScreen ? 6 : 16,
-                  minWidth: 250
+                  minWidth: isTinyScreen ? 150 : 250
                 }}
                 type="password"
                 value={formValues.password}
@@ -163,7 +162,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                   flex: "1 0 0",
                   marginLeft: isSmallScreen ? 6 : 16,
                   marginRight: isSmallScreen ? 6 : 16,
-                  minWidth: 250
+                  minWidth: isTinyScreen ? 150 : 250
                 }}
                 type="password"
                 value={formValues.passwordRepeat}
