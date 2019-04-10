@@ -11,7 +11,7 @@ import CheckIcon from "@material-ui/icons/CheckCircle"
 import RemoveIcon from "@material-ui/icons/Close"
 import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
-import { useIsMobile, useAccountData } from "../../hooks"
+import { useAccountData, useIsMobile, useIsSmallMobile } from "../../hooks"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import SpaciousList from "../List/SpaciousList"
@@ -50,6 +50,7 @@ function TrustedAsset(props: TrustedAssetProps) {
   const { account, balance } = props
   const [hovering, setHovering] = React.useState(false)
   const isSmallScreen = useIsMobile()
+  const isTinyScreen = useIsSmallMobile()
 
   return (
     <ListItem onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
@@ -68,7 +69,9 @@ function TrustedAsset(props: TrustedAssetProps) {
           <SingleBalance
             assetCode=""
             balance={balance.balance}
-            style={isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }}
+            style={
+              isTinyScreen ? { fontSize: "0.9rem" } : isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }
+            }
           />
         )}
       </ListItemText>
@@ -137,6 +140,7 @@ interface Props {
 function TrustlineList(props: Props) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
+  const isTinyScreen = useIsSmallMobile()
 
   const isAssetAlreadyAdded = (asset: Asset) => {
     return accountData.balances.some(
@@ -161,7 +165,9 @@ function TrustlineList(props: Props) {
           <SingleBalance
             assetCode=""
             balance={xlmBalance ? xlmBalance.balance : "0.00"}
-            style={isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }}
+            style={
+              isTinyScreen ? { fontSize: "0.9rem" } : isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }
+            }
           />
         </ListItemText>
         <ListItemSecondaryAction />
