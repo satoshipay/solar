@@ -22,10 +22,10 @@
     }
   },
   "dependencies": {
-    "cordova": "^8.1.2",
-    "cordova-android": "^7.1.4",
+    "cordova": "^9.0.0",
+    "cordova-android": "^8.0.0",
     "cordova-clipboard": "^1.2.1",
-    "cordova-ios": "^4.5.5",
+    "cordova-ios": "^5.0.0",
     "cordova-plugin-dialogs": "^2.0.1",
     "cordova-plugin-inappbrowser": "^3.0.0",
     "cordova-plugin-network-information": "^2.0.1",
