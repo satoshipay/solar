@@ -6,6 +6,7 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
+import { useIsSmallMobile } from "../../hooks"
 import { HorizontalMargin } from "../Layout/Spacing"
 import ButtonIconLabel from "../ButtonIconLabel"
 
@@ -38,6 +39,8 @@ interface ActionButtonProps {
 
 export function ActionButton(props: ActionButtonProps) {
   const { type = "secondary" } = props
+  const isTinyScreen = useIsSmallMobile()
+
   return (
     <Button
       autoFocus={props.autoFocus}
@@ -45,7 +48,7 @@ export function ActionButton(props: ActionButtonProps) {
       disabled={props.disabled}
       onClick={props.onClick}
       style={{
-        padding: "10px 20px",
+        padding: isTinyScreen ? "2px 8px" : "10px 20px",
         ...props.style
       }}
       type={type === "submit" ? "submit" : undefined}
