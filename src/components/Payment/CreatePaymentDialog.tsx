@@ -1,7 +1,5 @@
 import React from "react"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
-import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, ObservedAccountData } from "../../hooks"
@@ -38,13 +36,10 @@ function createMemo(formValues: PaymentCreationValues) {
   }
 }
 
-const Transition = (props: any) => <Slide {...props} direction="up" />
-
 interface Props {
   account: Account
   accountData: ObservedAccountData
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }
@@ -94,29 +89,27 @@ function CreatePaymentDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <Box width="100%" maxHeight="100%" maxWidth={900} overflow="hidden" padding="24px 36px" margin="0 auto">
-        <MainTitle
-          title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
-          onBack={props.onClose}
+    <Box width="100%" maxHeight="100%" maxWidth={900} overflow="hidden" padding="24px 36px" margin="0 auto">
+      <MainTitle
+        title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+        onBack={props.onClose}
+      />
+      <AccountBalancesContainer>
+        <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+      </AccountBalancesContainer>
+      <Box margin="24px 0 0">
+        <CreatePaymentForm
+          accountData={props.accountData}
+          onSubmit={handleSubmit}
+          trustedAssets={trustedAssets}
+          txCreationPending={txCreationPending}
         />
-        <AccountBalancesContainer>
-          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-        </AccountBalancesContainer>
-        <Box margin="24px 0 0">
-          <CreatePaymentForm
-            accountData={props.accountData}
-            onSubmit={handleSubmit}
-            trustedAssets={trustedAssets}
-            txCreationPending={txCreationPending}
-          />
-        </Box>
       </Box>
-    </Dialog>
+    </Box>
   )
 }
 
-function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "open" | "onClose">) {
+function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "onClose">) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission

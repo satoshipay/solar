@@ -18,12 +18,11 @@ import TransactionSender from "../TransactionSender"
 import CustomTrustlineDialog from "./CustomTrustline"
 import RemoveTrustlineDialog from "./RemoveTrustline"
 
-const Transition = (props: any) => <Slide {...props} direction="left" />
+const DialogTransition = (props: any) => <Slide {...props} direction="up" />
 
 interface Props {
   account: Account
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }
@@ -49,50 +48,72 @@ function ManageAssets(props: Props) {
     }
   }
 
-  const addCustomTrustline = () => setCustomTrustlineDialogOpen(true)
-  const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
-  const onRemoveTrustline = (asset: Asset) => setRemovalDialogAsset(asset)
+  const {
+    addCustomTrustline,
+    closeCustomTrustlineDialog,
+    closeRemoveTrustlineDialog,
+    onRemoveTrustline
+  } = React.useMemo(
+    () => {
+      return {
+        addCustomTrustline: () => setCustomTrustlineDialogOpen(true),
+        closeCustomTrustlineDialog: () => setCustomTrustlineDialogOpen(false),
+        closeRemoveTrustlineDialog: () => setRemovalDialogAsset(null),
+        onRemoveTrustline: (asset: Asset) => setRemovalDialogAsset(asset)
+      }
+    },
+    [setCustomTrustlineDialogOpen, setRemovalDialogAsset]
+  )
 
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <ErrorBoundary>
-        <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-          <MainTitle
-            title="Manage Assets"
-            actions={
-              <>
-                <Button color="primary" onClick={addCustomTrustline} variant="contained">
-                  <ButtonIconLabel label={isWidthMax500 ? "Custom" : "Add Custom Asset"}>
-                    <AddIcon />
-                  </ButtonIconLabel>
-                </Button>
-              </>
-            }
-            onBack={props.onClose}
-            style={{ marginBottom: 24 }}
-          />
-          <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
-        </Box>
+    <ErrorBoundary>
+      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+        <MainTitle
+          title="Manage Assets"
+          actions={
+            <>
+              <Button color="primary" onClick={addCustomTrustline} variant="contained">
+                <ButtonIconLabel label={isWidthMax500 ? "Custom" : "Add Custom Asset"}>
+                  <AddIcon />
+                </ButtonIconLabel>
+              </Button>
+            </>
+          }
+          onBack={props.onClose}
+          style={{ marginBottom: 24 }}
+        />
+        <TrustlineList account={props.account} onAddTrustline={addAsset} onRemoveTrustline={onRemoveTrustline} />
+      </Box>
+      <Dialog
+        open={isCustomTrustlineDialogOpen}
+        onClose={closeCustomTrustlineDialog}
+        TransitionComponent={DialogTransition}
+      >
         <CustomTrustlineDialog
           account={props.account}
+          accountData={accountData}
           horizon={props.horizon}
-          open={isCustomTrustlineDialogOpen}
           onClose={closeCustomTrustlineDialog}
           sendTransaction={props.sendTransaction}
         />
+      </Dialog>
+      <Dialog
+        open={removalDialogAsset !== null}
+        onClose={closeRemoveTrustlineDialog}
+        TransitionComponent={DialogTransition}
+      >
         <RemoveTrustlineDialog
           account={props.account}
           accountData={accountData}
           asset={removalDialogAsset || Asset.native()}
-          open={removalDialogAsset !== null}
-          onClose={() => setRemovalDialogAsset(null)}
+          onClose={closeRemoveTrustlineDialog}
         />
-      </ErrorBoundary>
-    </Dialog>
+      </Dialog>
+    </ErrorBoundary>
   )
 }
 
-function ManageAssetsContainer(props: Pick<Props, "account" | "open" | "onClose">) {
+function ManageAssetsContainer(props: Pick<Props, "account" | "onClose">) {
   const accountsContext = React.useContext(AccountsContext)
   return (
     <TransactionSender account={props.account}>

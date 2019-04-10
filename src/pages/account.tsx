@@ -1,6 +1,8 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
+import Dialog from "@material-ui/core/Dialog"
+import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
 import DoneAllIcon from "@material-ui/icons/DoneAll"
 import SendIcon from "@material-ui/icons/Send"
@@ -29,6 +31,8 @@ import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { useIsMobile, useAccountData, useHorizon, useRecentTransactions, useRouter } from "../hooks"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
+
+const DialogTransition = (props: any) => <Slide {...props} direction="left" />
 
 interface AccountActionsProps {
   account: Account
@@ -161,10 +165,29 @@ interface Props {
 
 function AccountPage(props: Props) {
   const { accounts, renameAccount } = React.useContext(AccountsContext)
+  const isSmallScreen = useIsMobile()
   const router = useRouter()
 
-  const isSmallScreen = useIsMobile()
-  const onCloseDialog = () => router.history.push(routes.account(props.accountID))
+  const onCloseDialog = React.useCallback(() => router.history.push(routes.account(props.accountID)), [
+    router.history,
+    props.accountID
+  ])
+  const onCreatePayment = React.useCallback(() => router.history.push(routes.createPayment(props.accountID)), [
+    router.history,
+    props.accountID
+  ])
+  const onManageAssets = React.useCallback(() => router.history.push(routes.manageAccountAssets(props.accountID)), [
+    router.history,
+    props.accountID
+  ])
+  const onManageSigners = React.useCallback(() => router.history.push(routes.manageAccountSigners(props.accountID)), [
+    router.history,
+    props.accountID
+  ])
+  const onReceivePayment = React.useCallback(() => router.history.push(routes.receivePayment(props.accountID)), [
+    router.history,
+    props.accountID
+  ])
 
   const account = accounts.find(someAccount => someAccount.id === props.accountID)
   if (!account) {
@@ -177,8 +200,8 @@ function AccountPage(props: Props) {
       <Section top brandColored grow={0}>
         <AccountHeaderCard
           account={account}
-          onManageAssets={() => router.history.push(routes.manageAccountAssets(props.accountID))}
-          onManageSigners={() => router.history.push(routes.manageAccountSigners(props.accountID))}
+          onManageAssets={onManageAssets}
+          onManageSigners={onManageSigners}
           onRenameAccount={renameAccount}
         >
           <AccountBalancesContainer>
@@ -188,8 +211,8 @@ function AccountPage(props: Props) {
             <AccountActions
               account={account}
               horizontalMargin={40}
-              onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
-              onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
+              onCreatePayment={onCreatePayment}
+              onReceivePayment={onReceivePayment}
               style={{ marginTop: 40 }}
             />
           )}
@@ -214,15 +237,31 @@ function AccountPage(props: Props) {
         />
       ) : null}
 
-      <CreatePaymentDialog account={account} open={props.showCreatePayment} onClose={onCloseDialog} />
-      <ManageAssetsDialog account={account} open={props.showAssetManagement} onClose={onCloseDialog} />
-      <ManageSignersDialog account={account} open={props.showSignersManagement} onClose={onCloseDialog} />
-      <ReceivePaymentDialog account={account} open={props.showReceivePayment} onClose={onCloseDialog} />
-      <TradeAssetDialog
-        account={account}
-        open={Boolean(props.showAssetTrading)}
-        onClose={() => router.history.push(routes.account(props.accountID))}
-      />
+      <Dialog open={props.showCreatePayment} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
+        <CreatePaymentDialog account={account} onClose={onCloseDialog} />
+      </Dialog>
+      <Dialog
+        open={props.showAssetManagement}
+        fullScreen
+        onClose={onCloseDialog}
+        TransitionComponent={DialogTransition}
+      >
+        <ManageAssetsDialog account={account} onClose={onCloseDialog} />
+      </Dialog>
+      <Dialog
+        open={props.showSignersManagement}
+        fullScreen
+        onClose={onCloseDialog}
+        TransitionComponent={DialogTransition}
+      >
+        <ManageSignersDialog account={account} onClose={onCloseDialog} />
+      </Dialog>
+      <Dialog open={props.showReceivePayment} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
+        <ReceivePaymentDialog account={account} onClose={onCloseDialog} />
+      </Dialog>
+      <Dialog open={props.showAssetTrading} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
+        <TradeAssetDialog account={account} onClose={onCloseDialog} />
+      </Dialog>
     </VerticalLayout>
   )
 }

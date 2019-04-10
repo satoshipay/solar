@@ -1,5 +1,4 @@
 import React from "react"
-import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
@@ -7,7 +6,6 @@ import FormControlLabel from "@material-ui/core/FormControlLabel"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
@@ -93,7 +91,6 @@ function Actions(props: ActionsProps) {
 
 interface Props {
   account: Account
-  open: boolean
   changePassword: AccountsContextType["changePassword"]
   removePassword: AccountsContextType["removePassword"]
   onClose: () => void
@@ -108,7 +105,6 @@ function ChangePasswordDialog(props: Props) {
     prevPassword: ""
   })
   const [removingPassword, setRemovingPassword] = React.useState(false)
-  const isWidthMax500 = useMediaQuery("(max-width:500px)")
 
   const changePassword = () => {
     const { id: accountID, requiresPassword } = props.account
@@ -162,16 +158,8 @@ function ChangePasswordDialog(props: Props) {
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
   return (
-    <Dialog
-      open={props.open}
-      onClose={onClose}
-      PaperProps={{
-        style: isWidthMax500
-          ? { minWidth: 200, transition: "width 2s, min-width 2s" }
-          : { minWidth: 500, transition: "width 2s, min-width 2s" }
-      }}
-    >
-      <CloseButton onClick={props.onClose} />
+    <>
+      <CloseButton onClick={onClose} />
       <DialogTitle>{props.account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>
       <DialogContent>
         <Box hidden={!props.account.requiresPassword} margin="0 0 16px">
@@ -217,8 +205,8 @@ function ChangePasswordDialog(props: Props) {
           />
         </DialogActions>
       </DialogContent>
-    </Dialog>
+    </>
   )
 }
 
-export default ChangePasswordDialog
+export default React.memo(ChangePasswordDialog)

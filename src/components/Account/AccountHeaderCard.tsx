@@ -1,8 +1,11 @@
 import React from "react"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
+import Dialog from "@material-ui/core/Dialog"
 import IconButton from "@material-ui/core/IconButton"
+import Slide from "@material-ui/core/Slide"
 import Tooltip from "@material-ui/core/Tooltip"
 import GroupIcon from "@material-ui/icons/Group"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
@@ -28,6 +31,8 @@ enum DialogID {
   exportKey,
   renameAccount
 }
+
+const DialogTransition = (props: any) => <Slide {...props} direction="up" />
 
 function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
   return (
@@ -71,6 +76,12 @@ function AccountHeaderCard(props: Props) {
 
   const [openDialog, setOpenDialog] = React.useState<DialogID | null>(null)
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const isWidthMax500 = useMediaQuery("(max-width:500px)")
+
+  const closeDialog = React.useCallback(() => setOpenDialog(null), [setOpenDialog])
+  const performRenaming = React.useCallback((newName: string) => props.onRenameAccount(props.account.id, newName), [
+    props.account.id
+  ])
 
   return (
     <Card
@@ -140,31 +151,50 @@ function AccountHeaderCard(props: Props) {
 
         {props.children}
 
-        <AccountDeletionDialog
-          account={props.account}
+        <Dialog
           open={openDialog === DialogID.deleteAccount}
-          onClose={() => setOpenDialog(null)}
-          onDeleted={() => router.history.push(routes.allAccounts())}
-        />
-        <ChangePasswordDialog
-          account={props.account}
-          changePassword={changePassword}
+          onClose={closeDialog}
+          TransitionComponent={DialogTransition}
+        >
+          <AccountDeletionDialog
+            account={props.account}
+            accountData={accountData}
+            onClose={closeDialog}
+            onDeleted={() => router.history.push(routes.allAccounts())}
+          />
+        </Dialog>
+        <Dialog
           open={openDialog === DialogID.changePassword}
-          onClose={() => setOpenDialog(null)}
-          removePassword={removePassword}
-        />
-        <ExportKeyDialog
-          account={props.account}
-          open={openDialog === DialogID.exportKey}
-          onClose={() => setOpenDialog(null)}
-        />
-        <RenameDialog
+          onClose={closeDialog}
+          PaperProps={{
+            style: isWidthMax500
+              ? { minWidth: 200, transition: "width 2s, min-width 2s" }
+              : { minWidth: 500, transition: "width 2s, min-width 2s" }
+          }}
+          TransitionComponent={DialogTransition}
+        >
+          <ChangePasswordDialog
+            account={props.account}
+            changePassword={changePassword}
+            onClose={closeDialog}
+            removePassword={removePassword}
+          />
+        </Dialog>
+        <Dialog open={openDialog === DialogID.exportKey} onClose={closeDialog} TransitionComponent={DialogTransition}>
+          <ExportKeyDialog account={props.account} onClose={closeDialog} />
+        </Dialog>
+        <Dialog
           open={openDialog === DialogID.renameAccount}
-          onClose={() => setOpenDialog(null)}
-          performRenaming={newName => props.onRenameAccount(props.account.id, newName)}
-          prevValue={props.account.name}
-          title="Rename account"
-        />
+          onClose={closeDialog}
+          TransitionComponent={DialogTransition}
+        >
+          <RenameDialog
+            onClose={closeDialog}
+            performRenaming={performRenaming}
+            prevValue={props.account.name}
+            title="Rename account"
+          />
+        </Dialog>
       </CardContent>
     </Card>
   )

@@ -1,7 +1,5 @@
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
-import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -46,12 +44,9 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], assetCod
 interface TradeAssetProps {
   account: Account
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }
-
-const Transition = (props: any) => <Slide {...props} direction="left" />
 
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
@@ -105,64 +100,60 @@ function TradeAsset(props: TradeAssetProps) {
   }
 
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <ErrorBoundary>
-        <VerticalLayout width="100%" maxWidth={900} padding="24px 32px" margin="0 auto">
-          <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
-          <AccountBalancesContainer>
-            <AccountBalances
-              component={balanceProps => (
-                <SingleBalance
-                  {...balanceProps}
-                  style={{
-                    ...balanceProps.style,
-                    opacity:
-                      [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
-                  }}
-                />
-              )}
-              publicKey={props.account.publicKey}
-              testnet={props.account.testnet}
-            />
-          </AccountBalancesContainer>
-          <VerticalMargin size={isSmallScreen ? 12 : 40} />
-          {buyingBalance && sellingBalance ? (
-            <TradingForm
-              buying={buyingAsset}
-              buyingBalance={buyingBalance.balance}
-              onSetBuying={setBuyingAssetCode}
-              onSetSelling={setSellingAssetCode}
-              selling={sellingAsset}
-              sellingBalance={sellingBalance.balance}
-              testnet={props.account.testnet}
-              trustlines={trustlines}
-              DialogActions={({ amount, disabled, price, style }) => (
-                <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
-                  <DialogActionsBox>
-                    <ActionButton
-                      disabled={disabled}
-                      icon={<GavelIcon />}
-                      onClick={() =>
-                        awaitThenSendTransaction(
-                          createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price)
-                        )
-                      }
-                      type="primary"
-                    >
-                      Place order
-                    </ActionButton>
-                  </DialogActionsBox>
-                </HorizontalLayout>
-              )}
-            />
-          ) : null}
-        </VerticalLayout>
-      </ErrorBoundary>
-    </Dialog>
+    <ErrorBoundary>
+      <VerticalLayout width="100%" maxWidth={900} padding="24px 32px" margin="0 auto">
+        <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
+        <AccountBalancesContainer>
+          <AccountBalances
+            component={balanceProps => (
+              <SingleBalance
+                {...balanceProps}
+                style={{
+                  ...balanceProps.style,
+                  opacity:
+                    [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
+                }}
+              />
+            )}
+            publicKey={props.account.publicKey}
+            testnet={props.account.testnet}
+          />
+        </AccountBalancesContainer>
+        <VerticalMargin size={isSmallScreen ? 12 : 40} />
+        {buyingBalance && sellingBalance ? (
+          <TradingForm
+            buying={buyingAsset}
+            buyingBalance={buyingBalance.balance}
+            onSetBuying={setBuyingAssetCode}
+            onSetSelling={setSellingAssetCode}
+            selling={sellingAsset}
+            sellingBalance={sellingBalance.balance}
+            testnet={props.account.testnet}
+            trustlines={trustlines}
+            DialogActions={({ amount, disabled, price, style }) => (
+              <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
+                <DialogActionsBox>
+                  <ActionButton
+                    disabled={disabled}
+                    icon={<GavelIcon />}
+                    onClick={() =>
+                      awaitThenSendTransaction(createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price))
+                    }
+                    type="primary"
+                  >
+                    Place order
+                  </ActionButton>
+                </DialogActionsBox>
+              </HorizontalLayout>
+            )}
+          />
+        ) : null}
+      </VerticalLayout>
+    </ErrorBoundary>
   )
 }
 
-function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "open" | "onClose">) {
+function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "onClose">) {
   const router = useRouter()
   const navigateToAssets = () => router.history.push(routes.account(props.account.id))
   return (
