@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
-import { useOrderbook } from "../../hooks"
+import { useOrderbook, useIsSmallMobile } from "../../hooks"
 import { calculateSpread } from "../../lib/orderbook"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
@@ -39,6 +39,7 @@ interface Props {
 function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
   const tradePair = useOrderbook(props.selling, props.buying, props.testnet)
+  const isTinyScreen = useIsSmallMobile()
 
   const [amountString, setAmountString] = React.useState("")
   const [manualPriceString, setManualPriceString] = React.useState("")
@@ -82,7 +83,14 @@ function TradingForm(props: Props) {
             style={{ justifySelf: "flex-end" }}
           />
         </VerticalLayout>
-        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 8px" minWidth={320}>
+        <VerticalLayout
+          alignItems="stretch"
+          basis="40%"
+          grow={1}
+          shrink={1}
+          margin="16px 24px 8px"
+          minWidth={isTinyScreen ? 250 : 320}
+        >
           <Explanation />
         </VerticalLayout>
       </HorizontalLayout>
