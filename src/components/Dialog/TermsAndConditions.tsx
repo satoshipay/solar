@@ -60,7 +60,7 @@ function TermsAndConditions(props: Props) {
                 <Checkbox
                   checked={checkedNotes[0]}
                   onChange={() => toggleNoteChecked(0)}
-                  style={{ alignSelf: "flex-start", color: "inherit" }}
+                  style={{ alignSelf: "flex-start", color: "inherit", marginTop: -10 }}
                 />
               }
               label={
@@ -75,7 +75,7 @@ function TermsAndConditions(props: Props) {
                 <Checkbox
                   checked={checkedNotes[1]}
                   onChange={() => toggleNoteChecked(1)}
-                  style={{ alignSelf: "flex-start", color: "inherit" }}
+                  style={{ alignSelf: "flex-start", color: "inherit", marginTop: -10 }}
                 />
               }
               label={
