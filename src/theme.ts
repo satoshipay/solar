@@ -92,6 +92,16 @@ const theme = createMuiTheme({
         }
       }
     },
+    MuiInputBase: {
+      root: {
+        [breakpoints.down(600)]: {
+          fontSize: "0.9rem"
+        },
+        [breakpoints.down(400)]: {
+          fontSize: "0.8rem"
+        }
+      }
+    },
     MuiInputLabel: {
       formControl: {
         [breakpoints.down(600)]: {
