@@ -2,7 +2,7 @@ import React from "react"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, ObservedAccountData } from "../../hooks"
+import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
 import { lookupFederationRecord } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
@@ -46,6 +46,7 @@ interface Props {
 
 function CreatePaymentDialog(props: Props) {
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const isSmallScreen = useIsMobile()
   const trustedAssets = getAssetsFromBalances(props.accountData.balances) || [Asset.native()]
 
   const handleSubmit = async (formValues: PaymentCreationValues) => {
@@ -89,7 +90,7 @@ function CreatePaymentDialog(props: Props) {
   }
 
   return (
-    <Box width="100%" maxHeight="100%" maxWidth={900} overflow="hidden" padding="24px 36px" margin="0 auto">
+    <Box width="100%" maxHeight="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
       <MainTitle
         title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
         onBack={props.onClose}

@@ -166,7 +166,7 @@ function PaymentCreationForm(props: Props) {
             maxWidth: "60%"
           }}
         />
-        <FormControl style={{ width: "30%" }}>
+        <FormControl margin="normal" style={{ width: "30%" }}>
           <InputLabel htmlFor="select-memo-type" shrink>
             Memo type
           </InputLabel>
