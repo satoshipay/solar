@@ -52,6 +52,8 @@ function TrustedAsset(props: TrustedAssetProps) {
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
 
+  const fontSize = isTinyScreen ? "0.9rem" : isSmallScreen ? "1.1rem" : "1.6rem"
+
   return (
     <ListItem onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
       <ListItemIcon style={{ color: "inherit" }}>
@@ -66,13 +68,7 @@ function TrustedAsset(props: TrustedAssetProps) {
         {hovering && props.hoverActions ? (
           props.hoverActions
         ) : (
-          <SingleBalance
-            assetCode=""
-            balance={balance.balance}
-            style={
-              isTinyScreen ? { fontSize: "0.9rem" } : isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }
-            }
-          />
+          <SingleBalance assetCode="" balance={balance.balance} style={{ fontSize }} />
         )}
       </ListItemText>
       <ListItemSecondaryAction>
@@ -154,6 +150,8 @@ function TrustlineList(props: Props) {
 
   const xlmBalance = accountData.balances.find(balance => balance.asset_type === "native")
 
+  const fontSize = isTinyScreen ? "0.9rem" : isSmallScreen ? "1.1rem" : "1.6rem"
+
   return (
     <SpaciousList fitHorizontal>
       <ListItem>
@@ -162,13 +160,7 @@ function TrustlineList(props: Props) {
         </ListItemIcon>
         <ListItemText inset primary="XLM" secondary="Stellar Lumens" />
         <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
-          <SingleBalance
-            assetCode=""
-            balance={xlmBalance ? xlmBalance.balance : "0.00"}
-            style={
-              isTinyScreen ? { fontSize: "0.9rem" } : isSmallScreen ? { fontSize: "1.1rem" } : { fontSize: "1.6rem" }
-            }
-          />
+          <SingleBalance assetCode="" balance={xlmBalance ? xlmBalance.balance : "0.00"} style={{ fontSize }} />
         </ListItemText>
         <ListItemSecondaryAction />
       </ListItem>
