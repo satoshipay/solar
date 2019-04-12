@@ -19,6 +19,7 @@ storiesOf("TransactionSummary", module)
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
       )
+      builder.setTimeout(60)
       return builder.build()
     })()
 
@@ -26,6 +27,7 @@ storiesOf("TransactionSummary", module)
       <Async
         promise={promise}
         then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        catch={error => <>{error.message}</>}
       />
     )
   })
@@ -45,6 +47,7 @@ storiesOf("TransactionSummary", module)
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
       )
+      builder.setTimeout(60)
       return builder.build()
     })()
 
@@ -52,6 +55,7 @@ storiesOf("TransactionSummary", module)
       <Async
         promise={promise}
         then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        catch={error => <>{error.message}</>}
       />
     )
   })
@@ -73,6 +77,7 @@ storiesOf("TransactionSummary", module)
           inflationDest: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT"
         })
       )
+      builder.setTimeout(60)
       return builder.build()
     })()
 
@@ -80,6 +85,7 @@ storiesOf("TransactionSummary", module)
       <Async
         promise={promise}
         then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        catch={error => <>{error.message}</>}
       />
     )
   })
