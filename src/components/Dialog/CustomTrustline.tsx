@@ -1,5 +1,6 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
@@ -23,6 +24,7 @@ function CustomTrustlineDialog(props: Props) {
   const [issuerPublicKey, setIssuerPublicKey] = React.useState("")
   const [limit, setLimit] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const isWidthMax450 = useMediaQuery("(max-width:450px)")
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -60,7 +62,7 @@ function CustomTrustlineDialog(props: Props) {
           <TextField
             label="Code"
             placeholder="EURT, USDT, BTC, ..."
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             margin="dense"
             name="asset-code"
             value={code}
@@ -92,7 +94,7 @@ function CustomTrustlineDialog(props: Props) {
               onClick={addCustomAsset}
               type="primary"
             >
-              Trust Asset
+              {isWidthMax450 ? "Trust" : "Trust Asset"}
             </ActionButton>
           </DialogActionsBox>
         </form>

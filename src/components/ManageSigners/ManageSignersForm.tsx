@@ -7,6 +7,7 @@ import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import InfoIcon from "@material-ui/icons/Info"
 import { trackError } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getSignerKey } from "../../lib/stellar"
 import { ObservedAccountData } from "../../subscriptions"
@@ -99,6 +100,7 @@ function ManageSignersForm(props: Props) {
   const [signersToRemove, setSignersToRemove] = React.useState<Horizon.AccountSigner[]>([])
   const [weightThresholdError, setWeightThresholdError] = React.useState<Error | undefined>(undefined)
   const [weightThreshold, setWeightThreshold] = React.useState(getEffectiveWeightThreshold(accountData).toString())
+  const isSmallScreen = useIsMobile()
 
   const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
@@ -161,18 +163,24 @@ function ManageSignersForm(props: Props) {
           showKeyWeights={!allDefaultKeyweights}
         />
       </Box>
-      <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0">
+      <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0" wrap="wrap">
         <TextField
           error={!!weightThresholdError}
           label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
           onChange={event => setWeightThreshold(event.target.value)}
           value={weightThreshold}
           variant="outlined"
+          style={isSmallScreen ? { width: "100%" } : {}}
           InputProps={{
             endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
           }}
         />
-        <HorizontalLayout justifyContent="end" alignItems="center" width="auto">
+        <HorizontalLayout
+          justifyContent={isSmallScreen ? "center" : "end"}
+          alignItems="center"
+          width={isSmallScreen ? "100%" : "auto"}
+          margin="20px 0px"
+        >
           <DialogActionsBox style={{ margin: 0 }}>
             <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
               Cancel

@@ -1,4 +1,5 @@
 import { createMuiTheme } from "@material-ui/core/styles"
+import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 
@@ -15,6 +16,8 @@ export const primaryBackgroundColor = "#0194E7"
 
 export const warningColor = amber["500"]
 
+const breakpoints = createBreakpoints({})
+
 const theme = createMuiTheme({
   props: {
     MuiInputLabel: {
@@ -26,7 +29,12 @@ const theme = createMuiTheme({
       root: {
         borderRadius: 3,
         boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-        minHeight: 48
+        [breakpoints.up(600)]: {
+          minHeight: 48
+        },
+        [breakpoints.down(600)]: {
+          minHeight: 36
+        }
       },
       contained: {
         backgroundColor: "white",
@@ -57,10 +65,50 @@ const theme = createMuiTheme({
       },
       raisedPrimary: {}
     },
+    MuiCardContent: {
+      root: {
+        [breakpoints.down(600)]: {
+          padding: 8
+        }
+      }
+    },
+    MuiDialog: {
+      paperFullScreen: {
+        boxSizing: "border-box",
+        "&": {
+          // iOS 11
+          paddingTop: "constant(safe-area-inset-top)",
+          paddingBottom: "constant(safe-area-inset-bottom)"
+        },
+        // iOS 12
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)"
+      }
+    },
     MuiFormLabel: {
       root: {
         "&$focused": {
           color: "inherit !important"
+        }
+      }
+    },
+    MuiInputBase: {
+      root: {
+        [breakpoints.down(600)]: {
+          fontSize: "0.9rem"
+        },
+        [breakpoints.down(400)]: {
+          fontSize: "0.8rem"
+        }
+      }
+    },
+    MuiInputLabel: {
+      formControl: {
+        [breakpoints.down(600)]: {
+          fontSize: "0.85rem"
+        },
+        [breakpoints.down(400)]: {
+          fontSize: "0.75rem"
         }
       }
     },
@@ -72,7 +120,31 @@ const theme = createMuiTheme({
         backgroundColor: lightBlue.A200
       }
     },
+    MuiList: {
+      root: {
+        paddingLeft: 8,
+        paddingRight: 8,
+        [breakpoints.down(600)]: {
+          paddingLeft: 0,
+          paddingRight: 0
+        }
+      }
+    },
+    MuiListItem: {
+      root: {
+        [breakpoints.down(600)]: {
+          paddingLeft: 8,
+          paddingRight: 8
+        }
+      }
+    },
     MuiListSubheader: {
+      root: {
+        [breakpoints.down(600)]: {
+          paddingLeft: 8,
+          paddingRight: 8
+        }
+      },
       sticky: {
         background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
       }

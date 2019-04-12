@@ -92,7 +92,6 @@ interface Props {
   accountData: ObservedAccountData
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  onCancel: () => void
   onSubmit?: (formValues: PaymentCreationValues) => any
 }
 
@@ -141,7 +140,7 @@ function PaymentCreationForm(props: Props) {
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
         placeholder="GABCDEFGHIJK... or alice*example.org"
         fullWidth
-        autoFocus
+        autoFocus={process.env.PLATFORM !== "ios"}
         margin="normal"
         value={formValues.destination}
         onChange={event => setFormValue("destination", event.target.value)}
@@ -163,10 +162,11 @@ function PaymentCreationForm(props: Props) {
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
           style={{
-            minWidth: "30%"
+            minWidth: "30%",
+            maxWidth: "60%"
           }}
         />
-        <FormControl style={{ width: "30%" }}>
+        <FormControl margin="normal" style={{ width: "30%" }}>
           <InputLabel htmlFor="select-memo-type" shrink>
             Memo type
           </InputLabel>
@@ -198,7 +198,6 @@ function PaymentCreationForm(props: Props) {
         )}
       </Box>
       <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
-        <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
         <ActionButton
           disabled={isDisabled}
           icon={<SendIcon style={{ fontSize: 16 }} />}

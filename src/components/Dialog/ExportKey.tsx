@@ -30,7 +30,8 @@ function KeyExport(props: { account: Account; secretKey: string }) {
         style={{
           padding: "16px 32px",
           backgroundColor: "rgba(255, 255, 255, 0.6)",
-          border: `2px solid ${brandColor}`
+          border: `2px solid ${brandColor}`,
+          wordBreak: "break-word"
         }}
       >
         {props.secretKey}
@@ -67,7 +68,7 @@ function WarningBox(props: WarningBoxProps) {
       {props.requiresPassword ? (
         <form onSubmit={props.onReveal}>
           <TextField
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             fullWidth
             error={props.passwordError !== null}
             label={props.passwordError ? props.passwordError.message : "Password"}

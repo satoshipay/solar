@@ -12,6 +12,7 @@ import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
+import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
@@ -142,6 +143,13 @@ interface TitleTextProps {
 
 // TODO: Re-use code of transaction summary operation heading
 function TransactionItemText(props: TitleTextProps) {
+  const isSmallScreen = useIsMobile()
+
+  const remotePublicKeys = props.paymentSummary.reduce(
+    (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
+    [] as string[]
+  )
+
   const secondary = (
     <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
       <Time time={props.createdAt} />
@@ -154,18 +162,13 @@ function TransactionItemText(props: TitleTextProps) {
     </span>
   )
 
-  const remotePublicKeys = props.paymentSummary.reduce(
-    (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
-    [] as string[]
-  )
-
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
     return (
       <ListItemText
         primary={
           <span>
             From&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short={isSmallScreen} />
           </span>
         }
         primaryTypographyProps={{ style: props.style }}
@@ -182,7 +185,7 @@ function TransactionItemText(props: TitleTextProps) {
         primary={
           <span>
             To&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource || isSmallScreen} />
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;from&nbsp;
@@ -319,15 +322,19 @@ function TransactionItemText(props: TitleTextProps) {
   }
 }
 
-function TransactionListItemBalance(props: { paymentSummary: ReturnType<typeof getPaymentSummary> }) {
+function TransactionListItemBalance(props: {
+  paymentSummary: ReturnType<typeof getPaymentSummary>
+  style?: React.CSSProperties
+}) {
   const { paymentSummary } = props
+  const isSmallScreen = useIsMobile()
   return (
-    <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+    <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0, ...props.style }}>
       {paymentSummary.length === 0 ? null : (
         <SingleBalance
           assetCode={paymentSummary[0].asset.getCode()}
           balance={paymentSummary[0].balanceChange.toString()}
-          style={{ fontSize: "1.6rem" }}
+          style={isSmallScreen ? { fontSize: "1rem" } : { fontSize: "1.6rem" }}
         />
       )}
     </ListItemText>
@@ -348,14 +355,16 @@ interface TransactionListItemProps {
 // tslint:disable-next-line no-shadowed-variable
 export const TransactionListItem = React.memo(function TransactionListItem(props: TransactionListItemProps) {
   const [hovering, setHoveringStatus] = React.useState(false)
+  const isSmallScreen = useIsMobile()
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
+
   return (
     <ListItem
       button={Boolean(props.onClick)}
       onClick={props.onClick}
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
-      style={props.style}
+      style={{ paddingTop: 8, paddingBottom: 8, ...props.style }}
     >
       <ListItemIcon>
         {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
@@ -365,13 +374,19 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
         alwaysShowSource={props.alwaysShowSource}
         createdAt={props.createdAt}
         paymentSummary={paymentSummary}
-        style={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }}
+        style={{
+          fontSize: isSmallScreen ? "0.8rem" : undefined,
+          fontWeight: "bold",
+          overflow: "hidden",
+          paddingRight: 0,
+          textOverflow: "ellipsis"
+        }}
         transaction={props.transaction}
       />
       {hovering && props.hoverActions ? (
         props.hoverActions
       ) : (
-        <TransactionListItemBalance paymentSummary={paymentSummary} />
+        <TransactionListItemBalance paymentSummary={paymentSummary} style={{ paddingRight: 0 }} />
       )}
     </ListItem>
   )

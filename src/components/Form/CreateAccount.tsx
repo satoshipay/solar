@@ -9,6 +9,7 @@ import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
@@ -74,9 +75,18 @@ interface AccountCreationFormProps {
 
 const AccountCreationForm = (props: AccountCreationFormProps) => {
   const { errors, formValues, setFormValue } = props
+  const isSmallScreen = useIsMobile()
+  const isTinyScreen = useIsSmallMobile()
+  const primaryButtonLabel = formValues.createNewKey
+    ? isTinyScreen
+      ? "Create"
+      : "Create Account"
+    : isTinyScreen
+      ? "Import"
+      : "Import Account"
   return (
     <form onSubmit={props.onSubmit}>
-      <VerticalLayout minHeight="400px" justifyContent="space-between">
+      <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
         <Box>
           <TextField
             error={Boolean(errors.name)}
@@ -94,10 +104,10 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 </InputAdornment>
               ),
               style: {
-                fontSize: "1.5rem"
+                fontSize: isTinyScreen ? "1.3rem" : "1.5rem"
               }
             }}
-            style={{ minWidth: 300, maxWidth: "70%", margin: 0 }}
+            style={{ minWidth: isTinyScreen ? 230 : 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
           />
         </Box>
         <ToggleSection
@@ -116,7 +126,13 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               private key at any time.
             </Typography>
 
-            <HorizontalLayout>
+            <HorizontalLayout
+              wrap="wrap"
+              style={{
+                marginLeft: isSmallScreen ? -6 : -16,
+                marginRight: isSmallScreen ? -6 : -16
+              }}
+            >
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.password)}
@@ -125,10 +141,15 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 placeholder="Enter a password"
                 margin="normal"
                 onChange={event => setFormValue("password", event.target.value)}
+                style={{
+                  flex: "1 0 0",
+                  marginLeft: isSmallScreen ? 6 : 16,
+                  marginRight: isSmallScreen ? 6 : 16,
+                  minWidth: isTinyScreen ? 150 : 250
+                }}
                 type="password"
                 value={formValues.password}
               />
-              <HorizontalMargin size={32} />
               <TextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.passwordRepeat)}
@@ -137,6 +158,12 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
                 margin="normal"
                 onChange={event => setFormValue("passwordRepeat", event.target.value)}
                 placeholder="Repeat your password"
+                style={{
+                  flex: "1 0 0",
+                  marginLeft: isSmallScreen ? 6 : 16,
+                  marginRight: isSmallScreen ? 6 : 16,
+                  minWidth: isTinyScreen ? 150 : 250
+                }}
                 type="password"
                 value={formValues.passwordRepeat}
               />
@@ -153,7 +180,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               disabled={Boolean(formValues.createNewKey)}
               error={Boolean(errors.privateKey)}
               label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Secret key"}
-              placeholder="SABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
+              placeholder="SABCDEFGH…"
               fullWidth
               margin="normal"
               value={formValues.privateKey}
@@ -164,10 +191,10 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               disabled={Boolean(formValues.createNewKey)}
               variant="outlined"
               onClick={props.onOpenQRScanner}
-              style={{ height: 48 }}
+              style={{ height: 48, minWidth: isSmallScreen ? 0 : 110, marginTop: 8 }}
             >
-              <QRCodeIcon style={{ marginRight: 16 }} />
-              Scan
+              <QRCodeIcon />
+              {isSmallScreen ? null : <span style={{ marginLeft: isSmallScreen ? 8 : 16 }}>Scan</span>}
             </Button>
           </HorizontalLayout>
         </ToggleSection>
@@ -179,7 +206,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
           </Button>
           <HorizontalMargin size={16} />
           <Button color="primary" variant="contained" onClick={props.onSubmit} type="submit">
-            <ButtonIconLabel label={formValues.createNewKey ? "Create Account" : "Import Account"}>
+            <ButtonIconLabel label={primaryButtonLabel}>
               <CheckIcon />
             </ButtonIconLabel>
           </Button>

@@ -46,7 +46,7 @@ const initialKeys: KeysData<PublicKeyData> = {
   }
 }
 
-export default function createKeyStore() {
+export default async function createKeyStore() {
   // tslint:disable-next-line
   return createStore<PrivateKeyData, PublicKeyData>(data => console.log("Key store update:", data), initialKeys)
 }

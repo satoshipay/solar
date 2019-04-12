@@ -3,8 +3,8 @@ import { SettingsData } from "./types"
 export { SettingsData }
 
 interface SettingsStore {
-  loadIgnoredSignatureRequestHashes(): string[]
-  loadSettings(): Partial<SettingsData>
+  loadIgnoredSignatureRequestHashes(): Promise<string[]>
+  loadSettings(): Promise<Partial<SettingsData>>
   saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]): void
   saveSettings(settingsUpdate: Partial<SettingsData>): void
 }
@@ -14,6 +14,8 @@ const implementation = getImplementation()
 function getImplementation(): SettingsStore {
   if (window.electron) {
     return require("./electron/settings")
+  } else if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {
+    return require("./cordova/settings")
   } else if (process.browser) {
     return require("./web/settings")
   } else {

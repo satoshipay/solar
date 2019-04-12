@@ -6,7 +6,7 @@ let settings: SettingsData = {
   testnet: true
 }
 
-export function loadSettings() {
+export async function loadSettings() {
   return settings
 }
 
@@ -17,7 +17,7 @@ export function saveSettings(updatedSettings: Partial<SettingsData>) {
   }
 }
 
-export function loadIgnoredSignatureRequestHashes() {
+export async function loadIgnoredSignatureRequestHashes() {
   const data = window.localStorage.getItem("wallet:storage:ignoredSignatureRequests")
   return data ? JSON.parse(data) : []
 }

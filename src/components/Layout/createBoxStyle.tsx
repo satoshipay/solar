@@ -60,14 +60,15 @@ const createFlexParentStyle = ({ alignItems, justifyContent, wrap }: FlexParentS
 }
 
 interface FlexChildStyles {
-  basis?: number | string
-  grow?: boolean | number
-  shrink?: boolean | number
-  fixed?: boolean
   alignSelf?: React.CSSProperties["alignSelf"]
+  basis?: number | string
+  fixed?: boolean
+  grow?: boolean | number
+  order?: React.CSSProperties["order"]
+  shrink?: boolean | number
 }
 
-const createFlexChildStyle = ({ basis, grow, shrink, fixed, alignSelf }: FlexChildStyles) => {
+const createFlexChildStyle = ({ alignSelf, basis, fixed, grow, order, shrink }: FlexChildStyles) => {
   const style: React.CSSProperties = {
     flexBasis: basis
   }
@@ -77,6 +78,9 @@ const createFlexChildStyle = ({ basis, grow, shrink, fixed, alignSelf }: FlexChi
   }
   if (typeof grow === "number") {
     style.flexGrow = grow
+  }
+  if (typeof order !== "undefined") {
+    style.order = order
   }
   if (typeof shrink === "boolean") {
     style.flexShrink = shrink ? 1 : 0

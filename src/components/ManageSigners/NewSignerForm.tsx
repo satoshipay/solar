@@ -7,6 +7,7 @@ import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
+import { useIsSmallMobile, useIsMobile } from "../../hooks"
 import { HorizontalLayout } from "../Layout/Box"
 
 interface FormValues {
@@ -28,6 +29,9 @@ interface Props {
 }
 
 function NewSignerForm(props: Props) {
+  const isSmallScreen = useIsMobile()
+  const isTinyScreen = useIsSmallMobile()
+
   return (
     <ListItem>
       <ListItemIcon>
@@ -36,23 +40,27 @@ function NewSignerForm(props: Props) {
       <ListItemText>
         <HorizontalLayout>
           <TextField
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             error={!!props.errors.publicKey}
             label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key or Stellar Address"}
-            placeholder="GABCDEFGHIJK... or alice*example.org"
+            placeholder={isSmallScreen ? "GABC… or address" : "GABCDEFGHIJK… or alice*example.org"}
             onChange={event => props.onUpdate({ publicKey: event.target.value })}
             style={{ flexGrow: 1 }}
+            InputProps={isTinyScreen ? { style: { fontSize: "0.8rem" } } : undefined}
             value={props.values.publicKey}
           />
         </HorizontalLayout>
       </ListItemText>
-      <ListItemIcon style={{ marginRight: 8 }}>
+      <ListItemIcon style={isTinyScreen ? { padding: 0, margin: 0 } : { marginRight: 8 }}>
         <IconButton onClick={props.onSubmit}>
           <CheckIcon />
         </IconButton>
       </ListItemIcon>
       <ListItemIcon>
-        <IconButton onClick={props.onCancel} style={{ marginRight: -24 }}>
+        <IconButton
+          onClick={props.onCancel}
+          style={isTinyScreen ? { padding: 0, marginRight: -24 } : { marginRight: -24 }}
+        >
           <CloseIcon />
         </IconButton>
       </ListItemIcon>

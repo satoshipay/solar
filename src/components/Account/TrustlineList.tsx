@@ -11,7 +11,7 @@ import CheckIcon from "@material-ui/icons/CheckCircle"
 import RemoveIcon from "@material-ui/icons/Close"
 import UncheckedIcon from "@material-ui/icons/RadioButtonUnchecked"
 import { Account } from "../../context/accounts"
-import { useAccountData } from "../../hooks"
+import { useAccountData, useIsMobile, useIsSmallMobile } from "../../hooks"
 import { mainnet as mainnetPopularAssets, testnet as testnetPopularAssets } from "../../lib/popularAssets"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import SpaciousList from "../List/SpaciousList"
@@ -49,6 +49,11 @@ interface TrustedAssetProps {
 function TrustedAsset(props: TrustedAssetProps) {
   const { account, balance } = props
   const [hovering, setHovering] = React.useState(false)
+  const isSmallScreen = useIsMobile()
+  const isTinyScreen = useIsSmallMobile()
+
+  const fontSize = isTinyScreen ? "0.9rem" : isSmallScreen ? "1.1rem" : "1.6rem"
+
   return (
     <ListItem onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
       <ListItemIcon style={{ color: "inherit" }}>
@@ -63,7 +68,7 @@ function TrustedAsset(props: TrustedAssetProps) {
         {hovering && props.hoverActions ? (
           props.hoverActions
         ) : (
-          <SingleBalance assetCode="" balance={balance.balance} style={{ fontSize: "1.6rem" }} />
+          <SingleBalance assetCode="" balance={balance.balance} style={{ fontSize }} />
         )}
       </ListItemText>
       <ListItemSecondaryAction>
@@ -98,6 +103,9 @@ function UntrustedAsset(props: UntrustedAssetProps) {
       <ListItemText
         inset
         primary={asset.code}
+        secondaryTypographyProps={{
+          style: { overflow: "hidden", textOverflow: "ellipsis" }
+        }}
         secondary={<AccountName publicKey={asset.issuer} testnet={account.testnet} />}
       />
       <ListItemText primaryTypographyProps={{ align: "right" }}>
@@ -127,6 +135,8 @@ interface Props {
 
 function TrustlineList(props: Props) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const isSmallScreen = useIsMobile()
+  const isTinyScreen = useIsSmallMobile()
 
   const isAssetAlreadyAdded = (asset: Asset) => {
     return accountData.balances.some(
@@ -140,6 +150,8 @@ function TrustlineList(props: Props) {
 
   const xlmBalance = accountData.balances.find(balance => balance.asset_type === "native")
 
+  const fontSize = isTinyScreen ? "0.9rem" : isSmallScreen ? "1.1rem" : "1.6rem"
+
   return (
     <SpaciousList fitHorizontal>
       <ListItem>
@@ -148,11 +160,7 @@ function TrustlineList(props: Props) {
         </ListItemIcon>
         <ListItemText inset primary="XLM" secondary="Stellar Lumens" />
         <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
-          <SingleBalance
-            assetCode=""
-            balance={xlmBalance ? xlmBalance.balance : "0.00"}
-            style={{ fontSize: "1.6rem" }}
-          />
+          <SingleBalance assetCode="" balance={xlmBalance ? xlmBalance.balance : "0.00"} style={{ fontSize }} />
         </ListItemText>
         <ListItemSecondaryAction />
       </ListItem>

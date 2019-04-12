@@ -11,6 +11,7 @@ import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, HorizontalLayout } from "../Layout/Box"
 import { Account, AccountsContextType } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import CloseButton from "./CloseButton"
 import { ActionButton } from "./Generic"
@@ -65,6 +66,7 @@ interface ActionsProps {
 }
 
 function Actions(props: ActionsProps) {
+  const isSmallScreen = useIsMobile()
   return (
     <HorizontalLayout justifyContent="space-between">
       {props.isPasswordProtected ? (
@@ -75,7 +77,12 @@ function Actions(props: ActionsProps) {
       ) : (
         <div />
       )}
-      <ActionButton icon={<LockIcon />} onClick={props.onSubmit} type="primary">
+      <ActionButton
+        style={isSmallScreen ? { fontSize: "0.5rem" } : {}}
+        icon={<LockIcon />}
+        onClick={props.onSubmit}
+        type="primary"
+      >
         {props.removePassword ? "Remove password" : "Change password"}
       </ActionButton>
     </HorizontalLayout>

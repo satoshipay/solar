@@ -6,6 +6,7 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
+import { useIsSmallMobile } from "../../hooks"
 import { HorizontalMargin } from "../Layout/Spacing"
 import ButtonIconLabel from "../ButtonIconLabel"
 
@@ -38,13 +39,18 @@ interface ActionButtonProps {
 
 export function ActionButton(props: ActionButtonProps) {
   const { type = "secondary" } = props
+  const isTinyScreen = useIsSmallMobile()
+
   return (
     <Button
       autoFocus={props.autoFocus}
       color={type === "primary" || type === "submit" ? "primary" : undefined}
       disabled={props.disabled}
       onClick={props.onClick}
-      style={props.style}
+      style={{
+        padding: isTinyScreen ? "2px 8px" : "10px 20px",
+        ...props.style
+      }}
       type={type === "submit" ? "submit" : undefined}
       variant="contained"
     >
@@ -60,8 +66,16 @@ interface DialogActionsBoxProps {
 }
 
 export function DialogActionsBox(props: DialogActionsBoxProps) {
+  const style: React.CSSProperties = {
+    alignItems: "stretch",
+    marginTop: 32,
+    marginLeft: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    ...props.style
+  }
   return (
-    <DialogActions style={{ alignItems: "stretch", marginTop: 32, ...props.style }}>
+    <DialogActions style={style}>
       {React.Children.map(
         props.children,
         (child, index) =>
