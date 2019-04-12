@@ -92,6 +92,26 @@ const theme = createMuiTheme({
         }
       }
     },
+    MuiInputBase: {
+      root: {
+        [breakpoints.down(600)]: {
+          fontSize: "0.9rem"
+        },
+        [breakpoints.down(400)]: {
+          fontSize: "0.8rem"
+        }
+      }
+    },
+    MuiInputLabel: {
+      formControl: {
+        [breakpoints.down(600)]: {
+          fontSize: "0.85rem"
+        },
+        [breakpoints.down(400)]: {
+          fontSize: "0.75rem"
+        }
+      }
+    },
     MuiLinearProgress: {
       colorPrimary: {
         backgroundColor: lightBlue["100"]
