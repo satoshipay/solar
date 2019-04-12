@@ -6,11 +6,14 @@ function AndroidBackButton() {
   const router = useRouter()
 
   React.useEffect(() => {
-    const listener = () => {
-      router.history.push(routeUp(router.history.location.pathname))
+    const listener = (event: Event) => {
+      if (event instanceof MessageEvent && event.data.id === "backbutton") {
+        router.history.push(routeUp(router.history.location.pathname))
+      }
     }
-    document.addEventListener("backbutton", listener, false)
-    const unsubscribe = document.removeEventListener("backbutton", listener)
+
+    window.addEventListener("message", listener, false)
+    const unsubscribe = () => window.removeEventListener("message", listener)
     return unsubscribe
   })
 

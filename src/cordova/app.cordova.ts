@@ -27,7 +27,7 @@ function onDeviceReady() {
   initializeQRReader()
   initializeClipboard(cordova)
 
-  document.addEventListener("backbutton", event => contentWindow.document.dispatchEvent(event), false)
+  document.addEventListener("backbutton", event => contentWindow.postMessage({ id: "backbutton" }, "*"), false)
   iframe.addEventListener("load", () => setupLinkListeners(contentWindow), false)
 }
 
