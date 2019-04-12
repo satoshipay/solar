@@ -1,21 +1,20 @@
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
-import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
-import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
+import { useAccountData, useIsMobile, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
+import AccountBalancesContainer from "../Account/AccountBalancesContainer"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
 import TradingForm from "../TradeAsset/TradingForm"
+import ErrorBoundary from "../ErrorBoundary"
 import TransactionSender from "../TransactionSender"
-import BackButton from "./BackButton"
 import { ActionButton, DialogActionsBox } from "./Generic"
+import MainTitle from "../MainTitle"
 
 function findMatchingBalance(balances: ObservedAccountData["balances"], assetCode: string) {
   const matchingBalance = balances.find(
@@ -42,32 +41,17 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], assetCod
   }
 }
 
-function Title(props: { onClose: () => void }) {
-  return (
-    <HorizontalLayout justifyContent="space-between" margin="0" shrink={0}>
-      <HorizontalLayout alignItems="center" margin="0">
-        <BackButton onClick={props.onClose} style={{ marginLeft: -10, marginRight: 10 }} />
-        <Typography variant="h5" style={{ flexGrow: 1 }}>
-          Trade
-        </Typography>
-      </HorizontalLayout>
-    </HorizontalLayout>
-  )
-}
-
 interface TradeAssetProps {
   account: Account
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }
 
-const Transition = (props: any) => <Slide {...props} direction="left" />
-
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
+  const isSmallScreen = useIsMobile()
 
   const trustlines = (accountData.balances.filter(balance => balance.asset_type !== "native") as any) as Array<
     Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
@@ -116,10 +100,10 @@ function TradeAsset(props: TradeAssetProps) {
   }
 
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <Title onClose={props.onClose} />
-        <Typography color="inherit" component="div" variant="body2" style={{ marginLeft: 48, fontSize: "1.2rem" }}>
+    <ErrorBoundary>
+      <VerticalLayout width="100%" maxWidth={900} padding="24px 32px" margin="0 auto">
+        <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
+        <AccountBalancesContainer>
           <AccountBalances
             component={balanceProps => (
               <SingleBalance
@@ -134,8 +118,8 @@ function TradeAsset(props: TradeAssetProps) {
             publicKey={props.account.publicKey}
             testnet={props.account.testnet}
           />
-        </Typography>
-        <VerticalMargin size={16} />
+        </AccountBalancesContainer>
+        <VerticalMargin size={isSmallScreen ? 12 : 40} />
         {buyingBalance && sellingBalance ? (
           <TradingForm
             buying={buyingAsset}
@@ -165,11 +149,11 @@ function TradeAsset(props: TradeAssetProps) {
           />
         ) : null}
       </VerticalLayout>
-    </Dialog>
+    </ErrorBoundary>
   )
 }
 
-function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "open" | "onClose">) {
+function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "onClose">) {
   const router = useRouter()
   const navigateToAssets = () => router.history.push(routes.account(props.account.id))
   return (

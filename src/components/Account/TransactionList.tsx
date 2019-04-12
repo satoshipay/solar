@@ -12,9 +12,10 @@ import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
+import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { selectNetwork } from "../../lib/transaction"
-import PublicKey from "../PublicKey"
+import { PublicKey } from "../PublicKey"
 import { formatOperation } from "../TransactionSummary/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
@@ -29,9 +30,20 @@ function MemoMessage(props: { memo: Memo }) {
   if (!memo.value) {
     return null
   } else if (Buffer.isBuffer(memo.value)) {
-    return <>Memo: {memo.value.toString("hex")}</>
+    const text = memo.type === "text" ? memo.value.toString("utf8") : memo.value.toString("hex")
+    return (
+      <>
+        Memo:&nbsp;
+        {text}
+      </>
+    )
   } else {
-    return <>Memo: {memo.value}</>
+    return (
+      <>
+        Memo:&nbsp;
+        {memo.value}
+      </>
+    )
   }
 }
 
@@ -85,11 +97,22 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
   }
 }
 
-function Time(props: { time: Date }) {
+function Time(props: { time: string }) {
+  const { localeString, unixTime } = React.useMemo(
+    () => {
+      // Turns out that this takes more time than expected
+      const date = new Date(props.time)
+      return {
+        localeString: date.toLocaleString(),
+        unixTime: date.getTime()
+      }
+    },
+    [props.time]
+  )
   return (
-    <Tooltip title={<span style={{ fontSize: "110%" }}>{props.time.toLocaleString()}</span>}>
-      <span>
-        <HumanTime time={props.time.getTime()} />
+    <Tooltip title={<span style={{ fontSize: "110%" }}>{localeString}</span>}>
+      <span style={{ whiteSpace: "nowrap" }}>
+        <HumanTime time={unixTime} />
       </span>
     </Tooltip>
   )
@@ -112,7 +135,7 @@ function TransactionIcon(props: { paymentSummary: PaymentSummary; transaction: T
 interface TitleTextProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
-  createdAt: Date
+  createdAt: string
   paymentSummary: PaymentSummary
   style?: React.CSSProperties
   transaction: Transaction
@@ -120,8 +143,15 @@ interface TitleTextProps {
 
 // TODO: Re-use code of transaction summary operation heading
 function TransactionItemText(props: TitleTextProps) {
+  const isSmallScreen = useIsMobile()
+
+  const remotePublicKeys = props.paymentSummary.reduce(
+    (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
+    [] as string[]
+  )
+
   const secondary = (
-    <>
+    <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
       <Time time={props.createdAt} />
       {props.transaction.memo.type !== "none" ? (
         <>
@@ -129,12 +159,7 @@ function TransactionItemText(props: TitleTextProps) {
           <MemoMessage memo={props.transaction.memo} />
         </>
       ) : null}
-    </>
-  )
-
-  const remotePublicKeys = props.paymentSummary.reduce(
-    (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
-    [] as string[]
+    </span>
   )
 
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
@@ -143,7 +168,7 @@ function TransactionItemText(props: TitleTextProps) {
         primary={
           <span>
             From&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short={isSmallScreen} />
           </span>
         }
         primaryTypographyProps={{ style: props.style }}
@@ -160,7 +185,7 @@ function TransactionItemText(props: TitleTextProps) {
         primary={
           <span>
             To&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource || isSmallScreen} />
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;from&nbsp;
@@ -297,15 +322,19 @@ function TransactionItemText(props: TitleTextProps) {
   }
 }
 
-function TransactionListItemBalance(props: { paymentSummary: ReturnType<typeof getPaymentSummary> }) {
+function TransactionListItemBalance(props: {
+  paymentSummary: ReturnType<typeof getPaymentSummary>
+  style?: React.CSSProperties
+}) {
   const { paymentSummary } = props
+  const isSmallScreen = useIsMobile()
   return (
-    <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+    <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0, ...props.style }}>
       {paymentSummary.length === 0 ? null : (
         <SingleBalance
           assetCode={paymentSummary[0].asset.getCode()}
           balance={paymentSummary[0].balanceChange.toString()}
-          style={{ fontSize: "1.6rem" }}
+          style={isSmallScreen ? { fontSize: "1rem" } : { fontSize: "1.6rem" }}
         />
       )}
     </ListItemText>
@@ -323,16 +352,19 @@ interface TransactionListItemProps {
   transaction: Transaction
 }
 
-export function TransactionListItem(props: TransactionListItemProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const TransactionListItem = React.memo(function TransactionListItem(props: TransactionListItemProps) {
   const [hovering, setHoveringStatus] = React.useState(false)
+  const isSmallScreen = useIsMobile()
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
+
   return (
     <ListItem
       button={Boolean(props.onClick)}
       onClick={props.onClick}
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
-      style={props.style}
+      style={{ paddingTop: 8, paddingBottom: 8, ...props.style }}
     >
       <ListItemIcon>
         {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
@@ -340,19 +372,25 @@ export function TransactionListItem(props: TransactionListItemProps) {
       <TransactionItemText
         accountPublicKey={props.accountPublicKey}
         alwaysShowSource={props.alwaysShowSource}
-        createdAt={new Date(props.createdAt)}
+        createdAt={props.createdAt}
         paymentSummary={paymentSummary}
-        style={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis" }}
+        style={{
+          fontSize: isSmallScreen ? "0.8rem" : undefined,
+          fontWeight: "bold",
+          overflow: "hidden",
+          paddingRight: 0,
+          textOverflow: "ellipsis"
+        }}
         transaction={props.transaction}
       />
       {hovering && props.hoverActions ? (
         props.hoverActions
       ) : (
-        <TransactionListItemBalance paymentSummary={paymentSummary} />
+        <TransactionListItemBalance paymentSummary={paymentSummary} style={{ paddingRight: 0 }} />
       )}
     </ListItem>
   )
-}
+})
 
 function TransactionList(props: {
   accountPublicKey: string
@@ -381,4 +419,4 @@ function TransactionList(props: {
   )
 }
 
-export default TransactionList
+export default React.memo(TransactionList)

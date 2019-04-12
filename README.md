@@ -16,6 +16,8 @@ The encryption key is derived from the password using `PBKDF2` with `SHA256`. Th
 
 ## Development
 
+### Desktop
+
 Install the dependencies first:
 
 ```
@@ -50,7 +52,13 @@ cd web/
 npm run dev
 ```
 
+### Android/iOS
+
+See [Cordova build readme](./cordova/README.md).
+
 ### Production build
+
+#### Desktop
 
 ```
 npm run build:mac
@@ -73,6 +81,10 @@ Now run `npm run build:*:signed` to create a signed application build. You will 
 To check the Mac DMG signature, run `codesign -dv --verbose=4 ./electron/dist/<file>`. To verify the Windows installer signature, you can upload the file to `virustotal.com`.
 
 Note: Application signing has only been tested on a Mac OS development machine so far.
+
+#### Android/iOS
+
+See [Cordova build readme](./cordova/README.md).
 
 ## License
 

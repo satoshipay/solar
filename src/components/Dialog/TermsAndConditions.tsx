@@ -12,12 +12,15 @@ import { Section } from "../Layout/Page"
 const CheckboxLabel = (props: { children: React.ReactNode }) => (
   <span style={{ color: "white", fontSize: "120%" }}>{props.children}</span>
 )
-const Link = (props: { children: React.ReactNode; href: string }) => (
-  <a href={props.href} style={{ color: "inherit", fontWeight: "bold", textDecoration: "underline" }} target="_blank">
-    {props.children}
-  </a>
-)
 const Transition = (props: FadeProps) => <Fade {...props} appear={false} />
+
+function ExternalLink(props: { children: React.ReactNode; href: string }) {
+  return (
+    <a href={props.href} style={{ color: "inherit", fontWeight: "bold", textDecoration: "underline" }} target="_blank">
+      {props.children}
+    </a>
+  )
+}
 
 interface Props {
   open: boolean
@@ -36,8 +39,17 @@ function TermsAndConditions(props: Props) {
 
   // Super important to make sure that the Dialog unmounts on exit, so it won't act as an invisible click blocker!
   return (
-    <Dialog open={props.open} fullScreen TransitionComponent={Transition} TransitionProps={{ unmountOnExit: true }}>
-      <Section brandColored top style={{ display: "flex", flexDirection: "column" }}>
+    <Dialog
+      open={props.open}
+      fullScreen
+      PaperProps={{
+        // let the <Section> set the padding, so it will color the iPhone X top notch
+        style: { padding: 0 }
+      }}
+      TransitionComponent={Transition}
+      TransitionProps={{ unmountOnExit: true }}
+    >
+      <Section brandColored top bottom style={{ display: "flex", flexDirection: "column" }}>
         <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
           <Typography color="inherit" variant="h4">
             Welcome to Solar
@@ -48,7 +60,7 @@ function TermsAndConditions(props: Props) {
                 <Checkbox
                   checked={checkedNotes[0]}
                   onChange={() => toggleNoteChecked(0)}
-                  style={{ color: "inherit" }}
+                  style={{ alignSelf: "flex-start", color: "inherit", marginTop: -10 }}
                 />
               }
               label={
@@ -63,16 +75,19 @@ function TermsAndConditions(props: Props) {
                 <Checkbox
                   checked={checkedNotes[1]}
                   onChange={() => toggleNoteChecked(1)}
-                  style={{ color: "inherit" }}
+                  style={{ alignSelf: "flex-start", color: "inherit", marginTop: -10 }}
                 />
               }
               label={
                 <CheckboxLabel>
                   I have read, understood and agree to the{" "}
-                  <Link href="https://solarwallet.io/terms.html">Terms and Conditions</Link> &amp;{" "}
-                  <Link href="https://solarwallet.io/privacy.html">Privacy policy</Link> of Solar.
+                  <ExternalLink href="https://solarwallet.io/terms.html">Terms and Conditions</ExternalLink> &amp;{" "}
+                  <ExternalLink href="https://solarwallet.io/privacy.html">Privacy policy</ExternalLink> of Solar.
                 </CheckboxLabel>
               }
+              style={{
+                marginTop: 16
+              }}
             />
           </FormGroup>
           <Button

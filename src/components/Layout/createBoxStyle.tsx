@@ -60,14 +60,15 @@ const createFlexParentStyle = ({ alignItems, justifyContent, wrap }: FlexParentS
 }
 
 interface FlexChildStyles {
-  basis?: number | string
-  grow?: boolean | number
-  shrink?: boolean | number
-  fixed?: boolean
   alignSelf?: React.CSSProperties["alignSelf"]
+  basis?: number | string
+  fixed?: boolean
+  grow?: boolean | number
+  order?: React.CSSProperties["order"]
+  shrink?: boolean | number
 }
 
-const createFlexChildStyle = ({ basis, grow, shrink, fixed, alignSelf }: FlexChildStyles) => {
+const createFlexChildStyle = ({ alignSelf, basis, fixed, grow, order, shrink }: FlexChildStyles) => {
   const style: React.CSSProperties = {
     flexBasis: basis
   }
@@ -77,6 +78,9 @@ const createFlexChildStyle = ({ basis, grow, shrink, fixed, alignSelf }: FlexChi
   }
   if (typeof grow === "number") {
     style.flexGrow = grow
+  }
+  if (typeof order !== "undefined") {
+    style.order = order
   }
   if (typeof shrink === "boolean") {
     style.flexShrink = shrink ? 1 : 0
@@ -116,6 +120,7 @@ export type BoxStyles = SizingStyles &
     hidden?: boolean
     margin?: React.CSSProperties["margin"]
     overflow?: React.CSSProperties["overflow"]
+    position?: React.CSSProperties["position"]
   }
 
 const createBoxStyle = (styleProps: BoxStyles) => {
@@ -133,6 +138,9 @@ const createBoxStyle = (styleProps: BoxStyles) => {
   }
   if (styleProps.display) {
     style.display = styleProps.display
+  }
+  if (styleProps.position) {
+    style.position = styleProps.position
   }
   return removeNullValueProps(style)
 }

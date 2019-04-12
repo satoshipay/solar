@@ -39,7 +39,7 @@ function DialogContainer(props: DialogContainerProps) {
   }, [])
 
   return (
-    <AccountsProvider>
+    <>
       <Button onClick={() => setIsOpen(true)} variant="contained">
         Open
       </Button>
@@ -50,42 +50,47 @@ function DialogContainer(props: DialogContainerProps) {
             transaction: (transaction as any) as Transaction
           })
         : null}
-    </AccountsProvider>
+    </>
   )
 }
 
 storiesOf("Dialogs", module)
+  .addDecorator(story => <AccountsProvider>{story()}</AccountsProvider>)
   .add("TxConfirmationDrawer without password", () => (
     <AccountsContext.Consumer>
-      {({ accounts }) => (
-        <DialogContainer account={accounts[0]}>
-          {({ open, onClose, transaction }) => (
-            <TxConfirmationDrawer
-              account={accounts[0]}
-              open={open}
-              transaction={transaction}
-              onClose={onClose}
-              onSubmitTransaction={() => undefined}
-            />
-          )}
-        </DialogContainer>
-      )}
+      {({ accounts }) =>
+        accounts[0] ? (
+          <DialogContainer account={accounts[0]}>
+            {({ open, onClose, transaction }) => (
+              <TxConfirmationDrawer
+                account={accounts[0]}
+                open={open}
+                transaction={transaction}
+                onClose={onClose}
+                onSubmitTransaction={() => undefined}
+              />
+            )}
+          </DialogContainer>
+        ) : null
+      }
     </AccountsContext.Consumer>
   ))
   .add("TxConfirmationDrawer with password", () => (
     <AccountsContext.Consumer>
-      {({ accounts }) => (
-        <DialogContainer account={accounts[1]}>
-          {({ open, onClose, transaction }) => (
-            <TxConfirmationDrawer
-              account={accounts[1]}
-              open={open}
-              transaction={transaction}
-              onClose={onClose}
-              onSubmitTransaction={() => undefined}
-            />
-          )}
-        </DialogContainer>
-      )}
+      {({ accounts }) =>
+        accounts[1] ? (
+          <DialogContainer account={accounts[1]}>
+            {({ open, onClose, transaction }) => (
+              <TxConfirmationDrawer
+                account={accounts[1]}
+                open={open}
+                transaction={transaction}
+                onClose={onClose}
+                onSubmitTransaction={() => undefined}
+              />
+            )}
+          </DialogContainer>
+        ) : null
+      }
     </AccountsContext.Consumer>
   ))

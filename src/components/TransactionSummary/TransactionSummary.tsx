@@ -69,7 +69,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
   )
 
   return (
-    <List>
+    <List style={{ paddingLeft: 0, paddingRight: 0 }}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem

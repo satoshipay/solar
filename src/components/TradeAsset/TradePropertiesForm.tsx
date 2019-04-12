@@ -115,7 +115,10 @@ interface TradePropertiesFormProps {
 
 function TradePropertiesForm(props: TradePropertiesFormProps) {
   const estimatedReturn = (() => {
-    if (!props.amount || (props.price.eq(0) && !props.manualPrice)) {
+    if (!props.amount) {
+      return BigNumber(0)
+    }
+    if (props.price.eq(0) && (!props.manualPrice || BigNumber(props.manualPrice).eq(0))) {
       return BigNumber(0)
     }
     return props.price.eq(0) ? BigNumber(props.amount).div(props.manualPrice) : props.estimatedReturn
@@ -147,7 +150,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
         />
         <HorizontalMargin size={16} />
         <TextField
-          autoFocus
+          autoFocus={process.env.PLATFORM !== "ios"}
           inputProps={{
             style: { fontWeight: "bold" }
           }}

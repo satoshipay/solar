@@ -1,23 +1,20 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
-import Dialog from "@material-ui/core/Dialog"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import Slide from "@material-ui/core/Slide"
 import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData } from "../../hooks"
+import { ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
-const Transition = (props: any) => <Slide {...props} direction="up" />
-
 interface Props {
   account: Account
+  accountData: ObservedAccountData
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
 }
@@ -27,7 +24,7 @@ function CustomTrustlineDialog(props: Props) {
   const [issuerPublicKey, setIssuerPublicKey] = React.useState("")
   const [limit, setLimit] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const isWidthMax450 = useMediaQuery("(max-width:450px)")
 
   const addAsset = async (asset: Asset, options: { limit?: string } = {}) => {
     try {
@@ -35,7 +32,7 @@ function CustomTrustlineDialog(props: Props) {
 
       setTxCreationPending(true)
       const transaction = await createTransaction(operations, {
-        accountData,
+        accountData: props.accountData,
         horizon: props.horizon,
         walletAccount: props.account
       })
@@ -58,14 +55,14 @@ function CustomTrustlineDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
+    <>
       <DialogTitle>Add Custom Asset</DialogTitle>
       <DialogContent>
         <form style={{ display: "block", width: "100%" }}>
           <TextField
             label="Code"
             placeholder="EURT, USDT, BTC, ..."
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             margin="dense"
             name="asset-code"
             value={code}
@@ -97,13 +94,13 @@ function CustomTrustlineDialog(props: Props) {
               onClick={addCustomAsset}
               type="primary"
             >
-              Trust Asset
+              {isWidthMax450 ? "Trust" : "Trust Asset"}
             </ActionButton>
           </DialogActionsBox>
         </form>
       </DialogContent>
-    </Dialog>
+    </>
   )
 }
 
-export default CustomTrustlineDialog
+export default React.memo(CustomTrustlineDialog)

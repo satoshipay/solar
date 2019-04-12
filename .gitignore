@@ -11,3 +11,8 @@ Thumbs.db
 *.sublime-workspace
 *.log
 .eslintcache
+
+cordova/config.xml
+cordova/platforms/
+cordova/plugins/
+!cordova/.env

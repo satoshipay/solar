@@ -4,8 +4,8 @@ import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
-import BackButton from "../components/BackButton"
-import { Box, HorizontalLayout, VerticalLayout } from "../components/Layout/Box"
+import { Box, VerticalLayout } from "../components/Layout/Box"
+import MainTitle from "../components/MainTitle"
 import ToggleSection from "../components/Layout/ToggleSection"
 import { Section } from "../components/Layout/Page"
 import { useRouter } from "../hooks"
@@ -28,7 +28,7 @@ function Settings() {
       >
         <Typography
           color={settings.showTestnet ? "default" : "textSecondary"}
-          style={{ margin: "12px 0 0" }}
+          style={{ margin: "8px 0 0" }}
           variant="body2"
         >
           The test network is a copy of the main Stellar network were the traded tokens have no real-world value. You
@@ -50,7 +50,7 @@ function Settings() {
       >
         <Typography
           color={settings.multiSignature ? "default" : "textSecondary"}
-          style={{ margin: "12px 0 0" }}
+          style={{ margin: "8px 0 0" }}
           variant="body2"
         >
           <b>Experimental feature:</b> Add co-signers to an account, define that all signers of an account have to sign
@@ -74,19 +74,16 @@ function SettingsPage() {
           }}
         >
           <CardContent style={{ paddingTop: 16, paddingBottom: 16 }}>
-            <HorizontalLayout alignItems="center" margin="-12px 0 -10px" minHeight={56}>
-              <BackButton
-                onClick={() => router.history.push(routes.allAccounts())}
-                style={{ marginLeft: -10, marginRight: 10 }}
-              />
-              <Typography align="center" color="inherit" variant="h5" component="h2" style={{ marginRight: 20 }}>
-                Settings
-              </Typography>
-            </HorizontalLayout>
+            <MainTitle
+              onBack={() => router.history.push(routes.allAccounts())}
+              style={{ margin: "-12px 0 -10px", minHeight: 56 }}
+              title="Settings"
+              titleColor="inherit"
+            />
           </CardContent>
         </Card>
       </Section>
-      <Section style={{ display: "flex", flexDirection: "column" }}>
+      <Section bottom style={{ display: "flex", flexDirection: "column" }}>
         <VerticalLayout height="100%" padding="0 8px" grow>
           <Box grow>
             <Settings />

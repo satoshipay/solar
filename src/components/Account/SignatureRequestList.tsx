@@ -89,7 +89,11 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
             onDismissSignatureRequest={() => setPendingConfirmation(signatureRequest)}
             onOpenTransaction={props.onOpenTransaction}
             signatureRequest={signatureRequest}
-            style={{ background: "#ffffff", boxShadow: "#ccc 0px 1px 5px" }}
+            style={{
+              background: "#ffffff",
+              boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+              minHeight: 72
+            }}
           />
         ))}
       </List>
@@ -110,26 +114,28 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
   )
 }
 
-export const InteractiveSignatureRequestList = (props: {
-  account: Account
-  icon?: React.ReactElement<any>
-  signatureRequests: SignatureRequest[]
-  title: React.ReactNode
-}) => {
-  if (props.signatureRequests.length === 0) {
-    return null
+export const InteractiveSignatureRequestList = React.memo(
+  (props: {
+    account: Account
+    icon?: React.ReactElement<any>
+    signatureRequests: SignatureRequest[]
+    title: React.ReactNode
+  }) => {
+    if (props.signatureRequests.length === 0) {
+      return null
+    }
+    return (
+      <TransactionSender account={props.account}>
+        {({ sendTransaction }) => (
+          <SignatureRequestList
+            accountPublicKey={props.account.publicKey}
+            icon={props.icon}
+            onOpenTransaction={sendTransaction}
+            signatureRequests={props.signatureRequests}
+            title={props.title}
+          />
+        )}
+      </TransactionSender>
+    )
   }
-  return (
-    <TransactionSender account={props.account}>
-      {({ sendTransaction }) => (
-        <SignatureRequestList
-          accountPublicKey={props.account.publicKey}
-          icon={props.icon}
-          onOpenTransaction={sendTransaction}
-          signatureRequests={props.signatureRequests}
-          title={props.title}
-        />
-      )}
-    </TransactionSender>
-  )
-}
+)

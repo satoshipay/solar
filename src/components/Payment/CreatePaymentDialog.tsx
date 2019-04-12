@@ -1,16 +1,15 @@
 import React from "react"
 import { Asset, Horizon, Server, Transaction } from "stellar-sdk"
-import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
 import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
-import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, ObservedAccountData } from "../../hooks"
+import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
 import AccountBalances from "../Account/AccountBalances"
+import AccountBalancesContainer from "../Account/AccountBalancesContainer"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
+import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import CreatePaymentForm from "./CreatePaymentForm"
 import AnchorWithdrawalForm from "./AnchorWithdrawalForm"
@@ -29,13 +28,10 @@ function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   )
 }
 
-const Transition = (props: any) => <Slide {...props} direction="up" />
-
 interface Props {
   account: Account
   accountData: ObservedAccountData
   horizon: Server
-  open: boolean
   onClose: () => void
   sendTransaction: (transaction: Transaction) => Promise<any>
 }
@@ -43,6 +39,7 @@ interface Props {
 function CreatePaymentDialog(props: Props) {
   const [selectedTab, setSelectedTab] = React.useState<ActionMode>("native")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const isSmallScreen = useIsMobile()
   const trustedAssets = getAssetsFromBalances(props.accountData.balances) || [Asset.native()]
 
   const handleSubmit = async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
@@ -58,49 +55,48 @@ function CreatePaymentDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} fullScreen onClose={props.onClose} TransitionComponent={Transition}>
-      <Box width="100%" maxWidth={900} padding="24px 36px" margin="0 auto">
-        <Typography variant="h5" component="h2" style={{ marginTop: 8, marginBottom: 8 }}>
-          Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-        </Typography>
-        <Box margin="0 0 18px">
-          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-        </Box>
-        <Box margin="0 0 18px">
-          <Tabs
-            indicatorColor="primary"
-            onChange={(event, value) => setSelectedTab(value)}
-            value={selectedTab}
-            variant="fullWidth"
-          >
-            <Tab label="Send payment" value="native" />
-            <Tab label="Withdraw" value="sep-6" />
-          </Tabs>
-        </Box>
-        {selectedTab === "native" ? (
-          <CreatePaymentForm
-            accountData={props.accountData}
-            onCancel={props.onClose}
-            onSubmit={handleSubmit}
-            trustedAssets={trustedAssets}
-            txCreationPending={txCreationPending}
-          />
-        ) : (
-          <AnchorWithdrawalForm
-            account={props.account}
-            assets={trustedAssets.filter(asset => !asset.isNative())}
-            horizon={props.horizon}
-            onCancel={props.onClose}
-            onSubmit={handleSubmit}
-            testnet={props.account.testnet}
-          />
-        )}
+    <Box width="100%" maxHeight="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
+      <MainTitle
+        title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+        onBack={props.onClose}
+      />
+      <AccountBalancesContainer>
+        <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+      </AccountBalancesContainer>
+      <Box margin="24px 0 18px">
+        <Tabs
+          indicatorColor="primary"
+          onChange={(event, value) => setSelectedTab(value)}
+          value={selectedTab}
+          variant="fullWidth"
+        >
+          <Tab label="Send payment" value="native" />
+          <Tab label="Withdraw" value="sep-6" />
+        </Tabs>
       </Box>
-    </Dialog>
+      {selectedTab === "native" ? (
+        <CreatePaymentForm
+          accountData={props.accountData}
+          onCancel={props.onClose}
+          onSubmit={handleSubmit}
+          trustedAssets={trustedAssets}
+          txCreationPending={txCreationPending}
+        />
+      ) : (
+        <AnchorWithdrawalForm
+          account={props.account}
+          assets={trustedAssets.filter(asset => !asset.isNative())}
+          horizon={props.horizon}
+          onCancel={props.onClose}
+          onSubmit={handleSubmit}
+          testnet={props.account.testnet}
+        />
+      )}
+    </Box>
   )
 }
 
-function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "open" | "onClose">) {
+function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "onClose">) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission

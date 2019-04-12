@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, Memo, Server, Transaction } from "stellar-sdk"
+import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -11,9 +11,11 @@ import { Account } from "../../context/accounts"
 import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
+import { isPublicKey, isStellarAddress, lookupFederationRecord } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import { PriceInput } from "../Form/FormFields"
 import { Box, HorizontalLayout } from "../Layout/Box"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
@@ -48,11 +50,11 @@ type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Erro
 function validateFormValues(formValues: PaymentCreationValues, spendableBalance: BigNumber) {
   const errors: PaymentCreationErrors = {}
 
-  if (!formValues.destination.match(/^G[A-Z0-9]{55}$/)) {
-    errors.destination = new Error(`Invalid stellar public key.`)
+  if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
+    errors.destination = new Error("Expected a public key or stellar address.")
   }
   if (!formValues.amount.match(/^[0-9]+(\.[0-9]+)?$/)) {
-    errors.amount = new Error("Invalid number.")
+    errors.amount = new Error("Invalid amount.")
   } else if (spendableBalance.lt(formValues.amount)) {
     errors.amount = new Error("Not enough funds.")
   }
@@ -83,7 +85,12 @@ interface AssetSelectorProps {
 function AssetSelector(props: AssetSelectorProps) {
   return (
     <FormControl>
-      <Select onChange={event => props.onSelect(event.target.value)} style={props.style} value={props.selected}>
+      <Select
+        disableUnderline
+        onChange={event => props.onSelect(event.target.value)}
+        style={props.style}
+        value={props.selected}
+      >
         {props.assets.map(assetCode => (
           <MenuItem key={assetCode} value={assetCode}>
             {assetCode}
@@ -112,6 +119,7 @@ function PaymentCreationForm(props: Props) {
     memoValue: ""
   })
 
+  const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
   const selectedAssetBalance = getMatchingAccountBalance(props.accountData.balances, formValues.asset)
 
   // FIXME: Pass no. of open offers to getAccountMinimumBalance()
@@ -129,16 +137,31 @@ function PaymentCreationForm(props: Props) {
 
   const createPaymentTx = async (horizon: Server, account: Account) => {
     const asset = props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+    const federationRecord =
+      formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
+    const destination = federationRecord ? federationRecord.account_id : formValues.destination
+
+    const userMemo = createMemo(formValues)
+    const federationMemo =
+      federationRecord && federationRecord.memo && federationRecord.memo_type
+        ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
+        : Memo.none()
+
+    if (userMemo.type !== "none" && federationMemo.type !== "none") {
+      throw new Error(
+        `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
+      )
+    }
 
     const payment = await createPaymentOperation({
       asset: asset || Asset.native(),
       amount: formValues.amount,
-      destination: formValues.destination,
+      destination,
       horizon
     })
     const tx = await createTransaction([payment], {
       accountData: props.accountData,
-      memo: createMemo(formValues),
+      memo: federationMemo.type !== "none" ? federationMemo : userMemo,
       horizon,
       walletAccount: account
     })
@@ -160,36 +183,35 @@ function PaymentCreationForm(props: Props) {
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
-        placeholder="GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRS"
+        placeholder="GABCDEFGHIJK... or alice*example.org"
         fullWidth
-        autoFocus
-        margin="dense"
+        autoFocus={process.env.PLATFORM !== "ios"}
+        margin="normal"
         value={formValues.destination}
         onChange={event => setFormValue("destination", event.target.value)}
       />
       <HorizontalLayout justifyContent="space-between" alignItems="center">
-        <TextField
+        <PriceInput
+          assetCode={
+            <AssetSelector
+              assets={props.trustedAssets.map(asset => asset.code)}
+              onSelect={code => setFormValue("asset", code)}
+              selected={formValues.asset}
+              style={{ alignSelf: "center" }}
+            />
+          }
           error={Boolean(errors.amount)}
           label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
           margin="dense"
           placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
-          InputProps={{
-            endAdornment: (
-              <AssetSelector
-                assets={props.trustedAssets.map(asset => asset.code)}
-                onSelect={code => setFormValue("asset", code)}
-                selected={formValues.asset}
-                style={{ alignSelf: "center" }}
-              />
-            )
-          }}
           style={{
-            minWidth: "30%"
+            minWidth: "30%",
+            maxWidth: "60%"
           }}
         />
-        <FormControl style={{ width: "30%" }}>
+        <FormControl margin="dense" style={{ width: "30%" }}>
           <InputLabel htmlFor="select-memo-type" shrink>
             Memo type
           </InputLabel>
@@ -211,7 +233,7 @@ function PaymentCreationForm(props: Props) {
             inputProps={{ maxLength: 28 }}
             error={Boolean(errors.memoValue)}
             label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
-            margin="dense"
+            margin="normal"
             onChange={event => setFormValue("memoValue", event.target.value)}
             value={formValues.memoValue}
             style={{ width: "70%" }}
@@ -221,8 +243,8 @@ function PaymentCreationForm(props: Props) {
         )}
       </Box>
       <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
-        <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
         <ActionButton
+          disabled={isDisabled}
           icon={<SendIcon style={{ fontSize: 16 }} />}
           loading={props.txCreationPending}
           onClick={() => undefined}

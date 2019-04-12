@@ -1,6 +1,7 @@
 import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import { Account } from "./context/accounts"
 import { SubscriptionTarget } from "./lib/subscription"
 import {
@@ -17,6 +18,10 @@ import {
 } from "./subscriptions"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
+
+export const useIsMobile = () => useMediaQuery("(max-width:600px)")
+
+export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
 
 // TODO: Should probably be stored in context
 const horizonLivenet = new Server("https://stellar-horizon.satoshipay.io/")
