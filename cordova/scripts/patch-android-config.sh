@@ -10,5 +10,19 @@ sedi () {
 sedi '/^.*<uses-sdk/d' ../platforms/android/CordovaLib/AndroidManifest.xml
 sedi '/^.*<uses-sdk/d' ../platforms/android/app/src/main/AndroidManifest.xml
 
-# substitute 3.3.0 with 3.3.2 in the line which contains 'com.android.tools.build:gradle'
-sedi '/com.android.tools.build:gradle/s/3.3.0/3.3.2/g' ../platforms/android/build.gradle
+sedi '18 a\ 
+<uses-sdk tools:overrideLibrary="org.apache.cordova"/> \
+' ../platforms/android/app/src/main/AndroidManifest.xml
+
+sedi 's/package="io.solarwallet"/package="io.solarwallet" xmlns:tools="http:\/\/schemas.android.com\/tools"/' ../platforms/android/app/src/main/AndroidManifest.xml
+
+sedi '170 a\ 
+targetSdkVersion 28 \
+' ../platforms/android/app/build.gradle
+sedi '171 a\ 
+minSdkVersion 21 \
+' ../platforms/android/app/build.gradle
+sedi '73 a\ 
+defaultConfig { \
+minSdkVersion 21 \
+}' ../platforms/android/CordovaLib/build.gradle
