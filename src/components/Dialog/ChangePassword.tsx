@@ -8,13 +8,13 @@ import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
-import { Box, HorizontalLayout } from "../Layout/Box"
+import { Box, VerticalLayout } from "../Layout/Box"
 import { Account, AccountsContextType } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import CloseButton from "./CloseButton"
-import { ActionButton } from "./Generic"
+import { ActionButton, DialogActionsBox } from "./Generic"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -68,24 +68,29 @@ interface ActionsProps {
 function Actions(props: ActionsProps) {
   const isSmallScreen = useIsMobile()
   return (
-    <HorizontalLayout justifyContent="space-between">
+    <DialogActionsBox smallDialog>
       {props.isPasswordProtected ? (
-        <FormControlLabel
-          control={<Switch checked={props.removePassword} onChange={props.onToggleRemovePassword} />}
-          label="Remove password"
-        />
-      ) : (
-        <div />
-      )}
-      <ActionButton
-        style={isSmallScreen ? { fontSize: "0.5rem" } : {}}
-        icon={<LockIcon />}
-        onClick={props.onSubmit}
-        type="primary"
-      >
-        {props.removePassword ? "Remove password" : "Change password"}
+        isSmallScreen ? (
+          <ActionButton onClick={props.onToggleRemovePassword} type="secondary">
+            {props.removePassword ? "Change password" : "Remove password"}
+          </ActionButton>
+        ) : (
+          <FormControlLabel
+            control={<Switch checked={props.removePassword} onChange={props.onToggleRemovePassword} />}
+            label="Remove password"
+          />
+        )
+      ) : null}
+      <ActionButton icon={<LockIcon />} onClick={props.onSubmit} type="primary">
+        {isSmallScreen
+          ? props.removePassword
+            ? "Remove"
+            : "Change"
+          : props.removePassword
+            ? "Remove password"
+            : "Change password"}
       </ActionButton>
-    </HorizontalLayout>
+    </DialogActionsBox>
   )
 }
 
@@ -158,12 +163,13 @@ function ChangePasswordDialog(props: Props) {
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
   return (
-    <>
+    <VerticalLayout minWidth={250}>
       <CloseButton onClick={onClose} />
       <DialogTitle>{props.account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>
       <DialogContent>
         <Box hidden={!props.account.requiresPassword} margin="0 0 16px">
           <TextField
+            autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.prevPassword)}
             label={errors.prevPassword ? renderFormFieldError(errors.prevPassword) : "Current password"}
             fullWidth
@@ -205,7 +211,7 @@ function ChangePasswordDialog(props: Props) {
           />
         </DialogActions>
       </DialogContent>
-    </>
+    </VerticalLayout>
   )
 }
 

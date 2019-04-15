@@ -1,41 +1,58 @@
+import QRCode from "qrcode.react"
 import React from "react"
-import Button from "@material-ui/core/Button"
 import DialogContent from "@material-ui/core/DialogContent"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import LockIcon from "@material-ui/icons/LockOutlined"
+import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import LockFilledIcon from "@material-ui/icons/Lock"
 import WarnIcon from "@material-ui/icons/Warning"
 import { Account } from "../../context/accounts"
-import { trackError } from "../../context/notifications"
+import { trackError, NotificationsContext } from "../../context/notifications"
+import { useIsMobile } from "../../hooks"
 import { isWrongPasswordError } from "../../lib/errors"
-import { brandColor } from "../../theme"
-import { Box, HorizontalLayout } from "../Layout/Box"
+import * as clipboard from "../../platform/clipboard"
+import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import Background from "../Background"
+import MainTitle from "../MainTitle"
 import { ActionButton, DialogActionsBox } from "./Generic"
 import QRExportDialog from "./QRExport"
 
 function KeyExport(props: { account: Account; secretKey: string }) {
+  const { showNotification } = React.useContext(NotificationsContext)
+
+  const copyToClipboard = async () => {
+    await clipboard.copyToClipboard(props.account.publicKey)
+    showNotification("info", "Copied to clipboard.")
+  }
   return (
     <Box padding="8px 0 16px">
       <Background opacity={0.08}>
         <LockFilledIcon style={{ fontSize: 220 }} />
       </Background>
-      <Typography variant="subtitle1" style={{ marginBottom: 8 }}>
-        Plain Secret Key
-      </Typography>
-      <Typography
-        style={{
-          padding: "16px 32px",
-          backgroundColor: "rgba(255, 255, 255, 0.6)",
-          border: `2px solid ${brandColor}`,
-          wordBreak: "break-word"
-        }}
-      >
-        {props.secretKey}
-      </Typography>
+      <HorizontalLayout justifyContent="center" margin="16px 0 0">
+        <VerticalLayout>
+          <Box onClick={copyToClipboard} margin="0 auto" style={{ cursor: "pointer" }}>
+            <QRCode size={256} value={props.secretKey} />
+          </Box>
+          <Box margin="12px auto 12px">
+            <Typography align="center" style={{ marginBottom: 12 }}>
+              Tap to copy:
+            </Typography>
+            <Typography
+              align="center"
+              component="p"
+              onClick={copyToClipboard}
+              role="button"
+              style={{ cursor: "pointer", wordWrap: "break-word", maxWidth: window.innerWidth - 75 }}
+              variant="subtitle1"
+            >
+              <b>{props.secretKey}</b>
+            </Typography>
+          </Box>
+        </VerticalLayout>
+      </HorizontalLayout>
     </Box>
   )
 }
@@ -49,24 +66,20 @@ interface WarningBoxProps {
 }
 
 function WarningBox(props: WarningBoxProps) {
+  const isSmallScreen = useIsMobile()
   return (
-    <Box padding="8px 0 16px">
+    <Box padding="8px 0 0">
       <Background opacity={0.08}>
         <WarnIcon style={{ fontSize: 220 }} />
       </Background>
       <Typography component="p" variant="body1">
         Your secret key must be stored in a safe place and must not be shared with anyone.
       </Typography>
-      <Typography component="p" variant="body1" style={{ marginTop: 16 }}>
+      <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24 }}>
         A backup is important, though, since losing your secret key also means losing access to your account.
       </Typography>
-      <HorizontalLayout justifyContent="center" margin="24px 0 0">
-        <Button variant="outlined" onClick={props.onReveal}>
-          Click to reveal your secret key
-        </Button>
-      </HorizontalLayout>
-      {props.requiresPassword ? (
-        <form onSubmit={props.onReveal}>
+      <form onSubmit={props.onReveal}>
+        {props.requiresPassword ? (
           <TextField
             autoFocus={process.env.PLATFORM !== "ios"}
             fullWidth
@@ -85,8 +98,13 @@ function WarningBox(props: WarningBoxProps) {
               )
             }}
           />
-        </form>
-      ) : null}
+        ) : null}
+        <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
+          <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} type="primary">
+            {isSmallScreen ? "Reveal key" : "Click to reveal your secret key"}
+          </ActionButton>
+        </DialogActionsBox>
+      </form>
     </Box>
   )
 }
@@ -102,6 +120,7 @@ function ExportKeyDialog(props: Props) {
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false)
   const [isRevealed, setIsRevealed] = React.useState(false)
   const [secretKey, setSecretKey] = React.useState<string | null>(null)
+  const isSmallScreen = useIsMobile()
 
   const updatePassword = (event: React.SyntheticEvent<HTMLInputElement>) => setPassword(event.currentTarget.value)
 
@@ -128,7 +147,9 @@ function ExportKeyDialog(props: Props) {
 
   return (
     <>
-      <DialogTitle>Export Secret Key</DialogTitle>
+      <Box width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto 32px">
+        <MainTitle onBack={props.onClose} title="Export Secret Key" />
+      </Box>
       <DialogContent>
         {isRevealed && secretKey ? (
           <KeyExport account={props.account} secretKey={secretKey} />
@@ -141,12 +162,6 @@ function ExportKeyDialog(props: Props) {
             updatePassword={updatePassword}
           />
         )}
-        <DialogActionsBox>
-          <ActionButton onClick={props.onClose}>Close</ActionButton>
-          <ActionButton onClick={() => setQrDialogOpen(true)} style={{ display: isRevealed ? "block" : "none" }}>
-            Show QR code
-          </ActionButton>
-        </DialogActionsBox>
       </DialogContent>
       <QRExportDialog data={secretKey || ""} open={qrDialogOpen} onClose={() => setQrDialogOpen(false)} />
     </>

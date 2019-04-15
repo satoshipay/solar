@@ -89,18 +89,18 @@ export function CloseButton(props: { onClick: () => void }) {
 
 interface MobileDialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
+  smallDialog?: boolean
 }
 
 // tslint:disable-next-line no-shadowed-variable
 const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps) {
   return (
     <>
-      {/*
-        * Placeholder to prevent other dialog content from being hidden below the actions box
-        * Make sure its height matches the height of the actions box
-        */}
-      <div style={{ width: "100%", height: 72 }} />
-
+      {props.smallDialog ? null : (
+        // Placeholder to prevent other dialog content from being hidden below the actions box
+        // Make sure its height matches the height of the actions box
+        <div style={{ width: "100%", height: 72 }} />
+      )}
       <HorizontalLayout
         className="iphone-notch-bottom-spacing"
         style={{
@@ -122,15 +122,16 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
 
 interface DialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
-  spacing?: "normal" | "large"
   desktopStyle?: React.CSSProperties
+  smallDialog?: boolean
+  spacing?: "normal" | "large"
 }
 
 // tslint:disable-next-line no-shadowed-variable
 export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
   const isSmallScreen = useIsMobile()
   if (isSmallScreen) {
-    return <MobileDialogActionsBox>{props.children}</MobileDialogActionsBox>
+    return <MobileDialogActionsBox smallDialog={props.smallDialog}>{props.children}</MobileDialogActionsBox>
   }
   const desktopStyle: React.CSSProperties = {
     alignItems: "stretch",

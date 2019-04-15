@@ -28,6 +28,7 @@ enum DialogID {
 }
 
 const DialogTransition = (props: any) => <Slide {...props} direction="up" />
+const DialogSidewaysTransition = (props: any) => <Slide {...props} direction="left" />
 
 interface Props {
   account: Account
@@ -138,7 +139,12 @@ function AccountHeaderCard(props: Props) {
             removePassword={removePassword}
           />
         </Dialog>
-        <Dialog open={openDialog === DialogID.exportKey} onClose={closeDialog} TransitionComponent={DialogTransition}>
+        <Dialog
+          fullScreen
+          open={openDialog === DialogID.exportKey}
+          onClose={closeDialog}
+          TransitionComponent={DialogSidewaysTransition}
+        >
           <ExportKeyDialog account={props.account} onClose={closeDialog} />
         </Dialog>
         <Dialog
