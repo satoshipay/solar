@@ -2,7 +2,10 @@ import React from "react"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 
-export function PriceInput(props: TextFieldProps & { assetCode: React.ReactNode; readOnly?: boolean }) {
+type PriceInputProps = TextFieldProps & { assetCode: React.ReactNode; readOnly?: boolean }
+
+// tslint:disable-next-line no-shadowed-variable
+export const PriceInput = React.memo(function PriceInput(props: PriceInputProps) {
   const { assetCode, readOnly, ...textfieldProps } = props
   return (
     <TextField
@@ -26,7 +29,7 @@ export function PriceInput(props: TextFieldProps & { assetCode: React.ReactNode;
       }}
     />
   )
-}
+})
 
 export function ReadOnlyTextfield(props: TextFieldProps) {
   return (

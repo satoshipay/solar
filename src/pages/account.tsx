@@ -87,26 +87,44 @@ function AccountActions(props: AccountActionsProps) {
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
+
+  const cosignIcon = React.useMemo(() => <DoneAllIcon />, [])
+  const waitingIcon = React.useMemo(() => <UpdateIcon style={{ opacity: 0.5 }} />, [])
+
+  const pendingRequestsToCosign = React.useMemo(
+    () => {
+      return pendingSignatureRequests.filter(
+        request =>
+          request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+          !hasSigned(request.meta.transaction, props.account.publicKey)
+      )
+    },
+    [props.account, pendingSignatureRequests]
+  )
+
+  const pendingRequestsWaitingForOthers = React.useMemo(
+    () => {
+      return pendingSignatureRequests.filter(
+        request =>
+          request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+          hasSigned(request.meta.transaction, props.account.publicKey)
+      )
+    },
+    [props.account, pendingSignatureRequests]
+  )
+
   return (
     <>
       <InteractiveSignatureRequestList
         account={props.account}
-        icon={<DoneAllIcon />}
-        signatureRequests={pendingSignatureRequests.filter(
-          request =>
-            request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-            !hasSigned(request.meta.transaction, props.account.publicKey)
-        )}
+        icon={cosignIcon}
+        signatureRequests={pendingRequestsToCosign}
         title="Transactions to co-sign"
       />
       <InteractiveSignatureRequestList
         account={props.account}
-        icon={<UpdateIcon style={{ opacity: 0.5 }} />}
-        signatureRequests={pendingSignatureRequests.filter(
-          request =>
-            request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-            hasSigned(request.meta.transaction, props.account.publicKey)
-        )}
+        icon={waitingIcon}
+        signatureRequests={pendingRequestsWaitingForOthers}
         title="Awaiting additional signatures"
       />
     </>

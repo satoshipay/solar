@@ -47,47 +47,53 @@ interface Props {
 function CreatePaymentDialog(props: Props) {
   const [txCreationPending, setTxCreationPending] = React.useState(false)
   const isSmallScreen = useIsMobile()
-  const trustedAssets = getAssetsFromBalances(props.accountData.balances) || [Asset.native()]
 
-  const handleSubmit = async (formValues: PaymentCreationValues) => {
-    try {
-      setTxCreationPending(true)
-      const asset = trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
-      const federationRecord =
-        formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
-      const destination = federationRecord ? federationRecord.account_id : formValues.destination
+  const trustedAssets = React.useMemo(() => getAssetsFromBalances(props.accountData.balances) || [Asset.native()], [
+    props.accountData.balances
+  ])
 
-      const userMemo = createMemo(formValues)
-      const federationMemo =
-        federationRecord && federationRecord.memo && federationRecord.memo_type
-          ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
-          : Memo.none()
+  const handleSubmit = React.useCallback(
+    async (formValues: PaymentCreationValues) => {
+      try {
+        setTxCreationPending(true)
+        const asset = trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+        const federationRecord =
+          formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
+        const destination = federationRecord ? federationRecord.account_id : formValues.destination
 
-      if (userMemo.type !== "none" && federationMemo.type !== "none") {
-        throw new Error(
-          `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
-        )
+        const userMemo = createMemo(formValues)
+        const federationMemo =
+          federationRecord && federationRecord.memo && federationRecord.memo_type
+            ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
+            : Memo.none()
+
+        if (userMemo.type !== "none" && federationMemo.type !== "none") {
+          throw new Error(
+            `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
+          )
+        }
+
+        const payment = await createPaymentOperation({
+          asset: asset || Asset.native(),
+          amount: formValues.amount,
+          destination,
+          horizon: props.horizon
+        })
+        const tx = await createTransaction([payment], {
+          accountData: props.accountData,
+          memo: federationMemo.type !== "none" ? federationMemo : userMemo,
+          horizon: props.horizon,
+          walletAccount: props.account
+        })
+        props.sendTransaction(tx)
+      } catch (error) {
+        trackError(error)
+      } finally {
+        setTxCreationPending(false)
       }
-
-      const payment = await createPaymentOperation({
-        asset: asset || Asset.native(),
-        amount: formValues.amount,
-        destination,
-        horizon: props.horizon
-      })
-      const tx = await createTransaction([payment], {
-        accountData: props.accountData,
-        memo: federationMemo.type !== "none" ? federationMemo : userMemo,
-        horizon: props.horizon,
-        walletAccount: props.account
-      })
-      props.sendTransaction(tx)
-    } catch (error) {
-      trackError(error)
-    } finally {
-      setTxCreationPending(false)
-    }
-  }
+    },
+    [props.account, props.accountData, props.sendTransaction, trackError, trustedAssets]
+  )
 
   return (
     <Box width="100%" maxHeight="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">

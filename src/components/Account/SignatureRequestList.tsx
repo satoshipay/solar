@@ -61,7 +61,8 @@ interface SignatureRequestListProps {
   title: React.ReactNode
 }
 
-export function SignatureRequestList(props: SignatureRequestListProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const SignatureRequestList = React.memo(function SignatureRequestList(props: SignatureRequestListProps) {
   const settings = React.useContext(SettingsContext)
   const [pendingConfirmation, setPendingConfirmation] = React.useState<SignatureRequest | null>(null)
 
@@ -112,7 +113,7 @@ export function SignatureRequestList(props: SignatureRequestListProps) {
       </ConfirmDialog>
     </>
   )
-}
+})
 
 export const InteractiveSignatureRequestList = React.memo(
   (props: {
