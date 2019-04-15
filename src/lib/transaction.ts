@@ -15,6 +15,10 @@ const highFeePreset: SmartFeePreset = {
   percentile: 90
 }
 
+// Use a relatively high fee in case there will be a lot of traffic
+// on the network later when the tx will be submitted to the network
+export const multisigMinimumFee = 10_000
+
 export function selectNetwork(testnet = false) {
   if (testnet) {
     Network.useTestNetwork()
@@ -70,6 +74,7 @@ interface TxBlueprint {
   accountData: Pick<Server.AccountRecord, "id" | "signers">
   horizon: Server
   memo?: Memo | null
+  minTransactionFee?: number
   walletAccount: Account
 }
 
@@ -77,10 +82,12 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   const { horizon, walletAccount } = options
   const timeout = selectTransactionTimeout(options.accountData)
 
-  const [account, txFee] = await Promise.all([
+  const [account, smartTxFee] = await Promise.all([
     horizon.loadAccount(walletAccount.publicKey),
     selectTransactionFeeWithFallback(horizon, 1500)
   ])
+
+  const txFee = Math.max(smartTxFee, options.minTransactionFee || 0)
 
   selectNetwork(walletAccount.testnet)
   const builder = new TransactionBuilder(account, { fee: txFee, memo: options.memo || undefined })

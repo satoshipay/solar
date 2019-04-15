@@ -4,7 +4,7 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
 import { lookupFederationRecord } from "../../lib/stellar-address"
-import { createPaymentOperation, createTransaction } from "../../lib/transaction"
+import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
 import AccountBalancesContainer from "../Account/AccountBalancesContainer"
 import TestnetBadge from "../Dialog/TestnetBadge"
@@ -73,6 +73,8 @@ function CreatePaymentDialog(props: Props) {
           )
         }
 
+        const isMultisigTx = props.accountData.signers.length > 1
+
         const payment = await createPaymentOperation({
           asset: asset || Asset.native(),
           amount: formValues.amount,
@@ -82,6 +84,7 @@ function CreatePaymentDialog(props: Props) {
         const tx = await createTransaction([payment], {
           accountData: props.accountData,
           memo: federationMemo.type !== "none" ? federationMemo : userMemo,
+          minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
           horizon: props.horizon,
           walletAccount: props.account
         })
