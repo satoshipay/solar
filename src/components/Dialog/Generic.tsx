@@ -6,9 +6,13 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import Slide from "@material-ui/core/Slide"
 import Typography from "@material-ui/core/Typography"
-import { useIsSmallMobile } from "../../hooks"
+import CloseIcon from "@material-ui/icons/Close"
+import { useIsMobile } from "../../hooks"
+import { HorizontalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 import ButtonIconLabel from "../ButtonIconLabel"
+
+const closeIcon = <CloseIcon />
 
 const Transition = (props: any) => <Slide {...props} direction="up" />
 
@@ -39,7 +43,26 @@ interface ActionButtonProps {
 
 export function ActionButton(props: ActionButtonProps) {
   const { type = "secondary" } = props
-  const isTinyScreen = useIsSmallMobile()
+  const isSmallScreen = useIsMobile()
+
+  const desktopStyle = React.useMemo(
+    () => ({
+      padding: "10px 20px",
+      ...props.style
+    }),
+    [props.style]
+  )
+
+  const mobileStyle = React.useMemo(
+    () => ({
+      flexGrow: 1,
+      margin: 12,
+      maxWidth: "calc(50% - 32px)",
+      padding: "12px 16px",
+      ...props.style
+    }),
+    [props.style]
+  )
 
   return (
     <Button
@@ -47,10 +70,7 @@ export function ActionButton(props: ActionButtonProps) {
       color={type === "primary" || type === "submit" ? "primary" : undefined}
       disabled={props.disabled}
       onClick={props.onClick}
-      style={{
-        padding: isTinyScreen ? "2px 8px" : "10px 20px",
-        ...props.style
-      }}
+      style={isSmallScreen ? mobileStyle : desktopStyle}
       type={type === "submit" ? "submit" : undefined}
       variant="contained"
     >
@@ -59,23 +79,67 @@ export function ActionButton(props: ActionButtonProps) {
   )
 }
 
+export function CloseButton(props: { onClick: () => void }) {
+  return (
+    <ActionButton icon={closeIcon} onClick={props.onClick} type="secondary">
+      Close
+    </ActionButton>
+  )
+}
+
+interface MobileDialogActionsBoxProps {
+  children: React.ReactNode | React.ReactNode[]
+}
+
+// tslint:disable-next-line no-shadowed-variable
+const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps) {
+  return (
+    <>
+      {/*
+        * Placeholder to prevent other dialog content from being hidden below the actions box
+        * Make sure its height matches the height of the actions box
+        */}
+      <div style={{ width: "100%", height: 72 }} />
+
+      <HorizontalLayout
+        style={{
+          position: "fixed",
+          left: 0,
+          bottom: 0,
+          width: "100%",
+          background: "white",
+          boxShadow: "0 0 16px 0 rgba(0, 0, 0, 0.1)",
+          justifyContent: "flex-end"
+        }}
+      >
+        {props.children}
+      </HorizontalLayout>
+    </>
+  )
+})
+
 interface DialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
   spacing?: "normal" | "large"
-  style?: React.CSSProperties
+  desktopStyle?: React.CSSProperties
 }
 
-export function DialogActionsBox(props: DialogActionsBoxProps) {
-  const style: React.CSSProperties = {
+// tslint:disable-next-line no-shadowed-variable
+export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
+  const isSmallScreen = useIsMobile()
+  if (isSmallScreen) {
+    return <MobileDialogActionsBox>{props.children}</MobileDialogActionsBox>
+  }
+  const desktopStyle: React.CSSProperties = {
     alignItems: "stretch",
     marginTop: 32,
     marginLeft: 0,
     marginRight: 0,
     marginBottom: 0,
-    ...props.style
+    ...props.desktopStyle
   }
   return (
-    <DialogActions style={style}>
+    <DialogActions style={desktopStyle}>
       {React.Children.map(
         props.children,
         (child, index) =>
@@ -90,7 +154,7 @@ export function DialogActionsBox(props: DialogActionsBoxProps) {
       )}
     </DialogActions>
   )
-}
+})
 
 interface ConfirmDialogProps {
   children: React.ReactNode

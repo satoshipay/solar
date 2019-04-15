@@ -80,7 +80,7 @@ function TxConfirmationForm(props: Props) {
             style={{ marginBottom: 32 }}
           />
         ) : null}
-        <DialogActionsBox style={{ justifyContent: "center" }}>
+        <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
           {props.disabled ? null : (
             <ActionButton icon={<CheckIcon />} onClick={() => undefined} type="submit">
               Confirm
