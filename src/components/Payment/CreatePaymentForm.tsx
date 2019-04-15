@@ -257,4 +257,4 @@ function PaymentCreationForm(props: Props) {
   )
 }
 
-export default PaymentCreationForm
+export default React.memo(PaymentCreationForm)

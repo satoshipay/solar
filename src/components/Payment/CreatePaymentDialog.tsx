@@ -40,19 +40,25 @@ function CreatePaymentDialog(props: Props) {
   const [selectedTab, setSelectedTab] = React.useState<ActionMode>("native")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
   const isSmallScreen = useIsMobile()
-  const trustedAssets = getAssetsFromBalances(props.accountData.balances) || [Asset.native()]
 
-  const handleSubmit = async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
-    try {
-      setTxCreationPending(true)
-      const tx = await createTx(props.horizon, props.account)
-      await props.sendTransaction(tx)
-    } catch (error) {
-      trackError(error)
-    } finally {
-      setTxCreationPending(false)
-    }
-  }
+  const handleSubmit = React.useCallback(
+    async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
+      try {
+        setTxCreationPending(true)
+        const tx = await createTx(props.horizon, props.account)
+        await props.sendTransaction(tx)
+      } catch (error) {
+        trackError(error)
+      } finally {
+        setTxCreationPending(false)
+      }
+    },
+    [props.account, props.horizon]
+  )
+
+  const trustedAssets = React.useMemo(() => getAssetsFromBalances(props.accountData.balances) || [Asset.native()], [
+    props.accountData.balances
+  ])
 
   return (
     <Box width="100%" maxHeight="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
