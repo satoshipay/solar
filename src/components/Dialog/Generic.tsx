@@ -102,10 +102,12 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
       <div style={{ width: "100%", height: 72 }} />
 
       <HorizontalLayout
+        className="iphone-notch-bottom-spacing"
         style={{
           position: "fixed",
           left: 0,
           bottom: 0,
+          padding: undefined,
           width: "100%",
           background: "white",
           boxShadow: "0 0 16px 0 rgba(0, 0, 0, 0.1)",
