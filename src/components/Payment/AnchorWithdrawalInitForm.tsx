@@ -159,13 +159,13 @@ function AnchorWithdrawalInitForm(props: Props) {
             ))}
           </TextField>
         </HorizontalLayout>
-        <HorizontalLayout>
+        <HorizontalLayout margin="0 -12px" wrap="wrap">
           {fields.dest ? (
             <TextField
               label="Destination account"
               onChange={event => setFormValue("dest", event.target.value)}
               placeholder={getFieldDescription("dest")}
-              style={{ flexGrow: 3, marginTop: 24, marginRight: fields.dest_extra ? 24 : undefined }}
+              style={{ flexGrow: 3, margin: "24px 12px 0" }}
               value={formValues.dest || ""}
             />
           ) : null}
@@ -174,7 +174,7 @@ function AnchorWithdrawalInitForm(props: Props) {
               label={getFieldDescription("dest_extra", true) || "Extra destination data (no description)"}
               onChange={event => setFormValue("dest_extra", event.target.value)}
               placeholder={getFieldDescription("dest_extra")}
-              style={{ flexGrow: 1, marginTop: 24 }}
+              style={{ flexGrow: 1, margin: "24px 12px 0", minWidth: 150 }}
               value={formValues.dest_extra || ""}
             />
           ) : null}
