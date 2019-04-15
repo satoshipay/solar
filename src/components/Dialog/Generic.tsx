@@ -36,7 +36,7 @@ interface ActionButtonProps {
   disabled?: boolean
   icon?: React.ReactNode
   loading?: boolean
-  onClick: () => void
+  onClick: (event: React.SyntheticEvent) => void
   style?: React.CSSProperties
   type?: "primary" | "secondary" | "submit"
 }
