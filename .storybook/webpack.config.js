@@ -3,7 +3,7 @@ const webpack = require("webpack")
 module.exports = async function customizeWebpackConfig({ config }) {
   config.module.rules.push({
     test: /\.(ts|tsx)$/,
-    loader: require.resolve("awesome-typescript-loader")
+    loader: require.resolve("ts-loader")
   })
   config.plugins.push(
     new webpack.NormalModuleReplacementPlugin(/\/platform\/key-store$/, resource => {
