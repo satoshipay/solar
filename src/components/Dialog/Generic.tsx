@@ -36,7 +36,7 @@ interface ActionButtonProps {
   disabled?: boolean
   icon?: React.ReactNode
   loading?: boolean
-  onClick: (event: React.SyntheticEvent) => void
+  onClick?: (event: React.SyntheticEvent) => void
   style?: React.CSSProperties
   type?: "primary" | "secondary" | "submit"
 }
@@ -79,7 +79,7 @@ export function ActionButton(props: ActionButtonProps) {
   )
 }
 
-export function CloseButton(props: { onClick: () => void }) {
+export function CloseButton(props: { onClick?: (event: React.SyntheticEvent) => void }) {
   return (
     <ActionButton icon={closeIcon} onClick={props.onClick} type="secondary">
       Close
