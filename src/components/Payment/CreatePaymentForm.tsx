@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
+import InputAdornment from "@material-ui/core/InputAdornment"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
@@ -14,7 +15,7 @@ import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
-import { PriceInput } from "../Form/FormFields"
+import { PriceInput, QRReader } from "../Form/FormFields"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
 
@@ -144,6 +145,16 @@ function PaymentCreationForm(props: Props) {
         margin="normal"
         value={formValues.destination}
         onChange={event => setFormValue("destination", event.target.value)}
+        inputProps={{
+          style: { textOverflow: "ellipsis" }
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment disableTypography position="end">
+              <QRReader iconStyle={{ color: "rgba(0, 0, 0, 0.87)" }} onScan={key => setFormValue("destination", key)} />
+            </InputAdornment>
+          )
+        }}
       />
       <HorizontalLayout justifyContent="space-between" alignItems="center">
         <PriceInput

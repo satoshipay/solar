@@ -1,6 +1,41 @@
 import React from "react"
+import IconButton from "@material-ui/core/IconButton"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
+import { trackError } from "../../context/notifications"
+import QRImportDialog from "../Dialog/QRImport"
+import QRReaderIcon from "../Icon/QRReader"
+
+interface Props {
+  iconStyle?: React.CSSProperties
+  onScan: (data: string) => void
+}
+
+// tslint:disable-next-line no-shadowed-variable
+export const QRReader = React.memo(function QRReader(props: Props) {
+  const [isQRReaderOpen, setQRReaderOpen] = React.useState(false)
+  const closeQRReader = React.useCallback(() => setQRReaderOpen(false), [])
+  const openQRReader = React.useCallback(() => setQRReaderOpen(true), [])
+
+  const handleQRScan = React.useCallback(
+    (data: string | null) => {
+      if (data) {
+        props.onScan(data)
+        closeQRReader()
+      }
+    },
+    [props.onScan]
+  )
+
+  return (
+    <>
+      <IconButton onClick={openQRReader} style={props.iconStyle}>
+        <QRReaderIcon />
+      </IconButton>
+      <QRImportDialog open={isQRReaderOpen} onClose={closeQRReader} onError={trackError} onScan={handleQRScan} />
+    </>
+  )
+})
 
 type PriceInputProps = TextFieldProps & { assetCode: React.ReactNode; readOnly?: boolean }
 
