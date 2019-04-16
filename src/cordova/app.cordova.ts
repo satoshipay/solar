@@ -27,7 +27,7 @@ function onDeviceReady() {
   initializeQRReader()
   initializeClipboard(cordova)
 
-  document.addEventListener("backbutton", onBackKeyDown, false)
+  document.addEventListener("backbutton", event => contentWindow.postMessage({ id: "backbutton" }, "*"), false)
   iframe.addEventListener("load", () => setupLinkListeners(contentWindow), false)
 }
 
@@ -48,10 +48,6 @@ function initializeStorage(contentWindow: Window) {
   })
 
   return initPromise
-}
-
-function onBackKeyDown() {
-  // FIXME: Handle the back button
 }
 
 function setupLinkListeners(contentWindow: Window) {

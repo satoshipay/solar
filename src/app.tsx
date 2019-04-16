@@ -5,6 +5,7 @@ import ReactDOM from "react-dom"
 import { HashRouter as Router, Route, Switch } from "react-router-dom"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
+import AndroidBackButton from "./components/AndroidBackButton"
 import ErrorBoundary from "./components/ErrorBoundary"
 import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
@@ -65,6 +66,7 @@ const App = () => (
               </Switch>
               <DesktopNotifications />
               <NotificationContainer />
+              {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
             </ErrorBoundary>
           </VerticalLayout>
         </VerticalLayout>
