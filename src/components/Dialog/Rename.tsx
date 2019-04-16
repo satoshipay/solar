@@ -5,8 +5,8 @@ import TextField from "@material-ui/core/TextField"
 import EditIcon from "@material-ui/icons/Edit"
 import { trackError } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
-import CloseButton from "./CloseButton"
-import { ActionButton, DialogActionsBox } from "./Generic"
+import { VerticalLayout } from "../Layout/Box"
+import { ActionButton, CloseButton, DialogActionsBox } from "./Generic"
 
 interface Props {
   onClose: () => void
@@ -32,8 +32,7 @@ function RenameDialog(props: Props) {
   }
 
   return (
-    <>
-      <CloseButton onClick={props.onClose} />
+    <VerticalLayout minWidth={250}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <form style={{ minWidth: isSmallScreen ? 120 : 400 }} onSubmit={handleSubmit}>
@@ -45,15 +44,15 @@ function RenameDialog(props: Props) {
             onChange={handleInput}
             value={newName}
           />
-          <DialogActionsBox>
-            <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+          <DialogActionsBox smallDialog>
+            <CloseButton onClick={props.onClose} />
             <ActionButton icon={<EditIcon />} onClick={handleSubmit} type="primary">
               Rename
             </ActionButton>
           </DialogActionsBox>
         </form>
       </DialogContent>
-    </>
+    </VerticalLayout>
   )
 }
 

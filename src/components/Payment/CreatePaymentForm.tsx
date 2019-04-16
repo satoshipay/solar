@@ -197,7 +197,7 @@ function PaymentCreationForm(props: Props) {
           <div />
         )}
       </Box>
-      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+      <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
         <ActionButton
           disabled={isDisabled}
           icon={<SendIcon style={{ fontSize: 16 }} />}

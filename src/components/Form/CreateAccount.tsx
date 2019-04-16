@@ -4,19 +4,18 @@ import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import CheckIcon from "@material-ui/icons/Check"
-import CloseIcon from "@material-ui/icons/Close"
 import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
+import { ActionButton, CloseButton, DialogActionsBox } from "../Dialog/Generic"
 import QRImportDialog from "../Dialog/QRImport"
 import QRCodeIcon from "../Icon/QRCode"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 import ToggleSection from "../Layout/ToggleSection"
-import ButtonIconLabel from "../ButtonIconLabel"
 
 export interface AccountCreationValues {
   name: string
@@ -198,19 +197,12 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
             </Button>
           </HorizontalLayout>
         </ToggleSection>
-        <HorizontalLayout justifyContent="end" alignItems="center" margin="64px 0 0" width="auto">
-          <Button variant="contained" onClick={props.onCancel}>
-            <ButtonIconLabel label="Cancel">
-              <CloseIcon />
-            </ButtonIconLabel>
-          </Button>
-          <HorizontalMargin size={16} />
-          <Button color="primary" variant="contained" onClick={props.onSubmit} type="submit">
-            <ButtonIconLabel label={primaryButtonLabel}>
-              <CheckIcon />
-            </ButtonIconLabel>
-          </Button>
-        </HorizontalLayout>
+        <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
+          <CloseButton onClick={props.onCancel} />
+          <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
+            {primaryButtonLabel}
+          </ActionButton>
+        </DialogActionsBox>
       </VerticalLayout>
     </form>
   )
