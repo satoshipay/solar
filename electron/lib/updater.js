@@ -21,7 +21,10 @@ async function checkForUpdates() {
       title: `New version ${release.name} of Solar available`,
       subtitle: `Click to download the update.`
     })
-    notification.on("click", () => open(urlToOpen))
+    notification.on("click", () => {
+      open("https://solarwallet.io/downloading")
+      open(urlToOpen)
+    })
     notification.show()
   }
 }
