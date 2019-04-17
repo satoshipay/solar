@@ -151,7 +151,7 @@ function PaymentCreationForm(props: Props) {
         InputProps={{
           endAdornment: (
             <InputAdornment disableTypography position="end">
-              <QRReader iconStyle={{ color: "rgba(0, 0, 0, 0.87)" }} onScan={key => setFormValue("destination", key)} />
+              <QRReader iconStyle={{ fontSize: 20 }} onScan={key => setFormValue("destination", key)} />
             </InputAdornment>
           )
         }}

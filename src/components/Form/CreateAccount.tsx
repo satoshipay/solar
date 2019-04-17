@@ -194,7 +194,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               InputProps={{
                 endAdornment: (
                   <InputAdornment disableTypography position="end">
-                    <QRReader iconStyle={{ color: "rgba(0, 0, 0, 0.87)" }} onScan={onQRImport} />
+                    <QRReader iconStyle={{ fontSize: 20 }} onScan={onQRImport} />
                   </InputAdornment>
                 )
               }}
