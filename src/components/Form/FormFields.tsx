@@ -29,8 +29,8 @@ export const QRReader = React.memo(function QRReader(props: Props) {
 
   return (
     <>
-      <IconButton onClick={openQRReader} style={props.iconStyle}>
-        <QRReaderIcon />
+      <IconButton onClick={openQRReader}>
+        <QRReaderIcon style={props.iconStyle} />
       </IconButton>
       <QRImportDialog open={isQRReaderOpen} onClose={closeQRReader} onError={trackError} onScan={handleQRScan} />
     </>
