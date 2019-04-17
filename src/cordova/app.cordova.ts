@@ -26,6 +26,7 @@ function onDeviceReady() {
   initializeStorage(contentWindow).catch(trackError)
   initializeQRReader()
   initializeClipboard(cordova)
+  initializeIPhoneNotchFix()
 
   document.addEventListener("backbutton", event => contentWindow.postMessage({ id: "backbutton" }, "*"), false)
   iframe.addEventListener("load", () => setupLinkListeners(contentWindow), false)
@@ -48,6 +49,29 @@ function initializeStorage(contentWindow: Window) {
   })
 
   return initPromise
+}
+
+function initializeIPhoneNotchFix() {
+  if (device.platform !== "iOS") {
+    return false
+  }
+  if (typeof Keyboard === "undefined") {
+    throw new Error("This fix depends on 'cordova-plugin-keyboard'!")
+  }
+
+  const viewportElement = document.getElementsByName("viewport")[0]
+  const defaultContent = viewportElement.getAttribute("content")
+
+  setCover()
+  window.addEventListener("keyboardWillShow", setFix)
+  window.addEventListener("keyboardWillHide", setCover)
+
+  function setCover() {
+    viewportElement.setAttribute("content", defaultContent + ", viewport-fit=cover")
+  }
+  function setFix() {
+    viewportElement.setAttribute("content", defaultContent + "")
+  }
 }
 
 function setupLinkListeners(contentWindow: Window) {
