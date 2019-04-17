@@ -19,6 +19,17 @@ const highFeePreset: SmartFeePreset = {
 // on the network later when the tx will be submitted to the network
 export const multisigMinimumFee = 10_000
 
+export function createCheapTxID(transaction: Transaction | Server.TransactionRecord): string {
+  const source = "source" in transaction ? transaction.source : transaction.source_account
+  const sequence = "sequence" in transaction ? transaction.sequence : transaction.source_account_sequence
+
+  if (!source || !sequence) {
+    throw new Error(`Bad transaction given. Expected a Transaction or TransactionRecord, but got: ${transaction}`)
+  }
+
+  return `${source}:${sequence}`
+}
+
 export function selectNetwork(testnet = false) {
   if (testnet) {
     Network.useTestNetwork()
