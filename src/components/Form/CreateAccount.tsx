@@ -95,7 +95,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
             error={Boolean(errors.name)}
             label={errors.name ? renderFormFieldError(errors.name) : undefined}
             placeholder={props.testnet ? "New Testnet Account" : "New Account"}
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             margin="normal"
             value={formValues.name}
             onChange={event => setFormValue("name", event.target.value)}
