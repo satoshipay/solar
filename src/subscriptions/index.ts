@@ -15,8 +15,23 @@ const accountOffersSubscriptionsCache = new Map<string, SubscriptionTarget<Obser
 const orderbookSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedTradingPair>>()
 const recentTxsSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedRecentTxs>>()
 
+const allCaches = [
+  accountDataSubscriptionsCache,
+  accountEffectsSubscriptionsCache,
+  accountOffersSubscriptionsCache,
+  orderbookSubscriptionsCache,
+  recentTxsSubscriptionsCache
+]
+
 export function getAssetCacheKey(asset: Asset) {
   return asset.isNative() ? "XLM" : asset.getIssuer() + asset.getCode()
+}
+
+export function resetAllSubscriptions() {
+  // TODO: Does not cancel existing subscriptions as of right now!
+  for (const cache of allCaches) {
+    cache.clear()
+  }
 }
 
 export function subscribeToAccount(horizon: Server, accountPubKey: string): SubscriptionTarget<ObservedAccountData> {

@@ -3,6 +3,7 @@ import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import { Account } from "./context/accounts"
+import { StellarContext } from "./context/stellar"
 import { SubscriptionTarget } from "./lib/subscription"
 import {
   getAssetCacheKey,
@@ -20,15 +21,13 @@ import {
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
 export const useIsMobile = () => useMediaQuery("(max-width:600px)")
-
 export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
 
-// TODO: Should probably be stored in context
-const horizonLivenet = new Server("https://stellar-horizon.satoshipay.io/")
-const horizonTestnet = new Server("https://stellar-horizon-testnet.satoshipay.io/")
-
 export function useHorizon(testnet: boolean = false) {
-  return testnet ? horizonTestnet : horizonLivenet
+  const stellar = React.useContext(StellarContext)
+  const horizonURL = testnet ? stellar.horizonTestnetURL : stellar.horizonLivenetURL
+  const horizon = React.useMemo(() => new Server(horizonURL), [horizonURL])
+  return horizon
 }
 
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
@@ -76,7 +75,7 @@ export function useAccountDataSet(accountIDs: string[], testnet: boolean): Obser
   const horizon = useHorizon(testnet)
   const accountSubscriptions = React.useMemo(
     () => accountIDs.map(accountID => subscribeToAccount(horizon, accountID)),
-    [accountIDs.join(","), testnet]
+    [accountIDs.join(","), horizon]
   )
 
   return useDataSubscriptions(accountSubscriptions)
@@ -89,7 +88,7 @@ export function useAccountData(accountID: string, testnet: boolean): ObservedAcc
 export function useAccountOffers(accountID: string, testnet: boolean): ObservedAccountOffers {
   const horizon = useHorizon(testnet)
 
-  const offersSubscription = React.useMemo(() => subscribeToAccountOffers(horizon, accountID), [accountID, testnet])
+  const offersSubscription = React.useMemo(() => subscribeToAccountOffers(horizon, accountID), [accountID, horizon])
 
   return useDataSubscription(offersSubscription)
 }
@@ -111,7 +110,7 @@ export function useAccountEffectSubscriptions(accounts: Account[], handler: Effe
 
       return () => unsubscribeHandlers.forEach(unsubscribe => unsubscribe())
     },
-    [accounts]
+    [accounts, mainnetHorizon, testnetHorizon]
   )
 }
 
@@ -134,6 +133,7 @@ export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): O
   const horizon = useHorizon(testnet)
 
   const ordersSubscription = React.useMemo(() => subscribeToOrders(horizon, selling, buying), [
+    horizon,
     getAssetCacheKey(selling),
     getAssetCacheKey(buying)
   ])
@@ -143,7 +143,7 @@ export function useOrderbook(selling: Asset, buying: Asset, testnet: boolean): O
 
 export function useRecentTransactions(accountID: string, testnet: boolean): ObservedRecentTxs {
   const horizon = useHorizon(testnet)
-  const recentTxsSubscription = React.useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, testnet])
+  const recentTxsSubscription = React.useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, horizon])
 
   return useDataSubscription(recentTxsSubscription)
 }
