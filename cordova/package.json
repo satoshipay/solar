@@ -18,7 +18,8 @@
       },
       "cordova-plugin-splashscreen": {},
       "cordova-clipboard": {},
-      "cordova-plugin-inappbrowser": {}
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-wkwebview-engine": {}
     }
   },
   "dependencies": {
