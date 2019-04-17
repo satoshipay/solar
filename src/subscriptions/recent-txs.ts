@@ -3,6 +3,7 @@ import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { createStreamDebouncer, trackStreamError } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
+import { createCheapTxID } from "../lib/transaction"
 
 export interface ObservedRecentTxs {
   activated: boolean
@@ -33,8 +34,8 @@ export function createRecentTxsSubscription(
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
 
   const getUnknownTransactions = (fetchedTxs: Server.TransactionRecord[]) => {
-    const knownTxHashes = subscriptionTarget.getLatest().transactions.map(tx => tx.hash().toString("hex"))
-    return fetchedTxs.filter(loadedTx => knownTxHashes.indexOf(loadedTx.hash) === -1)
+    const knownTxHashes = subscriptionTarget.getLatest().transactions.map(createCheapTxID)
+    return fetchedTxs.filter(loadedTx => knownTxHashes.indexOf(createCheapTxID(loadedTx)) === -1)
   }
 
   const handleNewTxs = (newTxs: Server.TransactionRecord[]) => {
