@@ -23,7 +23,7 @@ function KeyExport(props: { account: Account; secretKey: string }) {
   const { showNotification } = React.useContext(NotificationsContext)
 
   const copyToClipboard = async () => {
-    await clipboard.copyToClipboard(props.account.publicKey)
+    await clipboard.copyToClipboard(props.secretKey)
     showNotification("info", "Copied to clipboard.")
   }
   return (
