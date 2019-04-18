@@ -52,7 +52,7 @@ function initializeStorage(contentWindow: Window) {
 }
 
 function initializeIPhoneNotchFix() {
-  if (device.platform !== "iOS") {
+  if (!device || device.platform !== "iOS") {
     return false
   }
   if (typeof Keyboard === "undefined") {
