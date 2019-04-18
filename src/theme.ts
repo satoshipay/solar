@@ -58,6 +58,9 @@ const theme = createMuiTheme({
         borderColor: "rgba(255, 255, 255, 0.87)",
         boxShadow: "none",
         color: "white",
+        "&:disabled": {
+          opacity: 0.5
+        },
         "&:hover": {
           backgroundColor: "rgba(255, 255, 255, 0.10)",
           borderColor: "white"

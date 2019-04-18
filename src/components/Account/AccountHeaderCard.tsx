@@ -58,6 +58,7 @@ function AccountHeaderCard(props: Props) {
     () => (
       <>
         <Button
+          disabled={!accountData.activated}
           onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
           style={{
             borderColor: "rgba(255, 255, 255, 0.9)",
