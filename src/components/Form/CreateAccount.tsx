@@ -75,10 +75,10 @@ function AccountCreationForm(props: AccountCreationFormProps) {
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const primaryButtonLabel = formValues.createNewKey
-    ? isTinyScreen
+    ? isSmallScreen
       ? "Create"
       : "Create Account"
-    : isTinyScreen
+    : isSmallScreen
       ? "Import"
       : "Import Account"
 
