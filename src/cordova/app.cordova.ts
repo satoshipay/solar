@@ -3,6 +3,8 @@
  * Wire-up cordova plugins with window.postMessage()-based IPC here.
  */
 
+import "../../cordova/plugins/cordova-plugin-device/types/index.d.ts"
+
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
