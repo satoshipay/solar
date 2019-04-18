@@ -67,10 +67,10 @@ function initializeIPhoneNotchFix() {
   window.addEventListener("keyboardWillHide", setCover)
 
   function setCover() {
-    viewportElement.setAttribute("content", defaultContent + ", viewport-fit=cover")
+    viewportElement.setAttribute("content", `${defaultContent}, viewport-fit=cover`)
   }
   function setFix() {
-    viewportElement.setAttribute("content", defaultContent + "")
+    viewportElement.setAttribute("content", String(defaultContent))
   }
 }
 
