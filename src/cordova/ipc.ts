@@ -35,7 +35,7 @@ export const events = {
 let commandHandlers: CommandHandlers = {}
 
 export function handleMessageEvent(event: Event, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  if (!(event instanceof MessageEvent)) {
+  if (!(event instanceof MessageEvent) || event.source !== contentWindow) {
     return
   }
 
