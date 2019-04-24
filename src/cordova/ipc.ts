@@ -17,7 +17,9 @@ export const commands = {
 
   scanQRCodeCommand: "qr-code:scan",
 
-  copyToClipboard: "clipboard:write"
+  copyToClipboard: "clipboard:write",
+
+  openLink: "link:open"
 }
 
 // event types

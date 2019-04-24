@@ -3,8 +3,6 @@
  * Wire-up cordova plugins with window.postMessage()-based IPC here.
  */
 
-import "../../cordova/plugins/cordova-plugin-device/types/index.d.ts"
-
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
@@ -30,8 +28,9 @@ function onDeviceReady() {
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
 
+  setupLinkListener()
+
   document.addEventListener("backbutton", event => contentWindow.postMessage({ id: "backbutton" }, "*"), false)
-  iframe.addEventListener("load", () => setupLinkListeners(contentWindow), false)
 }
 
 function initializeClipboard(cordova: Cordova) {
@@ -76,14 +75,28 @@ function initializeIPhoneNotchFix() {
   }
 }
 
-function setupLinkListeners(contentWindow: Window) {
-  contentWindow.document.body.addEventListener("click", event => {
-    const link = event.target as Element | null
-    if (link && link.tagName === "A" && link.getAttribute("href")) {
-      const href = link.getAttribute("href") as string
-      const target = link.getAttribute("target") || "_self"
-      event.preventDefault()
-      window.cordova.InAppBrowser.open(href, target === "_blank" ? "_system" : target)
+function setupLinkListener() {
+  registerCommandHandler(commands.openLink, event => {
+    return new Promise(() => {
+      const url: string = event.data.url
+      openUrl(url)
+    })
+  })
+}
+
+function openUrl(url: string) {
+  SafariViewController.isAvailable(available => {
+    if (available) {
+      SafariViewController.show(
+        {
+          url,
+          tintColor: "#ffffff",
+          barColor: "#1c8fea",
+          controlTintColor: "#ffffff"
+        },
+        null,
+        null
+      )
     }
   })
 }

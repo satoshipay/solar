@@ -30,9 +30,46 @@ interface CordovaSecureStorage {
   clear(success: () => void, error: (error: any) => void): void
 }
 
+interface SafariViewController {
+  isAvailable(available: (available: boolean) => void)
+  show(
+    options: SafariViewControllerOptions,
+    result: ((result: any) => void) | null,
+    message: ((msg: string) => void) | null
+  )
+  hide()
+}
+
+declare const SafariViewController: SafariViewController
+
+interface SafariViewControllerOptions {
+  url: string
+  hidden?: boolean
+  animated?: boolean
+  transition?: string
+  enterReaderModeIfAvailable?: boolean
+  barColor?: string
+  tintColor?: string
+  controlTintColor?: string
+}
+
 interface Cordova {
   InAppBrowser: InAppBrowser
 }
+
+interface Device {
+  cordova: string
+  available: boolean
+  model: string
+  platform: string
+  uuid: string
+  version: string
+  manufacturer: string
+  isVirtual: boolean
+  serial: string
+}
+
+declare var device: Device
 
 interface CordovaPlugins {
   barcodeScanner: BarcodeScanner

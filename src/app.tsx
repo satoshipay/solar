@@ -7,6 +7,7 @@ import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
 import AndroidBackButton from "./components/AndroidBackButton"
 import ErrorBoundary from "./components/ErrorBoundary"
+import LinkHandler from "./components/LinkHandler"
 import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
 import NotificationContainer from "./components/NotificationContainer"
@@ -70,6 +71,7 @@ const App = () => (
           <DesktopNotifications />
           <NotificationContainer />
           {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
+          {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
         </ErrorBoundary>
       </VerticalLayout>
     </VerticalLayout>
