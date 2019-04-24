@@ -57,6 +57,20 @@ interface Cordova {
   InAppBrowser: InAppBrowser
 }
 
+interface Device {
+  cordova: string
+  available: boolean
+  model: string
+  platform: string
+  uuid: string
+  version: string
+  manufacturer: string
+  isVirtual: boolean
+  serial: string
+}
+
+declare var device: Device
+
 interface CordovaPlugins {
   barcodeScanner: BarcodeScanner
   clipboard: CordovaClipboard
