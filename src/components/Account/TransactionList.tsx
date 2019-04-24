@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, Memo, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
+import Collapse from "@material-ui/core/Collapse"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -24,6 +25,16 @@ type TransactionWithUndocumentedProps = Transaction & {
 }
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
+
+function EntryAnimation(props: { children: React.ReactNode; show: boolean }) {
+  return props.show ? (
+    <Collapse appear enter={false} in timeout={{ enter: 1000 }}>
+      {props.children}
+    </Collapse>
+  ) : (
+    <React.Fragment>{props.children}</React.Fragment>
+  )
+}
 
 function MemoMessage(props: { memo: Memo }) {
   const memo = props.memo
@@ -404,13 +415,18 @@ function TransactionList(props: {
       <ListSubheader disableSticky style={{ background: props.background }}>
         {props.title}
       </ListSubheader>
-      {props.transactions.map(transaction => (
-        <TransactionListItem
+      {(props.transactions as TransactionWithUndocumentedProps[]).map(transaction => (
+        <EntryAnimation
           key={createCheapTxID(transaction)}
-          accountPublicKey={props.accountPublicKey}
-          createdAt={(transaction as TransactionWithUndocumentedProps).created_at}
-          transaction={transaction}
-        />
+          show={Date.now() - new Date(transaction.created_at).getTime() < 10_000}
+        >
+          <TransactionListItem
+            key={createCheapTxID(transaction)}
+            accountPublicKey={props.accountPublicKey}
+            createdAt={transaction.created_at}
+            transaction={transaction}
+          />
+        </EntryAnimation>
       ))}
     </List>
   )
