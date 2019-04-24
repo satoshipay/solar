@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import fetch from "isomorphic-fetch"
-import { xdr, Horizon, Keypair, Server, Transaction } from "stellar-sdk"
+import { xdr, Asset, Horizon, Keypair, Server, Transaction } from "stellar-sdk"
 import { joinURL } from "./url"
 
 export interface SmartFeePreset {
@@ -123,6 +123,12 @@ export function getHorizonURL(horizon: Server) {
 
 export function isSignedByAnyOf(signature: xdr.DecoratedSignature, publicKeys: string[]) {
   return publicKeys.some(publicKey => signatureMatchesPublicKey(signature, publicKey))
+}
+
+export function offerAssetToAsset(offerAsset: Server.OfferAsset) {
+  return offerAsset.asset_type === "native"
+    ? Asset.native()
+    : new Asset(offerAsset.asset_code as string, offerAsset.asset_issuer as string)
 }
 
 export function signatureMatchesPublicKey(signature: xdr.DecoratedSignature, publicKey: string): boolean {
