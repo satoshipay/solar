@@ -5,8 +5,8 @@
   "displayName": "Solar",
   "cordova": {
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ],
     "plugins": {
       "cordova-plugin-secure-storage": {},
@@ -18,7 +18,10 @@
       },
       "cordova-plugin-splashscreen": {},
       "cordova-clipboard": {},
-      "cordova-plugin-inappbrowser": {}
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-wkwebview-engine": {},
+      "cordova-plugin-keyboard": {},
+      "cordova-plugin-device": {}
     }
   },
   "dependencies": {
@@ -26,12 +29,15 @@
     "cordova-android": "^8.0.0",
     "cordova-clipboard": "^1.2.1",
     "cordova-ios": "^5.0.0",
+    "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
     "cordova-plugin-inappbrowser": "^3.0.0",
+    "cordova-plugin-keyboard": "^1.2.0",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-secure-storage": "^3.0.1",
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-whitelist": "^1.3.3",
+    "cordova-plugin-wkwebview-engine": "^1.1.4",
     "phonegap-plugin-barcodescanner": "^8.0.1"
   },
   "devDependencies": {
