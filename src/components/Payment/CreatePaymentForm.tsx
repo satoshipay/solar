@@ -3,7 +3,6 @@ import React from "react"
 import { Asset } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputAdornment from "@material-ui/core/InputAdornment"
-import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
@@ -16,14 +15,6 @@ import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import { PriceInput, QRReader } from "../Form/FormFields"
-
-type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
-
-const memoInputLabels: MemoLabels = {
-  id: "Integer identifier",
-  none: "",
-  text: "Memo"
-}
 
 export interface PaymentCreationValues {
   amount: string
@@ -47,16 +38,8 @@ function validateFormValues(formValues: PaymentCreationValues, spendableBalance:
     errors.amount = new Error("Not enough funds.")
   }
 
-  if (formValues.memoType === "text") {
-    if (formValues.memoValue.length === 0) {
-      errors.memoValue = new Error('Memo cannot be empty, but can set memo type to "None".')
-    } else if (formValues.memoValue.length > 28) {
-      errors.memoValue = new Error("Memo too long.")
-    }
-  } else if (formValues.memoType === "id") {
-    if (!formValues.memoValue.match(/^[0-9]+$/)) {
-      errors.memoValue = new Error("Memo must be an integer.")
-    }
+  if (formValues.memoValue.length > 28) {
+    errors.memoValue = new Error("Memo too long.")
   }
 
   const success = Object.keys(errors).length === 0
@@ -177,36 +160,23 @@ function PaymentCreationForm(props: Props) {
             maxWidth: "60%"
           }}
         />
-        <FormControl margin="normal" style={{ width: "30%" }}>
-          <InputLabel htmlFor="select-memo-type" shrink>
-            Memo type
-          </InputLabel>
-          <Select
-            inputProps={{ id: "select-memo-type" }}
-            onChange={event => setFormValue("memoType", event.target.value)}
-            value={formValues.memoType}
-            style={{ width: "100%" }}
-          >
-            <MenuItem value="none">None</MenuItem>
-            <MenuItem value="text">Text</MenuItem>
-            <MenuItem value="id">ID</MenuItem>
-          </Select>
-        </FormControl>
       </HorizontalLayout>
       <Box>
-        {formValues.memoType !== "none" ? (
-          <TextField
-            inputProps={{ maxLength: 28 }}
-            error={Boolean(errors.memoValue)}
-            label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
-            margin="normal"
-            onChange={event => setFormValue("memoValue", event.target.value)}
-            value={formValues.memoValue}
-            style={{ width: "70%" }}
-          />
-        ) : (
-          <div />
-        )}
+        <TextField
+          inputProps={{ maxLength: 28 }}
+          error={Boolean(errors.memoValue)}
+          label={errors.memoValue ? renderFormFieldError(errors.memoValue) : "Description (optional)"}
+          margin="normal"
+          onChange={event => {
+            setFormValues({
+              ...formValues,
+              ["memoValue"]: event.target.value,
+              ["memoType"]: event.target.value.length === 0 ? "none" : "text"
+            })
+          }}
+          value={formValues.memoValue}
+          style={{ width: "100%" }}
+        />
       </Box>
       <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
         <ActionButton
