@@ -22,7 +22,7 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 // Had issues with react-storybook vs electron build
 type Timer = any
 
-function ConditionalSubmissionProgress(props: { promise: Promise<any> | null }) {
+function ConditionalSubmissionProgress(props: { onClose: () => void; promise: Promise<any> | null }) {
   const outerStyle: React.CSSProperties = {
     position: "absolute",
     display: props.promise ? "flex" : "none",
@@ -44,7 +44,9 @@ function ConditionalSubmissionProgress(props: { promise: Promise<any> | null }) 
   return (
     <div style={outerStyle}>
       <Zoom in={Boolean(props.promise)}>
-        <div style={innerStyle}>{props.promise ? <SubmissionProgress promise={props.promise} /> : null}</div>
+        <div style={innerStyle}>
+          {props.promise ? <SubmissionProgress onClose={props.onClose} promise={props.promise} /> : null}
+        </div>
       </Zoom>
     </div>
   )
@@ -228,7 +230,12 @@ class TransactionSender extends React.Component<Props, State> {
           transaction={transaction}
           onClose={this.onConfirmationDrawerCloseRequest}
           onSubmitTransaction={this.submitTransaction}
-          submissionProgress={<ConditionalSubmissionProgress promise={submissionPromise} />}
+          submissionProgress={
+            <ConditionalSubmissionProgress
+              onClose={this.onConfirmationDrawerCloseRequest}
+              promise={submissionPromise}
+            />
+          }
         />
       </>
     )

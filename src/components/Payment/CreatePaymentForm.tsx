@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
+import InputAdornment from "@material-ui/core/InputAdornment"
 import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
@@ -12,10 +13,10 @@ import { ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress, lookupFederationRecord } from "../../lib/stellar-address"
-import { createPaymentOperation, createTransaction } from "../../lib/transaction"
+import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import { PriceInput } from "../Form/FormFields"
+import { PriceInput, QRReader } from "../Form/FormFields"
 import { Box, HorizontalLayout } from "../Layout/Box"
 
 type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
@@ -153,6 +154,8 @@ function PaymentCreationForm(props: Props) {
       )
     }
 
+    const isMultisigTx = props.accountData.signers.length > 1
+
     const payment = await createPaymentOperation({
       asset: asset || Asset.native(),
       amount: formValues.amount,
@@ -162,6 +165,7 @@ function PaymentCreationForm(props: Props) {
     const tx = await createTransaction([payment], {
       accountData: props.accountData,
       memo: federationMemo.type !== "none" ? federationMemo : userMemo,
+      minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
       horizon,
       walletAccount: account
     })
@@ -189,6 +193,16 @@ function PaymentCreationForm(props: Props) {
         margin="normal"
         value={formValues.destination}
         onChange={event => setFormValue("destination", event.target.value)}
+        inputProps={{
+          style: { textOverflow: "ellipsis" }
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment disableTypography position="end">
+              <QRReader iconStyle={{ fontSize: 20 }} onScan={key => setFormValue("destination", key)} />
+            </InputAdornment>
+          )
+        }}
       />
       <HorizontalLayout justifyContent="space-between" alignItems="center">
         <PriceInput
@@ -242,7 +256,7 @@ function PaymentCreationForm(props: Props) {
           <div />
         )}
       </Box>
-      <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+      <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
         <ActionButton
           disabled={isDisabled}
           icon={<SendIcon style={{ fontSize: 16 }} />}

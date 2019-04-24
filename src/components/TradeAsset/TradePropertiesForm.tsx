@@ -121,7 +121,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
     if (props.price.eq(0) && (!props.manualPrice || BigNumber(props.manualPrice).eq(0))) {
       return BigNumber(0)
     }
-    return props.price.eq(0) ? BigNumber(props.amount).div(props.manualPrice) : props.estimatedReturn
+    return props.price.eq(0) ? BigNumber(props.amount).mul(props.manualPrice) : props.estimatedReturn
   })()
 
   const setBuying = (newBuyingAssetCode: string) => {

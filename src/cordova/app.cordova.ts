@@ -3,6 +3,8 @@
  * Wire-up cordova plugins with window.postMessage()-based IPC here.
  */
 
+import "../../cordova/plugins/cordova-plugin-device/types/index.d.ts"
+
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
@@ -26,8 +28,9 @@ function onDeviceReady() {
   initializeStorage(contentWindow).catch(trackError)
   initializeQRReader()
   initializeClipboard(cordova)
+  initializeIPhoneNotchFix()
 
-  document.addEventListener("backbutton", onBackKeyDown, false)
+  document.addEventListener("backbutton", event => contentWindow.postMessage({ id: "backbutton" }, "*"), false)
   iframe.addEventListener("load", () => setupLinkListeners(contentWindow), false)
 }
 
@@ -50,8 +53,27 @@ function initializeStorage(contentWindow: Window) {
   return initPromise
 }
 
-function onBackKeyDown() {
-  // FIXME: Handle the back button
+function initializeIPhoneNotchFix() {
+  if (!device || device.platform !== "iOS") {
+    return false
+  }
+  if (typeof Keyboard === "undefined") {
+    throw new Error("This fix depends on 'cordova-plugin-keyboard'!")
+  }
+
+  const viewportElement = document.getElementsByName("viewport")[0]
+  const defaultContent = viewportElement.getAttribute("content")
+
+  setCover()
+  window.addEventListener("keyboardWillShow", setFix)
+  window.addEventListener("keyboardWillHide", setCover)
+
+  function setCover() {
+    viewportElement.setAttribute("content", `${defaultContent}, viewport-fit=cover`)
+  }
+  function setFix() {
+    viewportElement.setAttribute("content", String(defaultContent))
+  }
 }
 
 function setupLinkListeners(contentWindow: Window) {

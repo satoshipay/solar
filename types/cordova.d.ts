@@ -2,6 +2,8 @@ interface BarcodeScanner {
   scan(success: (result: BarcodeScanResult) => void, error: (error: any) => void, properties: Object): any
 }
 
+class Keyboard {}
+
 interface BarcodeScanResult {
   text: string
   format: string

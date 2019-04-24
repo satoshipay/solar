@@ -181,12 +181,12 @@ function ManageSignersForm(props: Props) {
           width={isSmallScreen ? "100%" : "auto"}
           margin="20px 0px"
         >
-          <DialogActionsBox style={{ margin: 0 }}>
+          <DialogActionsBox desktopStyle={{ margin: 0 }}>
             <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
               Cancel
             </ActionButton>
             <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
-              Apply changes
+              {isSmallScreen ? "Apply" : "Apply changes"}
             </ActionButton>
           </DialogActionsBox>
         </HorizontalLayout>

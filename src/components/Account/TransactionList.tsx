@@ -14,7 +14,7 @@ import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
-import { selectNetwork } from "../../lib/transaction"
+import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
 import { formatOperation } from "../TransactionSummary/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
@@ -399,9 +399,6 @@ function TransactionList(props: {
   title: React.ReactNode
   transactions: Transaction[]
 }) {
-  // Need to select the right network, because `transaction.hash()` will fail if no network was selected
-  selectNetwork(props.testnet)
-
   return (
     <List style={{ background: props.background }}>
       <ListSubheader disableSticky style={{ background: props.background }}>
@@ -409,7 +406,7 @@ function TransactionList(props: {
       </ListSubheader>
       {props.transactions.map(transaction => (
         <TransactionListItem
-          key={transaction.hash().toString("hex")}
+          key={createCheapTxID(transaction)}
           accountPublicKey={props.accountPublicKey}
           createdAt={(transaction as TransactionWithUndocumentedProps).created_at}
           transaction={transaction}

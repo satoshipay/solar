@@ -1,22 +1,17 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import CheckIcon from "@material-ui/icons/Check"
-import CloseIcon from "@material-ui/icons/Close"
 import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
-import { trackError } from "../../context/notifications"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
-import QRImportDialog from "../Dialog/QRImport"
-import QRCodeIcon from "../Icon/QRCode"
+import { ActionButton, CloseButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import { HorizontalMargin } from "../Layout/Spacing"
 import ToggleSection from "../Layout/ToggleSection"
-import ButtonIconLabel from "../ButtonIconLabel"
+import { QRReader } from "./FormFields"
 
 export interface AccountCreationValues {
   name: string
@@ -68,22 +63,30 @@ interface AccountCreationFormProps {
   formValues: AccountCreationValues
   testnet: boolean
   onCancel(): void
-  onOpenQRScanner(): void
   onSubmit(event: React.SyntheticEvent): void
-  setFormValue(fieldName: keyof AccountCreationValues, value: string): void
+  setFormValue<FieldName extends keyof AccountCreationValues>(
+    fieldName: FieldName,
+    value: AccountCreationValues[FieldName]
+  ): void
 }
 
-const AccountCreationForm = (props: AccountCreationFormProps) => {
+function AccountCreationForm(props: AccountCreationFormProps) {
   const { errors, formValues, setFormValue } = props
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const primaryButtonLabel = formValues.createNewKey
-    ? isTinyScreen
+    ? isSmallScreen
       ? "Create"
       : "Create Account"
-    : isTinyScreen
+    : isSmallScreen
       ? "Import"
       : "Import Account"
+
+  const onQRImport = (key: string) => {
+    setFormValue("privateKey", key)
+    setFormValue("createNewKey", false)
+  }
+
   return (
     <form onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
@@ -92,7 +95,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
             error={Boolean(errors.name)}
             label={errors.name ? renderFormFieldError(errors.name) : undefined}
             placeholder={props.testnet ? "New Testnet Account" : "New Account"}
-            autoFocus
+            autoFocus={process.env.PLATFORM !== "ios"}
             margin="normal"
             value={formValues.name}
             onChange={event => setFormValue("name", event.target.value)}
@@ -112,7 +115,7 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
         </Box>
         <ToggleSection
           checked={formValues.setPassword}
-          onChange={() => setFormValue("setPassword", !formValues.setPassword as any)}
+          onChange={() => setFormValue("setPassword", !formValues.setPassword)}
           title="Password Protect"
         >
           <>
@@ -185,32 +188,25 @@ const AccountCreationForm = (props: AccountCreationFormProps) => {
               margin="normal"
               value={formValues.privateKey}
               onChange={event => setFormValue("privateKey", event.target.value)}
+              inputProps={{
+                style: { textOverflow: "ellipsis" }
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment disableTypography position="end">
+                    <QRReader iconStyle={{ fontSize: 20 }} onScan={onQRImport} />
+                  </InputAdornment>
+                )
+              }}
             />
-            <HorizontalMargin size={32} />
-            <Button
-              disabled={Boolean(formValues.createNewKey)}
-              variant="outlined"
-              onClick={props.onOpenQRScanner}
-              style={{ height: 48, minWidth: isSmallScreen ? 0 : 110, marginTop: 8 }}
-            >
-              <QRCodeIcon />
-              {isSmallScreen ? null : <span style={{ marginLeft: isSmallScreen ? 8 : 16 }}>Scan</span>}
-            </Button>
           </HorizontalLayout>
         </ToggleSection>
-        <HorizontalLayout justifyContent="end" alignItems="center" margin="64px 0 0" width="auto">
-          <Button variant="contained" onClick={props.onCancel}>
-            <ButtonIconLabel label="Cancel">
-              <CloseIcon />
-            </ButtonIconLabel>
-          </Button>
-          <HorizontalMargin size={16} />
-          <Button color="primary" variant="contained" onClick={props.onSubmit} type="submit">
-            <ButtonIconLabel label={primaryButtonLabel}>
-              <CheckIcon />
-            </ButtonIconLabel>
-          </Button>
-        </HorizontalLayout>
+        <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
+          <CloseButton onClick={props.onCancel} />
+          <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
+            {primaryButtonLabel}
+          </ActionButton>
+        </DialogActionsBox>
       </VerticalLayout>
     </form>
   )
@@ -223,85 +219,48 @@ interface Props {
   onSubmit(formValues: AccountCreationValues): void
 }
 
-interface State {
-  errors: AccountCreationErrors
-  formValues: AccountCreationValues
-  qrScannerOpen: boolean
-}
+function StatefulAccountCreationForm(props: Props) {
+  const defaultAccountName = React.useMemo(() => getNewAccountName(props.accounts, props.testnet), [])
+  const [errors, setErrors] = React.useState<AccountCreationErrors>({})
+  const [formValues, setFormValues] = React.useState<AccountCreationValues>({
+    name: defaultAccountName,
+    password: "",
+    passwordRepeat: "",
+    privateKey: "",
+    createNewKey: true,
+    setPassword: true
+  })
 
-class StatefulAccountCreationForm extends React.Component<Props, State> {
-  state: State = {
-    errors: {},
-    formValues: {
-      name: getNewAccountName(this.props.accounts, this.props.testnet),
-      password: "",
-      passwordRepeat: "",
-      privateKey: "",
-      createNewKey: true,
-      setPassword: true
-    },
-    qrScannerOpen: false
+  const setFormValue = (fieldName: keyof AccountCreationValues, value: string) => {
+    setFormValues(prevValues => ({
+      ...prevValues,
+      [fieldName]: value
+    }))
   }
 
-  closeQRScanner = () => {
-    this.setState({ qrScannerOpen: false })
-  }
-
-  openQRScanner = () => {
-    this.setState({ qrScannerOpen: true })
-  }
-
-  privateKeyScanned = (secretKey: string | null) => {
-    if (secretKey) {
-      this.setFormValue("privateKey", secretKey)
-      this.closeQRScanner()
-    }
-  }
-
-  setFormValue = (fieldName: keyof AccountCreationValues, value: string) => {
-    this.setState({
-      formValues: {
-        ...this.state.formValues,
-        [fieldName]: value
-      }
-    })
-  }
-
-  submit = (event: React.SyntheticEvent) => {
+  const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
 
-    const { errors, success } = validateFormValues(this.state.formValues)
-    this.setState({ errors })
+    const validation = validateFormValues(formValues)
+    setErrors(validation.errors)
 
-    const { formValues } = this.state
     const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey
 
-    if (success) {
-      this.props.onSubmit({ ...formValues, privateKey })
+    if (validation.success) {
+      props.onSubmit({ ...formValues, privateKey })
     }
   }
 
-  render() {
-    return (
-      <>
-        <AccountCreationForm
-          errors={this.state.errors}
-          formValues={this.state.formValues}
-          testnet={this.props.testnet}
-          onCancel={this.props.onCancel}
-          onOpenQRScanner={this.openQRScanner}
-          onSubmit={this.submit}
-          setFormValue={this.setFormValue}
-        />
-        <QRImportDialog
-          open={this.state.qrScannerOpen}
-          onClose={this.closeQRScanner}
-          onError={trackError}
-          onScan={this.privateKeyScanned}
-        />
-      </>
-    )
-  }
+  return (
+    <AccountCreationForm
+      errors={errors}
+      formValues={formValues}
+      testnet={props.testnet}
+      onCancel={props.onCancel}
+      onSubmit={submit}
+      setFormValue={setFormValue}
+    />
+  )
 }
 
 export default StatefulAccountCreationForm
