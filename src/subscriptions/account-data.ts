@@ -41,6 +41,7 @@ export function createAccountDataSubscription(
       .accountId(accountPubKey)
       .cursor(cursor)
       .stream({
+        reconnectTimeout: 8000,
         onmessage(accountData: Server.AccountRecord) {
           debounceMessage(accountData, () => {
             propagateUpdate({
@@ -64,15 +65,14 @@ export function createAccountDataSubscription(
       loading: false
     })
 
-    const accountData = initialAccountData || (await waitForAccountData(horizon, accountPubKey))
-    const accountWasJustCreated = !initialAccountData
+    const accountData = initialAccountData || (await waitForAccountData(horizon, accountPubKey)).accountData
 
     propagateUpdate({
       ...subscriptionTarget.getLatest(),
       ...(accountData as any),
       activated: true
     })
-    subscribeToStream(accountWasJustCreated ? "0" : "now")
+    subscribeToStream(accountData.paging_token)
   }
 
   setup().catch(trackError)

@@ -8,7 +8,7 @@ export function createAccountEffectsSubscription(
   horizon: Server,
   accountPubKey: string
 ): SubscriptionTarget<Server.EffectRecord | null> {
-  const { debounceError, debounceMessage } = createStreamDebouncer<Server.EffectRecord>()
+  const { debounceError } = createStreamDebouncer<Server.EffectRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<Server.EffectRecord | null>(null)
 
   const subscribeToEffects = (cursor: string = "now") => {
@@ -17,9 +17,9 @@ export function createAccountEffectsSubscription(
       .forAccount(accountPubKey)
       .cursor(cursor)
       .stream({
-        onmessage(effect: Server.EffectRecord) {
-          debounceMessage(effect, () => propagateUpdate(effect))
-        },
+        onmessage: ((effect: Server.EffectRecord) => {
+          propagateUpdate(effect)
+        }) as any,
         onerror(error: Error) {
           debounceError(error, () => {
             trackStreamError(new Error("Account effects stream errored."))
@@ -30,12 +30,13 @@ export function createAccountEffectsSubscription(
 
   const setup = async () => {
     try {
-      await horizon
+      const latestEffects = await horizon
         .effects()
         .forAccount(accountPubKey)
         .limit(1)
+        .order("desc")
         .call()
-      subscribeToEffects("now")
+      subscribeToEffects(latestEffects.records[0].paging_token)
     } catch (error) {
       if (error.response && error.response.status === 404) {
         await waitForAccountData(horizon, accountPubKey)
