@@ -5,8 +5,8 @@
   "displayName": "Solar",
   "cordova": {
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ],
     "plugins": {
       "cordova-plugin-secure-storage": {},
@@ -18,7 +18,6 @@
       },
       "cordova-plugin-splashscreen": {},
       "cordova-clipboard": {},
-      "cordova-plugin-inappbrowser": {},
       "cordova-plugin-wkwebview-engine": {},
       "cordova-plugin-keyboard": {},
       "cordova-plugin-device": {},
@@ -32,7 +31,6 @@
     "cordova-ios": "^5.0.0",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
-    "cordova-plugin-inappbrowser": "^3.0.0",
     "cordova-plugin-keyboard": "^1.2.0",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-safariviewcontroller": "^1.6.0",
