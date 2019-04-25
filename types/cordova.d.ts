@@ -71,6 +71,13 @@ interface Device {
 
 declare var device: Device
 
+interface Fingerprint {
+  isAvailable(success: (result) => void, error: (message) => void)
+  show(options: { clientId: string; clientSecret?: string }, success: () => void, error: () => void)
+}
+
+declare var Fingerprint: Fingerprint
+
 interface CordovaPlugins {
   barcodeScanner: BarcodeScanner
   clipboard: CordovaClipboard
