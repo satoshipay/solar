@@ -56,7 +56,6 @@
     "@types/react-router": "^4.4.3",
     "@types/react-router-dom": "^4.3.1",
     "@types/stellar-base": "^0.10.2",
-    "@types/stellar-sdk": "^0.11.1",
     "@types/storybook__react": "^3.0.7",
     "babel-core": "^6.26.3",
     "cssnano": "^4.1.10",
@@ -100,7 +99,7 @@
     "react-qr-reader": "^2.1.0",
     "react-router": "^4.4.0-beta.6",
     "react-router-dom": "^4.4.0-beta.6",
-    "stellar-base": "^0.12.0",
-    "stellar-sdk": "^0.13.0"
+    "stellar-base": "^0.13.1",
+    "stellar-sdk": "^0.15.3"
   }
 }

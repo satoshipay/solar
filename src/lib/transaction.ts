@@ -78,7 +78,7 @@ async function selectTransactionFeeWithFallback(horizon: Server, fallbackFee: nu
 
 function selectTransactionTimeout(accountData: Pick<Server.AccountRecord, "signers">): number {
   // Don't forget that we must give the user enough time to enter their password and click ok
-  return accountData.signers.length > 1 ? TimeoutInfinite : 40
+  return accountData.signers.length > 1 ? TimeoutInfinite : 90
 }
 
 interface TxBlueprint {
@@ -93,21 +93,27 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   const { horizon, walletAccount } = options
   const timeout = selectTransactionTimeout(options.accountData)
 
-  const [account, smartTxFee] = await Promise.all([
+  const [account, smartTxFee, timebounds] = await Promise.all([
     horizon.loadAccount(walletAccount.publicKey),
-    selectTransactionFeeWithFallback(horizon, 1500)
+    selectTransactionFeeWithFallback(horizon, 1500),
+    horizon.fetchTimebounds(timeout)
   ])
 
   const txFee = Math.max(smartTxFee, options.minTransactionFee || 0)
 
   selectNetwork(walletAccount.testnet)
-  const builder = new TransactionBuilder(account, { fee: txFee, memo: options.memo || undefined })
+
+  const builder = new TransactionBuilder(account, {
+    fee: txFee,
+    memo: options.memo || undefined,
+    timebounds
+  })
 
   for (const operation of operations) {
     builder.addOperation(operation)
   }
 
-  const tx = builder.setTimeout(timeout).build()
+  const tx = builder.build()
   return tx
 }
 

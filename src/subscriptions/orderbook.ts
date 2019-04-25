@@ -51,13 +51,13 @@ export function createOrderbookSubscription(
       } as any)
   }
   const setup = async () => {
-    const fetchResult = await horizon
+    const fetched = await horizon
       .orderbook(selling, buying)
       .limit(maxOrderCount)
       .call()
 
     // @types/stellar-sdk types seem wrong
-    const orderbookRecord = (fetchResult as any) as FixedOrderbookRecord
+    const orderbookRecord = (fetched as any) as FixedOrderbookRecord
 
     propagateUpdate({
       ...subscriptionTarget.getLatest(),
