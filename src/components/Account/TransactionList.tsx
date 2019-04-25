@@ -26,8 +26,8 @@ type TransactionWithUndocumentedProps = Transaction & {
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 
-function EntryAnimation(props: { children: React.ReactNode; show: boolean }) {
-  return props.show ? (
+function EntryAnimation(props: { children: React.ReactNode; animate: boolean }) {
+  return props.animate ? (
     <Collapse appear enter={false} in timeout={{ enter: 1000 }}>
       {props.children}
     </Collapse>
@@ -418,7 +418,8 @@ function TransactionList(props: {
       {(props.transactions as TransactionWithUndocumentedProps[]).map(transaction => (
         <EntryAnimation
           key={createCheapTxID(transaction)}
-          show={Date.now() - new Date(transaction.created_at).getTime() < 10_000}
+          // Animate only if it's a new tx, not if we just haven't rendered it before
+          animate={Date.now() - new Date(transaction.created_at).getTime() < 10_000}
         >
           <TransactionListItem
             key={createCheapTxID(transaction)}
