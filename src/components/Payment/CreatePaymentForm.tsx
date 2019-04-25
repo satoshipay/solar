@@ -3,27 +3,18 @@ import React from "react"
 import { Asset } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputAdornment from "@material-ui/core/InputAdornment"
-import InputLabel from "@material-ui/core/InputLabel"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import { Box, HorizontalLayout } from "../Layout/Box"
-import { ObservedAccountData } from "../../hooks"
+import { HorizontalLayout } from "../Layout/Box"
+import { useIsMobile, ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import { PriceInput, QRReader } from "../Form/FormFields"
-
-type MemoLabels = { [memoType in PaymentCreationValues["memoType"]]: string }
-
-const memoInputLabels: MemoLabels = {
-  id: "Integer identifier",
-  none: "",
-  text: "Memo"
-}
 
 export interface PaymentCreationValues {
   amount: string
@@ -47,16 +38,8 @@ function validateFormValues(formValues: PaymentCreationValues, spendableBalance:
     errors.amount = new Error("Not enough funds.")
   }
 
-  if (formValues.memoType === "text") {
-    if (formValues.memoValue.length === 0) {
-      errors.memoValue = new Error('Memo cannot be empty, but can set memo type to "None".')
-    } else if (formValues.memoValue.length > 28) {
-      errors.memoValue = new Error("Memo too long.")
-    }
-  } else if (formValues.memoType === "id") {
-    if (!formValues.memoValue.match(/^[0-9]+$/)) {
-      errors.memoValue = new Error("Memo must be an integer.")
-    }
+  if (formValues.memoValue.length > 28) {
+    errors.memoValue = new Error("Memo too long.")
   }
 
   const success = Object.keys(errors).length === 0
@@ -98,6 +81,7 @@ interface Props {
 
 function PaymentCreationForm(props: Props) {
   const { onSubmit = () => undefined } = props
+  const isSmallScreen = useIsMobile()
 
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
   const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
@@ -156,7 +140,7 @@ function PaymentCreationForm(props: Props) {
           )
         }}
       />
-      <HorizontalLayout justifyContent="space-between" alignItems="center">
+      <HorizontalLayout justifyContent="space-between" alignItems="center" margin="0 -24px" wrap="wrap">
         <PriceInput
           assetCode={
             <AssetSelector
@@ -173,41 +157,35 @@ function PaymentCreationForm(props: Props) {
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}
           style={{
-            minWidth: "30%",
-            maxWidth: "60%"
+            flexGrow: isSmallScreen ? 1 : undefined,
+            marginLeft: 24,
+            marginRight: 24,
+            minWidth: 230,
+            maxWidth: isSmallScreen ? undefined : "60%"
           }}
         />
-        <FormControl margin="normal" style={{ width: "30%" }}>
-          <InputLabel htmlFor="select-memo-type" shrink>
-            Memo type
-          </InputLabel>
-          <Select
-            inputProps={{ id: "select-memo-type" }}
-            onChange={event => setFormValue("memoType", event.target.value)}
-            value={formValues.memoType}
-            style={{ width: "100%" }}
-          >
-            <MenuItem value="none">None</MenuItem>
-            <MenuItem value="text">Text</MenuItem>
-            <MenuItem value="id">ID</MenuItem>
-          </Select>
-        </FormControl>
+        <TextField
+          inputProps={{ maxLength: 28 }}
+          error={Boolean(errors.memoValue)}
+          label={errors.memoValue ? renderFormFieldError(errors.memoValue) : "Memo"}
+          placeholder="Description (optional)"
+          margin="normal"
+          onChange={event => {
+            setFormValues({
+              ...formValues,
+              memoValue: event.target.value,
+              memoType: event.target.value.length === 0 ? "none" : "text"
+            })
+          }}
+          value={formValues.memoValue}
+          style={{
+            flexGrow: 1,
+            marginLeft: 24,
+            marginRight: 24,
+            minWidth: 230
+          }}
+        />
       </HorizontalLayout>
-      <Box>
-        {formValues.memoType !== "none" ? (
-          <TextField
-            inputProps={{ maxLength: 28 }}
-            error={Boolean(errors.memoValue)}
-            label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoInputLabels[formValues.memoType]}
-            margin="normal"
-            onChange={event => setFormValue("memoValue", event.target.value)}
-            value={formValues.memoValue}
-            style={{ width: "70%" }}
-          />
-        ) : (
-          <div />
-        )}
-      </Box>
       <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
         <ActionButton
           disabled={isDisabled}
