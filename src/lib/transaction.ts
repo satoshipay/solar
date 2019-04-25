@@ -78,7 +78,7 @@ async function selectTransactionFeeWithFallback(horizon: Server, fallbackFee: nu
 
 function selectTransactionTimeout(accountData: Pick<Server.AccountRecord, "signers">): number {
   // Don't forget that we must give the user enough time to enter their password and click ok
-  return accountData.signers.length > 1 ? TimeoutInfinite : 40
+  return accountData.signers.length > 1 ? TimeoutInfinite : 90
 }
 
 interface TxBlueprint {
