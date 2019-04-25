@@ -22,7 +22,7 @@ async function checkForUpdates() {
       subtitle: `Click to download the update.`
     })
     notification.on("click", () => {
-      open("https://solarwallet.io/downloading")
+      open("https://solarwallet.io/downloading?download=false")
       open(urlToOpen)
     })
     notification.show()
