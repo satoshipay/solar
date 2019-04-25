@@ -1,4 +1,3 @@
-import { TimeoutInfinite } from "stellar-base"
 import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
@@ -78,7 +77,7 @@ async function selectTransactionFeeWithFallback(horizon: Server, fallbackFee: nu
 
 function selectTransactionTimeout(accountData: Pick<Server.AccountRecord, "signers">): number {
   // Don't forget that we must give the user enough time to enter their password and click ok
-  return accountData.signers.length > 1 ? TimeoutInfinite : 90
+  return accountData.signers.length > 1 ? 30 * 24 * 60 * 60 * 1000 : 90
 }
 
 interface TxBlueprint {
