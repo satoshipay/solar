@@ -53,6 +53,15 @@ function TradingForm(props: Props) {
   const price = worstPriceOfBestMatches || manualPrice || 0
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
+  const dialogActions = (
+    <DialogActions
+      amount={amount}
+      disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
+      price={price}
+      style={{ justifySelf: "flex-end" }}
+    />
+  )
+
   return (
     <VerticalLayout>
       <HorizontalLayout shrink={0} justifyContent="space-between" margin="0 -24px" wrap="wrap">
@@ -77,14 +86,7 @@ function TradingForm(props: Props) {
             </Box>
           ) : null}
           <div style={{ flexGrow: 1 }} />
-          {isSmallScreen ? null : (
-            <DialogActions
-              amount={amount}
-              disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
-              price={price}
-              style={{ justifySelf: "flex-end" }}
-            />
-          )}
+          {isSmallScreen ? null : dialogActions}
         </VerticalLayout>
         <VerticalLayout
           alignItems="stretch"
@@ -95,14 +97,7 @@ function TradingForm(props: Props) {
           minWidth={isTinyScreen ? 250 : 320}
         >
           <Explanation />
-          {isSmallScreen ? (
-            <DialogActions
-              amount={amount}
-              disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
-              price={price}
-              style={{ justifySelf: "flex-end" }}
-            />
-          ) : null}
+          {isSmallScreen ? dialogActions : null}
         </VerticalLayout>
       </HorizontalLayout>
     </VerticalLayout>
