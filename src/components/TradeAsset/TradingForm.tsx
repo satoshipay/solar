@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
-import { useOrderbook, useIsSmallMobile } from "../../hooks"
+import { useOrderbook, useIsMobile, useIsSmallMobile } from "../../hooks"
 import { calculateSpread } from "../../lib/orderbook"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
@@ -39,6 +39,7 @@ interface Props {
 function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
   const tradePair = useOrderbook(props.selling, props.buying, props.testnet)
+  const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
 
   const [amountString, setAmountString] = React.useState("")
@@ -76,12 +77,14 @@ function TradingForm(props: Props) {
             </Box>
           ) : null}
           <div style={{ flexGrow: 1 }} />
-          <DialogActions
-            amount={amount}
-            disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
-            price={price}
-            style={{ justifySelf: "flex-end" }}
-          />
+          {isSmallScreen ? null : (
+            <DialogActions
+              amount={amount}
+              disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
+              price={price}
+              style={{ justifySelf: "flex-end" }}
+            />
+          )}
         </VerticalLayout>
         <VerticalLayout
           alignItems="stretch"
@@ -92,6 +95,14 @@ function TradingForm(props: Props) {
           minWidth={isTinyScreen ? 250 : 320}
         >
           <Explanation />
+          {isSmallScreen ? (
+            <DialogActions
+              amount={amount}
+              disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
+              price={price}
+              style={{ justifySelf: "flex-end" }}
+            />
+          ) : null}
         </VerticalLayout>
       </HorizontalLayout>
     </VerticalLayout>
