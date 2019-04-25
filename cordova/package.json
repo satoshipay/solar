@@ -21,7 +21,10 @@
       "cordova-plugin-wkwebview-engine": {},
       "cordova-plugin-keyboard": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-safariviewcontroller": {}
+      "cordova-plugin-safariviewcontroller": {},
+      "cordova-plugin-fingerprint-aio": {
+        "FACEID_USAGE_DESCRIPTION": "Unlock now..."
+      }
     }
   },
   "dependencies": {
@@ -31,6 +34,7 @@
     "cordova-ios": "^5.0.0",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
+    "cordova-plugin-fingerprint-aio": "1.7.0",
     "cordova-plugin-keyboard": "^1.2.0",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-safariviewcontroller": "^1.6.0",
