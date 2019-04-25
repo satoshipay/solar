@@ -205,27 +205,30 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
 
   const {
     onError = trackError,
-    onNewSignatureRequest,
-    onSignatureRequestUpdate,
-    onSignatureRequestSubmitted
+    onNewSignatureRequest = (signatureRequest: SignatureRequest) => undefined,
+    onSignatureRequestUpdate = (signatureRequest: SignatureRequest) => undefined,
+    onSignatureRequestSubmitted = (signatureRequest: SignatureRequest) => undefined
   } = handlers
 
-  const eventSource = new EventSource(urlJoin(serviceURL, `/stream/${dedupe(accountIDs).join(",")}`))
+  const url = urlJoin(serviceURL, `/stream/${dedupe(accountIDs).join(",")}`)
+  let eventSource: EventSource
   let lastErrorTime = 0
 
-  if (onNewSignatureRequest) {
-    eventSource.addEventListener(
-      "signature-request",
-      ((message: ServerSentEvent) => {
-        for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
-          onNewSignatureRequest(signatureRequest)
-        }
-      }) as any,
-      false
-    )
-  }
+  const init = () => {
+    eventSource = new EventSource(url)
 
-  if (onSignatureRequestUpdate) {
+    if (onNewSignatureRequest) {
+      eventSource.addEventListener(
+        "signature-request",
+        ((message: ServerSentEvent) => {
+          for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
+            onNewSignatureRequest(signatureRequest)
+          }
+        }) as any,
+        false
+      )
+    }
+
     eventSource.addEventListener(
       "signature-request:updated",
       ((message: ServerSentEvent) => {
@@ -235,9 +238,7 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
       }) as any,
       false
     )
-  }
 
-  if (onSignatureRequestSubmitted) {
     eventSource.addEventListener(
       "signature-request:submitted",
       ((message: ServerSentEvent) => {
@@ -247,16 +248,29 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
       }) as any,
       false
     )
+
+    const clearOnError = () => {
+      eventSource.onerror = () => undefined
+    }
+
+    eventSource.onerror = () => {
+      if (Date.now() - lastErrorTime > 10000) {
+        onError(new Error("Multisig service event stream crashed."))
+      }
+      lastErrorTime = Date.now()
+
+      if (navigator.onLine === false) {
+        clearOnError()
+        eventSource.close()
+        window.addEventListener("online", () => init(), { once: true, passive: false })
+      } else if (eventSource.readyState === eventSource.CLOSED) {
+        clearOnError()
+        setTimeout(() => init(), 500)
+      }
+    }
   }
 
-  eventSource.onerror = () => {
-    // No need to manually reconnect, since auto-reconnect is part of the protocol
-    // Debounce error notifications (show only once per series of subsequent errors)
-    if (Date.now() - lastErrorTime > 10000) {
-      onError(new Error("Multisig service event stream crashed."))
-    }
-    lastErrorTime = Date.now()
-  }
+  init()
 
   return function unsubscribe() {
     eventSource.close()
