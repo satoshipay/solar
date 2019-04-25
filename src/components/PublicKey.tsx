@@ -51,6 +51,8 @@ export function PublicKey(props: PublicKeyProps) {
     display: "inline",
     fontSize: "inherit",
     fontWeight: "bold",
+    userSelect: "text",
+    WebkitUserSelect: "text",
     whiteSpace: variant !== "full" ? "pre" : undefined,
     ...props.style
   }
