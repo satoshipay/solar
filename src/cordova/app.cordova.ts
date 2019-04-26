@@ -11,6 +11,8 @@ import { isAuthenticationAvailable, showAuthenticationDialogue } from "./fingerp
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 
+let lastAuthenticationTimestamp: number = 0
+
 document.addEventListener("deviceready", onDeviceReady, false)
 document.addEventListener("resume", onResume, false)
 
@@ -36,9 +38,9 @@ function onDeviceReady() {
   document.addEventListener("pause", () => contentWindow.postMessage("app:pause", "*"), false)
   document.addEventListener("resume", () => contentWindow.postMessage("app:resume", "*"), false)
 
-  getClientSecret(contentWindow).then(clientSecret => {
-    startAuthentication(clientSecret)
-  })
+  isAuthenticationAvailable()
+    .then(startAuthentication)
+    .catch(hideSplashScreen)
 }
 
 function getClientSecret(contentWindow: Window) {
@@ -47,10 +49,15 @@ function getClientSecret(contentWindow: Window) {
   })
 }
 
-function startAuthentication(clientSecret: string) {
-  isAuthenticationAvailable()
-    .then(() => showDialogue(clientSecret))
-    .catch(hideSplashScreen)
+function startAuthentication() {
+  lastAuthenticationTimestamp = Date.now()
+
+  const contentWindow = iframe.contentWindow
+  if (contentWindow) {
+    getClientSecret(contentWindow).then(clientSecret => {
+      showDialogue(clientSecret)
+    })
+  }
 }
 
 function showDialogue(clientSecret: string) {
@@ -78,10 +85,9 @@ function hideSplashScreen() {
 function onResume() {
   showSplashScreen()
 
-  if (iframe.contentWindow) {
-    getClientSecret(iframe.contentWindow).then(clientSecret => {
-      startAuthentication(clientSecret)
-    })
+  // check time of last authentication to prevent calling startAuthentication twice on app launch
+  if (Date.now() - lastAuthenticationTimestamp > 5000) {
+    startAuthentication()
   }
 }
 
