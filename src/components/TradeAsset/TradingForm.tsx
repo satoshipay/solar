@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
-import { useOrderbook, useIsSmallMobile } from "../../hooks"
+import { useOrderbook, useIsMobile, useIsSmallMobile } from "../../hooks"
 import { calculateSpread } from "../../lib/orderbook"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
@@ -39,6 +39,7 @@ interface Props {
 function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
   const tradePair = useOrderbook(props.selling, props.buying, props.testnet)
+  const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
 
   const [amountString, setAmountString] = React.useState("")
@@ -51,6 +52,15 @@ function TradingForm(props: Props) {
 
   const price = worstPriceOfBestMatches || manualPrice || 0
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
+
+  const dialogActions = (
+    <DialogActions
+      amount={amount}
+      disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
+      price={price}
+      style={{ justifySelf: "flex-end" }}
+    />
+  )
 
   return (
     <VerticalLayout>
@@ -75,23 +85,19 @@ function TradingForm(props: Props) {
               %) between buying and selling price. Converting the funds back might be expensive.
             </Box>
           ) : null}
-          <div style={{ flexGrow: 1 }} />
-          <DialogActions
-            amount={amount}
-            disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
-            price={price}
-            style={{ justifySelf: "flex-end" }}
-          />
+          <div style={{ flexGrow: 1, maxHeight: 50 }} />
+          {isSmallScreen ? null : dialogActions}
         </VerticalLayout>
         <VerticalLayout
           alignItems="stretch"
           basis="40%"
           grow={1}
           shrink={1}
-          margin="16px 24px 8px"
+          margin="16px 24px 0"
           minWidth={isTinyScreen ? 250 : 320}
         >
           <Explanation />
+          {isSmallScreen ? dialogActions : null}
         </VerticalLayout>
       </HorizontalLayout>
     </VerticalLayout>
