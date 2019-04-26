@@ -19,7 +19,10 @@ export const commands = {
 
   copyToClipboard: "clipboard:write",
 
-  openLink: "link:open"
+  openLink: "link:open",
+
+  showSplashScreen: "splash:show",
+  hideSplashScreen: "splash:hide"
 }
 
 // event types

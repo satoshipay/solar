@@ -11,6 +11,7 @@ import LinkHandler from "./components/LinkHandler"
 import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
 import NotificationContainer from "./components/NotificationContainer"
+import handleSplashScreen from "./components/SplashScreenHandler"
 import { AccountsProvider } from "./context/accounts"
 import { NotificationsProvider } from "./context/notifications"
 import { SettingsProvider } from "./context/settings"
@@ -85,15 +86,4 @@ if (module.hot) {
   module.hot.accept()
 }
 
-// Hide Splash Screen
-setTimeout(() => {
-  const splash = document.getElementById("splash")
-  if (splash) {
-    splash.style.opacity = "0"
-    splash.style.pointerEvents = "none"
-
-    setTimeout(() => {
-      splash.style.display = "none"
-    }, 1000)
-  }
-}, 1000)
+handleSplashScreen()
