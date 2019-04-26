@@ -85,7 +85,7 @@ function TradingForm(props: Props) {
               %) between buying and selling price. Converting the funds back might be expensive.
             </Box>
           ) : null}
-          <div style={{ flexGrow: 1 }} />
+          <div style={{ flexGrow: 1, maxHeight: 50 }} />
           {isSmallScreen ? null : dialogActions}
         </VerticalLayout>
         <VerticalLayout
@@ -93,7 +93,7 @@ function TradingForm(props: Props) {
           basis="40%"
           grow={1}
           shrink={1}
-          margin="16px 24px 8px"
+          margin="16px 24px 0"
           minWidth={isTinyScreen ? 250 : 320}
         >
           <Explanation />
