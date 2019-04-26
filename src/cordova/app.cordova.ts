@@ -6,11 +6,13 @@
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { initSecureStorage } from "./storage"
+import { initSecureStorage, storeKeys } from "./storage"
+import { isAuthenticationAvailable, showAuthenticationDialogue } from "./fingerprint-authentication"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 
 document.addEventListener("deviceready", onDeviceReady, false)
+document.addEventListener("resume", onResume, false)
 
 function onDeviceReady() {
   const contentWindow = iframe.contentWindow
@@ -33,6 +35,54 @@ function onDeviceReady() {
   document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
   document.addEventListener("pause", () => contentWindow.postMessage("app:pause", "*"), false)
   document.addEventListener("resume", () => contentWindow.postMessage("app:resume", "*"), false)
+
+  getClientSecret(contentWindow).then(clientSecret => {
+    startAuthentication(clientSecret)
+  })
+}
+
+function getClientSecret(contentWindow: Window) {
+  return new Promise<string>((resolve, reject) => {
+    initializeStorage(contentWindow).then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
+  })
+}
+
+function startAuthentication(clientSecret: string) {
+  isAuthenticationAvailable()
+    .then(() => showDialogue(clientSecret))
+    .catch(hideSplashScreen)
+}
+
+function showDialogue(clientSecret: string) {
+  showAuthenticationDialogue(clientSecret)
+    .then(hideSplashScreen)
+    .catch(exitApp)
+}
+
+function exitApp() {
+  window.navigator.app.exitApp()
+}
+
+function showSplashScreen() {
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage(commands.showSplashScreen, "*")
+  }
+}
+
+function hideSplashScreen() {
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage(commands.hideSplashScreen, "*")
+  }
+}
+
+function onResume() {
+  showSplashScreen()
+
+  if (iframe.contentWindow) {
+    getClientSecret(iframe.contentWindow).then(clientSecret => {
+      startAuthentication(clientSecret)
+    })
+  }
 }
 
 function initializeClipboard(cordova: Cordova) {
