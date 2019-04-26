@@ -8,10 +8,11 @@ import { registerCommandHandler } from "./ipc"
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
 const cordovaSecureStorageName = "solar:keystore"
 
-const storeKeys = {
+export const storeKeys = {
   keystore: "keys",
   settings: "settings",
-  ignoredSignatureRequests: "ignored-signature-requests"
+  ignoredSignatureRequests: "ignored-signature-requests",
+  clientSecret: "clientsecret"
 }
 
 registerCommandHandler(commands.readKeysCommand, respondWithKeys)
@@ -106,7 +107,8 @@ async function prepareStorage(secureStorage: CordovaSecureStorage) {
   await Promise.all([
     addPlaceholderKey(storeKeys.keystore, {}),
     addPlaceholderKey(storeKeys.settings, {}),
-    addPlaceholderKey(storeKeys.ignoredSignatureRequests, [])
+    addPlaceholderKey(storeKeys.ignoredSignatureRequests, []),
+    addPlaceholderKey(storeKeys.clientSecret, "TODO_RANDOM_NUMBER")
   ])
 }
 
