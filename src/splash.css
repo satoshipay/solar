@@ -2,6 +2,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -11,6 +12,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -35,6 +37,7 @@
 #splash > img {
   flex-grow: 1;
   flex-shrink: 0;
+  width: 40vw;
   max-width: 40vw;
   max-height: 25vh;
   animation: fade-in 0.5s linear;
