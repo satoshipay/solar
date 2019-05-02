@@ -90,3 +90,10 @@ interface CordovaPlugins {
   clipboard: CordovaClipboard
   SecureStorage: CordovaSecureStorage
 }
+
+interface Navigator {
+  splashscreen: {
+    hide(): void
+    show(): void
+  }
+}
