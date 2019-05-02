@@ -71,9 +71,16 @@ interface Device {
 
 declare var device: Device
 
+interface FingerprintOptions {
+  clientId: string
+  clientSecret?: string
+  localizedFallbackTitle?: string
+  localizedReason?: string
+}
+
 interface Fingerprint {
   isAvailable(success: (result) => void, error: (message) => void)
-  show(options: { clientId: string; clientSecret?: string }, success: () => void, error: () => void)
+  show(options: FingerprintOptions, success: () => void, error: () => void)
 }
 
 declare var Fingerprint: Fingerprint
