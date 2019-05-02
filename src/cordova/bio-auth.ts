@@ -10,7 +10,7 @@ export async function bioAuthenticate(clientSecret: string) {
       {
         clientId: "Solar",
         clientSecret,
-        localizedReason: "Unlock the Solar wallet"
+        localizedReason: "Unlock your Solar wallet"
       },
       resolve,
       reject
