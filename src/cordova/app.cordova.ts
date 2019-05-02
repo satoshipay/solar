@@ -59,7 +59,8 @@ function onDeviceReady() {
       await authenticate(contentWindow)
     } else {
       await iframeReady
-      hideSplashScreen(contentWindow)
+      navigator.splashscreen.hide()
+      hideHtmlSplashScreen(contentWindow)
     }
   })
 }
@@ -77,16 +78,23 @@ function authenticate(contentWindow: Window) {
     return bioAuthInProgress
   }
 
+  showHtmlSplashScreen(contentWindow)
+
+  // Trigger show and instantly hide. There will be a fade-out.
+  // We show the native splashscreen, because it can be made visible synchronously
+  navigator.splashscreen.show()
+  iframeReady.then(() => navigator.splashscreen.hide())
+
   const performAuth = async (): Promise<void> => {
     const clientSecret = await clientSecretPromise
     try {
-      showSplashScreen(contentWindow)
       await bioAuthenticate(clientSecret)
     } catch (error) {
       // Just start over if auth fails - Block user interactions until auth is done
       return performAuth()
     }
-    hideSplashScreen(contentWindow)
+    await iframeReady
+    hideHtmlSplashScreen(contentWindow)
   }
 
   bioAuthInProgress = performAuth().finally(() => {
@@ -95,27 +103,20 @@ function authenticate(contentWindow: Window) {
   return bioAuthInProgress
 }
 
-function showSplashScreen(contentWindow: Window) {
-  if (process.env.PLATFORM === "ios") {
-    navigator.splashscreen.show()
-  } else {
-    contentWindow.postMessage(commands.showSplashScreen, "*")
-  }
+function showHtmlSplashScreen(contentWindow: Window) {
+  contentWindow.postMessage(commands.showSplashScreen, "*")
 }
 
-function hideSplashScreen(contentWindow: Window) {
+function hideHtmlSplashScreen(contentWindow: Window) {
   contentWindow.postMessage(commands.hideSplashScreen, "*")
-
-  if (process.env.PLATFORM === "ios") {
-    navigator.splashscreen.hide()
-  }
 }
 
 function onPause(contentWindow: Window) {
   contentWindow.postMessage("app:pause", "*")
 
   if (isBioAuthAvailable) {
-    showSplashScreen(contentWindow)
+    navigator.splashscreen.show()
+    showHtmlSplashScreen(contentWindow)
   }
 }
 
