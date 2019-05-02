@@ -2,6 +2,7 @@
  * THIS WILL RUN IN EMULATOR OUTSIDE OF SANDBOXED APP IFRAME!
  */
 
+import nanoid from "nanoid"
 import { commands, events } from "./ipc"
 import { registerCommandHandler } from "./ipc"
 
@@ -98,17 +99,17 @@ async function prepareStorage(secureStorage: CordovaSecureStorage) {
     secureStorage.keys(result => resolve(result), reject)
   })
 
-  const addPlaceholderKey = async (keyName: string, defaultValue: any) => {
+  const initializeKeyValueIfNotSet = async (keyName: string, defaultValue: any) => {
     if (keys.indexOf(keyName) === -1) {
       await saveValueIntoStorage(secureStorage, keyName, defaultValue)
     }
   }
 
   await Promise.all([
-    addPlaceholderKey(storeKeys.keystore, {}),
-    addPlaceholderKey(storeKeys.settings, {}),
-    addPlaceholderKey(storeKeys.ignoredSignatureRequests, []),
-    addPlaceholderKey(storeKeys.clientSecret, "TODO_RANDOM_NUMBER")
+    initializeKeyValueIfNotSet(storeKeys.keystore, {}),
+    initializeKeyValueIfNotSet(storeKeys.settings, {}),
+    initializeKeyValueIfNotSet(storeKeys.ignoredSignatureRequests, []),
+    initializeKeyValueIfNotSet(storeKeys.clientSecret, nanoid(32))
   ])
 }
 
