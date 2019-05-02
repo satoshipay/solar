@@ -16,6 +16,16 @@ let bioAuthAvailablePromise: Promise<boolean>
 let clientSecretPromise: Promise<string>
 let isBioAuthAvailable = false
 
+const iframeReady = new Promise<void>(resolve => {
+  const handler = (event: MessageEvent) => {
+    if (event.data === "app:ready") {
+      resolve()
+      window.removeEventListener("message", handler)
+    }
+  }
+  window.addEventListener("message", handler, false)
+})
+
 document.addEventListener("deviceready", onDeviceReady, false)
 
 function onDeviceReady() {
@@ -48,6 +58,7 @@ function onDeviceReady() {
       clientSecretPromise = getClientSecret(contentWindow)
       await authenticate(contentWindow)
     } else {
+      await iframeReady
       hideSplashScreen(contentWindow)
     }
   })
@@ -94,6 +105,7 @@ function showSplashScreen(contentWindow: Window) {
 
 function hideSplashScreen(contentWindow: Window) {
   contentWindow.postMessage(commands.hideSplashScreen, "*")
+
   if (process.env.PLATFORM === "ios") {
     navigator.splashscreen.hide()
   }

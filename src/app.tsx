@@ -79,7 +79,14 @@ const App = () => (
   </Providers>
 )
 
-ReactDOM.render(<App />, document.getElementById("app"))
+const onRendered = () => {
+  if (window.parent) {
+    // for Cordova
+    window.parent.postMessage("app:ready", "*")
+  }
+}
+
+ReactDOM.render(<App />, document.getElementById("app"), onRendered)
 
 // Hot Module Replacement
 if (module.hot) {
