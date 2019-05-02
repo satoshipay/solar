@@ -15,11 +15,10 @@ export const commands = {
   readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
   storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
 
-  scanQRCodeCommand: "qr-code:scan",
+  openLink: "link:open",
 
   copyToClipboard: "clipboard:write",
-
-  openLink: "link:open",
+  scanQRCodeCommand: "qr-code:scan",
 
   showSplashScreen: "splash:show",
   hideSplashScreen: "splash:hide"

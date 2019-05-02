@@ -7,14 +7,16 @@ import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
 import { initSecureStorage, storeKeys } from "./storage"
-import { isAuthenticationAvailable, showAuthenticationDialogue } from "./fingerprint-authentication"
+import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 
-let lastAuthenticationTimestamp: number = 0
+let bioAuthInProgress: Promise<void> | undefined
+let bioAuthAvailablePromise: Promise<boolean>
+let clientSecretPromise: Promise<string>
+let isBioAuthAvailable = false
 
 document.addEventListener("deviceready", onDeviceReady, false)
-document.addEventListener("resume", onResume, false)
 
 function onDeviceReady() {
   const contentWindow = iframe.contentWindow
@@ -35,12 +37,20 @@ function onDeviceReady() {
   setupLinkListener()
 
   document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
-  document.addEventListener("pause", () => contentWindow.postMessage("app:pause", "*"), false)
-  document.addEventListener("resume", () => contentWindow.postMessage("app:resume", "*"), false)
+  document.addEventListener("pause", () => onPause(contentWindow), false)
+  document.addEventListener("resume", () => onResume(contentWindow), false)
 
-  isAuthenticationAvailable()
-    .then(startAuthentication)
-    .catch(hideSplashScreen)
+  bioAuthAvailablePromise = isBiometricAuthAvailable()
+
+  Promise.resolve().then(async () => {
+    isBioAuthAvailable = await bioAuthAvailablePromise
+    if (isBioAuthAvailable) {
+      clientSecretPromise = getClientSecret(contentWindow)
+      await authenticate(contentWindow)
+    } else {
+      hideSplashScreen(contentWindow)
+    }
+  })
 }
 
 function getClientSecret(contentWindow: Window) {
@@ -49,45 +59,59 @@ function getClientSecret(contentWindow: Window) {
   })
 }
 
-function startAuthentication() {
-  lastAuthenticationTimestamp = Date.now()
+function authenticate(contentWindow: Window) {
+  if (bioAuthInProgress) {
+    // Make sure we don't call bioAuthenticate() twice in a row
+    // Might otherwise happen, since Android likes to trigger the `resume` event on app start
+    return bioAuthInProgress
+  }
 
-  const contentWindow = iframe.contentWindow
-  if (contentWindow) {
-    getClientSecret(contentWindow).then(clientSecret => {
-      showDialogue(clientSecret)
-    })
+  const performAuth = async (): Promise<void> => {
+    const clientSecret = await clientSecretPromise
+    try {
+      showSplashScreen(contentWindow)
+      await bioAuthenticate(clientSecret)
+    } catch (error) {
+      // Just start over if auth fails - Block user interactions until auth is done
+      return performAuth()
+    }
+    hideSplashScreen(contentWindow)
+  }
+
+  bioAuthInProgress = performAuth().finally(() => {
+    bioAuthInProgress = undefined
+  })
+  return bioAuthInProgress
+}
+
+function showSplashScreen(contentWindow: Window) {
+  if (process.env.PLATFORM === "ios") {
+    navigator.splashscreen.show()
+  } else {
+    contentWindow.postMessage(commands.showSplashScreen, "*")
   }
 }
 
-function showDialogue(clientSecret: string) {
-  showAuthenticationDialogue(clientSecret)
-    .then(hideSplashScreen)
-    .catch(exitApp)
-}
-
-function exitApp() {
-  window.navigator.app.exitApp()
-}
-
-function showSplashScreen() {
-  if (iframe && iframe.contentWindow) {
-    iframe.contentWindow.postMessage(commands.showSplashScreen, "*")
+function hideSplashScreen(contentWindow: Window) {
+  contentWindow.postMessage(commands.hideSplashScreen, "*")
+  if (process.env.PLATFORM === "ios") {
+    navigator.splashscreen.hide()
   }
 }
 
-function hideSplashScreen() {
-  if (iframe && iframe.contentWindow) {
-    iframe.contentWindow.postMessage(commands.hideSplashScreen, "*")
+function onPause(contentWindow: Window) {
+  contentWindow.postMessage("app:pause", "*")
+
+  if (isBioAuthAvailable) {
+    showSplashScreen(contentWindow)
   }
 }
 
-function onResume() {
-  showSplashScreen()
+function onResume(contentWindow: Window) {
+  contentWindow.postMessage("app:resume", "*")
 
-  // check time of last authentication to prevent calling startAuthentication twice on app launch
-  if (Date.now() - lastAuthenticationTimestamp > 5000) {
-    startAuthentication()
+  if (isBioAuthAvailable) {
+    authenticate(contentWindow)
   }
 }
 

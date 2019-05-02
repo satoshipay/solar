@@ -1,4 +1,4 @@
-import { commands } from "../cordova/ipc"
+import { commands } from "./cordova/ipc"
 
 function handleSplashScreen() {
   if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {

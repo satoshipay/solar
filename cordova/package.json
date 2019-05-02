@@ -23,7 +23,7 @@
       "cordova-plugin-device": {},
       "cordova-plugin-safariviewcontroller": {},
       "cordova-plugin-fingerprint-aio": {
-        "FACEID_USAGE_DESCRIPTION": "Unlock Solar"
+        "FACEID_USAGE_DESCRIPTION": "Unlock Solar…"
       }
     }
   },
