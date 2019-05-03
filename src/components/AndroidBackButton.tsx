@@ -7,7 +7,7 @@ function AndroidBackButton() {
 
   React.useEffect(() => {
     const listener = (event: Event) => {
-      if (event instanceof MessageEvent && event.data.id === "backbutton") {
+      if (event instanceof MessageEvent && event.data === "app:backbutton") {
         router.history.push(routeUp(router.history.location.pathname))
       }
     }

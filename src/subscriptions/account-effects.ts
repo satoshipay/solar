@@ -1,7 +1,7 @@
 import { Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, trackStreamError } from "../lib/stream"
+import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export function createAccountEffectsSubscription(
@@ -11,22 +11,26 @@ export function createAccountEffectsSubscription(
   const { debounceError } = createStreamDebouncer<Server.EffectRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<Server.EffectRecord | null>(null)
 
-  const subscribeToEffects = (cursor: string = "now") => {
-    horizon
-      .effects()
-      .forAccount(accountPubKey)
-      .cursor(cursor)
-      .stream({
-        onmessage: ((effect: Server.EffectRecord) => {
-          propagateUpdate(effect)
-        }) as any,
-        onerror(error: Error) {
-          debounceError(error, () => {
-            trackStreamError(new Error("Account effects stream errored."))
-          })
-        }
-      })
-  }
+  const subscribeToEffects = (cursor: string = "now") =>
+    manageStreamConnection(() => {
+      return horizon
+        .effects()
+        .forAccount(accountPubKey)
+        .cursor(cursor)
+        .stream({
+          onmessage: ((effect: Server.EffectRecord) => {
+            if (effect.paging_token) {
+              cursor = effect.paging_token
+            }
+            propagateUpdate(effect)
+          }) as any,
+          onerror(error: Error) {
+            debounceError(error, () => {
+              trackStreamError(new Error("Account effects stream errored."))
+            })
+          }
+        })
+    })
 
   const setup = async () => {
     try {

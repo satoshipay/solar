@@ -1,5 +1,6 @@
 import React from "react"
-import { fetchSignatureRequests, subscribeToSignatureRequests, SignatureRequest } from "../lib/multisig-service"
+import { fetchSignatureRequests, SignatureRequest } from "../lib/multisig-service"
+import { subscribeToSignatureRequests } from "../subscriptions/multisig"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
 import { SettingsContext } from "./settings"

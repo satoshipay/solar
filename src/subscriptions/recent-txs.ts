@@ -1,7 +1,7 @@
 import { Server, Transaction } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, trackStreamError } from "../lib/stream"
+import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export interface ObservedRecentTxs {
@@ -40,25 +40,29 @@ export function createRecentTxsSubscription(
       .call()
     return records
   }
-  const subscribeToTxs = (cursor: string) => {
-    horizon
-      .transactions()
-      .forAccount(accountPubKey)
-      .cursor(cursor)
-      .stream({
-        onmessage: ((transaction: Server.TransactionRecord) => {
-          propagateUpdate({
-            ...subscriptionTarget.getLatest(),
-            transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
-          })
-        }) as any,
-        onerror(error: Error) {
-          debounceError(error, () => {
-            trackStreamError(new Error("Recent transactions update stream errored."))
-          })
-        }
-      })
-  }
+  const subscribeToTxs = (cursor: string) =>
+    manageStreamConnection(() => {
+      return horizon
+        .transactions()
+        .forAccount(accountPubKey)
+        .cursor(cursor)
+        .stream({
+          onmessage: ((transaction: Server.TransactionRecord) => {
+            if (transaction.paging_token) {
+              cursor = transaction.paging_token
+            }
+            propagateUpdate({
+              ...subscriptionTarget.getLatest(),
+              transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
+            })
+          }) as any,
+          onerror(error: Error) {
+            debounceError(error, () => {
+              trackStreamError(new Error("Recent transactions update stream errored."))
+            })
+          }
+        })
+    })
 
   const setup = async () => {
     try {

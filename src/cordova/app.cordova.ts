@@ -30,7 +30,9 @@ function onDeviceReady() {
 
   setupLinkListener()
 
-  document.addEventListener("backbutton", event => contentWindow.postMessage({ id: "backbutton" }, "*"), false)
+  document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
+  document.addEventListener("pause", () => contentWindow.postMessage("app:pause", "*"), false)
+  document.addEventListener("resume", () => contentWindow.postMessage("app:resume", "*"), false)
 }
 
 function initializeClipboard(cordova: Cordova) {
