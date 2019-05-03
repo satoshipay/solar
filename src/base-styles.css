@@ -49,3 +49,8 @@ body {
   -webkit-app-region: drag;
   -webkit-mask: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
 }
+
+*:not(input):not(textarea) {
+  user-select: none;
+  -webkit-user-select: none;
+}
