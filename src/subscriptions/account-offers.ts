@@ -2,7 +2,7 @@ import { Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
-import { trackStreamError } from "../lib/stream"
+import { manageStreamConnection, trackStreamError } from "../lib/stream"
 
 export interface ObservedAccountOffers {
   loading: boolean
@@ -19,15 +19,17 @@ export function createAccountOffersSubscription(
     offers: []
   })
 
-  const subscribeToStream = () => {
-    // horizon.offers("accounts", accountPubKey) does not seem to yield any updates, so falling back here...
-    const pollingIntervalMs = 5000
-    setInterval(() => {
-      if (window.navigator.onLine !== false) {
-        fetchAccountOffers().catch(trackStreamError)
-      }
-    }, pollingIntervalMs)
-  }
+  const subscribeToStream = () =>
+    manageStreamConnection(() => {
+      // horizon.offers("accounts", accountPubKey) does not seem to yield any updates, so falling back here...
+      const pollingIntervalMs = 5000
+      const interval = setInterval(() => {
+        if (window.navigator.onLine !== false) {
+          fetchAccountOffers().catch(trackStreamError)
+        }
+      }, pollingIntervalMs)
+      return () => clearInterval(interval)
+    })
 
   const fetchAccountOffers = async () => {
     const accountOffers = await horizon
