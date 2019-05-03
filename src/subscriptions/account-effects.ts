@@ -19,6 +19,9 @@ export function createAccountEffectsSubscription(
         .cursor(cursor)
         .stream({
           onmessage: ((effect: Server.EffectRecord) => {
+            if (effect.paging_token) {
+              cursor = effect.paging_token
+            }
             propagateUpdate(effect)
           }) as any,
           onerror(error: Error) {

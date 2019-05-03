@@ -4,6 +4,13 @@ import { waitForAccountData } from "../lib/account"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { manageStreamConnection, trackStreamError } from "../lib/stream"
 
+function getLatestOfferPagingToken(offers: Server.CollectionPage<Server.OfferRecord>) {
+  if (offers.records.length > 0) {
+    return offers.records[offers.records.length - 1].paging_token
+  }
+  return undefined
+}
+
 export interface ObservedAccountOffers {
   loading: boolean
   offers: Server.OfferRecord[]
@@ -19,21 +26,29 @@ export function createAccountOffersSubscription(
     offers: []
   })
 
-  const subscribeToStream = () =>
+  const subscribeToStream = (cursor: string) =>
     manageStreamConnection(() => {
       // horizon.offers("accounts", accountPubKey) does not seem to yield any updates, so falling back here...
       const pollingIntervalMs = 5000
       const interval = setInterval(() => {
         if (window.navigator.onLine !== false) {
-          fetchAccountOffers().catch(trackStreamError)
+          fetchAccountOffers(cursor)
+            .then(accountOffers => {
+              const pagingToken = getLatestOfferPagingToken(accountOffers)
+              if (pagingToken) {
+                cursor = pagingToken
+              }
+            })
+            .catch(trackStreamError)
         }
       }, pollingIntervalMs)
       return () => clearInterval(interval)
     })
 
-  const fetchAccountOffers = async () => {
+  const fetchAccountOffers = async (cursor: string) => {
     const accountOffers = await horizon
       .offers("accounts", accountPubKey)
+      .cursor(cursor)
       .limit(maxOffers)
       .call()
 
@@ -44,12 +59,13 @@ export function createAccountOffersSubscription(
         offers: accountOffers.records
       })
     }
+    return accountOffers
   }
 
   const setup = async () => {
     try {
-      await fetchAccountOffers()
-      subscribeToStream()
+      const offers = await fetchAccountOffers("0")
+      subscribeToStream(getLatestOfferPagingToken(offers) || "0")
     } catch (error) {
       if (error.response && error.response.status === 404) {
         propagateUpdate({
@@ -57,8 +73,8 @@ export function createAccountOffersSubscription(
           loading: false
         })
         await waitForAccountData(horizon, accountPubKey)
-        await fetchAccountOffers()
-        subscribeToStream()
+        const offers = await fetchAccountOffers("0")
+        subscribeToStream(getLatestOfferPagingToken(offers) || "0")
       } else {
         throw error
       }

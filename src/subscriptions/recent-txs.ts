@@ -48,6 +48,9 @@ export function createRecentTxsSubscription(
         .cursor(cursor)
         .stream({
           onmessage: ((transaction: Server.TransactionRecord) => {
+            if (transaction.paging_token) {
+              cursor = transaction.paging_token
+            }
             propagateUpdate({
               ...subscriptionTarget.getLatest(),
               transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
