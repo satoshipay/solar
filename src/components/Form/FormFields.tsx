@@ -29,7 +29,7 @@ export const QRReader = React.memo(function QRReader(props: Props) {
 
   return (
     <>
-      <IconButton onClick={openQRReader}>
+      <IconButton onClick={openQRReader} tabIndex={99}>
         <QRReaderIcon style={props.iconStyle} />
       </IconButton>
       <QRImportDialog open={isQRReaderOpen} onClose={closeQRReader} onError={trackError} onScan={handleQRScan} />
