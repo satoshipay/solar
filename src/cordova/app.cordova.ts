@@ -97,9 +97,11 @@ function authenticate(contentWindow: Window) {
     hideHtmlSplashScreen(contentWindow)
   }
 
-  bioAuthInProgress = performAuth().finally(() => {
+  const onCompletion = () => {
     bioAuthInProgress = undefined
-  })
+  }
+
+  bioAuthInProgress = performAuth().then(onCompletion, onCompletion)
   return bioAuthInProgress
 }
 
