@@ -9,6 +9,8 @@ import { registerCommandHandler } from "./ipc"
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
 const cordovaSecureStorageName = "solar:keystore"
 
+let accountsCount: number | undefined
+
 export const storeKeys = {
   keystore: "keys",
   settings: "settings",
@@ -37,6 +39,8 @@ async function updateKeys(event: MessageEvent, contentWindow: Window, secureStor
 
   await saveValueIntoStorage(secureStorage, storeKeys.keystore, keysData)
   contentWindow.postMessage({ eventType: events.keysStoredEvent, id: event.data.id }, "*")
+
+  accountsCount = Object.keys(keysData).length
 }
 
 async function respondWithSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
@@ -82,8 +86,8 @@ async function updateIgnoredSignatureRequests(
   contentWindow.postMessage({ eventType: events.storedIgnoredSignatureRequestsEvent, id: event.data.id }, "*")
 }
 
-async function getValueFromStorage(storage: CordovaSecureStorage, keyName: string) {
-  return new Promise<object>((resolve, reject) => {
+async function getValueFromStorage<T = any>(storage: CordovaSecureStorage, keyName: string) {
+  return new Promise<T>((resolve, reject) => {
     storage.get(value => resolve(JSON.parse(value)), reject, keyName)
   })
 }
@@ -113,8 +117,8 @@ async function prepareStorage(secureStorage: CordovaSecureStorage) {
   ])
 }
 
-export function initSecureStorage() {
-  const secureStoragePromise = new Promise<CordovaSecureStorage>((resolve, reject) => {
+export async function initSecureStorage() {
+  const secureStorage = await new Promise<CordovaSecureStorage>((resolve, reject) => {
     const storage: CordovaSecureStorage = new cordova.plugins.SecureStorage(
       () =>
         prepareStorage(storage)
@@ -125,5 +129,12 @@ export function initSecureStorage() {
     )
   })
 
-  return secureStoragePromise
+  const keys = await getValueFromStorage(secureStorage, storeKeys.keystore)
+  accountsCount = Object.keys(keys).length
+
+  return secureStorage
+}
+
+export function hasAccounts() {
+  return accountsCount && accountsCount > 0
 }

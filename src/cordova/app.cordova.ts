@@ -4,9 +4,9 @@
  */
 
 import { trackError } from "./error"
-import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
+import { commands, handleMessageEvent, registerCommandHandler } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { initSecureStorage, storeKeys } from "./storage"
+import { hasAccounts, initSecureStorage, storeKeys } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
@@ -40,7 +40,11 @@ function onDeviceReady() {
     throw new Error("iframe.contentWindow is not set.")
   }
 
-  initializeStorage(contentWindow).catch(trackError)
+  const storageInitPromise = initializeStorage(contentWindow)
+  storageInitPromise.catch(trackError)
+
+  bioAuthAvailablePromise = isBiometricAuthAvailable()
+
   initializeQRReader()
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
@@ -51,11 +55,12 @@ function onDeviceReady() {
   document.addEventListener("pause", () => onPause(contentWindow), false)
   document.addEventListener("resume", () => onResume(contentWindow), false)
 
-  bioAuthAvailablePromise = isBiometricAuthAvailable()
+  storageInitPromise.then(async () => {
+    // Need to wait for storageInitPromise, since hasAccounts() is not reliable before
 
-  Promise.resolve().then(async () => {
     isBioAuthAvailable = await bioAuthAvailablePromise
-    if (isBioAuthAvailable) {
+
+    if (isBioAuthAvailable && hasAccounts()) {
       clientSecretPromise = getClientSecret(contentWindow)
       await authenticate(contentWindow)
     } else {
@@ -117,7 +122,7 @@ function hideHtmlSplashScreen(contentWindow: Window) {
 function onPause(contentWindow: Window) {
   contentWindow.postMessage("app:pause", "*")
 
-  if (isBioAuthAvailable) {
+  if (isBioAuthAvailable && hasAccounts()) {
     showSplashScreenOnIOS()
     showHtmlSplashScreen(contentWindow)
   }
@@ -126,8 +131,11 @@ function onPause(contentWindow: Window) {
 function onResume(contentWindow: Window) {
   contentWindow.postMessage("app:resume", "*")
 
-  if (isBioAuthAvailable) {
+  if (isBioAuthAvailable && hasAccounts()) {
     authenticate(contentWindow)
+  } else {
+    navigator.splashscreen.hide()
+    hideHtmlSplashScreen(contentWindow)
   }
 }
 
