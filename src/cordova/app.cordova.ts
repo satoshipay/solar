@@ -10,6 +10,7 @@ import { initSecureStorage, storeKeys } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
+const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.splashscreen.show() : undefined)
 
 let bioAuthInProgress: Promise<void> | undefined
 let bioAuthAvailablePromise: Promise<boolean>
@@ -82,7 +83,7 @@ function authenticate(contentWindow: Window) {
 
   // Trigger show and instantly hide. There will be a fade-out.
   // We show the native splashscreen, because it can be made visible synchronously
-  navigator.splashscreen.show()
+  showSplashScreenOnIOS()
   iframeReady.then(() => navigator.splashscreen.hide())
 
   const performAuth = async (): Promise<void> => {
@@ -117,7 +118,7 @@ function onPause(contentWindow: Window) {
   contentWindow.postMessage("app:pause", "*")
 
   if (isBioAuthAvailable) {
-    navigator.splashscreen.show()
+    showSplashScreenOnIOS()
     showHtmlSplashScreen(contentWindow)
   }
 }
