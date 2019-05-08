@@ -71,8 +71,29 @@ interface Device {
 
 declare var device: Device
 
+interface FingerprintOptions {
+  clientId: string
+  clientSecret?: string
+  localizedFallbackTitle?: string
+  localizedReason?: string
+}
+
+interface Fingerprint {
+  isAvailable(success: (result) => void, error: (message) => void)
+  show(options: FingerprintOptions, success: () => void, error: () => void)
+}
+
+declare var Fingerprint: Fingerprint
+
 interface CordovaPlugins {
   barcodeScanner: BarcodeScanner
   clipboard: CordovaClipboard
   SecureStorage: CordovaSecureStorage
+}
+
+interface Navigator {
+  splashscreen: {
+    hide(): void
+    show(): void
+  }
 }

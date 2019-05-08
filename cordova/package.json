@@ -21,14 +21,18 @@
       "cordova-plugin-wkwebview-engine": {},
       "cordova-plugin-keyboard": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-safariviewcontroller": {}
+      "cordova-plugin-safariviewcontroller": {},
+      "cordova-plugin-fingerprint-aio": {
+        "FACEID_USAGE_DESCRIPTION": "Unlock Solar…"
+      }
     }
   },
   "dependencies": {
+    "@satoshipay/cordova-plugin-fingerprint-aio": "git+https://github.com/satoshipay/cordova-plugin-fingerprint-aio.git",
     "cordova": "^9.0.0",
     "cordova-android": "^8.0.0",
     "cordova-clipboard": "^1.2.1",
-    "cordova-ios": "^5.0.0",
+    "cordova-ios": "^5.0.1",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
     "cordova-plugin-keyboard": "^1.2.0",

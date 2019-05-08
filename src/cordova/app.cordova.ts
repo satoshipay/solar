@@ -6,9 +6,26 @@
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { initSecureStorage } from "./storage"
+import { initSecureStorage, storeKeys } from "./storage"
+import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
+const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.splashscreen.show() : undefined)
+
+let bioAuthInProgress: Promise<void> | undefined
+let bioAuthAvailablePromise: Promise<boolean>
+let clientSecretPromise: Promise<string>
+let isBioAuthAvailable = false
+
+const iframeReady = new Promise<void>(resolve => {
+  const handler = (event: MessageEvent) => {
+    if (event.data === "app:ready") {
+      resolve()
+      window.removeEventListener("message", handler)
+    }
+  }
+  window.addEventListener("message", handler, false)
+})
 
 document.addEventListener("deviceready", onDeviceReady, false)
 
@@ -31,8 +48,87 @@ function onDeviceReady() {
   setupLinkListener()
 
   document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
-  document.addEventListener("pause", () => contentWindow.postMessage("app:pause", "*"), false)
-  document.addEventListener("resume", () => contentWindow.postMessage("app:resume", "*"), false)
+  document.addEventListener("pause", () => onPause(contentWindow), false)
+  document.addEventListener("resume", () => onResume(contentWindow), false)
+
+  bioAuthAvailablePromise = isBiometricAuthAvailable()
+
+  Promise.resolve().then(async () => {
+    isBioAuthAvailable = await bioAuthAvailablePromise
+    if (isBioAuthAvailable) {
+      clientSecretPromise = getClientSecret(contentWindow)
+      await authenticate(contentWindow)
+    } else {
+      await iframeReady
+      navigator.splashscreen.hide()
+      hideHtmlSplashScreen(contentWindow)
+    }
+  })
+}
+
+function getClientSecret(contentWindow: Window) {
+  return new Promise<string>((resolve, reject) => {
+    initializeStorage(contentWindow).then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
+  })
+}
+
+function authenticate(contentWindow: Window) {
+  if (bioAuthInProgress) {
+    // Make sure we don't call bioAuthenticate() twice in a row
+    // Might otherwise happen, since Android likes to trigger the `resume` event on app start
+    return bioAuthInProgress
+  }
+
+  showHtmlSplashScreen(contentWindow)
+
+  // Trigger show and instantly hide. There will be a fade-out.
+  // We show the native splashscreen, because it can be made visible synchronously
+  showSplashScreenOnIOS()
+  iframeReady.then(() => navigator.splashscreen.hide())
+
+  const performAuth = async (): Promise<void> => {
+    const clientSecret = await clientSecretPromise
+    try {
+      await bioAuthenticate(clientSecret)
+    } catch (error) {
+      // Just start over if auth fails - Block user interactions until auth is done
+      return performAuth()
+    }
+    await iframeReady
+    hideHtmlSplashScreen(contentWindow)
+  }
+
+  const onCompletion = () => {
+    bioAuthInProgress = undefined
+  }
+
+  bioAuthInProgress = performAuth().then(onCompletion, onCompletion)
+  return bioAuthInProgress
+}
+
+function showHtmlSplashScreen(contentWindow: Window) {
+  contentWindow.postMessage(commands.showSplashScreen, "*")
+}
+
+function hideHtmlSplashScreen(contentWindow: Window) {
+  contentWindow.postMessage(commands.hideSplashScreen, "*")
+}
+
+function onPause(contentWindow: Window) {
+  contentWindow.postMessage("app:pause", "*")
+
+  if (isBioAuthAvailable) {
+    showSplashScreenOnIOS()
+    showHtmlSplashScreen(contentWindow)
+  }
+}
+
+function onResume(contentWindow: Window) {
+  contentWindow.postMessage("app:resume", "*")
+
+  if (isBioAuthAvailable) {
+    authenticate(contentWindow)
+  }
 }
 
 function initializeClipboard(cordova: Cordova) {
