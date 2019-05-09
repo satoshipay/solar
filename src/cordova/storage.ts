@@ -3,8 +3,8 @@
  */
 
 import nanoid from "nanoid"
-import { commands, events } from "./ipc"
-import { registerCommandHandler } from "./ipc"
+import { commands, events, registerCommandHandler } from "./ipc"
+import { SettingsData } from "../platform/types"
 
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
 const cordovaSecureStorageName = "solar:keystore"
@@ -22,6 +22,10 @@ registerCommandHandler(commands.readSettingsCommand, respondWithSettings)
 registerCommandHandler(commands.storeSettingsCommand, updateSettings)
 registerCommandHandler(commands.readIgnoredSignatureRequestsCommand, respondWithIgnoredSignatureRequests)
 registerCommandHandler(commands.storeIgnoredSignatureRequestsCommand, updateIgnoredSignatureRequests)
+
+let currentSettings: SettingsData | undefined
+
+export const getCurrentSettings = () => currentSettings
 
 async function respondWithKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
   const keys = await getValueFromStorage(secureStorage, storeKeys.keystore)
@@ -53,6 +57,8 @@ async function updateSettings(event: MessageEvent, contentWindow: Window, secure
 
   await saveValueIntoStorage(secureStorage, storeKeys.settings, settings)
   contentWindow.postMessage({ eventType: events.settingsStoredEvent, id: event.data.id }, "*")
+
+  currentSettings = settings
 }
 
 async function respondWithIgnoredSignatureRequests(
@@ -82,8 +88,8 @@ async function updateIgnoredSignatureRequests(
   contentWindow.postMessage({ eventType: events.storedIgnoredSignatureRequestsEvent, id: event.data.id }, "*")
 }
 
-async function getValueFromStorage(storage: CordovaSecureStorage, keyName: string) {
-  return new Promise<object>((resolve, reject) => {
+async function getValueFromStorage<T = any>(storage: CordovaSecureStorage, keyName: string) {
+  return new Promise<T>((resolve, reject) => {
     storage.get(value => resolve(JSON.parse(value)), reject, keyName)
   })
 }
@@ -111,6 +117,8 @@ async function prepareStorage(secureStorage: CordovaSecureStorage) {
     initializeKeyValueIfNotSet(storeKeys.ignoredSignatureRequests, []),
     initializeKeyValueIfNotSet(storeKeys.clientSecret, nanoid(32))
   ])
+
+  currentSettings = await getValueFromStorage(secureStorage, storeKeys.settings)
 }
 
 export function initSecureStorage() {

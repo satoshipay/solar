@@ -6,7 +6,7 @@
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { initSecureStorage, storeKeys } from "./storage"
+import { getCurrentSettings, initSecureStorage, storeKeys } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
@@ -29,6 +29,11 @@ const iframeReady = new Promise<void>(resolve => {
 
 document.addEventListener("deviceready", onDeviceReady, false)
 
+function isBioAuthEnabled() {
+  const settings = getCurrentSettings()
+  return isBioAuthAvailable && settings && settings.biometricLock
+}
+
 function onDeviceReady() {
   const contentWindow = iframe.contentWindow
 
@@ -40,7 +45,6 @@ function onDeviceReady() {
     throw new Error("iframe.contentWindow is not set.")
   }
 
-  initializeStorage(contentWindow).catch(trackError)
   initializeQRReader()
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
@@ -53,17 +57,22 @@ function onDeviceReady() {
 
   bioAuthAvailablePromise = isBiometricAuthAvailable()
 
-  Promise.resolve().then(async () => {
-    isBioAuthAvailable = await bioAuthAvailablePromise
-    if (isBioAuthAvailable) {
-      clientSecretPromise = getClientSecret(contentWindow)
-      await authenticate(contentWindow)
-    } else {
-      await iframeReady
-      navigator.splashscreen.hide()
-      hideHtmlSplashScreen(contentWindow)
-    }
-  })
+  // Need to wait for storage to be initialized or
+  // getCurrentSettings() won't be reliable
+  initializeStorage(contentWindow)
+    .then(async () => {
+      isBioAuthAvailable = await bioAuthAvailablePromise
+
+      if (isBioAuthEnabled()) {
+        clientSecretPromise = getClientSecret(contentWindow)
+        await authenticate(contentWindow)
+      } else {
+        await iframeReady
+        navigator.splashscreen.hide()
+        hideHtmlSplashScreen(contentWindow)
+      }
+    })
+    .catch(trackError)
 }
 
 function getClientSecret(contentWindow: Window) {
@@ -117,7 +126,7 @@ function hideHtmlSplashScreen(contentWindow: Window) {
 function onPause(contentWindow: Window) {
   contentWindow.postMessage("app:pause", "*")
 
-  if (isBioAuthAvailable) {
+  if (isBioAuthEnabled()) {
     showSplashScreenOnIOS()
     showHtmlSplashScreen(contentWindow)
   }
@@ -126,7 +135,7 @@ function onPause(contentWindow: Window) {
 function onResume(contentWindow: Window) {
   contentWindow.postMessage("app:resume", "*")
 
-  if (isBioAuthAvailable) {
+  if (isBioAuthEnabled()) {
     authenticate(contentWindow)
   }
 }
