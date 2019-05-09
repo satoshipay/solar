@@ -14,18 +14,21 @@ interface Props {
 
 interface ContextType {
   agreedToTermsAt: string | undefined
+  biometricLock: boolean
   confirmToC: () => void
   ignoreSignatureRequest: (signatureRequestHash: string) => void
   ignoredSignatureRequests: string[]
   multiSignature: boolean
   multiSignatureServiceURL: string
   showTestnet: boolean
+  toggleBiometricLock: () => void
   toggleMultiSignature: () => void
   toggleTestnet: () => void
 }
 
 const initialSettings: SettingsData = {
   agreedToTermsAt: undefined,
+  biometricLock: false,
   multisignature: false,
   testnet: false
 }
@@ -36,12 +39,14 @@ const multiSignatureServiceURL = process.env.MULTISIG_SERVICE || "https://multis
 
 const SettingsContext = React.createContext<ContextType>({
   agreedToTermsAt: initialSettings.agreedToTermsAt,
+  biometricLock: initialSettings.biometricLock,
   confirmToC: () => undefined,
   ignoreSignatureRequest: () => undefined,
   ignoredSignatureRequests: initialIgnoredSignatureRequests,
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
   showTestnet: initialSettings.testnet,
+  toggleBiometricLock: () => undefined,
   toggleMultiSignature: () => undefined,
   toggleTestnet: () => undefined
 })
@@ -85,17 +90,20 @@ export function SettingsProvider(props: Props) {
   }
 
   const confirmToC = () => updateSettings({ agreedToTermsAt: new Date().toISOString() })
+  const toggleBiometricLock = () => updateSettings({ biometricLock: !settings.biometricLock })
   const toggleMultiSignature = () => updateSettings({ multisignature: !settings.multisignature })
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
 
   const contextValue: ContextType = {
     agreedToTermsAt: settings.agreedToTermsAt,
+    biometricLock: settings.biometricLock,
     confirmToC,
     ignoreSignatureRequest,
     ignoredSignatureRequests,
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
     showTestnet: settings.testnet,
+    toggleBiometricLock,
     toggleMultiSignature,
     toggleTestnet
   }

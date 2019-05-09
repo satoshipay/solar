@@ -3,6 +3,7 @@ import { SettingsData } from "./types"
 export { SettingsData }
 
 interface SettingsStore {
+  biometricLockAvailable: boolean
   loadIgnoredSignatureRequestHashes(): Promise<string[]>
   loadSettings(): Promise<Partial<SettingsData>>
   saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]): void
@@ -22,6 +23,8 @@ function getImplementation(): SettingsStore {
     throw new Error("There is no implementation for your platform.")
   }
 }
+
+export const biometricLockAvailable = implementation.biometricLockAvailable
 
 export const loadIgnoredSignatureRequestHashes = implementation.loadIgnoredSignatureRequestHashes
 export const saveIgnoredSignatureRequestHashes = implementation.saveIgnoredSignatureRequestHashes
