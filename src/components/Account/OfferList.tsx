@@ -11,7 +11,7 @@ import BarChartIcon from "@material-ui/icons/BarChart"
 import CloseIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useAccountOffers, useHorizon, ObservedAccountData } from "../../hooks"
+import { useAccountData, useAccountOffers, useHorizon, useIsMobile, ObservedAccountData } from "../../hooks"
 import { offerAssetToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
@@ -50,11 +50,12 @@ function OfferListItem(props: OfferListItemProps) {
   const [hovering, setHoveringStatus] = React.useState(false)
   const buying = offerAssetToAsset(props.offer.buying)
   const selling = offerAssetToAsset(props.offer.selling)
+  const isSmallScreen = useIsMobile()
   return (
     <ListItem
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
-      style={props.style}
+      style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
     >
       <ListItemIcon>
         <BarChartIcon />
@@ -79,7 +80,10 @@ function OfferListItem(props: OfferListItemProps) {
           <CloseIcon style={{ fontSize: "140%" }} />
         </Button>
       ) : (
-        <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+        <ListItemText
+          primaryTypographyProps={{ align: "right" }}
+          style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0 }}
+        >
           <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.6rem" }}>
             <b>{selling.getCode()}</b>
             &nbsp;
