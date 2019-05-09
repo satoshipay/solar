@@ -1,5 +1,7 @@
 import { SettingsData } from "../types"
 
+export const biometricLockAvailable = false
+
 export async function loadSettings() {
   if (!window.electron) {
     throw new Error("No electron runtime context available.")

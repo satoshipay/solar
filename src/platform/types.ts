@@ -11,6 +11,7 @@ export interface PrivateKeyData {
 
 export interface SettingsData {
   agreedToTermsAt?: string
+  biometricLock: boolean
   multisignature: boolean
   testnet: boolean
 }

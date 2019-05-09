@@ -2,6 +2,8 @@ import { SettingsData } from "../types"
 import { sendCommand } from "./message-handler"
 import { commands } from "../../cordova/ipc"
 
+export const biometricLockAvailable = true
+
 export async function loadSettings(): Promise<Partial<SettingsData>> {
   const event = await sendCommand(commands.readSettingsCommand)
   return event.data.settings
