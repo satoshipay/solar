@@ -31,8 +31,12 @@ interface TxConfirmationDialogProps {
 function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   const title =
     props.transaction && props.transaction.operations.every(isPaymentOperation)
-      ? "Confirm Payment"
-      : "Confirm Transaction"
+      ? props.disabled
+        ? "Review Payment"
+        : "Confirm Payment"
+      : props.disabled
+        ? "Review Transaction"
+        : "Confirm Transaction"
 
   const isSmallScreen = useIsMobile()
 
