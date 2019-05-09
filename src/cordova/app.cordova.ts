@@ -63,10 +63,10 @@ function onDeviceReady() {
   // getCurrentSettings() won't be reliable
   initializeStorage(contentWindow)
     .then(async () => {
+      clientSecretPromise = getClientSecret(contentWindow)
       isBioAuthAvailable = await bioAuthAvailablePromise
 
       if (isBioAuthEnabled()) {
-        clientSecretPromise = getClientSecret(contentWindow)
         await authenticate(contentWindow)
       } else {
         await iframeReady
