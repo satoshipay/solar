@@ -17,6 +17,8 @@ let bioAuthAvailablePromise: Promise<boolean>
 let clientSecretPromise: Promise<string>
 let isBioAuthAvailable = false
 
+let lastAuthenticationTimestamp: number = 0
+
 const iframeReady = new Promise<void>(resolve => {
   const handler = (event: MessageEvent) => {
     if (event.data === "app:ready") {
@@ -99,6 +101,7 @@ function authenticate(contentWindow: Window) {
     const clientSecret = await clientSecretPromise
     try {
       await bioAuthenticate(clientSecret)
+      lastAuthenticationTimestamp = Date.now()
     } catch (error) {
       // Just start over if auth fails - Block user interactions until auth is done
       return performAuth()
@@ -135,7 +138,8 @@ function onPause(contentWindow: Window) {
 function onResume(contentWindow: Window) {
   contentWindow.postMessage("app:resume", "*")
 
-  if (isBioAuthEnabled()) {
+  // Necessary because the 'use backup' option of the fingerprint dialog triggers onpause/onresume
+  if (isBioAuthEnabled() && Date.now() - lastAuthenticationTimestamp > 750) {
     authenticate(contentWindow)
   }
 }
