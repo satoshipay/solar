@@ -13,11 +13,13 @@ import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
+import { Account } from "../../context/accounts"
 import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
 import { formatOperation } from "../TransactionSummary/Operations"
+import TransactionSender from "../TransactionSender"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
@@ -358,7 +360,7 @@ interface TransactionListItemProps {
   createdAt: string
   hoverActions?: React.ReactElement<any>
   icon?: React.ReactElement<any>
-  onClick?: () => void
+  onOpenTransaction?: (transaction: Transaction) => void
   style?: React.CSSProperties
   transaction: Transaction
 }
@@ -369,10 +371,12 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
   const isSmallScreen = useIsMobile()
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
+  const { onOpenTransaction, transaction } = props
+  const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
   return (
     <ListItem
-      button={Boolean(props.onClick)}
-      onClick={props.onClick}
+      button={Boolean(onOpen)}
+      onClick={onOpen}
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
       style={{ paddingTop: 8, paddingBottom: 8, ...props.style }}
@@ -408,6 +412,7 @@ function TransactionList(props: {
   background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
+  onOpenTransaction?: (transaction: Transaction) => void
   transactions: Transaction[]
 }) {
   return (
@@ -426,11 +431,40 @@ function TransactionList(props: {
             accountPublicKey={props.accountPublicKey}
             createdAt={transaction.created_at}
             transaction={transaction}
+            onOpenTransaction={props.onOpenTransaction ? props.onOpenTransaction : undefined}
           />
         </EntryAnimation>
       ))}
     </List>
   )
 }
+
+export const InteractiveTransactionList = React.memo(
+  (props: {
+    account: Account
+    testnet: boolean
+    background?: string | number
+    transactions: Transaction[]
+    title: React.ReactNode
+  }) => {
+    if (props.transactions.length === 0) {
+      return null
+    }
+    return (
+      <TransactionSender account={props.account}>
+        {({ sendTransaction }) => (
+          <TransactionList
+            background={props.background}
+            testnet={props.testnet}
+            accountPublicKey={props.account.publicKey}
+            onOpenTransaction={sendTransaction}
+            transactions={props.transactions}
+            title={props.title}
+          />
+        )}
+      </TransactionSender>
+    )
+  }
+)
 
 export default React.memo(TransactionList)
