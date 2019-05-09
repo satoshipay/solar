@@ -1,12 +1,13 @@
 import React from "react"
 import { Operation, Transaction } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
+import { Typography } from "@material-ui/core"
 import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
-import { List } from "../List"
+import { List, ListItem } from "../List"
 import OperationListItem from "./Operations"
 import {
   DangerousTransactionWarning,
@@ -15,6 +16,10 @@ import {
   TransactionMemo,
   TransactionMetadata
 } from "./Transaction"
+
+type TransactionWithUndocumentedProps = Transaction & {
+  created_at: string
+}
 
 function makeOperationSourceExplicit(
   operation: Operation,
@@ -68,6 +73,13 @@ function TransactionSummary(props: TransactionSummaryProps) {
     [accountDataSet, accounts, props.signatureRequest, props.transaction]
   )
 
+  const getTime = (time: string) => {
+    const date = new Date(time)
+    return date.toLocaleString()
+  }
+
+  const transaction = props.transaction as TransactionWithUndocumentedProps
+
   return (
     <List style={{ paddingLeft: 0, paddingRight: 0 }}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
@@ -97,6 +109,19 @@ function TransactionSummary(props: TransactionSummaryProps) {
       ) : null}
       {props.showSource ? <SourceAccount transaction={props.transaction} style={noHPaddingStyle} /> : null}
       <TransactionMetadata style={noHPaddingStyle} transaction={props.transaction} />
+      {transaction.created_at ? (
+        <ListItem
+          heading="Created at"
+          primaryText={
+            <Typography style={{ marginLeft: 16, marginTop: 8, fontSize: "80%" }}>
+              {getTime(transaction.created_at)}
+            </Typography>
+          }
+          style={noHPaddingStyle}
+        />
+      ) : (
+        undefined
+      )}
     </List>
   )
 }
