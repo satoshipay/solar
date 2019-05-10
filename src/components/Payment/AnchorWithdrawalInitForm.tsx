@@ -6,7 +6,7 @@ import { AssetTransferInfo, EmptyAssetTransferInfo, TransferServer } from "@sato
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { formatFieldDescription, formatIdentifier } from "./formatters"
-import { useAssetTransferServerInfos } from "./hooks"
+import { useAssetTransferServerInfos } from "./transferservice"
 import FormBuilder from "./FormBuilder"
 
 type FormValueTransform<Value = string> = (input: Value) => Value
