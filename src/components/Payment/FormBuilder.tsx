@@ -49,6 +49,7 @@ interface Props {
   fieldStyle?: React.CSSProperties
   formValues: { [fieldName: string]: string }
   onSetFormValue: (fieldName: string, newValue: string) => void
+  style?: React.CSSProperties
 }
 
 function FormBuilder(props: Props) {
@@ -57,7 +58,7 @@ function FormBuilder(props: Props) {
     ([fieldName, descriptor]) => descriptor && typeof descriptor === "object"
   )
   return (
-    <HorizontalLayout margin="0 -12px" wrap="wrap">
+    <HorizontalLayout margin="0 -12px" wrap="wrap" style={props.style}>
       {fields.map(([fieldName, descriptor]) => (
         <FormBuilderField
           key={fieldName}

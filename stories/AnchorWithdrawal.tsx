@@ -1,6 +1,6 @@
 import React from "react"
 import { Asset } from "stellar-sdk"
-import { WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/sep-6"
+import { WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/stellar-sep-6"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import AnchorWithdrawalFinishForm from "../src/components/Payment/AnchorWithdrawalFinishForm"

@@ -187,8 +187,9 @@ function AnchorWithdrawalInitForm(props: Props) {
           fieldStyle={{ marginTop: 24 }}
           formValues={formValues}
           onSetFormValue={setFormValue}
+          style={{ marginBottom: 64 }}
         />
-        <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+        <DialogActionsBox spacing="large">
           <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
           <ActionButton
             disabled={isDisabled}

@@ -39,9 +39,9 @@ function createMemo(withdrawalResponse: WithdrawalRequestSuccess): Memo | null {
   }
 }
 
-function sendWithdrawalRequest(request: WithdrawalRequestData) {
+function sendWithdrawalRequest(request: WithdrawalRequestData, authToken?: string) {
   const { account, asset, formValues, method, transferServer } = request
-  return transferServer.withdraw(method, asset.getCode(), { account, ...formValues } as any)
+  return transferServer.withdraw(method, asset.getCode(), authToken, { account, ...formValues } as any)
 }
 
 function NoWithdrawableAssets(props: { account: Account }) {

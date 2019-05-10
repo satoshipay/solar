@@ -89,8 +89,8 @@ function AnchorWithdrawalFinishForm(props: Props) {
             value={props.anchorResponse.data.extra_info[extraKey]}
           />
         ))}
-        <HorizontalLayout margin="24px 0 0">{null}</HorizontalLayout>
-        <DialogActionsBox spacing="large" style={{ marginTop: 64 }}>
+        <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
+        <DialogActionsBox spacing="large">
           <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
           <ActionButton disabled={isDisabled} icon={<SendIcon />} onClick={() => undefined} type="submit">
             Withdraw
