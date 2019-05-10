@@ -1,7 +1,7 @@
 import React from "react"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
-import { TransferFields } from "@satoshipay/sep-6"
+import { TransferFields } from "@satoshipay/stellar-sep-6"
 import { HorizontalLayout } from "../Layout/Box"
 import { formatFieldDescription, formatIdentifier } from "./formatters"
 

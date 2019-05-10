@@ -6,7 +6,7 @@ import {
   AssetTransferInfo,
   EmptyAssetTransferInfo,
   TransferServer
-} from "@satoshipay/sep-6"
+} from "@satoshipay/stellar-sep-6"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks"
 
