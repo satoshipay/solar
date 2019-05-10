@@ -72,9 +72,8 @@ function SignersEditor(props: SignersEditorProps) {
 
       props.addSigner({
         public_key: cosignerPublicKey,
-        key: cosignerPublicKey,
         weight: parseInt(newSignerValues.weight, 10)
-      } as Horizon.AccountSigner)
+      })
 
       setIsEditingNewSigner(false)
       setNewSignerErrors({})
