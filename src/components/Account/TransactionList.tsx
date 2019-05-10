@@ -130,7 +130,7 @@ function Time(props: { time: string }) {
 }
 
 function TransactionIcon(props: { paymentSummary: PaymentSummary; transaction: Transaction }) {
-  if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageOffer") {
+  if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageSellOffer") {
     return <SwapHorizIcon />
   } else if (props.paymentSummary.length === 0) {
     return <SettingsIcon />
@@ -248,8 +248,8 @@ function TransactionItemText(props: TitleTextProps) {
         style={props.style}
       />
     )
-  } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageOffer") {
-    const operation = props.transaction.operations[0] as Operation.ManageOffer
+  } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageSellOffer") {
+    const operation = props.transaction.operations[0] as Operation.ManageSellOffer
 
     if (String(operation.offerId) === "0") {
       // Create offer

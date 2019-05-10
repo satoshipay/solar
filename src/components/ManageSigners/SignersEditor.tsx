@@ -70,11 +70,11 @@ function SignersEditor(props: SignersEditorProps) {
         return setNewSignerErrors(errors)
       }
 
-      props.addSigner(({
+      props.addSigner({
         public_key: cosignerPublicKey,
         key: cosignerPublicKey,
         weight: parseInt(newSignerValues.weight, 10)
-      } as any) as Horizon.AccountSigner)
+      } as Horizon.AccountSigner)
 
       setIsEditingNewSigner(false)
       setNewSignerErrors({})

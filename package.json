@@ -63,8 +63,8 @@
     "react-qr-reader": "^2.1.0",
     "react-router": "^4.4.0-beta.6",
     "react-router-dom": "^4.4.0-beta.6",
-    "stellar-base": "^0.13.1",
-    "stellar-sdk": "^0.15.3"
+    "stellar-base": "^1.0.1",
+    "stellar-sdk": "^1.0.1"
   },
   "devDependencies": {
     "@storybook/addon-centered": "^3.4.8",

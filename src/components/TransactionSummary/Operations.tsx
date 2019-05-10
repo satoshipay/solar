@@ -153,7 +153,7 @@ function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumbe
 
 interface ManageOfferOperationProps {
   accountData: ObservedAccountData
-  operation: Operation.ManageOffer
+  operation: Operation.ManageSellOffer
   style?: React.CSSProperties
   testnet: boolean
 }
@@ -341,7 +341,7 @@ function OperationListItem(props: Props) {
     return <CreateAccountOperation operation={props.operation} style={props.style} />
   } else if (props.operation.type === "payment") {
     return <PaymentOperation operation={props.operation} style={props.style} />
-  } else if (props.operation.type === "manageOffer") {
+  } else if (props.operation.type === "manageSellOffer") {
     return (
       <ManageOfferOperation
         accountData={props.accountData}

@@ -27,7 +27,7 @@ function createDismissalTransaction(
 ): Promise<Transaction> {
   return createTransaction(
     [
-      Operation.manageOffer({
+      Operation.manageSellOffer({
         offerId: offer.id,
         amount: "0",
         buying: offerAssetToAsset(offer.buying),
