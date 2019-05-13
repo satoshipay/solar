@@ -18,8 +18,8 @@ import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
+import TransactionViewer from "../TransactionViewer"
 import { formatOperation } from "../TransactionSummary/Operations"
-import TransactionSender from "../TransactionSender"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
@@ -451,18 +451,18 @@ export const InteractiveTransactionList = React.memo(
       return null
     }
     return (
-      <TransactionSender account={props.account}>
-        {({ sendTransaction }) => (
+      <TransactionViewer account={props.account}>
+        {({ openDialog }) => (
           <TransactionList
             background={props.background}
             testnet={props.testnet}
             accountPublicKey={props.account.publicKey}
-            onOpenTransaction={sendTransaction}
+            onOpenTransaction={openDialog}
             transactions={props.transactions}
             title={props.title}
           />
         )}
-      </TransactionSender>
+      </TransactionViewer>
     )
   }
 )
