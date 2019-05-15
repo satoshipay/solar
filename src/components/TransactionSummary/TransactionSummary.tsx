@@ -21,6 +21,11 @@ type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
 }
 
+function getTime(time: string) {
+  const date = new Date(time)
+  return date.toLocaleString()
+}
+
 function makeOperationSourceExplicit(
   operation: Operation,
   transaction: Transaction,
@@ -73,11 +78,6 @@ function TransactionSummary(props: TransactionSummaryProps) {
     [accountDataSet, accounts, props.signatureRequest, props.transaction]
   )
 
-  const getTime = (time: string) => {
-    const date = new Date(time)
-    return date.toLocaleString()
-  }
-
   const transaction = props.transaction as TransactionWithUndocumentedProps
 
   return (
@@ -111,7 +111,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
       <TransactionMetadata style={noHPaddingStyle} transaction={props.transaction} />
       {transaction.created_at ? (
         <ListItem
-          heading="Created at"
+          heading="Submission"
           primaryText={
             <Typography style={{ marginLeft: 16, marginTop: 8, fontSize: "80%" }}>
               {getTime(transaction.created_at)}
