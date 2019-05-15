@@ -18,7 +18,7 @@ import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
-import TransactionViewer from "../TransactionViewer"
+import TxConfirmationDialog from "../Dialog/TransactionConfirmation"
 import { formatOperation } from "../TransactionSummary/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
@@ -373,6 +373,7 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
 
   const { onOpenTransaction, transaction } = props
   const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
+
   return (
     <ListItem
       button={Boolean(onOpen)}
@@ -408,13 +409,28 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
 })
 
 function TransactionList(props: {
-  accountPublicKey: string
+  account: Account
   background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
   onOpenTransaction?: (transaction: Transaction) => void
   transactions: Transaction[]
 }) {
+  const [openedTransaction, setOpenTransaction] = React.useState<Transaction | null>(null)
+  const closeTransaction = React.useCallback(() => {
+    setOpenTransaction(null)
+
+    // A little hack to prevent :focus style being set again on list item after closing the dialog
+    setTimeout(() => {
+      if (document.activeElement) {
+        ;(document.activeElement as HTMLElement).blur()
+      }
+    }, 0)
+  }, [])
+
+  if (props.transactions.length === 0) {
+    return null
+  }
   return (
     <List style={{ background: props.background }}>
       <ListSubheader disableSticky style={{ background: props.background }}>
@@ -428,43 +444,23 @@ function TransactionList(props: {
         >
           <TransactionListItem
             key={createCheapTxID(transaction)}
-            accountPublicKey={props.accountPublicKey}
+            accountPublicKey={props.account.publicKey}
             createdAt={transaction.created_at}
             transaction={transaction}
-            onOpenTransaction={props.onOpenTransaction ? props.onOpenTransaction : undefined}
+            onOpenTransaction={() => setOpenTransaction(transaction)}
           />
         </EntryAnimation>
       ))}
+      <TxConfirmationDialog
+        open={openedTransaction !== null}
+        account={props.account}
+        disabled={true}
+        transaction={openedTransaction}
+        onClose={closeTransaction}
+        onSubmitTransaction={() => undefined}
+      />
     </List>
   )
 }
-
-export const InteractiveTransactionList = React.memo(
-  (props: {
-    account: Account
-    testnet: boolean
-    background?: string | number
-    transactions: Transaction[]
-    title: React.ReactNode
-  }) => {
-    if (props.transactions.length === 0) {
-      return null
-    }
-    return (
-      <TransactionViewer account={props.account}>
-        {({ openDialog }) => (
-          <TransactionList
-            background={props.background}
-            testnet={props.testnet}
-            accountPublicKey={props.account.publicKey}
-            onOpenTransaction={openDialog}
-            transactions={props.transactions}
-            title={props.title}
-          />
-        )}
-      </TransactionViewer>
-    )
-  }
-)
 
 export default React.memo(TransactionList)

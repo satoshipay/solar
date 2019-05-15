@@ -14,7 +14,7 @@ import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import FriendbotButton from "../components/Account/FriendbotButton"
 import OfferList from "../components/Account/OfferList"
 import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
-import { InteractiveTransactionList } from "../components/Account/TransactionList"
+import TransactionList from "../components/Account/TransactionList"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
@@ -147,7 +147,7 @@ function Transactions(props: { account: Account }) {
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
           <OfferList account={account} title="Open offers" />
-          <InteractiveTransactionList
+          <TransactionList
             account={account}
             background="transparent"
             title="Recent transactions"
