@@ -41,8 +41,10 @@
       }
 
       function onDeviceReady() {
+        const walletframe = document.getElementById("walletframe")
+        
         // Need to delay iframe initialization, so we have time to set up our event listeners first
-        walletframe.src = preloadLink.getAttribute("href");
+        walletframe.setAttribute("src", preloadLink.getAttribute("href"));
 
         setTimeout(function() {
           // iPhone X iframe height fix
