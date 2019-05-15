@@ -1,3 +1,4 @@
+// tslint:disable no-object-literal-type-assertion
 import {
   WithdrawalKYCInteractiveResponse,
   WithdrawalKYCNonInteractiveResponse,

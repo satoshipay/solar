@@ -3,9 +3,9 @@ import { Asset } from "stellar-sdk"
 import { WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/stellar-sep-6"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
-import AnchorWithdrawalFinishForm from "../src/components/Payment/AnchorWithdrawalFinishForm"
-import AnchorWithdrawalInitForm from "../src/components/Payment/AnchorWithdrawalInitForm"
-import AnchorWithdrawalKYCForm from "../src/components/Payment/AnchorWithdrawalKYCForm"
+import AnchorWithdrawalFinishForm from "../src/components/Withdrawal/AnchorWithdrawalFinishForm"
+import AnchorWithdrawalInitForm from "../src/components/Withdrawal/AnchorWithdrawalInitForm"
+import AnchorWithdrawalKYCForm from "../src/components/Withdrawal/AnchorWithdrawalKYCForm"
 import { Account } from "../src/context/accounts"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")

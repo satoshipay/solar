@@ -12,7 +12,7 @@ import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import CreatePaymentForm from "./CreatePaymentForm"
-import AnchorWithdrawalForm from "./AnchorWithdrawalForm"
+import AnchorWithdrawalForm from "../Withdrawal/AnchorWithdrawalForm"
 
 type ActionMode = "native" | "anchor"
 
