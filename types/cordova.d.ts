@@ -96,4 +96,7 @@ interface Navigator {
     hide(): void
     show(): void
   }
+  app: {
+    exitApp(): never
+  }
 }

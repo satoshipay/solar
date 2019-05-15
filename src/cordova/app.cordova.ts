@@ -153,7 +153,15 @@ function initializeClipboard(cordova: Cordova) {
 }
 
 function initializeStorage(contentWindow: Window) {
-  const initPromise = initSecureStorage()
+  const initPromise = initSecureStorage().catch(
+    (error): any => {
+      // Assume that it is a 'device not secure' error
+      alert(
+        "This application requires you to set a PIN or unlock pattern for your device.\n\nPlease retry after setting it up."
+      )
+      navigator.app.exitApp()
+    }
+  )
 
   // Set up event listener synchronously, so it's working as early as possible
   window.addEventListener("message", async event => {
