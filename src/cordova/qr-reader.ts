@@ -1,12 +1,18 @@
 import { trackError } from "./error"
 import { events, commands, registerCommandHandler } from "./ipc"
+import { refreshLastNativeInteractionTime } from "./app.cordova"
 
 async function startQRReader(event: MessageEvent, contentWindow: Window) {
+  refreshLastNativeInteractionTime()
   cordova.plugins.barcodeScanner.scan(
     result => {
+      refreshLastNativeInteractionTime()
       contentWindow.postMessage({ eventType: events.qrcodeResultEvent, id: event.data.id, qrdata: result.text }, "*")
     },
-    trackError,
+    error => {
+      refreshLastNativeInteractionTime()
+      trackError(error)
+    },
     {
       preferFrontCamera: false, // iOS and Android
       showFlipCameraButton: true, // iOS and Android
