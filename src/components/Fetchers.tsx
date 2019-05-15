@@ -68,7 +68,10 @@ async function fetchHorizonMetadata(horizon: Server) {
 
 async function fetchLatestLedger(horizon: Server) {
   const horizonMeta = await fetchHorizonMetadata(horizon)
-  const ledgerData = await (horizon.ledgers() as any).ledger(horizonMeta.history_latest_ledger).call()
+  const ledgerData = await horizon
+    .ledgers()
+    .ledger(horizonMeta.history_latest_ledger)
+    .call()
   return ledgerData
 }
 

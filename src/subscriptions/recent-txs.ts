@@ -47,7 +47,7 @@ export function createRecentTxsSubscription(
         .forAccount(accountPubKey)
         .cursor(cursor)
         .stream({
-          onmessage: ((transaction: Server.TransactionRecord) => {
+          onmessage(transaction: Server.TransactionRecord) {
             if (transaction.paging_token) {
               cursor = transaction.paging_token
             }
@@ -55,7 +55,7 @@ export function createRecentTxsSubscription(
               ...subscriptionTarget.getLatest(),
               transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
             })
-          }) as any,
+          },
           onerror(error: Error) {
             debounceError(error, () => {
               trackStreamError(new Error("Recent transactions update stream errored."))

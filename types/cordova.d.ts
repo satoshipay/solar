@@ -2,7 +2,7 @@ interface BarcodeScanner {
   scan(success: (result: BarcodeScanResult) => void, error: (error: any) => void, properties: Object): any
 }
 
-class Keyboard {}
+declare class Keyboard {}
 
 interface BarcodeScanResult {
   text: string
@@ -17,7 +17,7 @@ interface CordovaClipboard {
 }
 
 interface CordovaInAppBrowser {
-  open(url: string, target: string = "_self", options?: any): void
+  open(url: string, target?: string, options?: any): void
 }
 
 interface CordovaSecureStorage {
@@ -31,13 +31,13 @@ interface CordovaSecureStorage {
 }
 
 interface SafariViewController {
-  isAvailable(available: (available: boolean) => void)
+  isAvailable(available: (available: boolean) => void): void
   show(
     options: SafariViewControllerOptions,
     result: ((result: any) => void) | null,
     message: ((msg: string) => void) | null
-  )
-  hide()
+  ): void
+  hide(): void
 }
 
 declare const SafariViewController: SafariViewController
@@ -79,8 +79,8 @@ interface FingerprintOptions {
 }
 
 interface Fingerprint {
-  isAvailable(success: (result) => void, error: (message) => void)
-  show(options: FingerprintOptions, success: () => void, error: () => void)
+  isAvailable(success: (result: any) => void, error: (message: any) => void): void
+  show(options: FingerprintOptions, success: () => void, error: () => void): void
 }
 
 declare var Fingerprint: Fingerprint
