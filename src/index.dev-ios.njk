@@ -30,11 +30,8 @@
     <script src="../cordova/platforms/ios/platform_www/cordova.js"></script>
     <script>
       function onDeviceReady() {
-        if (window.navigator.platform.includes('Linux')) {
-          walletframe.src = "http://10.0.2.2:1234";
-        } else if (window.navigator.platform.includes('iPhone')) {
-          walletframe.src = "http://localhost:1234";
-        }
+        const walletframe = document.getElementById("walletframe")
+        walletframe.setAttribute("src", "http://localhost:1234");
 
         setTimeout(function() {
           // iPhone X iframe height fix
