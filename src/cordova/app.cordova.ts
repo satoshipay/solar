@@ -10,7 +10,9 @@ import { getCurrentSettings, initSecureStorage, storeKeys } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
-const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.splashscreen.show() : undefined)
+const showSplashScreenOnIOS = () => (cordova.platformId === "ios" ? navigator.splashscreen.show() : undefined)
+const setStatusbarColor = () =>
+  cordova.platformId === "android" ? StatusBar.backgroundColorByHexString("#D601a4ed") : undefined
 
 let bioAuthInProgress: Promise<void> | undefined
 let bioAuthAvailablePromise: Promise<boolean>
@@ -52,6 +54,7 @@ function onDeviceReady() {
   initializeIPhoneNotchFix()
 
   setupLinkListener()
+  setStatusbarColor()
 
   document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
   document.addEventListener("pause", () => onPause(contentWindow), false)
