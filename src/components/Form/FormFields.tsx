@@ -58,6 +58,7 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
         readOnly,
         ...textfieldProps.InputProps
       }}
+      type="number"
       style={{
         pointerEvents: props.readOnly ? "none" : undefined,
         ...textfieldProps.style
