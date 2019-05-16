@@ -84,6 +84,7 @@ function CustomTrustlineDialog(props: Props) {
             margin="dense"
             name="trust-limit"
             value={limit}
+            type="number"
             onChange={event => setLimit(event.target.value)}
           />
           <DialogActionsBox>
