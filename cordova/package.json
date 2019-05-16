@@ -65,7 +65,7 @@
     "dev:ios": "run-p dev:bundle:ios dev:cordova:ios",
     "dev:bundle:android": "PLATFORM=android NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 1234 --out-dir ../dist",
     "dev:bundle:ios": "PLATFORM=ios NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 1234 --out-dir ../dist",
-    "dev:cordova:android": "../node_modules/.bin/parcel build ../src/index.dev-android.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev android && dotenv -- cordova build android",
-    "dev:cordova:ios": "../node_modules/.bin/parcel build ../src/index.dev-ios.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev ios && cordova build ios --buildConfig=build.ios.json"
+    "dev:cordova:android": "PLATFORM=android ../node_modules/.bin/parcel build ../src/index.dev-android.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev android && dotenv -- cordova build android",
+    "dev:cordova:ios": "PLATFORM=ios ../node_modules/.bin/parcel build ../src/index.dev-ios.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev ios && cordova build ios --buildConfig=build.ios.json"
   }
 }
