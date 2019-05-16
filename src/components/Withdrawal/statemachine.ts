@@ -14,36 +14,35 @@ type WithdrawalResponse =
   | WithdrawalKYCStatusResponse
   | WithdrawalSuccessResponse
 
+interface GeneralWithdrawalDetails {
+  asset: Asset
+  firstFormValues: { [fieldName: string]: string }
+  method: string
+  transferServer: TransferServer
+}
+
 type WithdrawalState =
   | {
       step: "initial"
+      details?: Partial<GeneralWithdrawalDetails>
     }
   | {
-      step: "web-auth-pending"
-      asset: Asset
+      step: "after-withdrawal-form"
+      details: GeneralWithdrawalDetails
+    }
+  | {
+      step: "after-webauth"
       authToken?: string
-      firstFormValues: { [fieldName: string]: string }
-      method: string
-      transferServer: TransferServer
+      details: GeneralWithdrawalDetails
     }
   | {
-      step: "kyc-pending"
-      asset: Asset
+      step: "after-kyc"
       authToken?: string
-      firstFormValues: { [fieldName: string]: string }
-      method: string
-      transferServer: TransferServer
+      details: GeneralWithdrawalDetails
+      withdrawal: WithdrawalSuccessResponse
     }
   | {
-      step: "kyc-done"
-      asset: Asset
-      authToken?: string
-      firstFormValues: { [fieldName: string]: string }
-      method: string
-      transferServer: TransferServer
-    }
-  | {
-      step: "tx-submitted"
+      step: "after-tx-submission"
     }
 
 export const backToStart = () =>
@@ -79,7 +78,7 @@ export const receivedResponse = (response: WithdrawalResponse) =>
 
 export const transactionSubmitted = () =>
   ({
-    type: "tx-submitted"
+    type: "after-tx-submission"
   } as const)
 
 type WithdrawalAction =
@@ -96,41 +95,48 @@ export const initialState: WithdrawalState = {
 export function stateMachine(state: WithdrawalState, action: WithdrawalAction): WithdrawalState {
   switch (action.type) {
     case "back-to-start":
-      return initialState
+      return {
+        step: "initial",
+        details: "details" in state ? state.details : undefined
+      }
     case "save-init-form":
       return {
-        step: "web-auth-pending",
-        asset: action.asset,
-        firstFormValues: action.formValues,
-        method: action.method,
-        transferServer: action.transferServer
+        step: "after-withdrawal-form",
+        details: {
+          asset: action.asset,
+          firstFormValues: action.formValues,
+          method: action.method,
+          transferServer: action.transferServer
+        }
       }
     case "set-auth-token":
-      if (state.step !== "web-auth-pending") {
+      if (state.step !== "after-withdrawal-form") {
         throw Error("Cannot set auth token at this time.")
       }
       return {
         ...state,
+        step: "after-webauth",
         authToken: action.token
       }
     case "received-response":
-      if (state.step !== "web-auth-pending" && state.step !== "kyc-pending") {
+      if (state.step !== "after-webauth") {
         throw Error(`Cannot perform action ${action.type} in state ${state.step}.`)
       }
       if (!("type" in action.response)) {
         return {
           ...state,
-          step: "kyc-done"
+          step: "after-kyc",
+          withdrawal: action.response
         }
       } else {
         return {
           ...state,
-          step: "kyc-pending"
+          step: "after-webauth"
         }
       }
-    case "tx-submitted":
+    case "after-tx-submission":
       return {
-        step: "tx-submitted"
+        step: "after-tx-submission"
       }
     default:
       throw Error(`Unexpected action: ${(action as WithdrawalAction).type}`)
