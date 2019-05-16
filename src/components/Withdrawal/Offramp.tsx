@@ -14,9 +14,9 @@ import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
 import { usePolling } from "./util"
 import { useAssetTransferServerInfos } from "./transferservice"
-import AnchorWithdrawalFinishForm from "./AnchorWithdrawalFinishForm"
-import AnchorWithdrawalInitForm from "./AnchorWithdrawalInitForm"
-import AnchorWithdrawalKYCForm from "./AnchorWithdrawalKYCForm"
+import WithdrawalFinishForm from "./WithdrawalTransactionForm"
+import AnchorWithdrawalInitForm from "./WithdrawalRequestForm"
+import WithdrawalKYCForm from "./WithdrawalKYCForm"
 
 const kycPollIntervalMs = 6000
 
@@ -76,7 +76,7 @@ interface Props {
   testnet: boolean
 }
 
-function AnchorWithdrawalForm(props: Props) {
+function Offramp(props: Props) {
   const [withdrawalResponse, setWithdrawalResponse] = React.useState<
     WithdrawalRequestKYC | WithdrawalRequestSuccess | null
   >(null)
@@ -174,7 +174,7 @@ function AnchorWithdrawalForm(props: Props) {
       throw new Error("No asset set.")
     }
     return (
-      <AnchorWithdrawalFinishForm
+      <WithdrawalFinishForm
         account={props.account}
         asset={selectedAsset}
         anchorResponse={withdrawalResponse}
@@ -183,7 +183,7 @@ function AnchorWithdrawalForm(props: Props) {
       />
     )
   } else if (withdrawalResponse && withdrawalResponse.type === "kyc") {
-    return <AnchorWithdrawalKYCForm anchorResponse={withdrawalResponse} onCancel={startOver} />
+    return <WithdrawalKYCForm anchorResponse={withdrawalResponse} onCancel={startOver} />
   } else {
     return (
       <AnchorWithdrawalInitForm
@@ -197,4 +197,4 @@ function AnchorWithdrawalForm(props: Props) {
   }
 }
 
-export default AnchorWithdrawalForm
+export default Offramp

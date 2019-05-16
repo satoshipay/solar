@@ -20,7 +20,7 @@ interface KYCStatusProps {
   onCancel: () => void
 }
 
-function AnchorWithdrawalKYCStatus(props: KYCStatusProps) {
+function WithdrawalKYCStatus(props: KYCStatusProps) {
   return (
     <VerticalLayout grow>
       <VerticalLayout alignItems="center" margin="48px auto 0" maxWidth="550px" textAlign="center" width="80%">
@@ -71,4 +71,4 @@ function AnchorWithdrawalKYCStatus(props: KYCStatusProps) {
   )
 }
 
-export default AnchorWithdrawalKYCStatus
+export default WithdrawalKYCStatus

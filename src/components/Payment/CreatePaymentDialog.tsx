@@ -12,7 +12,7 @@ import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import CreatePaymentForm from "./CreatePaymentForm"
-import AnchorWithdrawalForm from "../Withdrawal/AnchorWithdrawalForm"
+import Offramp from "../Withdrawal/Offramp"
 
 type ActionMode = "native" | "anchor"
 
@@ -89,7 +89,7 @@ function CreatePaymentDialog(props: Props) {
           txCreationPending={txCreationPending}
         />
       ) : (
-        <AnchorWithdrawalForm
+        <Offramp
           account={props.account}
           assets={trustedAssets.filter(asset => !asset.isNative())}
           horizon={props.horizon}

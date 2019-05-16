@@ -20,7 +20,7 @@ interface Props {
   onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalRequestSuccess) => void
 }
 
-function AnchorWithdrawalFinishForm(props: Props) {
+function WithdrawalFinishForm(props: Props) {
   // TODO: extra_info is not handled
 
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
@@ -101,4 +101,4 @@ function AnchorWithdrawalFinishForm(props: Props) {
   )
 }
 
-export default AnchorWithdrawalFinishForm
+export default WithdrawalFinishForm

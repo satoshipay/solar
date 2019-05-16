@@ -6,7 +6,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
 import { WithdrawalKYCInteractiveResponse, WithdrawalRequestKYC } from "@satoshipay/stellar-sep-6"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, VerticalLayout } from "../Layout/Box"
-import AnchorWithdrawalKYCStatus from "./AnchorWithdrawalKYCStatus"
+import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
 
 interface KYCRedirectProps {
   meta: WithdrawalKYCInteractiveResponse
@@ -61,7 +61,7 @@ interface Props {
   onRedirect?: () => void
 }
 
-function AnchorWithdrawalKYCForm(props: Props) {
+function WithdrawalKYCForm(props: Props) {
   if (props.anchorResponse.data.type === "interactive_customer_info_needed") {
     return (
       <AnchorWithdrawalKYCRedirect
@@ -78,10 +78,10 @@ function AnchorWithdrawalKYCForm(props: Props) {
       </Box>
     )
   } else if (props.anchorResponse.data.type === "customer_info_status") {
-    return <AnchorWithdrawalKYCStatus meta={props.anchorResponse.data} onCancel={props.onCancel} />
+    return <WithdrawalKYCStatus meta={props.anchorResponse.data} onCancel={props.onCancel} />
   } else {
     throw new Error("Anchor response not supported.")
   }
 }
 
-export default AnchorWithdrawalKYCForm
+export default WithdrawalKYCForm

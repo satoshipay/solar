@@ -3,9 +3,9 @@ import { Asset } from "stellar-sdk"
 import { WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/stellar-sep-6"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
-import AnchorWithdrawalFinishForm from "../src/components/Withdrawal/AnchorWithdrawalFinishForm"
-import AnchorWithdrawalInitForm from "../src/components/Withdrawal/AnchorWithdrawalInitForm"
-import AnchorWithdrawalKYCForm from "../src/components/Withdrawal/AnchorWithdrawalKYCForm"
+import WithdrawalFinishForm from "../src/components/Withdrawal/WithdrawalTransactionForm"
+import AnchorWithdrawalInitForm from "../src/components/Withdrawal/WithdrawalRequestForm"
+import WithdrawalKYCForm from "../src/components/Withdrawal/WithdrawalKYCForm"
 import { Account } from "../src/context/accounts"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
@@ -72,7 +72,7 @@ storiesOf("Withdrawal", module)
     />
   ))
   .add("Finish", () => (
-    <AnchorWithdrawalFinishForm
+    <WithdrawalFinishForm
       account={account}
       asset={eurt}
       anchorResponse={withdrawalSuccessResponse}
@@ -81,11 +81,11 @@ storiesOf("Withdrawal", module)
     />
   ))
   .add("Interactive KYC", () => (
-    <AnchorWithdrawalKYCForm anchorResponse={withdrawalInteractiveKYCResponse} onCancel={action("clicked cancel")} />
+    <WithdrawalKYCForm anchorResponse={withdrawalInteractiveKYCResponse} onCancel={action("clicked cancel")} />
   ))
   .add("KYC pending", () => (
-    <AnchorWithdrawalKYCForm anchorResponse={withdrawalKYCPendingResponse} onCancel={action("clicked cancel")} />
+    <WithdrawalKYCForm anchorResponse={withdrawalKYCPendingResponse} onCancel={action("clicked cancel")} />
   ))
   .add("KYC denied", () => (
-    <AnchorWithdrawalKYCForm anchorResponse={withdrawalKYCDeniedResponse} onCancel={action("clicked cancel")} />
+    <WithdrawalKYCForm anchorResponse={withdrawalKYCDeniedResponse} onCancel={action("clicked cancel")} />
   ))
