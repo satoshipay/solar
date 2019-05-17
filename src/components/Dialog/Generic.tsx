@@ -19,13 +19,9 @@ const Transition = (props: any) => <Slide {...props} direction="up" />
 function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
   return (
     <>
-      {props.icon ? (
-        <ButtonIconLabel label={props.label} loading={props.loading}>
-          {props.icon}
-        </ButtonIconLabel>
-      ) : (
-        props.label
-      )}
+      <ButtonIconLabel label={props.label} loading={props.loading}>
+        {props.icon}
+      </ButtonIconLabel>
     </>
   )
 }
