@@ -7,7 +7,9 @@ import { useAccountOffers, ObservedAccountData } from "../../hooks"
 import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { ListItem } from "../List"
 import { Address } from "../PublicKey"
+import { AccountName } from "../Fetchers"
 
+const isUTF8 = (buffer: Buffer) => !buffer.toString("utf8").match(/[\x00-\x1F]/)
 const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 
 function someThresholdSet(operation: Operation.SetOptions) {
@@ -116,6 +118,36 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
       </OperationDetails>
     )
     return <ListItem heading="Trust asset" primaryText={content} style={props.style} />
+  }
+}
+
+function ManageDataOperation(props: {
+  operation: Operation.ManageData
+  style?: React.CSSProperties
+  testnet: boolean
+  transaction: Transaction
+}) {
+  if (props.operation.name.match(/ auth$/i) && String(props.transaction.sequence) === "0") {
+    return (
+      <ListItem
+        heading="Stellar Web Authentication"
+        primaryText={<AccountName publicKey={props.transaction.source} testnet={props.testnet} />}
+        style={props.style}
+      />
+    )
+  } else {
+    const content = (
+      <OperationDetails>
+        <b>{props.operation.name}</b>
+        <br />
+        <span>
+          {isUTF8(props.operation.value)
+            ? props.operation.value.toString("utf8")
+            : props.operation.value.toString("base64")}
+        </span>
+      </OperationDetails>
+    )
+    return <ListItem heading="Set data" primaryText={content} style={props.style} />
   }
 }
 
@@ -317,6 +349,15 @@ function OperationListItem(props: Props) {
     return <CreateAccountOperation operation={props.operation} style={props.style} />
   } else if (props.operation.type === "payment") {
     return <PaymentOperation operation={props.operation} style={props.style} />
+  } else if (props.operation.type === "manageData") {
+    return (
+      <ManageDataOperation
+        operation={props.operation}
+        style={props.style}
+        testnet={props.testnet}
+        transaction={props.transaction}
+      />
+    )
   } else if (props.operation.type === "manageOffer") {
     return (
       <ManageOfferOperation
