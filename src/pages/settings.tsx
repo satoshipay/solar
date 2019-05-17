@@ -65,7 +65,7 @@ function Settings() {
         title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
       >
         <Typography
-          color={settings.multiSignature ? "default" : "textSecondary"}
+          color={settings.biometricLock ? "default" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
