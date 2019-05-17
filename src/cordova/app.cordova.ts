@@ -19,7 +19,11 @@ let bioAuthAvailablePromise: Promise<boolean>
 let clientSecretPromise: Promise<string>
 let isBioAuthAvailable = false
 
-let lastAuthenticationTimestamp: number = 0
+let lastNativeInteractionTime: number = 0
+
+export function refreshLastNativeInteractionTime() {
+  lastNativeInteractionTime = Date.now()
+}
 
 const iframeReady = new Promise<void>(resolve => {
   const handler = (event: MessageEvent) => {
@@ -104,7 +108,7 @@ function authenticate(contentWindow: Window) {
     const clientSecret = await clientSecretPromise
     try {
       await bioAuthenticate(clientSecret)
-      lastAuthenticationTimestamp = Date.now()
+      refreshLastNativeInteractionTime()
     } catch (error) {
       // Just start over if auth fails - Block user interactions until auth is done
       return performAuth()
@@ -132,7 +136,7 @@ function hideHtmlSplashScreen(contentWindow: Window) {
 function onPause(contentWindow: Window) {
   contentWindow.postMessage("app:pause", "*")
 
-  if (isBioAuthEnabled()) {
+  if (isBioAuthEnabled() && Date.now() - lastNativeInteractionTime > 750) {
     showSplashScreenOnIOS()
     showHtmlSplashScreen(contentWindow)
   }
@@ -142,7 +146,7 @@ function onResume(contentWindow: Window) {
   contentWindow.postMessage("app:resume", "*")
 
   // Necessary because the 'use backup' option of the fingerprint dialog triggers onpause/onresume
-  if (isBioAuthEnabled() && Date.now() - lastAuthenticationTimestamp > 750) {
+  if (isBioAuthEnabled() && Date.now() - lastNativeInteractionTime > 750) {
     authenticate(contentWindow)
   }
 }
