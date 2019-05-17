@@ -4,7 +4,14 @@ import React from "react"
 import { Asset, Memo, Operation, Server, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
-import { TransferServer, WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/stellar-sep-6"
+import {
+  TransferServer,
+  WithdrawalKYCStatusResponse,
+  WithdrawalRequestKYC,
+  WithdrawalRequestSuccess,
+  WithdrawalSuccessResponse
+} from "@satoshipay/stellar-sep-6"
+import { fetchChallenge, fetchWebAuthData, postResponse, WebauthData } from "@satoshipay/stellar-sep-10"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useRouter } from "../../hooks"
@@ -13,15 +20,20 @@ import * as routes from "../../routes"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
 import { usePolling } from "./util"
+import { action, initialState, stateMachine, BeforeWebauthState } from "./statemachine"
 import { useAssetTransferServerInfos } from "./transferservice"
-import WithdrawalFinishForm from "./WithdrawalTransactionForm"
+import WithdrawalKYCRedirect from "./WithdrawalKYCRedirect"
+import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
 import AnchorWithdrawalInitForm from "./WithdrawalRequestForm"
-import WithdrawalKYCForm from "./WithdrawalKYCForm"
+import WithdrawalTransactionForm from "./WithdrawalTransactionForm"
+import TxConfirmationDialog from "../Dialog/TransactionConfirmation"
 
 const kycPollIntervalMs = 6000
 
-function createMemo(withdrawalResponse: WithdrawalRequestSuccess): Memo | null {
-  const { memo, memo_type: type } = withdrawalResponse.data
+const doNothing = () => undefined
+
+function createMemo(withdrawalResponse: WithdrawalSuccessResponse): Memo | null {
+  const { memo, memo_type: type } = withdrawalResponse
 
   if (!memo || !type) {
     return null
@@ -41,29 +53,15 @@ function createMemo(withdrawalResponse: WithdrawalRequestSuccess): Memo | null {
 }
 
 function sendWithdrawalRequest(request: WithdrawalRequestData, authToken?: string) {
-  const { account, asset, formValues, method, transferServer } = request
-  return transferServer.withdraw(method, asset.getCode(), authToken, { account, ...formValues } as any)
-}
-
-function NoWithdrawableAssets(props: { account: Account }) {
-  const router = useRouter()
-  return (
-    <Box margin="48px 0 0" textAlign="center">
-      <Typography>This account holds no withdrawable assets.</Typography>
-      <Box margin="24px 0 0">
-        <Button onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))} variant="outlined">
-          Add another asset
-        </Button>
-      </Box>
-    </Box>
-  )
+  const { account, asset, withdrawalFormValues, method, transferServer } = request
+  return transferServer.withdraw(method, asset.getCode(), authToken, { account, ...withdrawalFormValues } as any)
 }
 
 interface WithdrawalRequestData {
   account: string
   asset: Asset
   method: string
-  formValues: { [fieldName: string]: string }
+  withdrawalFormValues: { [fieldName: string]: string }
   transferServer: TransferServer
 }
 
@@ -77,10 +75,8 @@ interface Props {
 }
 
 function Offramp(props: Props) {
-  const [withdrawalResponse, setWithdrawalResponse] = React.useState<
-    WithdrawalRequestKYC | WithdrawalRequestSuccess | null
-  >(null)
-  const [selectedAsset, setSelectedAsset] = React.useState<Asset | null>(null)
+  const [currentState, dispatch] = React.useReducer(stateMachine, initialState)
+  const [withdrawalRequestPending, setWithdrawalRequestPending] = React.useState(false)
   const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
   const router = useRouter()
 
@@ -92,12 +88,12 @@ function Offramp(props: Props) {
     return transferInfo.withdraw && transferInfo.withdraw.enabled
   })
 
-  const createWithdrawalTx = async (amount: BigNumber, asset: Asset, response: WithdrawalRequestSuccess) => {
+  const createWithdrawalTx = async (amount: BigNumber, asset: Asset, response: WithdrawalSuccessResponse) => {
     const memo = createMemo(response)
     const payment = Operation.payment({
       amount: amount.toString(),
       asset,
-      destination: response.data.account_id
+      destination: response.account_id
     })
     return createTransaction([payment], {
       accountData,
@@ -107,30 +103,93 @@ function Offramp(props: Props) {
     })
   }
 
-  const sendWithdrawalTx = async (amount: BigNumber, asset: Asset, response: WithdrawalRequestSuccess) => {
+  const sendWithdrawalTx = async (amount: BigNumber, asset: Asset, response: WithdrawalSuccessResponse) => {
     await props.onSubmit(() => createWithdrawalTx(amount, asset, response))
     router.history.push(routes.account(props.account.id))
   }
 
-  const requestWithdrawal = async (
+  const handleWithdrawalRequest = (response: WithdrawalRequestSuccess | WithdrawalRequestKYC) => {
+    if (response.type === "success") {
+      dispatch(action.successfulKYC(response.data))
+      stopKYCPolling()
+    } else {
+      if (response.data.type === "interactive_customer_info_needed") {
+        dispatch(action.startInteractiveKYC(response.data))
+      } else if (response.data.type === "non_interactive_customer_info_needed") {
+        throw Error("Non-interactive KYC is not yet supported.")
+      } else if (response.data.type === "customer_info_status" && response.data.status === "pending") {
+        dispatch(action.pendingKYC(response.data as WithdrawalKYCStatusResponse<"pending">))
+      } else if (response.data.type === "customer_info_status" && response.data.status === "denied") {
+        dispatch(action.failedKYC(response.data as WithdrawalKYCStatusResponse<"denied">))
+        stopKYCPolling()
+      } else {
+        throw Error(`Unexpected response type: ${response.type} / ${response.data.type}`)
+      }
+    }
+  }
+
+  const handleWithdrawalFormSubmission = async (
     transferServer: TransferServer,
     asset: Asset,
     method: string,
     formValues: { [fieldName: string]: string }
   ) => {
     try {
-      const newWithdrawalRequest: WithdrawalRequestData = {
+      const withdrawalRequest: WithdrawalRequestData = {
         account: props.account.publicKey,
         asset,
-        formValues,
+        withdrawalFormValues: formValues,
         method,
         transferServer
       }
-      setSelectedAsset(asset)
+      setWithdrawalRequestPending(true)
+      const webauthMetadata = await fetchWebAuthData(props.horizon, asset.getIssuer())
+
+      if (webauthMetadata) {
+        const webauth = {
+          ...webauthMetadata,
+          transaction: await fetchChallenge(
+            webauthMetadata.endpointURL,
+            webauthMetadata.signingKey,
+            props.account.publicKey
+          )
+        }
+        dispatch(action.saveInitFormData(transferServer, asset, method, formValues, webauth))
+      } else {
+        dispatch(action.saveInitFormData(transferServer, asset, method, formValues, undefined))
+        await requestWithdrawal(withdrawalRequest)
+      }
+    } catch (error) {
+      trackError(error)
+    } finally {
+      setWithdrawalRequestPending(false)
+    }
+  }
+
+  const performWebAuthentication = async (
+    details: BeforeWebauthState["details"],
+    webauthData: WebauthData & { transaction: Transaction }
+  ) => {
+    try {
+      const withdrawalRequest: WithdrawalRequestData = {
+        ...details,
+        account: props.account.publicKey
+      }
+      const authToken = await postResponse(webauthData.endpointURL, webauthData.transaction)
+      dispatch(action.setAuthToken(authToken))
+      await requestWithdrawal(withdrawalRequest)
+    } catch (error) {
+      // tslint:disable-next-line no-console
+      console.error(error)
+      trackError(Error("Web authentication failed"))
+    }
+  }
+
+  const requestWithdrawal = async (withdrawalRequest: WithdrawalRequestData) => {
+    try {
       setWithdrawalResponsePending(true)
-      const response = await sendWithdrawalRequest(newWithdrawalRequest)
-      setWithdrawalResponse(response)
-      startKYCPolling(() => pollKYCStatus(newWithdrawalRequest))
+      handleWithdrawalRequest(await sendWithdrawalRequest(withdrawalRequest))
+      startKYCPolling(() => pollKYCStatus(withdrawalRequest))
     } catch (error) {
       trackError(error)
     } finally {
@@ -141,13 +200,7 @@ function Offramp(props: Props) {
   const pollKYCStatus = async (request: WithdrawalRequestData) => {
     if (window.navigator.onLine !== false) {
       const response = await sendWithdrawalRequest(request)
-      setWithdrawalResponse(response)
-
-      const kycDenied =
-        response.type === "kyc" && response.data.type === "customer_info_status" && response.data.status === "denied"
-      if (response.type === "success" || kycDenied) {
-        stopKYCPolling()
-      }
+      handleWithdrawalRequest(response)
     }
   }
 
@@ -155,8 +208,7 @@ function Offramp(props: Props) {
 
   const startOver = () => {
     stopKYCPolling()
-    setWithdrawalResponse(null)
-    setWithdrawalResponsePending(false)
+    dispatch(action.backToStart())
   }
 
   if (transferInfos.loading) {
@@ -166,33 +218,66 @@ function Offramp(props: Props) {
       </Box>
     )
   } else if (withdrawableAssetCodes.length === 0) {
-    return <NoWithdrawableAssets account={props.account} />
+    return (
+      <Box margin="48px 0 0" textAlign="center">
+        <Typography>This account holds no withdrawable assets.</Typography>
+        <Box margin="24px 0 0">
+          <Button onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))} variant="outlined">
+            Add another asset
+          </Button>
+        </Box>
+      </Box>
+    )
   }
 
-  if (withdrawalResponse && withdrawalResponse.type === "success") {
-    if (!selectedAsset) {
-      throw new Error("No asset set.")
-    }
+  if (currentState.step === "after-successful-kyc") {
     return (
-      <WithdrawalFinishForm
+      <WithdrawalTransactionForm
         account={props.account}
-        asset={selectedAsset}
-        anchorResponse={withdrawalResponse}
+        asset={currentState.details.asset}
+        anchorResponse={currentState.withdrawal}
         onCancel={startOver}
         onSubmit={sendWithdrawalTx}
       />
     )
-  } else if (withdrawalResponse && withdrawalResponse.type === "kyc") {
-    return <WithdrawalKYCForm anchorResponse={withdrawalResponse} onCancel={startOver} />
-  } else {
+  } else if (currentState.step === "before-interactive-kyc") {
+    return <WithdrawalKYCRedirect meta={currentState.kyc} onCancel={startOver} />
+  } else if (currentState.step === "pending-kyc") {
+    return <WithdrawalKYCStatus meta={currentState.kycStatus} onCancel={startOver} />
+  } else if (
+    currentState.step === "initial" ||
+    currentState.step === "before-webauth" ||
+    currentState.step === "after-webauth"
+  ) {
+    const webauth = currentState.step === "before-webauth" && currentState.webauth ? currentState.webauth : undefined
     return (
-      <AnchorWithdrawalInitForm
-        assets={props.assets}
-        onCancel={props.onCancel}
-        onSubmit={requestWithdrawal}
-        testnet={props.testnet}
-        withdrawalResponsePending={withdrawalResponsePending}
-      />
+      <>
+        <AnchorWithdrawalInitForm
+          assets={props.assets}
+          onCancel={props.onCancel}
+          onSubmit={handleWithdrawalFormSubmission}
+          testnet={props.testnet}
+          pendingAnchorCommunication={withdrawalRequestPending || withdrawalResponsePending}
+        />
+        <TxConfirmationDialog
+          account={props.account}
+          open={Boolean(currentState.step === "before-webauth" && webauth)}
+          transaction={webauth ? webauth.transaction : null}
+          onClose={startOver}
+          onSubmitTransaction={
+            currentState.step === "before-webauth" && webauth
+              ? () => performWebAuthentication(currentState.details, webauth)
+              : doNothing
+          }
+        />
+      </>
+    )
+  } else {
+    console.error("Unhandled offramp state:", currentState.step)
+    return (
+      <Box textAlign="center">
+        The anchor responsible for this operation sent a response that Solar doesn't know how to act on :(
+      </Box>
     )
   }
 }

@@ -3,10 +3,9 @@ import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
-import { WithdrawalKYCInteractiveResponse, WithdrawalRequestKYC } from "@satoshipay/stellar-sep-6"
+import { WithdrawalKYCInteractiveResponse } from "@satoshipay/stellar-sep-6"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, VerticalLayout } from "../Layout/Box"
-import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
 
 interface KYCRedirectProps {
   meta: WithdrawalKYCInteractiveResponse
@@ -14,7 +13,7 @@ interface KYCRedirectProps {
   onRedirect?: () => void
 }
 
-function AnchorWithdrawalKYCRedirect(props: KYCRedirectProps) {
+function WithdrawalKYCRedirect(props: KYCRedirectProps) {
   const [isPending, setPending] = React.useState(false)
 
   const handleSubmit = (event: React.SyntheticEvent) => {
@@ -55,33 +54,4 @@ function AnchorWithdrawalKYCRedirect(props: KYCRedirectProps) {
   )
 }
 
-interface Props {
-  anchorResponse: WithdrawalRequestKYC
-  onCancel: () => void
-  onRedirect?: () => void
-}
-
-function WithdrawalKYCForm(props: Props) {
-  if (props.anchorResponse.data.type === "interactive_customer_info_needed") {
-    return (
-      <AnchorWithdrawalKYCRedirect
-        meta={props.anchorResponse.data}
-        onCancel={props.onCancel}
-        onRedirect={props.onRedirect}
-      />
-    )
-  } else if (props.anchorResponse.data.type === "non_interactive_customer_info_needed") {
-    // TODO: Implement non-interactive KYC
-    return (
-      <Box textAlign="center">
-        The anchor responsible for this operation sent a response that Solar doesn't know how to act on :(
-      </Box>
-    )
-  } else if (props.anchorResponse.data.type === "customer_info_status") {
-    return <WithdrawalKYCStatus meta={props.anchorResponse.data} onCancel={props.onCancel} />
-  } else {
-    throw new Error("Anchor response not supported.")
-  }
-}
-
-export default WithdrawalKYCForm
+export default WithdrawalKYCRedirect

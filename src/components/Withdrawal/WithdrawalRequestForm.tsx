@@ -34,7 +34,7 @@ interface Props {
   onCancel: () => void
   onSubmit: (transferServer: TransferServer, asset: Asset, method: string, formValues: FormValues) => void
   testnet: boolean
-  withdrawalResponsePending?: boolean
+  pendingAnchorCommunication?: boolean
 }
 
 function AnchorWithdrawalInitForm(props: Props) {
@@ -117,21 +117,31 @@ function AnchorWithdrawalInitForm(props: Props) {
     (fields.email || fields.email_address) && !/^[^@]+@[^@]+\.[^@]+$/.test(formValues.email || formValues.email_address)
   const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || invalidAmount || invalidEmail
 
+  const onAssetSelection = React.useCallback(event => {
+    const assetCode = event.target.value || null
+    const withdraw = assetCode && transferInfos.data[assetCode].transferInfo.withdraw
+
+    setAssetCode(assetCode)
+    if (withdraw && withdraw.types && Object.keys(withdraw.types).length === 1) {
+      setMethodID(Object.keys(withdraw.types)[0])
+    }
+  }, [])
+
   return (
     <form onSubmit={handleSubmit}>
       <VerticalLayout>
         <HorizontalLayout>
           <TextField
             label="Asset to withdraw"
-            onChange={event => setAssetCode(event.target.value || null)}
+            onChange={onAssetSelection}
             select
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 180 }}
             value={assetCode || ""}
           >
             {Object.keys(transferInfos.data).map(thisAssetCode => {
               const deposit = transferInfos.data[thisAssetCode].transferInfo.deposit
-              return deposit && deposit.enabled ? (
-                <MenuItem key={thisAssetCode} value={thisAssetCode}>
+              return deposit ? (
+                <MenuItem key={thisAssetCode} disabled={!deposit.enabled} value={thisAssetCode}>
                   {thisAssetCode}
                 </MenuItem>
               ) : null
@@ -193,7 +203,7 @@ function AnchorWithdrawalInitForm(props: Props) {
           <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
           <ActionButton
             disabled={isDisabled}
-            loading={props.withdrawalResponsePending}
+            loading={props.pendingAnchorCommunication}
             onClick={() => undefined}
             type="submit"
           >

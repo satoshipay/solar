@@ -2,7 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
-import { WithdrawalRequestSuccess } from "@satoshipay/stellar-sep-6"
+import { WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
 import { Account } from "../../context/accounts"
 import { useAccountData } from "../../hooks"
 import { getMatchingAccountBalance } from "../../lib/stellar"
@@ -15,19 +15,19 @@ import { formatBalanceRange, formatDescriptionText, formatDuration } from "./for
 interface Props {
   account: Account
   asset: Asset
-  anchorResponse: WithdrawalRequestSuccess
+  anchorResponse: WithdrawalSuccessResponse
   onCancel: () => void
-  onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalRequestSuccess) => void
+  onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalSuccessResponse) => void
 }
 
-function WithdrawalFinishForm(props: Props) {
+function WithdrawalTransactionForm(props: Props) {
   // TODO: extra_info is not handled
 
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const [amountString, setAmountString] = React.useState("")
 
   const balance = getMatchingAccountBalance(accountData.balances, props.asset.getCode())
-  const { data } = props.anchorResponse
+  const data = props.anchorResponse
   const minAmount = data.min_amount ? BigNumber(data.min_amount) : undefined
   const maxAmount = data.max_amount ? BigNumber(data.max_amount) : undefined
 
@@ -83,11 +83,8 @@ function WithdrawalFinishForm(props: Props) {
           />
           <ReadOnlyTextfield label="ETA" style={{ flexGrow: 0, width: 160 }} value={eta} />
         </HorizontalLayout>
-        {Object.keys(props.anchorResponse.data.extra_info || {}).map(extraKey => (
-          <ReadOnlyTextfield
-            label={formatDescriptionText(extraKey)}
-            value={props.anchorResponse.data.extra_info[extraKey]}
-          />
+        {Object.keys(data.extra_info || {}).map(extraKey => (
+          <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info[extraKey]} />
         ))}
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
         <DialogActionsBox spacing="large">
@@ -101,4 +98,4 @@ function WithdrawalFinishForm(props: Props) {
   )
 }
 
-export default WithdrawalFinishForm
+export default WithdrawalTransactionForm
