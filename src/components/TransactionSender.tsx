@@ -14,6 +14,7 @@ import {
 } from "../lib/multisig-service"
 import { networkPassphrases } from "../lib/stellar"
 import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
+import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../lib/stellar-guard"
 import TxConfirmationDrawer from "./Dialog/TransactionConfirmation"
 import SubmissionProgress from "./SubmissionProgress"
 
@@ -161,7 +162,11 @@ class TransactionSender extends React.Component<Props, State> {
 
     try {
       if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
-        await this.submitTransactionToMultisigService(signedTx)
+        if (await isStellarGuardProtected(horizon, account.publicKey)) {
+          await this.submitTransactionToStellarGuard(signedTx)
+        } else {
+          await this.submitTransactionToMultisigService(signedTx)
+        }
       } else {
         await this.submitTransactionToHorizon(signedTx)
       }
@@ -173,6 +178,17 @@ class TransactionSender extends React.Component<Props, State> {
       if (onSubmissionFailure) {
         onSubmissionFailure(error, transaction)
       }
+    }
+  }
+
+  submitTransactionToStellarGuard = async (signedTransaction: Transaction) => {
+    try {
+      const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet)
+
+      this.setSubmissionPromise(promise)
+      return await promise
+    } catch (error) {
+      throw explainSubmissionError(error)
     }
   }
 
