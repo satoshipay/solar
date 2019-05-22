@@ -16,14 +16,18 @@ import { networkPassphrases } from "../lib/stellar"
 import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
 import TransactionReviewDialog from "./TransactionReview/TransactionReviewDialog"
 import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../lib/stellar-guard"
-import SubmissionProgress from "./SubmissionProgress"
+import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 // Had issues with react-storybook vs electron build
 type Timer = any
 
-function ConditionalSubmissionProgress(props: { onClose: () => void; promise: Promise<any> | null }) {
+function ConditionalSubmissionProgress(props: {
+  onClose: () => void
+  promise: Promise<any> | null
+  type: SubmissionType
+}) {
   const outerStyle: React.CSSProperties = {
     position: "absolute",
     display: props.promise ? "flex" : "none",
@@ -46,7 +50,9 @@ function ConditionalSubmissionProgress(props: { onClose: () => void; promise: Pr
     <div style={outerStyle}>
       <Zoom in={Boolean(props.promise)}>
         <div style={innerStyle}>
-          {props.promise ? <SubmissionProgress onClose={props.onClose} promise={props.promise} /> : null}
+          {props.promise ? (
+            <SubmissionProgress onClose={props.onClose} promise={props.promise} type={props.type} />
+          ) : null}
         </div>
       </Zoom>
     </div>
@@ -72,6 +78,7 @@ interface State {
   passwordError: Error | null
   signatureRequest: SignatureRequest | null
   submissionStatus: "before" | "pending" | "fulfilled" | "rejected"
+  submissionType: SubmissionType
   submissionPromise: Promise<any> | null
   submissionSuccessCallbacks: Array<() => void>
   transaction: Transaction | null
@@ -83,6 +90,7 @@ class TransactionSender extends React.Component<Props, State> {
     passwordError: name,
     signatureRequest: null,
     submissionStatus: "before",
+    submissionType: "default",
     submissionPromise: null,
     submissionSuccessCallbacks: [],
     transaction: null
@@ -181,22 +189,12 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  submitTransactionToStellarGuard = async (signedTransaction: Transaction) => {
-    try {
-      const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet)
-
-      this.setSubmissionPromise(promise)
-      return await promise
-    } catch (error) {
-      throw explainSubmissionError(error)
-    }
-  }
-
   submitTransactionToHorizon = async (signedTransaction: Transaction) => {
     try {
       const promise = this.props.horizon.submitTransaction(signedTransaction)
 
       this.setSubmissionPromise(promise)
+      this.setState({ submissionType: "default" })
       return await promise
     } catch (error) {
       // re-throw refined error
@@ -219,9 +217,22 @@ class TransactionSender extends React.Component<Props, State> {
         : submitNewSignatureRequest(this.props.settings.multiSignatureServiceURL, signatureRequestURI)
 
       this.setSubmissionPromise(promise)
+      this.setState({ submissionType: "multi-sig" })
       return await promise
     } catch (error) {
       // re-throw refined error
+      throw explainSubmissionError(error)
+    }
+  }
+
+  submitTransactionToStellarGuard = async (signedTransaction: Transaction) => {
+    try {
+      const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet)
+
+      this.setSubmissionPromise(promise)
+      this.setState({ submissionType: "stellarguard" })
+      return await promise
+    } catch (error) {
       throw explainSubmissionError(error)
     }
   }
@@ -251,6 +262,7 @@ class TransactionSender extends React.Component<Props, State> {
             <ConditionalSubmissionProgress
               onClose={this.onConfirmationDrawerCloseRequest}
               promise={submissionPromise}
+              type={this.state.submissionType}
             />
           }
         />
