@@ -8,7 +8,7 @@ import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
-import { ActionButton, CloseButton, DialogActionsBox } from "../Dialog/Generic"
+import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
@@ -72,6 +72,8 @@ interface AccountCreationFormProps {
 
 function AccountCreationForm(props: AccountCreationFormProps) {
   const { errors, formValues, setFormValue } = props
+  const [pendingConfirmation, setPendingConfirmation] = React.useState<React.SyntheticEvent | null>(null)
+
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const primaryButtonLabel = formValues.createNewKey
@@ -85,6 +87,21 @@ function AccountCreationForm(props: AccountCreationFormProps) {
   const onQRImport = (key: string) => {
     setFormValue("privateKey", key)
     setFormValue("createNewKey", false)
+  }
+
+  const onConfirmNoPasswordProtection = () => {
+    if (!pendingConfirmation) return
+
+    props.onSubmit(pendingConfirmation)
+    setPendingConfirmation(null)
+  }
+
+  const onSubmit = (event: React.SyntheticEvent) => {
+    if (!props.testnet && !formValues.setPassword) {
+      setPendingConfirmation(event)
+    } else {
+      props.onSubmit(event)
+    }
   }
 
   return (
@@ -203,10 +220,25 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         </ToggleSection>
         <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
           <CloseButton onClick={props.onCancel} />
-          <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
+          <ActionButton icon={<CheckIcon />} onClick={onSubmit} type="primary">
             {primaryButtonLabel}
           </ActionButton>
         </DialogActionsBox>
+        <ConfirmDialog
+          cancelButton={<ActionButton onClick={() => setPendingConfirmation(null)}>Cancel</ActionButton>}
+          confirmButton={
+            <ActionButton onClick={onConfirmNoPasswordProtection} type="primary">
+              Confirm
+            </ActionButton>
+          }
+          onClose={() => setPendingConfirmation(null)}
+          open={pendingConfirmation !== null}
+          title="Continue without password"
+        >
+          You are about to create an account without password protection. Anyone that has access to your device will
+          have access to your account funds. <br /> <br />
+          Are you sure you want to continue without setting up a password?
+        </ConfirmDialog>
       </VerticalLayout>
     </form>
   )
