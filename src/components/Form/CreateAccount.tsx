@@ -38,7 +38,13 @@ function getNewAccountName(accounts: Account[], testnet?: boolean) {
   return deriveName(index)
 }
 
-function validateFormValues(formValues: AccountCreationValues) {
+function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
+  const publicKey = Keypair.fromSecret(privateKey).publicKey()
+
+  return accounts.some(account => account.publicKey === publicKey)
+}
+
+function validateFormValues(formValues: AccountCreationValues, accounts: Account[]) {
   const errors: AccountCreationErrors = {}
 
   if (!formValues.name) {
@@ -52,6 +58,8 @@ function validateFormValues(formValues: AccountCreationValues) {
   }
   if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
     errors.privateKey = new Error("Invalid stellar private key.")
+  } else if (!formValues.createNewKey && isAccountAlreadyImported(formValues.privateKey, accounts)) {
+    errors.privateKey = new Error("You can not import the same account twice.")
   }
 
   const success = Object.keys(errors).length === 0
@@ -241,7 +249,7 @@ function StatefulAccountCreationForm(props: Props) {
   const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
 
-    const validation = validateFormValues(formValues)
+    const validation = validateFormValues(formValues, props.accounts)
     setErrors(validation.errors)
 
     const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey
