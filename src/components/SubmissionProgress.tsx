@@ -26,7 +26,26 @@ function Heading(props: { children: React.ReactNode }) {
   )
 }
 
-function SubmissionProgress(props: { onClose?: () => void; promise: Promise<any> }) {
+export type SubmissionType = "default" | "multi-sig" | "stellarguard"
+
+function getSuccessMessage(type: SubmissionType) {
+  switch (type) {
+    case "default":
+      return "Successful"
+    case "multi-sig":
+      return "Waiting for missing signatures"
+    case "stellarguard":
+      return "Waiting for StellarGuard authorization"
+  }
+}
+
+interface SubmissionProgressProps {
+  onClose?: () => void
+  promise: Promise<any>
+  type: SubmissionType
+}
+
+function SubmissionProgress(props: SubmissionProgressProps) {
   return (
     <Async
       promise={props.promise}
@@ -39,7 +58,7 @@ function SubmissionProgress(props: { onClose?: () => void; promise: Promise<any>
       then={() => (
         <Container>
           <SuccessIcon size={100} />
-          <Heading>Successful</Heading>
+          <Heading>{getSuccessMessage(props.type)}</Heading>
         </Container>
       )}
       catch={error => (
