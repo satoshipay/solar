@@ -10,6 +10,7 @@ import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import PasswordStrengthTextField from "../Layout/PasswordStrengthTextField"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
 
@@ -145,7 +146,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
                 marginRight: isSmallScreen ? -6 : -16
               }}
             >
-              <TextField
+              <PasswordStrengthTextField
                 disabled={!formValues.setPassword}
                 error={Boolean(errors.password)}
                 fullWidth
@@ -159,7 +160,6 @@ function AccountCreationForm(props: AccountCreationFormProps) {
                   marginRight: isSmallScreen ? 6 : 16,
                   minWidth: isTinyScreen ? 150 : 250
                 }}
-                type="password"
                 value={formValues.password}
               />
               <TextField

@@ -9,6 +9,7 @@ import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, VerticalLayout } from "../Layout/Box"
+import PasswordStrengthTextField from "../Layout/PasswordStrengthTextField"
 import { Account, AccountsContextType } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
@@ -185,14 +186,13 @@ function ChangePasswordDialog(props: Props) {
           />
         </Box>
         <Box hidden={removingPassword}>
-          <TextField
+          <PasswordStrengthTextField
             error={Boolean(errors.nextPassword)}
             label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
             fullWidth
             margin="dense"
             value={formValues.nextPassword}
             onChange={event => setFormValue("nextPassword", event.target.value)}
-            type="password"
             InputProps={{ startAdornment: adornmentLock }}
           />
           <TextField
