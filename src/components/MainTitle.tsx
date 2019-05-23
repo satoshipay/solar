@@ -1,10 +1,10 @@
 import React from "react"
 import IconButton from "@material-ui/core/IconButton"
-import Typography from "@material-ui/core/Typography"
 import ArrowBackIcon from "@material-ui/icons/ArrowBack"
+import { PropTypes } from "@material-ui/core"
 import { useIsMobile } from "../hooks"
 import { Box, HorizontalLayout } from "./Layout/Box"
-import { PropTypes } from "@material-ui/core"
+import InlineEditField from "./InlineEditField"
 
 interface BackButtonProps {
   onClick: () => void
@@ -27,6 +27,10 @@ const BackButton = (props: BackButtonProps) => {
 interface Props {
   actions?: React.ReactNode
   badges?: React.ReactNode
+  editable?: boolean
+  editableOnClick?: boolean
+  editableContent?: string
+  onEdit?: (newValue: string) => void
   hideBackButton?: boolean
   onBack: () => void
   style?: React.CSSProperties
@@ -57,9 +61,16 @@ function MainTitle(props: Props) {
         maxWidth="100%"
         order={isTitleOnSecondRow ? 4 : undefined}
       >
-        <Typography
-          variant="h5"
+        <InlineEditField
+          autofocus
+          selectOnFocus
           color={props.titleColor}
+          disableEditOnClick={!props.editableOnClick}
+          displayContent={props.title}
+          editable={props.editable}
+          editableContent={props.editableContent}
+          onChange={props.onEdit}
+          textFieldInputProps={{ style: { fontSize: 20, color: "white" } }}
           style={{
             flexGrow: 1,
             flexShrink: 1,
@@ -71,9 +82,7 @@ function MainTitle(props: Props) {
             whiteSpace: "nowrap",
             ...props.titleStyle
           }}
-        >
-          {props.title}
-        </Typography>
+        />
         {props.badges}
       </HorizontalLayout>
       <Box grow style={{ textAlign: "right" }}>
