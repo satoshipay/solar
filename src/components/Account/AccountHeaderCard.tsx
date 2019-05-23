@@ -15,7 +15,6 @@ import * as routes from "../../routes"
 import AccountDeletionDialog from "../Dialog/AccountDeletion"
 import ChangePasswordDialog from "../Dialog/ChangePassword"
 import ExportKeyDialog from "../Dialog/ExportKey"
-import RenameDialog from "../Dialog/Rename"
 import ButtonIconLabel from "../ButtonIconLabel"
 import AccountContextMenu from "./AccountContextMenu"
 import AccountTitle from "./AccountTitle"
@@ -46,13 +45,19 @@ function AccountHeaderCard(props: Props) {
   const settings = React.useContext(SettingsContext)
 
   const [openDialog, setOpenDialog] = React.useState<DialogID | null>(null)
+  const [isRenaming, setIsRenaming] = React.useState<boolean>(false)
+
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const isWidthMax500 = useMediaQuery("(max-width:500px)")
 
   const closeDialog = React.useCallback(() => setOpenDialog(null), [setOpenDialog])
-  const performRenaming = React.useCallback((newName: string) => props.onRenameAccount(props.account.id, newName), [
-    props.account.id
-  ])
+  const performRenaming = React.useCallback(
+    (newName: string) => {
+      props.onRenameAccount(props.account.id, newName)
+      setIsRenaming(false)
+    },
+    [props.account.id]
+  )
 
   const actions = React.useMemo(
     () => (
@@ -83,7 +88,7 @@ function AccountHeaderCard(props: Props) {
           onExport={() => setOpenDialog(DialogID.exportKey)}
           onManageAssets={props.onManageAssets}
           onManageSigners={props.onManageSigners}
-          onRename={() => setOpenDialog(DialogID.renameAccount)}
+          onRename={() => setIsRenaming(true)}
         >
           {({ onOpen }) => (
             <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -16, fontSize: 32 }}>
@@ -107,7 +112,14 @@ function AccountHeaderCard(props: Props) {
       }}
     >
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
-        <AccountTitle account={props.account} accountData={accountData} actions={actions} />
+        <AccountTitle
+          account={props.account}
+          accountData={accountData}
+          actions={actions}
+          editable={isRenaming}
+          editableContent={props.account.name}
+          onEdit={performRenaming}
+        />
 
         {props.children}
 
@@ -147,18 +159,6 @@ function AccountHeaderCard(props: Props) {
           TransitionComponent={DialogSidewaysTransition}
         >
           <ExportKeyDialog account={props.account} onClose={closeDialog} />
-        </Dialog>
-        <Dialog
-          open={openDialog === DialogID.renameAccount}
-          onClose={closeDialog}
-          TransitionComponent={DialogTransition}
-        >
-          <RenameDialog
-            onClose={closeDialog}
-            performRenaming={performRenaming}
-            prevValue={props.account.name}
-            title="Rename account"
-          />
         </Dialog>
       </CardContent>
     </Card>

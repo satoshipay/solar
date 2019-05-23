@@ -53,6 +53,9 @@ interface AccountTitleProps {
   account: Account
   accountData: ObservedAccountData
   actions: React.ReactNode
+  editable: boolean
+  editableContent: string
+  onEdit: (newValue: string) => void
 }
 
 function AccountTitle(props: AccountTitleProps) {
@@ -61,6 +64,9 @@ function AccountTitle(props: AccountTitleProps) {
 
   return (
     <MainTitle
+      editable={props.editable}
+      editableContent={props.editableContent}
+      onEdit={props.onEdit}
       title={<span style={{ marginRight: 20 }}>{props.account.name}</span>}
       titleColor="inherit"
       onBack={onNavigateBack}
