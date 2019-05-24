@@ -53,9 +53,7 @@ function InlineEditField(props: InlineEditableProps) {
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Escape") {
       event.preventDefault()
-      if (inputElement) {
-        inputElement.blur()
-      }
+      abortEditing()
     } else if (event.key === "Enter") {
       event.preventDefault()
       finishEditing()
@@ -67,6 +65,14 @@ function InlineEditField(props: InlineEditableProps) {
 
     if (props.selectOnFocus) {
       selectAll()
+    }
+  }
+
+  const abortEditing = () => {
+    setEditing(false)
+
+    if (props.onChange && props.editableContent) {
+      props.onChange(props.editableContent) // return original value
     }
   }
 
