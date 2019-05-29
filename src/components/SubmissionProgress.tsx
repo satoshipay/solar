@@ -26,17 +26,16 @@ function Heading(props: { children: React.ReactNode }) {
   )
 }
 
-export type SubmissionType = "default" | "multi-sig" | "stellarguard"
+export enum SubmissionType {
+  default,
+  multisig,
+  stellarguard
+}
 
-function getSuccessMessage(type: SubmissionType) {
-  switch (type) {
-    case "default":
-      return "Successful"
-    case "multi-sig":
-      return "Waiting for missing signatures"
-    case "stellarguard":
-      return "Waiting for StellarGuard authorization"
-  }
+const successMessages: { [type: number]: string } = {
+  [SubmissionType.default]: "Successful",
+  [SubmissionType.multisig]: "Waiting for missing signatures",
+  [SubmissionType.stellarguard]: "Waiting for StellarGuard authorization"
 }
 
 interface SubmissionProgressProps {
@@ -58,7 +57,7 @@ function SubmissionProgress(props: SubmissionProgressProps) {
       then={() => (
         <Container>
           <SuccessIcon size={100} />
-          <Heading>{getSuccessMessage(props.type)}</Heading>
+          <Heading>{successMessages[props.type]}</Heading>
         </Container>
       )}
       catch={error => (

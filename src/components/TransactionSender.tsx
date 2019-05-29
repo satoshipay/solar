@@ -90,7 +90,7 @@ class TransactionSender extends React.Component<Props, State> {
     passwordError: name,
     signatureRequest: null,
     submissionStatus: "before",
-    submissionType: "default",
+    submissionType: SubmissionType.default,
     submissionPromise: null,
     submissionSuccessCallbacks: [],
     transaction: null
@@ -194,7 +194,7 @@ class TransactionSender extends React.Component<Props, State> {
       const promise = this.props.horizon.submitTransaction(signedTransaction)
 
       this.setSubmissionPromise(promise)
-      this.setState({ submissionType: "default" })
+      this.setState({ submissionType: SubmissionType.default })
       return await promise
     } catch (error) {
       // re-throw refined error
@@ -217,7 +217,7 @@ class TransactionSender extends React.Component<Props, State> {
         : submitNewSignatureRequest(this.props.settings.multiSignatureServiceURL, signatureRequestURI)
 
       this.setSubmissionPromise(promise)
-      this.setState({ submissionType: "multi-sig" })
+      this.setState({ submissionType: SubmissionType.multisig })
       return await promise
     } catch (error) {
       // re-throw refined error
@@ -230,7 +230,7 @@ class TransactionSender extends React.Component<Props, State> {
       const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet)
 
       this.setSubmissionPromise(promise)
-      this.setState({ submissionType: "stellarguard" })
+      this.setState({ submissionType: SubmissionType.stellarguard })
       return await promise
     } catch (error) {
       throw explainSubmissionError(error)
