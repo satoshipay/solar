@@ -169,12 +169,10 @@ class TransactionSender extends React.Component<Props, State> {
     }
 
     try {
-      if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
-        if (await isStellarGuardProtected(horizon, account.publicKey)) {
-          await this.submitTransactionToStellarGuard(signedTx)
-        } else {
-          await this.submitTransactionToMultisigService(signedTx)
-        }
+      if (await isStellarGuardProtected(horizon, account.publicKey)) {
+        await this.submitTransactionToStellarGuard(signedTx)
+      } else if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
+        await this.submitTransactionToMultisigService(signedTx)
       } else {
         await this.submitTransactionToHorizon(signedTx)
       }
