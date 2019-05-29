@@ -1,9 +1,9 @@
 import React from "react"
 import { Asset } from "stellar-sdk"
-import { WithdrawalRequestKYC, WithdrawalRequestSuccess } from "@satoshipay/stellar-sep-6"
+import { WithdrawalRequestKYC, WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
-import WithdrawalFinishForm from "../src/components/Withdrawal/WithdrawalTransactionForm"
+import WithdrawalTransactionForm from "../src/components/Withdrawal/WithdrawalTransactionForm"
 import AnchorWithdrawalInitForm from "../src/components/Withdrawal/WithdrawalRequestForm"
 import WithdrawalKYCForm from "../src/components/Withdrawal/WithdrawalKYCForm"
 import { Account } from "../src/context/accounts"
@@ -21,16 +21,13 @@ const account: Account = {
   }
 }
 
-const withdrawalSuccessResponse: WithdrawalRequestSuccess = {
-  type: "success",
-  data: {
-    account_id: "",
-    eta: 24 * 60 * 60,
-    memo_type: "hash",
-    memo: "6391dd190f15f7d1665ba53c63842e368f485651a53d8d852ed442a446d1c69a",
-    min_amount: 5,
-    fee_fixed: 2.0
-  }
+const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
+  account_id: "",
+  eta: 24 * 60 * 60,
+  memo_type: "hash",
+  memo: "6391dd190f15f7d1665ba53c63842e368f485651a53d8d852ed442a446d1c69a",
+  min_amount: 5,
+  fee_fixed: 2.0
 }
 
 const withdrawalInteractiveKYCResponse: WithdrawalRequestKYC = {
@@ -72,7 +69,7 @@ storiesOf("Withdrawal", module)
     />
   ))
   .add("Finish", () => (
-    <WithdrawalFinishForm
+    <WithdrawalTransactionForm
       account={account}
       asset={eurt}
       anchorResponse={withdrawalSuccessResponse}

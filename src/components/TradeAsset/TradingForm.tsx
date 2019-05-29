@@ -53,7 +53,6 @@ function TradingForm(props: Props) {
 
   const price = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : manualPrice
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
-  debugger
 
   return (
     <VerticalLayout>

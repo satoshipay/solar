@@ -15,7 +15,7 @@ import { fetchChallenge, fetchWebAuthData, postResponse, WebauthData } from "@sa
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useRouter } from "../../hooks"
-import { createTransaction } from "../../lib/transaction"
+import { createTransaction, signTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
@@ -168,16 +168,18 @@ function Offramp(props: Props) {
 
   const performWebAuthentication = async (
     details: BeforeWebauthState["details"],
-    webauthData: WebauthData & { transaction: Transaction }
+    webauthData: WebauthData & { transaction: Transaction },
+    password: string | null
   ) => {
     try {
       const withdrawalRequest: WithdrawalRequestData = {
         ...details,
         account: props.account.publicKey
       }
-      const authToken = await postResponse(webauthData.endpointURL, webauthData.transaction)
+      const transaction = await signTransaction(webauthData.transaction, props.account, password)
+      const authToken = await postResponse(webauthData.endpointURL, transaction)
       dispatch(action.setAuthToken(authToken))
-      await requestWithdrawal(withdrawalRequest)
+      await requestWithdrawal(withdrawalRequest, authToken)
     } catch (error) {
       // tslint:disable-next-line no-console
       console.error(error)
@@ -185,11 +187,11 @@ function Offramp(props: Props) {
     }
   }
 
-  const requestWithdrawal = async (withdrawalRequest: WithdrawalRequestData) => {
+  const requestWithdrawal = async (withdrawalRequest: WithdrawalRequestData, authToken?: string) => {
     try {
       setWithdrawalResponsePending(true)
-      handleWithdrawalRequest(await sendWithdrawalRequest(withdrawalRequest))
-      startKYCPolling(() => pollKYCStatus(withdrawalRequest))
+      handleWithdrawalRequest(await sendWithdrawalRequest(withdrawalRequest, authToken))
+      startKYCPolling(() => pollKYCStatus(withdrawalRequest, authToken))
     } catch (error) {
       trackError(error)
     } finally {
@@ -197,9 +199,9 @@ function Offramp(props: Props) {
     }
   }
 
-  const pollKYCStatus = async (request: WithdrawalRequestData) => {
+  const pollKYCStatus = async (request: WithdrawalRequestData, authToken?: string) => {
     if (window.navigator.onLine !== false) {
-      const response = await sendWithdrawalRequest(request)
+      const response = await sendWithdrawalRequest(request, authToken)
       handleWithdrawalRequest(response)
     }
   }
@@ -266,7 +268,7 @@ function Offramp(props: Props) {
           onClose={startOver}
           onSubmitTransaction={
             currentState.step === "before-webauth" && webauth
-              ? () => performWebAuthentication(currentState.details, webauth)
+              ? (tx, { password }) => performWebAuthentication(currentState.details, webauth, password)
               : doNothing
           }
         />

@@ -131,7 +131,10 @@ function ManageDataOperation(props: {
     return (
       <ListItem
         heading="Stellar Web Authentication"
-        primaryText={<AccountName publicKey={props.transaction.source} testnet={props.testnet} />}
+        primaryText={
+          // FIXME: Resolve back to domain
+          <AccountName publicKey={props.transaction.source} testnet={props.testnet} />
+        }
         style={props.style}
       />
     )

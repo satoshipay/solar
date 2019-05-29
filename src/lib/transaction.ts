@@ -143,6 +143,7 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
 
   const privateKey = await walletAccount.getPrivateKey(password)
 
+  selectNetwork(walletAccount.testnet)
   transaction.sign(Keypair.fromSecret(privateKey))
   return transaction
 }
