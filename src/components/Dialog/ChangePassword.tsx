@@ -8,6 +8,7 @@ import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
+import zxcvbn from "zxcvbn"
 import { Box, VerticalLayout } from "../Layout/Box"
 import PasswordStrengthTextField from "../Layout/PasswordStrengthTextField"
 import { Account, AccountsContextType } from "../../context/accounts"
@@ -167,6 +168,8 @@ function ChangePasswordDialog(props: Props) {
   }
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
+  const passwordStrength = React.useMemo(() => zxcvbn(formValues.nextPassword).score, [formValues.nextPassword])
+
   return (
     <VerticalLayout minWidth={250}>
       <CloseButton onClick={onClose} />
@@ -191,6 +194,7 @@ function ChangePasswordDialog(props: Props) {
             label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
             fullWidth
             margin="dense"
+            passwordStrength={passwordStrength}
             value={formValues.nextPassword}
             onChange={event => setFormValue("nextPassword", event.target.value)}
             InputProps={{ startAdornment: adornmentLock }}

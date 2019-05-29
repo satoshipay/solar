@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography"
 import CheckIcon from "@material-ui/icons/Check"
 import EditIcon from "@material-ui/icons/Edit"
 import { Keypair } from "stellar-sdk"
+import zxcvbn from "zxcvbn"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
@@ -95,6 +96,8 @@ function AccountCreationForm(props: AccountCreationFormProps) {
     setFormValue("createNewKey", false)
   }
 
+  const passwordStrength = React.useMemo(() => zxcvbn(props.formValues.password).score, [props.formValues.password])
+
   return (
     <form onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
@@ -160,6 +163,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
                   marginRight: isSmallScreen ? 6 : 16,
                   minWidth: isTinyScreen ? 150 : 250
                 }}
+                passwordStrength={passwordStrength}
                 value={formValues.password}
               />
               <TextField
