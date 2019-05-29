@@ -1,4 +1,4 @@
-import { Server, Transaction } from "stellar-sdk"
+import { Server, Transaction, Horizon } from "stellar-sdk"
 
 const STELLARGUARD_TRANSACTION_ENDPOINT_MAINNET = "https://stellarguard.me/api/transactions"
 const STELLARGUARD_TRANSACTION_ENDPOINT_TESTNET = "https://test.stellarguard.me/api/transactions"
@@ -15,6 +15,11 @@ export async function isStellarGuardProtected(horizon: Server, accountPubKey: st
 
   const signers = account.signers as AccountSignerWithKey[] // the name of the property is key and not public_key
   return signers.some(signer => signer.key === STELLARGUARD_PUBLIC_KEY)
+}
+
+export function containsStellarGuardAsSigner(signers: Horizon.AccountSigner[]) {
+  const accountSigners = signers as AccountSignerWithKey[] // the name of the property is key and not public_key
+  return accountSigners.some(signer => signer.key === STELLARGUARD_PUBLIC_KEY)
 }
 
 export async function submitTransactionToStellarGuard(signedTransaction: Transaction, testnet: boolean) {
