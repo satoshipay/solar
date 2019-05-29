@@ -12,9 +12,11 @@ import { CardList, CardListCard } from "../components/CardList"
 import { Account } from "../context/accounts"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { useAccountData, useRouter } from "../hooks"
+import { containsStellarGuardAsSigner } from "../lib/stellar-guard"
 import { SignatureRequest } from "../lib/multisig-service"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
+import StellarGuardIcon from "./Icon/StellarGuard"
 import { Box, HorizontalLayout, VerticalLayout } from "./Layout/Box"
 
 const cardStyles: StyleRules = {
@@ -80,6 +82,17 @@ function AccountCard(props: {
       !hasSigned(req.meta.transaction, props.account.publicKey)
   )
   const badgeContent = pendingSignatureRequests.length > 0 ? pendingSignatureRequests.length : null
+
+  const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
+    <Tooltip title="StellarGuard Protection">
+      <StellarGuardIcon style={{ marginTop: 6 }} />
+    </Tooltip>
+  ) : (
+    <Tooltip title="Multi-Signature Account">
+      <GroupIcon style={{ marginTop: 6 }} />
+    </Tooltip>
+  )
+
   return (
     <StyledCard elevation={5} onClick={onClick} style={{ background: "white", color: "black" }}>
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
@@ -88,13 +101,7 @@ function AccountCard(props: {
             <Typography variant="h5" style={{ flexGrow: 1 }}>
               {props.account.name}
             </Typography>
-            <Box>
-              {accountData.signers.length > 1 ? (
-                <Tooltip title="Multi-Signature Account">
-                  <GroupIcon style={{ marginTop: 6 }} />
-                </Tooltip>
-              ) : null}
-            </Box>
+            <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
           </HorizontalLayout>
           <Box fontSize="120%">
             <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />

@@ -5,7 +5,9 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
 import { useRouter, ObservedAccountData } from "../../hooks"
 import * as routes from "../../routes"
+import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
 import { primaryBackgroundColor } from "../../theme"
+import StellarGuardIcon from "../Icon/StellarGuard"
 import { HorizontalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 
@@ -36,14 +38,20 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
 
 // tslint:disable-next-line no-shadowed-variable
 const Badges = React.memo(function Badges(props: { account: Account; accountData: ObservedAccountData }) {
+  const multiSigIcon = containsStellarGuardAsSigner(props.accountData.signers) ? (
+    <Tooltip title="StellarGuard Protection">
+      <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
+    </Tooltip>
+  ) : (
+    <Tooltip title="Multi-Signature Account">
+      <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
+    </Tooltip>
+  )
+
   return (
     <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
       {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
-      {props.accountData.signers.length > 1 ? (
-        <Tooltip title="Multi-Signature Account">
-          <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
-        </Tooltip>
-      ) : null}
+      {props.accountData.signers.length > 1 ? multiSigIcon : null}
       <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
     </HorizontalLayout>
   )
