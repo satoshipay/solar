@@ -59,7 +59,7 @@ function validateFormValues(formValues: AccountCreationValues, accounts: Account
   if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
     errors.privateKey = new Error("Invalid stellar private key.")
   } else if (!formValues.createNewKey && isAccountAlreadyImported(formValues.privateKey, accounts)) {
-    errors.privateKey = new Error("You can not import the same account twice.")
+    errors.privateKey = new Error("You cannot import the same account twice.")
   }
 
   const success = Object.keys(errors).length === 0
