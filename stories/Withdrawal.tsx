@@ -1,11 +1,12 @@
 import React from "react"
 import { Asset } from "stellar-sdk"
-import { WithdrawalRequestKYC, WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
+import { WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import WithdrawalTransactionForm from "../src/components/Withdrawal/WithdrawalTransactionForm"
 import AnchorWithdrawalInitForm from "../src/components/Withdrawal/WithdrawalRequestForm"
-import WithdrawalKYCForm from "../src/components/Withdrawal/WithdrawalKYCForm"
+import WithdrawalKYCRedirect from "../src/components/Withdrawal/WithdrawalKYCRedirect"
+import WithdrawalKYCStatus from "../src/components/Withdrawal/WithdrawalKYCStatus"
 import { Account } from "../src/context/accounts"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
@@ -30,34 +31,6 @@ const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
   fee_fixed: 2.0
 }
 
-const withdrawalInteractiveKYCResponse: WithdrawalRequestKYC = {
-  type: "kyc",
-  data: {
-    interactive_deposit: false,
-    type: "interactive_customer_info_needed",
-    url: "https://google.com/"
-  }
-}
-
-const withdrawalKYCPendingResponse: WithdrawalRequestKYC = {
-  type: "kyc",
-  data: {
-    eta: 36 * 60 * 60,
-    more_info_url: "https://google.com/",
-    status: "pending",
-    type: "customer_info_status"
-  }
-}
-
-const withdrawalKYCDeniedResponse: WithdrawalRequestKYC = {
-  type: "kyc",
-  data: {
-    more_info_url: "https://google.com/",
-    status: "denied",
-    type: "customer_info_status"
-  }
-}
-
 storiesOf("Withdrawal", module)
   .addDecorator(render => <div style={{ minWidth: "70vw", margin: "20px" }}>{render()}</div>)
   .add("Request", () => (
@@ -78,11 +51,33 @@ storiesOf("Withdrawal", module)
     />
   ))
   .add("Interactive KYC", () => (
-    <WithdrawalKYCForm anchorResponse={withdrawalInteractiveKYCResponse} onCancel={action("clicked cancel")} />
+    <WithdrawalKYCRedirect
+      meta={{
+        interactive_deposit: false,
+        type: "interactive_customer_info_needed",
+        url: "https://google.com/"
+      }}
+      onCancel={action("clicked cancel")}
+    />
   ))
   .add("KYC pending", () => (
-    <WithdrawalKYCForm anchorResponse={withdrawalKYCPendingResponse} onCancel={action("clicked cancel")} />
+    <WithdrawalKYCStatus
+      meta={{
+        eta: 36 * 60 * 60,
+        more_info_url: "https://google.com/",
+        status: "pending",
+        type: "customer_info_status"
+      }}
+      onCancel={action("clicked cancel")}
+    />
   ))
   .add("KYC denied", () => (
-    <WithdrawalKYCForm anchorResponse={withdrawalKYCDeniedResponse} onCancel={action("clicked cancel")} />
+    <WithdrawalKYCStatus
+      meta={{
+        more_info_url: "https://google.com/",
+        status: "denied",
+        type: "customer_info_status"
+      }}
+      onCancel={action("clicked cancel")}
+    />
   ))

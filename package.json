@@ -85,6 +85,7 @@
     "@types/react-router": "^4.4.3",
     "@types/react-router-dom": "^4.3.1",
     "@types/stellar-base": "^0.10.2",
+    "@types/storybook__addon-actions": "^3.4.2",
     "@types/storybook__react": "^3.0.7",
     "babel-core": "^6.26.3",
     "cssnano": "^4.1.10",
