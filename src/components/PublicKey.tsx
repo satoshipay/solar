@@ -51,6 +51,8 @@ export function PublicKey(props: PublicKeyProps) {
     display: "inline",
     fontSize: "inherit",
     fontWeight: "bold",
+    userSelect: "text",
+    WebkitUserSelect: "text",
     whiteSpace: variant !== "full" ? "pre" : undefined,
     ...props.style
   }
@@ -84,8 +86,14 @@ interface AddressProps {
 }
 
 export function Address(props: AddressProps) {
+  const style: React.CSSProperties = {
+    userSelect: "text",
+    WebkitUserSelect: "text",
+    ...props.style
+  }
+
   if (props.address.indexOf("*") > -1) {
-    return <span style={props.style}>{props.address}</span>
+    return <span style={style}>{props.address}</span>
   } else {
     const stellarAddress = queryReverseLookupCache(props.address)
 
@@ -94,7 +102,7 @@ export function Address(props: AddressProps) {
         props.variant === "full" ? stellarAddress : shortenName(stellarAddress, props.variant === "shorter" ? 8 : 14)
 
       return (
-        <span style={props.style}>
+        <span style={style}>
           {formattedStellarAddress} ({<PublicKey publicKey={props.address} variant="shorter" />})
         </span>
       )

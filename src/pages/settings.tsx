@@ -9,6 +9,7 @@ import MainTitle from "../components/MainTitle"
 import ToggleSection from "../components/Layout/ToggleSection"
 import { Section } from "../components/Layout/Page"
 import { useRouter } from "../hooks"
+import { biometricLockAvailable } from "../platform/settings"
 import * as routes from "../routes"
 
 // tslint:disable-next-line
@@ -57,6 +58,21 @@ function Settings() {
           transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.
         </Typography>
       </ToggleSection>
+      <ToggleSection
+        checked={settings.biometricLock}
+        onChange={settings.toggleBiometricLock}
+        style={biometricLockAvailable ? {} : { display: "none" }}
+        title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
+      >
+        <Typography
+          color={settings.biometricLock ? "default" : "textSecondary"}
+          style={{ margin: "8px 0 0" }}
+          variant="body2"
+        >
+          Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
+          your fingerprint).
+        </Typography>
+      </ToggleSection>
     </>
   )
 }
@@ -83,7 +99,10 @@ function SettingsPage() {
           </CardContent>
         </Card>
       </Section>
-      <Section bottom style={{ display: "flex", flexDirection: "column" }}>
+      <Section
+        bottom
+        style={{ display: "flex", flexDirection: "column", overflow: "auto", WebkitOverflowScrolling: "touch" }}
+      >
         <VerticalLayout height="100%" padding="0 8px" grow>
           <Box grow>
             <Settings />

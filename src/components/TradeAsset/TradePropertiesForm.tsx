@@ -157,6 +157,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           label="Amount to spend"
           placeholder={`Max. ${formatBalance(props.sellingBalance)}`}
           onChange={event => props.onSetAmount(event.target.value)}
+          type="number"
           style={{ flexGrow: 1, flexShrink: 1 }}
           value={props.amount}
         />

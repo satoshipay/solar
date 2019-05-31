@@ -1,5 +1,27 @@
 import { trackError } from "../context/notifications"
 
+type UnsubscribeFn = () => void
+
+export function manageStreamConnection(connectStream: () => UnsubscribeFn): UnsubscribeFn {
+  let unsubscribeFromCurrent = connectStream()
+
+  const messageHandler = (event: MessageEvent) => {
+    if (event.data && event.data === "app:pause") {
+      unsubscribeFromCurrent()
+    } else if (event.data && event.data === "app:resume") {
+      unsubscribeFromCurrent = connectStream()
+    }
+  }
+
+  window.addEventListener("message", messageHandler)
+
+  const unsubscribeCompletely = () => {
+    unsubscribeFromCurrent()
+    window.removeEventListener("message", messageHandler)
+  }
+  return unsubscribeCompletely
+}
+
 export function createStreamDebouncer<MessageType>() {
   let lastMessageJson = ""
   let lastMessageTime = 0

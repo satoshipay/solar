@@ -3,16 +3,44 @@
  * Wire-up cordova plugins with window.postMessage()-based IPC here.
  */
 
-import "../../cordova/plugins/cordova-plugin-device/types/index.d.ts"
-
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { initSecureStorage } from "./storage"
+import { getCurrentSettings, initSecureStorage, storeKeys } from "./storage"
+import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
+const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.splashscreen.show() : undefined)
+const setStatusbarColor = () =>
+  process.env.PLATFORM === "android" ? StatusBar.backgroundColorByHexString("#D601a4ed") : undefined
+
+let bioAuthInProgress: Promise<void> | undefined
+let bioAuthAvailablePromise: Promise<boolean>
+let clientSecretPromise: Promise<string>
+let isBioAuthAvailable = false
+
+let lastNativeInteractionTime: number = 0
+
+export function refreshLastNativeInteractionTime() {
+  lastNativeInteractionTime = Date.now()
+}
+
+const iframeReady = new Promise<void>(resolve => {
+  const handler = (event: MessageEvent) => {
+    if (event.data === "app:ready") {
+      resolve()
+      window.removeEventListener("message", handler)
+    }
+  }
+  window.addEventListener("message", handler, false)
+})
 
 document.addEventListener("deviceready", onDeviceReady, false)
+
+function isBioAuthEnabled() {
+  const settings = getCurrentSettings()
+  return isBioAuthAvailable && settings && settings.biometricLock
+}
 
 function onDeviceReady() {
   const contentWindow = iframe.contentWindow
@@ -25,13 +53,102 @@ function onDeviceReady() {
     throw new Error("iframe.contentWindow is not set.")
   }
 
-  initializeStorage(contentWindow).catch(trackError)
   initializeQRReader()
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
 
-  document.addEventListener("backbutton", event => contentWindow.postMessage({ id: "backbutton" }, "*"), false)
-  iframe.addEventListener("load", () => setupLinkListeners(contentWindow), false)
+  setupLinkListener()
+  setStatusbarColor()
+
+  document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
+  document.addEventListener("pause", () => onPause(contentWindow), false)
+  document.addEventListener("resume", () => onResume(contentWindow), false)
+
+  bioAuthAvailablePromise = isBiometricAuthAvailable()
+
+  // Need to wait for storage to be initialized or
+  // getCurrentSettings() won't be reliable
+  initializeStorage(contentWindow)
+    .then(async () => {
+      clientSecretPromise = getClientSecret(contentWindow)
+      isBioAuthAvailable = await bioAuthAvailablePromise
+
+      if (isBioAuthEnabled()) {
+        await authenticate(contentWindow)
+      } else {
+        await iframeReady
+        navigator.splashscreen.hide()
+        hideHtmlSplashScreen(contentWindow)
+      }
+    })
+    .catch(trackError)
+}
+
+function getClientSecret(contentWindow: Window) {
+  return new Promise<string>((resolve, reject) => {
+    initializeStorage(contentWindow).then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
+  })
+}
+
+function authenticate(contentWindow: Window) {
+  if (bioAuthInProgress) {
+    // Make sure we don't call bioAuthenticate() twice in a row
+    // Might otherwise happen, since Android likes to trigger the `resume` event on app start
+    return bioAuthInProgress
+  }
+
+  showHtmlSplashScreen(contentWindow)
+
+  // Trigger show and instantly hide. There will be a fade-out.
+  // We show the native splashscreen, because it can be made visible synchronously
+  showSplashScreenOnIOS()
+  iframeReady.then(() => navigator.splashscreen.hide())
+
+  const performAuth = async (): Promise<void> => {
+    const clientSecret = await clientSecretPromise
+    try {
+      await bioAuthenticate(clientSecret)
+      refreshLastNativeInteractionTime()
+    } catch (error) {
+      // Just start over if auth fails - Block user interactions until auth is done
+      return performAuth()
+    }
+    await iframeReady
+    hideHtmlSplashScreen(contentWindow)
+  }
+
+  const onCompletion = () => {
+    bioAuthInProgress = undefined
+  }
+
+  bioAuthInProgress = performAuth().then(onCompletion, onCompletion)
+  return bioAuthInProgress
+}
+
+function showHtmlSplashScreen(contentWindow: Window) {
+  contentWindow.postMessage(commands.showSplashScreen, "*")
+}
+
+function hideHtmlSplashScreen(contentWindow: Window) {
+  contentWindow.postMessage(commands.hideSplashScreen, "*")
+}
+
+function onPause(contentWindow: Window) {
+  contentWindow.postMessage("app:pause", "*")
+
+  if (isBioAuthEnabled() && Date.now() - lastNativeInteractionTime > 750) {
+    showSplashScreenOnIOS()
+    showHtmlSplashScreen(contentWindow)
+  }
+}
+
+function onResume(contentWindow: Window) {
+  contentWindow.postMessage("app:resume", "*")
+
+  // Necessary because the 'use backup' option of the fingerprint dialog triggers onpause/onresume
+  if (isBioAuthEnabled() && Date.now() - lastNativeInteractionTime > 750) {
+    authenticate(contentWindow)
+  }
 }
 
 function initializeClipboard(cordova: Cordova) {
@@ -43,7 +160,15 @@ function initializeClipboard(cordova: Cordova) {
 }
 
 function initializeStorage(contentWindow: Window) {
-  const initPromise = initSecureStorage()
+  const initPromise = initSecureStorage().catch(
+    (error): any => {
+      // Assume that it is a 'device not secure' error
+      alert(
+        "This application requires you to set a PIN or unlock pattern for your device.\n\nPlease retry after setting it up."
+      )
+      navigator.app.exitApp()
+    }
+  )
 
   // Set up event listener synchronously, so it's working as early as possible
   window.addEventListener("message", async event => {
@@ -76,14 +201,28 @@ function initializeIPhoneNotchFix() {
   }
 }
 
-function setupLinkListeners(contentWindow: Window) {
-  contentWindow.document.body.addEventListener("click", event => {
-    const link = event.target as Element | null
-    if (link && link.tagName === "A" && link.getAttribute("href")) {
-      const href = link.getAttribute("href") as string
-      const target = link.getAttribute("target") || "_self"
-      event.preventDefault()
-      window.cordova.InAppBrowser.open(href, target === "_blank" ? "_system" : target)
+function setupLinkListener() {
+  registerCommandHandler(commands.openLink, event => {
+    return new Promise(() => {
+      const url: string = event.data.url
+      openUrl(url)
+    })
+  })
+}
+
+function openUrl(url: string) {
+  SafariViewController.isAvailable(available => {
+    if (available) {
+      SafariViewController.show(
+        {
+          url,
+          tintColor: "#ffffff",
+          barColor: "#1c8fea",
+          controlTintColor: "#ffffff"
+        },
+        null,
+        null
+      )
     }
   })
 }

@@ -1,9 +1,8 @@
 import { Server, Transaction } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, trackStreamError } from "../lib/stream"
+import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
-import { createCheapTxID } from "../lib/transaction"
 
 export interface ObservedRecentTxs {
   activated: boolean
@@ -28,36 +27,9 @@ export function createRecentTxsSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedRecentTxs> {
   const maxTxsToLoadCount = 15
-  const pollIntervalMs = 10000
 
-  const { debounceError, debounceMessage } = createStreamDebouncer<Server.TransactionRecord>()
+  const { debounceError } = createStreamDebouncer<Server.TransactionRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
-
-  const getUnknownTransactions = (fetchedTxs: Server.TransactionRecord[]) => {
-    const knownTxHashes = subscriptionTarget.getLatest().transactions.map(createCheapTxID)
-    return fetchedTxs.filter(loadedTx => knownTxHashes.indexOf(createCheapTxID(loadedTx)) === -1)
-  }
-
-  const handleNewTxs = (newTxs: Server.TransactionRecord[]) => {
-    const trulyNewTxs = getUnknownTransactions(newTxs)
-    // Important: Insert new transactions in the front, since order is descending
-    propagateUpdate({
-      ...subscriptionTarget.getLatest(),
-      transactions: [...trulyNewTxs.map(deserializeTx), ...subscriptionTarget.getLatest().transactions]
-    })
-  }
-
-  const syncRecentTxs = async (limit: number) => {
-    try {
-      const loadedTxs = await fetchRecentTxs(limit)
-      handleNewTxs(getUnknownTransactions(loadedTxs))
-    } catch (error) {
-      trackError(error)
-    }
-  }
-
-  // We also poll every few seconds, as a fallback, since the horizon's SSE stream seems unreliable (#437)
-  const schedulePolling = (intervalMs: number) => setInterval(() => syncRecentTxs(3), intervalMs)
 
   const fetchRecentTxs = async (limit: number) => {
     const { records } = await horizon
@@ -68,36 +40,40 @@ export function createRecentTxsSubscription(
       .call()
     return records
   }
-  const subscribeToTxs = (cursor: string = "now") => {
-    schedulePolling(pollIntervalMs)
-    horizon
-      .transactions()
-      .forAccount(accountPubKey)
-      .cursor(cursor)
-      .stream({
-        onmessage(txResponse: Server.TransactionRecord) {
-          debounceMessage(txResponse, () => {
-            handleNewTxs(getUnknownTransactions([txResponse]))
-          })
-        },
-        onerror(error: Error) {
-          debounceError(error, () => {
-            trackStreamError(new Error("Recent transactions update stream errored."))
-          })
-        }
-      })
-  }
+  const subscribeToTxs = (cursor: string) =>
+    manageStreamConnection(() => {
+      return horizon
+        .transactions()
+        .forAccount(accountPubKey)
+        .cursor(cursor)
+        .stream({
+          onmessage(transaction: Server.TransactionRecord) {
+            if (transaction.paging_token) {
+              cursor = transaction.paging_token
+            }
+            propagateUpdate({
+              ...subscriptionTarget.getLatest(),
+              transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
+            })
+          },
+          onerror(error: Error) {
+            debounceError(error, () => {
+              trackStreamError(new Error("Recent transactions update stream errored."))
+            })
+          }
+        })
+    })
 
   const setup = async () => {
     try {
-      const loadedTxs = await fetchRecentTxs(maxTxsToLoadCount)
+      const recentTxs = await fetchRecentTxs(maxTxsToLoadCount)
       propagateUpdate({
         ...subscriptionTarget.getLatest(),
-        transactions: [...subscriptionTarget.getLatest().transactions, ...loadedTxs.map(deserializeTx)],
+        transactions: [...subscriptionTarget.getLatest().transactions, ...recentTxs.map(deserializeTx)],
         activated: true,
         loading: false
       })
-      subscribeToTxs("now")
+      subscribeToTxs(recentTxs[0].paging_token)
     } catch (error) {
       if (error.response && error.response.status === 404) {
         propagateUpdate({

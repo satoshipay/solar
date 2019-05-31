@@ -97,6 +97,7 @@
 
     <preference name="AutoHideSplashScreen" value="$AUTO_HIDE" />
     <preference name="DisallowOverscroll" value="true" />
-    <preference name="ShowSplashScreenSpinner" value="false"/>
-    <preference name="SplashScreenDelay" value="$SPLASH_SCREEN_DELAY"/>
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="SplashScreenDelay" value="$SPLASH_SCREEN_DELAY" />
+    <preference name="SwiftVersion" value="5.0" />
 </widget>

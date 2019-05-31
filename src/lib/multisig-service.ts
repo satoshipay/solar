@@ -1,8 +1,8 @@
 import fetch from "isomorphic-fetch"
 import qs from "qs"
 import { Transaction } from "stellar-sdk"
-import { trackError } from "../context/notifications"
 import { signatureMatchesPublicKey } from "./stellar"
+import { joinURL } from "./url"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -48,16 +48,6 @@ export interface TxParameters {
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
-function urlJoin(baseURL: string, path: string) {
-  if (baseURL.charAt(baseURL.length - 1) === "/" && path.charAt(0) === "/") {
-    return baseURL + path.substr(1)
-  } else if (baseURL.charAt(baseURL.length - 1) === "/" || path.charAt(0) === "/") {
-    return baseURL + path
-  } else {
-    return baseURL + "/" + path
-  }
-}
-
 function parseRequestURI(requestURI: string) {
   if (!requestURI.startsWith("web+stellar:")) {
     throw new Error("Expected request to start with 'web+stellar:'")
@@ -72,7 +62,7 @@ function parseRequestURI(requestURI: string) {
   }
 }
 
-function deserializeSignatureRequest(rawSignatureRequest: Omit<SignatureRequest, "meta">): SignatureRequest {
+export function deserializeSignatureRequest(rawSignatureRequest: Omit<SignatureRequest, "meta">): SignatureRequest {
   const { operation, parameters } = parseRequestURI(rawSignatureRequest.request_uri)
 
   return {
@@ -99,7 +89,7 @@ export function createSignatureRequestURI(transaction: Transaction, options: TxP
 }
 
 export async function submitNewSignatureRequest(serviceURL: string, signatureRequestURI: string) {
-  const submissionEndpoint = urlJoin(serviceURL, "/submit")
+  const submissionEndpoint = joinURL(serviceURL, "/submit")
 
   const response = await fetch(submissionEndpoint, {
     method: "POST",
@@ -175,7 +165,7 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
 }
 
 export async function fetchSignatureRequests(serviceURL: string, accountIDs: string[]) {
-  const url = urlJoin(serviceURL, `/requests/${dedupe(accountIDs).join(",")}`)
+  const url = joinURL(serviceURL, `/requests/${dedupe(accountIDs).join(",")}`)
   const response = await fetch(url)
 
   if (!response.ok) {
@@ -183,84 +173,6 @@ export async function fetchSignatureRequests(serviceURL: string, accountIDs: str
   }
 
   return ((await response.json()) as any[]).map(deserializeSignatureRequest)
-}
-
-function deserializeSignatureRequestData(messageData: string | string[]) {
-  const jsonResponses = Array.isArray(messageData) ? messageData : [messageData]
-  const signatureRequests = jsonResponses.map(jsonResponse => deserializeSignatureRequest(JSON.parse(jsonResponse)))
-  return signatureRequests
-}
-
-interface SubscriptionHandlers {
-  onNewSignatureRequest?: (signatureRequest: SignatureRequest) => void
-  onSignatureRequestUpdate?: (signatureRequest: SignatureRequest) => void
-  onSignatureRequestSubmitted?: (signatureRequest: SignatureRequest) => void
-  onError?: (error: Error) => void
-}
-
-export function subscribeToSignatureRequests(serviceURL: string, accountIDs: string[], handlers: SubscriptionHandlers) {
-  if (accountIDs.length === 0) {
-    return () => undefined
-  }
-
-  const {
-    onError = trackError,
-    onNewSignatureRequest,
-    onSignatureRequestUpdate,
-    onSignatureRequestSubmitted
-  } = handlers
-
-  const eventSource = new EventSource(urlJoin(serviceURL, `/stream/${dedupe(accountIDs).join(",")}`))
-  let lastErrorTime = 0
-
-  if (onNewSignatureRequest) {
-    eventSource.addEventListener(
-      "signature-request",
-      ((message: ServerSentEvent) => {
-        for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
-          onNewSignatureRequest(signatureRequest)
-        }
-      }) as any,
-      false
-    )
-  }
-
-  if (onSignatureRequestUpdate) {
-    eventSource.addEventListener(
-      "signature-request:updated",
-      ((message: ServerSentEvent) => {
-        for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
-          onSignatureRequestUpdate(signatureRequest)
-        }
-      }) as any,
-      false
-    )
-  }
-
-  if (onSignatureRequestSubmitted) {
-    eventSource.addEventListener(
-      "signature-request:submitted",
-      ((message: ServerSentEvent) => {
-        for (const signatureRequest of deserializeSignatureRequestData(message.data)) {
-          onSignatureRequestSubmitted(signatureRequest)
-        }
-      }) as any,
-      false
-    )
-  }
-
-  eventSource.onerror = () => {
-    // No need to manually reconnect, since auto-reconnect is part of the protocol
-    // Debounce error notifications (show only once per series of subsequent errors)
-    if (Date.now() - lastErrorTime > 10000) {
-      onError(new Error("Multisig service event stream crashed."))
-    }
-    lastErrorTime = Date.now()
-  }
-
-  return function unsubscribe() {
-    eventSource.close()
-  }
 }
 
 export function isSignedByOneOf(transaction: Transaction, localPublicKeys: string[]) {

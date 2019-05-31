@@ -1,6 +1,6 @@
 import { Asset, Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
-import { createStreamDebouncer, trackStreamError } from "../lib/stream"
+import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 
@@ -25,39 +25,40 @@ export function createOrderbookSubscription(
   const { debounceError, debounceMessage } = createStreamDebouncer<FixedOrderbookRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTradingPair(selling, buying))
 
-  const streamOrderUpdates = (cursor: string = "now") => {
-    horizon
-      .orderbook(selling, buying)
-      .cursor(cursor)
-      .stream({
-        onmessage(record: FixedOrderbookRecord) {
-          debounceMessage(record, () => {
-            const previous = subscriptionTarget.getLatest()
-            propagateUpdate({
-              ...previous,
-              ...record,
-              asks: [...previous.asks, ...record.asks],
-              bids: [...previous.bids, ...record.bids]
+  const streamOrderUpdates = (cursor: string = "now") =>
+    manageStreamConnection(() => {
+      return horizon
+        .orderbook(selling, buying)
+        .cursor(cursor)
+        .stream({
+          onmessage(record: FixedOrderbookRecord) {
+            debounceMessage(record, () => {
+              const previous = subscriptionTarget.getLatest()
+              propagateUpdate({
+                ...previous,
+                ...record,
+                asks: [...previous.asks, ...record.asks],
+                bids: [...previous.bids, ...record.bids]
+              })
             })
-          })
-        },
-        onerror(error: any) {
-          // FIXME: We don't want to see errors for every single stream,
-          // unless it's really a stream-instance-specific error
-          debounceError(error, () => {
-            trackStreamError(new Error("Orderbook update stream errored."))
-          })
-        }
-      } as any)
-  }
+          },
+          onerror(error: any) {
+            // FIXME: We don't want to see errors for every single stream,
+            // unless it's really a stream-instance-specific error
+            debounceError(error, () => {
+              trackStreamError(new Error("Orderbook update stream errored."))
+            })
+          }
+        } as any)
+    })
   const setup = async () => {
-    const fetchResult = await horizon
+    const fetched = await horizon
       .orderbook(selling, buying)
       .limit(maxOrderCount)
       .call()
 
     // @types/stellar-sdk types seem wrong
-    const orderbookRecord = (fetchResult as any) as FixedOrderbookRecord
+    const orderbookRecord = (fetched as any) as FixedOrderbookRecord
 
     propagateUpdate({
       ...subscriptionTarget.getLatest(),

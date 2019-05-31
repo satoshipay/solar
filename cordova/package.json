@@ -5,8 +5,8 @@
   "displayName": "Solar",
   "cordova": {
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ],
     "plugins": {
       "cordova-plugin-secure-storage": {},
@@ -18,24 +18,30 @@
       },
       "cordova-plugin-splashscreen": {},
       "cordova-clipboard": {},
-      "cordova-plugin-inappbrowser": {},
       "cordova-plugin-wkwebview-engine": {},
       "cordova-plugin-keyboard": {},
-      "cordova-plugin-device": {}
+      "cordova-plugin-device": {},
+      "cordova-plugin-safariviewcontroller": {},
+      "cordova-plugin-fingerprint-aio": {
+        "FACEID_USAGE_DESCRIPTION": "Unlock Solar…"
+      },
+      "cordova-plugin-statusbar": {}
     }
   },
   "dependencies": {
+    "@satoshipay/cordova-plugin-fingerprint-aio": "git+https://github.com/satoshipay/cordova-plugin-fingerprint-aio.git",
     "cordova": "^9.0.0",
     "cordova-android": "^8.0.0",
     "cordova-clipboard": "^1.2.1",
-    "cordova-ios": "^5.0.0",
+    "cordova-ios": "^5.0.1",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
-    "cordova-plugin-inappbrowser": "^3.0.0",
     "cordova-plugin-keyboard": "^1.2.0",
     "cordova-plugin-network-information": "^2.0.1",
+    "cordova-plugin-safariviewcontroller": "^1.6.0",
     "cordova-plugin-secure-storage": "^3.0.1",
     "cordova-plugin-splashscreen": "^5.0.2",
+    "cordova-plugin-statusbar": "^2.4.2",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-plugin-wkwebview-engine": "^1.1.4",
     "phonegap-plugin-barcodescanner": "^8.0.1"
@@ -59,7 +65,7 @@
     "dev:ios": "run-p dev:bundle:ios dev:cordova:ios",
     "dev:bundle:android": "PLATFORM=android NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 1234 --out-dir ../dist",
     "dev:bundle:ios": "PLATFORM=ios NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 1234 --out-dir ../dist",
-    "dev:cordova:android": "../node_modules/.bin/parcel build ../src/index.dev-android.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev android && dotenv -- cordova build android",
-    "dev:cordova:ios": "../node_modules/.bin/parcel build ../src/index.dev-ios.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev ios && cordova build ios --buildConfig=build.ios.json"
+    "dev:cordova:android": "PLATFORM=android ../node_modules/.bin/parcel build ../src/index.dev-android.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev android && dotenv -- cordova build android",
+    "dev:cordova:ios": "PLATFORM=ios ../node_modules/.bin/parcel build ../src/index.dev-ios.njk --out-dir ../dist --public-url=./ && ./scripts/create-config-from-template.sh dev ios && cordova build ios --buildConfig=build.ios.json"
   }
 }

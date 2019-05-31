@@ -62,7 +62,7 @@ function AccountHeaderCard(props: Props) {
           onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
           style={{
             borderColor: "rgba(255, 255, 255, 0.9)",
-            color: "white",
+            color: accountData.activated ? "white" : undefined,
             padding: "0 12px",
             marginRight: isSmallScreen ? 0 : 8,
             minHeight: 36

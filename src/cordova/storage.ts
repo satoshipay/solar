@@ -2,16 +2,18 @@
  * THIS WILL RUN IN EMULATOR OUTSIDE OF SANDBOXED APP IFRAME!
  */
 
-import { commands, events } from "./ipc"
-import { registerCommandHandler } from "./ipc"
+import nanoid from "nanoid"
+import { commands, events, registerCommandHandler } from "./ipc"
+import { SettingsData } from "../platform/types"
 
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
 const cordovaSecureStorageName = "solar:keystore"
 
-const storeKeys = {
+export const storeKeys = {
   keystore: "keys",
   settings: "settings",
-  ignoredSignatureRequests: "ignored-signature-requests"
+  ignoredSignatureRequests: "ignored-signature-requests",
+  clientSecret: "clientsecret"
 }
 
 registerCommandHandler(commands.readKeysCommand, respondWithKeys)
@@ -20,6 +22,10 @@ registerCommandHandler(commands.readSettingsCommand, respondWithSettings)
 registerCommandHandler(commands.storeSettingsCommand, updateSettings)
 registerCommandHandler(commands.readIgnoredSignatureRequestsCommand, respondWithIgnoredSignatureRequests)
 registerCommandHandler(commands.storeIgnoredSignatureRequestsCommand, updateIgnoredSignatureRequests)
+
+let currentSettings: SettingsData | undefined
+
+export const getCurrentSettings = () => currentSettings
 
 async function respondWithKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
   const keys = await getValueFromStorage(secureStorage, storeKeys.keystore)
@@ -51,6 +57,8 @@ async function updateSettings(event: MessageEvent, contentWindow: Window, secure
 
   await saveValueIntoStorage(secureStorage, storeKeys.settings, settings)
   contentWindow.postMessage({ eventType: events.settingsStoredEvent, id: event.data.id }, "*")
+
+  currentSettings = settings
 }
 
 async function respondWithIgnoredSignatureRequests(
@@ -80,8 +88,8 @@ async function updateIgnoredSignatureRequests(
   contentWindow.postMessage({ eventType: events.storedIgnoredSignatureRequestsEvent, id: event.data.id }, "*")
 }
 
-async function getValueFromStorage(storage: CordovaSecureStorage, keyName: string) {
-  return new Promise<object>((resolve, reject) => {
+async function getValueFromStorage<T = any>(storage: CordovaSecureStorage, keyName: string) {
+  return new Promise<T>((resolve, reject) => {
     storage.get(value => resolve(JSON.parse(value)), reject, keyName)
   })
 }
@@ -97,17 +105,20 @@ async function prepareStorage(secureStorage: CordovaSecureStorage) {
     secureStorage.keys(result => resolve(result), reject)
   })
 
-  const addPlaceholderKey = async (keyName: string, defaultValue: any) => {
+  const initializeKeyValueIfNotSet = async (keyName: string, defaultValue: any) => {
     if (keys.indexOf(keyName) === -1) {
       await saveValueIntoStorage(secureStorage, keyName, defaultValue)
     }
   }
 
   await Promise.all([
-    addPlaceholderKey(storeKeys.keystore, {}),
-    addPlaceholderKey(storeKeys.settings, {}),
-    addPlaceholderKey(storeKeys.ignoredSignatureRequests, [])
+    initializeKeyValueIfNotSet(storeKeys.keystore, {}),
+    initializeKeyValueIfNotSet(storeKeys.settings, {}),
+    initializeKeyValueIfNotSet(storeKeys.ignoredSignatureRequests, []),
+    initializeKeyValueIfNotSet(storeKeys.clientSecret, nanoid(32))
   ])
+
+  currentSettings = await getValueFromStorage(secureStorage, storeKeys.settings)
 }
 
 export function initSecureStorage() {

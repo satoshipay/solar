@@ -15,9 +15,13 @@ export const commands = {
   readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
   storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
 
+  openLink: "link:open",
+
+  copyToClipboard: "clipboard:write",
   scanQRCodeCommand: "qr-code:scan",
 
-  copyToClipboard: "clipboard:write"
+  showSplashScreen: "splash:show",
+  hideSplashScreen: "splash:hide"
 }
 
 // event types

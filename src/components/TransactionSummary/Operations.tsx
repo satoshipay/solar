@@ -4,7 +4,7 @@ import Typography from "@material-ui/core/Typography"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
 import { useAccountOffers, ObservedAccountData } from "../../hooks"
-import { trustlineLimitEqualsUnlimited } from "../../lib/stellar"
+import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { ListItem } from "../List"
 import { Address } from "../PublicKey"
 import { AccountName } from "../Fetchers"
@@ -188,7 +188,7 @@ function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumbe
 
 interface ManageOfferOperationProps {
   accountData: ObservedAccountData
-  operation: Operation.ManageOffer
+  operation: Operation.ManageSellOffer
   style?: React.CSSProperties
   testnet: boolean
 }
@@ -214,8 +214,24 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
     const offer = offers.offers.find(someOffer => String(someOffer.id) === String(operation.offerId))
     return offer ? (
       <ListItem
-        heading={<OfferHeading {...offer} amount={BigNumber(0)} offerId={offer.id} />}
-        primaryText={<OfferDetails {...offer} amount={BigNumber(offer.amount)} price={BigNumber(offer.price)} />}
+        heading={
+          <OfferHeading
+            {...offer}
+            amount={BigNumber(0)}
+            buying={offerAssetToAsset(offer.buying)}
+            offerId={offer.id}
+            selling={offerAssetToAsset(offer.selling)}
+          />
+        }
+        primaryText={
+          <OfferDetails
+            {...offer}
+            amount={BigNumber(offer.amount)}
+            buying={offerAssetToAsset(offer.buying)}
+            price={BigNumber(offer.price)}
+            selling={offerAssetToAsset(offer.selling)}
+          />
+        }
         style={props.style}
       />
     ) : (
@@ -233,7 +249,15 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
     return offer ? (
       <ListItem
         heading={<OfferHeading {...operation} amount={BigNumber(offer.amount)} />}
-        primaryText={<OfferDetails {...offer} amount={BigNumber(offer.amount)} price={BigNumber(offer.price)} />}
+        primaryText={
+          <OfferDetails
+            {...offer}
+            amount={BigNumber(offer.amount)}
+            buying={offerAssetToAsset(offer.buying)}
+            price={BigNumber(offer.price)}
+            selling={offerAssetToAsset(offer.selling)}
+          />
+        }
         style={props.style}
       />
     ) : (
@@ -361,7 +385,7 @@ function OperationListItem(props: Props) {
         transaction={props.transaction}
       />
     )
-  } else if (props.operation.type === "manageOffer") {
+  } else if (props.operation.type === "manageSellOffer") {
     return (
       <ManageOfferOperation
         accountData={props.accountData}

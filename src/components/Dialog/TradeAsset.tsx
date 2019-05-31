@@ -75,7 +75,7 @@ function TradeAsset(props: TradeAssetProps) {
   const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: BigNumber, price: BigNumber) => {
     const tx = createTransaction(
       [
-        Operation.manageOffer({
+        Operation.manageSellOffer({
           amount: amount.toFixed(7),
           buying,
           offerId: 0,

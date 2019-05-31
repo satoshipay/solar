@@ -11,7 +11,8 @@ import BarChartIcon from "@material-ui/icons/BarChart"
 import CloseIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useAccountOffers, useHorizon, ObservedAccountData } from "../../hooks"
+import { useAccountData, useAccountOffers, useHorizon, useIsMobile, ObservedAccountData } from "../../hooks"
+import { offerAssetToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
 import { List } from "../List"
@@ -26,12 +27,12 @@ function createDismissalTransaction(
 ): Promise<Transaction> {
   return createTransaction(
     [
-      Operation.manageOffer({
+      Operation.manageSellOffer({
         offerId: offer.id,
         amount: "0",
-        buying: offer.buying,
+        buying: offerAssetToAsset(offer.buying),
         price: offer.price,
-        selling: offer.selling
+        selling: offerAssetToAsset(offer.selling)
       })
     ],
     { accountData, horizon, walletAccount: account }
@@ -47,11 +48,14 @@ interface OfferListItemProps {
 
 function OfferListItem(props: OfferListItemProps) {
   const [hovering, setHoveringStatus] = React.useState(false)
+  const buying = offerAssetToAsset(props.offer.buying)
+  const selling = offerAssetToAsset(props.offer.selling)
+  const isSmallScreen = useIsMobile()
   return (
     <ListItem
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
-      style={props.style}
+      style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
     >
       <ListItemIcon>
         <BarChartIcon />
@@ -60,10 +64,10 @@ function OfferListItem(props: OfferListItemProps) {
         primary={
           <span style={{ fontWeight: "bold" }}>
             Sell&nbsp;&nbsp;
-            <SingleBalance assetCode={props.offer.selling.code} balance={props.offer.amount} inline />
+            <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
             &nbsp;&nbsp;for&nbsp;&nbsp;
             <SingleBalance
-              assetCode={props.offer.buying.code}
+              assetCode={buying.getCode()}
               balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
               inline
             />
@@ -76,13 +80,16 @@ function OfferListItem(props: OfferListItemProps) {
           <CloseIcon style={{ fontSize: "140%" }} />
         </Button>
       ) : (
-        <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
+        <ListItemText
+          primaryTypographyProps={{ align: "right" }}
+          style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0 }}
+        >
           <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.6rem" }}>
-            <b>{props.offer.selling.code}</b>
+            <b>{selling.getCode()}</b>
             &nbsp;
             <ArrowRightIcon style={{ fontSize: "150%" }} />
             &nbsp;
-            <b>{props.offer.buying.code}</b>
+            <b>{buying.getCode()}</b>
           </HorizontalLayout>
         </ListItemText>
       )}

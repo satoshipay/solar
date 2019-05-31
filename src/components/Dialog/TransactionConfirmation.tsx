@@ -13,7 +13,8 @@ import TestnetBadge from "./TestnetBadge"
 
 const isPaymentOperation = (operation: Operation) => ["createAccount", "payment"].indexOf(operation.type) > -1
 
-const Transition = (props: any) => <Slide {...props} direction="up" />
+const TransitionLeft = (props: any) => <Slide {...props} direction="left" />
+const TransitionUp = (props: any) => <Slide {...props} direction="up" />
 
 interface TxConfirmationDialogProps {
   account: Account
@@ -41,7 +42,7 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
       fullScreen={isSmallScreen}
       onClose={props.onClose}
       maxWidth="lg"
-      TransitionComponent={Transition}
+      TransitionComponent={isSmallScreen ? TransitionLeft : TransitionUp}
     >
       <ErrorBoundary>
         <Box padding="24px 36px" overflow="auto">

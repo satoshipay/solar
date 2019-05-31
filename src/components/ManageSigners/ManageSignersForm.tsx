@@ -171,6 +171,7 @@ function ManageSignersForm(props: Props) {
           value={weightThreshold}
           variant="outlined"
           style={isSmallScreen ? { width: "100%" } : {}}
+          type="number"
           InputProps={{
             endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
           }}
