@@ -17,7 +17,7 @@ export function formatBalanceRange(
   const max = maxAmount ? minBig(balance, maxAmount) : balance
 
   if (min && max && min.gt(max)) {
-    return "-"
+    return `Not possible - Minimum ${formatBalance(min)}`
   }
 
   if (min && max) {

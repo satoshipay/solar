@@ -29,7 +29,7 @@ function WithdrawalTransactionForm(props: Props) {
   const balance = getMatchingAccountBalance(accountData.balances, props.asset.getCode())
   const data = props.anchorResponse
   const minAmount = data.min_amount ? BigNumber(data.min_amount) : undefined
-  const maxAmount = data.max_amount ? BigNumber(data.max_amount) : undefined
+  const maxAmount = data.max_amount ? BigNumber(data.max_amount) : balance
 
   const amount = amountString.match(/^[0-9]+(\.[0-9]+)?$/) ? BigNumber(amountString) : BigNumber(0)
   const eta = data.eta ? formatDuration(data.eta) : "N/A"
@@ -59,6 +59,7 @@ function WithdrawalTransactionForm(props: Props) {
           <PriceInput
             assetCode={props.asset.getCode()}
             autoFocus
+            disabled={minAmount && minAmount.gt(balance)}
             label="Amount to withdraw"
             onChange={event => setAmountString(event.target.value)}
             placeholder={accountData.loading ? "" : formatBalanceRange(balance, minAmount, maxAmount)}
