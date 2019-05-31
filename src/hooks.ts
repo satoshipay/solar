@@ -3,7 +3,9 @@ import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import { Account } from "./context/accounts"
+import { CachingContext } from "./context/caches"
 import { StellarContext } from "./context/stellar"
+import * as StellarAddresses from "./lib/stellar-address"
 import { SubscriptionTarget } from "./lib/subscription"
 import {
   getAssetCacheKey,
@@ -146,6 +148,22 @@ export function useRecentTransactions(accountID: string, testnet: boolean): Obse
   const recentTxsSubscription = React.useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, horizon])
 
   return useDataSubscription(recentTxsSubscription)
+}
+
+export function useFederationLookup() {
+  const caches = React.useContext(CachingContext)
+  return {
+    lookupFederationRecord(stellarAddress: string) {
+      return StellarAddresses.lookupFederationRecord(
+        stellarAddress,
+        caches.stellarAddresses,
+        caches.stellarAddressesReverse
+      )
+    },
+    lookupStellarAddress(publicKey: string) {
+      return caches.stellarAddressesReverse.get(publicKey)
+    }
+  }
 }
 
 // TODO: Get rid of this hook once react-router is shipped with a hook out-of-the-box

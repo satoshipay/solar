@@ -1,7 +1,7 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
-import { queryReverseLookupCache } from "../lib/stellar-address"
+import { useFederationLookup } from "../hooks"
 
 type Variant = "full" | "short" | "shorter"
 
@@ -86,6 +86,8 @@ interface AddressProps {
 }
 
 export function Address(props: AddressProps) {
+  const { lookupStellarAddress } = useFederationLookup()
+
   const style: React.CSSProperties = {
     userSelect: "text",
     WebkitUserSelect: "text",
@@ -95,7 +97,7 @@ export function Address(props: AddressProps) {
   if (props.address.indexOf("*") > -1) {
     return <span style={style}>{props.address}</span>
   } else {
-    const stellarAddress = queryReverseLookupCache(props.address)
+    const stellarAddress = lookupStellarAddress(props.address)
 
     if (stellarAddress) {
       const formattedStellarAddress =

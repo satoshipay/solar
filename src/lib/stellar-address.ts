@@ -1,24 +1,15 @@
 import LRUCache from "lru-cache"
 import { FederationServer } from "stellar-sdk"
 
-type AccountID = string
-type StellarAddress = string
-
-const lookupCache = new LRUCache<StellarAddress, FederationServer.Record>({
-  max: 1000,
-  maxAge: 10 * 60 * 1000 // 10 mins
-})
-
-const reverseLookupCache = new LRUCache<AccountID, StellarAddress>({
-  max: 1000,
-  maxAge: 60 * 60 * 1000 // 60 mins (long TTL, since reverse lookup is purely informational)
-})
-
 export const isPublicKey = (str: string) => Boolean(str.match(/^G[A-Z0-9]{55}$/))
 export const isStellarAddress = (str: string) =>
   Boolean(str.match(/^[^\*> \t\n\r]+\*[^\*\.> \t\n\r]+\.[^\*> \t\n\r]+$/))
 
-export async function lookupFederationRecord(stellarAddress: string) {
+export async function lookupFederationRecord(
+  stellarAddress: string,
+  lookupCache: LRUCache<string, FederationServer.Record>,
+  reverseLookupCache: LRUCache<string, string>
+) {
   const cached = lookupCache.get(stellarAddress)
   if (cached) {
     return cached
@@ -39,8 +30,4 @@ export async function lookupFederationRecord(stellarAddress: string) {
   lookupCache.set(stellarAddress, resolved)
   reverseLookupCache.set(resolved.account_id, stellarAddress)
   return resolved
-}
-
-export function queryReverseLookupCache(accountID: string) {
-  return reverseLookupCache.get(accountID)
 }

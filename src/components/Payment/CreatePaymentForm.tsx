@@ -8,10 +8,10 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
-import { useIsMobile, ObservedAccountData } from "../../hooks"
+import { useIsMobile, useFederationLookup, ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
-import { isPublicKey, isStellarAddress, lookupFederationRecord } from "../../lib/stellar-address"
+import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -95,6 +95,7 @@ interface Props {
 
 function PaymentCreationForm(props: Props) {
   const isSmallScreen = useIsMobile()
+  const { lookupFederationRecord } = useFederationLookup()
 
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
   const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
