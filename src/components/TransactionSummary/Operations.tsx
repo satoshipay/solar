@@ -3,7 +3,7 @@ import React from "react"
 import Typography from "@material-ui/core/Typography"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
-import { useAccountOffers, ObservedAccountData } from "../../hooks"
+import { useAccountOffers, useSigningKeyDomainCache, ObservedAccountData } from "../../hooks"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { ListItem } from "../List"
 import { Address } from "../PublicKey"
@@ -127,14 +127,14 @@ function ManageDataOperation(props: {
   testnet: boolean
   transaction: Transaction
 }) {
+  const signingKeyCache = useSigningKeyDomainCache()
+
   if (props.operation.name.match(/ auth$/i) && String(props.transaction.sequence) === "0") {
+    const domain = signingKeyCache.get(props.transaction.source)
     return (
       <ListItem
         heading="Stellar Web Authentication"
-        primaryText={
-          // FIXME: Resolve back to domain
-          <AccountName publicKey={props.transaction.source} testnet={props.testnet} />
-        }
+        primaryText={domain ? domain : <AccountName publicKey={props.transaction.source} testnet={props.testnet} />}
         style={props.style}
       />
     )

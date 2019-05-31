@@ -11,10 +11,10 @@ import {
   WithdrawalRequestSuccess,
   WithdrawalSuccessResponse
 } from "@satoshipay/stellar-sep-6"
-import { fetchChallenge, fetchWebAuthData, postResponse, WebauthData } from "@satoshipay/stellar-sep-10"
+import { WebauthData } from "@satoshipay/stellar-sep-10"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useRouter } from "../../hooks"
+import { useAccountData, useRouter, useWebAuth } from "../../hooks"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import InlineLoader from "../InlineLoader"
@@ -79,6 +79,7 @@ function Offramp(props: Props) {
   const [withdrawalRequestPending, setWithdrawalRequestPending] = React.useState(false)
   const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
   const router = useRouter()
+  const WebAuth = useWebAuth()
 
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
@@ -143,18 +144,24 @@ function Offramp(props: Props) {
         transferServer
       }
       setWithdrawalRequestPending(true)
-      const webauthMetadata = await fetchWebAuthData(props.horizon, asset.getIssuer())
+      const webauthMetadata = await WebAuth.fetchWebAuthData(props.horizon, asset.getIssuer())
 
       if (webauthMetadata) {
         const webauth = {
           ...webauthMetadata,
-          transaction: await fetchChallenge(
+          transaction: await WebAuth.fetchChallenge(
             webauthMetadata.endpointURL,
             webauthMetadata.signingKey,
             props.account.publicKey
           )
         }
+        const cachedAuthToken = WebAuth.getCachedAuthToken(webauthMetadata.endpointURL, props.account.publicKey)
         dispatch(action.saveInitFormData(transferServer, asset, method, formValues, webauth))
+
+        if (cachedAuthToken) {
+          dispatch(action.setAuthToken(cachedAuthToken))
+          await requestWithdrawal(withdrawalRequest, cachedAuthToken)
+        }
       } else {
         dispatch(action.saveInitFormData(transferServer, asset, method, formValues, undefined))
         await requestWithdrawal(withdrawalRequest)
@@ -177,7 +184,7 @@ function Offramp(props: Props) {
         account: props.account.publicKey
       }
       const transaction = await signTransaction(webauthData.transaction, props.account, password)
-      const authToken = await postResponse(webauthData.endpointURL, transaction)
+      const authToken = await WebAuth.postResponse(webauthData.endpointURL, transaction)
       dispatch(action.setAuthToken(authToken))
       await requestWithdrawal(withdrawalRequest, authToken)
     } catch (error) {

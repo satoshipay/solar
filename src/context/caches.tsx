@@ -3,6 +3,9 @@ import React from "react"
 import { FederationServer } from "stellar-sdk"
 
 // Just to make the cache types more readable
+type CacheKey = string
+type Domain = string
+type JWT = string
 type PublicKey = string
 type StellarAddress = string
 
@@ -11,11 +14,16 @@ interface Props {
 }
 
 interface ContextType {
+  signingKeyDomain: LRUCache<PublicKey, Domain>
   stellarAddresses: LRUCache<StellarAddress, FederationServer.Record>
   stellarAddressesReverse: LRUCache<PublicKey, StellarAddress>
+  webauthTokens: LRUCache<CacheKey, JWT>
 }
 
 const initialValues: ContextType = {
+  signingKeyDomain: new LRUCache({
+    max: 100
+  }),
   stellarAddresses: new LRUCache({
     max: 1000,
     maxAge: 10 * 60 * 1000 // 10 mins
@@ -23,6 +31,9 @@ const initialValues: ContextType = {
   stellarAddressesReverse: new LRUCache({
     max: 1000,
     maxAge: 60 * 60 * 1000 // 60 mins (long TTL, since reverse lookup is purely informational)
+  }),
+  webauthTokens: new LRUCache({
+    max: 100
   })
 }
 
