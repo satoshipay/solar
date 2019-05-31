@@ -40,8 +40,12 @@ export function createAccountEffectsSubscription(
         .limit(1)
         .order("desc")
         .call()
-      subscribeToEffects(latestEffects.records[0].paging_token)
+
+      // Horizon seems to return an empty effects array instead of 404 if the account doesn't exist
+      const cursor = latestEffects.records[0] ? latestEffects.records[0].paging_token : "0"
+      subscribeToEffects(cursor)
     } catch (error) {
+      // We still check for 404s here, too
       if (error.response && error.response.status === 404) {
         await waitForAccountData(horizon, accountPubKey)
         subscribeToEffects("0")
