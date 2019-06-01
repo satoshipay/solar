@@ -1,21 +1,19 @@
+import BigNumber from "big.js"
 import React from "react"
 import { Operation, Transaction } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
-import { Typography } from "@material-ui/core"
+import List from "@material-ui/core/List"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
-import { List, ListItem } from "../List"
+import { SingleBalance } from "../Account/AccountBalances"
+import { Address } from "../PublicKey"
+import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 import OperationListItem from "./Operations"
-import {
-  DangerousTransactionWarning,
-  Signers,
-  SourceAccount,
-  TransactionMemo,
-  TransactionMetadata
-} from "./Transaction"
+import { DangerousTransactionWarning, Signers, TransactionMemo } from "./Transaction"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -39,6 +37,11 @@ function makeOperationSourceExplicit(
     : { ...operation, source: effectiveSource }
 }
 
+const noHPaddingStyle = {
+  paddingLeft: 0,
+  paddingRight: 0
+}
+
 interface TransactionSummaryProps {
   account: Account | null
   showSource?: boolean
@@ -56,17 +59,16 @@ function TransactionSummary(props: TransactionSummaryProps) {
   const showSigners = accountDataSet.some(someAccountData => someAccountData.signers.length > 1)
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
 
-  const noHPaddingStyle = {
-    paddingLeft: 0,
-    paddingRight: 0
-  }
-
   if (!accountData) {
     throw new Error(
       "Invariant violation: " +
         "Cannot find the transaction source account's account data in set of account data subscriptions."
     )
   }
+
+  const fee = BigNumber(props.transaction.fee)
+    .mul(props.transaction.operations.length)
+    .div(1e7)
 
   const isDangerousSignatureRequest = React.useMemo(
     () => {
@@ -78,10 +80,13 @@ function TransactionSummary(props: TransactionSummaryProps) {
     [accountDataSet, accounts, props.signatureRequest, props.transaction]
   )
 
+  const wideScreen = useMediaQuery("(min-width:900px)")
+  const widthStyling = wideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
+
   const transaction = props.transaction as TransactionWithUndocumentedProps
 
   return (
-    <List style={{ paddingLeft: 0, paddingRight: 0 }}>
+    <List style={{ paddingLeft: 0, paddingRight: 0, ...widthStyling }}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
@@ -97,8 +102,8 @@ function TransactionSummary(props: TransactionSummaryProps) {
           transaction={props.transaction}
         />
       ))}
+      <Divider style={{ marginTop: 11, marginBottom: 11 }} />
       <TransactionMemo memo={props.transaction.memo} style={noHPaddingStyle} />
-      {props.showSource || showSigners ? <Divider /> : null}
       {showSigners ? (
         <Signers
           accounts={accounts}
@@ -107,23 +112,22 @@ function TransactionSummary(props: TransactionSummaryProps) {
           style={noHPaddingStyle}
         />
       ) : null}
-      {props.showSource ? <SourceAccount transaction={props.transaction} style={noHPaddingStyle} /> : null}
-      <TransactionMetadata style={noHPaddingStyle} transaction={props.transaction} />
-      {transaction.created_at ? (
-        <ListItem
-          heading="Submission"
-          primaryText={
-            <Typography style={{ marginLeft: 16, marginTop: 8, fontSize: "80%" }}>
-              {getTime(transaction.created_at)}
-            </Typography>
-          }
-          style={noHPaddingStyle}
-        />
-      ) : (
-        undefined
-      )}
+      {props.showSource ? (
+        <SummaryItem>
+          <SummaryDetailsField
+            label="Source Account"
+            value={<Address address={props.transaction.source} variant="short" />}
+          />
+        </SummaryItem>
+      ) : null}
+      <SummaryItem>
+        <SummaryDetailsField label="Fee" value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />} />
+        {transaction.created_at ? (
+          <SummaryDetailsField label="Submission" value={getTime(transaction.created_at)} />
+        ) : null}
+      </SummaryItem>
     </List>
   )
 }
 
-export default TransactionSummary
+export default React.memo(TransactionSummary)
