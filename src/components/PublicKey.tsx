@@ -1,7 +1,10 @@
 import React from "react"
+import ButtonBase from "@material-ui/core/ButtonBase"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
+import { trackError, NotificationsContext } from "../context/notifications"
 import { queryReverseLookupCache } from "../lib/stellar-address"
+import * as Clipboard from "../platform/clipboard"
 
 type Variant = "full" | "short" | "shorter"
 
@@ -107,7 +110,38 @@ export function Address(props: AddressProps) {
         </span>
       )
     } else {
-      return <PublicKey publicKey={props.address} variant={props.variant} />
+      return <PublicKey publicKey={props.address} style={{ fontWeight: "inherit" }} variant={props.variant} />
     }
   }
+}
+
+interface CopyableAddressProps extends AddressProps {
+  onClick?: () => void
+}
+
+export function CopyableAddress(props: CopyableAddressProps) {
+  const { showNotification } = React.useContext(NotificationsContext)
+
+  const onClick = React.useCallback(
+    async () => {
+      if (props.onClick) {
+        props.onClick()
+      }
+
+      try {
+        await Clipboard.copyToClipboard(props.address)
+        showNotification("info", "Copied to clipboard.")
+      } catch (error) {
+        trackError(error)
+        return
+      }
+    },
+    [props.onClick]
+  )
+
+  return (
+    <ButtonBase onClick={onClick} style={{ fontSize: "inherit", fontWeight: "inherit" }}>
+      <Address {...props} />
+    </ButtonBase>
+  )
 }
