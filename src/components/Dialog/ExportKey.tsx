@@ -144,21 +144,23 @@ function ExportKeyDialog(props: Props) {
 
   return (
     <>
-      <Box width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto 32px">
-        <MainTitle onBack={props.onClose} title="Export Secret Key" />
-      </Box>
-      <DialogContent>
-        {isRevealed && secretKey ? (
-          <KeyExport account={props.account} secretKey={secretKey} />
-        ) : (
-          <WarningBox
-            onReveal={reveal}
-            password={password}
-            passwordError={passwordError}
-            requiresPassword={props.account.requiresPassword}
-            updatePassword={updatePassword}
-          />
-        )}
+      <DialogContent style={{ padding: isSmallScreen ? "24px" : " 24px 32px" }}>
+        <Box margin="0 0 32px">
+          <MainTitle onBack={props.onClose} title="Export Secret Key" />
+        </Box>
+        <VerticalLayout margin="0 auto" maxWidth="700px" width="100%">
+          {isRevealed && secretKey ? (
+            <KeyExport account={props.account} secretKey={secretKey} />
+          ) : (
+            <WarningBox
+              onReveal={reveal}
+              password={password}
+              passwordError={passwordError}
+              requiresPassword={props.account.requiresPassword}
+              updatePassword={updatePassword}
+            />
+          )}
+        </VerticalLayout>
       </DialogContent>
       <QRExportDialog data={secretKey || ""} open={qrDialogOpen} onClose={() => setQrDialogOpen(false)} />
     </>
