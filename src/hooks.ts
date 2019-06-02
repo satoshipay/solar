@@ -3,6 +3,7 @@ import { __RouterContext, RouteComponentProps } from "react-router"
 import { Asset, Server } from "stellar-sdk"
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import { Account } from "./context/accounts"
+import { NotificationsContext } from "./context/notifications"
 import { StellarContext } from "./context/stellar"
 import { SubscriptionTarget } from "./lib/subscription"
 import {
@@ -17,6 +18,7 @@ import {
   ObservedRecentTxs,
   ObservedTradingPair
 } from "./subscriptions"
+import * as Clipboard from "./platform/clipboard"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
@@ -111,6 +113,24 @@ export function useAccountEffectSubscriptions(accounts: Account[], handler: Effe
       return () => unsubscribeHandlers.forEach(unsubscribe => unsubscribe())
     },
     [accounts, mainnetHorizon, testnetHorizon]
+  )
+}
+
+export function useClipboard() {
+  const { showError, showNotification } = React.useContext(NotificationsContext)
+
+  return React.useMemo(
+    () => ({
+      async copyToClipboard(value: string, notificationMessage: string = "Copied to clipboard.") {
+        try {
+          await Clipboard.copyToClipboard(value)
+          showNotification("info", notificationMessage)
+        } catch (error) {
+          showError(error)
+        }
+      }
+    }),
+    [showError, showNotification]
   )
 }
 

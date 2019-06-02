@@ -2,9 +2,7 @@ import React from "react"
 import Typography from "@material-ui/core/Typography"
 import QRCode from "qrcode.react"
 import { Account } from "../../context/accounts"
-import { NotificationsContext } from "../../context/notifications"
-import { useIsMobile } from "../../hooks"
-import * as clipboard from "../../platform/clipboard"
+import { useClipboard, useIsMobile } from "../../hooks"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 
@@ -14,13 +12,13 @@ interface Props {
 }
 
 function ReceivePaymentDialog(props: Props) {
-  const { showNotification } = React.useContext(NotificationsContext)
+  const clipboard = useClipboard()
   const isSmallScreen = useIsMobile()
 
-  const copyToClipboard = async () => {
-    await clipboard.copyToClipboard(props.account.publicKey)
-    showNotification("info", "Copied to clipboard.")
-  }
+  const copyToClipboard = React.useCallback(() => clipboard.copyToClipboard(props.account.publicKey), [
+    props.account.publicKey
+  ])
+
   return (
     <>
       <Box width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto 32px">

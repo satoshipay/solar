@@ -9,10 +9,9 @@ import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import LockFilledIcon from "@material-ui/icons/Lock"
 import WarnIcon from "@material-ui/icons/Warning"
 import { Account } from "../../context/accounts"
-import { trackError, NotificationsContext } from "../../context/notifications"
-import { useIsMobile } from "../../hooks"
+import { trackError } from "../../context/notifications"
+import { useClipboard, useIsMobile } from "../../hooks"
 import { isWrongPasswordError } from "../../lib/errors"
-import * as clipboard from "../../platform/clipboard"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import Background from "../Background"
 import MainTitle from "../MainTitle"
@@ -20,12 +19,10 @@ import { ActionButton, DialogActionsBox } from "./Generic"
 import QRExportDialog from "./QRExport"
 
 function KeyExport(props: { account: Account; secretKey: string }) {
-  const { showNotification } = React.useContext(NotificationsContext)
+  const clipboard = useClipboard()
 
-  const copyToClipboard = async () => {
-    await clipboard.copyToClipboard(props.secretKey)
-    showNotification("info", "Copied to clipboard.")
-  }
+  const copyToClipboard = React.useCallback(() => clipboard.copyToClipboard(props.secretKey), [props.secretKey])
+
   return (
     <Box padding="8px 0 16px">
       <Background opacity={0.08}>

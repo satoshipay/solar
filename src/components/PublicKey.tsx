@@ -2,9 +2,8 @@ import React from "react"
 import ButtonBase from "@material-ui/core/ButtonBase"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
-import { trackError, NotificationsContext } from "../context/notifications"
+import { useClipboard } from "../hooks"
 import { queryReverseLookupCache } from "../lib/stellar-address"
-import * as Clipboard from "../platform/clipboard"
 
 type Variant = "full" | "short" | "shorter"
 
@@ -120,23 +119,16 @@ interface CopyableAddressProps extends AddressProps {
 }
 
 export function CopyableAddress(props: CopyableAddressProps) {
-  const { showNotification } = React.useContext(NotificationsContext)
+  const clipboard = useClipboard()
 
   const onClick = React.useCallback(
-    async () => {
+    () => {
       if (props.onClick) {
         props.onClick()
       }
-
-      try {
-        await Clipboard.copyToClipboard(props.address)
-        showNotification("info", "Copied to clipboard.")
-      } catch (error) {
-        trackError(error)
-        return
-      }
+      clipboard.copyToClipboard(props.address)
     },
-    [props.onClick]
+    [props.address, props.onClick]
   )
 
   return (
