@@ -1,12 +1,11 @@
 import BigNumber from "big.js"
 import React from "react"
-import Typography from "@material-ui/core/Typography"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
 import { useAccountOffers, ObservedAccountData } from "../../hooks"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
-import { ListItem } from "../List"
-import { Address } from "../PublicKey"
+import { CopyableAddress } from "../PublicKey"
+import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
 
 const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 
@@ -44,99 +43,80 @@ function prettifyOperationObject(operation: Operation) {
   return operationDetailLines.join("\n")
 }
 
-export function OperationDetails(props: { children: React.ReactNode }) {
-  return <div style={{ fontSize: "80%", marginTop: 8, marginLeft: 16 }}>{props.children}</div>
+function Pre(props: { children: React.ReactNode }) {
+  return <pre style={{ width: "100%", overflow: "hidden", fontFamily: "inherit", fontSize: 14 }}>{props.children}</pre>
 }
 
 function PaymentOperation(props: { operation: Operation.Payment; style?: React.CSSProperties }) {
-  const { amount, asset, destination } = props.operation
-  const content = (
-    <OperationDetails>
-      <div>
-        <SingleBalance assetCode={asset.code} balance={String(amount)} />
-      </div>
-      <div>
-        {props.operation.source ? (
-          <div>
-            from <Address address={props.operation.source} style={{ fontWeight: "normal" }} variant="short" />
-          </div>
-        ) : null}
-        <div>
-          to <Address address={destination} style={{ fontWeight: "normal" }} variant="short" />
-        </div>
-      </div>
-    </OperationDetails>
+  const { amount, asset, destination, source } = props.operation
+  return (
+    <SummaryItem heading="Payment">
+      <SummaryDetailsField label="Amount" value={<SingleBalance assetCode={asset.code} balance={String(amount)} />} />
+      <SummaryDetailsField label="Destination" value={<CopyableAddress address={destination} variant="short" />} />
+      {source ? (
+        <SummaryDetailsField label="Source" value={<CopyableAddress address={source} variant="short" />} />
+      ) : null}
+    </SummaryItem>
   )
-  return <ListItem heading="Payment" primaryText={content} style={props.style} />
 }
 
 function CreateAccountOperation(props: { operation: Operation.CreateAccount; style?: React.CSSProperties }) {
-  const { startingBalance, destination } = props.operation
-  const content = (
-    <OperationDetails>
-      <div>
-        <SingleBalance assetCode="XLM" balance={String(startingBalance)} />
-      </div>
-      <div>
-        {props.operation.source ? (
-          <div>
-            from <Address address={props.operation.source} style={{ fontWeight: "normal" }} variant="short" />
-          </div>
-        ) : null}
-        <div>
-          to <Address address={destination} style={{ fontWeight: "normal" }} variant="short" />
-        </div>
-      </div>
-    </OperationDetails>
+  const { startingBalance, destination, source } = props.operation
+  return (
+    <SummaryItem heading="Create account">
+      <SummaryDetailsField
+        label="Account to create"
+        value={<CopyableAddress address={destination} variant="short" />}
+      />
+      <SummaryDetailsField
+        label="Funding amount"
+        value={<SingleBalance assetCode="XLM" balance={String(startingBalance)} />}
+      />
+      {source ? (
+        <SummaryDetailsField label="Funding account" value={<CopyableAddress address={source} variant="short" />} />
+      ) : null}
+    </SummaryItem>
   )
-  return <ListItem heading="Create account" primaryText={content} style={props.style} />
 }
 
 function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?: React.CSSProperties }) {
   if (BigNumber(props.operation.limit).eq(0)) {
-    const content = (
-      <OperationDetails>
-        <b>{props.operation.line.code}</b> by{" "}
-        <Address address={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
-      </OperationDetails>
+    return (
+      <SummaryItem heading="Remove trust in asset">
+        <SummaryDetailsField
+          label="Asset"
+          value={
+            <>
+              <b>{props.operation.line.code}</b> by{" "}
+              <CopyableAddress address={props.operation.line.issuer} variant="short" />
+            </>
+          }
+        />
+      </SummaryItem>
     )
-    return <ListItem heading="Remove trust in asset" primaryText={content} style={props.style} />
   } else {
-    const content = (
-      <OperationDetails>
-        <div>
-          <b>{props.operation.line.code}</b> by{" "}
-          <Address address={props.operation.line.issuer} style={{ fontWeight: "normal" }} variant="short" />
-        </div>
-        <div>
-          {trustlineLimitEqualsUnlimited(props.operation.limit)
-            ? "Unlimited trust"
-            : `Limited to ${props.operation.limit}`}
-        </div>
-      </OperationDetails>
+    return (
+      <SummaryItem heading="Trust asset">
+        <SummaryDetailsField
+          label="Asset"
+          value={
+            <>
+              <b>{props.operation.line.code}</b> by{" "}
+              <CopyableAddress address={props.operation.line.issuer} variant="short" />
+            </>
+          }
+        />
+        <SummaryDetailsField
+          label="Limit"
+          value={
+            trustlineLimitEqualsUnlimited(props.operation.limit)
+              ? "Unlimited trust"
+              : `Limited to ${props.operation.limit}`
+          }
+        />
+      </SummaryItem>
     )
-    return <ListItem heading="Trust asset" primaryText={content} style={props.style} />
   }
-}
-
-function OfferHeading(props: { amount: BigNumber; buying: Asset; offerId: string; selling: Asset }) {
-  let prefix: string
-
-  if (props.offerId === "0") {
-    // Offer creation
-    prefix = ""
-  } else if (props.amount.eq(0)) {
-    prefix = "Delete offer: "
-  } else {
-    prefix = "Update offer: "
-  }
-
-  return (
-    <>
-      {prefix}
-      Convert {props.selling.code} to {props.buying.code}
-    </>
-  )
 }
 
 export function OfferDetailsString(props: { amount: BigNumber; buying: Asset; price: BigNumber; selling: Asset }) {
@@ -147,10 +127,6 @@ export function OfferDetailsString(props: { amount: BigNumber; buying: Asset; pr
   )
 }
 
-function OfferDetails(props: { amount: BigNumber; buying: Asset; price: BigNumber; selling: Asset }) {
-  return <OperationDetails>{OfferDetailsString(props)}</OperationDetails>
-}
-
 interface ManageOfferOperationProps {
   accountData: ObservedAccountData
   operation: Operation.ManageSellOffer
@@ -159,80 +135,51 @@ interface ManageOfferOperationProps {
 }
 
 function ManageOfferOperation(props: ManageOfferOperationProps) {
-  const operation = props.operation
+  const { buying, offerId, selling } = props.operation
+  const amount = BigNumber(props.operation.amount)
+  const price = BigNumber(props.operation.price)
   const offers = useAccountOffers(props.accountData.id, props.testnet)
 
-  if (operation.offerId === "0") {
+  if (offerId === "0") {
     // Offer creation
-    const amount = BigNumber(operation.amount)
-    const price = BigNumber(operation.price)
     return (
-      <ListItem
-        heading={<OfferHeading {...operation} amount={amount} />}
-        primaryText={<OfferDetails {...operation} amount={amount} price={price} />}
-        style={props.style}
-      />
-    )
-  } else if (Number.parseFloat(operation.amount as string) === 0) {
-    // Offer deletion
-    // Take care to cast to string before comparing IDs, since there are issues
-    const offer = offers.offers.find(someOffer => String(someOffer.id) === String(operation.offerId))
-    return offer ? (
-      <ListItem
-        heading={
-          <OfferHeading
-            {...offer}
-            amount={BigNumber(0)}
-            buying={offerAssetToAsset(offer.buying)}
-            offerId={offer.id}
-            selling={offerAssetToAsset(offer.selling)}
-          />
-        }
-        primaryText={
-          <OfferDetails
-            {...offer}
-            amount={BigNumber(offer.amount)}
-            buying={offerAssetToAsset(offer.buying)}
-            price={BigNumber(offer.price)}
-            selling={offerAssetToAsset(offer.selling)}
-          />
-        }
-        style={props.style}
-      />
-    ) : (
-      <ListItem
-        heading={<OfferHeading {...operation} amount={BigNumber(0)} offerId={operation.offerId} />}
-        primaryText={
-          <OfferDetails {...operation} amount={BigNumber(operation.amount)} price={BigNumber(operation.price)} />
-        }
-        style={props.style}
-      />
+      <SummaryItem heading="Create trade offer">
+        <SummaryDetailsField label="Sell" value={<SingleBalance assetCode={selling.code} balance={String(amount)} />} />
+        <SummaryDetailsField
+          label="Buy"
+          value={<SingleBalance assetCode={buying.code} balance={String(amount.mul(price))} />}
+        />
+      </SummaryItem>
     )
   } else {
     // Offer edit
-    const offer = offers.offers.find(someOffer => someOffer.id === operation.offerId)
+    const heading = BigNumber(amount).eq(0) ? "Delete trade offer" : "Update trade offer"
+    const offer = offers.offers.find(someOffer => String(someOffer.id) === String(offerId))
+
     return offer ? (
-      <ListItem
-        heading={<OfferHeading {...operation} amount={BigNumber(offer.amount)} />}
-        primaryText={
-          <OfferDetails
-            {...offer}
-            amount={BigNumber(offer.amount)}
-            buying={offerAssetToAsset(offer.buying)}
-            price={BigNumber(offer.price)}
-            selling={offerAssetToAsset(offer.selling)}
-          />
-        }
-        style={props.style}
-      />
+      <SummaryItem heading={heading}>
+        <SummaryDetailsField
+          label="Sell"
+          value={<SingleBalance assetCode={offerAssetToAsset(offer.selling).getCode()} balance={offer.amount} />}
+        />
+        <SummaryDetailsField
+          label="Buy"
+          value={
+            <SingleBalance
+              assetCode={offerAssetToAsset(offer.buying).getCode()}
+              balance={String(BigNumber(offer.amount).mul(offer.price))}
+            />
+          }
+        />
+      </SummaryItem>
     ) : (
-      <ListItem
-        heading={<OfferHeading {...operation} amount={BigNumber(operation.amount)} />}
-        primaryText={
-          <OfferDetails {...operation} amount={BigNumber(operation.amount)} price={BigNumber(operation.price)} />
-        }
-        style={props.style}
-      />
+      <SummaryItem heading={heading}>
+        <SummaryDetailsField label="Sell" value={<SingleBalance assetCode={selling.code} balance={String(amount)} />} />
+        <SummaryDetailsField
+          label="Buy"
+          value={<SingleBalance assetCode={buying.code} balance={String(amount.mul(price))} />}
+        />
+      </SummaryItem>
     )
   }
 }
@@ -242,15 +189,6 @@ function SetOptionsOperation(props: {
   style?: React.CSSProperties
   transaction: Transaction
 }) {
-  let heading = <></>
-  let primaryText = (
-    <OperationDetails>
-      <pre style={{ margin: "8px 0 0", fontFamily: "inherit", fontSize: "90%" }}>
-        {prettifyOperationObject(props.operation)}
-      </pre>
-    </OperationDetails>
-  )
-
   if (
     props.operation.signer &&
     "ed25519PublicKey" in props.operation.signer &&
@@ -258,69 +196,76 @@ function SetOptionsOperation(props: {
   ) {
     const signerPublicKey = String(props.operation.signer.ed25519PublicKey)
     if (props.operation.signer.weight > 0) {
-      heading = (
-        <>
-          Add signer to{" "}
-          <Address
-            address={props.operation.source || props.transaction.source}
-            style={{ fontWeight: "normal" }}
-            variant="short"
+      return (
+        <SummaryItem heading="Add signer">
+          <SummaryDetailsField
+            label="New signer"
+            value={<CopyableAddress address={signerPublicKey} variant="short" />}
           />
-        </>
-      )
-      primaryText = (
-        <OperationDetails>
-          <Address address={signerPublicKey} style={{ display: "block", fontWeight: "normal" }} variant="short" />
-          <div>Key weight: {props.operation.signer.weight}</div>
-        </OperationDetails>
+          <SummaryDetailsField label="Key weight" value={props.operation.signer.weight} />
+          <SummaryDetailsField
+            label="Account to add signer to"
+            value={<CopyableAddress address={props.operation.source || props.transaction.source} variant="short" />}
+          />
+        </SummaryItem>
       )
     } else if (props.operation.signer.weight === 0) {
-      heading = (
-        <>
-          Remove signer from{" "}
-          <Address
-            address={props.operation.source || props.transaction.source}
-            style={{ fontWeight: "normal" }}
-            variant="short"
+      return (
+        <SummaryItem heading="Remove signer">
+          <SummaryDetailsField label="Signer" value={<CopyableAddress address={signerPublicKey} variant="short" />} />
+          <SummaryDetailsField
+            label="Account to remove signer from"
+            value={<CopyableAddress address={props.operation.source || props.transaction.source} variant="short" />}
           />
-        </>
-      )
-      primaryText = (
-        <OperationDetails>
-          <Address address={signerPublicKey} style={{ fontWeight: "normal" }} variant="short" />
-        </OperationDetails>
+        </SummaryItem>
       )
     }
   } else if (someThresholdSet(props.operation)) {
-    heading = <>Change key thresholds</>
-    primaryText = (
-      <OperationDetails>
-        <pre style={{ margin: "8px 0 0", fontFamily: "inherit", fontSize: "90%" }}>
-          {[
-            `Low threshold:    ${props.operation.lowThreshold}`,
-            `Medium threshold: ${props.operation.medThreshold}`,
-            `High threshold:   ${props.operation.highThreshold}`
-          ].join("\n")}
-        </pre>
-      </OperationDetails>
+    const { highThreshold, lowThreshold, medThreshold } = props.operation
+
+    return lowThreshold === medThreshold && medThreshold === highThreshold ? (
+      <SummaryItem heading="Change signature setup">
+        <SummaryDetailsField fullWidth label="Required signatures" value={props.operation.lowThreshold} />
+      </SummaryItem>
+    ) : (
+      <SummaryItem heading="Change signature setup">
+        <SummaryDetailsField
+          fullWidth
+          label="New key thresholds"
+          value={
+            <Pre>
+              {[
+                `Low threshold:    ${props.operation.lowThreshold}`,
+                `Medium threshold: ${props.operation.medThreshold}`,
+                `High threshold:   ${props.operation.highThreshold}`
+              ].join("\n")}
+            </Pre>
+          }
+        />
+      </SummaryItem>
     )
   }
-  return <ListItem heading={heading} primaryText={primaryText} style={props.style} />
+
+  return (
+    <SummaryItem>
+      <SummaryDetailsField
+        fullWidth
+        label="Set account options"
+        value={<Pre>{prettifyOperationObject(props.operation)}</Pre>}
+      />
+    </SummaryItem>
+  )
 }
 
 function GenericOperation(props: { operation: Operation; style?: React.CSSProperties }) {
   return (
-    <ListItem
-      heading={<Typography>{formatOperation(props.operation)}</Typography>}
-      primaryText={
-        <OperationDetails>
-          <pre style={{ margin: "8px 0 0", fontFamily: "inherit", fontSize: "90%" }}>
-            {prettifyOperationObject(props.operation)}
-          </pre>
-        </OperationDetails>
-      }
-      style={props.style}
-    />
+    <SummaryItem>
+      <SummaryDetailsField
+        fullWidth
+        label={formatOperation(props.operation)}
+        value={<Pre>{prettifyOperationObject(props.operation)}</Pre>}
+      />
+    </SummaryItem>
   )
 }
 
@@ -357,4 +302,4 @@ function OperationListItem(props: Props) {
   }
 }
 
-export default OperationListItem
+export default React.memo(OperationListItem)
