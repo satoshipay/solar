@@ -53,9 +53,9 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
         <Box padding={isTinyScreen ? "24px 24px" : "24px 36px"} overflow="auto">
           <MainTitle
             title={
-              <span style={isSmallScreen ? { fontSize: 18 } : undefined}>
+              <>
                 {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-              </span>
+              </>
             }
             onBack={props.onClose}
           />
