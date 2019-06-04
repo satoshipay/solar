@@ -148,7 +148,7 @@ function Transactions(props: { account: Account }) {
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
           <OfferList account={account} title="Open offers" />
           <TransactionList
-            accountPublicKey={account.publicKey}
+            account={account}
             background="transparent"
             title="Recent transactions"
             testnet={account.testnet}

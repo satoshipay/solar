@@ -13,10 +13,12 @@ import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
+import { Account } from "../../context/accounts"
 import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
+import TxConfirmationDialog from "../Dialog/TransactionConfirmation"
 import { formatOperation } from "../TransactionSummary/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
@@ -358,7 +360,7 @@ interface TransactionListItemProps {
   createdAt: string
   hoverActions?: React.ReactElement<any>
   icon?: React.ReactElement<any>
-  onClick?: () => void
+  onOpenTransaction?: (transaction: Transaction) => void
   style?: React.CSSProperties
   transaction: Transaction
 }
@@ -369,10 +371,13 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
   const isSmallScreen = useIsMobile()
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
+  const { onOpenTransaction, transaction } = props
+  const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
+
   return (
     <ListItem
-      button={Boolean(props.onClick)}
-      onClick={props.onClick}
+      button={Boolean(onOpen)}
+      onClick={onOpen}
       onMouseEnter={() => setHoveringStatus(true)}
       onMouseLeave={() => setHoveringStatus(false)}
       style={{ paddingTop: 8, paddingBottom: 8, ...props.style }}
@@ -404,12 +409,28 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
 })
 
 function TransactionList(props: {
-  accountPublicKey: string
+  account: Account
   background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
+  onOpenTransaction?: (transaction: Transaction) => void
   transactions: Transaction[]
 }) {
+  const [openedTransaction, setOpenTransaction] = React.useState<Transaction | null>(null)
+  const closeTransaction = React.useCallback(() => {
+    setOpenTransaction(null)
+
+    // A little hack to prevent :focus style being set again on list item after closing the dialog
+    setTimeout(() => {
+      if (document.activeElement) {
+        ;(document.activeElement as HTMLElement).blur()
+      }
+    }, 0)
+  }, [])
+
+  if (props.transactions.length === 0) {
+    return null
+  }
   return (
     <List style={{ background: props.background }}>
       <ListSubheader disableSticky style={{ background: props.background }}>
@@ -423,12 +444,21 @@ function TransactionList(props: {
         >
           <TransactionListItem
             key={createCheapTxID(transaction)}
-            accountPublicKey={props.accountPublicKey}
+            accountPublicKey={props.account.publicKey}
             createdAt={transaction.created_at}
             transaction={transaction}
+            onOpenTransaction={() => setOpenTransaction(transaction)}
           />
         </EntryAnimation>
       ))}
+      <TxConfirmationDialog
+        open={openedTransaction !== null}
+        account={props.account}
+        disabled={true}
+        transaction={openedTransaction}
+        onClose={closeTransaction}
+        onSubmitTransaction={() => undefined}
+      />
     </List>
   )
 }
