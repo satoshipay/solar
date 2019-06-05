@@ -63,6 +63,7 @@ function TransactionReviewDialog(props: Props) {
               <ReviewForm
                 account={props.account}
                 disabled={props.disabled}
+                onClose={props.onClose}
                 onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
                 passwordError={props.passwordError}
                 signatureRequest={props.signatureRequest}

@@ -130,7 +130,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
             accountPublicKey={props.account.publicKey}
             offer={offer}
             onCancel={() => onCancel(offer)}
-            style={{ background: "#ffffff", boxShadow: "#ccc 0px 1px 5px" }}
+            style={{ background: "#ffffff", boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)" }}
           />
         ))}
       </List>
