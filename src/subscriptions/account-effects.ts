@@ -1,7 +1,7 @@
 import { Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
+import { createStreamDebouncer, manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export function createAccountEffectsSubscription(
@@ -26,7 +26,7 @@ export function createAccountEffectsSubscription(
           },
           onerror(error: Error) {
             debounceError(error, () => {
-              trackStreamError(new Error("Account effects stream errored."))
+              trackStreamError(ServiceType.Horizon, new Error("Account effects stream errored."))
             })
           }
         })

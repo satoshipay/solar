@@ -2,7 +2,7 @@ import { Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
-import { manageStreamConnection, trackStreamError } from "../lib/stream"
+import { manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
 
 export interface ObservedAccountOffers {
   loading: boolean
@@ -26,7 +26,7 @@ export function createAccountOffersSubscription(
       const update = () => {
         if (window.navigator.onLine !== false) {
           // Always set cursor to zero, since we want all the open offers, not just recent ones
-          fetchAccountOffers("0").catch(trackStreamError)
+          fetchAccountOffers("0").catch(error => trackStreamError(ServiceType.Horizon, error))
         }
       }
       update()
