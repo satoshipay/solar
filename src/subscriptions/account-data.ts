@@ -32,11 +32,38 @@ export function createAccountDataSubscription(
   horizon: Server,
   accountPubKey: string
 ): SubscriptionTarget<ObservedAccountData> {
+  let latestPagingToken: string = "now"
   const { debounceError, debounceMessage } = createStreamDebouncer<Server.AccountRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyAccountData(accountPubKey))
 
-  const subscribeToStream = (cursor: string = "now") =>
-    manageStreamConnection(() => {
+  let pollingInterval: any = 0
+
+  const setPollingInterval = () => {
+    // Bullet-proofing the important account data updates
+    return setInterval(async () => {
+      try {
+        const accountData = await horizon.loadAccount(accountPubKey)
+
+        if (accountData.paging_token < latestPagingToken) {
+          return
+        }
+
+        debounceMessage(accountData, () => {
+          latestPagingToken = accountData.paging_token
+          propagateUpdate({
+            ...subscriptionTarget.getLatest(),
+            ...(accountData as any)
+          })
+        })
+      } catch (error) {
+        // tslint:disable-next-line no-console
+        console.error("Account data polling failed:", error)
+      }
+    }, 10000)
+  }
+
+  const subscribeToStream = (cursor: string = "now") => {
+    let unsubscribeStream = manageStreamConnection(() => {
       return horizon
         .accounts()
         .accountId(accountPubKey)
@@ -45,6 +72,7 @@ export function createAccountDataSubscription(
           reconnectTimeout: 8000,
           onmessage(accountData: Server.AccountRecord) {
             debounceMessage(accountData, () => {
+              latestPagingToken = accountData.paging_token
               propagateUpdate({
                 ...subscriptionTarget.getLatest(),
                 ...(accountData as any)
@@ -54,10 +82,18 @@ export function createAccountDataSubscription(
           onerror(error: any) {
             debounceError(error, () => {
               trackStreamError(ServiceType.Horizon, new Error("Account data update stream errored."))
+              unsubscribeStream()
+              unsubscribeStream = subscribeToStream(latestPagingToken)
             })
           }
         } as any)
     })
+    // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
+    return () => {
+      unsubscribeStream()
+      clearInterval(pollingInterval)
+    }
+  }
 
   const setup = async () => {
     const initialAccountData = await loadAccount(horizon, accountPubKey)
@@ -67,12 +103,15 @@ export function createAccountDataSubscription(
     })
 
     const accountData = initialAccountData || (await waitForAccountData(horizon, accountPubKey)).accountData
+    pollingInterval = setPollingInterval()
 
     propagateUpdate({
       ...subscriptionTarget.getLatest(),
       ...(accountData as any),
       activated: true
     })
+
+    latestPagingToken = accountData.paging_token
     subscribeToStream(accountData.paging_token)
   }
 
