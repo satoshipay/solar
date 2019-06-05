@@ -2,6 +2,16 @@ import { trackError } from "../context/notifications"
 
 type UnsubscribeFn = () => void
 
+export const enum ServiceType {
+  Horizon = "Horizon",
+  MultiSigCoordinator = "MultiSigCoordinator"
+}
+
+const ServiceMessages: { [service in ServiceType]: string } = {
+  [ServiceType.Horizon]: "Horizon connection error",
+  [ServiceType.MultiSigCoordinator]: "Multi-signature service connection error"
+}
+
 export function manageStreamConnection(connectStream: () => UnsubscribeFn): UnsubscribeFn {
   let unsubscribeFromCurrent = connectStream()
 
@@ -56,7 +66,7 @@ export function createStreamDebouncer<MessageType>() {
   }
 }
 
-export function trackStreamError(error: Error) {
+export function trackStreamError(service: ServiceType, error: Error) {
   if (window.navigator.onLine === false) {
     // ignore the error if we are offline; the online/offline status is handled separately
     return
@@ -65,7 +75,9 @@ export function trackStreamError(error: Error) {
   // Wait a little bit, then check again (in case the offline status isn't updated in time)
   setTimeout(() => {
     if (window.navigator.onLine !== false) {
-      trackError(error)
+      trackError(ServiceMessages[service] || error.message)
+      // tslint:disable-next-line no-console
+      console.error("  Detailed error:", error)
     }
   }, 200)
 }
