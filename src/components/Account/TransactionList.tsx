@@ -18,8 +18,8 @@ import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
-import TxConfirmationDialog from "../Dialog/TransactionConfirmation"
-import { formatOperation } from "../TransactionSummary/Operations"
+import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
+import { formatOperation } from "../TransactionReview/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
@@ -451,7 +451,7 @@ function TransactionList(props: {
           />
         </EntryAnimation>
       ))}
-      <TxConfirmationDialog
+      <TransactionReviewDialog
         open={openedTransaction !== null}
         account={props.account}
         disabled={true}

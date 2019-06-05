@@ -2,7 +2,7 @@ import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
 import { Asset, Server, Transaction } from "stellar-sdk"
-import TxConfirmationDrawer from "../src/components/Dialog/TransactionConfirmation"
+import TransactionReviewDialog from "../src/components/TransactionReview/TransactionReviewDialog"
 import { Account, AccountsContext, AccountsProvider } from "../src/context/accounts"
 import { useAccountData } from "../src/hooks"
 import { createPaymentOperation, createTransaction } from "../src/lib/transaction"
@@ -62,7 +62,7 @@ storiesOf("Dialogs", module)
         accounts[0] ? (
           <DialogContainer account={accounts[0]}>
             {({ open, onClose, transaction }) => (
-              <TxConfirmationDrawer
+              <TransactionReviewDialog
                 account={accounts[0]}
                 open={open}
                 transaction={transaction}
@@ -81,7 +81,7 @@ storiesOf("Dialogs", module)
         accounts[1] ? (
           <DialogContainer account={accounts[1]}>
             {({ open, onClose, transaction }) => (
-              <TxConfirmationDrawer
+              <TransactionReviewDialog
                 account={accounts[1]}
                 open={open}
                 transaction={transaction}

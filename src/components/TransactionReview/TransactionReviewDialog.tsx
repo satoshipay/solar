@@ -5,18 +5,18 @@ import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { useIsMobile } from "../../hooks"
+import TestnetBadge from "../Dialog/TestnetBadge"
 import ErrorBoundary from "../ErrorBoundary"
-import TxConfirmationForm from "../Form/TxConfirmation"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
-import TestnetBadge from "./TestnetBadge"
+import ReviewForm from "./ReviewForm"
 
 const isPaymentOperation = (operation: Operation) => ["createAccount", "payment"].indexOf(operation.type) > -1
 
 const TransitionLeft = (props: any) => <Slide {...props} direction="left" />
 const TransitionUp = (props: any) => <Slide {...props} direction="up" />
 
-interface TxConfirmationDialogProps {
+interface Props {
   account: Account
   disabled?: boolean
   open: boolean
@@ -28,7 +28,7 @@ interface TxConfirmationDialogProps {
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
-function TxConfirmationDialog(props: TxConfirmationDialogProps) {
+function TransactionReviewDialog(props: Props) {
   const title =
     props.transaction && props.transaction.operations.every(isPaymentOperation)
       ? props.disabled
@@ -60,7 +60,7 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
           />
           {props.transaction ? (
             <Box margin="24px auto 0" textAlign="center">
-              <TxConfirmationForm
+              <ReviewForm
                 account={props.account}
                 disabled={props.disabled}
                 onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
@@ -77,4 +77,4 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   )
 }
 
-export default TxConfirmationDialog
+export default TransactionReviewDialog

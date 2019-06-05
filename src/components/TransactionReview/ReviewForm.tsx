@@ -7,7 +7,7 @@ import { renderFormFieldError } from "../../lib/errors"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
-import TransactionSummary from "../TransactionSummary/TransactionSummary"
+import TransactionSummary from "./TransactionSummary"
 
 type FormErrors = { [formField in keyof FormValues]: Error | null }
 
