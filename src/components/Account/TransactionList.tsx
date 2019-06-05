@@ -9,6 +9,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
+import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
@@ -18,8 +19,8 @@ import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
-import TxConfirmationDialog from "../Dialog/TransactionConfirmation"
-import { formatOperation } from "../TransactionSummary/Operations"
+import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
+import { formatOperation } from "../TransactionReview/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 
 type TransactionWithUndocumentedProps = Transaction & {
@@ -354,59 +355,71 @@ function TransactionListItemBalance(props: {
   )
 }
 
+export const transactionListItemStyles: StyleRules = {
+  listItem: {
+    paddingTop: 8,
+    paddingBottom: 8,
+    background: "#FFFFFF",
+    boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+    "&:focus": {
+      backgroundColor: "#FFFFFF"
+    },
+    "&:hover": {
+      backgroundColor: "rgb(232, 232, 232)"
+    }
+  }
+}
+
 interface TransactionListItemProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
+  classes: ClassNameMap<keyof typeof transactionListItemStyles>
   createdAt: string
-  hoverActions?: React.ReactElement<any>
   icon?: React.ReactElement<any>
   onOpenTransaction?: (transaction: Transaction) => void
   style?: React.CSSProperties
   transaction: Transaction
 }
 
-// tslint:disable-next-line no-shadowed-variable
-export const TransactionListItem = React.memo(function TransactionListItem(props: TransactionListItemProps) {
-  const [hovering, setHoveringStatus] = React.useState(false)
-  const isSmallScreen = useIsMobile()
-  const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
+export const TransactionListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
+  withStyles(transactionListItemStyles)(function TransactionListItem(props: TransactionListItemProps) {
+    const isSmallScreen = useIsMobile()
+    const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
-  const { onOpenTransaction, transaction } = props
-  const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
+    const { classes, onOpenTransaction, transaction } = props
+    const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
 
-  return (
-    <ListItem
-      button={Boolean(onOpen)}
-      onClick={onOpen}
-      onMouseEnter={() => setHoveringStatus(true)}
-      onMouseLeave={() => setHoveringStatus(false)}
-      style={{ paddingTop: 8, paddingBottom: 8, ...props.style }}
-    >
-      <ListItemIcon>
-        {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
-      </ListItemIcon>
-      <TransactionItemText
-        accountPublicKey={props.accountPublicKey}
-        alwaysShowSource={props.alwaysShowSource}
-        createdAt={props.createdAt}
-        paymentSummary={paymentSummary}
-        style={{
-          fontSize: isSmallScreen ? "0.8rem" : undefined,
-          fontWeight: "bold",
-          overflow: "hidden",
-          paddingRight: 0,
-          textOverflow: "ellipsis"
-        }}
-        transaction={props.transaction}
-      />
-      {hovering && props.hoverActions ? (
-        props.hoverActions
-      ) : (
+    return (
+      <ListItem
+        button={Boolean(onOpen)}
+        className={classes.listItem}
+        component="li"
+        onClick={onOpen}
+        style={props.style}
+      >
+        <ListItemIcon>
+          {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
+        </ListItemIcon>
+        <TransactionItemText
+          accountPublicKey={props.accountPublicKey}
+          alwaysShowSource={props.alwaysShowSource}
+          createdAt={props.createdAt}
+          paymentSummary={paymentSummary}
+          style={{
+            fontSize: isSmallScreen ? "0.8rem" : undefined,
+            fontWeight: "bold",
+            overflow: "hidden",
+            paddingRight: 0,
+            textOverflow: "ellipsis"
+          }}
+          transaction={props.transaction}
+        />
         <TransactionListItemBalance paymentSummary={paymentSummary} style={{ paddingRight: 0 }} />
-      )}
-    </ListItem>
-  )
-})
+      </ListItem>
+    )
+  } as React.ComponentType<TransactionListItemProps>)
+)
 
 function TransactionList(props: {
   account: Account
@@ -417,6 +430,7 @@ function TransactionList(props: {
   transactions: Transaction[]
 }) {
   const [openedTransaction, setOpenTransaction] = React.useState<Transaction | null>(null)
+
   const closeTransaction = React.useCallback(() => {
     setOpenTransaction(null)
 
@@ -431,6 +445,7 @@ function TransactionList(props: {
   if (props.transactions.length === 0) {
     return null
   }
+
   return (
     <List style={{ background: props.background }}>
       <ListSubheader disableSticky style={{ background: props.background }}>
@@ -451,7 +466,7 @@ function TransactionList(props: {
           />
         </EntryAnimation>
       ))}
-      <TxConfirmationDialog
+      <TransactionReviewDialog
         open={openedTransaction !== null}
         account={props.account}
         disabled={true}
