@@ -27,6 +27,8 @@ type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
 }
 
+const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
+
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 
 function EntryAnimation(props: { children: React.ReactNode; animate: boolean }) {
@@ -365,7 +367,7 @@ export const transactionListItemStyles: StyleRules = {
       backgroundColor: "#FFFFFF"
     },
     "&:hover": {
-      backgroundColor: "rgb(232, 232, 232)"
+      backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
     }
   }
 }
