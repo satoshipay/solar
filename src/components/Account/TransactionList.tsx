@@ -355,12 +355,15 @@ function TransactionListItemBalance(props: {
   )
 }
 
-const transactionListItemStyles: StyleRules = {
+export const transactionListItemStyles: StyleRules = {
   listItem: {
     paddingTop: 8,
     paddingBottom: 8,
     background: "#FFFFFF",
     boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+    "&:focus": {
+      backgroundColor: "#FFFFFF"
+    },
     "&:hover": {
       backgroundColor: "rgb(232, 232, 232)"
     }
