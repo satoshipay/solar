@@ -375,17 +375,15 @@ interface TransactionListItemProps {
   alwaysShowSource?: boolean
   classes: ClassNameMap<keyof typeof transactionListItemStyles>
   createdAt: string
-  hoverActions?: React.ReactElement<any>
   icon?: React.ReactElement<any>
   onOpenTransaction?: (transaction: Transaction) => void
   style?: React.CSSProperties
   transaction: Transaction
 }
 
-// tslint:disable-next-line no-shadowed-variable
 export const TransactionListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
   withStyles(transactionListItemStyles)(function TransactionListItem(props: TransactionListItemProps) {
-    const [hovering, setHoveringStatus] = React.useState(false)
     const isSmallScreen = useIsMobile()
     const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
@@ -398,8 +396,6 @@ export const TransactionListItem = React.memo(
         className={classes.listItem}
         component="li"
         onClick={onOpen}
-        onMouseEnter={() => setHoveringStatus(true)}
-        onMouseLeave={() => setHoveringStatus(false)}
         style={props.style}
       >
         <ListItemIcon>
@@ -419,14 +415,10 @@ export const TransactionListItem = React.memo(
           }}
           transaction={props.transaction}
         />
-        {hovering && props.hoverActions ? (
-          props.hoverActions
-        ) : (
-          <TransactionListItemBalance paymentSummary={paymentSummary} style={{ paddingRight: 0 }} />
-        )}
+        <TransactionListItemBalance paymentSummary={paymentSummary} style={{ paddingRight: 0 }} />
       </ListItem>
     )
-  })
+  } as React.ComponentType<TransactionListItemProps>)
 )
 
 function TransactionList(props: {

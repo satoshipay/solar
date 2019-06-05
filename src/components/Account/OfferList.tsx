@@ -48,6 +48,7 @@ interface OfferListItemProps {
 }
 
 const OfferListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
   withStyles(transactionListItemStyles)(function OfferListItem(props: OfferListItemProps) {
     const buying = offerAssetToAsset(props.offer.buying)
     const selling = offerAssetToAsset(props.offer.selling)
@@ -90,7 +91,7 @@ const OfferListItem = React.memo(
         </ListItemText>
       </ListItem>
     )
-  })
+  } as React.ComponentType<OfferListItemProps>)
 )
 
 interface Props {
