@@ -6,6 +6,7 @@ import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMe
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 import { Account } from "./context/accounts"
 import { CachingContext } from "./context/caches"
+import { NotificationsContext } from "./context/notifications"
 import { StellarContext } from "./context/stellar"
 import * as StellarAddresses from "./lib/stellar-address"
 import { SubscriptionTarget } from "./lib/subscription"
@@ -21,6 +22,7 @@ import {
   ObservedRecentTxs,
   ObservedTradingPair
 } from "./subscriptions"
+import * as Clipboard from "./platform/clipboard"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
@@ -115,6 +117,24 @@ export function useAccountEffectSubscriptions(accounts: Account[], handler: Effe
       return () => unsubscribeHandlers.forEach(unsubscribe => unsubscribe())
     },
     [accounts, mainnetHorizon, testnetHorizon]
+  )
+}
+
+export function useClipboard() {
+  const { showError, showNotification } = React.useContext(NotificationsContext)
+
+  return React.useMemo(
+    () => ({
+      async copyToClipboard(value: string, notificationMessage: string = "Copied to clipboard.") {
+        try {
+          await Clipboard.copyToClipboard(value)
+          showNotification("info", notificationMessage)
+        } catch (error) {
+          showError(error)
+        }
+      }
+    }),
+    [showError, showNotification]
   )
 }
 

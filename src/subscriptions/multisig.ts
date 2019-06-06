@@ -1,6 +1,5 @@
-import { trackError } from "../context/notifications"
 import { deserializeSignatureRequest, ServerSentEvent, SignatureRequest } from "../lib/multisig-service"
-import { manageStreamConnection } from "../lib/stream"
+import { manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
 import { joinURL } from "../lib/url"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
@@ -24,7 +23,7 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
   }
 
   const {
-    onError = trackError,
+    onError = (error: Error) => trackStreamError(ServiceType.MultiSigCoordinator, error),
     onNewSignatureRequest = (signatureRequest: SignatureRequest) => undefined,
     onSignatureRequestUpdate = (signatureRequest: SignatureRequest) => undefined,
     onSignatureRequestSubmitted = (signatureRequest: SignatureRequest) => undefined

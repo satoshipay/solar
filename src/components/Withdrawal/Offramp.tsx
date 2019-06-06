@@ -26,7 +26,7 @@ import WithdrawalKYCRedirect from "./WithdrawalKYCRedirect"
 import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
 import AnchorWithdrawalInitForm from "./WithdrawalRequestForm"
 import WithdrawalTransactionForm from "./WithdrawalTransactionForm"
-import TxConfirmationDialog from "../Dialog/TransactionConfirmation"
+import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
 
 const kycPollIntervalMs = 6000
 
@@ -268,7 +268,7 @@ function Offramp(props: Props) {
           testnet={props.testnet}
           pendingAnchorCommunication={withdrawalRequestPending || withdrawalResponsePending}
         />
-        <TxConfirmationDialog
+        <TransactionReviewDialog
           account={props.account}
           open={Boolean(currentState.step === "before-webauth" && webauth)}
           transaction={webauth ? webauth.transaction : null}

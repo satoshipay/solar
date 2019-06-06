@@ -100,21 +100,3 @@ interface Navigator {
     exitApp(): never
   }
 }
-
-interface Window {
-  StatusBar: StatusBar
-}
-interface StatusBar {
-  overlaysWebView: (isOverlay: boolean) => void
-  styleDefault: () => void
-  styleLightContent: () => void
-  styleBlackTranslucent: () => void
-  styleBlackOpaque: () => void
-  backgroundColorByName: (color: string) => void
-  backgroundColorByHexString: (color: string) => void
-  hide: () => void
-  show: () => void
-  isVisible: boolean
-}
-
-declare var StatusBar: StatusBar

@@ -1,7 +1,8 @@
 import React from "react"
+import ButtonBase from "@material-ui/core/ButtonBase"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
-import { useFederationLookup } from "../hooks"
+import { useClipboard, useFederationLookup } from "../hooks"
 
 type Variant = "full" | "short" | "shorter"
 
@@ -109,7 +110,31 @@ export function Address(props: AddressProps) {
         </span>
       )
     } else {
-      return <PublicKey publicKey={props.address} variant={props.variant} />
+      return <PublicKey publicKey={props.address} style={{ fontWeight: "inherit" }} variant={props.variant} />
     }
   }
+}
+
+interface CopyableAddressProps extends AddressProps {
+  onClick?: () => void
+}
+
+export function CopyableAddress(props: CopyableAddressProps) {
+  const clipboard = useClipboard()
+
+  const onClick = React.useCallback(
+    () => {
+      if (props.onClick) {
+        props.onClick()
+      }
+      clipboard.copyToClipboard(props.address)
+    },
+    [props.address, props.onClick]
+  )
+
+  return (
+    <ButtonBase onClick={onClick} style={{ fontSize: "inherit", fontWeight: "inherit" }}>
+      <Address {...props} />
+    </ButtonBase>
+  )
 }

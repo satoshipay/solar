@@ -1,6 +1,6 @@
 import { Asset, Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
-import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
+import { createStreamDebouncer, manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 
@@ -46,7 +46,7 @@ export function createOrderbookSubscription(
             // FIXME: We don't want to see errors for every single stream,
             // unless it's really a stream-instance-specific error
             debounceError(error, () => {
-              trackStreamError(new Error("Orderbook update stream errored."))
+              trackStreamError(ServiceType.Horizon, new Error("Orderbook update stream errored."))
             })
           }
         } as any)

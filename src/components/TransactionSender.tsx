@@ -14,7 +14,7 @@ import {
 } from "../lib/multisig-service"
 import { networkPassphrases } from "../lib/stellar"
 import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
-import TxConfirmationDrawer from "./Dialog/TransactionConfirmation"
+import TransactionReviewDialog from "./TransactionReview/TransactionReviewDialog"
 import SubmissionProgress from "./SubmissionProgress"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
@@ -221,7 +221,7 @@ class TransactionSender extends React.Component<Props, State> {
     return (
       <>
         {content}
-        <TxConfirmationDrawer
+        <TransactionReviewDialog
           open={confirmationDialogOpen}
           account={this.props.account}
           disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}

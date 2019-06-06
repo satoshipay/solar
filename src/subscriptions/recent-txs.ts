@@ -1,7 +1,7 @@
 import { Server, Transaction } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
+import { createStreamDebouncer, manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export interface ObservedRecentTxs {
@@ -58,7 +58,7 @@ export function createRecentTxsSubscription(
           },
           onerror(error: Error) {
             debounceError(error, () => {
-              trackStreamError(new Error("Recent transactions update stream errored."))
+              trackStreamError(ServiceType.Horizon, new Error("Recent transactions update stream errored."))
             })
           }
         })
