@@ -22,6 +22,7 @@ interface Props {
   account: Account
   disabled?: boolean
   passwordError?: Error | null
+  showSource?: boolean
   signatureRequest?: SignatureRequest
   transaction: Transaction
   onClose?: () => void
@@ -85,7 +86,7 @@ function TxConfirmationForm(props: Props) {
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
-          showSource={props.account.publicKey !== props.transaction.source}
+          showSource={props.showSource}
           signatureRequest={props.signatureRequest}
           testnet={props.account.testnet}
           transaction={props.transaction}
