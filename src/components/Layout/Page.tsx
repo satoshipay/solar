@@ -49,6 +49,8 @@ interface SectionProps {
 
 function Section(props: SectionProps) {
   const background = props.brandColored ? primaryBackground : props.backgroundColor || "white"
+  const isSmallScreen = useIsMobile()
+
   const className = [
     platform === "ios" && props.top ? "iphone-notch-top-spacing" : "",
     platform === "ios" ? "iphone-notch-left-spacing" : "",
@@ -70,7 +72,7 @@ function Section(props: SectionProps) {
       <Box className={className} component="section" padding={16} style={style}>
         {props.top ? <TopOfTopSection background={background} /> : null}
         {/* Add a little padding to the top if window is frameless */}
-        {props.top ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
+        {props.top && !isSmallScreen ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
         <MaybeInset>{props.children}</MaybeInset>
       </Box>
     </>

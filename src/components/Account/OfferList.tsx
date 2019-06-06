@@ -1,14 +1,13 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Operation, Server, Transaction } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
+import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
 import ArrowRightIcon from "@material-ui/icons/ArrowRightAlt"
 import BarChartIcon from "@material-ui/icons/BarChart"
-import CloseIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useAccountOffers, useHorizon, useIsMobile, ObservedAccountData } from "../../hooks"
@@ -18,6 +17,7 @@ import { HorizontalLayout } from "../Layout/Box"
 import { List } from "../List"
 import TransactionSender from "../TransactionSender"
 import { SingleBalance } from "./AccountBalances"
+import { transactionListItemStyles } from "./TransactionList"
 
 function createDismissalTransaction(
   horizon: Server,
@@ -41,45 +41,42 @@ function createDismissalTransaction(
 
 interface OfferListItemProps {
   accountPublicKey: string
+  classes: ClassNameMap<keyof typeof transactionListItemStyles>
   offer: Server.OfferRecord
   onCancel?: () => void
   style?: React.CSSProperties
 }
 
-function OfferListItem(props: OfferListItemProps) {
-  const [hovering, setHoveringStatus] = React.useState(false)
-  const buying = offerAssetToAsset(props.offer.buying)
-  const selling = offerAssetToAsset(props.offer.selling)
-  const isSmallScreen = useIsMobile()
-  return (
-    <ListItem
-      onMouseEnter={() => setHoveringStatus(true)}
-      onMouseLeave={() => setHoveringStatus(false)}
-      style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
-    >
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText
-        primary={
-          <span style={{ fontWeight: "bold" }}>
-            Sell&nbsp;&nbsp;
-            <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
-            &nbsp;&nbsp;for&nbsp;&nbsp;
-            <SingleBalance
-              assetCode={buying.getCode()}
-              balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
-              inline
-            />
-          </span>
-        }
-      />
-      {hovering ? (
-        <Button onClick={props.onCancel} color="inherit" variant="contained">
-          Cancel&nbsp;
-          <CloseIcon style={{ fontSize: "140%" }} />
-        </Button>
-      ) : (
+const OfferListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
+  withStyles(transactionListItemStyles)(function OfferListItem(props: OfferListItemProps) {
+    const buying = offerAssetToAsset(props.offer.buying)
+    const selling = offerAssetToAsset(props.offer.selling)
+    const isSmallScreen = useIsMobile()
+    return (
+      <ListItem
+        button={Boolean(props.onCancel)}
+        className={props.classes.listItem}
+        onClick={props.onCancel}
+        style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
+      >
+        <ListItemIcon>
+          <BarChartIcon />
+        </ListItemIcon>
+        <ListItemText
+          primary={
+            <span style={{ fontWeight: "bold" }}>
+              Sell&nbsp;&nbsp;
+              <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
+              &nbsp;&nbsp;for&nbsp;&nbsp;
+              <SingleBalance
+                assetCode={buying.getCode()}
+                balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
+                inline
+              />
+            </span>
+          }
+        />
         <ListItemText
           primaryTypographyProps={{ align: "right" }}
           style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0 }}
@@ -92,10 +89,10 @@ function OfferListItem(props: OfferListItemProps) {
             <b>{buying.getCode()}</b>
           </HorizontalLayout>
         </ListItemText>
-      )}
-    </ListItem>
-  )
-}
+      </ListItem>
+    )
+  } as React.ComponentType<OfferListItemProps>)
+)
 
 interface Props {
   account: Account
@@ -130,7 +127,6 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
             accountPublicKey={props.account.publicKey}
             offer={offer}
             onCancel={() => onCancel(offer)}
-            style={{ background: "#ffffff", boxShadow: "#ccc 0px 1px 5px" }}
           />
         ))}
       </List>

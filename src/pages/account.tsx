@@ -148,7 +148,7 @@ function Transactions(props: { account: Account }) {
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
           <OfferList account={account} title="Open offers" />
           <TransactionList
-            accountPublicKey={account.publicKey}
+            account={account}
             background="transparent"
             title="Recent transactions"
             testnet={account.testnet}
@@ -239,7 +239,14 @@ function AccountPage(props: Props) {
       <Section
         bottom={!isSmallScreen}
         backgroundColor="#f6f6f6"
-        style={{ flexGrow: 1, flexShrink: 1, overflowY: "auto", WebkitOverflowScrolling: "touch" }}
+        style={{
+          flexGrow: 1,
+          flexShrink: 1,
+          paddingTop: 0,
+          paddingBottom: 0,
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch"
+        }}
       >
         <Transactions account={account} />
       </Section>

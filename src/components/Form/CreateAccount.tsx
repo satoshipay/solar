@@ -9,7 +9,7 @@ import { Account } from "../../context/accounts"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
-import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
 
@@ -38,7 +38,12 @@ function getNewAccountName(accounts: Account[], testnet?: boolean) {
   return deriveName(index)
 }
 
-function validateFormValues(formValues: AccountCreationValues) {
+function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
+  const publicKey = Keypair.fromSecret(privateKey).publicKey()
+  return accounts.some(account => account.publicKey === publicKey)
+}
+
+function validateFormValues(formValues: AccountCreationValues, accounts: Account[]) {
   const errors: AccountCreationErrors = {}
 
   if (!formValues.name) {
@@ -52,6 +57,8 @@ function validateFormValues(formValues: AccountCreationValues) {
   }
   if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
     errors.privateKey = new Error("Invalid stellar private key.")
+  } else if (!formValues.createNewKey && isAccountAlreadyImported(formValues.privateKey, accounts)) {
+    errors.privateKey = new Error("You cannot import the same account twice.")
   }
 
   const success = Object.keys(errors).length === 0
@@ -109,7 +116,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
   return (
     <form onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
-        <Box>
+        <Typography variant="h5" style={{ display: "flex" }}>
           <TextField
             error={Boolean(errors.name)}
             label={errors.name ? renderFormFieldError(errors.name) : undefined}
@@ -126,12 +133,14 @@ function AccountCreationForm(props: AccountCreationFormProps) {
                 </InputAdornment>
               ),
               style: {
-                fontSize: isTinyScreen ? "1.3rem" : "1.5rem"
+                fontFamily: "inherit",
+                fontSize: isTinyScreen ? "1.3rem" : "1.5rem",
+                fontWeight: "inherit"
               }
             }}
             style={{ minWidth: isTinyScreen ? 230 : 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
           />
-        </Box>
+        </Typography>
         <ToggleSection
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
@@ -276,7 +285,7 @@ function StatefulAccountCreationForm(props: Props) {
   }
 
   const submit = () => {
-    const validation = validateFormValues(formValues)
+    const validation = validateFormValues(formValues, props.accounts)
     setErrors(validation.errors)
 
     const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey

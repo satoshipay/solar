@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
@@ -5,18 +6,39 @@ import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { useIsMobile } from "../../hooks"
+import TestnetBadge from "../Dialog/TestnetBadge"
 import ErrorBoundary from "../ErrorBoundary"
-import TxConfirmationForm from "../Form/TxConfirmation"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
-import TestnetBadge from "./TestnetBadge"
+import ReviewForm from "./ReviewForm"
 
-const isPaymentOperation = (operation: Operation) => ["createAccount", "payment"].indexOf(operation.type) > -1
+function isPaymentOperation(operation: Operation) {
+  return ["createAccount", "payment"].indexOf(operation.type) > -1
+}
+
+function isOfferDeletionOperation(operation: Operation) {
+  return (
+    (operation.type === "manageBuyOffer" && BigNumber(operation.buyAmount).eq(0)) ||
+    (operation.type === "manageSellOffer" && BigNumber(operation.amount).eq(0))
+  )
+}
 
 const TransitionLeft = (props: any) => <Slide {...props} direction="left" />
 const TransitionUp = (props: any) => <Slide {...props} direction="up" />
 
-interface TxConfirmationDialogProps {
+function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
+  if (!props.transaction) {
+    return <>Review Transaction</>
+  } else if (props.transaction.operations.every(isPaymentOperation)) {
+    return <>{props.disabled ? "Review Payment" : "Confirm Payment"}</>
+  } else if (props.transaction.operations.every(isOfferDeletionOperation)) {
+    return <>{props.disabled ? "Review Transaction" : "Delete Offer"}</>
+  } else {
+    return <>{props.disabled ? "Review Transaction" : "Confirm Transaction"}</>
+  }
+}
+
+interface Props {
   account: Account
   disabled?: boolean
   open: boolean
@@ -28,12 +50,7 @@ interface TxConfirmationDialogProps {
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
-function TxConfirmationDialog(props: TxConfirmationDialogProps) {
-  const title =
-    props.transaction && props.transaction.operations.every(isPaymentOperation)
-      ? "Confirm Payment"
-      : "Confirm Transaction"
-
+function TransactionReviewDialog(props: Props) {
   const isSmallScreen = useIsMobile()
 
   return (
@@ -45,20 +62,22 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
       TransitionComponent={isSmallScreen ? TransitionLeft : TransitionUp}
     >
       <ErrorBoundary>
-        <Box padding="24px 36px" overflow="auto">
+        <Box padding={isSmallScreen ? "24px" : " 24px 32px"} overflow="auto">
           <MainTitle
             title={
-              <span style={isSmallScreen ? { fontSize: 18 } : undefined}>
-                {title} {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-              </span>
+              <>
+                <Title disabled={props.disabled} transaction={props.transaction} />{" "}
+                {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+              </>
             }
             onBack={props.onClose}
           />
           {props.transaction ? (
-            <Box margin="12px auto 0" style={isSmallScreen ? { width: "fit-content" } : {}} textAlign="center">
-              <TxConfirmationForm
+            <Box margin="24px auto 0" textAlign="center">
+              <ReviewForm
                 account={props.account}
                 disabled={props.disabled}
+                onClose={props.onClose}
                 onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
                 passwordError={props.passwordError}
                 signatureRequest={props.signatureRequest}
@@ -73,4 +92,4 @@ function TxConfirmationDialog(props: TxConfirmationDialogProps) {
   )
 }
 
-export default TxConfirmationDialog
+export default TransactionReviewDialog

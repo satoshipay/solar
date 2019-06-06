@@ -2,7 +2,7 @@ import React from "react"
 import Async from "react-promise"
 import { Asset, Memo, Network, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
-import TransactionSummary from "../src/components/TransactionSummary/TransactionSummary"
+import TransactionSummary from "../src/components/TransactionReview/TransactionSummary"
 
 storiesOf("TransactionSummary", module)
   .add("Payment", () => {
