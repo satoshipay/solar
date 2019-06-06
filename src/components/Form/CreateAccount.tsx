@@ -8,7 +8,7 @@ import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
-import { ActionButton, CloseButton, DialogActionsBox } from "../Dialog/Generic"
+import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
@@ -40,7 +40,6 @@ function getNewAccountName(accounts: Account[], testnet?: boolean) {
 
 function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
   const publicKey = Keypair.fromSecret(privateKey).publicKey()
-
   return accounts.some(account => account.publicKey === publicKey)
 }
 
@@ -71,7 +70,7 @@ interface AccountCreationFormProps {
   formValues: AccountCreationValues
   testnet: boolean
   onCancel(): void
-  onSubmit(event: React.SyntheticEvent): void
+  onSubmit(): void
   setFormValue<FieldName extends keyof AccountCreationValues>(
     fieldName: FieldName,
     value: AccountCreationValues[FieldName]
@@ -80,6 +79,8 @@ interface AccountCreationFormProps {
 
 function AccountCreationForm(props: AccountCreationFormProps) {
   const { errors, formValues, setFormValue } = props
+  const [pendingConfirmation, setPendingConfirmation] = React.useState<boolean>(false)
+
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const primaryButtonLabel = formValues.createNewKey
@@ -93,6 +94,23 @@ function AccountCreationForm(props: AccountCreationFormProps) {
   const onQRImport = (key: string) => {
     setFormValue("privateKey", key)
     setFormValue("createNewKey", false)
+  }
+
+  const onConfirmNoPasswordProtection = () => {
+    if (!pendingConfirmation) return
+
+    props.onSubmit()
+    setPendingConfirmation(false)
+  }
+
+  const onSubmit = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
+    if (!props.testnet && !formValues.setPassword) {
+      setPendingConfirmation(true)
+    } else {
+      props.onSubmit()
+    }
   }
 
   return (
@@ -213,10 +231,25 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         </ToggleSection>
         <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
           <CloseButton onClick={props.onCancel} />
-          <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
+          <ActionButton icon={<CheckIcon />} onClick={onSubmit} type="primary">
             {primaryButtonLabel}
           </ActionButton>
         </DialogActionsBox>
+        <ConfirmDialog
+          cancelButton={<ActionButton onClick={() => setPendingConfirmation(false)}>Cancel</ActionButton>}
+          confirmButton={
+            <ActionButton onClick={onConfirmNoPasswordProtection} type="primary">
+              Confirm
+            </ActionButton>
+          }
+          onClose={() => setPendingConfirmation(false)}
+          open={pendingConfirmation}
+          title="Continue without password"
+        >
+          You are about to create an account without password protection. Anyone that has access to your device will
+          have access to your account funds. <br /> <br />
+          Are you sure you want to continue without setting up a password?
+        </ConfirmDialog>
       </VerticalLayout>
     </form>
   )
@@ -241,16 +274,17 @@ function StatefulAccountCreationForm(props: Props) {
     setPassword: true
   })
 
-  const setFormValue = (fieldName: keyof AccountCreationValues, value: string) => {
+  const setFormValue = (
+    fieldName: keyof AccountCreationValues,
+    value: AccountCreationValues[keyof AccountCreationValues]
+  ) => {
     setFormValues(prevValues => ({
       ...prevValues,
       [fieldName]: value
     }))
   }
 
-  const submit = (event: React.SyntheticEvent) => {
-    event.preventDefault()
-
+  const submit = () => {
     const validation = validateFormValues(formValues, props.accounts)
     setErrors(validation.errors)
 
