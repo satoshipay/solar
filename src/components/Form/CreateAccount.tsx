@@ -63,7 +63,7 @@ interface AccountCreationFormProps {
   formValues: AccountCreationValues
   testnet: boolean
   onCancel(): void
-  onSubmit(event: React.SyntheticEvent): void
+  onSubmit(): void
   setFormValue<FieldName extends keyof AccountCreationValues>(
     fieldName: FieldName,
     value: AccountCreationValues[FieldName]
@@ -72,7 +72,7 @@ interface AccountCreationFormProps {
 
 function AccountCreationForm(props: AccountCreationFormProps) {
   const { errors, formValues, setFormValue } = props
-  const [pendingConfirmation, setPendingConfirmation] = React.useState<React.SyntheticEvent | null>(null)
+  const [pendingConfirmation, setPendingConfirmation] = React.useState<boolean>(false)
 
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
@@ -92,15 +92,17 @@ function AccountCreationForm(props: AccountCreationFormProps) {
   const onConfirmNoPasswordProtection = () => {
     if (!pendingConfirmation) return
 
-    props.onSubmit(pendingConfirmation)
-    setPendingConfirmation(null)
+    props.onSubmit()
+    setPendingConfirmation(false)
   }
 
   const onSubmit = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
     if (!props.testnet && !formValues.setPassword) {
-      setPendingConfirmation(event)
+      setPendingConfirmation(true)
     } else {
-      props.onSubmit(event)
+      props.onSubmit()
     }
   }
 
@@ -225,14 +227,14 @@ function AccountCreationForm(props: AccountCreationFormProps) {
           </ActionButton>
         </DialogActionsBox>
         <ConfirmDialog
-          cancelButton={<ActionButton onClick={() => setPendingConfirmation(null)}>Cancel</ActionButton>}
+          cancelButton={<ActionButton onClick={() => setPendingConfirmation(false)}>Cancel</ActionButton>}
           confirmButton={
             <ActionButton onClick={onConfirmNoPasswordProtection} type="primary">
               Confirm
             </ActionButton>
           }
-          onClose={() => setPendingConfirmation(null)}
-          open={pendingConfirmation !== null}
+          onClose={() => setPendingConfirmation(false)}
+          open={pendingConfirmation}
           title="Continue without password"
         >
           You are about to create an account without password protection. Anyone that has access to your device will
@@ -263,16 +265,17 @@ function StatefulAccountCreationForm(props: Props) {
     setPassword: true
   })
 
-  const setFormValue = (fieldName: keyof AccountCreationValues, value: string) => {
+  const setFormValue = (
+    fieldName: keyof AccountCreationValues,
+    value: AccountCreationValues[keyof AccountCreationValues]
+  ) => {
     setFormValues(prevValues => ({
       ...prevValues,
       [fieldName]: value
     }))
   }
 
-  const submit = (event: React.SyntheticEvent) => {
-    event.preventDefault()
-
+  const submit = () => {
     const validation = validateFormValues(formValues)
     setErrors(validation.errors)
 
