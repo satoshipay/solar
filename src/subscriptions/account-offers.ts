@@ -2,7 +2,7 @@ import { Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
-import { manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
+import { manageStreamConnection, ServiceType } from "../lib/stream"
 
 export interface ObservedAccountOffers {
   loading: boolean
@@ -20,13 +20,13 @@ export function createAccountOffersSubscription(
   })
 
   const subscribeToStream = () =>
-    manageStreamConnection(() => {
+    manageStreamConnection(ServiceType.Horizon, trackStreamError => {
       // horizon.offers("accounts", accountPubKey) does not seem to yield any updates, so falling back here...
       const pollingIntervalMs = 5000
       const update = () => {
         if (window.navigator.onLine !== false) {
           // Always set cursor to zero, since we want all the open offers, not just recent ones
-          fetchAccountOffers("0").catch(error => trackStreamError(ServiceType.Horizon, error))
+          fetchAccountOffers("0").catch(error => trackStreamError(error))
         }
       }
       update()
