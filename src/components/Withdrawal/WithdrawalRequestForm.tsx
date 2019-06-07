@@ -33,6 +33,9 @@ interface FormValues {
 
 interface Props {
   assets: Asset[]
+  initialAsset?: Asset
+  initialFormValues?: FormValues
+  initialMethod?: string
   onCancel: () => void
   onSubmit: (transferServer: TransferServer, asset: Asset, method: string, formValues: FormValues) => void
   testnet: boolean
@@ -41,15 +44,17 @@ interface Props {
 
 function AnchorWithdrawalInitForm(props: Props) {
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
+
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(someAssetCode => {
     const deposit = transferInfos.data[someAssetCode].transferInfo.deposit
     return deposit && deposit.enabled
   })
 
-  const [assetCode, setAssetCode] = React.useState<string | null>(withdrawableAssetCodes[0] || null)
-  const [methodID, setMethodID] = React.useState<string | null>(null)
+  const initialAssetCode = props.initialAsset ? props.initialAsset.getCode() : withdrawableAssetCodes[0]
+  const [assetCode, setAssetCode] = React.useState<string | null>(initialAssetCode || null)
+  const [methodID, setMethodID] = React.useState<string | null>(props.initialMethod || null)
 
-  const [formValues, setFormValues] = React.useState<FormValues>({})
+  const [formValues, setFormValues] = React.useState<FormValues>(props.initialFormValues || {})
   const setFormValue = (fieldName: string, newValue: string) =>
     setFormValues(prevFormValues => ({ ...prevFormValues, [fieldName]: newValue }))
 

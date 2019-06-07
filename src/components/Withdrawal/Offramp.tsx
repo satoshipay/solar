@@ -263,6 +263,9 @@ function Offramp(props: Props) {
       <>
         <AnchorWithdrawalInitForm
           assets={props.assets}
+          initialAsset={currentState.details && currentState.details.asset}
+          initialFormValues={currentState.details && currentState.details.withdrawalFormValues}
+          initialMethod={currentState.details && currentState.details.method}
           onCancel={props.onCancel}
           onSubmit={handleWithdrawalFormSubmission}
           testnet={props.testnet}
