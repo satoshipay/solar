@@ -1,18 +1,17 @@
 import { Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
+import { manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export function createAccountEffectsSubscription(
   horizon: Server,
   accountPubKey: string
 ): SubscriptionTarget<Server.EffectRecord | null> {
-  const { debounceError } = createStreamDebouncer<Server.EffectRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<Server.EffectRecord | null>(null)
 
-  const subscribeToEffects = (cursor: string = "now") =>
-    manageStreamConnection(() => {
+  const subscribeToEffects = (cursor: string = "now") => {
+    let unsubscribe = manageStreamConnection(ServiceType.Horizon, trackStreamError => {
       return horizon
         .effects()
         .forAccount(accountPubKey)
@@ -24,13 +23,18 @@ export function createAccountEffectsSubscription(
             }
             propagateUpdate(effect)
           },
-          onerror(error: Error) {
-            debounceError(error, () => {
-              trackStreamError(new Error("Account effects stream errored."))
+          onerror() {
+            trackStreamError(Error("Account effects stream errored."))
+            unsubscribe()
+            whenBackOnline(() => {
+              unsubscribe = subscribeToEffects(cursor)
             })
           }
         })
     })
+    // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
+    return () => unsubscribe()
+  }
 
   const setup = async () => {
     try {
@@ -40,8 +44,12 @@ export function createAccountEffectsSubscription(
         .limit(1)
         .order("desc")
         .call()
-      subscribeToEffects(latestEffects.records[0].paging_token)
+
+      // Horizon seems to return an empty effects array instead of 404 if the account doesn't exist
+      const cursor = latestEffects.records[0] ? latestEffects.records[0].paging_token : "0"
+      subscribeToEffects(cursor)
     } catch (error) {
+      // We still check for 404s here, too
       if (error.response && error.response.status === 404) {
         await waitForAccountData(horizon, accountPubKey)
         subscribeToEffects("0")

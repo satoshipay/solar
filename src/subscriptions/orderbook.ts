@@ -1,6 +1,6 @@
 import { Asset, Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
-import { createStreamDebouncer, manageStreamConnection, trackStreamError } from "../lib/stream"
+import { createMessageDeduplicator, manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 
@@ -22,17 +22,17 @@ export function createOrderbookSubscription(
   buying: Asset
 ): SubscriptionTarget<ObservedTradingPair> {
   const maxOrderCount = 30
-  const { debounceError, debounceMessage } = createStreamDebouncer<FixedOrderbookRecord>()
+  const dedupeMessage = createMessageDeduplicator<FixedOrderbookRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTradingPair(selling, buying))
 
   const streamOrderUpdates = (cursor: string = "now") =>
-    manageStreamConnection(() => {
-      return horizon
+    manageStreamConnection(ServiceType.Horizon, trackStreamError => {
+      let unsubscribe = horizon
         .orderbook(selling, buying)
         .cursor(cursor)
         .stream({
           onmessage(record: FixedOrderbookRecord) {
-            debounceMessage(record, () => {
+            dedupeMessage(record, () => {
               const previous = subscriptionTarget.getLatest()
               propagateUpdate({
                 ...previous,
@@ -42,14 +42,16 @@ export function createOrderbookSubscription(
               })
             })
           },
-          onerror(error: any) {
-            // FIXME: We don't want to see errors for every single stream,
-            // unless it's really a stream-instance-specific error
-            debounceError(error, () => {
-              trackStreamError(new Error("Orderbook update stream errored."))
+          onerror() {
+            trackStreamError(Error("Orderbook update stream errored."))
+            unsubscribe()
+            whenBackOnline(() => {
+              unsubscribe = streamOrderUpdates(cursor)
             })
           }
         } as any)
+      // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
+      return () => unsubscribe()
     })
   const setup = async () => {
     const fetched = await horizon

@@ -6,7 +6,7 @@ import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { useAccountEffectSubscriptions, useRouter } from "../hooks"
 import { SignatureRequest } from "../lib/multisig-service"
 import * as routes from "../routes"
-import { OfferDetailsString } from "./TransactionSummary/Operations"
+import { OfferDetailsString } from "./TransactionReview/Operations"
 
 type TradeEffect = Server.EffectRecord & {
   id: string

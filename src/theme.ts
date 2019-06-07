@@ -90,18 +90,27 @@ const theme = createMuiTheme({
     },
     MuiFormLabel: {
       root: {
+        fontSize: 12,
+        fontWeight: 600,
+        textTransform: "uppercase",
         "&$focused": {
           color: "inherit !important"
         }
       }
     },
+    MuiInput: {
+      formControl: {
+        "label + &": {
+          marginTop: 12
+        }
+      }
+    },
     MuiInputBase: {
       root: {
-        [breakpoints.down(600)]: {
-          fontSize: "0.9rem"
-        },
+        fontSize: 18,
+        fontWeight: 300,
         [breakpoints.down(400)]: {
-          fontSize: "0.8rem"
+          fontSize: 16
         }
       }
     },

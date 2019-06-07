@@ -1,18 +1,42 @@
 import { trackError } from "../context/notifications"
 
+type ErrorHandler = (error: Error) => void
 type UnsubscribeFn = () => void
 
-export function manageStreamConnection(connectStream: () => UnsubscribeFn): UnsubscribeFn {
-  let unsubscribeFromCurrent = connectStream()
+let lastAppPauseTime = 0
+let lastAppResumeTime = 0
+
+const lastErrorTimeByService: { [service in ServiceType]?: number } = {}
+
+export const enum ServiceType {
+  Horizon = "Horizon",
+  MultiSigCoordinator = "MultiSigCoordinator"
+}
+
+const ServiceMessages: { [service in ServiceType]: string } = {
+  [ServiceType.Horizon]: "Horizon connection error",
+  [ServiceType.MultiSigCoordinator]: "Multi-signature service connection error"
+}
+
+export function manageStreamConnection(
+  service: ServiceType,
+  connectStream: (onError: ErrorHandler) => UnsubscribeFn
+): UnsubscribeFn {
+  let unsubscribeFromCurrent: UnsubscribeFn
+
+  const errorHandler = (error: Error) => trackStreamError(service, error)
 
   const messageHandler = (event: MessageEvent) => {
     if (event.data && event.data === "app:pause") {
+      lastAppPauseTime = Date.now()
       unsubscribeFromCurrent()
     } else if (event.data && event.data === "app:resume") {
-      unsubscribeFromCurrent = connectStream()
+      lastAppResumeTime = Date.now()
+      unsubscribeFromCurrent = connectStream(errorHandler)
     }
   }
 
+  unsubscribeFromCurrent = connectStream(errorHandler)
   window.addEventListener("message", messageHandler)
 
   const unsubscribeCompletely = () => {
@@ -22,26 +46,11 @@ export function manageStreamConnection(connectStream: () => UnsubscribeFn): Unsu
   return unsubscribeCompletely
 }
 
-export function createStreamDebouncer<MessageType>() {
+export function createMessageDeduplicator<MessageType>() {
   let lastMessageJson = ""
-  let lastMessageTime = 0
 
-  const debounceError = (error: Error, handler: (error: Error) => void) => {
-    setTimeout(() => {
-      if (Date.now() - lastMessageTime > 3000) {
-        // Every few seconds there is a new useless error with the same data as the previous.
-        // So don't show them if there is a successful message afterwards (stream still seems to work)
-        handler(error)
-      } else {
-        // tslint:disable-next-line:no-console
-        console.debug("Account data update stream had an error, but still seems to work fine:", error)
-      }
-    }, 2500)
-  }
-
-  const debounceMessage = (message: MessageType, handler: (message: MessageType) => void) => {
+  const deduplicateMessage = (message: MessageType, handler: (message: MessageType) => void) => {
     const serialized = JSON.stringify(message)
-    lastMessageTime = Date.now()
 
     if (serialized !== lastMessageJson) {
       // Deduplicate messages. Every few seconds horizon streams yield a new message with an unchanged value.
@@ -50,22 +59,58 @@ export function createStreamDebouncer<MessageType>() {
     }
   }
 
-  return {
-    debounceError,
-    debounceMessage
-  }
+  return deduplicateMessage
 }
 
-export function trackStreamError(error: Error) {
-  if (window.navigator.onLine === false) {
+export function trackStreamError(service: ServiceType, error: Error) {
+  const trackingTime = Date.now()
+
+  if (window.navigator.onLine === false || lastAppPauseTime > lastAppResumeTime) {
     // ignore the error if we are offline; the online/offline status is handled separately
+    // tslint:disable-next-line no-console
+    console.debug("Not showing streaming error, since we just went offline:", error)
     return
   }
 
   // Wait a little bit, then check again (in case the offline status isn't updated in time)
   setTimeout(() => {
+    if (trackingTime >= lastAppPauseTime && trackingTime < lastAppResumeTime) {
+      // tslint:disable-next-line no-console
+      console.debug("Not showing streaming error, since it happened when app was in background:", error)
+      return
+    }
+
+    const serviceLastErrorTime = lastErrorTimeByService[service]
+    lastErrorTimeByService[service] = trackingTime
+
+    if (serviceLastErrorTime && Math.abs(serviceLastErrorTime - trackingTime) < 200) {
+      // tslint:disable-next-line no-console
+      console.debug(`Not showing streaming error, since we just started showing an error for ${service}:`, error)
+      return
+    }
+
     if (window.navigator.onLine !== false) {
-      trackError(error)
+      trackError(ServiceMessages[service] || error.message)
+      // tslint:disable-next-line no-console
+      console.error("  Detailed error:", error)
+    }
+  }, 200)
+}
+
+export function whenBackOnline(callback: () => void) {
+  if (window.navigator.onLine === false) {
+    window.addEventListener("online", callback, { once: true, passive: true })
+    return
+  }
+
+  // Wait a little bit, then check again (in case the offline status isn't updated in time)
+  setTimeout(() => {
+    if (window.navigator.onLine === false) {
+      window.addEventListener("online", callback, { once: true, passive: true })
+      return
+    } else {
+      // Delay a little bit more, so we don't reconnect every few milliseconds
+      setTimeout(() => callback(), 500)
     }
   }, 200)
 }

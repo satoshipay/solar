@@ -8,8 +8,8 @@ import { Keypair } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
-import { ActionButton, CloseButton, DialogActionsBox } from "../Dialog/Generic"
-import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
+import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
 
@@ -38,7 +38,12 @@ function getNewAccountName(accounts: Account[], testnet?: boolean) {
   return deriveName(index)
 }
 
-function validateFormValues(formValues: AccountCreationValues) {
+function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
+  const publicKey = Keypair.fromSecret(privateKey).publicKey()
+  return accounts.some(account => account.publicKey === publicKey)
+}
+
+function validateFormValues(formValues: AccountCreationValues, accounts: Account[]) {
   const errors: AccountCreationErrors = {}
 
   if (!formValues.name) {
@@ -52,6 +57,8 @@ function validateFormValues(formValues: AccountCreationValues) {
   }
   if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
     errors.privateKey = new Error("Invalid stellar private key.")
+  } else if (!formValues.createNewKey && isAccountAlreadyImported(formValues.privateKey, accounts)) {
+    errors.privateKey = new Error("You cannot import the same account twice.")
   }
 
   const success = Object.keys(errors).length === 0
@@ -63,7 +70,7 @@ interface AccountCreationFormProps {
   formValues: AccountCreationValues
   testnet: boolean
   onCancel(): void
-  onSubmit(event: React.SyntheticEvent): void
+  onSubmit(): void
   setFormValue<FieldName extends keyof AccountCreationValues>(
     fieldName: FieldName,
     value: AccountCreationValues[FieldName]
@@ -72,6 +79,8 @@ interface AccountCreationFormProps {
 
 function AccountCreationForm(props: AccountCreationFormProps) {
   const { errors, formValues, setFormValue } = props
+  const [pendingConfirmation, setPendingConfirmation] = React.useState<boolean>(false)
+
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const primaryButtonLabel = formValues.createNewKey
@@ -87,10 +96,27 @@ function AccountCreationForm(props: AccountCreationFormProps) {
     setFormValue("createNewKey", false)
   }
 
+  const onConfirmNoPasswordProtection = () => {
+    if (!pendingConfirmation) return
+
+    props.onSubmit()
+    setPendingConfirmation(false)
+  }
+
+  const onSubmit = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
+    if (!props.testnet && !formValues.setPassword) {
+      setPendingConfirmation(true)
+    } else {
+      props.onSubmit()
+    }
+  }
+
   return (
     <form onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
-        <Box>
+        <Typography variant="h5" style={{ display: "flex" }}>
           <TextField
             error={Boolean(errors.name)}
             label={errors.name ? renderFormFieldError(errors.name) : undefined}
@@ -107,12 +133,14 @@ function AccountCreationForm(props: AccountCreationFormProps) {
                 </InputAdornment>
               ),
               style: {
-                fontSize: isTinyScreen ? "1.3rem" : "1.5rem"
+                fontFamily: "inherit",
+                fontSize: isTinyScreen ? "1.3rem" : "1.5rem",
+                fontWeight: "inherit"
               }
             }}
             style={{ minWidth: isTinyScreen ? 230 : 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
           />
-        </Box>
+        </Typography>
         <ToggleSection
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
@@ -203,10 +231,25 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         </ToggleSection>
         <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
           <CloseButton onClick={props.onCancel} />
-          <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
+          <ActionButton icon={<CheckIcon />} onClick={onSubmit} type="primary">
             {primaryButtonLabel}
           </ActionButton>
         </DialogActionsBox>
+        <ConfirmDialog
+          cancelButton={<ActionButton onClick={() => setPendingConfirmation(false)}>Cancel</ActionButton>}
+          confirmButton={
+            <ActionButton onClick={onConfirmNoPasswordProtection} type="primary">
+              Confirm
+            </ActionButton>
+          }
+          onClose={() => setPendingConfirmation(false)}
+          open={pendingConfirmation}
+          title="Continue without password"
+        >
+          You are about to create an account without password protection. Anyone that has access to your device will
+          have access to your account funds. <br /> <br />
+          Are you sure you want to continue without setting up a password?
+        </ConfirmDialog>
       </VerticalLayout>
     </form>
   )
@@ -231,17 +274,18 @@ function StatefulAccountCreationForm(props: Props) {
     setPassword: true
   })
 
-  const setFormValue = (fieldName: keyof AccountCreationValues, value: string) => {
+  const setFormValue = (
+    fieldName: keyof AccountCreationValues,
+    value: AccountCreationValues[keyof AccountCreationValues]
+  ) => {
     setFormValues(prevValues => ({
       ...prevValues,
       [fieldName]: value
     }))
   }
 
-  const submit = (event: React.SyntheticEvent) => {
-    event.preventDefault()
-
-    const validation = validateFormValues(formValues)
+  const submit = () => {
+    const validation = validateFormValues(formValues, props.accounts)
     setErrors(validation.errors)
 
     const privateKey = formValues.createNewKey ? Keypair.random().secret() : formValues.privateKey
