@@ -1,7 +1,7 @@
 import { Horizon, Server } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
+import { createMessageDeduplicator, manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export interface ObservedAccountData {
@@ -33,7 +33,7 @@ export function createAccountDataSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedAccountData> {
   let latestPagingToken: string = "now"
-  const { debounceError, debounceMessage } = createStreamDebouncer<Server.AccountRecord>()
+  const dedupeMessage = createMessageDeduplicator<Server.AccountRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyAccountData(accountPubKey))
 
   let pollingInterval: any = 0
@@ -41,6 +41,10 @@ export function createAccountDataSubscription(
   const setPollingInterval = () => {
     // Bullet-proofing the important account data updates
     return setInterval(async () => {
+      if (window.navigator.onLine === false) {
+        return
+      }
+
       try {
         const accountData = await horizon.loadAccount(accountPubKey)
 
@@ -48,7 +52,7 @@ export function createAccountDataSubscription(
           return
         }
 
-        debounceMessage(accountData, () => {
+        dedupeMessage(accountData, () => {
           latestPagingToken = accountData.paging_token
           propagateUpdate({
             ...subscriptionTarget.getLatest(),
@@ -63,7 +67,7 @@ export function createAccountDataSubscription(
   }
 
   const subscribeToStream = (cursor: string = "now") => {
-    let unsubscribeStream = manageStreamConnection(() => {
+    let unsubscribe = manageStreamConnection(ServiceType.Horizon, trackStreamError => {
       return horizon
         .accounts()
         .accountId(accountPubKey)
@@ -71,7 +75,7 @@ export function createAccountDataSubscription(
         .stream({
           reconnectTimeout: 8000,
           onmessage(accountData: Server.AccountRecord) {
-            debounceMessage(accountData, () => {
+            dedupeMessage(accountData, () => {
               latestPagingToken = accountData.paging_token
               propagateUpdate({
                 ...subscriptionTarget.getLatest(),
@@ -79,18 +83,18 @@ export function createAccountDataSubscription(
               })
             })
           },
-          onerror(error: any) {
-            debounceError(error, () => {
-              trackStreamError(ServiceType.Horizon, new Error("Account data update stream errored."))
-              unsubscribeStream()
-              unsubscribeStream = subscribeToStream(latestPagingToken)
+          onerror() {
+            trackStreamError(Error("Account data update stream errored."))
+            unsubscribe()
+            whenBackOnline(() => {
+              unsubscribe = subscribeToStream(latestPagingToken)
             })
           }
         } as any)
     })
     // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
     return () => {
-      unsubscribeStream()
+      unsubscribe()
       clearInterval(pollingInterval)
     }
   }
