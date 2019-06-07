@@ -3,7 +3,7 @@ import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { TransferFields } from "@satoshipay/stellar-sep-6"
 import { HorizontalLayout } from "../Layout/Box"
-import { formatFieldDescription, formatIdentifier } from "./formatters"
+import { formatDescriptionText, formatIdentifier } from "./formatters"
 
 interface FormBuilderFieldProps {
   descriptor: TransferFields[""]
@@ -13,15 +13,20 @@ interface FormBuilderFieldProps {
   value?: string
 }
 
-function FormBuilderField(props: FormBuilderFieldProps) {
+export function FormBuilderField(props: FormBuilderFieldProps) {
   const { description, choices, optional = false } = props.descriptor
+
+  const formattedDescription = formatDescriptionText(description)
+  const formattedName = formatIdentifier(props.name)
+  const placeholder = `${optional ? "(Optional) " : ""}${formattedName}`
 
   if (choices) {
     return (
       <TextField
-        label={formatIdentifier(props.name)}
+        helperText={formattedDescription}
+        label={formattedName}
         onChange={props.onChange}
-        placeholder={formatFieldDescription(description, optional)}
+        placeholder={placeholder}
         select
         style={{ flexGrow: 1, ...props.style }}
         value={props.value}
@@ -34,9 +39,10 @@ function FormBuilderField(props: FormBuilderFieldProps) {
   } else {
     return (
       <TextField
-        label={formatIdentifier(props.name)}
+        helperText={formattedDescription}
+        label={formattedName}
         onChange={props.onChange}
-        placeholder={formatFieldDescription(description, optional)}
+        placeholder={placeholder}
         style={{ flexGrow: 1, ...props.style }}
         value={props.value || ""}
       />

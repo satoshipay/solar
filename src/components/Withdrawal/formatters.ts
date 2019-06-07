@@ -53,12 +53,6 @@ export function formatDuration(seconds: number) {
   }
 }
 
-export function formatFieldDescription(description: string, isOptional: boolean, keepShort: boolean = false) {
-  const formattedDescription = formatDescriptionText(description)
-  const prefix = isOptional && !keepShort ? "(Optional) " : ""
-  return prefix + formattedDescription
-}
-
 export function formatIdentifier(identifier: string) {
   return identifier
     .replace(/[-_]/g, " ")

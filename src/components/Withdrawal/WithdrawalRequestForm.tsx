@@ -3,11 +3,12 @@ import { Asset } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { AssetTransferInfo, EmptyAssetTransferInfo, TransferServer } from "@satoshipay/stellar-sep-6"
+import { useIsSmallMobile } from "../../hooks"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import { formatFieldDescription, formatIdentifier } from "./formatters"
+import { formatDescriptionText, formatIdentifier } from "./formatters"
 import { useAssetTransferServerInfos } from "./transferservice"
-import FormBuilder from "./FormBuilder"
+import FormBuilder, { FormBuilderField } from "./FormBuilder"
 
 type FormValueTransform<Value = string> = (input: Value) => Value
 
@@ -43,6 +44,7 @@ interface Props {
 }
 
 function AnchorWithdrawalInitForm(props: Props) {
+  const isTinyScreen = useIsSmallMobile()
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(someAssetCode => {
@@ -72,10 +74,6 @@ function AnchorWithdrawalInitForm(props: Props) {
       : null
 
   const fields = methodMetadata && methodMetadata.fields ? methodMetadata.fields : {}
-  const getFieldDescription = (name: string, keepShort: boolean = false) => {
-    const description = (fields[name] && fields[name].description) || undefined
-    return description ? formatFieldDescription(description, fields[name].optional || false, keepShort) : undefined
-  }
 
   const postprocessFormValue = (fieldName: string, transforms: FormValueTransform[]) => {
     const originalValue = formValues[fieldName]
@@ -145,12 +143,12 @@ function AnchorWithdrawalInitForm(props: Props) {
   return (
     <form onSubmit={handleSubmit}>
       <VerticalLayout>
-        <HorizontalLayout>
+        <HorizontalLayout justifyContent="space-between">
           <TextField
-            label="Asset to withdraw"
+            label={isTinyScreen ? "Asset" : "Asset to withdraw"}
             onChange={onAssetSelection}
             select
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 180 }}
+            style={{ flexGrow: 1, marginRight: 24, minWidth: "33%" }}
             value={assetCode || ""}
           >
             {Object.keys(transferInfos.data).map(thisAssetCode => {
@@ -171,7 +169,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             label="Type of withdrawal"
             onChange={event => setMethodID(event.target.value || null)}
             select
-            style={{ flexGrow: 1 }}
+            style={{ flexGrow: 2.5 }}
             value={methodID || ""}
           >
             <MenuItem disabled value="">
@@ -186,19 +184,23 @@ function AnchorWithdrawalInitForm(props: Props) {
         </HorizontalLayout>
         <HorizontalLayout margin="0 -12px" wrap="wrap">
           {fields.dest ? (
-            <TextField
-              label="Destination account"
+            <FormBuilderField
+              name="Destination account"
+              descriptor={fields.dest}
               onChange={event => setFormValue("dest", event.target.value)}
-              placeholder={getFieldDescription("dest")}
               style={{ flexGrow: 3, margin: "24px 12px 0" }}
               value={formValues.dest || ""}
             />
           ) : null}
           {fields.dest_extra ? (
-            <TextField
-              label={getFieldDescription("dest_extra", true) || "Extra destination data (no description)"}
+            <FormBuilderField
+              name={
+                fields.dest_extra.description
+                  ? formatDescriptionText(fields.dest_extra.description)
+                  : "Extra destination data (no description)"
+              }
+              descriptor={fields.dest_extra}
               onChange={event => setFormValue("dest_extra", event.target.value)}
-              placeholder={getFieldDescription("dest_extra")}
               style={{ flexGrow: 1, margin: "24px 12px 0", minWidth: 150 }}
               value={formValues.dest_extra || ""}
             />
