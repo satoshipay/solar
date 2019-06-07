@@ -2,6 +2,9 @@ import { trackError } from "../context/notifications"
 
 type UnsubscribeFn = () => void
 
+let lastAppPauseTime = 0
+let lastAppResumeTime = 0
+
 export const enum ServiceType {
   Horizon = "Horizon",
   MultiSigCoordinator = "MultiSigCoordinator"
@@ -17,8 +20,10 @@ export function manageStreamConnection(connectStream: () => UnsubscribeFn): Unsu
 
   const messageHandler = (event: MessageEvent) => {
     if (event.data && event.data === "app:pause") {
+      lastAppPauseTime = Date.now()
       unsubscribeFromCurrent()
     } else if (event.data && event.data === "app:resume") {
+      lastAppResumeTime = Date.now()
       unsubscribeFromCurrent = connectStream()
     }
   }
@@ -67,13 +72,20 @@ export function createStreamDebouncer<MessageType>() {
 }
 
 export function trackStreamError(service: ServiceType, error: Error) {
-  if (window.navigator.onLine === false) {
+  const trackingTime = Date.now()
+
+  if (window.navigator.onLine === false || lastAppPauseTime > lastAppResumeTime) {
     // ignore the error if we are offline; the online/offline status is handled separately
     return
   }
 
   // Wait a little bit, then check again (in case the offline status isn't updated in time)
   setTimeout(() => {
+    if (trackingTime >= lastAppPauseTime && trackingTime < lastAppResumeTime) {
+      // Ignore, since error occured while app was in background
+      return
+    }
+
     if (window.navigator.onLine !== false) {
       trackError(ServiceMessages[service] || error.message)
       // tslint:disable-next-line no-console
