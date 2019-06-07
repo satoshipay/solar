@@ -99,4 +99,4 @@ function WithdrawalTransactionForm(props: Props) {
   )
 }
 
-export default WithdrawalTransactionForm
+export default React.memo(WithdrawalTransactionForm)

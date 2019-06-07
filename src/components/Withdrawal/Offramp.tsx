@@ -291,4 +291,4 @@ function Offramp(props: Props) {
   }
 }
 
-export default Offramp
+export default React.memo(Offramp)

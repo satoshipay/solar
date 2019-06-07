@@ -11,6 +11,8 @@ import FormBuilder from "./FormBuilder"
 
 type FormValueTransform<Value = string> = (input: Value) => Value
 
+const isFormValueSet = (value: string | undefined): boolean => typeof value === "string" && value.length > 0
+
 function maybeIBAN(value: string) {
   if (value && value.length >= 15 && value.match(/^[A-Z]{2}[0-9]{2}\s?[A-Z0-9]{4}\s?[A-Z0-9]{4}/)) {
     return value.replace(/\s+/g, "")
@@ -106,16 +108,24 @@ function AnchorWithdrawalInitForm(props: Props) {
   }
 
   const automaticallySetValues = ["account", "asset_code", "type"]
+  const emailField = fields.email || fields.email_address
 
   // The .filter() is necessary due to a misplaced prop in the response of an anchor
   const hasEmptyMandatoryFields = Object.keys(fields)
     .filter(key => fields[key] && typeof fields[key] === "object")
     .some(key => !fields[key].optional && !formValues[key] && automaticallySetValues.indexOf(key) === -1)
 
-  const invalidAmount = fields.amount && !/^[0-9]+(\.[0-9]+)?$/.test(formValues.amount)
-  const invalidEmail =
-    (fields.email || fields.email_address) && !/^[^@]+@[^@]+\.[^@]+$/.test(formValues.email || formValues.email_address)
-  const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || invalidAmount || invalidEmail
+  const amountOptional = fields.amount ? fields.amount.optional : true
+  const emailOptional = emailField ? emailField.optional : true
+
+  const validAmount =
+    (amountOptional || isFormValueSet(formValues.amount)) && /^([0-9]+(\.[0-9]+)?)?$/.test(formValues.amount || "")
+
+  const validEmail =
+    (emailOptional || isFormValueSet(formValues.email) || isFormValueSet(formValues.email_address)) &&
+    /^([^@]+@[^@]+\.[^@]+)?$/.test(formValues.email || formValues.email_address || "")
+
+  const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || !validAmount || !validEmail
 
   const onAssetSelection = React.useCallback(event => {
     const assetCode = event.target.value || null
@@ -215,4 +225,4 @@ function AnchorWithdrawalInitForm(props: Props) {
   )
 }
 
-export default AnchorWithdrawalInitForm
+export default React.memo(AnchorWithdrawalInitForm)
