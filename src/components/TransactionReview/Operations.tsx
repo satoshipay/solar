@@ -2,8 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
-import { AccountName } from "../Fetchers"
-import { useAccountOffers, useSigningKeyDomainCache, ObservedAccountData } from "../../hooks"
+import { useAccountOffers, ObservedAccountData } from "../../hooks"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { CopyableAddress } from "../PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
@@ -135,33 +134,19 @@ function ManageDataOperation(props: {
   testnet: boolean
   transaction: Transaction
 }) {
-  const signingKeyCache = useSigningKeyDomainCache()
-
-  if (props.operation.name.match(/ auth$/i) && String(props.transaction.sequence) === "0") {
-    const domain = signingKeyCache.get(props.transaction.source)
-    return (
-      <SummaryItem heading="Stellar web authentication">
-        <SummaryDetailsField
-          label="Service"
-          value={domain ? domain : <AccountName publicKey={props.transaction.source} testnet={props.testnet} />}
-        />
-      </SummaryItem>
-    )
-  } else {
-    return (
-      <SummaryItem heading="Set account data">
-        <SummaryDetailsField
-          fullWidth
-          label={props.operation.name}
-          value={
-            isUTF8(props.operation.value)
-              ? props.operation.value.toString("utf8")
-              : props.operation.value.toString("base64")
-          }
-        />
-      </SummaryItem>
-    )
-  }
+  return (
+    <SummaryItem heading="Set account data">
+      <SummaryDetailsField
+        fullWidth
+        label={props.operation.name}
+        value={
+          isUTF8(props.operation.value)
+            ? props.operation.value.toString("utf8")
+            : props.operation.value.toString("base64")
+        }
+      />
+    </SummaryItem>
+  )
 }
 
 interface ManageOfferOperationProps {

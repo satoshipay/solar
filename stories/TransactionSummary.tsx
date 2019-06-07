@@ -3,6 +3,37 @@ import Async from "react-promise"
 import { Asset, Memo, Network, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import TransactionSummary from "../src/components/TransactionReview/TransactionSummary"
+import { useWebAuth } from "../src/hooks"
+
+interface SampleWebAuthProps {
+  accountID: string
+  children: (promise: Promise<any>) => React.ReactNode
+  issuerID: string
+}
+
+function SampleWebAuth(props: SampleWebAuthProps) {
+  Network.usePublicNetwork()
+  const horizon = new Server("https://horizon.stellar.org")
+  const WebAuth = useWebAuth()
+
+  const promise = React.useMemo(
+    () =>
+      (async () => {
+        const account = await horizon.loadAccount(props.accountID)
+        const webauthMetadata = await WebAuth.fetchWebAuthData(horizon, props.issuerID)
+
+        const transaction = await WebAuth.fetchChallenge(
+          webauthMetadata!.endpointURL,
+          webauthMetadata!.signingKey,
+          account.id
+        )
+        return transaction
+      })(),
+    []
+  )
+
+  return <>{props.children(promise)}</>
+}
 
 storiesOf("TransactionSummary", module)
   .add("Payment", () => {
@@ -11,7 +42,7 @@ storiesOf("TransactionSummary", module)
 
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
-      const builder = new TransactionBuilder(account)
+      const builder = new TransactionBuilder(account, { fee: 100 })
       builder.addOperation(
         Operation.payment({
           amount: "1.5",
@@ -38,6 +69,7 @@ storiesOf("TransactionSummary", module)
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       const builder = new TransactionBuilder(account, {
+        fee: 100,
         memo: Memo.text("Demo transaction")
       })
       builder.addOperation(
@@ -65,7 +97,7 @@ storiesOf("TransactionSummary", module)
 
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
-      const builder = new TransactionBuilder(account)
+      const builder = new TransactionBuilder(account, { fee: 100 })
       builder.addOperation(
         Operation.createAccount({
           startingBalance: "1.0",
@@ -87,5 +119,21 @@ storiesOf("TransactionSummary", module)
         then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
         catch={error => <>{error.message}</>}
       />
+    )
+  })
+  .add("Stellar web auth", () => {
+    return (
+      <SampleWebAuth
+        accountID="GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI"
+        issuerID="GBVOL67TMUQBGL4TZYNMY3ZQ5WGQYFPFD5VJRWXR72VA33VFNL225PL5"
+      >
+        {promise => (
+          <Async
+            promise={promise}
+            then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+            catch={error => <>{error.message}</>}
+          />
+        )}
+      </SampleWebAuth>
     )
   })
