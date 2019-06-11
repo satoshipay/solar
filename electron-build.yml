@@ -15,3 +15,7 @@ publish:
   - provider: github
     owner: satoshipay
     repo: solar
+
+win:
+  # Electron builder bug: Without this line the icon gets corrupted on Windows
+  icon: ./electron/build/icon.png
