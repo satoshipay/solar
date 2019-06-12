@@ -23,3 +23,8 @@ publish:
 win:
   # Electron builder bug: Without this line the icon gets corrupted on Windows
   icon: ./electron/build/icon.png
+
+linux:
+  #  no whitespace required for .desktop file
+  artifactName: Solar-Wallet-${version}.${ext}
+  category: Utility
