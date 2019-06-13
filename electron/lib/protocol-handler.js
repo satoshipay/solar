@@ -39,8 +39,10 @@ function emitURL(url) {
 app.on("ready", () => {
   if (process.platform === "win32" || process.platform === "linux") {
     if (process.argv) {
-      const deeplinkURL = process.argv.slice(1)
-      emitURL(deeplinkURL)
+      const deeplinkURL = process.argv.slice(1)[0]
+      if (deeplinkURL !== null && deeplinkURL !== "") {
+        emitURL(deeplinkURL)
+      }
     }
   }
 })
@@ -68,8 +70,10 @@ if (!gotSingleInstanceLock) {
     }
 
     if (process.platform === "win32" || process.platform === "linux") {
-      deeplinkURL = commandLine.slice(1)
-      emitURL(deeplinkURL)
+      deeplinkURL = commandLine.slice(1)[0]
+      if (deeplinkURL !== null && deeplinkURL !== "") {
+        emitURL(deeplinkURL)
+      }
     }
   })
 }
