@@ -8,6 +8,7 @@ import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
 import initializeQRReader from "./qr-reader"
 import { getCurrentSettings, initSecureStorage, storeKeys } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
+import { registerURLHandler } from "./protocol-handler"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.splashscreen.show() : undefined)
@@ -51,6 +52,7 @@ function onDeviceReady() {
     throw new Error("iframe.contentWindow is not set.")
   }
 
+  registerURLHandler(contentWindow, iframeReady)
   initializeQRReader()
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
