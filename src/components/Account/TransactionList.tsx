@@ -472,6 +472,7 @@ function TransactionList(props: {
         open={openedTransaction !== null}
         account={props.account}
         disabled={true}
+        showSource
         transaction={openedTransaction}
         onClose={closeTransaction}
         onSubmitTransaction={() => undefined}

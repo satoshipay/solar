@@ -3,7 +3,7 @@ import ButtonBase from "@material-ui/core/ButtonBase"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
 import { useClipboard } from "../hooks"
-import { queryReverseLookupCache } from "../lib/stellar-address"
+import { isPublicKey, queryReverseLookupCache } from "../lib/stellar-address"
 
 type Variant = "full" | "short" | "shorter"
 
@@ -94,9 +94,7 @@ export function Address(props: AddressProps) {
     ...props.style
   }
 
-  if (props.address.indexOf("*") > -1) {
-    return <span style={style}>{props.address}</span>
-  } else {
+  if (isPublicKey(props.address)) {
     const stellarAddress = queryReverseLookupCache(props.address)
 
     if (stellarAddress) {
@@ -111,14 +109,43 @@ export function Address(props: AddressProps) {
     } else {
       return <PublicKey publicKey={props.address} style={{ fontWeight: "inherit" }} variant={props.variant} />
     }
+  } else {
+    return props.variant === "short" ? (
+      <span style={style}>{shortenName(props.address, 18)}</span>
+    ) : props.variant === "shorter" ? (
+      <span style={style}>{shortenName(props.address, 14)}</span>
+    ) : (
+      <span style={style}>{props.address}</span>
+    )
   }
 }
+
+interface ClickableAddressProps extends AddressProps {
+  icon?: React.ReactNode
+  onClick?: () => void
+}
+
+// tslint:disable-next-line no-shadowed-variable
+export const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAddressProps) {
+  return (
+    <ButtonBase onClick={props.onClick} style={{ fontSize: "inherit", fontWeight: "inherit", textAlign: "inherit" }}>
+      <Address {...props} />
+      {props.icon ? (
+        <>
+          &nbsp;
+          {props.icon}
+        </>
+      ) : null}
+    </ButtonBase>
+  )
+})
 
 interface CopyableAddressProps extends AddressProps {
   onClick?: () => void
 }
 
-export function CopyableAddress(props: CopyableAddressProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const CopyableAddress = React.memo(function CopyableAddress(props: CopyableAddressProps) {
   const clipboard = useClipboard()
 
   const onClick = React.useCallback(
@@ -131,9 +158,5 @@ export function CopyableAddress(props: CopyableAddressProps) {
     [props.address, props.onClick]
   )
 
-  return (
-    <ButtonBase onClick={onClick} style={{ fontSize: "inherit", fontWeight: "inherit" }}>
-      <Address {...props} />
-    </ButtonBase>
-  )
-}
+  return <ClickableAddress {...props} onClick={onClick} />
+})

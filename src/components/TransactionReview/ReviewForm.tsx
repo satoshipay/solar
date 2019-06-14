@@ -7,6 +7,8 @@ import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { renderFormFieldError } from "../../lib/errors"
 import { SignatureRequest } from "../../lib/multisig-service"
+import { createCheapTxID, selectNetwork } from "../../lib/transaction"
+import { openLink } from "../../platform/links"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
 import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
@@ -22,6 +24,7 @@ interface Props {
   account: Account
   disabled?: boolean
   passwordError?: Error | null
+  showSource?: boolean
   signatureRequest?: SignatureRequest
   transaction: Transaction
   onClose?: () => void
@@ -80,12 +83,26 @@ function TxConfirmationForm(props: Props) {
     onConfirm(formValues)
   }
 
+  const openInStellarExpert = React.useCallback(
+    () => {
+      selectNetwork(props.account.testnet)
+      openLink(
+        `https://stellar.expert/explorer/${
+          props.account.testnet ? "testnet" : "public"
+        }/tx/${props.transaction.hash().toString("hex")}`
+      )
+    },
+    [createCheapTxID(props.transaction)]
+  )
+
   return (
     <form onSubmit={onSubmit}>
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
-          showSource={props.account.publicKey !== props.transaction.source}
+          onHashClick={props.disabled && !props.signatureRequest ? openInStellarExpert : undefined}
+          showHash={props.disabled}
+          showSource={props.showSource}
           signatureRequest={props.signatureRequest}
           testnet={props.account.testnet}
           transaction={props.transaction}
