@@ -120,11 +120,32 @@ export function Address(props: AddressProps) {
   }
 }
 
+interface ClickableAddressProps extends AddressProps {
+  icon?: React.ReactNode
+  onClick?: () => void
+}
+
+// tslint:disable-next-line no-shadowed-variable
+export const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAddressProps) {
+  return (
+    <ButtonBase onClick={props.onClick} style={{ fontSize: "inherit", fontWeight: "inherit", textAlign: "inherit" }}>
+      <Address {...props} />
+      {props.icon ? (
+        <>
+          &nbsp;
+          {props.icon}
+        </>
+      ) : null}
+    </ButtonBase>
+  )
+})
+
 interface CopyableAddressProps extends AddressProps {
   onClick?: () => void
 }
 
-export function CopyableAddress(props: CopyableAddressProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const CopyableAddress = React.memo(function CopyableAddress(props: CopyableAddressProps) {
   const clipboard = useClipboard()
 
   const onClick = React.useCallback(
@@ -137,9 +158,5 @@ export function CopyableAddress(props: CopyableAddressProps) {
     [props.address, props.onClick]
   )
 
-  return (
-    <ButtonBase onClick={onClick} style={{ fontSize: "inherit", fontWeight: "inherit", textAlign: "inherit" }}>
-      <Address {...props} />
-    </ButtonBase>
-  )
-}
+  return <ClickableAddress {...props} onClick={onClick} />
+})

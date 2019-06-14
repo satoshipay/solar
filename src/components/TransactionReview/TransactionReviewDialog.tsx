@@ -28,13 +28,13 @@ const TransitionUp = (props: any) => <Slide {...props} direction="up" />
 
 function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
   if (!props.transaction) {
-    return <>Review Transaction</>
+    return <>Transaction</>
   } else if (props.transaction.operations.every(isPaymentOperation)) {
-    return <>{props.disabled ? "Review Payment" : "Confirm Payment"}</>
+    return <>{props.disabled ? "Payment" : "Confirm Payment"}</>
   } else if (props.transaction.operations.every(isOfferDeletionOperation)) {
-    return <>{props.disabled ? "Review Transaction" : "Delete Offer"}</>
+    return <>{props.disabled ? "Transaction" : "Delete Offer"}</>
   } else {
-    return <>{props.disabled ? "Review Transaction" : "Confirm Transaction"}</>
+    return <>{props.disabled ? "Transaction" : "Confirm Transaction"}</>
   }
 }
 
@@ -74,7 +74,7 @@ function TransactionReviewDialog(props: Props) {
             onBack={props.onClose}
           />
           {props.transaction ? (
-            <Box margin="24px auto 0" textAlign="center">
+            <Box margin="0 auto" textAlign="center">
               <ReviewForm
                 account={props.account}
                 disabled={props.disabled}

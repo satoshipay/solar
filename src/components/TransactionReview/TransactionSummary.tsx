@@ -4,13 +4,14 @@ import { Operation, Transaction } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+import OpenInNewIcon from "@material-ui/icons/OpenInNew"
 import { useAccountDataSet } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
-import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
+import { isPotentiallyDangerousTransaction, selectNetwork } from "../../lib/transaction"
 import { SingleBalance } from "../Account/AccountBalances"
-import { Address } from "../PublicKey"
+import { ClickableAddress, CopyableAddress } from "../PublicKey"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 import OperationListItem from "./Operations"
 import { DangerousTransactionWarning, Signers, TransactionMemo } from "./Transaction"
@@ -44,6 +45,8 @@ const noHPaddingStyle = {
 
 interface TransactionSummaryProps {
   account: Account | null
+  onHashClick?: () => void
+  showHash?: boolean
   showSource?: boolean
   signatureRequest?: SignatureRequest
   testnet: boolean
@@ -80,13 +83,21 @@ function TransactionSummary(props: TransactionSummaryProps) {
     [accountDataSet, accounts, props.signatureRequest, props.transaction]
   )
 
-  const wideScreen = useMediaQuery("(min-width:900px)")
-  const widthStyling = wideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
+  const isSmallScreen = useMediaQuery("(max-width:500px)")
+  const isWideScreen = useMediaQuery("(min-width:900px)")
+  const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
 
   const transaction = props.transaction as TransactionWithUndocumentedProps
+  const transactionHash = React.useMemo(
+    () => {
+      selectNetwork(props.testnet)
+      return transaction.hash().toString("hex")
+    },
+    [transaction]
+  )
 
   return (
-    <List style={{ paddingLeft: 0, paddingRight: 0, ...widthStyling }}>
+    <List style={{ margin: "24px 0", paddingLeft: 0, paddingRight: 0, ...widthStyling }}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
@@ -112,12 +123,27 @@ function TransactionSummary(props: TransactionSummaryProps) {
           style={noHPaddingStyle}
         />
       ) : null}
-      {props.showSource ? (
+      {props.showSource || props.showHash ? (
         <SummaryItem>
-          <SummaryDetailsField
-            label="Source Account"
-            value={<Address address={props.transaction.source} variant="short" />}
-          />
+          {props.showSource ? (
+            <SummaryDetailsField
+              label="Source Account"
+              value={<CopyableAddress address={props.transaction.source} variant="short" />}
+            />
+          ) : null}
+          {props.showHash ? (
+            <SummaryDetailsField
+              label="Hash"
+              value={
+                <ClickableAddress
+                  address={transactionHash}
+                  icon={<OpenInNewIcon style={{ marginLeft: 4, fontSize: "inherit" }} />}
+                  onClick={props.onHashClick}
+                  variant={isSmallScreen ? "shorter" : "short"}
+                />
+              }
+            />
+          ) : null}
         </SummaryItem>
       ) : null}
       <SummaryItem>
