@@ -12,7 +12,7 @@ app.setAsDefaultProtocolClient("solarwallet")
 const urlEventEmitter = new events.EventEmitter()
 const urlEventChannel = "deeplink:url"
 
-const urlEventQueue = []
+let urlEventQueue = []
 let isWindowReady = false
 
 function subscribe(subscribeCallback) {
@@ -26,6 +26,7 @@ function windowReady() {
   isWindowReady = true
   // emit items that were produced before app was ready
   urlEventQueue.forEach(item => urlEventEmitter.emit(urlEventChannel, item))
+  urlEventQueue = []
 }
 
 function emitURL(url) {

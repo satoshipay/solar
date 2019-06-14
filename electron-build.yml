@@ -25,6 +25,6 @@ win:
   icon: ./electron/build/icon.png
 
 linux:
-  #  no whitespace required for .desktop file
+  #  must not contain a whitespace for the .desktop file
   artifactName: Solar-Wallet-${version}.${ext}
   category: Utility
