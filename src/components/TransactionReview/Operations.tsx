@@ -83,28 +83,20 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
   if (BigNumber(props.operation.limit).eq(0)) {
     return (
       <SummaryItem heading="Remove trust in asset">
+        <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
-          label="Asset"
-          value={
-            <>
-              <b>{props.operation.line.code}</b> by{" "}
-              <CopyableAddress address={props.operation.line.issuer} variant="short" />
-            </>
-          }
+          label="Issued by"
+          value={<CopyableAddress address={props.operation.line.issuer} variant="short" />}
         />
       </SummaryItem>
     )
   } else {
     return (
       <SummaryItem heading="Trust asset">
+        <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
-          label="Asset"
-          value={
-            <>
-              <b>{props.operation.line.code}</b> by{" "}
-              <CopyableAddress address={props.operation.line.issuer} variant="short" />
-            </>
-          }
+          label="Issued by"
+          value={<CopyableAddress address={props.operation.line.issuer} variant="short" />}
         />
         <SummaryDetailsField
           label="Limit"
@@ -278,8 +270,6 @@ interface Props {
 }
 
 function OperationListItem(props: Props) {
-  // TODO: Add more operation types!
-
   if (props.operation.type === "changeTrust") {
     return <ChangeTrustOperation operation={props.operation} style={props.style} />
   } else if (props.operation.type === "createAccount") {
