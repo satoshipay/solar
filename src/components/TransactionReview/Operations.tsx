@@ -83,7 +83,7 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
   if (BigNumber(props.operation.limit).eq(0)) {
     return (
       <SummaryItem heading="Remove trust in asset">
-        <SummaryDetailsField label="Asset" value={<b>{props.operation.line.code}</b>} />
+        <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
           label="Issued by"
           value={<CopyableAddress address={props.operation.line.issuer} variant="short" />}
@@ -93,7 +93,7 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
   } else {
     return (
       <SummaryItem heading="Trust asset">
-        <SummaryDetailsField label="Asset" value={<b>{props.operation.line.code}</b>} />
+        <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
           label="Issued by"
           value={<CopyableAddress address={props.operation.line.issuer} variant="short" />}
