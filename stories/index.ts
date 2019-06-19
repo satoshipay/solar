@@ -1,5 +1,6 @@
 import "../src/base-styles.css"
 
+import "./AccountSelectionList"
 import "./Balance"
 import "./Dialogs"
 import "./ErrorBoundary"
