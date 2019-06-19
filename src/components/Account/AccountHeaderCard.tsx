@@ -113,6 +113,7 @@ function AccountHeaderCard(props: Props) {
 
         <Dialog
           open={openDialog === DialogID.deleteAccount}
+          fullScreen
           onClose={closeDialog}
           TransitionComponent={DialogTransition}
         >
