@@ -5,8 +5,8 @@
   "displayName": "Solar",
   "cordova": {
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ],
     "plugins": {
       "cordova-plugin-secure-storage": {},
@@ -26,7 +26,10 @@
         "FACEID_USAGE_DESCRIPTION": "Unlock Solar…"
       },
       "cordova-plugin-customurlscheme": {
-        "URL_SCHEME": "solarwallet"
+        "URL_SCHEME": "web+stellar",
+        "ANDROID_SCHEME": " ",
+        "ANDROID_HOST": " ",
+        "ANDROID_PATHPREFIX": "/"
       }
     }
   },

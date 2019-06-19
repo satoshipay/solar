@@ -4,8 +4,8 @@ productName: Solar Wallet
 copyright: Copyright © 2019 SatoshiPay Ltd
 
 protocols:
-  name: solarwallet,
-  schemes: [solarwallet]
+  name: Stellar transaction / payment requests URL,
+  schemes: [web+stellar]
 
 directories:
   buildResources: ./electron/build

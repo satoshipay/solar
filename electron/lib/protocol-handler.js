@@ -7,7 +7,7 @@ module.exports = {
   windowReady
 }
 
-app.setAsDefaultProtocolClient("solarwallet")
+app.setAsDefaultProtocolClient("web+stellar")
 
 const urlEventEmitter = new events.EventEmitter()
 const urlEventChannel = "deeplink:url"
