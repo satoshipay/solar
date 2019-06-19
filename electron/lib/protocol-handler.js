@@ -4,7 +4,8 @@ const events = require("events")
 
 module.exports = {
   subscribe,
-  windowReady
+  windowReady,
+  windowDestroyed
 }
 
 app.setAsDefaultProtocolClient("web+stellar")
@@ -29,6 +30,11 @@ function windowReady() {
   urlEventQueue = []
 }
 
+// called to make emitURL queue url events
+function windowDestroyed() {
+  isWindowReady = false
+}
+
 function emitURL(url) {
   if (isWindowReady) {
     urlEventEmitter.emit(urlEventChannel, url)
@@ -37,22 +43,32 @@ function emitURL(url) {
   }
 }
 
-app.on("ready", () => {
-  if (process.platform === "win32" || process.platform === "linux") {
-    if (process.argv) {
-      const deeplinkURL = process.argv.slice(1)[0]
-      if (deeplinkURL !== null && deeplinkURL !== "") {
-        emitURL(deeplinkURL)
+const appReady = new Promise(resolve =>
+  app.on("ready", () => {
+    if (process.platform === "win32" || process.platform === "linux") {
+      if (process.argv) {
+        const deeplinkURL = process.argv.slice(1)[0]
+        if (deeplinkURL !== null && deeplinkURL !== "") {
+          emitURL(deeplinkURL)
+        }
       }
     }
-  }
-})
+    resolve()
+  })
+)
 
 app.on("will-finish-launching", () => {
   // only called on macOS
   app.on("open-url", function(event, url) {
     event.preventDefault()
     emitURL(url)
+
+    // create new window if necessary
+    appReady.then(() => {
+      if (getOpenWindows().length === 0) {
+        trackWindow(createMainWindow())
+      }
+    })
   })
 })
 
@@ -63,7 +79,6 @@ if (!gotSingleInstanceLock) {
 } else {
   // will not be called on macOS except when application launched from CLI
   app.on("second-instance", (event, commandLine, workingDirectory) => {
-    // Focus window
     if (getOpenWindows().length === 0) {
       appReady.then(() => {
         trackWindow(createMainWindow())

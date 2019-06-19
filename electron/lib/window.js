@@ -52,7 +52,16 @@ function createMainWindow() {
   })
 
   // subscribe this window to deeplink urls
-  protocolHandler.subscribe(url => window.webContents.send("deeplink:url", url))
+  const unsubscribe = protocolHandler.subscribe(url => {
+    window.webContents.send("deeplink:url", url)
+    window.show()
+  })
+
+  // unsubscribe on window close
+  window.on("closed", () => {
+    protocolHandler.windowDestroyed()
+    unsubscribe()
+  })
 
   window.webContents.on("did-finish-load", () => {
     protocolHandler.windowReady()
