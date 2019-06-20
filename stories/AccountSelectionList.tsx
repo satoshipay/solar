@@ -26,6 +26,3 @@ storiesOf("AccountSelection", module)
   .add("AccountSelectionList disabled", () => (
     <AccountSelectionList disabled={true} testnet={true} accounts={accounts} />
   ))
-  .add("AccountSelectionList without elements", () => (
-    <AccountSelectionList testnet={true} accounts={accounts.slice(0, 0)} />
-  ))
