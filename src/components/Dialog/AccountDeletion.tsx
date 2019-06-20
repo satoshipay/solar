@@ -83,34 +83,40 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           Make sure to backup your private key, since there are still funds on the account!
         </DialogContentText>
 
-        <Box style={{ display: "flex", margin: "24px 0 0" }}>
-          <Switch
-            color="primary"
-            checked={mergeAccountEnabled}
-            onChange={() => setMergeAccountEnabled(!mergeAccountEnabled)}
-          />
-          <Typography
-            onClick={() => setMergeAccountEnabled(!mergeAccountEnabled)}
-            variant="h6"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              height: 48,
-              fontSize: isSmallScreen ? 16 : 20
-            }}
-          >
-            <span>Send remaining funds to</span>
-          </Typography>
-        </Box>
+        {props.accountData.activated ? (
+          <>
+            <Box style={{ display: "flex", margin: "24px 0 0" }}>
+              <Switch
+                color="primary"
+                checked={mergeAccountEnabled}
+                onChange={() => setMergeAccountEnabled(!mergeAccountEnabled)}
+              />
+              <Typography
+                onClick={() => setMergeAccountEnabled(!mergeAccountEnabled)}
+                variant="h6"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  height: 48,
+                  fontSize: isSmallScreen ? 16 : 20
+                }}
+              >
+                <span>Send remaining funds to</span>
+              </Typography>
+            </Box>
 
-        <AccountSelectionList
-          disabled={!mergeAccountEnabled}
-          accounts={accounts.filter(
-            account => account.publicKey !== props.account.publicKey && account.testnet === props.account.testnet
-          )}
-          testnet={props.account.testnet}
-          onChange={setSelectedMergeAccount}
-        />
+            <AccountSelectionList
+              disabled={!mergeAccountEnabled}
+              accounts={accounts.filter(
+                account => account.publicKey !== props.account.publicKey && account.testnet === props.account.testnet
+              )}
+              testnet={props.account.testnet}
+              onChange={setSelectedMergeAccount}
+            />
+          </>
+        ) : (
+          undefined
+        )}
 
         <DialogActionsBox>
           {mergeAccountEnabled ? (
