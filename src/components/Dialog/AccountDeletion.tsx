@@ -47,6 +47,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       const transaction = await createTransaction(
         [
           Operation.accountMerge({
+            source: props.account.publicKey,
             destination: selectedMergeAccount.publicKey
           })
         ],
