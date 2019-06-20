@@ -3,7 +3,9 @@ import { Account } from "../../context/accounts"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
+import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
 import AccountBalances from "./AccountBalances"
+import { transactionListItemStyles } from "./TransactionList"
 
 interface AccountSelectionListProps {
   accounts: Account[]
@@ -23,7 +25,7 @@ function AccountSelectionList(props: AccountSelectionListProps) {
   }
 
   return (
-    <List style={{ background: "transparent" }}>
+    <List style={{ background: "transparent", paddingLeft: 0, paddingRight: 0 }}>
       {props.accounts.map((account, index) => (
         <AccountSelectionListItem
           account={account}
@@ -40,6 +42,7 @@ function AccountSelectionList(props: AccountSelectionListProps) {
 
 interface AccountSelectionListItemProps {
   account: Account
+  classes: ClassNameMap<keyof typeof transactionListItemStyles>
   disabled?: boolean
   index: number
   onClick: (event: React.MouseEvent, index: number) => void
@@ -47,20 +50,24 @@ interface AccountSelectionListItemProps {
   style?: React.CSSProperties
 }
 
-function AccountSelectionListItem(props: AccountSelectionListItemProps) {
-  return (
-    <ListItem
-      button
-      disabled={props.disabled}
-      selected={props.selected}
-      onClick={event => props.onClick(event, props.index)}
-    >
-      <ListItemText
-        primary={props.account.name}
-        secondary={<AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />}
-      />
-    </ListItem>
-  )
-}
+const AccountSelectionListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
+  withStyles(transactionListItemStyles)(function AccountSelectionListItem(props: AccountSelectionListItemProps) {
+    return (
+      <ListItem
+        button
+        className={props.classes.listItem}
+        disabled={props.disabled}
+        selected={props.selected}
+        onClick={event => props.onClick(event, props.index)}
+      >
+        <ListItemText
+          primary={props.account.name}
+          secondary={<AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />}
+        />
+      </ListItem>
+    )
+  } as React.ComponentType<AccountSelectionListItemProps>)
+)
 
 export default AccountSelectionList
