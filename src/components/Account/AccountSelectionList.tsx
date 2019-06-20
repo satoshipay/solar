@@ -9,13 +9,17 @@ interface AccountSelectionListProps {
   accounts: Account[]
   disabled?: boolean
   testnet: boolean
+  onChange?: (account: Account) => void
 }
 
 function AccountSelectionList(props: AccountSelectionListProps) {
-  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [selectedIndex, setSelectedIndex] = React.useState(-1)
 
   function handleListItemClick(event: React.MouseEvent, index: number) {
     setSelectedIndex(index)
+    if (props.onChange) {
+      props.onChange(props.accounts[index])
+    }
   }
 
   return (
