@@ -42,6 +42,8 @@
   "dependencies": {
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.1",
+    "@satoshipay/stellar-sep-10": "^0.1.0",
+    "@satoshipay/stellar-sep-6": "^0.1.0",
     "@types/cordova": "0.0.34",
     "big.js": "^5.0.3",
     "electron-context-menu": "^0.10.0",
