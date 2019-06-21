@@ -61,6 +61,7 @@ function WithdrawalTransactionForm(props: Props) {
             autoFocus
             disabled={minAmount && minAmount.gt(balance)}
             label="Amount to withdraw"
+            margin="normal"
             onChange={event => setAmountString(event.target.value)}
             placeholder={accountData.loading ? "" : formatBalanceRange(balance, minAmount, maxAmount)}
             style={{ flexGrow: 2, marginRight: 24 }}
@@ -69,6 +70,7 @@ function WithdrawalTransactionForm(props: Props) {
           <PriceInput
             assetCode={props.asset.getCode()}
             label="Fees"
+            margin="normal"
             readOnly
             style={{ flexGrow: 0, width: 160 }}
             value={`- ${formatBalance(fees, { maximumDecimals: feeMaxDecimals })}`}

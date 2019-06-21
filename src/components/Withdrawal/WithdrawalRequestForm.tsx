@@ -146,6 +146,7 @@ function AnchorWithdrawalInitForm(props: Props) {
         <HorizontalLayout justifyContent="space-between">
           <TextField
             label={isTinyScreen ? "Asset" : "Asset to withdraw"}
+            margin="normal"
             onChange={onAssetSelection}
             select
             style={{ flexGrow: 1, marginRight: 24, minWidth: "33%" }}
@@ -167,6 +168,7 @@ function AnchorWithdrawalInitForm(props: Props) {
           </TextField>
           <TextField
             label="Type of withdrawal"
+            margin="normal"
             onChange={event => setMethodID(event.target.value || null)}
             select
             style={{ flexGrow: 2.5 }}
