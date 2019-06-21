@@ -137,7 +137,7 @@ type WithdrawalAction =
   | ReturnType<typeof successfulKYC>
   | ReturnType<typeof transactionSubmitted>
 
-export const action = {
+export const Action = {
   backToStart,
   saveInitFormData,
   setAuthToken,

@@ -20,7 +20,7 @@ import * as routes from "../../routes"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
 import { usePolling } from "./util"
-import { action, initialState, stateMachine, BeforeWebauthState } from "./statemachine"
+import { Action, initialState, stateMachine, BeforeWebauthState } from "./statemachine"
 import { useAssetTransferServerInfos } from "./transferservice"
 import WithdrawalKYCRedirect from "./WithdrawalKYCRedirect"
 import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
@@ -111,17 +111,17 @@ function Offramp(props: Props) {
 
   const handleWithdrawalRequest = (response: WithdrawalRequestSuccess | WithdrawalRequestKYC) => {
     if (response.type === "success") {
-      dispatch(action.successfulKYC(response.data))
+      dispatch(Action.successfulKYC(response.data))
       stopKYCPolling()
     } else {
       if (response.data.type === "interactive_customer_info_needed") {
-        dispatch(action.startInteractiveKYC(response.data))
+        dispatch(Action.startInteractiveKYC(response.data))
       } else if (response.data.type === "non_interactive_customer_info_needed") {
         throw Error("Non-interactive KYC is not yet supported.")
       } else if (response.data.type === "customer_info_status" && response.data.status === "pending") {
-        dispatch(action.pendingKYC(response.data as WithdrawalKYCStatusResponse<"pending">))
+        dispatch(Action.pendingKYC(response.data as WithdrawalKYCStatusResponse<"pending">))
       } else if (response.data.type === "customer_info_status" && response.data.status === "denied") {
-        dispatch(action.failedKYC(response.data as WithdrawalKYCStatusResponse<"denied">))
+        dispatch(Action.failedKYC(response.data as WithdrawalKYCStatusResponse<"denied">))
         stopKYCPolling()
       } else {
         throw Error(`Unexpected response type: ${response.type} / ${response.data.type}`)
@@ -156,14 +156,14 @@ function Offramp(props: Props) {
           )
         }
         const cachedAuthToken = WebAuth.getCachedAuthToken(webauthMetadata.endpointURL, props.account.publicKey)
-        dispatch(action.saveInitFormData(transferServer, asset, method, formValues, webauth))
+        dispatch(Action.saveInitFormData(transferServer, asset, method, formValues, webauth))
 
         if (cachedAuthToken) {
-          dispatch(action.setAuthToken(cachedAuthToken))
+          dispatch(Action.setAuthToken(cachedAuthToken))
           await requestWithdrawal(withdrawalRequest, cachedAuthToken)
         }
       } else {
-        dispatch(action.saveInitFormData(transferServer, asset, method, formValues, undefined))
+        dispatch(Action.saveInitFormData(transferServer, asset, method, formValues, undefined))
         await requestWithdrawal(withdrawalRequest)
       }
     } catch (error) {
@@ -185,7 +185,7 @@ function Offramp(props: Props) {
       }
       const transaction = await signTransaction(webauthData.transaction, props.account, password)
       const authToken = await WebAuth.postResponse(webauthData.endpointURL, transaction)
-      dispatch(action.setAuthToken(authToken))
+      dispatch(Action.setAuthToken(authToken))
       await requestWithdrawal(withdrawalRequest, authToken)
     } catch (error) {
       // tslint:disable-next-line no-console
@@ -217,7 +217,7 @@ function Offramp(props: Props) {
 
   const startOver = () => {
     stopKYCPolling()
-    dispatch(action.backToStart())
+    dispatch(Action.backToStart())
   }
 
   if (transferInfos.loading) {
@@ -285,6 +285,7 @@ function Offramp(props: Props) {
       </>
     )
   } else {
+    // tslint:disable-next-line no-console
     console.error("Unhandled offramp state:", currentState.step)
     return (
       <Box textAlign="center">

@@ -131,10 +131,10 @@ function AnchorWithdrawalInitForm(props: Props) {
   const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || !validAmount || !validEmail
 
   const onAssetSelection = React.useCallback(event => {
-    const assetCode = event.target.value || null
-    const withdraw = assetCode && transferInfos.data[assetCode].transferInfo.withdraw
+    const selectedAssetCode = event.target.value || null
+    const withdraw = selectedAssetCode && transferInfos.data[selectedAssetCode].transferInfo.withdraw
 
-    setAssetCode(assetCode)
+    setAssetCode(selectedAssetCode)
     if (withdraw && withdraw.types && Object.keys(withdraw.types).length === 1) {
       setMethodID(Object.keys(withdraw.types)[0])
     }

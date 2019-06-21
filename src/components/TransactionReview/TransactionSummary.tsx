@@ -131,7 +131,7 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
 
   const domain = signingKeyCache.get(props.transaction.source)
   const manageDataOperation = props.transaction.operations.find(op => op.type === "manageData")
-  const maxTime = timeBounds ? Math.round(Number.parseInt(timeBounds.maxTime) * 1000) : 0
+  const maxTime = timeBounds ? Math.round(Number.parseInt(timeBounds.maxTime, 10) * 1000) : 0
 
   if (!manageDataOperation) {
     throw Error("Invariant violation: Stellar web auth transaction must contain a manage_data operation.")
