@@ -60,6 +60,7 @@
     "react-qr-reader": "^2.1.0"
   },
   "devDependencies": {
+    "@stellarguard/stellar-uri": "^1.0.0",
     "@storybook/addon-actions": "^5.0.11",
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.1",
