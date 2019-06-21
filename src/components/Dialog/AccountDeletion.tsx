@@ -71,8 +71,10 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
         style={{ marginTop: 0, marginLeft: 0 }}
       />
       <DialogContent style={{ padding: isSmallScreen ? "0 4px" : "0 42px" }}>
-        <DialogContentText style={{ display: props.accountData.activated ? undefined : "none", marginTop: 16 }}>
-          Balance: <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+        <DialogContentText
+          style={{ display: props.accountData.activated ? undefined : "none", color: "inherit", marginTop: 12 }}
+        >
+          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </DialogContentText>
 
         <DialogContentText style={{ marginTop: 16 }}>
@@ -80,12 +82,13 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           "?
         </DialogContentText>
         <DialogContentText style={{ display: props.accountData.activated ? undefined : "none", marginTop: 16 }}>
-          Make sure to backup your private key, since there are still funds on the account!
+          Make sure to backup your private key or merge the funds into another account of yours, since there are still
+          funds left!
         </DialogContentText>
 
         {props.accountData.activated ? (
           <>
-            <Box style={{ display: "flex", margin: "24px 0 0" }}>
+            <Box style={{ display: "flex", marginTop: 24, marginLeft: -12, marginBottom: 8 }}>
               <Switch
                 color="primary"
                 checked={mergeAccountEnabled}
@@ -98,10 +101,11 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
                   display: "flex",
                   alignItems: "center",
                   height: 48,
+                  cursor: "pointer",
                   fontSize: isSmallScreen ? 16 : 20
                 }}
               >
-                <span>Send remaining funds to</span>
+                Send remaining funds to
               </Typography>
             </Box>
 
