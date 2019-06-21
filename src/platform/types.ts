@@ -13,5 +13,6 @@ export interface SettingsData {
   agreedToTermsAt?: string
   biometricLock: boolean
   multisignature: boolean
+  offramp: boolean
   testnet: boolean
 }

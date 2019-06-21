@@ -58,7 +58,10 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
         readOnly,
         ...textfieldProps.InputProps
       }}
-      type="number"
+      type={
+        // Prevent `The specified value (...) is not a valid number` warning
+        readOnly ? undefined : "number"
+      }
       style={{
         pointerEvents: props.readOnly ? "none" : undefined,
         ...textfieldProps.style

@@ -1,17 +1,21 @@
 import React from "react"
-import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Server, Transaction } from "stellar-sdk"
+import Tab from "@material-ui/core/Tab"
+import Tabs from "@material-ui/core/Tabs"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { SettingsContext } from "../../context/settings"
 import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
-import { lookupFederationRecord } from "../../lib/stellar-address"
-import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import AccountBalances from "../Account/AccountBalances"
 import AccountBalancesContainer from "../Account/AccountBalancesContainer"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import CreatePaymentForm, { PaymentCreationValues } from "./CreatePaymentForm"
+import CreatePaymentForm from "./CreatePaymentForm"
+import Offramp from "../Withdrawal/Offramp"
+
+type ActionMode = "native" | "anchor"
 
 function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   return balances.map(
@@ -25,78 +29,38 @@ function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   )
 }
 
-function createMemo(formValues: PaymentCreationValues) {
-  switch (formValues.memoType) {
-    case "id":
-      return Memo.id(formValues.memoValue)
-    case "text":
-      return Memo.text(formValues.memoValue)
-    default:
-      return Memo.none()
-  }
-}
-
 interface Props {
   account: Account
   accountData: ObservedAccountData
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (transaction: Transaction) => Promise<any>
 }
 
 function CreatePaymentDialog(props: Props) {
+  const [selectedTab, setSelectedTab] = React.useState<ActionMode>("native")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const settings = React.useContext(SettingsContext)
   const isSmallScreen = useIsMobile()
 
-  const trustedAssets = React.useMemo(() => getAssetsFromBalances(props.accountData.balances) || [Asset.native()], [
-    props.accountData.balances
-  ])
-
   const handleSubmit = React.useCallback(
-    async (formValues: PaymentCreationValues) => {
+    async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
       try {
         setTxCreationPending(true)
-        const asset = trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
-        const federationRecord =
-          formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
-        const destination = federationRecord ? federationRecord.account_id : formValues.destination
-
-        const userMemo = createMemo(formValues)
-        const federationMemo =
-          federationRecord && federationRecord.memo && federationRecord.memo_type
-            ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
-            : Memo.none()
-
-        if (userMemo.type !== "none" && federationMemo.type !== "none") {
-          throw new Error(
-            `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
-          )
-        }
-
-        const isMultisigTx = props.accountData.signers.length > 1
-
-        const payment = await createPaymentOperation({
-          asset: asset || Asset.native(),
-          amount: formValues.amount,
-          destination,
-          horizon: props.horizon
-        })
-        const tx = await createTransaction([payment], {
-          accountData: props.accountData,
-          memo: federationMemo.type !== "none" ? federationMemo : userMemo,
-          minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
-          horizon: props.horizon,
-          walletAccount: props.account
-        })
-        props.sendTransaction(tx)
+        const tx = await createTx(props.horizon, props.account)
+        await props.sendTransaction(tx)
       } catch (error) {
         trackError(error)
       } finally {
         setTxCreationPending(false)
       }
     },
-    [props.account, props.accountData, props.sendTransaction, trackError, trustedAssets]
+    [props.account, props.horizon]
   )
+
+  const trustedAssets = React.useMemo(() => getAssetsFromBalances(props.accountData.balances) || [Asset.native()], [
+    props.accountData.balances
+  ])
 
   return (
     <Box width="100%" maxHeight="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
@@ -107,14 +71,37 @@ function CreatePaymentDialog(props: Props) {
       <AccountBalancesContainer>
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
       </AccountBalancesContainer>
-      <Box margin="24px 0 0">
+      <Box margin="24px 0 18px">
+        {settings.offramp ? (
+          <Tabs
+            indicatorColor="primary"
+            onChange={(event, value) => setSelectedTab(value)}
+            value={selectedTab}
+            variant="fullWidth"
+          >
+            <Tab label="Send payment" value="native" />
+            <Tab label="Withdraw" value="sep-6" />
+          </Tabs>
+        ) : null}
+      </Box>
+      {selectedTab === "native" ? (
         <CreatePaymentForm
           accountData={props.accountData}
+          onCancel={props.onClose}
           onSubmit={handleSubmit}
           trustedAssets={trustedAssets}
           txCreationPending={txCreationPending}
         />
-      </Box>
+      ) : (
+        <Offramp
+          account={props.account}
+          assets={trustedAssets.filter(asset => !asset.isNative())}
+          horizon={props.horizon}
+          onCancel={props.onClose}
+          onSubmit={handleSubmit}
+          testnet={props.account.testnet}
+        />
+      )}
     </Box>
   )
 }

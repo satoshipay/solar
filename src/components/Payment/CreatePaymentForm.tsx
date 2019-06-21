@@ -1,20 +1,33 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset } from "stellar-sdk"
+import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
-import { formatBalance } from "../Account/AccountBalances"
-import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import { HorizontalLayout } from "../Layout/Box"
-import { useIsMobile, ObservedAccountData } from "../../hooks"
+import { Account } from "../../context/accounts"
+import { useIsMobile, useFederationLookup, ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
+import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
+import { formatBalance } from "../Account/AccountBalances"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, QRReader } from "../Form/FormFields"
+import { HorizontalLayout } from "../Layout/Box"
+
+function createMemo(formValues: PaymentCreationValues) {
+  switch (formValues.memoType) {
+    case "id":
+      return Memo.id(formValues.memoValue)
+    case "text":
+      return Memo.text(formValues.memoValue)
+    default:
+      return Memo.none()
+  }
+}
 
 export interface PaymentCreationValues {
   amount: string
@@ -76,12 +89,13 @@ interface Props {
   accountData: ObservedAccountData
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  onSubmit?: (formValues: PaymentCreationValues) => any
+  onCancel: () => void
+  onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
 }
 
 function PaymentCreationForm(props: Props) {
-  const { onSubmit = () => undefined } = props
   const isSmallScreen = useIsMobile()
+  const { lookupFederationRecord } = useFederationLookup()
 
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
   const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
@@ -108,13 +122,49 @@ function PaymentCreationForm(props: Props) {
     })
   }
 
+  const createPaymentTx = async (horizon: Server, account: Account) => {
+    const asset = props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+    const federationRecord =
+      formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
+    const destination = federationRecord ? federationRecord.account_id : formValues.destination
+
+    const userMemo = createMemo(formValues)
+    const federationMemo =
+      federationRecord && federationRecord.memo && federationRecord.memo_type
+        ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
+        : Memo.none()
+
+    if (userMemo.type !== "none" && federationMemo.type !== "none") {
+      throw new Error(
+        `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
+      )
+    }
+
+    const isMultisigTx = props.accountData.signers.length > 1
+
+    const payment = await createPaymentOperation({
+      asset: asset || Asset.native(),
+      amount: formValues.amount,
+      destination,
+      horizon
+    })
+    const tx = await createTransaction([payment], {
+      accountData: props.accountData,
+      memo: federationMemo.type !== "none" ? federationMemo : userMemo,
+      minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
+      horizon,
+      walletAccount: account
+    })
+    return tx
+  }
+
   const submit = (event: React.SyntheticEvent) => {
     event.preventDefault()
     const validation = validateFormValues(formValues, spendableBalance)
     setErrors(validation.errors)
 
     if (validation.success) {
-      onSubmit(formValues)
+      props.onSubmit(createPaymentTx)
     }
   }
 
@@ -152,7 +202,7 @@ function PaymentCreationForm(props: Props) {
           }
           error={Boolean(errors.amount)}
           label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
-          margin="normal"
+          margin="dense"
           placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
           value={formValues.amount}
           onChange={event => setFormValue("amount", event.target.value)}

@@ -7,6 +7,7 @@ import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stel
 import { CopyableAddress } from "../PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
 
+const isUTF8 = (buffer: Buffer) => !buffer.toString("utf8").match(/[\x00-\x1F]/)
 const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 
 function someThresholdSet(operation: Operation.SetOptions) {
@@ -116,6 +117,27 @@ export function OfferDetailsString(props: { amount: BigNumber; buying: Asset; pr
   return (
     `Buy ${formatBalance(amount.mul(price).toString())} ${buying.code} ` +
     `for ${formatBalance(amount.toString())} ${selling.code}`
+  )
+}
+
+function ManageDataOperation(props: {
+  operation: Operation.ManageData
+  style?: React.CSSProperties
+  testnet: boolean
+  transaction: Transaction
+}) {
+  return (
+    <SummaryItem heading="Set account data">
+      <SummaryDetailsField
+        fullWidth
+        label={props.operation.name}
+        value={
+          isUTF8(props.operation.value)
+            ? props.operation.value.toString("utf8")
+            : props.operation.value.toString("base64")
+        }
+      />
+    </SummaryItem>
   )
 }
 
@@ -276,6 +298,15 @@ function OperationListItem(props: Props) {
     return <CreateAccountOperation operation={props.operation} style={props.style} />
   } else if (props.operation.type === "payment") {
     return <PaymentOperation operation={props.operation} style={props.style} />
+  } else if (props.operation.type === "manageData") {
+    return (
+      <ManageDataOperation
+        operation={props.operation}
+        style={props.style}
+        testnet={props.testnet}
+        transaction={props.transaction}
+      />
+    )
   } else if (props.operation.type === "manageSellOffer") {
     return (
       <ManageOfferOperation

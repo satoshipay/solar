@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import React from "react"
 import { Horizon } from "stellar-sdk"
 import { useAccountData } from "../../hooks"
@@ -14,30 +15,40 @@ function addThousandsSeparators(digits: string, thousandsSeparator: string) {
   return digitGroups.reverse().join(thousandsSeparator)
 }
 
-function trimBalance(balance: number): string {
-  if (balance === 0) {
+function trimBalance(balance: BigNumber): string {
+  if (balance.eq(0)) {
     return "0"
-  } else if (Math.round(balance) === balance) {
+  } else if (balance.round().eq(balance)) {
     return balance.toFixed(2)
   } else {
     return balance.toFixed(7)
   }
 }
 
-export function formatBalance(
-  balance: string,
-  options: { groupThousands?: boolean; minimumDecimals?: number; minimumSignificants?: number } = {}
-) {
-  if (Number.isNaN(Number.parseFloat(balance))) {
+interface BalanceFormattingOptions {
+  groupThousands: boolean
+  maximumDecimals: number
+  maximumSignificants: number
+  minimumDecimals: number
+  minimumSignificants: number
+}
+
+export function formatBalance(input: BigNumber | string, options: Partial<BalanceFormattingOptions> = {}) {
+  if (typeof input === "string" && Number.isNaN(Number.parseFloat(input))) {
     return "-"
   }
 
+  const balance = BigNumber(input)
   const thousandsSeparator = ","
-  const maximumDecimals = 7
-  const maximumSignificants = 13
-  const { groupThousands = true, minimumDecimals = 0, minimumSignificants = 0 } = options
+  const {
+    groupThousands = true,
+    maximumDecimals = 7,
+    maximumSignificants = 13,
+    minimumDecimals = 0,
+    minimumSignificants = 0
+  } = options
 
-  const trimmedUnformattedBalance = trimBalance(Math.abs(Number.parseFloat(balance)))
+  const trimmedUnformattedBalance = trimBalance(balance.abs())
 
   // tslint:disable-next-line prefer-const
   let [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
@@ -62,18 +73,19 @@ export function formatBalance(
 
 interface SingleBalanceProps {
   assetCode: string
-  balance: string
+  balance: BigNumber | string
   inline?: boolean
   style?: React.CSSProperties
 }
 
 export function SingleBalance(props: SingleBalanceProps) {
   const thousandsSeparator = ","
-  const trimmedUnformattedBalance = trimBalance(Math.abs(parseFloat(props.balance)))
+  const balance = BigNumber(props.balance)
+  const trimmedUnformattedBalance = trimBalance(balance.abs())
   const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
   return (
     <span style={props.style}>
-      {parseFloat(props.balance) >= 0 ? null : <span>-&nbsp;</span>}
+      {balance.gte(0) ? null : <span>-&nbsp;</span>}
       <span style={{ fontWeight: 300 }}>
         {addThousandsSeparators(integerPart, thousandsSeparator)}
         <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>

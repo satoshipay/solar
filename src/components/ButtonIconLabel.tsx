@@ -1,8 +1,8 @@
 import React from "react"
 import CircularProgress from "@material-ui/core/CircularProgress"
 
-const Container = (props: { children: React.ReactNode }) => {
-  return <span style={{ display: "flex", alignItems: "center", height: 24 }}>{props.children}</span>
+const Container = (props: { children: React.ReactNode; style?: React.CSSProperties }) => {
+  return <span style={{ display: "flex", alignItems: "center", height: 24, ...props.style }}>{props.children}</span>
 }
 
 const Icon = (props: { children: React.ReactNode }) => {
@@ -20,12 +20,13 @@ interface Props {
   label: React.ReactNode
   loading?: boolean
   loaderColor?: string
+  style?: React.CSSProperties
 }
 
 const ButtonIconLabel = (props: Props) => {
   const loader = <CircularProgress size="1.2em" style={{ color: props.loaderColor || "white" }} />
   return (
-    <Container>
+    <Container style={props.style}>
       {props.children || props.loading ? <Icon>{props.loading ? loader : props.children}</Icon> : null}
       <Label>{props.label}</Label>
     </Container>

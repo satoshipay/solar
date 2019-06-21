@@ -8,8 +8,9 @@ import ListItemText from "@material-ui/core/ListItemText"
 import PersonIcon from "@material-ui/icons/Person"
 import RemoveIcon from "@material-ui/icons/Close"
 import { trackError } from "../../context/notifications"
+import { useFederationLookup } from "../../hooks"
 import { getSignerKey } from "../../lib/stellar"
-import { isPublicKey, isStellarAddress, lookupFederationRecord } from "../../lib/stellar-address"
+import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import SpaciousList from "../List/SpaciousList"
 import { Address } from "../PublicKey"
 import NewSignerForm from "./NewSignerForm"
@@ -52,6 +53,7 @@ interface SignersEditorProps {
 function SignersEditor(props: SignersEditorProps) {
   const { isEditingNewSigner, setIsEditingNewSigner } = props
 
+  const { lookupFederationRecord } = useFederationLookup()
   const [newSignerErrors, setNewSignerErrors] = React.useState<SignerFormErrors>({})
   const [newSignerValues, setNewSignerValues] = React.useState<SignerFormValues>({
     publicKey: "",

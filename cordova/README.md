@@ -97,4 +97,4 @@ Run the following npm script to start the build process of the signed apk.
 npm run build:android:signed
 ```
 
-Enter the passwords for keystore and key when prompted. The location of the generated .apk file will appear in the output log once the build process succeeds. 
+Enter the passwords for keystore and key when prompted. The location of the generated .apk file will appear in the output log once the build process succeeds.

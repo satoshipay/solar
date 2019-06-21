@@ -2,8 +2,8 @@ import React from "react"
 import ButtonBase from "@material-ui/core/ButtonBase"
 import Typography from "@material-ui/core/Typography"
 import { AccountsContext } from "../context/accounts"
-import { useClipboard } from "../hooks"
-import { isPublicKey, queryReverseLookupCache } from "../lib/stellar-address"
+import { useClipboard, useFederationLookup } from "../hooks"
+import { isPublicKey } from "../lib/stellar-address"
 
 type Variant = "full" | "short" | "shorter"
 
@@ -88,6 +88,8 @@ interface AddressProps {
 }
 
 export function Address(props: AddressProps) {
+  const { lookupStellarAddress } = useFederationLookup()
+
   const style: React.CSSProperties = {
     userSelect: "text",
     WebkitUserSelect: "text",
@@ -95,7 +97,7 @@ export function Address(props: AddressProps) {
   }
 
   if (isPublicKey(props.address)) {
-    const stellarAddress = queryReverseLookupCache(props.address)
+    const stellarAddress = lookupStellarAddress(props.address)
 
     if (stellarAddress) {
       const formattedStellarAddress =

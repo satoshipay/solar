@@ -11,16 +11,14 @@ import TradePropertiesForm from "./TradePropertiesForm"
 
 type ToleranceValue = 0 | 0.01 | 0.02
 
-function isDisabled(amount: number, price: number, balance: number) {
-  return [Number.isNaN(amount), Number.isNaN(price), amount <= 0, amount > balance, price <= 0].some(
-    condition => condition === true
-  )
+function isDisabled(amount: BigNumber, price: BigNumber, balance: BigNumber) {
+  return [amount.lte(0), amount.gt(balance), price.lte(0)].some(condition => condition === true)
 }
 
 interface DialogActionsProps {
-  amount: number
+  amount: BigNumber
   disabled?: boolean
-  price: number
+  price: BigNumber
   style?: React.CSSProperties
 }
 
@@ -46,17 +44,21 @@ function TradingForm(props: Props) {
   const [manualPriceString, setManualPriceString] = React.useState("")
   const [tolerance, setTolerance] = React.useState<ToleranceValue>(0)
 
-  const amount = Number.isNaN(Number.parseFloat(amountString)) ? 0 : Number.parseFloat(amountString)
-  const manualPrice = Number.isNaN(Number.parseFloat(manualPriceString)) ? 0 : Number.parseFloat(manualPriceString)
-  const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(tradePair.bids, amount || 0.01, tolerance)
+  const amount = Number.isNaN(Number.parseFloat(amountString)) ? BigNumber(0) : BigNumber(amountString)
+  const manualPrice = Number.isNaN(Number.parseFloat(manualPriceString)) ? BigNumber(0) : BigNumber(manualPriceString)
+  const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(
+    tradePair.bids,
+    amount.gt(0) ? amount : BigNumber(0.01),
+    tolerance
+  )
 
-  const price = worstPriceOfBestMatches || manualPrice || 0
+  const price = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : manualPrice
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
   const dialogActions = (
     <DialogActions
       amount={amount}
-      disabled={amountString === "" || isDisabled(amount, price, Number.parseFloat(props.sellingBalance))}
+      disabled={amountString === "" || isDisabled(amount, price, BigNumber(props.sellingBalance))}
       price={price}
       style={{ justifySelf: "flex-end" }}
     />

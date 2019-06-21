@@ -1,10 +1,14 @@
+import * as JWT from "jsonwebtoken"
 import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
-import { Asset, Server } from "stellar-sdk"
+import { Asset, Server, Transaction } from "stellar-sdk"
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+import * as WebAuth from "@satoshipay/stellar-sep-10"
 import { Account } from "./context/accounts"
+import { CachingContext } from "./context/caches"
 import { NotificationsContext } from "./context/notifications"
 import { StellarContext } from "./context/stellar"
+import * as StellarAddresses from "./lib/stellar-address"
 import { SubscriptionTarget } from "./lib/subscription"
 import {
   getAssetCacheKey,
@@ -166,6 +170,64 @@ export function useRecentTransactions(accountID: string, testnet: boolean): Obse
   const recentTxsSubscription = React.useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, horizon])
 
   return useDataSubscription(recentTxsSubscription)
+}
+
+export function useSigningKeyDomainCache() {
+  const caches = React.useContext(CachingContext)
+  return caches.signingKeyDomain
+}
+
+export function useFederationLookup() {
+  const caches = React.useContext(CachingContext)
+  return {
+    lookupFederationRecord(stellarAddress: string) {
+      return StellarAddresses.lookupFederationRecord(
+        stellarAddress,
+        caches.stellarAddresses,
+        caches.stellarAddressesReverse
+      )
+    },
+    lookupStellarAddress(publicKey: string) {
+      return caches.stellarAddressesReverse.get(publicKey)
+    }
+  }
+}
+
+export function useWebAuth() {
+  const caches = React.useContext(CachingContext)
+  const createCacheKey = React.useCallback(
+    (endpointURL: string, localPublicKey: string) => `${endpointURL}:${localPublicKey}`,
+    []
+  )
+
+  return {
+    fetchChallenge: WebAuth.fetchChallenge,
+
+    async fetchWebAuthData(horizon: Server, issuerAccountID: string) {
+      const metadata = await WebAuth.fetchWebAuthData(horizon, issuerAccountID)
+      if (metadata) {
+        caches.signingKeyDomain.set(metadata.signingKey, metadata.domain)
+      }
+      return metadata
+    },
+
+    getCachedAuthToken(endpointURL: string, localPublicKey: string) {
+      return caches.webauthTokens.get(createCacheKey(endpointURL, localPublicKey))
+    },
+
+    async postResponse(endpointURL: string, transaction: Transaction) {
+      const manageDataOperation = transaction.operations.find(operation => operation.type === "manageData")
+      const localPublicKey = manageDataOperation ? manageDataOperation.source : undefined
+      const authToken = await WebAuth.postResponse(endpointURL, transaction)
+
+      if (localPublicKey) {
+        const decoded = JWT.decode(authToken) as any
+        const maxAge = decoded.exp ? Number.parseInt(decoded.exp, 10) * 1000 - Date.now() - 60_000 : undefined
+        caches.webauthTokens.set(createCacheKey(endpointURL, localPublicKey), authToken, maxAge)
+      }
+      return authToken
+    }
+  }
 }
 
 // TODO: Get rid of this hook once react-router is shipped with a hook out-of-the-box

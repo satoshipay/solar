@@ -5,6 +5,7 @@ import Slide from "@material-ui/core/Slide"
 import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
+import { isStellarWebAuthTransaction } from "../../lib/transaction"
 import { useIsMobile } from "../../hooks"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import ErrorBoundary from "../ErrorBoundary"
@@ -33,6 +34,8 @@ function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
     return <>{props.disabled ? "Payment" : "Confirm Payment"}</>
   } else if (props.transaction.operations.every(isOfferDeletionOperation)) {
     return <>{props.disabled ? "Transaction" : "Delete Offer"}</>
+  } else if (isStellarWebAuthTransaction(props.transaction)) {
+    return <>Web Authentication</>
   } else {
     return <>{props.disabled ? "Transaction" : "Confirm Transaction"}</>
   }

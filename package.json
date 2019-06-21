@@ -48,6 +48,7 @@
     "electron-store": "^2.0.0",
     "history": "^4.7.2",
     "isomorphic-fetch": "^2.2.1",
+    "jsonwebtoken": "^8.5.1",
     "key-store": "^1.0.1",
     "lru-cache": "^5.1.1",
     "nanoid": "^2.0.1",
@@ -59,13 +60,17 @@
     "react-qr-reader": "^2.1.0"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^5.0.11",
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.1",
+    "@satoshipay/stellar-sep-10": "^0.1.0",
+    "@satoshipay/stellar-sep-6": "^0.1.0",
     "@storybook/addon-centered": "^3.4.8",
     "@storybook/react": "^5.0.6",
     "@types/big.js": "^4.0.5",
     "@types/history": "^4.6.2",
     "@types/isomorphic-fetch": "0.0.34",
+    "@types/jsonwebtoken": "^8.3.2",
     "@types/lru-cache": "^5.1.0",
     "@types/nanoid": "^1.2.1",
     "@types/parcel-env": "0.0.0",
@@ -78,6 +83,7 @@
     "@types/react-router": "^4.4.3",
     "@types/react-router-dom": "^4.3.1",
     "@types/stellar-base": "^0.10.2",
+    "@types/storybook__addon-actions": "^3.4.2",
     "@types/storybook__react": "^3.0.7",
     "babel-core": "^6.26.3",
     "cssnano": "^4.1.10",
@@ -102,6 +108,6 @@
     "ts-loader": "^5.3.3",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.5.1"
   }
 }

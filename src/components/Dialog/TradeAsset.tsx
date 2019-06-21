@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import GavelIcon from "@material-ui/icons/Gavel"
@@ -71,7 +72,7 @@ function TradeAsset(props: TradeAssetProps) {
   const buyingAsset = rawBuyingAsset || Asset.native()
   const sellingAsset = rawSellingAsset || Asset.native()
 
-  const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: number, price: number) => {
+  const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: BigNumber, price: BigNumber) => {
     const tx = createTransaction(
       [
         Operation.manageSellOffer({

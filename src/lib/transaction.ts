@@ -148,6 +148,7 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
 
   const privateKey = await walletAccount.getPrivateKey(password)
 
+  selectNetwork(walletAccount.testnet)
   transaction.sign(Keypair.fromSecret(privateKey))
   return transaction
 }
@@ -197,4 +198,15 @@ export function isPotentiallyDangerousTransaction(
   )
 
   return localAffectedAccounts.length > 0 && !isSignedByLocalAccount && !isSignedByKnownCosigner
+}
+
+export function isStellarWebAuthTransaction(transaction: Transaction) {
+  const firstOperation = transaction.operations[0]
+
+  return (
+    String(transaction.sequence) === "0" &&
+    firstOperation &&
+    firstOperation.type === "manageData" &&
+    firstOperation.name.match(/ auth$/i)
+  )
 }
