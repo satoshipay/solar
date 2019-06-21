@@ -44,21 +44,6 @@ function Settings() {
           Note: Testnet accounts will always be shown if you have got testnet accounts already.
         </Typography>
       </ToggleSection>
-
-      <ToggleSection
-        checked={settings.multiSignature}
-        onChange={settings.toggleMultiSignature}
-        title="Enable Multi-Signature"
-      >
-        <Typography
-          color={settings.multiSignature ? "default" : "textSecondary"}
-          style={{ margin: "8px 0 0" }}
-          variant="body2"
-        >
-          <b>Experimental feature:</b> Add co-signers to an account, define that all signers of an account have to sign
-          transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.
-        </Typography>
-      </ToggleSection>
       <ToggleSection
         checked={settings.biometricLock}
         onChange={settings.toggleBiometricLock}
@@ -72,6 +57,20 @@ function Settings() {
         >
           Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
           your fingerprint).
+        </Typography>
+      </ToggleSection>
+      <ToggleSection
+        checked={settings.multiSignature}
+        onChange={settings.toggleMultiSignature}
+        title="Enable Multi-Signature"
+      >
+        <Typography
+          color={settings.multiSignature ? "default" : "textSecondary"}
+          style={{ margin: "8px 0 0" }}
+          variant="body2"
+        >
+          <b>Experimental feature:</b> Add co-signers to an account, define that all signers of an account have to sign
+          transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.
         </Typography>
       </ToggleSection>
       <ToggleSection checked={settings.offramp} onChange={settings.toggleOfframp} title="Enable Offramp">
