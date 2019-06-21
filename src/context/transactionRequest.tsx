@@ -2,7 +2,7 @@ import React from "react"
 import { StellarUri, StellarUriType, TransactionStellarUri, parseStellarUri } from "@stellarguard/stellar-uri"
 import { trackError } from "./notifications"
 import { subscribeToDeepLinkURLs } from "../platform/protocol-handler"
-import { Transaction, Operation, Signer, OperationType } from "stellar-sdk"
+import { Transaction, Operation, Signer } from "stellar-sdk"
 
 interface TrustedService {
   domain: string
