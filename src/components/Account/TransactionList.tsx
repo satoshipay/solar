@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, Memo, Operation, Transaction } from "stellar-sdk"
+import { Asset, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import Collapse from "@material-ui/core/Collapse"
 import List from "@material-ui/core/List"
@@ -19,6 +19,7 @@ import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
 import { PublicKey } from "../PublicKey"
+import MemoMessage from "../Stellar/MemoMessage"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
 import { formatOperation } from "../TransactionReview/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
@@ -39,28 +40,6 @@ function EntryAnimation(props: { children: React.ReactNode; animate: boolean }) 
   ) : (
     <React.Fragment>{props.children}</React.Fragment>
   )
-}
-
-function MemoMessage(props: { memo: Memo }) {
-  const memo = props.memo
-  if (!memo.value) {
-    return null
-  } else if (Buffer.isBuffer(memo.value)) {
-    const text = memo.type === "text" ? memo.value.toString("utf8") : memo.value.toString("hex")
-    return (
-      <>
-        Memo:&nbsp;
-        {text}
-      </>
-    )
-  } else {
-    return (
-      <>
-        Memo:&nbsp;
-        {memo.value}
-      </>
-    )
-  }
 }
 
 function OfferDescription(props: {
@@ -172,7 +151,7 @@ function TransactionItemText(props: TitleTextProps) {
       {props.transaction.memo.type !== "none" ? (
         <>
           &nbsp;&nbsp;|&nbsp;&nbsp;
-          <MemoMessage memo={props.transaction.memo} />
+          <MemoMessage prefix={<>Memo:&nbsp;</>} memo={props.transaction.memo} />
         </>
       ) : null}
     </span>
@@ -472,6 +451,7 @@ function TransactionList(props: {
         open={openedTransaction !== null}
         account={props.account}
         disabled={true}
+        showSource
         transaction={openedTransaction}
         onClose={closeTransaction}
         onSubmitTransaction={() => undefined}

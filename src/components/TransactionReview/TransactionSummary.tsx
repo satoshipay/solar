@@ -4,14 +4,15 @@ import { Operation, Transaction } from "stellar-sdk"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+import OpenInNewIcon from "@material-ui/icons/OpenInNew"
 import { useAccountDataSet, useSigningKeyDomainCache, ObservedAccountData } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
-import { isPotentiallyDangerousTransaction } from "../../lib/transaction"
+import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction, selectNetwork } from "../../lib/transaction"
 import { SingleBalance } from "../Account/AccountBalances"
 import { AccountName } from "../Fetchers"
-import { Address } from "../PublicKey"
+import { ClickableAddress, CopyableAddress } from "../PublicKey"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 import OperationListItem from "./Operations"
 import { DangerousTransactionWarning, Signers, TransactionMemo } from "./Transaction"
@@ -23,17 +24,6 @@ type TransactionWithUndocumentedProps = Transaction & {
 function getTime(time: string | number) {
   const date = new Date(time)
   return date.toLocaleString()
-}
-
-function isStellarWebAuth(transaction: Transaction) {
-  const firstOperation = transaction.operations[0]
-
-  return (
-    String(transaction.sequence) === "0" &&
-    firstOperation &&
-    firstOperation.type === "manageData" &&
-    firstOperation.name.match(/ auth$/i)
-  )
 }
 
 function makeOperationSourceExplicit(
@@ -55,28 +45,55 @@ const noHPaddingStyle = {
 }
 
 interface DefaultTransactionSummaryProps {
+  account: Account | null
   accountData: ObservedAccountData
   isDangerousSignatureRequest?: boolean
+  onHashClick?: () => void
+  showHash?: boolean
   showSigners?: boolean
   showSource?: boolean
-  style?: React.CSSProperties
+  signatureRequest?: SignatureRequest
   testnet: boolean
   transaction: Transaction
 }
 
 function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
-  const localAccountPublicKey = props.accountData.id
+  const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
+  const accountDataSet = useAccountDataSet(allTxSources, props.testnet)
+
+  const localAccountPublicKey = props.account ? props.account.publicKey : undefined
 
   const fee = BigNumber(props.transaction.fee)
     .mul(props.transaction.operations.length)
     .div(1e7)
 
+  const isDangerousSignatureRequest = React.useMemo(
+    () => {
+      const localAccounts = accountDataSet.filter(someAccountData =>
+        accounts.some(account => account.publicKey === someAccountData.id)
+      )
+      return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
+    },
+    [accountDataSet, accounts, props.signatureRequest, props.transaction]
+  )
+
+  const isSmallScreen = useMediaQuery("(max-width:500px)")
+  const isWideScreen = useMediaQuery("(min-width:900px)")
+  const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
+
   const transaction = props.transaction as TransactionWithUndocumentedProps
+  const transactionHash = React.useMemo(
+    () => {
+      selectNetwork(props.testnet)
+      return transaction.hash().toString("hex")
+    },
+    [transaction]
+  )
 
   return (
-    <List style={props.style}>
-      {props.isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
+    <List style={{ margin: "24px 0", paddingLeft: 0, paddingRight: 0, ...widthStyling }}>
+      {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
@@ -101,12 +118,27 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
           style={noHPaddingStyle}
         />
       ) : null}
-      {props.showSource ? (
+      {props.showSource || props.showHash ? (
         <SummaryItem>
-          <SummaryDetailsField
-            label="Source Account"
-            value={<Address address={props.transaction.source} variant="short" />}
-          />
+          {props.showSource ? (
+            <SummaryDetailsField
+              label="Source Account"
+              value={<CopyableAddress address={props.transaction.source} variant="short" />}
+            />
+          ) : null}
+          {props.showHash ? (
+            <SummaryDetailsField
+              label="Hash"
+              value={
+                <ClickableAddress
+                  address={transactionHash}
+                  icon={<OpenInNewIcon style={{ marginLeft: 4, fontSize: "inherit" }} />}
+                  onClick={props.onHashClick}
+                  variant={isSmallScreen ? "shorter" : "short"}
+                />
+              }
+            />
+          ) : null}
         </SummaryItem>
       ) : null}
       <SummaryItem>
@@ -139,14 +171,14 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
 
   return (
     <List style={props.style}>
-      <SummaryItem heading="Web Authentication">
+      <SummaryItem>
         <SummaryDetailsField
           label="Service"
           value={domain ? domain : <AccountName publicKey={props.transaction.source} testnet={props.testnet} />}
         />
         <SummaryDetailsField
-          label="Authenticate"
-          value={<Address address={manageDataOperation.source || ""} variant="short" />}
+          label="Authenticating Account"
+          value={<CopyableAddress address={manageDataOperation.source || ""} variant="short" />}
         />
       </SummaryItem>
       <Divider />
@@ -195,7 +227,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
   const wideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = wideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
 
-  if (isStellarWebAuth(props.transaction)) {
+  if (isStellarWebAuthTransaction(props.transaction)) {
     return (
       <WebAuthTransactionSummary
         style={{ paddingLeft: 0, paddingRight: 0, ...widthStyling }}
@@ -210,7 +242,6 @@ function TransactionSummary(props: TransactionSummaryProps) {
         accountData={accountData}
         isDangerousSignatureRequest={isDangerousSignatureRequest}
         showSigners={showSigners}
-        style={{ paddingLeft: 0, paddingRight: 0, ...widthStyling }}
       />
     )
   }

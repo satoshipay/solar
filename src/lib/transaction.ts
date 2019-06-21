@@ -199,3 +199,14 @@ export function isPotentiallyDangerousTransaction(
 
   return localAffectedAccounts.length > 0 && !isSignedByLocalAccount && !isSignedByKnownCosigner
 }
+
+export function isStellarWebAuthTransaction(transaction: Transaction) {
+  const firstOperation = transaction.operations[0]
+
+  return (
+    String(transaction.sequence) === "0" &&
+    firstOperation &&
+    firstOperation.type === "manageData" &&
+    firstOperation.name.match(/ auth$/i)
+  )
+}

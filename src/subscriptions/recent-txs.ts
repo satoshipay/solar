@@ -1,7 +1,7 @@
 import { Server, Transaction } from "stellar-sdk"
 import { trackError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
-import { createStreamDebouncer, manageStreamConnection, trackStreamError, ServiceType } from "../lib/stream"
+import { manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
 export interface ObservedRecentTxs {
@@ -27,8 +27,6 @@ export function createRecentTxsSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedRecentTxs> {
   const maxTxsToLoadCount = 15
-
-  const { debounceError } = createStreamDebouncer<Server.TransactionRecord>()
   const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
 
   const fetchRecentTxs = async (limit: number) => {
@@ -41,8 +39,8 @@ export function createRecentTxsSubscription(
     return records
   }
   const subscribeToTxs = (cursor: string) =>
-    manageStreamConnection(() => {
-      return horizon
+    manageStreamConnection(ServiceType.Horizon, trackStreamError => {
+      let unsubscribe = horizon
         .transactions()
         .forAccount(accountPubKey)
         .cursor(cursor)
@@ -56,12 +54,16 @@ export function createRecentTxsSubscription(
               transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
             })
           },
-          onerror(error: Error) {
-            debounceError(error, () => {
-              trackStreamError(ServiceType.Horizon, new Error("Recent transactions update stream errored."))
+          onerror() {
+            trackStreamError(Error("Recent transactions update stream errored."))
+            unsubscribe()
+            whenBackOnline(() => {
+              unsubscribe = subscribeToTxs(cursor)
             })
           }
         })
+      // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
+      return () => unsubscribe()
     })
 
   const setup = async () => {

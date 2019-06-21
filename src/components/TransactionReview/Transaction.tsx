@@ -13,6 +13,7 @@ import { getSignerKey, signatureMatchesPublicKey } from "../../lib/stellar"
 import { ObservedAccountData } from "../../subscriptions"
 import { warningColor } from "../../theme"
 import { Address } from "../PublicKey"
+import MemoMessage from "../Stellar/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 
 export function DangerousTransactionWarning(props: { style?: React.CSSProperties }) {
@@ -98,12 +99,11 @@ export function Signers(props: {
 export function TransactionMemo(props: { memo: Memo; style?: React.CSSProperties }) {
   if (props.memo.type === "none" || !props.memo.value) return null
 
-  const memo = typeof props.memo.value === "string" ? props.memo.value : props.memo.value.toString("hex")
   const typeLabel = props.memo.type.substr(0, 1).toUpperCase() + props.memo.type.substr(1)
 
   return (
     <SummaryItem>
-      <SummaryDetailsField fullWidth label={`${typeLabel} Memo`} value={memo} />
+      <SummaryDetailsField fullWidth label={`${typeLabel} Memo`} value={<MemoMessage memo={props.memo} />} />
     </SummaryItem>
   )
 }

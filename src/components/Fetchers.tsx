@@ -43,7 +43,7 @@ const Memoized = <Value extends {}>(props: MemoizedProps<Value>) => {
   )
 }
 
-export const AccountName = (props: { publicKey: string; testnet: boolean }) => {
+export function AccountName(props: { publicKey: string; testnet: boolean }) {
   const horizon = useHorizon(props.testnet)
   return (
     <Memoized
@@ -54,7 +54,9 @@ export const AccountName = (props: { publicKey: string; testnet: boolean }) => {
           .accountId(props.publicKey)
           .call()
       }
-      then={(accountData: any) => accountData.home_domain || props.publicKey}
+      then={(accountData: any) => (
+        <span style={{ userSelect: "text" }}>{accountData.home_domain || props.publicKey}</span>
+      )}
       catch={() => props.publicKey}
       pending={props.publicKey}
     />
