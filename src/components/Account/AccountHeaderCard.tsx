@@ -115,7 +115,7 @@ function AccountHeaderCard(props: Props) {
           open={openDialog === DialogID.deleteAccount}
           fullScreen
           onClose={closeDialog}
-          TransitionComponent={DialogTransition}
+          TransitionComponent={DialogSidewaysTransition}
         >
           <AccountDeletionDialog
             account={props.account}
