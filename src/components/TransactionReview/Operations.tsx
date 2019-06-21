@@ -274,16 +274,11 @@ function SetOptionsOperation(props: {
 function AccountMergeOperation(props: { operation: Operation.AccountMerge; style?: React.CSSProperties }) {
   const { destination, source } = props.operation
   return (
-    <SummaryItem heading="Account Merge">
+    <SummaryItem heading="Merge account">
       {source ? (
-        <SummaryDetailsField
-          fullWidth
-          label="Merge account"
-          value={<CopyableAddress address={source} variant="full" />}
-        />
+        <SummaryDetailsField label="Account" value={<CopyableAddress address={source} variant="full" />} />
       ) : null}
-
-      <SummaryDetailsField fullWidth label="Into" value={<CopyableAddress address={destination} variant="full" />} />
+      <SummaryDetailsField label="Merge into" value={<CopyableAddress address={destination} variant="full" />} />
     </SummaryItem>
   )
 }
