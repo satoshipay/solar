@@ -6,9 +6,11 @@ import { useIsMobile } from "../../hooks"
 import { Box, VerticalLayout, HorizontalLayout } from "../Layout/Box"
 import { DialogActionsBox, ActionButton } from "./Generic"
 import StellarGuardIcon from "../Icon/StellarGuard"
+import { Transaction } from "stellar-base"
 
 interface Props {
   onClose: () => void
+  transaction: Transaction
 }
 
 function StellarGuardActivationDialog(props: Props) {
