@@ -193,6 +193,8 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
 
 interface TransactionSummaryProps {
   account: Account | null
+  onHashClick?: () => void
+  showHash?: boolean
   showSource?: boolean
   signatureRequest?: SignatureRequest
   testnet: boolean
@@ -241,6 +243,8 @@ function TransactionSummary(props: TransactionSummaryProps) {
         {...props}
         accountData={accountData}
         isDangerousSignatureRequest={isDangerousSignatureRequest}
+        onHashClick={props.onHashClick}
+        showHash={props.showHash}
         showSigners={showSigners}
       />
     )
