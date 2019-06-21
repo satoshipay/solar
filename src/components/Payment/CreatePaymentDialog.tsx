@@ -4,6 +4,7 @@ import Tab from "@material-ui/core/Tab"
 import Tabs from "@material-ui/core/Tabs"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { SettingsContext } from "../../context/settings"
 import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
 import AccountBalances from "../Account/AccountBalances"
 import AccountBalancesContainer from "../Account/AccountBalancesContainer"
@@ -39,6 +40,7 @@ interface Props {
 function CreatePaymentDialog(props: Props) {
   const [selectedTab, setSelectedTab] = React.useState<ActionMode>("native")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const settings = React.useContext(SettingsContext)
   const isSmallScreen = useIsMobile()
 
   const handleSubmit = React.useCallback(
@@ -70,15 +72,17 @@ function CreatePaymentDialog(props: Props) {
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
       </AccountBalancesContainer>
       <Box margin="24px 0 18px">
-        <Tabs
-          indicatorColor="primary"
-          onChange={(event, value) => setSelectedTab(value)}
-          value={selectedTab}
-          variant="fullWidth"
-        >
-          <Tab label="Send payment" value="native" />
-          <Tab label="Withdraw" value="sep-6" />
-        </Tabs>
+        {settings.offramp ? (
+          <Tabs
+            indicatorColor="primary"
+            onChange={(event, value) => setSelectedTab(value)}
+            value={selectedTab}
+            variant="fullWidth"
+          >
+            <Tab label="Send payment" value="native" />
+            <Tab label="Withdraw" value="sep-6" />
+          </Tabs>
+        ) : null}
       </Box>
       {selectedTab === "native" ? (
         <CreatePaymentForm

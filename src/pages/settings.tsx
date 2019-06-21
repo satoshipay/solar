@@ -44,10 +44,11 @@ function Settings() {
           Note: Testnet accounts will always be shown if you have got testnet accounts already.
         </Typography>
       </ToggleSection>
+
       <ToggleSection
         checked={settings.multiSignature}
         onChange={settings.toggleMultiSignature}
-        title="Enable Multi-Signature Features"
+        title="Enable Multi-Signature"
       >
         <Typography
           color={settings.multiSignature ? "default" : "textSecondary"}
@@ -71,6 +72,17 @@ function Settings() {
         >
           Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
           your fingerprint).
+        </Typography>
+      </ToggleSection>
+      <ToggleSection checked={settings.offramp} onChange={settings.toggleOfframp} title="Enable Offramp">
+        <Typography
+          color={settings.offramp ? "default" : "textSecondary"}
+          style={{ margin: "8px 0 0" }}
+          variant="body2"
+        >
+          <b>Experimental feature:</b> Withdraw non-XLM assets. Withdraw USD token funds via payout to a bank account,
+          withdraw BTC to a bitcoin wallet, etc. Works with any withdrawal method that the anchor issuing the asset that
+          you hold provides.
         </Typography>
       </ToggleSection>
     </>
@@ -107,7 +119,7 @@ function SettingsPage() {
           <Box grow>
             <Settings />
           </Box>
-          <Box grow={0} margin="16px 0 0">
+          <Box grow={0} margin="32px 0 0" padding="0 0 8px">
             <Typography align="center" color="textSecondary">
               v{pkg.version}
             </Typography>
