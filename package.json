@@ -56,6 +56,7 @@
     "@material-ui/icons": "^4.2.1",
     "@satoshipay/stellar-sep-10": "^0.1.0",
     "@satoshipay/stellar-sep-6": "^0.1.0",
+    "@stellarguard/stellar-uri": "^1.0.0",
     "@storybook/addon-actions": "^5.1.9",
     "@storybook/addon-centered": "^5.1.9",
     "@storybook/react": "^5.1.9",
