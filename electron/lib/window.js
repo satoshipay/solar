@@ -54,6 +54,12 @@ function createMainWindow() {
   // subscribe this window to deeplink urls
   const unsubscribe = protocolHandler.subscribe(url => {
     window.webContents.send("deeplink:url", url)
+    if (process.platform === "linux") {
+      // needed for minimized windows to come to the foreground
+      window.minimize()
+      window.restore()
+      window.focus()
+    }
     window.show()
   })
 
