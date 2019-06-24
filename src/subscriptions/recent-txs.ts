@@ -27,7 +27,7 @@ export function createRecentTxsSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedRecentTxs> {
   const maxTxsToLoadCount = 15
-  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
+  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
 
   const fetchRecentTxs = async (limit: number) => {
     const { records } = await horizon
@@ -66,16 +66,24 @@ export function createRecentTxsSubscription(
       return () => unsubscribe()
     })
 
+  const shouldCancel = () => subscriptionTarget.closed
+
   const setup = async () => {
     try {
       const recentTxs = await fetchRecentTxs(maxTxsToLoadCount)
+
+      if (subscriptionTarget.closed) {
+        return
+      }
       propagateUpdate({
         ...subscriptionTarget.getLatest(),
         transactions: [...subscriptionTarget.getLatest().transactions, ...recentTxs.map(deserializeTx)],
         activated: true,
         loading: false
       })
-      subscribeToTxs(recentTxs[0].paging_token)
+
+      const unsubscribeCompletely = subscribeToTxs(recentTxs[0].paging_token)
+      closing.then(unsubscribeCompletely)
     } catch (error) {
       if (error.response && error.response.status === 404) {
         propagateUpdate({
@@ -83,13 +91,14 @@ export function createRecentTxsSubscription(
           activated: false,
           loading: false
         })
-        await waitForAccountData(horizon, accountPubKey)
+        await waitForAccountData(horizon, accountPubKey, shouldCancel)
         propagateUpdate({
           ...subscriptionTarget.getLatest(),
           activated: true,
           loading: false
         })
-        subscribeToTxs("0")
+        const unsubscribeCompletely = subscribeToTxs("0")
+        closing.then(unsubscribeCompletely)
       } else {
         throw error
       }
