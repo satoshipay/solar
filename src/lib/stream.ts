@@ -1,4 +1,5 @@
 import { trackError } from "../context/notifications"
+import { isCancellation } from "./errors"
 
 type ErrorHandler = (error: Error) => void
 type UnsubscribeFn = () => void
@@ -64,6 +65,11 @@ export function createMessageDeduplicator<MessageType>() {
 
 export function trackStreamError(service: ServiceType, error: Error) {
   const trackingTime = Date.now()
+
+  if (isCancellation(error)) {
+    // Not really an error; someone just requested the stream to be canceled
+    return
+  }
 
   if (window.navigator.onLine === false || lastAppPauseTime > lastAppResumeTime) {
     // ignore the error if we are offline; the online/offline status is handled separately

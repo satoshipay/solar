@@ -1,4 +1,5 @@
 import { Server } from "stellar-sdk"
+import { Cancellation } from "./errors"
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -16,11 +17,15 @@ export async function loadAccount(horizon: Server, accountPubKey: string) {
   }
 }
 
-export async function waitForAccountData(horizon: Server, accountPubKey: string) {
+export async function waitForAccountData(horizon: Server, accountPubKey: string, shouldCancel?: () => boolean) {
   let accountData = null
   let initialFetchFailed = false
 
   while (true) {
+    if (shouldCancel && shouldCancel()) {
+      throw Cancellation("Stopping to wait for account to become present in network.")
+    }
+
     accountData = await loadAccount(horizon, accountPubKey)
 
     if (accountData) {

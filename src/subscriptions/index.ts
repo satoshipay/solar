@@ -27,7 +27,7 @@ export function getAssetCacheKey(asset: Asset) {
   return asset.isNative() ? "XLM" : asset.getIssuer() + asset.getCode()
 }
 
-export function resetAccountSubscriptions(horizon: Server, accountPubKey: string) {
+export function closeAccountSubscriptions(horizon: Server, accountPubKey: string) {
   const cacheKey = getHorizonURL(horizon) + accountPubKey
 
   for (const cache of allCaches) {
@@ -40,10 +40,9 @@ export function resetAccountSubscriptions(horizon: Server, accountPubKey: string
 }
 
 export function resetAllSubscriptions() {
+  // TODO: Re-subscribe all subscriptions properly
+
   for (const cache of allCaches) {
-    for (const subscription of Array.from<SubscriptionTarget<any>>(cache.values())) {
-      subscription.close()
-    }
     cache.clear()
   }
 }

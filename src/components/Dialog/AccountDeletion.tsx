@@ -16,6 +16,7 @@ import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import { ActionButton, DialogActionsBox } from "./Generic"
+import { closeAccountSubscriptions } from "../../subscriptions"
 
 interface AccountDeletionDialogProps {
   account: Account
@@ -36,6 +37,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
   const onDelete = () => {
     deleteAccount(props.account.id)
+    closeAccountSubscriptions(props.horizon, props.account.publicKey)
     props.onClose()
     props.onDeleted()
   }
