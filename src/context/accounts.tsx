@@ -171,8 +171,16 @@ export function AccountsProvider(props: Props) {
   const changePassword = async (accountID: string, prevPassword: string, nextPassword: string) => {
     const keyStore = await getKeyStore()
 
-    const privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+    let privateKeyData: PrivateKeyData
     const publicKeyData = keyStore.getPublicKeyData(accountID)
+
+    try {
+      privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.debug("Decrypting private key data failed. Assuming wrong password:", error)
+      throw createWrongPasswordError()
+    }
 
     // Setting `password: true` explicitly, in case there was no password set before
     await keyStore.saveKey(accountID, nextPassword, privateKeyData, { ...publicKeyData, password: true })
@@ -183,8 +191,16 @@ export function AccountsProvider(props: Props) {
   const removePassword = async (accountID: string, prevPassword: string) => {
     const keyStore = await getKeyStore()
 
-    const privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+    let privateKeyData: PrivateKeyData
     const publicKeyData = keyStore.getPublicKeyData(accountID)
+
+    try {
+      privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.debug("Decrypting private key data failed. Assuming wrong password:", error)
+      throw createWrongPasswordError()
+    }
 
     await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })
     updateAccountInStore(createAccountInstance(keyStore, accountID))

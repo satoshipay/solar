@@ -12,7 +12,7 @@ import { Box, VerticalLayout } from "../Layout/Box"
 import { Account, AccountsContextType } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
-import { renderFormFieldError } from "../../lib/errors"
+import { renderFormFieldError, isWrongPasswordError } from "../../lib/errors"
 import CloseButton from "./CloseButton"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
@@ -128,7 +128,9 @@ function ChangePasswordDialog(props: Props) {
           showNotification("success", requiresPassword ? "Password changed." : "Password set.")
           props.onClose()
         })
-        .catch(showError)
+        .catch(error => {
+          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
+        })
     }
   }
   const onClose = () => {
@@ -151,7 +153,9 @@ function ChangePasswordDialog(props: Props) {
           showNotification("success", "Password removed.")
           props.onClose()
         })
-        .catch(showError)
+        .catch(error => {
+          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
+        })
     }
   }
   const setFormValue = (name: keyof FormValues, value: string) => {
