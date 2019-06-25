@@ -5,18 +5,18 @@ import DialogContentText from "@material-ui/core/DialogContentText"
 import { Switch, Typography } from "@material-ui/core"
 import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
-import MergeIcon from "../Icon/Merge"
 import { Account, AccountsContext } from "../../context/accounts"
 import { createTransaction } from "../../lib/transaction"
 import { ObservedAccountData, useIsMobile, useIsSmallMobile } from "../../hooks"
+import { closeAccountSubscriptions } from "../../subscriptions"
 import AccountBalances from "../Account/AccountBalances"
-import Background from "../Background"
 import AccountSelectionList from "../Account/AccountSelectionList"
+import Background from "../Background"
+import MergeIcon from "../Icon/Merge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import { ActionButton, DialogActionsBox } from "./Generic"
-import { closeAccountSubscriptions } from "../../subscriptions"
+import { ActionButton, ConfirmDialog, DialogActionsBox } from "./Generic"
 
 interface AccountDeletionDialogProps {
   account: Account
@@ -30,6 +30,7 @@ interface AccountDeletionDialogProps {
 function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   const { accounts, deleteAccount } = React.useContext(AccountsContext)
   const [mergeAccountEnabled, setMergeAccountEnabled] = React.useState(false)
+  const [confirmationPending, setConfirmationPending] = React.useState(false)
   const [selectedMergeAccount, setSelectedMergeAccount] = React.useState<Account | null>(null)
 
   const isSmallScreen = useIsMobile()
@@ -58,6 +59,15 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
       await props.sendTransaction(transaction)
       setTimeout(onDelete, 1000)
+    }
+  }
+
+  const onConfirm = () => {
+    setConfirmationPending(false)
+    if (mergeAccountEnabled) {
+      onMerge()
+    } else {
+      onDelete()
     }
   }
 
@@ -126,15 +136,36 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
         <DialogActionsBox>
           {mergeAccountEnabled ? (
-            <ActionButton autoFocus icon={<MergeIcon />} onClick={onMerge} type="primary">
+            <ActionButton
+              autoFocus
+              disabled={!selectedMergeAccount}
+              icon={<MergeIcon />}
+              onClick={() => setConfirmationPending(true)}
+              type="primary"
+            >
               {isTinyScreen ? "Merge" : "Merge into"}
             </ActionButton>
           ) : (
-            <ActionButton autoFocus icon={<DeleteIcon />} onClick={onDelete} type="primary">
+            <ActionButton autoFocus icon={<DeleteIcon />} onClick={() => setConfirmationPending(true)} type="primary">
               Delete
             </ActionButton>
           )}
         </DialogActionsBox>
+
+        <ConfirmDialog
+          cancelButton={<ActionButton onClick={() => setConfirmationPending(false)}>Cancel</ActionButton>}
+          confirmButton={
+            <ActionButton onClick={onConfirm} type="primary">
+              Confirm
+            </ActionButton>
+          }
+          open={confirmationPending}
+          onClose={() => setConfirmationPending(false)}
+          title="Confirm deletion"
+        >
+          The account will be deleted
+          {mergeAccountEnabled ? " and the remaining funds transferred" : ""}. Are you sure?
+        </ConfirmDialog>
       </DialogContent>
     </Box>
   )
