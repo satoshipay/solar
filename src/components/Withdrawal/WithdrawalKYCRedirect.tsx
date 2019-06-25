@@ -4,6 +4,7 @@ import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
 import { WithdrawalKYCInteractiveResponse } from "@satoshipay/stellar-sep-6"
+import { openLink } from "../../platform/links"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, VerticalLayout } from "../Layout/Box"
 
@@ -18,7 +19,7 @@ function WithdrawalKYCRedirect(props: KYCRedirectProps) {
 
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    window.open(props.meta.url, "_blank")
+    openLink(props.meta.url)
 
     setPending(true)
     if (props.onRedirect) {
@@ -36,7 +37,7 @@ function WithdrawalKYCRedirect(props: KYCRedirectProps) {
             the service.
           </Typography>
           <Button color="primary" type="submit" variant="contained">
-            Continue
+            {isPending ? "Open again" : "Continue"}
           </Button>
         </VerticalLayout>
         <Box grow margin="48px 0 40px" textAlign="center">
