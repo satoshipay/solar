@@ -4,6 +4,7 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import Radio from "@material-ui/core/Radio"
+import Typography from "@material-ui/core/Typography"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import { Account } from "../../context/accounts"
 import AccountBalances from "./AccountBalances"
@@ -39,6 +40,9 @@ function AccountSelectionList(props: AccountSelectionListProps) {
           selected={index === selectedIndex}
         />
       ))}
+      {props.accounts.length === 0 ? (
+        <Typography style={{ opacity: 0.7, textAlign: "center" }}>(No accounts)</Typography>
+      ) : null}
     </List>
   )
 }
