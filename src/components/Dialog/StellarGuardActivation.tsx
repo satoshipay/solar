@@ -7,10 +7,13 @@ import { Box, VerticalLayout, HorizontalLayout } from "../Layout/Box"
 import { DialogActionsBox, ActionButton } from "./Generic"
 import StellarGuardIcon from "../Icon/StellarGuard"
 import { Transaction } from "stellar-base"
+import AccountSelectionList from "../Account/AccountSelectionList"
+import { Account } from "../../context/accounts"
 
 interface Props {
   onClose: () => void
   transaction: Transaction
+  accounts: Account[]
 }
 
 function StellarGuardActivationDialog(props: Props) {
@@ -35,7 +38,7 @@ function StellarGuardActivationDialog(props: Props) {
         <Typography align="center" style={{ marginBottom: 12 }}>
           Select the account to which you want to add two-factor authentication:
         </Typography>
-        ** Imagine AccountSelectionList **
+        <AccountSelectionList accounts={props.accounts} />
       </VerticalLayout>
       <DialogActionsBox>
         <ActionButton icon={<CloseIcon />} onClick={props.onClose}>
