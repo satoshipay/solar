@@ -22,7 +22,5 @@ const accounts = [
 ]
 
 storiesOf("AccountSelection", module)
-  .add("AccountSelectionList", () => <AccountSelectionList testnet={true} accounts={accounts} />)
-  .add("AccountSelectionList disabled", () => (
-    <AccountSelectionList disabled={true} testnet={true} accounts={accounts} />
-  ))
+  .add("AccountSelectionList", () => <AccountSelectionList accounts={accounts} />)
+  .add("AccountSelectionList disabled", () => <AccountSelectionList disabled={true} accounts={accounts} />)

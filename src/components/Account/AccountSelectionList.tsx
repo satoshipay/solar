@@ -14,7 +14,6 @@ const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFOR
 interface AccountSelectionListProps {
   accounts: Account[]
   disabled?: boolean
-  testnet: boolean
   onChange?: (account: Account) => void
 }
 
