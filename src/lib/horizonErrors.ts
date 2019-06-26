@@ -37,6 +37,10 @@ function explainSubmissionErrorByOpResultCodes(error: HorizonError, resultCodes:
     switch (errorCodes[0]) {
       case "op_cross_self":
         return deriveError(error, new Error("The order would counter an open order of yours."))
+      case "op_has_sub_entries":
+        return deriveError(error, new Error("Account still has trustlines (assets) or open trading orders."))
+      case "op_immutable_set":
+        return deriveError(error, new Error("Account is immutable (AUTH_IMMUTABLE flag set)."))
       case "op_line_full":
         return deriveError(
           error,
@@ -49,6 +53,8 @@ function explainSubmissionErrorByOpResultCodes(error: HorizonError, resultCodes:
             "Transaction rejected by the network. Source or destination account balance would be below minimum balance."
           )
         )
+      case "op_no_account":
+        return deriveError(error, new Error("Destination account does not exist."))
       case "op_no_issuer":
         return deriveError(error, new Error("Asset is invalid. Incorrect asset issuer."))
       case "op_no_trust":
