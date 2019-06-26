@@ -271,6 +271,18 @@ function SetOptionsOperation(props: {
   )
 }
 
+function AccountMergeOperation(props: { operation: Operation.AccountMerge; style?: React.CSSProperties }) {
+  const { destination, source } = props.operation
+  return (
+    <SummaryItem heading="Merge account">
+      {source ? (
+        <SummaryDetailsField label="Account" value={<CopyableAddress address={source} variant="full" />} />
+      ) : null}
+      <SummaryDetailsField label="Merge into" value={<CopyableAddress address={destination} variant="full" />} />
+    </SummaryItem>
+  )
+}
+
 function GenericOperation(props: { operation: Operation; style?: React.CSSProperties }) {
   return (
     <SummaryItem>
@@ -318,6 +330,8 @@ function OperationListItem(props: Props) {
     )
   } else if (props.operation.type === "setOptions") {
     return <SetOptionsOperation operation={props.operation} style={props.style} transaction={props.transaction} />
+  } else if (props.operation.type === "accountMerge") {
+    return <AccountMergeOperation operation={props.operation} style={props.style} />
   } else {
     return <GenericOperation operation={props.operation} style={props.style} />
   }

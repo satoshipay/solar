@@ -137,3 +137,28 @@ storiesOf("TransactionSummary", module)
       </SampleWebAuth>
     )
   })
+  .add("Account Merge", () => {
+    Network.useTestNetwork()
+    const horizon = new Server("https://horizon-testnet.stellar.org")
+
+    const promise = (async () => {
+      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      const builder = new TransactionBuilder(account, { fee: 100 })
+      builder.addOperation(
+        Operation.accountMerge({
+          source: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT",
+          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
+        })
+      )
+      builder.setTimeout(60)
+      return builder.build()
+    })()
+
+    return (
+      <Async
+        promise={promise}
+        then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        catch={error => <>{error.message}</>}
+      />
+    )
+  })

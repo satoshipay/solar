@@ -23,7 +23,9 @@ export function createOrderbookSubscription(
 ): SubscriptionTarget<ObservedTradingPair> {
   const maxOrderCount = 30
   const dedupeMessage = createMessageDeduplicator<FixedOrderbookRecord>()
-  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTradingPair(selling, buying))
+  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget(
+    createEmptyTradingPair(selling, buying)
+  )
 
   const streamOrderUpdates = (cursor: string = "now") =>
     manageStreamConnection(ServiceType.Horizon, trackStreamError => {
@@ -53,11 +55,16 @@ export function createOrderbookSubscription(
       // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
       return () => unsubscribe()
     })
+
   const setup = async () => {
     const fetched = await horizon
       .orderbook(selling, buying)
       .limit(maxOrderCount)
       .call()
+
+    if (subscriptionTarget.closed) {
+      return
+    }
 
     // @types/stellar-sdk types seem wrong
     const orderbookRecord = (fetched as any) as FixedOrderbookRecord
@@ -67,7 +74,8 @@ export function createOrderbookSubscription(
       ...orderbookRecord,
       loading: false
     })
-    streamOrderUpdates()
+    const unsubscribeCompletely = streamOrderUpdates()
+    closing.then(unsubscribeCompletely)
   }
 
   setup().catch(trackError)

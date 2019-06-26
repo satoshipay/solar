@@ -14,6 +14,8 @@ export interface ObservedAccountData {
   thresholds: Horizon.AccountThresholds
 }
 
+const doNothing = () => undefined
+
 const createEmptyAccountData = (accountID: string): ObservedAccountData => ({
   activated: false,
   balances: [],
@@ -33,14 +35,20 @@ export function createAccountDataSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedAccountData> {
   let latestPagingToken: string = "now"
-  const dedupeMessage = createMessageDeduplicator<Server.AccountRecord>()
-  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyAccountData(accountPubKey))
-
   let pollingInterval: any = 0
 
+  const dedupeMessage = createMessageDeduplicator<Server.AccountRecord>()
+
+  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget(
+    createEmptyAccountData(accountPubKey)
+  )
   const setPollingInterval = () => {
     // Bullet-proofing the important account data updates
     return setInterval(async () => {
+      if (subscriptionTarget.closed) {
+        clearInterval(pollingInterval)
+        return
+      }
       if (window.navigator.onLine === false) {
         return
       }
@@ -67,7 +75,11 @@ export function createAccountDataSubscription(
   }
 
   const subscribeToStream = (cursor: string = "now") => {
-    let unsubscribe = manageStreamConnection(ServiceType.Horizon, trackStreamError => {
+    if (subscriptionTarget.closed) {
+      return doNothing
+    }
+
+    let unsubscribeFromEventSource = manageStreamConnection(ServiceType.Horizon, trackStreamError => {
       return horizon
         .accounts()
         .accountId(accountPubKey)
@@ -85,16 +97,16 @@ export function createAccountDataSubscription(
           },
           onerror() {
             trackStreamError(Error("Account data update stream errored."))
-            unsubscribe()
+            unsubscribeFromEventSource()
             whenBackOnline(() => {
-              unsubscribe = subscribeToStream(latestPagingToken)
+              unsubscribeFromEventSource = subscribeToStream(latestPagingToken)
             })
           }
         } as any)
     })
-    // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
+    // Don't simplify to `return unsubscribeFromEventSource`, since the function will change over time
     return () => {
-      unsubscribe()
+      unsubscribeFromEventSource()
       clearInterval(pollingInterval)
     }
   }
@@ -106,7 +118,9 @@ export function createAccountDataSubscription(
       loading: false
     })
 
-    const accountData = initialAccountData || (await waitForAccountData(horizon, accountPubKey)).accountData
+    const shouldCancel = () => subscriptionTarget.closed
+    const accountData =
+      initialAccountData || (await waitForAccountData(horizon, accountPubKey, shouldCancel)).accountData
     pollingInterval = setPollingInterval()
 
     propagateUpdate({
@@ -116,7 +130,9 @@ export function createAccountDataSubscription(
     })
 
     latestPagingToken = accountData.paging_token
-    subscribeToStream(accountData.paging_token)
+
+    const unsubscribeCompletely = subscribeToStream(accountData.paging_token)
+    closing.then(unsubscribeCompletely)
   }
 
   setup().catch(trackError)

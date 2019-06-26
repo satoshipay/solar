@@ -27,8 +27,21 @@ export function getAssetCacheKey(asset: Asset) {
   return asset.isNative() ? "XLM" : asset.getIssuer() + asset.getCode()
 }
 
+export function closeAccountSubscriptions(horizon: Server, accountPubKey: string) {
+  const cacheKey = getHorizonURL(horizon) + accountPubKey
+
+  for (const cache of allCaches) {
+    const subscription = cache.get(cacheKey)
+    if (subscription) {
+      subscription.close()
+      cache.delete(cacheKey)
+    }
+  }
+}
+
 export function resetAllSubscriptions() {
-  // TODO: Does not cancel existing subscriptions as of right now!
+  // TODO: Re-subscribe all subscriptions properly
+
   for (const cache of allCaches) {
     cache.clear()
   }
@@ -38,7 +51,7 @@ export function subscribeToAccount(horizon: Server, accountPubKey: string): Subs
   const cacheKey = getHorizonURL(horizon) + accountPubKey
   const cached = accountDataSubscriptionsCache.get(cacheKey)
 
-  if (cached) {
+  if (cached && !cached.closed) {
     return cached
   } else {
     const accountDataSubscription = createAccountDataSubscription(horizon, accountPubKey)
@@ -54,7 +67,7 @@ export function subscribeToAccountEffects(
   const cacheKey = getHorizonURL(horizon) + accountPubKey
   const cached = accountEffectsSubscriptionsCache.get(cacheKey)
 
-  if (cached) {
+  if (cached && !cached.closed) {
     return cached
   } else {
     const accountEffectsSubscription = createAccountEffectsSubscription(horizon, accountPubKey)
@@ -70,7 +83,7 @@ export function subscribeToAccountOffers(
   const cacheKey = getHorizonURL(horizon) + accountPubKey
   const cached = accountOffersSubscriptionsCache.get(cacheKey)
 
-  if (cached) {
+  if (cached && !cached.closed) {
     return cached
   } else {
     const accountOffersSubscription = createAccountOffersSubscription(horizon, accountPubKey)
@@ -87,7 +100,7 @@ export function subscribeToOrders(
   const cacheKey = getAssetCacheKey(selling) + getAssetCacheKey(buying)
   const cached = orderbookSubscriptionsCache.get(cacheKey)
 
-  if (cached) {
+  if (cached && !cached.closed) {
     return cached
   } else {
     const ordersSubscription = createOrderbookSubscription(horizon, selling, buying)
@@ -100,7 +113,7 @@ export function subscribeToRecentTxs(horizon: Server, accountPubKey: string): Su
   const cacheKey = getHorizonURL(horizon) + accountPubKey
   const cached = recentTxsSubscriptionsCache.get(cacheKey)
 
-  if (cached) {
+  if (cached && !cached.closed) {
     return cached
   } else {
     const recentTxsSubscription = createRecentTxsSubscription(horizon, accountPubKey)

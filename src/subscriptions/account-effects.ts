@@ -8,7 +8,7 @@ export function createAccountEffectsSubscription(
   horizon: Server,
   accountPubKey: string
 ): SubscriptionTarget<Server.EffectRecord | null> {
-  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<Server.EffectRecord | null>(null)
+  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget<Server.EffectRecord | null>(null)
 
   const subscribeToEffects = (cursor: string = "now") => {
     let unsubscribe = manageStreamConnection(ServiceType.Horizon, trackStreamError => {
@@ -45,14 +45,22 @@ export function createAccountEffectsSubscription(
         .order("desc")
         .call()
 
+      if (subscriptionTarget.closed) {
+        return
+      }
+
       // Horizon seems to return an empty effects array instead of 404 if the account doesn't exist
       const cursor = latestEffects.records[0] ? latestEffects.records[0].paging_token : "0"
-      subscribeToEffects(cursor)
+      const unsubscribeCompletely = subscribeToEffects(cursor)
+      closing.then(unsubscribeCompletely)
     } catch (error) {
+      const shouldCancel = () => subscriptionTarget.closed
+
       // We still check for 404s here, too
       if (error.response && error.response.status === 404) {
-        await waitForAccountData(horizon, accountPubKey)
-        subscribeToEffects("0")
+        await waitForAccountData(horizon, accountPubKey, shouldCancel)
+        const unsubscribeCompletely = subscribeToEffects("0")
+        closing.then(unsubscribeCompletely)
       } else {
         throw error
       }

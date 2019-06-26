@@ -116,6 +116,8 @@ function Time(props: { time: string }) {
 function TransactionIcon(props: { paymentSummary: PaymentSummary; transaction: Transaction }) {
   if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageSellOffer") {
     return <SwapHorizIcon />
+  } else if (props.transaction.operations.every(operation => operation.type === "accountMerge")) {
+    return <CallReceivedIcon />
   } else if (props.paymentSummary.length === 0) {
     return <SettingsIcon />
   } else if (props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {

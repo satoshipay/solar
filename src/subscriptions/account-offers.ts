@@ -14,7 +14,7 @@ export function createAccountOffersSubscription(
   accountPubKey: string
 ): SubscriptionTarget<ObservedAccountOffers> {
   const maxOffers = 100
-  const { propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ObservedAccountOffers>({
+  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ObservedAccountOffers>({
     loading: true,
     offers: []
   })
@@ -51,17 +51,21 @@ export function createAccountOffersSubscription(
     return accountOffers
   }
 
+  const shouldCancel = () => subscriptionTarget.closed
+
   const setup = async () => {
     try {
-      subscribeToStream()
+      const unsubscribeCompletely = subscribeToStream()
+      closing.then(unsubscribeCompletely)
     } catch (error) {
       if (error.response && error.response.status === 404) {
         propagateUpdate({
           ...subscriptionTarget.getLatest(),
           loading: false
         })
-        await waitForAccountData(horizon, accountPubKey)
-        subscribeToStream()
+        await waitForAccountData(horizon, accountPubKey, shouldCancel)
+        const unsubscribeCompletely = subscribeToStream()
+        closing.then(unsubscribeCompletely)
       } else {
         throw error
       }

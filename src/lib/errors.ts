@@ -1,3 +1,15 @@
+export interface Cancellation extends Error {
+  name: "Cancellation"
+}
+
+export function Cancellation(message: string) {
+  return Object.assign(Error(message), { name: "Cancellation" }) as Cancellation
+}
+
+export function isCancellation(thing: any) {
+  return thing instanceof Error && thing.name === "Cancellation"
+}
+
 export function createWrongPasswordError(message: string = "Wrong password.") {
   return Object.assign(new Error(message), { name: "WrongPasswordError" })
 }
