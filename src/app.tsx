@@ -1,5 +1,7 @@
 /// <reference types="parcel-env" />
 
+import "babel-polyfill"
+
 import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router, Route, Switch } from "react-router-dom"

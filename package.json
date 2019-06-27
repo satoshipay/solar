@@ -89,6 +89,7 @@
     "@types/storybook__react": "^3.0.7",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",
+    "babel-polyfill": "^6.26.0",
     "cssnano": "^4.1.10",
     "electron": "^4.0.4",
     "electron-builder": "^20.40.2",
