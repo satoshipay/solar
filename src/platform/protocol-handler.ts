@@ -10,7 +10,7 @@ function getImplementation(): ProtocolHandler {
   } else if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {
     return require("./cordova/protocol-handler")
   } else {
-    throw new Error("There is no implementation for your platform.")
+    return require("./web/protocol-handler")
   }
 }
 
