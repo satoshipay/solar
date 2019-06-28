@@ -20,6 +20,7 @@ import { Section } from "../components/Layout/Page"
 import CreatePaymentDialog from "../components/Payment/CreatePaymentDialog"
 import { Account, AccountsContext } from "../context/accounts"
 import { useIsMobile, useAccountData, useRouter } from "../hooks"
+import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
 
 const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
@@ -79,17 +80,18 @@ function AccountActions(props: AccountActionsProps) {
 
 interface Props {
   accountID: string
-  showAssetManagement: boolean
-  showAssetTrading: boolean
-  showCreatePayment: boolean
-  showReceivePayment: boolean
-  showSignersManagement: boolean
 }
 
 function AccountPage(props: Props) {
   const { accounts, renameAccount } = React.useContext(AccountsContext)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+
+  const showAssetManagement = matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
+  const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
+  const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
+  const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
+  const showSignersManagement = matchesRoute(router.location.pathname, routes.manageAccountSigners("*"))
 
   const onCloseDialog = React.useCallback(() => router.history.push(routes.account(props.accountID)), [
     router.history,
@@ -166,33 +168,23 @@ function AccountPage(props: Props) {
         />
       ) : null}
 
-      <Dialog open={props.showCreatePayment} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
+      <Dialog open={showCreatePayment} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
         <CreatePaymentDialog account={account} onClose={onCloseDialog} />
       </Dialog>
-      <Dialog
-        open={props.showAssetManagement}
-        fullScreen
-        onClose={onCloseDialog}
-        TransitionComponent={DialogTransition}
-      >
+      <Dialog open={showAssetManagement} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
         <ManageAssetsDialog account={account} onClose={onCloseDialog} />
       </Dialog>
-      <Dialog
-        open={props.showSignersManagement}
-        fullScreen
-        onClose={onCloseDialog}
-        TransitionComponent={DialogTransition}
-      >
+      <Dialog open={showSignersManagement} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
         <ManageSignersDialog account={account} onClose={onCloseDialog} />
       </Dialog>
-      <Dialog open={props.showReceivePayment} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
+      <Dialog open={showReceivePayment} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
         <ReceivePaymentDialog account={account} onClose={onCloseDialog} />
       </Dialog>
-      <Dialog open={props.showAssetTrading} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
+      <Dialog open={showAssetTrading} fullScreen onClose={onCloseDialog} TransitionComponent={DialogTransition}>
         <TradeAssetDialog account={account} onClose={onCloseDialog} />
       </Dialog>
     </VerticalLayout>
   )
 }
 
-export default AccountPage
+export default React.memo(AccountPage)
