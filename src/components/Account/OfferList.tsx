@@ -99,7 +99,7 @@ interface Props {
   title: React.ReactNode
 }
 
-function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
+function OfferList(props: Props & { sendTransaction: (account: Account, tx: Transaction) => Promise<void> }) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const offers = useAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
@@ -107,7 +107,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
   const onCancel = async (offer: Server.OfferRecord) => {
     try {
       const tx = await createDismissalTransaction(horizon, props.account, accountData, offer)
-      await props.sendTransaction(tx)
+      await props.sendTransaction(props.account, tx)
     } catch (error) {
       trackError(error)
     }
@@ -136,7 +136,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
 
 function OfferListContainer(props: Props) {
   return (
-    <TransactionSender account={props.account}>
+    <TransactionSender testnet={props.account.testnet}>
       {({ sendTransaction }) => <OfferList {...props} sendTransaction={sendTransaction} />}
     </TransactionSender>
   )

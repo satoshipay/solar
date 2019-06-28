@@ -8,9 +8,9 @@ import { TransactionListItem } from "./TransactionList"
 import TransactionSender from "../TransactionSender"
 
 interface SignatureRequestListItemProps {
-  accountPublicKey: string
+  account: Account
   icon?: React.ReactElement<any>
-  onOpenTransaction?: (tx: Transaction, signatureRequest: SignatureRequest) => void
+  onOpenTransaction?: (account: Account, tx: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequest: SignatureRequest
   style?: React.CSSProperties
 }
@@ -19,7 +19,9 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
   const { onOpenTransaction, signatureRequest } = props
 
   const openTransaction = React.useCallback(
-    onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction, signatureRequest) : () => undefined,
+    onOpenTransaction
+      ? () => onOpenTransaction(props.account, signatureRequest.meta.transaction, signatureRequest)
+      : () => undefined,
     [onOpenTransaction, signatureRequest]
   )
 
@@ -37,9 +39,9 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
 }
 
 interface SignatureRequestListProps {
-  accountPublicKey: string
+  account: Account
   icon?: React.ReactElement<any>
-  onOpenTransaction?: (transaction: Transaction, signatureRequest: SignatureRequest) => void
+  onOpenTransaction?: (account: Account, transaction: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
 }
@@ -58,7 +60,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
         {props.signatureRequests.map(signatureRequest => (
           <SignatureRequestListItem
             key={signatureRequest.hash}
-            accountPublicKey={props.accountPublicKey}
+            account={props.account}
             icon={props.icon}
             onOpenTransaction={props.onOpenTransaction}
             signatureRequest={signatureRequest}
@@ -83,10 +85,10 @@ export const InteractiveSignatureRequestList = React.memo(
       return null
     }
     return (
-      <TransactionSender account={props.account}>
+      <TransactionSender testnet={props.account.testnet}>
         {({ sendTransaction }) => (
           <SignatureRequestList
-            accountPublicKey={props.account.publicKey}
+            account={props.account}
             icon={props.icon}
             onOpenTransaction={sendTransaction}
             signatureRequests={props.signatureRequests}
