@@ -1,15 +1,11 @@
 import React from "react"
-import Divider from "@material-ui/core/Divider"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import Menu from "@material-ui/core/Menu"
 import MenuItem from "@material-ui/core/MenuItem"
-import DeleteIcon from "@material-ui/icons/Delete"
-import EditIcon from "@material-ui/icons/Edit"
-import GroupIcon from "@material-ui/icons/Group"
-import LockIcon from "@material-ui/icons/LockOutlined"
-import MoneyIcon from "@material-ui/icons/AttachMoney"
-import VisibilityIcon from "@material-ui/icons/Visibility"
+import CallMadeIcon from "@material-ui/icons/CallMade"
+import SettingsIcon from "@material-ui/icons/Settings"
+import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
 import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
@@ -38,16 +34,13 @@ interface MenuProps {
   account: Account
   activated: boolean
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
+  onAccountSettings: () => void
+  onTrade: () => void
+  onWithdraw: () => void
   settings: SettingsContextType
-  onChangePassword: () => void
-  onDelete: () => void
-  onExport: () => void
-  onManageAssets: () => void
-  onManageSigners: () => void
-  onRename: () => void
 }
 
-const AccountContextMenu = (props: MenuProps) => {
+function AccountContextMenu(props: MenuProps) {
   return (
     <ContextMenu
       anchor={props.children}
@@ -55,30 +48,22 @@ const AccountContextMenu = (props: MenuProps) => {
         <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
           <AccountContextMenuItem
             disabled={!props.activated}
-            icon={<MoneyIcon />}
-            label="Manage Assets"
-            onClick={closeAndCall(props.onManageAssets)}
+            icon={<SettingsIcon />}
+            label="Account Settings"
+            onClick={closeAndCall(props.onAccountSettings)}
           />
           <AccountContextMenuItem
             disabled={!props.activated}
-            hidden={!props.settings.multiSignature}
-            icon={<GroupIcon />}
-            label="Manage Signers"
-            onClick={closeAndCall(props.onManageSigners)}
+            icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
+            label="Trade Assets"
+            onClick={closeAndCall(props.onTrade)}
           />
           <AccountContextMenuItem
-            icon={<VisibilityIcon />}
-            label="Export Secret Key"
-            onClick={closeAndCall(props.onExport)}
+            disabled={!props.activated}
+            icon={<CallMadeIcon />}
+            label="Withdraw"
+            onClick={closeAndCall(props.onWithdraw)}
           />
-          <Divider />
-          <AccountContextMenuItem
-            icon={<LockIcon />}
-            label={props.account.requiresPassword ? "Change Password" : "Set Password"}
-            onClick={closeAndCall(props.onChangePassword)}
-          />
-          <AccountContextMenuItem icon={<EditIcon />} label="Rename" onClick={closeAndCall(props.onRename)} />
-          <AccountContextMenuItem icon={<DeleteIcon />} label="Delete" onClick={closeAndCall(props.onDelete)} />
         </Menu>
       )}
     />
