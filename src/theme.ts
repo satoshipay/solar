@@ -160,6 +160,20 @@ const theme = createMuiTheme({
       sticky: {
         background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
       }
+    },
+    MuiTab: {
+      root: {
+        backgroundColor: "rgba(0, 0, 0, 0.1)"
+      },
+      selected: {
+        backgroundColor: brandColor.main,
+        color: "white"
+      }
+    },
+    MuiTabs: {
+      indicator: {
+        backgroundColor: "rgba(255, 255, 255, 0)"
+      }
     }
   },
   palette: {

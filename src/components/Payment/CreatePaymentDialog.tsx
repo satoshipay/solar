@@ -73,12 +73,7 @@ function CreatePaymentDialog(props: Props) {
       </AccountBalancesContainer>
       <Box margin="24px 0 18px">
         {settings.offramp ? (
-          <Tabs
-            indicatorColor="primary"
-            onChange={(event, value) => setSelectedTab(value)}
-            value={selectedTab}
-            variant="fullWidth"
-          >
+          <Tabs onChange={(event, value) => setSelectedTab(value)} value={selectedTab} variant="fullWidth">
             <Tab label="Send payment" value="native" />
             <Tab label="Withdraw" value="sep-6" />
           </Tabs>
