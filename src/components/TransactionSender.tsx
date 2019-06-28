@@ -18,8 +18,6 @@ import TransactionReviewDialog from "./TransactionReview/TransactionReviewDialog
 import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../lib/stellar-guard"
 import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
 
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
-
 // Had issues with react-storybook vs electron build
 type Timer = any
 
@@ -61,11 +59,14 @@ function ConditionalSubmissionProgress(props: {
 
 interface RenderFunctionProps {
   horizon: Server
-  sendTransaction: (transaction: Transaction, signatureRequest?: SignatureRequest | null) => Promise<any>
+  sendTransaction: (
+    account: Account,
+    transaction: Transaction,
+    signatureRequest?: SignatureRequest | null
+  ) => Promise<any>
 }
 
 interface Props {
-  account: Account
   horizon: Server
   settings: SettingsContextType
   children: (props: RenderFunctionProps) => React.ReactNode
@@ -74,6 +75,7 @@ interface Props {
 }
 
 interface State {
+  account: Account | null
   confirmationDialogOpen: boolean
   passwordError: Error | null
   signatureRequest: SignatureRequest | null
@@ -86,6 +88,7 @@ interface State {
 
 class TransactionSender extends React.Component<Props, State> {
   state: State = {
+    account: null,
     confirmationDialogOpen: false,
     passwordError: name,
     signatureRequest: null,
@@ -104,8 +107,13 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  setTransaction = (transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
-    this.setState({ confirmationDialogOpen: true, signatureRequest, transaction })
+  setTransaction = (account: Account, transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
+    this.setState({
+      account,
+      confirmationDialogOpen: true,
+      signatureRequest,
+      transaction
+    })
     return new Promise(resolve => {
       this.setState(state => ({
         submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve]
@@ -156,10 +164,15 @@ class TransactionSender extends React.Component<Props, State> {
 
   submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
     let signedTx: Transaction
-    const { account, horizon, onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
+    const { horizon, onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
+    const { account } = this.state
+
+    if (!account) {
+      throw Error("Invariant violation: account and horizon must not be null")
+    }
 
     try {
-      signedTx = await signTransaction(transaction, this.props.account, formValues.password)
+      signedTx = await signTransaction(transaction, account, formValues.password)
       this.setState({ passwordError: null })
     } catch (error) {
       if (isWrongPasswordError(error)) {
@@ -170,9 +183,9 @@ class TransactionSender extends React.Component<Props, State> {
 
     try {
       if (await isStellarGuardProtected(horizon, account.publicKey)) {
-        await this.submitTransactionToStellarGuard(signedTx)
+        await this.submitTransactionToStellarGuard(account, signedTx)
       } else if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
-        await this.submitTransactionToMultisigService(signedTx)
+        await this.submitTransactionToMultisigService(account, signedTx)
       } else {
         await this.submitTransactionToHorizon(signedTx)
       }
@@ -200,9 +213,9 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  submitTransactionToMultisigService = async (signedTransaction: Transaction) => {
+  submitTransactionToMultisigService = async (account: Account, signedTransaction: Transaction) => {
     const creationOptions = {
-      network_passphrase: this.props.account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet
+      network_passphrase: account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet
     }
 
     const signatureRequestURI = this.state.signatureRequest
@@ -223,9 +236,9 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  submitTransactionToStellarGuard = async (signedTransaction: Transaction) => {
+  submitTransactionToStellarGuard = async (account: Account, signedTransaction: Transaction) => {
     try {
-      const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet)
+      const promise = submitTransactionToStellarGuard(signedTransaction, account.testnet)
 
       this.setSubmissionPromise(promise)
       this.setState({ submissionType: SubmissionType.stellarguard })
@@ -236,7 +249,14 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   render() {
-    const { confirmationDialogOpen, passwordError, signatureRequest, submissionPromise, transaction } = this.state
+    const {
+      account,
+      confirmationDialogOpen,
+      passwordError,
+      signatureRequest,
+      submissionPromise,
+      transaction
+    } = this.state
 
     const content = this.props.children({
       horizon: this.props.horizon,
@@ -246,31 +266,40 @@ class TransactionSender extends React.Component<Props, State> {
     return (
       <>
         {content}
-        <TransactionReviewDialog
-          open={confirmationDialogOpen}
-          account={this.props.account}
-          disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
-          passwordError={passwordError}
-          showSource={transaction ? this.props.account.publicKey !== transaction.source : undefined}
-          signatureRequest={signatureRequest || undefined}
-          transaction={transaction}
-          onClose={this.onConfirmationDrawerCloseRequest}
-          onSubmitTransaction={this.submitTransaction}
-          submissionProgress={
-            <ConditionalSubmissionProgress
-              onClose={this.onConfirmationDrawerCloseRequest}
-              promise={submissionPromise}
-              type={this.state.submissionType}
-            />
-          }
-        />
+        {account ? (
+          <TransactionReviewDialog
+            open={confirmationDialogOpen}
+            account={account}
+            disabled={!transaction || hasSigned(transaction, account.publicKey)}
+            passwordError={passwordError}
+            showSource={transaction ? account.publicKey !== transaction.source : undefined}
+            signatureRequest={signatureRequest || undefined}
+            transaction={transaction}
+            onClose={this.onConfirmationDrawerCloseRequest}
+            onSubmitTransaction={this.submitTransaction}
+            submissionProgress={
+              <ConditionalSubmissionProgress
+                onClose={this.onConfirmationDrawerCloseRequest}
+                promise={submissionPromise}
+                type={this.state.submissionType}
+              />
+            }
+          />
+        ) : (
+          undefined
+        )}
       </>
     )
   }
 }
 
-function TransactionSenderWithHorizon(props: Omit<Props, "horizon" | "settings">) {
-  const horizon = useHorizon(props.account.testnet)
+interface WithHorizonProps extends Props {
+  testnet: boolean
+}
+
+function TransactionSenderWithHorizon(props: Omit<Props & WithHorizonProps, "horizon" | "settings">) {
+  const horizon = useHorizon(props.testnet)
+
   const settings = React.useContext(SettingsContext)
   return <TransactionSender {...props} horizon={horizon} settings={settings} />
 }
