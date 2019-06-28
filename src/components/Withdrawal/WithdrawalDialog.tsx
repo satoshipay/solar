@@ -17,7 +17,7 @@ interface Props {
   accountData: ObservedAccountData
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => Promise<any>
+  sendTransaction: (account: Account, transaction: Transaction) => Promise<any>
 }
 
 function WithdrawalDialog(props: Props) {
@@ -27,7 +27,7 @@ function WithdrawalDialog(props: Props) {
     async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
       try {
         const tx = await createTx(props.horizon, props.account)
-        await props.sendTransaction(tx)
+        await props.sendTransaction(props.account, tx)
       } catch (error) {
         trackError(error)
       }
@@ -73,7 +73,7 @@ function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose">) {
     setTimeout(() => props.onClose(), 1000)
   }
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+    <TransactionSender onSubmissionCompleted={closeAfterTimeout} testnet={props.account.testnet}>
       {({ horizon, sendTransaction }) => (
         <WithdrawalDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}

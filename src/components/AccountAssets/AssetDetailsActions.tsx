@@ -25,7 +25,7 @@ interface Props {
   account: Account
   asset: Asset
   horizon: Server
-  sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
+  sendTransaction: (account: Account, transaction: Transaction, signatureRequest?: null) => void
 }
 
 function AssetDetailsActions(props: Props) {
@@ -53,7 +53,7 @@ function AssetDetailsActions(props: Props) {
       setTxCreationPending(true)
       const transaction = await createTransactionToSend()
       setTxCreationPending(false)
-      await props.sendTransaction(transaction)
+      await props.sendTransaction(account, transaction)
       closeRemovalDialog()
     } catch (error) {
       setTxCreationPending(false)
@@ -92,7 +92,7 @@ function AssetDetailsActions(props: Props) {
 
 function ConnectedAssetDetailsActions(props: Omit<Props, "horizon" | "sendTransaction">) {
   return (
-    <TransactionSender account={props.account}>
+    <TransactionSender testnet={props.account.testnet}>
       {({ horizon, sendTransaction }) => (
         <AssetDetailsActions {...props} horizon={horizon} sendTransaction={sendTransaction} />
       )}

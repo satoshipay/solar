@@ -28,7 +28,7 @@ interface TradeAssetProps {
   account: Account
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (account: Account, transaction: Transaction) => Promise<any>
 }
 
 function TradeAsset(props: TradeAssetProps) {
@@ -76,7 +76,7 @@ function TradeAsset(props: TradeAssetProps) {
 
   const awaitThenSendTransaction = async (txPromise: Promise<Transaction>) => {
     try {
-      props.sendTransaction(await txPromise)
+      props.sendTransaction(props.account, await txPromise)
     } catch (error) {
       trackError(error)
     }
@@ -163,7 +163,7 @@ function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "onClose">
   const navigateToAssets = () => router.history.push(routes.account(props.account.id))
 
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={navigateToAssets}>
+    <TransactionSender testnet={props.account.testnet} onSubmissionCompleted={navigateToAssets}>
       {txContext => <TradeAsset {...props} {...txContext} />}
     </TransactionSender>
   )

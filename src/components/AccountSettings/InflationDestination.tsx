@@ -30,7 +30,7 @@ interface InflationDestinationDialogProps {
   account: Account
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (account: Account, transaction: Transaction) => void
 }
 
 function clearTextSelection() {
@@ -75,7 +75,7 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
       { accountData, horizon: props.horizon, walletAccount: props.account }
     )
 
-    await props.sendTransaction(transaction)
+    await props.sendTransaction(props.account, transaction)
     setTimeout(props.onClose, 1000)
   }
 
@@ -181,7 +181,7 @@ interface InflationDestinationContainerProps {
 
 function InflationDestinationContainer(props: InflationDestinationContainerProps) {
   return (
-    <TransactionSender account={props.account}>
+    <TransactionSender testnet={props.account.testnet}>
       {txContext => <InflationDestinationDialog {...props} {...txContext} />}
     </TransactionSender>
   )

@@ -43,7 +43,7 @@ interface AddAssetDialogProps {
   hpadding: number
   itemHPadding: number
   onClose: () => void
-  sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
+  sendTransaction: (account: Account, transaction: Transaction, signatureRequest?: null) => void
 }
 
 function AddAssetDialog(props: AddAssetDialogProps) {
@@ -73,7 +73,7 @@ function AddAssetDialog(props: AddAssetDialogProps) {
       setTxCreationPending(true)
       const transaction = await createTransactionToSend()
       setTxCreationPending(false)
-      await props.sendTransaction(transaction)
+      await props.sendTransaction(props.account, transaction)
     } catch (error) {
       setTxCreationPending(false)
       trackError(error)
@@ -135,7 +135,7 @@ function ConnectedAddAssetDialog(props: Omit<AddAssetDialogProps, "horizon" | "s
     setTimeout(() => props.onClose(), 1000)
   }
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+    <TransactionSender onSubmissionCompleted={closeAfterTimeout} testnet={props.account.testnet}>
       {({ horizon, sendTransaction }) => (
         <AddAssetDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
       )}

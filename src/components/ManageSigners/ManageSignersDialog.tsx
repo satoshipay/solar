@@ -20,7 +20,7 @@ interface Props {
   accountData: ObservedAccountData
   horizon: Server
   onClose: () => void
-  sendTransaction: (tx: Transaction) => void
+  sendTransaction: (account: Account, transaction: Transaction) => void
 }
 
 function ManageSignersDialog(props: Props) {
@@ -68,7 +68,7 @@ function ManageSignersDialog(props: Props) {
         walletAccount: props.account
       })
 
-      const submissionPromise = props.sendTransaction(tx)
+      const submissionPromise = props.sendTransaction(props.account, tx)
       setTxCreationPending(false)
 
       await submissionPromise
@@ -113,7 +113,7 @@ function ManageSignersDialog(props: Props) {
 function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   return (
-    <TransactionSender account={props.account}>
+    <TransactionSender testnet={props.account.testnet}>
       {({ horizon, sendTransaction }) => (
         <ManageSignersDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}

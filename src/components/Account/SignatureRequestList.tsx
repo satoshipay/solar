@@ -11,6 +11,7 @@ import { TransactionListItem } from "./TransactionList"
 import TransactionSender from "../TransactionSender"
 
 interface SignatureRequestListItemProps {
+  account: Account
   icon?: React.ReactElement<any>
   onOpenTransaction?: (tx: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequest: SignatureRequest
@@ -21,7 +22,9 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
   const { onOpenTransaction, signatureRequest } = props
 
   const openTransaction = React.useCallback(
-    onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction, signatureRequest) : () => undefined,
+    onOpenTransaction
+      ? () => onOpenTransaction(signatureRequest.meta.transaction, signatureRequest)
+      : () => undefined,
     [onOpenTransaction, signatureRequest]
   )
 
@@ -41,7 +44,7 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
 interface SignatureRequestListProps {
   account: Account
   icon?: React.ReactElement<any>
-  sendTransaction: (transaction: Transaction, signatureRequest: SignatureRequest) => void
+  sendTransaction: (account: Account, transaction: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
 }
@@ -56,7 +59,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
       const signatureRequest = props.signatureRequests.find(sr => sr.hash === hash)
 
       if (signatureRequest) {
-        props.sendTransaction(signatureRequest.meta.transaction, signatureRequest)
+        props.sendTransaction(props.account, signatureRequest.meta.transaction, signatureRequest)
       }
     }
   }
@@ -86,6 +89,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
         {props.signatureRequests.map(signatureRequest => (
           <SignatureRequestListItem
             key={signatureRequest.hash}
+            account={props.account}
             icon={props.icon}
             onOpenTransaction={openSignatureRequest}
             signatureRequest={signatureRequest}
@@ -120,7 +124,7 @@ export const InteractiveSignatureRequestList = React.memo(
       return null
     }
     return (
-      <TransactionSender account={props.account} forceClose={forceClose} onCloseTransactionDialog={onCloseDialog}>
+      <TransactionSender forceClose={forceClose} onCloseTransactionDialog={onCloseDialog} testnet={props.account.testnet}>
         {({ sendTransaction }) => (
           <SignatureRequestList
             account={props.account}
