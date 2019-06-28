@@ -1,36 +1,25 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
-import Typography from "@material-ui/core/Typography"
-import DoneAllIcon from "@material-ui/icons/DoneAll"
 import SendIcon from "@material-ui/icons/Send"
-import UpdateIcon from "@material-ui/icons/Update"
 import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountBalances from "../components/Account/AccountBalances"
 import AccountBalancesContainer from "../components/Account/AccountBalancesContainer"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
-import FriendbotButton from "../components/Account/FriendbotButton"
-import OfferList from "../components/Account/OfferList"
-import { InteractiveSignatureRequestList } from "../components/Account/SignatureRequestList"
-import TransactionList from "../components/Account/TransactionList"
+import AccountTransactions from "../components/Account/AccountTransactions"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
 import TradeAssetDialog from "../components/Dialog/TradeAsset"
-import { MinimumAccountBalance } from "../components/Fetchers"
 import QRCodeIcon from "../components/Icon/QRCode"
 import { HorizontalLayout, VerticalLayout } from "../components/Layout/Box"
 import { HorizontalMargin } from "../components/Layout/Spacing"
 import { Section } from "../components/Layout/Page"
 import CreatePaymentDialog from "../components/Payment/CreatePaymentDialog"
 import { Account, AccountsContext } from "../context/accounts"
-import { SettingsContext } from "../context/settings"
-import { SignatureDelegationContext } from "../context/signatureDelegation"
-import { useIsMobile, useAccountData, useHorizon, useRecentTransactions, useRouter } from "../hooks"
-import { hasSigned } from "../lib/transaction"
+import { useIsMobile, useAccountData, useRouter } from "../hooks"
 import * as routes from "../routes"
 
 const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
@@ -85,93 +74,6 @@ function AccountActions(props: AccountActionsProps) {
         </ButtonIconLabel>
       </Button>
     </HorizontalLayout>
-  )
-}
-
-function PendingMultisigTransactions(props: { account: Account }) {
-  const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
-
-  const cosignIcon = React.useMemo(() => <DoneAllIcon />, [])
-  const waitingIcon = React.useMemo(() => <UpdateIcon style={{ opacity: 0.5 }} />, [])
-
-  const pendingRequestsToCosign = React.useMemo(
-    () => {
-      return pendingSignatureRequests.filter(
-        request =>
-          request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-          !hasSigned(request.meta.transaction, props.account.publicKey)
-      )
-    },
-    [props.account, pendingSignatureRequests]
-  )
-
-  const pendingRequestsWaitingForOthers = React.useMemo(
-    () => {
-      return pendingSignatureRequests.filter(
-        request =>
-          request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-          hasSigned(request.meta.transaction, props.account.publicKey)
-      )
-    },
-    [props.account, pendingSignatureRequests]
-  )
-
-  return (
-    <>
-      <InteractiveSignatureRequestList
-        account={props.account}
-        icon={cosignIcon}
-        signatureRequests={pendingRequestsToCosign}
-        title="Transactions to co-sign"
-      />
-      <InteractiveSignatureRequestList
-        account={props.account}
-        icon={waitingIcon}
-        signatureRequests={pendingRequestsWaitingForOthers}
-        title="Awaiting additional signatures"
-      />
-    </>
-  )
-}
-
-function Transactions(props: { account: Account }) {
-  const { account } = props
-  const horizon = useHorizon(account.testnet)
-  const recentTxs = useRecentTransactions(account.publicKey, account.testnet)
-  const settings = React.useContext(SettingsContext)
-
-  return (
-    <>
-      {recentTxs.loading ? (
-        <HorizontalLayout alignItems="center" justifyContent="center" height="100%" padding={16} width="100%">
-          <CircularProgress />
-        </HorizontalLayout>
-      ) : recentTxs.activated ? (
-        <>
-          {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
-          <OfferList account={account} title="Open offers" />
-          <TransactionList
-            account={account}
-            background="transparent"
-            title="Recent transactions"
-            testnet={account.testnet}
-            transactions={recentTxs.transactions}
-          />
-        </>
-      ) : (
-        <>
-          <Typography align="center" color="textSecondary" style={{ margin: "30px auto" }}>
-            Account does not yet exist on the network. Send at least <MinimumAccountBalance testnet={account.testnet} />
-            &nbsp;XLM to activate the account.
-          </Typography>
-          {account.testnet ? (
-            <Typography align="center" style={{ paddingBottom: 30 }}>
-              <FriendbotButton horizon={horizon} publicKey={account.publicKey} />
-            </Typography>
-          ) : null}
-        </>
-      )}
-    </>
   )
 }
 
@@ -250,7 +152,7 @@ function AccountPage(props: Props) {
           overflowY: "auto"
         }}
       >
-        <Transactions account={account} />
+        <AccountTransactions account={account} />
       </Section>
       {isSmallScreen ? (
         <AccountActions
