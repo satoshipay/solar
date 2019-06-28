@@ -3,8 +3,9 @@ import { Asset } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { AssetTransferInfo, EmptyAssetTransferInfo, TransferServer } from "@satoshipay/stellar-sep-6"
-import { useIsSmallMobile } from "../../hooks"
+import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import { ReadOnlyTextfield } from "../Form/FormFields"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { formatDescriptionText, formatIdentifier } from "./formatters"
 import { useAssetTransferServerInfos } from "./transferservice"
@@ -44,6 +45,7 @@ interface Props {
 }
 
 function AnchorWithdrawalInitForm(props: Props) {
+  const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
@@ -129,6 +131,7 @@ function AnchorWithdrawalInitForm(props: Props) {
     /^([^@]+@[^@]+\.[^@]+)?$/.test(formValues.email || formValues.email_address || "")
 
   const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || !validAmount || !validEmail
+  const leftInputsWidth = isSmallScreen ? 200 : 240
 
   const onAssetSelection = React.useCallback(event => {
     const selectedAssetCode = event.target.value || null
@@ -149,7 +152,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             margin="normal"
             onChange={onAssetSelection}
             select
-            style={{ flexGrow: 1, marginRight: 24, minWidth: "33%" }}
+            style={{ flexBasis: leftInputsWidth, marginRight: 24 }}
             value={assetCode || ""}
           >
             {Object.keys(transferInfos.data).map(thisAssetCode => {
@@ -218,17 +221,38 @@ function AnchorWithdrawalInitForm(props: Props) {
           onSetFormValue={setFormValue}
           style={{ marginBottom: 64 }}
         />
-        <DialogActionsBox spacing="large">
-          <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
-          <ActionButton
-            disabled={isDisabled}
-            loading={props.pendingAnchorCommunication}
-            onClick={() => undefined}
-            type="submit"
-          >
-            Proceed
-          </ActionButton>
-        </DialogActionsBox>
+        <HorizontalLayout alignItems="center" justifyContent="space-between" margin="32px 0 0" wrap="wrap">
+          {withdrawalMetadata && withdrawalMetadata.withdraw ? (
+            <ReadOnlyTextfield
+              label="Fee"
+              style={{
+                flexBasis: leftInputsWidth,
+                marginRight: 24
+              }}
+              value={
+                [
+                  typeof withdrawalMetadata.withdraw.fee_fixed === "number"
+                    ? `${withdrawalMetadata.withdraw.fee_fixed} ${assetCode}`
+                    : "",
+                  typeof withdrawalMetadata.withdraw.fee_percent === "number"
+                    ? `${withdrawalMetadata.withdraw.fee_percent}%`
+                    : ""
+                ].join(" + ") || "unknown"
+              }
+            />
+          ) : null}
+          <DialogActionsBox desktopStyle={{ marginTop: 0 }} spacing="large">
+            <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
+            <ActionButton
+              disabled={isDisabled}
+              loading={props.pendingAnchorCommunication}
+              onClick={() => undefined}
+              type="submit"
+            >
+              Proceed
+            </ActionButton>
+          </DialogActionsBox>
+        </HorizontalLayout>
       </VerticalLayout>
     </form>
   )
