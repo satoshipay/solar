@@ -23,7 +23,7 @@ interface AccountDeletionDialogProps {
   horizon: Server
   onClose: () => void
   onDeleted: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (account: Account, transaction: Transaction) => void
 }
 
 function AccountDeletionDialog(props: AccountDeletionDialogProps) {
@@ -57,7 +57,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
         { accountData, horizon, walletAccount: props.account }
       )
 
-      await props.sendTransaction(transaction)
+      await props.sendTransaction(props.account, transaction)
       setTimeout(onDelete, 1000)
     }
   }
@@ -179,7 +179,7 @@ interface AccountDeletionContainerProps {
 
 function AccountDeletionContainer(props: AccountDeletionContainerProps) {
   return (
-    <TransactionSender account={props.account}>
+    <TransactionSender testnet={props.account.testnet}>
       {txContext => <AccountDeletionDialog {...props} {...txContext} />}
     </TransactionSender>
   )

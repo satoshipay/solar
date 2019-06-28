@@ -17,7 +17,7 @@ interface Props {
   accountData: ObservedAccountData
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => Promise<any>
+  sendTransaction: (account: Account, transaction: Transaction) => Promise<any>
 }
 
 function CreatePaymentDialog(props: Props) {
@@ -29,7 +29,7 @@ function CreatePaymentDialog(props: Props) {
       try {
         setTxCreationPending(true)
         const tx = await createTx(props.horizon, props.account)
-        await props.sendTransaction(tx)
+        await props.sendTransaction(props.account, tx)
       } catch (error) {
         trackError(error)
       } finally {
@@ -71,7 +71,7 @@ function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "onClose">)
     setTimeout(() => props.onClose(), 1000)
   }
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+    <TransactionSender testnet={props.account.testnet} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
         <CreatePaymentDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}

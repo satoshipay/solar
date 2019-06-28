@@ -19,7 +19,7 @@ interface Props {
   asset: Asset
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (account: Account, transaction: Transaction) => Promise<any>
 }
 
 // tslint:disable-next-line no-shadowed-variable
@@ -32,7 +32,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
         horizon: props.horizon,
         walletAccount: props.account
       })
-      props.sendTransaction(transaction)
+      props.sendTransaction(props.account, transaction)
     } catch (error) {
       trackError(error)
     }
@@ -72,7 +72,7 @@ function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon
     setTimeout(() => props.onClose(), 1000)
   }
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+    <TransactionSender testnet={props.account.testnet} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
         <RemoveTrustlineDialog
           {...props}

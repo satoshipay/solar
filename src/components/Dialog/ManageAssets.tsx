@@ -27,7 +27,7 @@ interface Props {
   account: Account
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  sendTransaction: (account: Account, transaction: Transaction) => void
 }
 
 function ManageAssets(props: Props) {
@@ -45,7 +45,7 @@ function ManageAssets(props: Props) {
         horizon: props.horizon,
         walletAccount: props.account
       })
-      props.sendTransaction(transaction)
+      props.sendTransaction(props.account, transaction)
     } catch (error) {
       trackError(error)
     }
@@ -119,7 +119,7 @@ function ManageAssets(props: Props) {
 function ManageAssetsContainer(props: Pick<Props, "account" | "onClose">) {
   const accountsContext = React.useContext(AccountsContext)
   return (
-    <TransactionSender account={props.account}>
+    <TransactionSender testnet={props.account.testnet}>
       {txContext => <ManageAssets {...props} {...accountsContext} {...txContext} />}
     </TransactionSender>
   )

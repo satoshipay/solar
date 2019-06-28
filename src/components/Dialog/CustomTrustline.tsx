@@ -16,7 +16,7 @@ interface Props {
   accountData: ObservedAccountData
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
+  sendTransaction: (account: Account, transaction: Transaction, signatureRequest?: null) => void
 }
 
 function CustomTrustlineDialog(props: Props) {
@@ -38,7 +38,7 @@ function CustomTrustlineDialog(props: Props) {
       })
 
       setTxCreationPending(false)
-      await props.sendTransaction(transaction)
+      await props.sendTransaction(props.account, transaction)
 
       props.onClose()
     } catch (error) {
