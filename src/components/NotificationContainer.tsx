@@ -4,13 +4,16 @@ import SnackbarContent from "@material-ui/core/SnackbarContent"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import ErrorIcon from "@material-ui/icons/Error"
 import InfoIcon from "@material-ui/icons/Info"
+import OfflineBoltIcon from "@material-ui/icons/OfflineBolt"
 import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
+import grey from "@material-ui/core/colors/grey"
 import withStyles, { ClassNameMap, StyleRulesCallback } from "@material-ui/core/styles/withStyles"
 import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
 import { useOnlineStatus } from "../hooks"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
+  connection: OfflineBoltIcon,
   error: ErrorIcon,
   info: InfoIcon,
   success: CheckIcon
@@ -19,6 +22,9 @@ const icons: { [key in NotificationType]: React.ComponentType<any> } = {
 const styles: StyleRulesCallback = theme => ({
   clickable: {
     cursor: "pointer"
+  },
+  connection: {
+    backgroundColor: grey["500"]
   },
   error: {
     backgroundColor: theme.palette.error.dark
@@ -59,6 +65,7 @@ function NotificationSnackbar(props: NotificationProps) {
 
   const Icon = icons[props.type]
   const contentClassnames: { [key in NotificationType]: string } = {
+    connection: classes.connection,
     error: classes.error,
     info: classes.info,
     success: classes.success
@@ -128,7 +135,7 @@ function NotificationsContainer() {
         message="Offline"
         open={!isOnline}
         style={{ bottom: 0 }}
-        type="error"
+        type="connection"
       />
     </>
   )

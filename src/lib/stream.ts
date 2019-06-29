@@ -1,4 +1,4 @@
-import { trackError } from "../context/notifications"
+import { trackConnectionError } from "../context/notifications"
 import { isCancellation } from "./errors"
 
 type ErrorHandler = (error: Error) => void
@@ -96,7 +96,7 @@ export function trackStreamError(service: ServiceType, error: Error) {
     }
 
     if (window.navigator.onLine !== false) {
-      trackError(ServiceMessages[service] || error.message)
+      trackConnectionError(ServiceMessages[service] || error.message)
       // tslint:disable-next-line no-console
       console.error("  Detailed error:", error)
     }
