@@ -1,5 +1,5 @@
 import { Server } from "stellar-sdk"
-import { trackError } from "../context/notifications"
+import { trackConnectionError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
@@ -67,7 +67,7 @@ export function createAccountEffectsSubscription(
     }
   }
 
-  setup().catch(trackError)
+  setup().catch(trackConnectionError)
 
   return subscriptionTarget
 }

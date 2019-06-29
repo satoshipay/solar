@@ -1,5 +1,5 @@
 import { Horizon, Server } from "stellar-sdk"
-import { trackError } from "../context/notifications"
+import { trackConnectionError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "../lib/account"
 import { createMessageDeduplicator, manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
@@ -135,7 +135,7 @@ export function createAccountDataSubscription(
     closing.then(unsubscribeCompletely)
   }
 
-  setup().catch(trackError)
+  setup().catch(trackConnectionError)
 
   return subscriptionTarget
 }

@@ -1,5 +1,5 @@
 import { Asset, Server } from "stellar-sdk"
-import { trackError } from "../context/notifications"
+import { trackConnectionError } from "../context/notifications"
 import { createMessageDeduplicator, manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { FixedOrderbookRecord } from "../lib/orderbook"
@@ -78,7 +78,7 @@ export function createOrderbookSubscription(
     closing.then(unsubscribeCompletely)
   }
 
-  setup().catch(trackError)
+  setup().catch(trackConnectionError)
 
   return subscriptionTarget
 }

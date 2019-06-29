@@ -1,6 +1,6 @@
 import React from "react"
 
-export type NotificationType = "error" | "info" | "success"
+export type NotificationType = "connection" | "error" | "info" | "success"
 
 export interface Notification {
   id: number
@@ -10,7 +10,13 @@ export interface Notification {
 }
 
 // tslint:disable-next-line
+let trackConnectionErrorImplementation: (error: any) => void = console.error
+// tslint:disable-next-line
 let trackErrorImplementation: (error: any) => void = console.error
+
+export function trackConnectionError(error: any) {
+  trackConnectionErrorImplementation(error)
+}
 
 export function trackError(error: any) {
   trackErrorImplementation(error)
@@ -22,6 +28,7 @@ interface NotificationOptions {
 
 interface ContextValue {
   notifications: Notification[]
+  showConnectionError(error: any): void
   showError(error: any): void
   showNotification(type: NotificationType, message: string, props?: NotificationOptions): void
 }
@@ -32,6 +39,7 @@ interface Props {
 
 const NotificationsContext = React.createContext<ContextValue>({
   notifications: [],
+  showConnectionError: () => undefined,
   showError: () => undefined,
   showNotification: () => undefined
 })
@@ -50,6 +58,13 @@ export function NotificationsProvider(props: Props) {
     setTimeout(() => removeNotificationByID(id), 10000)
   }
 
+  const showConnectionError = (error: any) => {
+    showNotification("connection", String(error.message || error))
+
+    // tslint:disable-next-line:no-console
+    console.error(error)
+  }
+
   const showError = (error: any) => {
     showNotification("error", String(error.message || error))
 
@@ -61,9 +76,11 @@ export function NotificationsProvider(props: Props) {
     setNotifications(prevNotifications => prevNotifications.filter(notification => notification.id !== notificationID))
   }
 
+  trackConnectionErrorImplementation = showConnectionError
   trackErrorImplementation = showError
 
   const contextValue: ContextValue = {
+    showConnectionError,
     showError,
     showNotification,
     notifications
