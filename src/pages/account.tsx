@@ -244,8 +244,7 @@ function AccountPage(props: Props) {
           flexShrink: 1,
           paddingTop: 0,
           paddingBottom: 0,
-          overflowY: "auto",
-          WebkitOverflowScrolling: "touch"
+          overflowY: "auto"
         }}
       >
         <Transactions account={account} />
