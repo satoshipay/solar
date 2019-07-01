@@ -13,6 +13,7 @@ body {
   font-family: "Roboto", sans-serif;
   font-size: 13px;
   line-height: 20px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .iphone-notch-top-spacing {

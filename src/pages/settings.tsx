@@ -110,10 +110,7 @@ function SettingsPage() {
           </CardContent>
         </Card>
       </Section>
-      <Section
-        bottom
-        style={{ display: "flex", flexDirection: "column", overflow: "auto", WebkitOverflowScrolling: "touch" }}
-      >
+      <Section bottom style={{ display: "flex", flexDirection: "column", overflow: "auto" }}>
         <VerticalLayout height="100%" padding="0 8px" grow>
           <Box grow>
             <Settings />
