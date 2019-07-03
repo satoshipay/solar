@@ -1,5 +1,4 @@
 import React from "react"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import DoneAllIcon from "@material-ui/icons/DoneAll"
 import UpdateIcon from "@material-ui/icons/Update"
@@ -9,11 +8,11 @@ import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { useHorizon, useRecentTransactions } from "../../hooks"
 import { hasSigned } from "../../lib/transaction"
 import { MinimumAccountBalance } from "../Fetchers"
-import { HorizontalLayout } from "../Layout/Box"
 import FriendbotButton from "./FriendbotButton"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import TransactionList from "./TransactionList"
+import TransactionListPlaceholder from "./TransactionListPlaceholder"
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
@@ -70,9 +69,7 @@ function AccountTransactions(props: { account: Account }) {
   return (
     <>
       {recentTxs.loading ? (
-        <HorizontalLayout alignItems="center" justifyContent="center" height="100%" padding={16} width="100%">
-          <CircularProgress />
-        </HorizontalLayout>
+        <TransactionListPlaceholder />
       ) : recentTxs.activated ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
