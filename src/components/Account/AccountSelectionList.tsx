@@ -1,4 +1,6 @@
 import React from "react"
+import { Keypair } from "stellar-sdk"
+import { Dialog } from "@material-ui/core"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -6,7 +8,11 @@ import ListItemText from "@material-ui/core/ListItemText"
 import Radio from "@material-ui/core/Radio"
 import Typography from "@material-ui/core/Typography"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
-import { Account } from "../../context/accounts"
+import { useIsMobile } from "../../hooks"
+import { Account, AccountsContext } from "../../context/accounts"
+import { trackError } from "../../context/notifications"
+import AccountCreationForm, { AccountCreationValues } from "../Form/CreateAccount"
+import { Box } from "../Layout/Box"
 import AccountBalances from "./AccountBalances"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
@@ -14,11 +20,17 @@ const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFOR
 interface AccountSelectionListProps {
   accounts: Account[]
   disabled?: boolean
+  testnet: boolean
   onChange?: (account: Account) => void
 }
 
 function AccountSelectionList(props: AccountSelectionListProps) {
+  const { createAccount, accounts: allAccounts } = React.useContext(AccountsContext)
+
+  const [createAccountOpened, setCreateAccountOpened] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(-1)
+
+  const isSmallScreen = useIsMobile()
 
   function handleListItemClick(event: React.MouseEvent, index: number) {
     setSelectedIndex(index)
@@ -27,22 +39,64 @@ function AccountSelectionList(props: AccountSelectionListProps) {
     }
   }
 
+  const onCreateAccount = async (formValues: AccountCreationValues) => {
+    try {
+      await createAccount({
+        name: formValues.name,
+        keypair: Keypair.fromSecret(formValues.privateKey),
+        password: formValues.setPassword ? formValues.password : null,
+        testnet: props.testnet
+      })
+      setCreateAccountOpened(false)
+    } catch (error) {
+      trackError(error)
+    }
+  }
+
   return (
-    <List style={{ background: "transparent", paddingLeft: 0, paddingRight: 0 }}>
-      {props.accounts.map((account, index) => (
-        <AccountSelectionListItem
-          account={account}
+    <>
+      <List style={{ background: "transparent", paddingLeft: 0, paddingRight: 0 }}>
+        <CreateAccountListItem
+          index={0}
+          onClick={() => setCreateAccountOpened(true)}
           disabled={props.disabled}
-          index={index}
-          key={account.id}
-          onClick={handleListItemClick}
-          selected={index === selectedIndex}
+          selected={false}
+          testnet={props.testnet}
         />
-      ))}
-      {props.accounts.length === 0 ? (
-        <Typography style={{ opacity: 0.7, textAlign: "center" }}>(No accounts)</Typography>
-      ) : null}
-    </List>
+
+        {props.accounts.map((account, index) => (
+          <AccountSelectionListItem
+            account={account}
+            disabled={props.disabled}
+            index={index}
+            key={account.id}
+            onClick={handleListItemClick}
+            selected={index === selectedIndex}
+          />
+        ))}
+        {props.accounts.length === 0 ? (
+          <Typography style={{ opacity: 0.7, textAlign: "center" }}>(No accounts)</Typography>
+        ) : null}
+      </List>
+
+      <Dialog
+        open={createAccountOpened}
+        fullScreen
+        PaperProps={{
+          // let the <Section> set the padding, so it will color the iPhone X top notch
+          style: { padding: 0 }
+        }}
+      >
+        <Box padding={isSmallScreen ? "24px" : " 24px 32px"} overflow="auto">
+          <AccountCreationForm
+            accounts={allAccounts}
+            onCancel={() => setCreateAccountOpened(false)}
+            onSubmit={onCreateAccount}
+            testnet={props.testnet}
+          />
+        </Box>
+      </Dialog>
+    </>
   )
 }
 
@@ -58,6 +112,34 @@ const accountListItemStyles: StyleRules = {
     }
   }
 }
+
+interface CreateAccountListItemProps {
+  classes: ClassNameMap<keyof typeof accountListItemStyles>
+  disabled?: boolean
+  index: number
+  onClick: (event: React.MouseEvent) => void
+  selected: boolean
+  style?: React.CSSProperties
+  testnet: boolean
+}
+
+const CreateAccountListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
+  withStyles(accountListItemStyles)(function CreateAccountListItem(props: CreateAccountListItemProps) {
+    return (
+      <ListItem
+        button
+        className={props.classes.listItem}
+        component="li"
+        disabled={props.disabled}
+        selected={props.selected}
+        onClick={props.onClick}
+      >
+        <ListItemText primary={`Create new ${props.testnet ? "testnet" : ""} account`} />
+      </ListItem>
+    )
+  } as React.ComponentType<CreateAccountListItemProps>)
+)
 
 interface AccountSelectionListItemProps {
   account: Account
