@@ -4,6 +4,7 @@ import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { AssetTransferInfo, EmptyAssetTransferInfo, TransferServer } from "@satoshipay/stellar-sep-6"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
+import theme from "../../theme"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
@@ -221,10 +222,15 @@ function AnchorWithdrawalInitForm(props: Props) {
           onSetFormValue={setFormValue}
           style={{ marginBottom: 64 }}
         />
-        <HorizontalLayout alignItems="center" justifyContent="space-between" margin="32px 0 0" wrap="wrap">
+        <HorizontalLayout alignItems="center" justifyContent="space-between" wrap="wrap">
           {withdrawalMetadata && withdrawalMetadata.withdraw ? (
             <ReadOnlyTextfield
-              label="Fee"
+              inputProps={{
+                style: {
+                  color: theme.palette.text.secondary
+                }
+              }}
+              label="Withdrawal fee"
               style={{
                 flexBasis: leftInputsWidth,
                 marginRight: 24
