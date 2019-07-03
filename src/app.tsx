@@ -50,35 +50,38 @@ const Providers = (props: { children: React.ReactNode }) => (
 
 const App = () => (
   <Providers>
-    <VerticalLayout height="100%">
-      <VerticalLayout height="100%" grow overflow="auto">
-        <ErrorBoundary>
-          <Switch>
-            <Route exact path="/" component={AllAccountsPage} />
-            <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
-            <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
-            <Route
-              path={["/account/:id/:action", "/account/:id"]}
-              render={props => (
-                <AccountPage
-                  accountID={props.match.params.id}
-                  showAssetManagement={props.match.url.startsWith(routes.manageAccountAssets(props.match.params.id))}
-                  showAssetTrading={props.match.url === routes.tradeAsset(props.match.params.id)}
-                  showCreatePayment={props.match.url === routes.createPayment(props.match.params.id)}
-                  showReceivePayment={props.match.url === routes.receivePayment(props.match.params.id)}
-                  showSignersManagement={props.match.url === routes.manageAccountSigners(props.match.params.id)}
-                />
-              )}
-            />
-            <Route exact path="/settings" component={SettingsPage} />
-          </Switch>
-          <DesktopNotifications />
-          <NotificationContainer />
-          {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
-          {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
-        </ErrorBoundary>
+    <>
+      <VerticalLayout height="100%" style={{ WebkitOverflowScrolling: "touch" }}>
+        <VerticalLayout height="100%" grow overflow="auto">
+          <ErrorBoundary>
+            <Switch>
+              <Route exact path="/" component={AllAccountsPage} />
+              <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
+              <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
+              <Route
+                path={["/account/:id/:action", "/account/:id"]}
+                render={props => (
+                  <AccountPage
+                    accountID={props.match.params.id}
+                    showAssetManagement={props.match.url.startsWith(routes.manageAccountAssets(props.match.params.id))}
+                    showAssetTrading={props.match.url === routes.tradeAsset(props.match.params.id)}
+                    showCreatePayment={props.match.url === routes.createPayment(props.match.params.id)}
+                    showReceivePayment={props.match.url === routes.receivePayment(props.match.params.id)}
+                    showSignersManagement={props.match.url === routes.manageAccountSigners(props.match.params.id)}
+                  />
+                )}
+              />
+              <Route exact path="/settings" component={SettingsPage} />
+            </Switch>
+          </ErrorBoundary>
+        </VerticalLayout>
       </VerticalLayout>
-    </VerticalLayout>
+      {/* Notifications need to come after -webkit-overflow-scrolling on iOS */}
+      <DesktopNotifications />
+      <NotificationContainer />
+      {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
+      {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
+    </>
   </Providers>
 )
 
