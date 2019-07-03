@@ -1,7 +1,7 @@
 import { createStore, KeysData } from "key-store"
 import { PrivateKeyData, PublicKeyData } from "../types"
 
-const standardInitialKeys: KeysData<PublicKeyData> = {
+const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {
     metadata: {
       nonce: "19sHNxecdiik6chwGFgZVk9UJoG2k8B+",
@@ -53,7 +53,7 @@ function saveKeys(keysData: KeysData<PublicKeyData>) {
 export default async function createKeyStore() {
   const keys = localStorage.getItem("solar:keys")
 
-  const initialKeys = keys ? JSON.parse(keys) : standardInitialKeys
+  const initialKeys = keys ? JSON.parse(keys) : defaultTestingKeys
 
   // tslint:disable-next-line
   return createStore<PrivateKeyData, PublicKeyData>(saveKeys, initialKeys)
