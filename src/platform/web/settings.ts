@@ -6,7 +6,6 @@ let settings: SettingsData = {
   agreedToTermsAt: "2019-01-17T07:34:05.688Z",
   biometricLock: false,
   multisignature: true,
-  offramp: true,
   testnet: true
 }
 

@@ -20,11 +20,9 @@ interface ContextType {
   ignoredSignatureRequests: string[]
   multiSignature: boolean
   multiSignatureServiceURL: string
-  offramp: boolean
   showTestnet: boolean
   toggleBiometricLock: () => void
   toggleMultiSignature: () => void
-  toggleOfframp: () => void
   toggleTestnet: () => void
 }
 
@@ -32,7 +30,6 @@ const initialSettings: SettingsData = {
   agreedToTermsAt: undefined,
   biometricLock: false,
   multisignature: false,
-  offramp: false,
   testnet: false
 }
 
@@ -48,11 +45,9 @@ const SettingsContext = React.createContext<ContextType>({
   ignoredSignatureRequests: initialIgnoredSignatureRequests,
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
-  offramp: initialSettings.offramp,
   showTestnet: initialSettings.testnet,
   toggleBiometricLock: () => undefined,
   toggleMultiSignature: () => undefined,
-  toggleOfframp: () => undefined,
   toggleTestnet: () => undefined
 })
 
@@ -97,7 +92,6 @@ export function SettingsProvider(props: Props) {
   const confirmToC = () => updateSettings({ agreedToTermsAt: new Date().toISOString() })
   const toggleBiometricLock = () => updateSettings({ biometricLock: !settings.biometricLock })
   const toggleMultiSignature = () => updateSettings({ multisignature: !settings.multisignature })
-  const toggleOfframp = () => updateSettings({ offramp: !settings.offramp })
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
 
   const contextValue: ContextType = {
@@ -108,11 +102,9 @@ export function SettingsProvider(props: Props) {
     ignoredSignatureRequests,
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
-    offramp: settings.offramp,
     showTestnet: settings.testnet,
     toggleBiometricLock,
     toggleMultiSignature,
-    toggleOfframp,
     toggleTestnet
   }
 
