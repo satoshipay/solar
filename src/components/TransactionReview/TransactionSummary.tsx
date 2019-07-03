@@ -10,6 +10,7 @@ import { Account, AccountsContext } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction, selectNetwork } from "../../lib/transaction"
+import theme from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 import { AccountName } from "../Fetchers"
 import { ClickableAddress, CopyableAddress } from "../PublicKey"
@@ -132,7 +133,15 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
               value={
                 <ClickableAddress
                   address={transactionHash}
-                  icon={<OpenInNewIcon style={{ marginLeft: 4, fontSize: "inherit" }} />}
+                  icon={
+                    <OpenInNewIcon
+                      style={{
+                        color: theme.palette.primary.dark,
+                        fontSize: "inherit",
+                        marginLeft: 4
+                      }}
+                    />
+                  }
                   onClick={props.onHashClick}
                   variant={isSmallScreen ? "shorter" : "short"}
                 />
