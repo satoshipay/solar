@@ -163,11 +163,19 @@ const theme = createMuiTheme({
     },
     MuiTab: {
       root: {
-        backgroundColor: "rgba(0, 0, 0, 0.1)"
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
+        transition: "background-color 0.2s",
+        "&:hover": {
+          backgroundColor: "rgba(0, 0, 0, 0.15)"
+        }
       },
       selected: {
         backgroundColor: brandColor.main,
-        color: "white"
+        color: "white",
+        "&:hover": {
+          // Don't change color of already-selected tab
+          backgroundColor: brandColor.main
+        }
       }
     },
     MuiTabs: {
