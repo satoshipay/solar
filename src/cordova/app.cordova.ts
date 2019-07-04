@@ -67,13 +67,9 @@ function onDeviceReady() {
 
   // Need to wait for storage to be initialized or
   // getCurrentSettings() won't be reliable
-  initializeStorage()
-    .then(async secureStorage => {
-      window.addEventListener("message", async event => {
-        handleMessageEvent(event, contentWindow, secureStorage)
-      })
-
-      clientSecretPromise = getClientSecret()
+  initializeStorage(contentWindow)
+    .then(async () => {
+      clientSecretPromise = getClientSecret(contentWindow)
       isBioAuthAvailable = await bioAuthAvailablePromise
 
       if (isBioAuthEnabled()) {
@@ -87,9 +83,9 @@ function onDeviceReady() {
     .catch(trackError)
 }
 
-function getClientSecret() {
+function getClientSecret(contentWindow: Window) {
   return new Promise<string>((resolve, reject) => {
-    initializeStorage().then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
+    initializeStorage(contentWindow).then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
   })
 }
 
@@ -162,7 +158,7 @@ function initializeClipboard(cordova: Cordova) {
   })
 }
 
-function initializeStorage() {
+function initializeStorage(contentWindow: Window) {
   const initPromise = initSecureStorage().catch(
     (error): any => {
       // Assume that it is a 'device not secure' error
@@ -172,6 +168,11 @@ function initializeStorage() {
       navigator.app.exitApp()
     }
   )
+
+  // Set up event listener synchronously, so it's working as early as possible
+  window.addEventListener("message", async event => {
+    handleMessageEvent(event, contentWindow, await initPromise)
+  })
 
   return initPromise
 }
