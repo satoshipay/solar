@@ -9,13 +9,15 @@ const progressBarStyles: StyleRules = {
     borderRadius: 4,
     display: "inline-block",
     width: "100%",
-    height: "1em",
+    height: "1.2em",
+    textTransform: "uppercase",
+
     "&:before": {
       position: "absolute",
       content: "attr(data-label)",
       fontSize: "0.8em",
+      lineHeight: "1.6em",
       textAlign: "center",
-      top: " -2px",
       left: 0,
       right: 0
     }
@@ -24,9 +26,10 @@ const progressBarStyles: StyleRules = {
 
 interface ProgressBarProps {
   classes: ClassNameMap<keyof typeof progressBarStyles>
-  color: string
+  background: string
+  color?: string
   label: string
-  progress: number
+  progress: string
 }
 
 const ProgressBar = withStyles(progressBarStyles)((props: ProgressBarProps) => {
@@ -34,7 +37,7 @@ const ProgressBar = withStyles(progressBarStyles)((props: ProgressBarProps) => {
     <div
       style={{
         position: "relative",
-        height: "1em",
+        height: "1.2em",
         width: "100%"
       }}
     >
@@ -42,8 +45,9 @@ const ProgressBar = withStyles(progressBarStyles)((props: ProgressBarProps) => {
         data-label={props.label}
         className={props.classes.passwordStrengthMeterProgress}
         style={{
-          backgroundColor: props.color,
-          width: `${props.progress}%`
+          backgroundColor: props.background,
+          color: props.color,
+          width: `${props.progress}`
         }}
       />
     </div>
@@ -53,49 +57,19 @@ const ProgressBar = withStyles(progressBarStyles)((props: ProgressBarProps) => {
 function PasswordStrengthIndicator(props: { password: string; passwordStrength: ZXCVBNScore }) {
   const { password, passwordStrength } = props
 
-  const calculateProgress = () => {
-    return (passwordStrength + 1) * 20
+  if (!password) {
+    return <div style={{ height: "1.2em" }} />
+  } else if (passwordStrength >= 4) {
+    return <ProgressBar background="#00b341" color="white" label="Strong" progress="100%" />
+  } else if (passwordStrength === 3) {
+    return <ProgressBar background="#66b300" color="white" label="Good" progress="80%" />
+  } else if (passwordStrength === 2) {
+    return <ProgressBar background="#b39b00" color="white" label="Fair" progress="60%" />
+  } else if (passwordStrength === 1) {
+    return <ProgressBar background="#b34a00" label="Weak" progress="40%" />
+  } else {
+    return <ProgressBar background="#b30000" label="Poor" progress="20%" />
   }
-
-  const getColor = () => {
-    switch (passwordStrength) {
-      case 0:
-        return "#f0a8a8"
-      case 1:
-        return "#f0c6a8"
-      case 2:
-        return "#f0e7a8"
-      case 3:
-        return "#caf0a8"
-      case 4:
-        return "#a8f0c2"
-      default:
-        return "#ffffff"
-    }
-  }
-
-  const getLabel = () => {
-    switch (passwordStrength) {
-      case 0:
-        return "Very Weak"
-      case 1:
-        return "Weak"
-      case 2:
-        return "Fair"
-      case 3:
-        return "Good"
-      case 4:
-        return "Strong"
-      default:
-        return "Weak"
-    }
-  }
-
-  return password.length > 0 ? (
-    <ProgressBar color={getColor()} label={getLabel()} progress={calculateProgress()} />
-  ) : (
-    <div />
-  )
 }
 
 interface PasswordStrengthTextFieldProps {

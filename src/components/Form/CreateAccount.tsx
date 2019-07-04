@@ -11,9 +11,9 @@ import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import PasswordStrengthTextField from "../Layout/PasswordStrengthTextField"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
+import PasswordStrengthTextField from "./PasswordStrengthTextField"
 
 export interface AccountCreationValues {
   name: string
