@@ -33,7 +33,9 @@ export const events = {
   ignoredSignatureRequestsResponseEvent: "storage:ignoredSignatureRequests",
   storedIgnoredSignatureRequestsEvent: "storage:ignoredSignatureRequests:stored",
 
-  qrcodeResultEvent: "qr-code:result"
+  qrcodeResultEvent: "qr-code:result",
+
+  deeplinkURLEvent: "deeplink:url"
 }
 
 let commandHandlers: CommandHandlers = {}

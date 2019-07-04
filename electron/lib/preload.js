@@ -12,13 +12,20 @@ const readIgnoredSignatureRequestHashes = () => ipcRenderer.sendSync("storage:ig
 const updateIgnoredSignatureRequestHashes = updatedSignatureRequestHashes =>
   ipcRenderer.sendSync("storage:ignoredSignatureRequests:storeSync", updatedSignatureRequestHashes)
 
+const subscribeToIPCMain = (channel, subscribeCallback) => {
+  ipcRenderer.on(channel, subscribeCallback)
+  const unsubscribe = () => ipcRenderer.removeListener(channel, subscribeCallback)
+  return unsubscribe
+}
+
 const electron = {
   readIgnoredSignatureRequestHashes,
   readKeys,
   readSettings,
   updateIgnoredSignatureRequestHashes,
   updateKeys,
-  updateSettings
+  updateSettings,
+  subscribeToIPCMain
 }
 
 global.electron = window.electron = electron

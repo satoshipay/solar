@@ -11,6 +11,7 @@ interface ElectronContext {
   updateIgnoredSignatureRequestHashes(updatedHashes: string[]): void
   updateKeys(keyData: any): void
   updateSettings(updatedSettings: Partial<SettingsData>): void
+  subscribeToIPCMain(channel: string, subscribeCallback: (event: Event, ...args: any[]) => void): () => void
 }
 
 interface Window {

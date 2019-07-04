@@ -100,3 +100,7 @@ interface Navigator {
     exitApp(): never
   }
 }
+
+interface Window {
+  handleOpenURL: (url: string) => void
+}

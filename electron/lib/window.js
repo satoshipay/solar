@@ -11,6 +11,9 @@ module.exports = {
   trackWindow
 }
 
+// start protocol handler
+const protocolHandler = require("./protocol-handler")
+
 function createMainWindow() {
   const window = new BrowserWindow({
     width: 800,
@@ -46,6 +49,28 @@ function createMainWindow() {
   window.webContents.on("new-window", (event, url) => {
     event.preventDefault()
     open(url)
+  })
+
+  // subscribe this window to deeplink urls
+  const unsubscribe = protocolHandler.subscribe(url => {
+    window.webContents.send("deeplink:url", url)
+    if (process.platform === "linux") {
+      // needed for minimized windows to come to the foreground
+      window.minimize()
+      window.restore()
+      window.focus()
+    }
+    window.show()
+  })
+
+  // unsubscribe on window close
+  window.on("closed", () => {
+    protocolHandler.windowDestroyed()
+    unsubscribe()
+  })
+
+  window.webContents.on("did-finish-load", () => {
+    protocolHandler.windowReady()
   })
 
   return window

@@ -3,6 +3,10 @@ appId: io.solarwallet.app
 productName: Solar Wallet
 copyright: Copyright © 2019 SatoshiPay Ltd
 
+protocols:
+  name: Stellar transaction / payment requests URL,
+  schemes: [web+stellar]
+
 directories:
   buildResources: ./electron/build
   output: ./electron/dist
@@ -19,3 +23,8 @@ publish:
 win:
   # Electron builder bug: Without this line the icon gets corrupted on Windows
   icon: ./electron/build/icon.png
+
+linux:
+  #  must not contain a whitespace for the .desktop file
+  artifactName: Solar-Wallet-${version}.${ext}
+  category: Utility
