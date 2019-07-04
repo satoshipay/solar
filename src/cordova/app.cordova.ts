@@ -19,6 +19,7 @@ let clientSecretPromise: Promise<string>
 let isBioAuthAvailable = false
 
 let lastNativeInteractionTime: number = 0
+let storageInitialization: Promise<CordovaSecureStorage> | undefined
 
 export function refreshLastNativeInteractionTime() {
   lastNativeInteractionTime = Date.now()
@@ -67,13 +68,9 @@ function onDeviceReady() {
 
   // Need to wait for storage to be initialized or
   // getCurrentSettings() won't be reliable
-  initializeStorage()
-    .then(async secureStorage => {
-      window.addEventListener("message", async event => {
-        handleMessageEvent(event, contentWindow, secureStorage)
-      })
-
-      clientSecretPromise = getClientSecret()
+  initializeStorage(contentWindow)
+    .then(async () => {
+      clientSecretPromise = getClientSecret(contentWindow)
       isBioAuthAvailable = await bioAuthAvailablePromise
 
       if (isBioAuthEnabled()) {
@@ -87,9 +84,9 @@ function onDeviceReady() {
     .catch(trackError)
 }
 
-function getClientSecret() {
+function getClientSecret(contentWindow: Window) {
   return new Promise<string>((resolve, reject) => {
-    initializeStorage().then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
+    initializeStorage(contentWindow).then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
   })
 }
 
@@ -162,9 +159,14 @@ function initializeClipboard(cordova: Cordova) {
   })
 }
 
-function initializeStorage() {
+function initializeStorage(contentWindow: Window) {
+  // Do not try to initialize storage / add message handler twice
+  if (storageInitialization) {
+    return storageInitialization
+  }
+
   const initPromise = initSecureStorage().catch(
-    (error): any => {
+    (): any => {
       // Assume that it is a 'device not secure' error
       alert(
         "This application requires you to set a PIN or unlock pattern for your device.\n\nPlease retry after setting it up."
@@ -173,7 +175,13 @@ function initializeStorage() {
     }
   )
 
-  return initPromise
+  // Set up event listener synchronously, so it's working as early as possible
+  window.addEventListener("message", async event => {
+    handleMessageEvent(event, contentWindow, await initPromise)
+  })
+
+  storageInitialization = initPromise
+  return storageInitialization
 }
 
 function initializeIPhoneNotchFix() {
