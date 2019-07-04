@@ -19,6 +19,7 @@ let clientSecretPromise: Promise<string>
 let isBioAuthAvailable = false
 
 let lastNativeInteractionTime: number = 0
+let storageInitialization: Promise<CordovaSecureStorage> | undefined
 
 export function refreshLastNativeInteractionTime() {
   lastNativeInteractionTime = Date.now()
@@ -159,8 +160,13 @@ function initializeClipboard(cordova: Cordova) {
 }
 
 function initializeStorage(contentWindow: Window) {
+  // Do not try to initialize storage / add message handler twice
+  if (storageInitialization) {
+    return storageInitialization
+  }
+
   const initPromise = initSecureStorage().catch(
-    (error): any => {
+    (): any => {
       // Assume that it is a 'device not secure' error
       alert(
         "This application requires you to set a PIN or unlock pattern for your device.\n\nPlease retry after setting it up."
@@ -174,7 +180,8 @@ function initializeStorage(contentWindow: Window) {
     handleMessageEvent(event, contentWindow, await initPromise)
   })
 
-  return initPromise
+  storageInitialization = initPromise
+  return storageInitialization
 }
 
 function initializeIPhoneNotchFix() {
