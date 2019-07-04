@@ -1,11 +1,16 @@
 export function subscribeToDeepLinkURLs(callback: (url: string) => void) {
-  window.navigator.registerProtocolHandler("web+stellar", "http://localhost:3000/#/?uri=%s", "Stellar request handler")
+  window.navigator.registerProtocolHandler(
+    "web+stellar",
+    `${window.location.origin}/?uri=%s`,
+    "Stellar request handler"
+  )
 
-  // checks if the current url has the uri parameter
-  const uri = new URLSearchParams(window.location.hash.replace("#/", "")).get("uri")
+  // check if a stellar uri has been passed already
+  const uri = new URLSearchParams(window.location.search).get("uri")
   if (uri) {
     callback(uri)
   }
 
+  // no way to unsubscribe
   return () => undefined
 }
