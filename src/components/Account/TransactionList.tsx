@@ -61,8 +61,7 @@ function OfferDescription(props: {
   }
 
   if (offerId === "0") {
-    // Offer creation
-    prefix = ""
+    prefix = "Create offer: "
   } else if (amount.eq(0)) {
     prefix = "Delete offer: "
   } else {
