@@ -1,14 +1,43 @@
 import React from "react"
-import { TransactionStellarUri, PayStellarUri, parseStellarUri } from "@stellarguard/stellar-uri"
+import { StellarUri, StellarUriType, TransactionStellarUri, parseStellarUri } from "@stellarguard/stellar-uri"
 import { trackError } from "./notifications"
+import { subscribeToDeepLinkURLs } from "../platform/protocol-handler"
+import { Transaction, Operation, Signer, OperationType } from "stellar-sdk"
+
+interface TrustedService {
+  domain: string
+  publicKey: string
+  validateTransaction(tx: Transaction): void
+}
+
+const trustedServices: TrustedService[] = [
+  {
+    domain: "test.stellarguard.me",
+    publicKey: "GDENOP42IGYUZH3B6BRDWWVTLG3AWKGACBF6CBAMJ5RWEMXLKI5IX2XM",
+    validateTransaction(tx) {
+      if (tx.operations[0].type === "setOptions" && tx.operations[1].type === "setOptions") {
+        const firstOperation = tx.operations[0] as Operation.SetOptions
+        const secondOperation = tx.operations[1] as Operation.SetOptions
+        if (
+          !((secondOperation.signer as Signer.Ed25519PublicKey).ed25519PublicKey === this.publicKey) &&
+          !((firstOperation.signer as Signer.Ed25519PublicKey).ed25519PublicKey === this.publicKey)
+        ) {
+          throw new Error("Public key of transaction does not match StellarGuard public key")
+        }
+      } else {
+        throw new Error("Transaction must only contain setOptions operations.")
+      }
+    }
+  }
+]
 
 interface Props {
   children: React.ReactNode
 }
 
 interface ContextType {
-  uri: TransactionStellarUri | PayStellarUri | null
-  clearURI(): void
+  uri: StellarUri | null
+  clearURI: () => void
 }
 
 const initialValues: ContextType = {
@@ -19,40 +48,57 @@ const initialValues: ContextType = {
 const TransactionRequestContext = React.createContext<ContextType>(initialValues)
 
 export function TransactionRequestProvider(props: Props) {
-  const [contextValue, setContextValue] = React.useState<ContextType>(initialValues)
+  const [uri, setURI] = React.useState<StellarUri | null>(null)
 
   const clearURI = () => {
-    setContextValue({ uri: null, ...contextValue })
+    setURI(null)
   }
 
   const verify = async (request: string) => {
     try {
-      const uri = parseStellarUri(request)
+      const parsedURI = parseStellarUri(request)
 
-      const isVerified = await uri.verifySignature()
+      const isVerified = await parsedURI.verifySignature()
       if (isVerified) {
-        setContextValue({ uri, clearURI })
+        setURI(parsedURI)
       } else {
-        trackError(new Error(`Verification of uri '${uri}'failed`))
+        if (parsedURI.isTestNetwork) {
+          // try fallback on testnet
+          verifyWithTrustedService(parsedURI)
+        } else {
+          trackError(new Error(`Verification of uri '${parsedURI}' failed`))
+        }
       }
     } catch (error) {
       trackError(error)
     }
   }
-
-  const subscribeToDeeplinkURLs = (callback: (url: string) => void) => {
-    callback("test")
+  const verifyWithTrustedService = (uriToVerify: StellarUri) => {
+    const trustedService = trustedServices.find(ts => ts.domain === uriToVerify.originDomain)
+    if (trustedService) {
+      try {
+        if (uriToVerify.operation === StellarUriType.Transaction) {
+          const transaction = new Transaction((uriToVerify as TransactionStellarUri).xdr)
+          trustedService.validateTransaction(transaction)
+          setURI(uriToVerify)
+        }
+      } catch (error) {
+        trackError(error)
+      }
+    }
   }
 
   React.useEffect(() => {
-    const unsubscribe = subscribeToDeeplinkURLs(url => {
+    const unsubscribe = subscribeToDeepLinkURLs(url => {
       verify(url)
     })
 
     return unsubscribe
   }, [])
 
-  return <TransactionRequestContext.Provider value={contextValue}>{props.children}</TransactionRequestContext.Provider>
+  return (
+    <TransactionRequestContext.Provider value={{ uri, clearURI }}>{props.children}</TransactionRequestContext.Provider>
+  )
 }
 
 export { ContextType as TransactionRequestContextType, TransactionRequestContext }
