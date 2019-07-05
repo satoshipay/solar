@@ -124,8 +124,9 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
             <AccountSelectionList
               disabled={!mergeAccountEnabled}
               accounts={accounts.filter(
-                account => account.publicKey !== props.account.publicKey && account.testnet === props.account.testnet
+                acc => acc.publicKey !== props.account.publicKey && acc.testnet === props.account.testnet
               )}
+              testnet={props.account.testnet}
               onChange={setSelectedMergeAccount}
             />
           </>
