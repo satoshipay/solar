@@ -24,6 +24,8 @@ import CreateAccountPage from "./pages/create-account"
 import SettingsPage from "./pages/settings"
 import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
+import { TransactionRequestProvider } from "./context/transactionRequest"
+import TransactionRequestHandler from "./components/TransactionRequestHandler"
 
 Network.usePublicNetwork()
 SmoothScroll.polyfill()
@@ -36,13 +38,15 @@ const Providers = (props: { children: React.ReactNode }) => (
     <MuiThemeProvider theme={theme}>
       <StellarProvider>
         <AccountsProvider>
-          <SettingsProvider>
-            <CachingProviders>
-              <NotificationsProvider>
-                <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
-              </NotificationsProvider>
-            </CachingProviders>
-          </SettingsProvider>
+          <TransactionRequestProvider>
+            <SettingsProvider>
+              <CachingProviders>
+                <NotificationsProvider>
+                  <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
+                </NotificationsProvider>
+              </CachingProviders>
+            </SettingsProvider>
+          </TransactionRequestProvider>
         </AccountsProvider>
       </StellarProvider>
     </MuiThemeProvider>
@@ -70,6 +74,7 @@ const App = () => (
       </VerticalLayout>
       {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
       <DesktopNotifications />
+      <TransactionRequestHandler />
       <NotificationContainer />
       {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
       {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
