@@ -8,16 +8,37 @@ import { DialogActionsBox, ActionButton } from "./Generic"
 import StellarGuardIcon from "../Icon/StellarGuard"
 import { Transaction } from "stellar-base"
 import AccountSelectionList from "../Account/AccountSelectionList"
-import { Account } from "../../context/accounts"
+import { Account, AccountsContext } from "../../context/accounts"
+import TransactionSender from "../TransactionSender"
+import { loadAccount } from "../../lib/account"
+import { Server } from "stellar-sdk"
+import { createCopyWithDifferentSourceAccount } from "../../lib/transaction"
 
 interface Props {
   onClose: () => void
   transaction: Transaction
+  testnet: boolean
   accounts: Account[]
+  horizon: Server
+  sendTransaction: (account: Account, transaction: Transaction) => void
 }
 
-function StellarGuardActivationDialog(props: Props) {
+export function StellarGuardActivationDialog(props: Props) {
+  const [selectedAccount, setSelectedAccount] = React.useState<Account | null>(null)
   const isSmallScreen = useIsMobile()
+
+  const submit = async () => {
+    if (selectedAccount) {
+      const stellarAccount = await loadAccount(props.horizon, selectedAccount.publicKey)
+      if (stellarAccount) {
+        const modifiedTransaction = createCopyWithDifferentSourceAccount(props.transaction, stellarAccount)
+        await props.sendTransaction(selectedAccount, modifiedTransaction)
+        setTimeout(props.onClose, 2000)
+      }
+    }
+  }
+
+  const filteredAccounts = props.accounts.filter(account => account.testnet === props.testnet)
 
   return (
     <>
@@ -29,7 +50,7 @@ function StellarGuardActivationDialog(props: Props) {
           <StellarGuardIcon style={{ color: "blue" }} />
         </HorizontalLayout>
         <Typography variant="body1" style={{ marginTop: 8 }}>
-          To add two-factor authentication to your account you need to share your public key with StellarGuard.
+          To add two-factor authentication to your account you need to add StellarGuard as co-signer to your account.
           <br />
           Don't worry, StellarGuard is a verified partner of ours.
         </Typography>
@@ -38,18 +59,34 @@ function StellarGuardActivationDialog(props: Props) {
         <Typography align="center" style={{ marginBottom: 12 }}>
           Select the account to which you want to add two-factor authentication:
         </Typography>
-        <AccountSelectionList accounts={props.accounts} />
+        <AccountSelectionList onChange={setSelectedAccount} accounts={filteredAccounts} testnet={props.testnet} />
       </VerticalLayout>
       <DialogActionsBox>
         <ActionButton icon={<CloseIcon />} onClick={props.onClose}>
           Cancel
         </ActionButton>
-        <ActionButton autoFocus icon={<CheckIcon />} onClick={undefined} type="primary">
-          Share my public key
+        <ActionButton
+          autoFocus
+          disabled={selectedAccount === null}
+          icon={<CheckIcon />}
+          onClick={submit}
+          type="primary"
+        >
+          Activate StellarGuard
         </ActionButton>
       </DialogActionsBox>
     </>
   )
 }
 
-export default StellarGuardActivationDialog
+function StellarGuardActivationContainer(props: { testnet: boolean; transaction: Transaction; onClose: () => void }) {
+  const accountsContext = React.useContext(AccountsContext)
+
+  return (
+    <TransactionSender testnet={props.testnet}>
+      {txContext => <StellarGuardActivationDialog {...props} {...accountsContext} {...txContext} />}
+    </TransactionSender>
+  )
+}
+
+export default StellarGuardActivationContainer
