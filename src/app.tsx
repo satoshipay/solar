@@ -1,7 +1,6 @@
 /// <reference types="parcel-env" />
 
 import "babel-polyfill"
-
 import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router, Route, Switch } from "react-router-dom"
@@ -25,6 +24,8 @@ import CreateAccountPage from "./pages/create-account"
 import SettingsPage from "./pages/settings"
 import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
+import { TransactionRequestProvider } from "./context/transactionRequest"
+import TransactionRequestHandler from "./components/TransactionRequestHandler"
 
 Network.usePublicNetwork()
 
@@ -36,13 +37,15 @@ const Providers = (props: { children: React.ReactNode }) => (
     <MuiThemeProvider theme={theme}>
       <StellarProvider>
         <AccountsProvider>
-          <SettingsProvider>
-            <CachingProvider>
-              <NotificationsProvider>
-                <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
-              </NotificationsProvider>
-            </CachingProvider>
-          </SettingsProvider>
+          <TransactionRequestProvider>
+            <SettingsProvider>
+              <CachingProvider>
+                <NotificationsProvider>
+                  <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
+                </NotificationsProvider>
+              </CachingProvider>
+            </SettingsProvider>
+          </TransactionRequestProvider>
         </AccountsProvider>
       </StellarProvider>
     </MuiThemeProvider>
@@ -70,6 +73,7 @@ const App = () => (
       </VerticalLayout>
       {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
       <DesktopNotifications />
+      <TransactionRequestHandler />
       <NotificationContainer />
       {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
       {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
