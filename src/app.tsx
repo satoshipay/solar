@@ -26,6 +26,8 @@ import SettingsPage from "./pages/settings"
 import * as routes from "./routes"
 import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
+import { TransactionRequestProvider } from "./context/transactionRequest"
+import TransactionRequestHandler from "./components/TransactionRequestHandler"
 
 Network.usePublicNetwork()
 
@@ -37,13 +39,15 @@ const Providers = (props: { children: React.ReactNode }) => (
     <MuiThemeProvider theme={theme}>
       <StellarProvider>
         <AccountsProvider>
-          <SettingsProvider>
-            <CachingProvider>
-              <NotificationsProvider>
-                <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
-              </NotificationsProvider>
-            </CachingProvider>
-          </SettingsProvider>
+          <TransactionRequestProvider>
+            <SettingsProvider>
+              <CachingProvider>
+                <NotificationsProvider>
+                  <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
+                </NotificationsProvider>
+              </CachingProvider>
+            </SettingsProvider>
+          </TransactionRequestProvider>
         </AccountsProvider>
       </StellarProvider>
     </MuiThemeProvider>
@@ -75,6 +79,7 @@ const App = () => (
             <Route exact path="/settings" component={SettingsPage} />
           </Switch>
           <DesktopNotifications />
+          <TransactionRequestHandler />
           <NotificationContainer />
           {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
           {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
