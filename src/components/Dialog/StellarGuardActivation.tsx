@@ -54,27 +54,27 @@ export function StellarGuardActivationDialog(props: Props) {
           <br />
           Don't worry, StellarGuard is a verified partner of ours.
         </Typography>
+        <VerticalLayout justifyContent="center" alignItems="center" margin="24px auto">
+          <Typography align="center" style={{ marginBottom: 12 }}>
+            Select the account to which you want to add two-factor authentication:
+          </Typography>
+          <AccountSelectionList onChange={setSelectedAccount} accounts={filteredAccounts} testnet={props.testnet} />
+        </VerticalLayout>
+        <DialogActionsBox>
+          <ActionButton icon={<CloseIcon />} onClick={props.onClose}>
+            Cancel
+          </ActionButton>
+          <ActionButton
+            autoFocus
+            disabled={selectedAccount === null}
+            icon={<CheckIcon />}
+            onClick={submit}
+            type="primary"
+          >
+            Activate StellarGuard
+          </ActionButton>
+        </DialogActionsBox>
       </Box>
-      <VerticalLayout justifyContent="center" alignItems="center">
-        <Typography align="center" style={{ marginBottom: 12 }}>
-          Select the account to which you want to add two-factor authentication:
-        </Typography>
-        <AccountSelectionList onChange={setSelectedAccount} accounts={filteredAccounts} testnet={props.testnet} />
-      </VerticalLayout>
-      <DialogActionsBox>
-        <ActionButton icon={<CloseIcon />} onClick={props.onClose}>
-          Cancel
-        </ActionButton>
-        <ActionButton
-          autoFocus
-          disabled={selectedAccount === null}
-          icon={<CheckIcon />}
-          onClick={submit}
-          type="primary"
-        >
-          Activate StellarGuard
-        </ActionButton>
-      </DialogActionsBox>
     </>
   )
 }
