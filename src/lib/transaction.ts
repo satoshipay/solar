@@ -2,6 +2,7 @@ import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, T
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
 import { getAllSources, getSignerKey, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
+import BigNumber from "big.js"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
@@ -209,4 +210,30 @@ export function isStellarWebAuthTransaction(transaction: Transaction) {
     firstOperation.type === "manageData" &&
     firstOperation.name.match(/ auth$/i)
   )
+}
+
+export function createCopyWithDifferentSourceAccount(transaction: Transaction, account: Server.AccountResponse) {
+  const envelope = transaction.toEnvelope()
+
+  const sequenceNumber = new BigNumber(account.sequenceNumber()).add(1)
+
+  const attrs = {
+    // @ts-ignore
+    sourceAccount: Keypair.fromPublicKey(account.accountId()).xdrAccountId(),
+    fee: transaction.fee,
+    // @ts-ignore
+    seqNum: xdr.SequenceNumber.fromString(sequenceNumber.toString()),
+    memo: transaction.memo.toXDRObject(),
+    // @ts-ignore
+    ext: new xdr.TransactionExt(0)
+  }
+
+  // @ts-ignore
+  const xdrTransaction = new xdr.Transaction(attrs)
+  // @ts-ignore
+  xdrTransaction.operations(envelope.tx().operations())
+  // @ts-ignore
+  const xdrEnvelope = new xdr.TransactionEnvelope({ tx: xdrTransaction })
+  const newTx = new Transaction(xdrEnvelope)
+  return newTx
 }
