@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import {
   Asset,
   Keypair,
@@ -217,4 +218,31 @@ export function isStellarWebAuthTransaction(transaction: Transaction) {
     firstOperation.type === "manageData" &&
     firstOperation.name.match(/ auth$/i)
   )
+}
+
+export function createCopyWithDifferentSourceAccount(transaction: Transaction, account: ServerApi.AccountRecord) {
+  const envelope = transaction.toEnvelope()
+
+  const sequenceNumber = new BigNumber(account.sequence).add(1)
+
+  const attrs = {
+    // @ts-ignore
+    sourceAccount: Keypair.fromPublicKey(account.accountId()).xdrAccountId(),
+    fee: transaction.fee,
+    // @ts-ignore
+    seqNum: xdr.SequenceNumber.fromString(sequenceNumber.toString()),
+    memo: transaction.memo.toXDRObject(),
+    // @ts-ignore
+    timeBounds: envelope.tx().timeBounds(),
+    // @ts-ignore
+    ext: new xdr.TransactionExt(0)
+  }
+
+  // @ts-ignore
+  const xdrTransaction = new xdr.Transaction(attrs)
+  // @ts-ignore
+  xdrTransaction.operations(envelope.tx().operations())
+  // @ts-ignore
+  const xdrEnvelope = new xdr.TransactionEnvelope({ tx: xdrTransaction })
+  return new Transaction(xdrEnvelope)
 }
