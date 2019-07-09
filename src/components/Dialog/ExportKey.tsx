@@ -55,6 +55,7 @@ function KeyExport(props: { account: Account; secretKey: string }) {
 }
 
 interface WarningBoxProps {
+  children: React.ReactNode
   password: string
   passwordError: Error | null
   requiresPassword: boolean
@@ -69,12 +70,7 @@ function WarningBox(props: WarningBoxProps) {
       <Background opacity={0.08}>
         <WarnIcon style={{ fontSize: 220 }} />
       </Background>
-      <Typography component="p" variant="body1">
-        Your secret key must be stored in a safe place and must not be shared with anyone.
-      </Typography>
-      <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24 }}>
-        A backup is important, though, since losing your secret key also means losing access to your account.
-      </Typography>
+      {props.children}
       <form onSubmit={props.onReveal}>
         {props.requiresPassword ? (
           <TextField
@@ -109,6 +105,7 @@ function WarningBox(props: WarningBoxProps) {
 interface Props {
   account: Account
   onClose: () => void
+  showBackupInfoText?: boolean
 }
 
 function ExportKeyDialog(props: Props) {
@@ -142,11 +139,40 @@ function ExportKeyDialog(props: Props) {
       })
   }
 
+  const backupInfoText = (
+    <>
+      <Typography component="p" variant="body1">
+        You just created a new account.
+      </Typography>
+      <Typography component="p" variant="body1" style={{ marginTop: 16 }}>
+        Please consider backing up your secret key right now by storing it in a safe place.
+      </Typography>
+      <Typography component="p" variant="body1" style={{ marginTop: 8, marginBottom: 24 }}>
+        A backup is an important precaution to protect yourself from losing access to your account since it allows you
+        to recover access to it.
+      </Typography>
+    </>
+  )
+
+  const exportInfoText = (
+    <>
+      <Typography component="p" variant="body1">
+        Your secret key must be stored in a safe place and must not be shared with anyone.
+      </Typography>
+      <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24 }}>
+        A backup is important, though, since losing your secret key also means losing access to your account.
+      </Typography>
+    </>
+  )
+
   return (
     <>
       <DialogContent style={{ padding: isSmallScreen ? "24px" : " 24px 32px" }}>
         <Box margin="0 0 32px">
-          <MainTitle onBack={props.onClose} title="Export Secret Key" />
+          <MainTitle
+            onBack={props.onClose}
+            title={props.showBackupInfoText ? "Backup Secret Key" : "Export Secret Key"}
+          />
         </Box>
         <VerticalLayout margin="0 auto" maxWidth="700px" width="100%">
           {isRevealed && secretKey ? (
@@ -158,7 +184,9 @@ function ExportKeyDialog(props: Props) {
               passwordError={passwordError}
               requiresPassword={props.account.requiresPassword}
               updatePassword={updatePassword}
-            />
+            >
+              {props.showBackupInfoText ? backupInfoText : exportInfoText}
+            </WarningBox>
           )}
         </VerticalLayout>
       </DialogContent>
