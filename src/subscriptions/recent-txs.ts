@@ -3,6 +3,7 @@ import { trackConnectionError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
+import { createCheapTxID } from "../lib/transaction"
 
 export interface ObservedRecentTxs {
   activated: boolean
@@ -46,13 +47,20 @@ export function createRecentTxsSubscription(
         .cursor(cursor)
         .stream({
           onmessage(transaction: Server.TransactionRecord) {
-            if (transaction.paging_token) {
-              cursor = transaction.paging_token
+            if (
+              subscriptionTarget
+                .getLatest()
+                .transactions.map(tx => createCheapTxID(tx))
+                .indexOf(createCheapTxID(transaction)) === -1
+            ) {
+              if (transaction.paging_token) {
+                cursor = transaction.paging_token
+              }
+              propagateUpdate({
+                ...subscriptionTarget.getLatest(),
+                transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
+              })
             }
-            propagateUpdate({
-              ...subscriptionTarget.getLatest(),
-              transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
-            })
           },
           onerror() {
             trackStreamError(Error("Recent transactions update stream errored."))
