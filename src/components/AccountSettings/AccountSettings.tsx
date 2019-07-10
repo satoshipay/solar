@@ -6,6 +6,7 @@ import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import EyeIcon from "@material-ui/icons/RemoveRedEye"
 import DeleteIcon from "@material-ui/icons/Delete"
+import DestinationIcon from "@material-ui/icons/Place"
 import GroupIcon from "@material-ui/icons/Group"
 import KeyIcon from "@material-ui/icons/VpnKey"
 import { Account } from "../../context/accounts"
@@ -17,6 +18,7 @@ import AccountDeletionDialog from "./AccountDeletionDialog"
 import AccountSettingsItem from "./AccountSettingsItem"
 import ChangePasswordDialog from "./ChangePasswordDialog"
 import ExportKeyDialog from "./ExportKeyDialog"
+import InflationDestinationDialog from "./InflationDestination"
 import ManageSignersDialog from "./ManageSignersDialog"
 
 const Transition = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="left" />)
@@ -27,6 +29,7 @@ function SettingsDialogs(props: Props) {
   const showChangePassword = matchesRoute(router.location.pathname, routes.changeAccountPassword("*"))
   const showDeleteAccount = matchesRoute(router.location.pathname, routes.deleteAccount("*"))
   const showExportKey = matchesRoute(router.location.pathname, routes.exportSecretKey("*"))
+  const showInflationDest = matchesRoute(router.location.pathname, routes.setInflationDestination("*"))
   const showManageSigners = matchesRoute(router.location.pathname, routes.manageAccountSigners("*"))
 
   const navigateTo = React.useMemo(
@@ -39,9 +42,6 @@ function SettingsDialogs(props: Props) {
 
   return (
     <>
-      <Dialog fullScreen open={showManageSigners} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
-        <ManageSignersDialog account={props.account} onClose={navigateTo.accountSettings} />
-      </Dialog>
       <Dialog
         fullScreen
         open={showChangePassword}
@@ -59,6 +59,12 @@ function SettingsDialogs(props: Props) {
       </Dialog>
       <Dialog fullScreen open={showExportKey} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
         <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
+      </Dialog>
+      <Dialog fullScreen open={showInflationDest} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
+        <InflationDestinationDialog account={props.account} onClose={navigateTo.accountSettings} />
+      </Dialog>
+      <Dialog fullScreen open={showManageSigners} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
+        <ManageSignersDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
     </>
   )
@@ -79,6 +85,7 @@ function AccountSettings(props: Props) {
       changePassword: () => router.history.push(routes.changeAccountPassword(props.account.id)),
       deleteAccount: () => router.history.push(routes.deleteAccount(props.account.id)),
       exportSecretKey: () => router.history.push(routes.exportSecretKey(props.account.id)),
+      setInflationDestination: () => router.history.push(routes.setInflationDestination(props.account.id)),
       manageSigners: () => router.history.push(routes.manageAccountSigners(props.account.id))
     }),
     [router.history, props.account]
@@ -118,6 +125,17 @@ function AccountSettings(props: Props) {
             />
           </AccountSettingsItem>
         ) : null}
+        <AccountSettingsItem
+          disabled={!accountData.activated}
+          icon={<DestinationIcon style={{ fontSize: "100%" }} />}
+          onClick={navigateTo.setInflationDestination}
+        >
+          <ListItemText
+            primary={accountData.inflation_destination ? "Set Inflation Destination" : "Join Inflation Pool"}
+            secondary={isSmallScreen ? "Join a pool for weekly payouts." : "Inflation is 1% per year. Join a pool for weekly payouts."}
+            style={listItemTextStyle}
+          />
+        </AccountSettingsItem>
         <AccountSettingsItem icon={<EyeIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.exportSecretKey}>
           <ListItemText
             primary="Export Secret Key"

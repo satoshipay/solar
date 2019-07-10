@@ -5,27 +5,26 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
 import DestinationIcon from "@material-ui/icons/Place"
-import { useIsMobile, ObservedAccountData } from "../../hooks"
+import { useAccountData, useIsMobile } from "../../hooks"
 import { Account } from "../../context/accounts"
 import { isPublicKey } from "../../lib/stellar-address"
 import TransactionSender from "../TransactionSender"
 import { VerticalLayout } from "../Layout/Box"
 import { createTransaction } from "../../lib/transaction"
 import { renderFormFieldError } from "../../lib/errors"
+import { ActionButton, CloseButton, DialogActionsBox } from "../Dialog/Generic"
 import { QRReader } from "../Form/FormFields"
 import { CopyableAddress } from "../PublicKey"
-import { ActionButton, CloseButton, DialogActionsBox } from "./Generic"
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
   horizon: Server
   onClose: () => void
-  onSubmit: () => void
   sendTransaction: (transaction: Transaction) => void
 }
 
 function InflationDestinationDialog(props: Props) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const [destination, setDestination] = React.useState("")
   const [error, setError] = React.useState<Error | null>(null)
 
@@ -38,7 +37,7 @@ function InflationDestinationDialog(props: Props) {
     } else if (!isPublicKey(destination)) {
       setError(new Error("Invalid stellar account id."))
       return false
-    } else if (props.accountData.inflation_destination === destination) {
+    } else if (accountData.inflation_destination === destination) {
       setError(new Error("Same inflation destination selected."))
       return false
     } else {
@@ -48,7 +47,7 @@ function InflationDestinationDialog(props: Props) {
   }
 
   const submitTransaction = async () => {
-    const { accountData, horizon } = props
+    const { horizon } = props
     const transaction = await createTransaction(
       [
         Operation.setOptions({
@@ -72,11 +71,11 @@ function InflationDestinationDialog(props: Props) {
   const CurrentInflationDestinationComponent = React.useCallback(
     () => (
       <CopyableAddress
-        address={props.accountData.inflation_destination ? props.accountData.inflation_destination : ""}
+        address={accountData.inflation_destination ? accountData.inflation_destination : ""}
         variant="full"
       />
     ),
-    [props.accountData.inflation_destination]
+    [accountData.inflation_destination]
   )
 
   return (
@@ -84,7 +83,7 @@ function InflationDestinationDialog(props: Props) {
       <DialogTitle>Set inflation destination</DialogTitle>
       <DialogContent>
         <form style={{ minWidth: isSmallScreen ? 120 : 400 }} onSubmit={onSubmit}>
-          {props.accountData.inflation_destination && (
+          {accountData.inflation_destination && (
             <>
               <InputLabel style={{ overflow: "visible", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                 Current inflation destination
@@ -136,9 +135,7 @@ function InflationDestinationDialog(props: Props) {
 
 interface InflationDestinationContainerProps {
   account: Account
-  accountData: ObservedAccountData
   onClose: () => void
-  onSubmit: () => void
 }
 
 function InflationDestinationContainer(props: InflationDestinationContainerProps) {
