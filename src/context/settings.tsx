@@ -1,4 +1,5 @@
 import React from "react"
+import testBiometricAuth from "../platform/cordova/test-bio-auth"
 import {
   loadIgnoredSignatureRequestHashes,
   loadSettings,
@@ -90,9 +91,16 @@ export function SettingsProvider(props: Props) {
   }
 
   const confirmToC = () => updateSettings({ agreedToTermsAt: new Date().toISOString() })
-  const toggleBiometricLock = () => updateSettings({ biometricLock: !settings.biometricLock })
   const toggleMultiSignature = () => updateSettings({ multisignature: !settings.multisignature })
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
+
+  const toggleBiometricLock = () => {
+    if (!settings.biometricLock) {
+      testBiometricAuth().then(() => updateSettings({ biometricLock: true }))
+    } else {
+      updateSettings({ biometricLock: false })
+    }
+  }
 
   const contextValue: ContextType = {
     agreedToTermsAt: settings.agreedToTermsAt,
