@@ -71,7 +71,7 @@ function InflationDestinationDialog(props: Props) {
   const CurrentInflationDestinationComponent = React.useCallback(
     () => (
       <CopyableAddress
-        address={accountData.inflation_destination ? accountData.inflation_destination : ""}
+        address={accountData.inflation_destination ? accountData.inflation_destination : "None"}
         variant="full"
       />
     ),
@@ -83,24 +83,20 @@ function InflationDestinationDialog(props: Props) {
       <DialogTitle>Set inflation destination</DialogTitle>
       <DialogContent>
         <form style={{ minWidth: isSmallScreen ? 120 : 400 }} onSubmit={onSubmit}>
-          {accountData.inflation_destination && (
-            <>
-              <InputLabel style={{ overflow: "visible", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                Current inflation destination
-              </InputLabel>
-              <br />
-              <Input
-                disableUnderline
-                inputComponent={CurrentInflationDestinationComponent}
-                style={{
-                  maxWidth: "100%",
-                  overflow: "hidden",
-                  fontSize: isSmallScreen ? 12 : 14,
-                  wordBreak: "break-word"
-                }}
-              />
-            </>
-          )}
+          <InputLabel style={{ overflow: "visible", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            Current inflation destination
+          </InputLabel>
+          <br />
+          <Input
+            disableUnderline
+            inputComponent={CurrentInflationDestinationComponent}
+            style={{
+              maxWidth: "100%",
+              overflow: "hidden",
+              fontSize: isSmallScreen ? 12 : 14,
+              wordBreak: "break-word"
+            }}
+          />
           <TextField
             error={Boolean(error)}
             label={error ? renderFormFieldError(error) : "Destination address"}
