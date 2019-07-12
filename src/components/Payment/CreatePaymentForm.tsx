@@ -13,6 +13,7 @@ import { useIsMobile, useFederationLookup, RefStateObject, ObservedAccountData }
 import { renderFormFieldError } from "../../lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
+import { isKnownExchange } from "../../lib/wellKnownStellarAccounts"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -64,7 +65,9 @@ function validateFormValues(formValues: PaymentCreationValues, spendableBalance:
     errors.amount = new Error("Not enough funds.")
   }
 
-  if (formValues.memoValue.length > 28) {
+  if (isKnownExchange(formValues.destination) && formValues.memoValue === "") {
+    errors.memoValue = new Error("You must add a memo before sending funds to a known exchange.")
+  } else if (formValues.memoValue.length > 28) {
     errors.memoValue = new Error("Memo too long.")
   }
 
@@ -128,6 +131,18 @@ function PaymentCreationForm(props: Props) {
     memoType: "none",
     memoValue: ""
   })
+
+  const [memoPlaceholder, setMemoPlaceholder] = React.useState("Description (optional)")
+  React.useEffect(
+    () => {
+      if (isKnownExchange(formValues.destination)) {
+        setMemoPlaceholder("Description (mandatory)")
+      } else {
+        setMemoPlaceholder("Description (optional)")
+      }
+    },
+    [formValues.destination]
+  )
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
 
@@ -245,7 +260,7 @@ function PaymentCreationForm(props: Props) {
           inputProps={{ maxLength: 28 }}
           error={Boolean(errors.memoValue)}
           label={errors.memoValue ? renderFormFieldError(errors.memoValue) : "Memo"}
-          placeholder="Description (optional)"
+          placeholder={memoPlaceholder}
           margin="normal"
           onChange={event => {
             setFormValues({
