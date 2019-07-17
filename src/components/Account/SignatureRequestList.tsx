@@ -11,6 +11,7 @@ interface SignatureRequestListItemProps {
   accountPublicKey: string
   icon?: React.ReactElement<any>
   onOpenTransaction?: (tx: Transaction, signatureRequest: SignatureRequest) => void
+  showMemo: boolean
   signatureRequest: SignatureRequest
   style?: React.CSSProperties
 }
@@ -31,6 +32,7 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
       icon={props.icon}
       onOpenTransaction={openTransaction}
       style={props.style}
+      showMemo={props.showMemo}
       transaction={signatureRequest.meta.transaction}
     />
   )
@@ -40,6 +42,7 @@ interface SignatureRequestListProps {
   accountPublicKey: string
   icon?: React.ReactElement<any>
   onOpenTransaction?: (transaction: Transaction, signatureRequest: SignatureRequest) => void
+  showMemos: boolean
   signatureRequests: SignatureRequest[]
   title: React.ReactNode
 }
@@ -62,6 +65,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
             icon={props.icon}
             onOpenTransaction={props.onOpenTransaction}
             signatureRequest={signatureRequest}
+            showMemo={props.showMemos}
             style={{
               minHeight: 72
             }}
@@ -77,6 +81,7 @@ export const InteractiveSignatureRequestList = React.memo(
     account: Account
     icon?: React.ReactElement<any>
     signatureRequests: SignatureRequest[]
+    showMemos: boolean
     title: React.ReactNode
   }) => {
     if (props.signatureRequests.length === 0) {
@@ -90,6 +95,7 @@ export const InteractiveSignatureRequestList = React.memo(
             icon={props.icon}
             onOpenTransaction={sendTransaction}
             signatureRequests={props.signatureRequests}
+            showMemos={props.showMemos}
             title={props.title}
           />
         )}

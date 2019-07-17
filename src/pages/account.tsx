@@ -87,6 +87,7 @@ function AccountActions(props: AccountActionsProps) {
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
+  const { hideMemos } = React.useContext(SettingsContext)
 
   const cosignIcon = React.useMemo(() => <DoneAllIcon />, [])
   const waitingIcon = React.useMemo(() => <UpdateIcon style={{ opacity: 0.5 }} />, [])
@@ -118,12 +119,14 @@ function PendingMultisigTransactions(props: { account: Account }) {
       <InteractiveSignatureRequestList
         account={props.account}
         icon={cosignIcon}
+        showMemos={!hideMemos}
         signatureRequests={pendingRequestsToCosign}
         title="Transactions to co-sign"
       />
       <InteractiveSignatureRequestList
         account={props.account}
         icon={waitingIcon}
+        showMemos={!hideMemos}
         signatureRequests={pendingRequestsWaitingForOthers}
         title="Awaiting additional signatures"
       />
@@ -150,6 +153,7 @@ function Transactions(props: { account: Account }) {
           <TransactionList
             account={account}
             background="transparent"
+            showMemos={!settings.hideMemos}
             title="Recent transactions"
             testnet={account.testnet}
             transactions={recentTxs.transactions}

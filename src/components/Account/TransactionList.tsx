@@ -135,6 +135,7 @@ interface TitleTextProps {
   createdAt: string
   paymentSummary: PaymentSummary
   style?: React.CSSProperties
+  showMemo: boolean
   transaction: Transaction
 }
 
@@ -150,7 +151,7 @@ function TransactionItemText(props: TitleTextProps) {
   const secondary = (
     <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
       <Time time={props.createdAt} />
-      {props.transaction.memo.type !== "none" ? (
+      {props.showMemo && props.transaction.memo.type !== "none" ? (
         <>
           &nbsp;&nbsp;|&nbsp;&nbsp;
           <MemoMessage prefix={<>Memo:&nbsp;</>} memo={props.transaction.memo} />
@@ -361,6 +362,7 @@ interface TransactionListItemProps {
   icon?: React.ReactElement<any>
   onOpenTransaction?: (transaction: Transaction) => void
   style?: React.CSSProperties
+  showMemo: boolean
   transaction: Transaction
 }
 
@@ -389,6 +391,7 @@ export const TransactionListItem = React.memo(
           alwaysShowSource={props.alwaysShowSource}
           createdAt={props.createdAt}
           paymentSummary={paymentSummary}
+          showMemo={props.showMemo}
           style={{
             fontSize: isSmallScreen ? "0.8rem" : undefined,
             fontWeight: "bold",
@@ -407,6 +410,7 @@ export const TransactionListItem = React.memo(
 function TransactionList(props: {
   account: Account
   background?: React.CSSProperties["background"]
+  showMemos: boolean
   testnet: boolean
   title: React.ReactNode
   onOpenTransaction?: (transaction: Transaction) => void
@@ -444,6 +448,7 @@ function TransactionList(props: {
             key={createCheapTxID(transaction)}
             accountPublicKey={props.account.publicKey}
             createdAt={transaction.created_at}
+            showMemo={props.showMemos}
             transaction={transaction}
             onOpenTransaction={() => setOpenTransaction(transaction)}
           />
