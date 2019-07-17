@@ -45,6 +45,13 @@ const Memoized = <Value extends {}>(props: MemoizedProps<Value>) => {
 
 export function AccountName(props: { publicKey: string; testnet: boolean }) {
   const horizon = useHorizon(props.testnet)
+  const getFallbackName = () => {
+    if (props.publicKey === "GD5J6HLF5666X4AZLTFTXLY46J5SW7EXRKBLEYPJP33S33MXZGV6CWFN") {
+      // FIXME: Remove once they set their home_domain
+      return "bitbondsto.com"
+    }
+    return props.publicKey
+  }
   return (
     <Memoized
       cacheKey={`AccountData:${props.publicKey}`}
@@ -55,7 +62,7 @@ export function AccountName(props: { publicKey: string; testnet: boolean }) {
           .call()
       }
       then={(accountData: any) => (
-        <span style={{ userSelect: "text" }}>{accountData.home_domain || props.publicKey}</span>
+        <span style={{ userSelect: "text" }}>{accountData.home_domain || getFallbackName()}</span>
       )}
       catch={() => props.publicKey}
       pending={props.publicKey}
