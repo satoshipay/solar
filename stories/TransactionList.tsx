@@ -21,10 +21,30 @@ function SampleTransactions(props: { children: (transactions: Transaction[]) => 
   return props.children(transactions)
 }
 
-storiesOf("TransactionList", module).add("Recent transactions", () => (
-  <SampleTransactions>
-    {transactions => (
-      <TransactionList account={account} testnet title="Recent transactions" transactions={transactions} />
-    )}
-  </SampleTransactions>
-))
+storiesOf("TransactionList", module)
+  .add("Recent transactions with memos", () => (
+    <SampleTransactions>
+      {transactions => (
+        <TransactionList
+          showMemos={true}
+          account={account}
+          testnet
+          title="Recent transactions"
+          transactions={transactions}
+        />
+      )}
+    </SampleTransactions>
+  ))
+  .add("Recent transactions without memos", () => (
+    <SampleTransactions>
+      {transactions => (
+        <TransactionList
+          showMemos={false}
+          account={account}
+          testnet
+          title="Recent transactions"
+          transactions={transactions}
+        />
+      )}
+    </SampleTransactions>
+  ))
