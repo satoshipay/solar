@@ -45,6 +45,20 @@ function Settings() {
         </Typography>
       </ToggleSection>
       <ToggleSection
+        checked={settings.hideMemos}
+        onChange={settings.toggleHideMemos}
+        title="Hide memos in transactions overview"
+      >
+        <Typography
+          color={settings.hideMemos ? "default" : "textSecondary"}
+          style={{ margin: "8px 0 0" }}
+          variant="body2"
+        >
+          Memos are text messages that can be included with transactions. Enable this option to hide them in the
+          overview. They will still be shown in the detailed view of a transaction.
+        </Typography>
+      </ToggleSection>
+      <ToggleSection
         checked={settings.biometricLock}
         onChange={settings.toggleBiometricLock}
         style={biometricLockAvailable ? {} : { display: "none" }}
