@@ -219,6 +219,7 @@ function setupLinkListener() {
 function openUrl(url: string) {
   SafariViewController.isAvailable(available => {
     if (available) {
+      refreshLastNativeInteractionTime()
       SafariViewController.show(
         {
           url,
@@ -226,7 +227,7 @@ function openUrl(url: string) {
           barColor: "#1c8fea",
           controlTintColor: "#ffffff"
         },
-        null,
+        () => refreshLastNativeInteractionTime(),
         null
       )
     }
