@@ -21,16 +21,19 @@ interface ContextType {
   multiSignature: boolean
   multiSignatureServiceURL: string
   showTestnet: boolean
+  hideMemos: boolean
   toggleBiometricLock: () => void
   toggleMultiSignature: () => void
   toggleTestnet: () => void
+  toggleHideMemos: () => void
 }
 
 const initialSettings: SettingsData = {
   agreedToTermsAt: undefined,
   biometricLock: false,
   multisignature: false,
-  testnet: false
+  testnet: false,
+  hideMemos: false
 }
 
 const initialIgnoredSignatureRequests: string[] = []
@@ -46,9 +49,11 @@ const SettingsContext = React.createContext<ContextType>({
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
   showTestnet: initialSettings.testnet,
+  hideMemos: initialSettings.hideMemos,
   toggleBiometricLock: () => undefined,
   toggleMultiSignature: () => undefined,
-  toggleTestnet: () => undefined
+  toggleTestnet: () => undefined,
+  toggleHideMemos: () => undefined
 })
 
 export function SettingsProvider(props: Props) {
@@ -93,6 +98,7 @@ export function SettingsProvider(props: Props) {
   const toggleBiometricLock = () => updateSettings({ biometricLock: !settings.biometricLock })
   const toggleMultiSignature = () => updateSettings({ multisignature: !settings.multisignature })
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
+  const toggleHideMemos = () => updateSettings({ hideMemos: !settings.hideMemos })
 
   const contextValue: ContextType = {
     agreedToTermsAt: settings.agreedToTermsAt,
@@ -103,9 +109,11 @@ export function SettingsProvider(props: Props) {
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
     showTestnet: settings.testnet,
+    hideMemos: settings.hideMemos,
     toggleBiometricLock,
     toggleMultiSignature,
-    toggleTestnet
+    toggleTestnet,
+    toggleHideMemos
   }
 
   return <SettingsContext.Provider value={contextValue}>{props.children}</SettingsContext.Provider>
