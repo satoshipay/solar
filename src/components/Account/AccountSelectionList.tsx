@@ -77,7 +77,6 @@ const AccountSelectionListItem = React.memo(
       <ListItem
         button
         className={props.classes.listItem}
-        component="li"
         disabled={props.disabled}
         selected={props.selected}
         onClick={event => props.onClick(event, props.index)}

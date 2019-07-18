@@ -394,13 +394,7 @@ export const TransactionListItem = React.memo(
     const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
 
     return (
-      <ListItem
-        button={Boolean(onOpen) as any}
-        className={classes.listItem}
-        component="li"
-        onClick={onOpen}
-        style={props.style}
-      >
+      <ListItem button={Boolean(onOpen) as any} className={classes.listItem} onClick={onOpen} style={props.style}>
         <ListItemIcon>
           {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
         </ListItemIcon>

@@ -96,7 +96,7 @@ interface UntrustedAssetProps {
 function UntrustedAsset(props: UntrustedAssetProps) {
   const { account, asset } = props
   return (
-    <ListItem button component="li" onClick={() => props.onAddTrustline(asset)}>
+    <ListItem button onClick={() => props.onAddTrustline(asset)}>
       <ListItemIcon style={{ color: "inherit" }}>
         <UncheckedIcon />
       </ListItemIcon>
