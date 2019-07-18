@@ -44,7 +44,7 @@ const ListItem = (props: ListItemProps) => {
   )
   return (
     <MaterialListItem
-      button={props.button || Boolean(props.onClick)}
+      button={(props.button || Boolean(props.onClick)) as any}
       onClick={props.onClick || noop}
       style={props.style}
     >

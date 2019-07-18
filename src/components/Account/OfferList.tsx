@@ -55,7 +55,7 @@ const OfferListItem = React.memo(
     const isSmallScreen = useIsMobile()
     return (
       <ListItem
-        button={Boolean(props.onCancel)}
+        button={Boolean(props.onCancel) as any}
         className={props.classes.listItem}
         onClick={props.onCancel}
         style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}

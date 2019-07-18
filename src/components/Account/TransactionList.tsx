@@ -395,7 +395,7 @@ export const TransactionListItem = React.memo(
 
     return (
       <ListItem
-        button={Boolean(onOpen)}
+        button={Boolean(onOpen) as any}
         className={classes.listItem}
         component="li"
         onClick={onOpen}
