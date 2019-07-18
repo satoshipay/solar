@@ -60,11 +60,11 @@
     "react-qr-reader": "^2.1.0"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^5.0.11",
-    "@material-ui/core": "^3.9.2",
+    "@material-ui/core": "^4.2.1",
     "@material-ui/icons": "^3.0.1",
     "@satoshipay/stellar-sep-10": "^0.1.0",
     "@satoshipay/stellar-sep-6": "^0.1.0",
+    "@storybook/addon-actions": "^5.0.11",
     "@storybook/addon-centered": "^3.4.8",
     "@storybook/react": "^5.0.6",
     "@types/big.js": "^4.0.5",
