@@ -32,6 +32,10 @@ const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFOR
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 
+function sum(...amounts: Array<string | number | BigNumber>): BigNumber {
+  return amounts.reduce<BigNumber>((total, amount) => total.add(amount), BigNumber(0))
+}
+
 function EntryAnimation(props: { children: React.ReactNode; animate: boolean }) {
   return props.animate ? (
     <Collapse appear enter={false} in timeout={{ enter: 1000 }}>
@@ -140,8 +144,6 @@ interface TitleTextProps {
 
 // TODO: Re-use code of transaction summary operation heading
 function TransactionItemText(props: TitleTextProps) {
-  const isSmallScreen = useIsMobile()
-
   const remotePublicKeys = props.paymentSummary.reduce(
     (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
     [] as string[]
@@ -165,7 +167,7 @@ function TransactionItemText(props: TitleTextProps) {
         primary={
           <span>
             From&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} short={isSmallScreen} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short />
           </span>
         }
         primaryTypographyProps={{ style: props.style }}
@@ -182,7 +184,7 @@ function TransactionItemText(props: TitleTextProps) {
         primary={
           <span>
             To&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} short={props.alwaysShowSource || isSmallScreen} />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short />
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;from&nbsp;
@@ -320,17 +322,32 @@ function TransactionItemText(props: TitleTextProps) {
 }
 
 function TransactionListItemBalance(props: {
-  paymentSummary: ReturnType<typeof getPaymentSummary>
+  accountPublicKey: string
+  paymentSummary: PaymentSummary
   style?: React.CSSProperties
+  transaction: Transaction
 }) {
   const { paymentSummary } = props
   const isSmallScreen = useIsMobile()
+
+  const creationOps = props.transaction.operations.filter(
+    (op): op is Operation.CreateAccount => op.type === "createAccount"
+  )
+  const paymentOps = props.transaction.operations.filter((op): op is Operation.Payment => op.type === "payment")
+
+  // Handle special edge case: Sending money from an account to itself
+  const balanceChange = paymentSummary.every(payment =>
+    payment.publicKeys.every(pubkey => pubkey === props.accountPublicKey)
+  )
+    ? sum(...creationOps.map(op => op.startingBalance), ...paymentOps.map(op => op.amount))
+    : paymentSummary[0].balanceChange
+
   return (
     <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0, ...props.style }}>
       {paymentSummary.length === 0 ? null : (
         <SingleBalance
           assetCode={paymentSummary[0].asset.getCode()}
-          balance={paymentSummary[0].balanceChange.toString()}
+          balance={balanceChange.toString()}
           style={isSmallScreen ? { fontSize: "1rem" } : { fontSize: "1.6rem" }}
         />
       )}
@@ -398,7 +415,12 @@ export const TransactionListItem = React.memo(
           }}
           transaction={props.transaction}
         />
-        <TransactionListItemBalance paymentSummary={paymentSummary} style={{ paddingRight: 0 }} />
+        <TransactionListItemBalance
+          accountPublicKey={props.accountPublicKey}
+          paymentSummary={paymentSummary}
+          style={{ paddingRight: 0 }}
+          transaction={props.transaction}
+        />
       </ListItem>
     )
   } as React.ComponentType<TransactionListItemProps>)

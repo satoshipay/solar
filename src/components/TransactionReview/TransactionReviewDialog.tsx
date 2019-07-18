@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
+import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
 import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
@@ -55,6 +56,7 @@ interface Props {
 }
 
 function TransactionReviewDialog(props: Props) {
+  const isScreen600pxWide = useMediaQuery("(min-width:600px)")
   const isSmallScreen = useIsMobile()
 
   return (
@@ -64,6 +66,9 @@ function TransactionReviewDialog(props: Props) {
       onClose={props.onClose}
       maxWidth="lg"
       TransitionComponent={isSmallScreen ? TransitionLeft : TransitionUp}
+      PaperProps={{
+        style: { minWidth: isScreen600pxWide ? 500 : undefined }
+      }}
     >
       <ErrorBoundary>
         <Box padding={isSmallScreen ? "24px" : " 24px 32px"} overflow="auto">

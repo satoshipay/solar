@@ -79,7 +79,6 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
     [accountDataSet, accounts, props.signatureRequest, props.transaction]
   )
 
-  const isSmallScreen = useMediaQuery("(max-width:500px)")
   const isWideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
 
@@ -143,7 +142,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
                     />
                   }
                   onClick={props.onHashClick}
-                  variant={isSmallScreen ? "shorter" : "short"}
+                  variant="shorter"
                 />
               }
             />
