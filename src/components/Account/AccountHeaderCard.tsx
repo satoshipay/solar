@@ -147,7 +147,7 @@ function AccountHeaderCard(props: Props) {
           onClose={closeDialog}
           TransitionComponent={DialogSidewaysTransition}
         >
-          <ExportKeyDialog account={props.account} onClose={closeDialog} />
+          <ExportKeyDialog account={props.account} onClose={closeDialog} variant="export" />
         </Dialog>
         <Dialog
           open={openDialog === DialogID.renameAccount}
