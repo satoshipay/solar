@@ -1,6 +1,6 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
