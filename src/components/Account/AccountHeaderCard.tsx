@@ -99,6 +99,7 @@ function AccountHeaderCard(props: Props) {
   return (
     <Card
       style={{
+        color: "white",
         position: "relative",
         background: "transparent",
         boxShadow: "none",
