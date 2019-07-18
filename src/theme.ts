@@ -76,6 +76,9 @@ const theme = createMuiTheme({
       }
     },
     MuiDialog: {
+      root: {
+        WebkitOverflowScrolling: "touch"
+      },
       paperFullScreen: {
         boxSizing: "border-box",
         "&": {
