@@ -129,7 +129,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         >
           <>
             <Typography
-              color={formValues.setPassword ? "default" : "textSecondary"}
+              color={formValues.setPassword ? "initial" : "textSecondary"}
               variant="body2"
               style={{ margin: "8px 0 0" }}
             >

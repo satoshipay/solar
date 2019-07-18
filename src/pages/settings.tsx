@@ -28,7 +28,7 @@ function Settings() {
         title="Show Testnet Accounts"
       >
         <Typography
-          color={settings.showTestnet ? "default" : "textSecondary"}
+          color={settings.showTestnet ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
@@ -37,7 +37,7 @@ function Settings() {
           without owning any actual funds.
         </Typography>
         <Typography
-          color={settings.showTestnet ? "default" : "textSecondary"}
+          color={settings.showTestnet ? "initial" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
           variant="body2"
         >
@@ -65,7 +65,7 @@ function Settings() {
         title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
       >
         <Typography
-          color={settings.biometricLock ? "default" : "textSecondary"}
+          color={settings.biometricLock ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
@@ -79,7 +79,7 @@ function Settings() {
         title="Enable Multi-Signature"
       >
         <Typography
-          color={settings.multiSignature ? "default" : "textSecondary"}
+          color={settings.multiSignature ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >

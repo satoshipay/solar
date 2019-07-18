@@ -59,7 +59,7 @@ function MainTitle(props: Props) {
       >
         <Typography
           variant="h5"
-          color={props.titleColor}
+          color={props.titleColor === "default" ? "initial" : props.titleColor}
           style={{
             flexGrow: 1,
             flexShrink: 1,
