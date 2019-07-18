@@ -50,7 +50,7 @@ const theme = createMuiTheme({
           color: "rgba(255, 255, 255, 0.7)"
         }
       },
-      flatPrimary: {
+      textPrimary: {
         color: brandColor.dark
       },
       outlinedSecondary: {
@@ -65,8 +65,7 @@ const theme = createMuiTheme({
           backgroundColor: "rgba(255, 255, 255, 0.10)",
           borderColor: "white"
         }
-      },
-      raisedPrimary: {}
+      }
     },
     MuiCardContent: {
       root: {
@@ -194,9 +193,6 @@ const theme = createMuiTheme({
       main: brandColor.main,
       light: brandColor.light
     }
-  },
-  typography: {
-    useNextVariants: true
   }
 })
 
