@@ -1,9 +1,9 @@
 import { commands } from "../../cordova/ipc"
 import { sendCommand } from "./message-handler"
 
-function testBiometricAuth() {
+export function testBiometricAuth(message: string) {
   return new Promise<void>(async (resolve, reject) => {
-    if (showConfirmationPrompt()) {
+    if (window.confirm(message)) {
       const event = await sendCommand(commands.testBioAuthCommand)
       if (event.data.error) {
         reject(event.data.error)
@@ -15,9 +15,3 @@ function testBiometricAuth() {
     }
   })
 }
-
-function showConfirmationPrompt() {
-  return window.confirm("Unlock your device once to enable the feature.")
-}
-
-export default testBiometricAuth

@@ -1,5 +1,5 @@
 import React from "react"
-import testBiometricAuth from "../platform/cordova/test-bio-auth"
+import { testBiometricAuth } from "../platform/cordova/bio-auth"
 import {
   loadIgnoredSignatureRequestHashes,
   loadSettings,
@@ -95,11 +95,13 @@ export function SettingsProvider(props: Props) {
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
 
   const toggleBiometricLock = () => {
-    if (!settings.biometricLock) {
-      testBiometricAuth().then(() => updateSettings({ biometricLock: true }))
-    } else {
-      updateSettings({ biometricLock: false })
-    }
+    const message = settings.biometricLock
+      ? "Unlock your device to disable the auto-lock."
+      : "Unlock your device once to enable the feature."
+
+    testBiometricAuth(message)
+      .then(() => updateSettings({ biometricLock: !settings.biometricLock }))
+      .catch(trackError)
   }
 
   const contextValue: ContextType = {
