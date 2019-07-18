@@ -11,6 +11,7 @@ import AccountBalancesContainer from "../components/Account/AccountBalancesConta
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
+import AccountDeletionDialog from "../components/Dialog/AccountDeletion"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
@@ -97,27 +98,30 @@ function AccountPage(props: Props) {
   const showAssetManagement = matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
+  const showDeleteAccount = matchesRoute(router.location.pathname, routes.deleteAccount("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
   const showSignersManagement = matchesRoute(router.location.pathname, routes.manageAccountSigners("*"))
+  const showTransactions = router.location.pathname === routes.account(props.accountID)
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
 
-  const isSendReceiveHidden = showAccountSettings
+  const showSendReceiveButtons = React.useRef<boolean>(!showAccountSettings)
 
-  const {
-    goBackToTransactions,
-    openAccountSettings,
-    openCreatePayment,
-    openReceivePayment,
-    openTradeAssets,
-    openWithdraw
-  } = React.useMemo(
+  if (showTransactions) {
+    showSendReceiveButtons.current = true
+  } else if (showAccountSettings) {
+    showSendReceiveButtons.current = false
+  }
+
+  const navigateTo = React.useMemo(
     () => ({
-      goBackToTransactions: () => router.history.push(routes.account(props.accountID)),
-      openAccountSettings: () => router.history.push(routes.accountSettings(props.accountID)),
-      openCreatePayment: () => router.history.push(routes.createPayment(props.accountID)),
-      openReceivePayment: () => router.history.push(routes.receivePayment(props.accountID)),
-      openTradeAssets: () => router.history.push(routes.tradeAsset(props.accountID)),
-      openWithdraw: () => router.history.push(routes.withdrawAsset(props.accountID))
+      allAccounts: () => router.history.push(routes.allAccounts()),
+      accountSettings: () => router.history.push(routes.accountSettings(props.accountID)),
+      createPayment: () => router.history.push(routes.createPayment(props.accountID)),
+      manageAssets: () => router.history.push(routes.manageAccountAssets(props.accountID)),
+      receivePayment: () => router.history.push(routes.receivePayment(props.accountID)),
+      tradeAssets: () => router.history.push(routes.tradeAsset(props.accountID)),
+      transactions: () => router.history.push(routes.account(props.accountID)),
+      withdraw: () => router.history.push(routes.withdrawAsset(props.accountID))
     }),
     [router.history, props.accountID]
   )
@@ -133,10 +137,11 @@ function AccountPage(props: Props) {
       <Section top brandColored grow={0}>
         <AccountHeaderCard
           account={account}
-          onAccountSettings={openAccountSettings}
-          onClose={goBackToTransactions}
-          onTrade={openTradeAssets}
-          onWithdraw={openWithdraw}
+          onAccountSettings={navigateTo.accountSettings}
+          onClose={navigateTo.transactions}
+          onManageAssets={navigateTo.manageAssets}
+          onTrade={navigateTo.tradeAssets}
+          onWithdraw={navigateTo.withdraw}
           showCloseButton={showAccountSettings}
         >
           <AccountBalancesContainer>
@@ -145,11 +150,11 @@ function AccountPage(props: Props) {
           {isSmallScreen ? null : (
             <AccountActions
               account={account}
-              hidden={isSendReceiveHidden}
+              hidden={!showSendReceiveButtons.current}
               horizontalMargin={40}
-              onCreatePayment={openCreatePayment}
-              onReceivePayment={openReceivePayment}
-              style={{ marginTop: 40 }}
+              onCreatePayment={navigateTo.createPayment}
+              onReceivePayment={navigateTo.receivePayment}
+              style={{ paddingTop: 40 }}
             />
           )}
         </AccountHeaderCard>
@@ -170,7 +175,7 @@ function AccountPage(props: Props) {
         <AccountActions
           account={account}
           bottomOfScreen
-          hidden={isSendReceiveHidden}
+          hidden={!showSendReceiveButtons.current}
           horizontalMargin={0}
           onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
           onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
@@ -179,38 +184,60 @@ function AccountPage(props: Props) {
         />
       ) : null}
 
-      <Dialog open={showCreatePayment} fullScreen onClose={goBackToTransactions} TransitionComponent={DialogTransition}>
-        <CreatePaymentDialog account={account} onClose={goBackToTransactions} />
+      <Dialog
+        open={showCreatePayment}
+        fullScreen
+        onClose={navigateTo.transactions}
+        TransitionComponent={DialogTransition}
+      >
+        <CreatePaymentDialog account={account} onClose={navigateTo.transactions} />
+      </Dialog>
+      <Dialog
+        open={showDeleteAccount}
+        fullScreen
+        onClose={navigateTo.accountSettings}
+        TransitionComponent={DialogTransition}
+      >
+        <AccountDeletionDialog
+          account={account}
+          onClose={navigateTo.accountSettings}
+          onDeleted={navigateTo.allAccounts}
+        />
       </Dialog>
       <Dialog
         open={showAssetManagement}
         fullScreen
-        onClose={goBackToTransactions}
+        onClose={navigateTo.transactions}
         TransitionComponent={DialogTransition}
       >
-        <ManageAssetsDialog account={account} onClose={goBackToTransactions} />
+        <ManageAssetsDialog account={account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog
         open={showSignersManagement}
         fullScreen
-        onClose={goBackToTransactions}
+        onClose={navigateTo.transactions}
         TransitionComponent={DialogTransition}
       >
-        <ManageSignersDialog account={account} onClose={goBackToTransactions} />
+        <ManageSignersDialog account={account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog
         open={showReceivePayment}
         fullScreen
-        onClose={goBackToTransactions}
+        onClose={navigateTo.transactions}
         TransitionComponent={DialogTransition}
       >
-        <ReceivePaymentDialog account={account} onClose={goBackToTransactions} />
+        <ReceivePaymentDialog account={account} onClose={navigateTo.transactions} />
       </Dialog>
-      <Dialog open={showAssetTrading} fullScreen onClose={goBackToTransactions} TransitionComponent={DialogTransition}>
-        <TradeAssetDialog account={account} onClose={goBackToTransactions} />
+      <Dialog
+        open={showAssetTrading}
+        fullScreen
+        onClose={navigateTo.transactions}
+        TransitionComponent={DialogTransition}
+      >
+        <TradeAssetDialog account={account} onClose={navigateTo.transactions} />
       </Dialog>
-      <Dialog open={showWithdrawal} fullScreen onClose={goBackToTransactions} TransitionComponent={DialogTransition}>
-        <WithdrawalDialog account={account} onClose={goBackToTransactions} />
+      <Dialog open={showWithdrawal} fullScreen onClose={navigateTo.transactions} TransitionComponent={DialogTransition}>
+        <WithdrawalDialog account={account} onClose={navigateTo.transactions} />
       </Dialog>
     </VerticalLayout>
   )

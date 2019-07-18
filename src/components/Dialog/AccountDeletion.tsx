@@ -7,7 +7,7 @@ import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
 import { Account, AccountsContext } from "../../context/accounts"
 import { createTransaction } from "../../lib/transaction"
-import { ObservedAccountData, useIsMobile, useIsSmallMobile } from "../../hooks"
+import { useAccountData, useIsMobile, useIsSmallMobile } from "../../hooks"
 import { closeAccountSubscriptions } from "../../subscriptions"
 import AccountBalances from "../Account/AccountBalances"
 import AccountSelectionList from "../Account/AccountSelectionList"
@@ -21,13 +21,15 @@ import { ActionButton, ConfirmDialog, DialogActionsBox } from "./Generic"
 interface AccountDeletionDialogProps {
   account: Account
   horizon: Server
-  accountData: ObservedAccountData
   onClose: () => void
   onDeleted: () => void
   sendTransaction: (transaction: Transaction) => void
 }
 
 function AccountDeletionDialog(props: AccountDeletionDialogProps) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const horizon = props.horizon
+
   const { accounts, deleteAccount } = React.useContext(AccountsContext)
   const [mergeAccountEnabled, setMergeAccountEnabled] = React.useState(false)
   const [confirmationPending, setConfirmationPending] = React.useState(false)
@@ -45,8 +47,6 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
   const onMerge = async () => {
     if (selectedMergeAccount) {
-      const { accountData, horizon } = props
-
       const transaction = await createTransaction(
         [
           Operation.accountMerge({
@@ -84,7 +84,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       />
       <DialogContent style={{ padding: isSmallScreen ? "0 4px" : "0 42px" }}>
         <DialogContentText
-          style={{ display: props.accountData.activated ? undefined : "none", color: "inherit", marginTop: 12 }}
+          style={{ display: accountData.activated ? undefined : "none", color: "inherit", marginTop: 12 }}
         >
           <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
         </DialogContentText>
@@ -93,12 +93,12 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           Are you sure you want to delete the account "{props.account.name}
           "?
         </DialogContentText>
-        <DialogContentText style={{ display: props.accountData.activated ? undefined : "none", marginTop: 16 }}>
+        <DialogContentText style={{ display: accountData.activated ? undefined : "none", marginTop: 16 }}>
           Make sure to backup your private key or merge the funds into another account of yours, since there are still
           funds left!
         </DialogContentText>
 
-        {props.accountData.activated ? (
+        {accountData.activated ? (
           <>
             <Box style={{ display: "flex", marginTop: 24, marginLeft: -12, marginBottom: 8 }}>
               <Switch
@@ -173,7 +173,6 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
 interface AccountDeletionContainerProps {
   account: Account
-  accountData: ObservedAccountData
   onClose: () => void
   onDeleted: () => void
 }

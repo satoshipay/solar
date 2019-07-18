@@ -15,6 +15,7 @@ interface Props {
   children?: React.ReactNode
   onAccountSettings: () => void
   onClose: () => void
+  onManageAssets: () => void
   onTrade: () => void
   onWithdraw: () => void
   showCloseButton?: boolean
@@ -38,6 +39,7 @@ function AccountHeaderCard(props: Props) {
             account={props.account}
             activated={accountData.activated}
             onAccountSettings={props.onAccountSettings}
+            onManageAssets={props.onManageAssets}
             onTrade={props.onTrade}
             onWithdraw={props.onWithdraw}
             settings={settings}

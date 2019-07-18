@@ -3,6 +3,7 @@ export const account = (accountID: string) => `/account/${accountID}`
 export const accountSettings = (accountID: string) => `/account/${accountID}/settings`
 export const createAccount = (testnet: boolean) => `/account/create/${testnet ? "testnet" : "mainnet"}`
 export const createPayment = (accountID: string) => `/account/${accountID}/send`
+export const deleteAccount = (accountID: string) => `/account/${accountID}/delete`
 export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/assets`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/signers`

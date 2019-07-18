@@ -7,6 +7,8 @@ import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/w
 import DeleteIcon from "@material-ui/icons/Delete"
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
 import { Account } from "../../context/accounts"
+import { useRouter } from "../../hooks"
+import * as routes from "../../routes"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
@@ -14,7 +16,9 @@ const accountSettingsItemStyles: StyleRules = {
   icon: {
     color: "rgba(0, 0, 0, 0.25)",
     fontSize: 48,
-    marginRight: 0
+    justifyContent: "center",
+    marginRight: 0,
+    width: 48
   },
   settingsItem: {
     position: "relative",
@@ -58,8 +62,13 @@ interface Props {
 }
 
 function AccountSettings(props: Props) {
+  const router = useRouter()
+
   const changePassword = React.useCallback(() => {
     // TODO
+  }, [])
+  const deleteAccount = React.useCallback(() => {
+    router.history.push(routes.deleteAccount(props.account.id))
   }, [])
   const exportSecretKey = React.useCallback(() => {
     // TODO
@@ -83,10 +92,7 @@ function AccountSettings(props: Props) {
           secondary="Decrypt and show your private key. We strongly advise you to save a backup of your secret key."
         />
       </AccountSettingItem>
-      <AccountSettingItem
-        icon={<DeleteIcon style={{ color: "inherit", fontSize: "inherit" }} />}
-        onClick={exportSecretKey}
-      >
+      <AccountSettingItem icon={<DeleteIcon style={{ color: "inherit", fontSize: "80%" }} />} onClick={deleteAccount}>
         <ListItemText
           primary="Merge or Delete Account"
           secondary="Delete this account. Optionally merge the remaining funds into another account."

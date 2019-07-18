@@ -4,6 +4,7 @@ import ListItemText from "@material-ui/core/ListItemText"
 import Menu from "@material-ui/core/Menu"
 import MenuItem from "@material-ui/core/MenuItem"
 import CallMadeIcon from "@material-ui/icons/CallMade"
+import MoneyIcon from "@material-ui/icons/AttachMoney"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
@@ -35,6 +36,7 @@ interface MenuProps {
   activated: boolean
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
   onAccountSettings: () => void
+  onManageAssets: () => void
   onTrade: () => void
   onWithdraw: () => void
   settings: SettingsContextType
@@ -51,6 +53,12 @@ function AccountContextMenu(props: MenuProps) {
             icon={<SettingsIcon />}
             label="Account Settings"
             onClick={closeAndCall(props.onAccountSettings)}
+          />
+          <AccountContextMenuItem
+            disabled={!props.activated}
+            icon={<MoneyIcon />}
+            label="Manage Assets"
+            onClick={closeAndCall(props.onManageAssets)}
           />
           <AccountContextMenuItem
             disabled={!props.activated}
