@@ -101,16 +101,9 @@ function AccountPage(props: Props) {
   const showDeleteAccount = matchesRoute(router.location.pathname, routes.deleteAccount("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
   const showSignersManagement = matchesRoute(router.location.pathname, routes.manageAccountSigners("*"))
-  const showTransactions = router.location.pathname === routes.account(props.accountID)
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
 
-  const showSendReceiveButtons = React.useRef<boolean>(!showAccountSettings)
-
-  if (showTransactions) {
-    showSendReceiveButtons.current = true
-  } else if (showAccountSettings) {
-    showSendReceiveButtons.current = false
-  }
+  const showSendReceiveButtons = !matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
 
   const navigateTo = React.useMemo(
     () => ({
@@ -150,7 +143,7 @@ function AccountPage(props: Props) {
           {isSmallScreen ? null : (
             <AccountActions
               account={account}
-              hidden={!showSendReceiveButtons.current}
+              hidden={!showSendReceiveButtons}
               horizontalMargin={40}
               onCreatePayment={navigateTo.createPayment}
               onReceivePayment={navigateTo.receivePayment}
@@ -175,7 +168,7 @@ function AccountPage(props: Props) {
         <AccountActions
           account={account}
           bottomOfScreen
-          hidden={!showSendReceiveButtons.current}
+          hidden={!showSendReceiveButtons}
           horizontalMargin={0}
           onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
           onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
