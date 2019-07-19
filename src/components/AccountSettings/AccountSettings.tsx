@@ -10,11 +10,11 @@ import { SettingsContext } from "../../context/settings"
 import { useRouter } from "../../hooks"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
-import AccountDeletionDialog from "../Dialog/AccountDeletion"
-import ChangePasswordDialog from "../Dialog/ChangePassword"
-import ExportKeyDialog from "../Dialog/ExportKey"
-import ManageSignersDialog from "../Dialog/ManageSigners"
+import AccountDeletionDialog from "./AccountDeletionDialog"
 import AccountSettingsItem from "./AccountSettingsItem"
+import ChangePasswordDialog from "./ChangePasswordDialog"
+import ExportKeyDialog from "./ExportKeyDialog"
+import ManageSignersDialog from "./ManageSignersDialog"
 
 const SidewaysTransition = (props: any) => <Slide {...props} direction="left" />
 const VerticalTransition = (props: any) => <Slide {...props} direction="up" />

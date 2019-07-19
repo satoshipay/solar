@@ -15,7 +15,7 @@ import { Box, VerticalLayout } from "../Layout/Box"
 import Background from "../Background"
 import ErrorBoundary from "../ErrorBoundary"
 import MainTitle from "../MainTitle"
-import { ActionButton, DialogActionsBox } from "./Generic"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 
 interface PromptToRevealProps {
   children: React.ReactNode

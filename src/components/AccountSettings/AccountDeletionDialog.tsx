@@ -16,7 +16,7 @@ import MergeIcon from "../Icon/Merge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import { ActionButton, ConfirmDialog, DialogActionsBox } from "./Generic"
+import { ActionButton, ConfirmDialog, DialogActionsBox } from "../Dialog/Generic"
 
 interface AccountDeletionDialogProps {
   account: Account

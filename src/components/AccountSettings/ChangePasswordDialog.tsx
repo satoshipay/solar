@@ -13,8 +13,8 @@ import { Account, AccountsContext } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
 import { renderFormFieldError, isWrongPasswordError } from "../../lib/errors"
-import CloseButton from "./CloseButton"
-import { ActionButton, DialogActionsBox } from "./Generic"
+import CloseButton from "../Dialog/CloseButton"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 
 const adornmentLock = (
   <InputAdornment position="start">
