@@ -9,7 +9,7 @@ import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Box, VerticalLayout } from "../Layout/Box"
-import { Account, AccountsContextType } from "../../context/accounts"
+import { Account, AccountsContext } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
 import { renderFormFieldError, isWrongPasswordError } from "../../lib/errors"
@@ -96,12 +96,11 @@ function Actions(props: ActionsProps) {
 
 interface Props {
   account: Account
-  changePassword: AccountsContextType["changePassword"]
-  removePassword: AccountsContextType["removePassword"]
   onClose: () => void
 }
 
 function ChangePasswordDialog(props: Props) {
+  const Accounts = React.useContext(AccountsContext)
   const { showError, showNotification } = React.useContext(NotificationsContext)
   const [errors, setErrors] = React.useState<Errors>({})
   const [formValues, setFormValues] = React.useState<FormValues>({
@@ -122,8 +121,7 @@ function ChangePasswordDialog(props: Props) {
 
     if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
-      props
-        .changePassword(accountID, prevPassword, nextPassword)
+      Accounts.changePassword(accountID, prevPassword, nextPassword)
         .then(() => {
           showNotification("success", requiresPassword ? "Password changed." : "Password set.")
           props.onClose()
@@ -147,8 +145,7 @@ function ChangePasswordDialog(props: Props) {
 
     if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
-      props
-        .removePassword(props.account.id, formValues.prevPassword)
+      Accounts.removePassword(props.account.id, formValues.prevPassword)
         .then(() => {
           showNotification("success", "Password removed.")
           props.onClose()

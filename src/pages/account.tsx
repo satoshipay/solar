@@ -11,7 +11,6 @@ import AccountBalancesContainer from "../components/Account/AccountBalancesConta
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
-import AccountDeletionDialog from "../components/Dialog/AccountDeletion"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ManageSignersDialog from "../components/Dialog/ManageSigners"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
@@ -98,7 +97,6 @@ function AccountPage(props: Props) {
   const showAssetManagement = matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
-  const showDeleteAccount = matchesRoute(router.location.pathname, routes.deleteAccount("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
   const showSignersManagement = matchesRoute(router.location.pathname, routes.manageAccountSigners("*"))
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
@@ -107,7 +105,6 @@ function AccountPage(props: Props) {
 
   const navigateTo = React.useMemo(
     () => ({
-      allAccounts: () => router.history.push(routes.allAccounts()),
       accountSettings: () => router.history.push(routes.accountSettings(props.accountID)),
       createPayment: () => router.history.push(routes.createPayment(props.accountID)),
       manageAssets: () => router.history.push(routes.manageAccountAssets(props.accountID)),
@@ -184,18 +181,6 @@ function AccountPage(props: Props) {
         TransitionComponent={DialogTransition}
       >
         <CreatePaymentDialog account={account} onClose={navigateTo.transactions} />
-      </Dialog>
-      <Dialog
-        open={showDeleteAccount}
-        fullScreen
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={DialogTransition}
-      >
-        <AccountDeletionDialog
-          account={account}
-          onClose={navigateTo.accountSettings}
-          onDeleted={navigateTo.allAccounts}
-        />
       </Dialog>
       <Dialog
         open={showAssetManagement}
