@@ -15,6 +15,7 @@ import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
+import { SettingsContext } from "../../context/settings"
 import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
@@ -362,13 +363,14 @@ interface TransactionListItemProps {
   icon?: React.ReactElement<any>
   onOpenTransaction?: (transaction: Transaction) => void
   style?: React.CSSProperties
-  showMemo: boolean
   transaction: Transaction
 }
 
 export const TransactionListItem = React.memo(
   // tslint:disable-next-line no-shadowed-variable
   withStyles(transactionListItemStyles)(function TransactionListItem(props: TransactionListItemProps) {
+    const { hideMemos } = React.useContext(SettingsContext)
+
     const isSmallScreen = useIsMobile()
     const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
@@ -391,7 +393,7 @@ export const TransactionListItem = React.memo(
           alwaysShowSource={props.alwaysShowSource}
           createdAt={props.createdAt}
           paymentSummary={paymentSummary}
-          showMemo={props.showMemo}
+          showMemo={!hideMemos}
           style={{
             fontSize: isSmallScreen ? "0.8rem" : undefined,
             fontWeight: "bold",
@@ -410,7 +412,6 @@ export const TransactionListItem = React.memo(
 function TransactionList(props: {
   account: Account
   background?: React.CSSProperties["background"]
-  showMemos: boolean
   testnet: boolean
   title: React.ReactNode
   onOpenTransaction?: (transaction: Transaction) => void
@@ -448,7 +449,6 @@ function TransactionList(props: {
             key={createCheapTxID(transaction)}
             accountPublicKey={props.account.publicKey}
             createdAt={transaction.created_at}
-            showMemo={props.showMemos}
             transaction={transaction}
             onOpenTransaction={() => setOpenTransaction(transaction)}
           />
