@@ -7,7 +7,7 @@ import red from "@material-ui/core/colors/red"
 import DeleteIcon from "@material-ui/icons/Delete"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useRouter } from "../../hooks"
+import { useIsMobile, useRouter } from "../../hooks"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import AccountDeletionDialog from "./AccountDeletionDialog"
@@ -77,6 +77,7 @@ interface Props {
 }
 
 function AccountSettings(props: Props) {
+  const isSmallScreen = useIsMobile()
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
 
@@ -90,14 +91,22 @@ function AccountSettings(props: Props) {
     [router.history, props.account]
   )
 
+  const listItemTextStyle: React.CSSProperties = React.useMemo(
+    () => ({
+      paddingRight: isSmallScreen ? 0 : undefined
+    }),
+    [isSmallScreen]
+  )
+
   return (
     <>
-      <List style={{ padding: "24px 16px" }}>
+      <List style={{ padding: isSmallScreen ? "0 8px" : "24px 16px" }}>
         {settings.multiSignature ? (
           <AccountSettingsItem onClick={navigateTo.manageSigners}>
             <ListItemText
               primary="Multi-Signature"
-              secondary="Make this account multi-signature, add new co-signers or remove existing ones."
+              secondary={isSmallScreen ? "Manage co-signers" : "Make account multi-signature and manage co-signers"}
+              style={listItemTextStyle}
             />
           </AccountSettingsItem>
         ) : null}
@@ -106,15 +115,17 @@ function AccountSettings(props: Props) {
             primary={props.account.requiresPassword ? "Change Password" : "Set Password"}
             secondary={
               props.account.requiresPassword
-                ? "Your account is protected by a password."
-                : "Your account is not protected."
+                ? "Your account is protected by a password"
+                : "Your account is not protected"
             }
+            style={listItemTextStyle}
           />
         </AccountSettingsItem>
         <AccountSettingsItem onClick={navigateTo.exportSecretKey}>
           <ListItemText
             primary="Export Secret Key"
-            secondary="Decrypt and show your private key. We strongly advise you to save a backup of your secret key."
+            secondary="Decrypt and show private key"
+            style={listItemTextStyle}
           />
         </AccountSettingsItem>
         <AccountSettingsItem
@@ -123,12 +134,8 @@ function AccountSettings(props: Props) {
         >
           <ListItemText
             primary={<span style={{ color: red["500"] }}>Merge or Delete Account</span>}
-            secondary={
-              <span style={{ color: red["400"] }}>
-                Delete this account. Optionally merge the remaining funds into another account.
-              </span>
-            }
-            style={{ color: red[500] }}
+            secondary={<span style={{ color: red["400"] }}>Delete this account</span>}
+            style={{ ...listItemTextStyle, color: red[500] }}
           />
         </AccountSettingsItem>
       </List>

@@ -16,7 +16,7 @@ export const primaryBackgroundColor = "#0194E7"
 
 export const warningColor = amber["500"]
 
-const breakpoints = createBreakpoints({})
+export const breakpoints = createBreakpoints({})
 
 const theme = createMuiTheme({
   props: {

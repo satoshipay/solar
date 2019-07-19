@@ -3,6 +3,7 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
+import { breakpoints } from "../../theme"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
@@ -16,8 +17,12 @@ const accountSettingsItemStyles: StyleRules = {
   },
   settingsItem: {
     position: "relative",
-    padding: "16px 24px",
+    padding: "16px 0",
     background: "#FFFFFF",
+
+    [breakpoints.up(600)]: {
+      padding: "16px 24px"
+    },
 
     "&:focus": {
       backgroundColor: "#FFFFFF"
