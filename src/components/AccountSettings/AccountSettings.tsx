@@ -37,14 +37,6 @@ function SettingsDialogs(props: Props) {
         <ChangePasswordDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
       <Dialog
-        open={showExportKey}
-        fullScreen
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={DialogTransition}
-      >
-        <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
-      </Dialog>
-      <Dialog
         open={showDeleteAccount}
         fullScreen
         onClose={navigateTo.accountSettings}
@@ -55,6 +47,14 @@ function SettingsDialogs(props: Props) {
           onClose={navigateTo.accountSettings}
           onDeleted={navigateTo.allAccounts}
         />
+      </Dialog>
+      <Dialog
+        open={showExportKey}
+        fullScreen
+        onClose={navigateTo.accountSettings}
+        TransitionComponent={DialogTransition}
+      >
+        <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
       </Dialog>
     </>
   )

@@ -13,6 +13,7 @@ import AccountTitle from "./AccountTitle"
 interface Props {
   account: Account
   children?: React.ReactNode
+  editableAccountName?: boolean
   onAccountSettings: () => void
   onClose: () => void
   onManageAssets: () => void
@@ -76,7 +77,12 @@ function AccountHeaderCard(props: Props) {
       }}
     >
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
-        <AccountTitle account={props.account} accountData={accountData} actions={actions} />
+        <AccountTitle
+          account={props.account}
+          accountData={accountData}
+          actions={actions}
+          editable={props.editableAccountName}
+        />
         {props.children}
       </CardContent>
     </Card>

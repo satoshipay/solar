@@ -93,7 +93,7 @@ function AccountPage(props: Props) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
-  const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"))
+  const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
   const showAssetManagement = matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
@@ -127,6 +127,7 @@ function AccountPage(props: Props) {
       <Section top brandColored grow={0}>
         <AccountHeaderCard
           account={account}
+          editableAccountName={showAccountSettings}
           onAccountSettings={navigateTo.accountSettings}
           onClose={navigateTo.transactions}
           onManageAssets={navigateTo.manageAssets}
