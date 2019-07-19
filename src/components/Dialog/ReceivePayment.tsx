@@ -1,10 +1,9 @@
 import React from "react"
-import Typography from "@material-ui/core/Typography"
-import QRCode from "qrcode.react"
 import { Account } from "../../context/accounts"
-import { useClipboard, useIsMobile } from "../../hooks"
-import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { useIsMobile } from "../../hooks"
+import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+import KeyExportBox from "../Account/KeyExportBox"
 
 interface Props {
   account: Account
@@ -12,40 +11,14 @@ interface Props {
 }
 
 function ReceivePaymentDialog(props: Props) {
-  const clipboard = useClipboard()
   const isSmallScreen = useIsMobile()
-
-  const copyToClipboard = React.useCallback(() => clipboard.copyToClipboard(props.account.publicKey), [
-    props.account.publicKey
-  ])
 
   return (
     <>
       <Box width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto 32px">
         <MainTitle onBack={props.onClose} title="Receive Funds" />
       </Box>
-      <HorizontalLayout justifyContent="center">
-        <VerticalLayout>
-          <Box onClick={copyToClipboard} margin="0 auto" style={{ cursor: "pointer" }}>
-            <QRCode size={256} value={props.account.publicKey} />
-          </Box>
-          <Box margin="12px auto 12px">
-            <Typography align="center" style={{ marginBottom: 12 }}>
-              Tap to copy:
-            </Typography>
-            <Typography
-              align="center"
-              component="p"
-              onClick={copyToClipboard}
-              role="button"
-              style={{ cursor: "pointer", wordWrap: "break-word", maxWidth: window.innerWidth - 75 }}
-              variant="subtitle1"
-            >
-              <b>{props.account.publicKey}</b>
-            </Typography>
-          </Box>
-        </VerticalLayout>
-      </HorizontalLayout>
+      <KeyExportBox export={props.account.publicKey} />
     </>
   )
 }
