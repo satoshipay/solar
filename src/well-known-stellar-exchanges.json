@@ -1,0 +1,209 @@
+[
+  {
+    "address": "GA4BYMUO5D7OLGVJWZ2D5FCWU7SB63FNZ4QUU574SMNA6ELK5TZD3SO3",
+    "name": "Cryptomover",
+    "domain": "cryptomover.com"
+  },
+  {
+    "address": "GA5XIGA5C7QTPTWXQHY6MCJRMTRZDOSHR6EFIBNDQTCQHG262N4GGKTM",
+    "name": "Kraken",
+    "domain": "www.kraken.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GABSZVZBYEO5F4V5LZKV7GR4SAJ5IKJGGOF43BIN42FNDUG7QPH6IMRQ",
+    "name": "Cryptomover",
+    "domain": "cryptomover.com"
+  },
+  {
+    "address": "GACVB2E6IEV2UT6IDVOO5B5CNN7WPKJFR36B7KD7ZNXDANPTSYNMZYQM",
+    "name": "Binance ColdStorage",
+    "domain": "binance.com"
+  },
+  {
+    "address": "GAHK7EEG2WWHVKDNT4CEQFZGKF2LGDSW2IVM4S5DP42RBW3K6BTODB4A",
+    "name": "Binance",
+    "domain": "binance.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GAW4E6NGM4NPNX2LO2BKDPCCTUX3FJLKWHPU4VQPGBIBQGD6JTVF5C7C",
+    "name": "Upbit",
+    "domain": "upbit.com",
+    "accepts": { "memo": "MEMO_TEXT" }
+  },
+  {
+    "address": "GAWPTHY6233GRWZZ7JXDMVXDUDCVQVVQ2SXCSTG3R3CNP5LQPDAHNBKL",
+    "name": "Bitfinex",
+    "domain": "bitfinex.com"
+  },
+  { "address": "GB3RMPTL47E4ULVANHBNCXSXM2ZA5JFY5ISDRERPCXNJUDEO73QFZUNK", "name": "CEX.IO", "domain": "cex.io" },
+  {
+    "address": "GB6JTIT5PHAZA4VMFI7TGGG44TE3LEDFPG52GSKBZOPDDDMNJAGSF46T",
+    "name": "KuCoin Withdrawals",
+    "domain": "www.kucoin.com"
+  },
+  {
+    "address": "GB6YPGW5JFMMP2QB2USQ33EUWTXVL4ZT5ITUNCY3YKVWOJPP57CANOF3",
+    "name": "Bittrex",
+    "domain": "bittrex.com",
+    "accepts": { "memo": "MEMO_TEXT" }
+  },
+  {
+    "address": "GB7GRJ5DTE3AA2TCVHQS2LAD3D7NFG7YLTOEWEBVRNUUI2Q3TJ5UQIFM",
+    "name": "BTC38",
+    "domain": "btc38.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GBDUXW4E5WRM5EM6UXBLE7Y5XGSXJX472BSSBPKFPQ3PJCJHRIA6SH4C",
+    "name": "Coinbase Withdrawals",
+    "domain": "coinbase.com",
+    "accepts": { "memo": "MEMO_TEXT" }
+  },
+  {
+    "address": "GBJNV2MQA7M5GNBRDFW46JLXIN7ZLYVVM4UW4CWDZO4KZKXIXCRYHMH2",
+    "name": "KuCoin Deposits",
+    "domain": "www.kucoin.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GBKTJSNUSR6OCXA5WDWGT33MNSCNQHOBQUBYC7TVS7BOXDKWFNHI4QNH",
+    "name": "Exrates",
+    "domain": "exrates.me",
+    "accepts": { "memo": "MEMO_TEXT" }
+  },
+  {
+    "address": "GBOEEVARKVASOQSSXCAHNTGJTVALJE2QM3AQQ2K3VXACQ6JJREQRJZKB",
+    "name": "OKEX",
+    "domain": "okex.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GBOFQCVZF2DSFLJPJMKH7CIECCN7TYVAT2CSD73IVEBJJQU2VW6JNFHT",
+    "name": "WireX",
+    "domain": "wirexapp.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GBP4RYNGHJXLLSMUA4ZXE7TZBN7ILFUTLTIKUJFJQGALD3764HJBB5AX",
+    "name": "Coinbase ColdStorage",
+    "domain": "coinbase.com"
+  },
+  {
+    "address": "GBSTRH4QOTWNSVA6E4HFERETX4ZLSR3CIUBLK7AXYII277PFJC4BBYOG",
+    "name": "Stronghold",
+    "domain": "stronghold.co"
+  },
+  {
+    "address": "GBSTRUSD7IRX73RQZBL3RQUH6KS3O4NYFY3QCALDLZD77XMZOPWAVTUK",
+    "name": "Stronghold",
+    "domain": "stronghold.co"
+  },
+  {
+    "address": "GBTBVILDGCOIK26EPEHYCMKM7J5MTQ4FD5DO37GVTTBP45TVGRAROQHP",
+    "name": "KOINEX",
+    "domain": "koinex.in",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  { "address": "GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP", "name": "CoinsPro", "domain": "coins.asia" },
+  {
+    "address": "GBV4ZDEPNQ2FKSPKGJP2YKDAIZWQ2XKRQD4V4ACH3TCTFY6KPY3OAVS7",
+    "name": "Changelly",
+    "domain": "changelly.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GBVOL67TMUQBGL4TZYNMY3ZQ5WGQYFPFD5VJRWXR72VA33VFNL225PL5",
+    "name": "Stellarport",
+    "domain": "stellarport.io"
+  },
+  {
+    "address": "GBWZHAVWY23QKKDJW7TXLSIHY5EX4NIB37O4NMRKN2SKNWOSE5TEPCY3",
+    "name": "Cryptomover",
+    "domain": "cryptomover.com"
+  },
+  {
+    "address": "GC4KAS6W2YCGJGLP633A6F6AKTCV4WSLMTMIQRSEQE5QRRVKSX7THV6S",
+    "name": "IndoDax",
+    "domain": "indodax.com",
+    "accepts": { "memo": "MEMO_TEXT" }
+  },
+  {
+    "address": "GCGNWKCJ3KHRLPM3TM6N7D3W5YKDJFL6A2YCXFXNMRTZ4Q66MEMZ6FI2",
+    "name": "Poloniex",
+    "domain": "poloniex.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GCLDH6L6FBLTD3H3B23D6TIFVVTFBLZMNBC3ZOI6FGI5GPQROL4FOXIN",
+    "name": "RippleFox",
+    "domain": "ripplefox.com"
+  },
+  {
+    "address": "GCNSGHUCG5VMGLT5RIYYZSO7VQULQKAJ62QA33DBC5PPBSO57LFWVV6P",
+    "name": "InterstellarExchange",
+    "domain": "interstellar.exchange"
+  },
+  {
+    "address": "GCO2IP3MJNUOKS4PUDI4C7LGGMQDJGXG3COYX3WSB4HHNAHKYV5YL3VC",
+    "name": "Binance",
+    "domain": "binance.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GCTLB7LW7B5ON4QIBIDEWA7MC2KJL2NZEXK24RU32QNOB5IMMCGNLMBD",
+    "name": "KuCoin ColdStorage",
+    "domain": "www.kucoin.com"
+  },
+  {
+    "address": "GCVBUIXKKLH2DYHZRSLZUIZSVJUL74RTW6FVCCEYB2OE3RH7RVDBPCFG",
+    "name": "Cryptomover",
+    "domain": "cryptomover.com"
+  },
+  {
+    "address": "GCXDR4QZ4OTVX6433DPTXELCSEWQ4E5BIPVRRJMUR6M3NT4JCVIDALZO",
+    "name": "GOPAX",
+    "domain": "gopax.co.kr",
+    "accepts": { "memo": "MEMO_TEXT" }
+  },
+  {
+    "address": "GDBCHKTHJUKDGSIQSTBUXFWVP3QVART5LED6KRZQ5X4Z5WLT4BGYXWCI",
+    "name": "Cryptomover",
+    "domain": "cryptomover.com"
+  },
+  {
+    "address": "GDMXNQBJMS3FYI4PFSYCCB4XODQMNMTKPQ5HIKOUWBOWJ2P3CF6WASBE",
+    "name": "Cryptomkt",
+    "domain": "www.cryptomkt.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GDQP2KPQGKIHYJGXNUIYOMHARUARCA7DJT5FO2FFOOKY3B2WSQHG4W37",
+    "name": "Coinbase Deposits",
+    "domain": "coinbase.com",
+    "accepts": { "memo": "MEMO_TEXT" }
+  },
+  {
+    "address": "GDRSWSKJCIB6Z65UA7W5RG62A7M5K3A5IHMED6DYHLPLWLVQCOOGDQ7S",
+    "name": "Gate.io",
+    "domain": "gate.io",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GDU2FEL6THGGOFDHHP4I5FHNWY4S2SXYUBCEDB5ZREMD6UFRT4SYWSW2",
+    "name": "Cryptomover",
+    "domain": "cryptomover.com"
+  },
+  {
+    "address": "GDZCEWJ5TVXUTFH6V5CVDQDE43KRXYUFRHKI7X64EWMVOVYYZJFWIFQ2",
+    "name": "AEX",
+    "domain": "aex.com",
+    "accepts": { "memo": "MEMO_ID" }
+  },
+  {
+    "address": "GDZHCJ73D23MJ76OAR2NQQICB3D3ENUPFT6KVYON3KXY73U6SWN25SU5",
+    "name": "Bittrex ColdStorage",
+    "domain": "bittrex.com"
+  }
+]
