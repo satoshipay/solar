@@ -98,7 +98,6 @@ function AccountPage(props: Props) {
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
-  const showSignersManagement = matchesRoute(router.location.pathname, routes.manageAccountSigners("*"))
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
 
   const showSendReceiveButtons = !matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
@@ -190,14 +189,6 @@ function AccountPage(props: Props) {
         TransitionComponent={DialogTransition}
       >
         <ManageAssetsDialog account={account} onClose={navigateTo.transactions} />
-      </Dialog>
-      <Dialog
-        open={showSignersManagement}
-        fullScreen
-        onClose={navigateTo.transactions}
-        TransitionComponent={DialogTransition}
-      >
-        <ManageSignersDialog account={account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog
         open={showReceivePayment}

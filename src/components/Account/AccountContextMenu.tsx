@@ -57,7 +57,7 @@ function AccountContextMenu(props: MenuProps) {
           <AccountContextMenuItem
             disabled={!props.activated}
             icon={<MoneyIcon />}
-            label="Manage Assets"
+            label="Assets"
             onClick={closeAndCall(props.onManageAssets)}
           />
           <AccountContextMenuItem

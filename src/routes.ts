@@ -10,7 +10,7 @@ export const deleteAccount = (accountID: string) => `/account/${accountID}/setti
 export const exportSecretKey = (accountID: string) => `/account/${accountID}/settings/export`
 export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/assets`
-export const manageAccountSigners = (accountID: string) => `/account/${accountID}/signers`
+export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
 export const settings = () => "/settings"
 export const tradeAsset = (accountID: string) => `/account/${accountID}/trade`
 export const withdrawAsset = (accountID: string) => `/account/${accountID}/withdraw`
