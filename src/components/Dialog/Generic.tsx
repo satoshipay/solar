@@ -5,6 +5,7 @@ import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import Slide from "@material-ui/core/Slide"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
 import Typography from "@material-ui/core/Typography"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks"
@@ -14,7 +15,7 @@ import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
 
-const Transition = (props: any) => <Slide {...props} direction="up" />
+const Transition = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="up" />)
 
 function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
   return (

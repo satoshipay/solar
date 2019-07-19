@@ -22,17 +22,17 @@ interface ItemProps {
   onClick: () => void
 }
 
-const AccountContextMenuItem = (props: ItemProps) => {
+const AccountContextMenuItem = React.forwardRef((props: ItemProps, ref) => {
   if (props.hidden) {
     return null
   }
   return (
     <MenuItem disabled={props.disabled} onClick={props.onClick}>
       <ListItemIcon style={{ marginRight: 8 }}>{props.icon}</ListItemIcon>
-      <ListItemText>{props.label}</ListItemText>
+      <ListItemText ref={ref}>{props.label}</ListItemText>
     </MenuItem>
   )
-}
+})
 
 interface MenuProps {
   account: Account

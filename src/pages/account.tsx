@@ -3,6 +3,7 @@ import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
 import Typography from "@material-ui/core/Typography"
 import DoneAllIcon from "@material-ui/icons/DoneAll"
 import SendIcon from "@material-ui/icons/Send"
@@ -32,7 +33,9 @@ import { useIsMobile, useAccountData, useHorizon, useRecentTransactions, useRout
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 
-const DialogTransition = (props: any) => <Slide {...props} direction="left" />
+const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
+  <Slide ref={ref} {...props} direction="left" />
+))
 
 interface AccountActionsProps {
   account: Account
