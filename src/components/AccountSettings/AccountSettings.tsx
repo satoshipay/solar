@@ -3,6 +3,7 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
+import red from "@material-ui/core/colors/red"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import DeleteIcon from "@material-ui/icons/Delete"
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
@@ -92,10 +93,15 @@ function AccountSettings(props: Props) {
           secondary="Decrypt and show your private key. We strongly advise you to save a backup of your secret key."
         />
       </AccountSettingItem>
-      <AccountSettingItem icon={<DeleteIcon style={{ color: "inherit", fontSize: "80%" }} />} onClick={deleteAccount}>
+      <AccountSettingItem icon={<DeleteIcon style={{ color: red[400], fontSize: "80%" }} />} onClick={deleteAccount}>
         <ListItemText
-          primary="Merge or Delete Account"
-          secondary="Delete this account. Optionally merge the remaining funds into another account."
+          primary={<span style={{ color: red["500"] }}>Merge or Delete Account</span>}
+          secondary={
+            <span style={{ color: red["400"] }}>
+              Delete this account. Optionally merge the remaining funds into another account.
+            </span>
+          }
+          style={{ color: red[500] }}
         />
       </AccountSettingItem>
     </List>
