@@ -15,6 +15,8 @@ export const commands = {
   readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
   storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
 
+  testBioAuthCommand: "test:auth",
+
   openLink: "link:open",
 
   copyToClipboard: "clipboard:write",
@@ -32,6 +34,8 @@ export const events = {
   settingsStoredEvent: "storage:settings:stored",
   ignoredSignatureRequestsResponseEvent: "storage:ignoredSignatureRequests",
   storedIgnoredSignatureRequestsEvent: "storage:ignoredSignatureRequests:stored",
+
+  testBioAuthResponseEvent: "test:auth:result",
 
   qrcodeResultEvent: "qr-code:result",
 

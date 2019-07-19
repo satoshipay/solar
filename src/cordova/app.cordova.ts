@@ -4,7 +4,7 @@
  */
 
 import { trackError } from "./error"
-import { handleMessageEvent, registerCommandHandler, commands } from "./ipc"
+import { handleMessageEvent, registerCommandHandler, commands, events } from "./ipc"
 import initializeQRReader from "./qr-reader"
 import { getCurrentSettings, initSecureStorage, storeKeys } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
@@ -59,6 +59,7 @@ function onDeviceReady() {
   initializeIPhoneNotchFix()
 
   setupLinkListener()
+  setupBioAuthTestHandler()
 
   document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
   document.addEventListener("pause", () => onPause(contentWindow), false)
@@ -214,6 +215,21 @@ function setupLinkListener() {
       openUrl(url)
     })
   })
+}
+
+function setupBioAuthTestHandler() {
+  const messageHandler = async (event: MessageEvent, contentWindow: Window) => {
+    const clientSecret = await clientSecretPromise
+    try {
+      await bioAuthenticate(clientSecret)
+      refreshLastNativeInteractionTime()
+      contentWindow.postMessage({ eventType: events.testBioAuthResponseEvent, id: event.data.id }, "*")
+    } catch (error) {
+      contentWindow.postMessage({ eventType: events.testBioAuthResponseEvent, id: event.data.id, error }, "*")
+    }
+  }
+
+  registerCommandHandler(commands.testBioAuthCommand, messageHandler)
 }
 
 function openUrl(url: string) {
