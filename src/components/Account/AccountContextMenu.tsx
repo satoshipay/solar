@@ -51,7 +51,7 @@ function AccountContextMenu(props: MenuProps) {
           <AccountContextMenuItem
             disabled={!props.activated}
             icon={<SettingsIcon />}
-            label="Account Settings"
+            label="Account"
             onClick={closeAndCall(props.onAccountSettings)}
           />
           <AccountContextMenuItem
@@ -63,7 +63,7 @@ function AccountContextMenu(props: MenuProps) {
           <AccountContextMenuItem
             disabled={!props.activated}
             icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
-            label="Trade Assets"
+            label="Trade"
             onClick={closeAndCall(props.onTrade)}
           />
           <AccountContextMenuItem
