@@ -164,7 +164,7 @@ function ChangePasswordDialog(props: Props) {
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
   return (
-    <VerticalLayout minWidth={250}>
+    <VerticalLayout minWidth={250} padding="0 8px">
       <CloseButton onClick={onClose} />
       <DialogTitle>{props.account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>
       <DialogContent>

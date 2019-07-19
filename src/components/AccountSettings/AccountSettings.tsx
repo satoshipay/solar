@@ -16,7 +16,8 @@ import ExportKeyDialog from "../Dialog/ExportKey"
 import ManageSignersDialog from "../Dialog/ManageSigners"
 import AccountSettingsItem from "./AccountSettingsItem"
 
-const DialogTransition = (props: any) => <Slide {...props} direction="left" />
+const SidewaysTransition = (props: any) => <Slide {...props} direction="left" />
+const VerticalTransition = (props: any) => <Slide {...props} direction="up" />
 
 function SettingsDialogs(props: Props) {
   const router = useRouter()
@@ -40,18 +41,18 @@ function SettingsDialogs(props: Props) {
         open={showManageSigners}
         fullScreen
         onClose={navigateTo.accountSettings}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={SidewaysTransition}
       >
         <ManageSignersDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
-      <Dialog open={showChangePassword} onClose={navigateTo.accountSettings} TransitionComponent={DialogTransition}>
+      <Dialog open={showChangePassword} onClose={navigateTo.accountSettings} TransitionComponent={VerticalTransition}>
         <ChangePasswordDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
       <Dialog
         open={showDeleteAccount}
         fullScreen
         onClose={navigateTo.accountSettings}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={SidewaysTransition}
       >
         <AccountDeletionDialog
           account={props.account}
@@ -63,7 +64,7 @@ function SettingsDialogs(props: Props) {
         open={showExportKey}
         fullScreen
         onClose={navigateTo.accountSettings}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={SidewaysTransition}
       >
         <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
       </Dialog>

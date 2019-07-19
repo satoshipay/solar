@@ -91,6 +91,7 @@ interface Props {
   setIsEditingNewSigner: (isEditingNewSigner: boolean) => void
   onCancel: () => void
   onSubmit: (values: SignerUpdate) => void
+  style?: React.CSSProperties
 }
 
 function ManageSignersForm(props: Props) {
@@ -151,7 +152,7 @@ function ManageSignersForm(props: Props) {
     : `Every transaction needs to be signed by signers with a combined key weight of ${sanitizedKeyWeight} `
 
   return (
-    <VerticalLayout minHeight="400px" justifyContent="space-between">
+    <VerticalLayout minHeight="400px" justifyContent="space-between" style={props.style}>
       <Box margin="20px 0 0">
         <SignersEditor
           isEditingNewSigner={props.isEditingNewSigner}
