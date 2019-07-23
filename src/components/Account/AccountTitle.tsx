@@ -81,7 +81,8 @@ function TitleTextField(props: TitleTextFieldProps) {
       inputProps={{
         size: props.value.length,
         style: {
-          cursor: props.mode === "editing" ? "text" : "default"
+          cursor: props.mode === "editing" ? "text" : "default",
+          height: 40
         }
       }}
       inputRef={props.inputRef}

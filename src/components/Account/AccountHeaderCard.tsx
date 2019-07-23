@@ -7,6 +7,7 @@ import MoreVertIcon from "@material-ui/icons/MoreVert"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useAccountData, useIsMobile } from "../../hooks"
+import { Box } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 import AccountTitle from "./AccountTitle"
 
@@ -30,9 +31,13 @@ function AccountHeaderCard(props: Props) {
 
   const actions = React.useMemo(
     () => (
-      <>
+      <Box height={56}>
         {props.showCloseButton ? (
-          <IconButton color="inherit" onClick={props.onClose} style={{ marginRight: -16, fontSize: 32 }}>
+          <IconButton
+            color="inherit"
+            onClick={props.onClose}
+            style={{ boxSizing: "content-box", width: 32, height: 32, marginRight: -16, fontSize: 32 }}
+          >
             <CloseIcon />
           </IconButton>
         ) : (
@@ -52,7 +57,7 @@ function AccountHeaderCard(props: Props) {
             )}
           </AccountContextMenu>
         )}
-      </>
+      </Box>
     ),
     [
       props.account,
