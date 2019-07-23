@@ -60,7 +60,7 @@ const OfferListItem = React.memo(
         onClick={props.onCancel}
         style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
       >
-        <ListItemIcon>
+        <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
           <BarChartIcon />
         </ListItemIcon>
         <ListItemText
@@ -76,12 +76,16 @@ const OfferListItem = React.memo(
               />
             </span>
           }
+          primaryTypographyProps={{
+            style: { overflow: "hidden", textOverflow: "ellipsis" }
+          }}
+          style={{ paddingRight: isSmallScreen ? 0 : undefined }}
         />
         <ListItemText
           primaryTypographyProps={{ align: "right" }}
-          style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0 }}
+          style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0, paddingRight: 0 }}
         >
-          <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.6rem" }}>
+          <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.4rem" }}>
             <b>{selling.getCode()}</b>
             &nbsp;
             <ArrowRightIcon style={{ fontSize: "150%" }} />

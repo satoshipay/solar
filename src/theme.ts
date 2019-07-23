@@ -40,7 +40,10 @@ const theme = createMuiTheme({
         backgroundColor: "white",
         boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
         border: `none`,
-        color: brandColor.dark
+        color: brandColor.dark,
+        "&:hover": {
+          backgroundColor: "#fafafa"
+        }
       },
       containedPrimary: {
         "&$disabled": {
@@ -48,6 +51,9 @@ const theme = createMuiTheme({
           border: "none",
           boxShadow: "none",
           color: "rgba(255, 255, 255, 0.7)"
+        },
+        "&:hover": {
+          backgroundColor: "#02b2f2"
         }
       },
       textPrimary: {
