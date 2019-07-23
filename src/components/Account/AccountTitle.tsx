@@ -3,6 +3,7 @@ import IconButton from "@material-ui/core/IconButton"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
+import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import CheckIcon from "@material-ui/icons/Check"
 import ClearIcon from "@material-ui/icons/Clear"
 import EditIcon from "@material-ui/icons/Edit"
@@ -10,13 +11,20 @@ import GroupIcon from "@material-ui/icons/Group"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useRouter, ObservedAccountData } from "../../hooks"
+import { useRouter, ObservedAccountData, useIsMobile } from "../../hooks"
 import * as routes from "../../routes"
 import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
 import { primaryBackgroundColor } from "../../theme"
 import StellarGuardIcon from "../Icon/StellarGuard"
 import { HorizontalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+
+function clearTextSelection() {
+  const selection = window.getSelection()
+  if (selection) {
+    selection.removeAllRanges()
+  }
+}
 
 function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
   return (
@@ -64,8 +72,18 @@ const Badges = React.memo(function Badges(props: { account: Account; accountData
   )
 })
 
+const titleTextfieldStyles: StyleRules<"input"> = {
+  input: {
+    "&::selection": {
+      background: "rgba(255, 255, 255, 0.2)",
+      color: "white"
+    }
+  }
+}
+
 interface TitleTextFieldProps {
   actions?: React.ReactNode
+  classes: ClassNameMap<keyof typeof titleTextfieldStyles>
   editable: boolean
   inputRef?: React.Ref<HTMLInputElement>
   onChange: TextFieldProps["onChange"]
@@ -75,10 +93,12 @@ interface TitleTextFieldProps {
   value: string
 }
 
-function TitleTextField(props: TitleTextFieldProps) {
+// tslint:disable-next-line no-shadowed-variable
+const TitleTextField = withStyles(titleTextfieldStyles)(function TitleTextField(props: TitleTextFieldProps) {
   return (
     <TextField
       inputProps={{
+        className: props.classes.input,
         size: props.value.length,
         style: {
           cursor: props.mode === "editing" ? "text" : "default",
@@ -108,7 +128,7 @@ function TitleTextField(props: TitleTextFieldProps) {
       value={props.value}
     />
   )
-}
+})
 
 interface AccountTitleProps {
   account: Account
@@ -119,6 +139,7 @@ interface AccountTitleProps {
 
 function AccountTitle(props: AccountTitleProps) {
   const router = useRouter()
+  const isSmallScreen = useIsMobile()
   const { renameAccount } = React.useContext(AccountsContext)
 
   const [mode, setMode] = React.useState<TitleTextFieldProps["mode"]>("readonly")
@@ -126,6 +147,13 @@ function AccountTitle(props: AccountTitleProps) {
   const onNavigateBack = React.useCallback(() => router.history.push(routes.allAccounts()), [])
 
   const inputRef = React.createRef<HTMLInputElement>()
+
+  React.useEffect(() => {
+    return router.history.listen(() => {
+      setMode("readonly")
+      clearTextSelection()
+    })
+  }, [])
 
   const handleNameEditing = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value),
@@ -140,6 +168,7 @@ function AccountTitle(props: AccountTitleProps) {
         setName(props.account.name)
         setMode("readonly")
       }
+      clearTextSelection()
     },
     [props.account, name]
   )
@@ -148,6 +177,7 @@ function AccountTitle(props: AccountTitleProps) {
     () => {
       renameAccount(props.account.id, name).catch(trackError)
       setMode("readonly")
+      clearTextSelection()
     },
     [props.account, name]
   )
@@ -155,6 +185,7 @@ function AccountTitle(props: AccountTitleProps) {
     () => {
       setName(props.account.name)
       setMode("readonly")
+      clearTextSelection()
     },
     [props.account]
   )
@@ -163,6 +194,7 @@ function AccountTitle(props: AccountTitleProps) {
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus()
+        inputRef.current.select()
       }
     }, 100)
   }, [])
@@ -173,7 +205,7 @@ function AccountTitle(props: AccountTitleProps) {
         <IconButton onClick={applyRenaming} style={{ color: "inherit" }}>
           <CheckIcon />
         </IconButton>
-        <IconButton onClick={cancelRenaming} style={{ color: "inherit" }}>
+        <IconButton onClick={cancelRenaming} style={{ color: "inherit", marginLeft: isSmallScreen ? -12 : 0 }}>
           <ClearIcon />
         </IconButton>
       </>
