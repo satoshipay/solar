@@ -164,11 +164,12 @@ function AccountTitle(props: AccountTitleProps) {
       if (event.key === "Enter") {
         renameAccount(props.account.id, name).catch(trackError)
         setMode("readonly")
+        clearTextSelection()
       } else if (event.key === "Escape") {
         setName(props.account.name)
         setMode("readonly")
+        clearTextSelection()
       }
-      clearTextSelection()
     },
     [props.account, name]
   )
@@ -193,8 +194,8 @@ function AccountTitle(props: AccountTitleProps) {
     setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
     setTimeout(() => {
       if (inputRef.current) {
-        inputRef.current.focus()
         inputRef.current.select()
+        inputRef.current.focus()
       }
     }, 100)
   }, [])
