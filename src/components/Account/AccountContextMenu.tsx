@@ -1,14 +1,16 @@
 import React from "react"
+import Divider from "@material-ui/core/Divider"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import Menu from "@material-ui/core/Menu"
 import MenuItem from "@material-ui/core/MenuItem"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import MoneyIcon from "@material-ui/icons/AttachMoney"
-import SettingsIcon from "@material-ui/icons/SettingsOutlined"
+import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
+import { useIsMobile } from "../../hooks"
 import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
 
 interface ItemProps {
@@ -43,23 +45,12 @@ interface MenuProps {
 }
 
 function AccountContextMenu(props: MenuProps) {
+  const isSmallScreen = useIsMobile()
   return (
     <ContextMenu
       anchor={props.children}
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
-        <Menu anchorEl={anchorEl || undefined} open={open} onClose={onClose}>
-          <AccountContextMenuItem
-            disabled={!props.activated}
-            icon={<SettingsIcon />}
-            label="Account"
-            onClick={closeAndCall(props.onAccountSettings)}
-          />
-          <AccountContextMenuItem
-            disabled={!props.activated}
-            icon={<MoneyIcon />}
-            label="Assets"
-            onClick={closeAndCall(props.onManageAssets)}
-          />
+        <Menu anchorEl={anchorEl || undefined} disableAutoFocusItem={isSmallScreen} open={open} onClose={onClose}>
           <AccountContextMenuItem
             disabled={!props.activated}
             icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
@@ -71,6 +62,19 @@ function AccountContextMenu(props: MenuProps) {
             icon={<CallMadeIcon />}
             label="Withdraw"
             onClick={closeAndCall(props.onWithdraw)}
+          />
+          <Divider />
+          <AccountContextMenuItem
+            disabled={!props.activated}
+            icon={<MoneyIcon />}
+            label="Manage Assets"
+            onClick={closeAndCall(props.onManageAssets)}
+          />
+          <AccountContextMenuItem
+            disabled={!props.activated}
+            icon={<SettingsIcon />}
+            label="Account Settings"
+            onClick={closeAndCall(props.onAccountSettings)}
           />
         </Menu>
       )}
