@@ -15,6 +15,7 @@ import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
+import { SettingsContext } from "../../context/settings"
 import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
@@ -138,6 +139,7 @@ interface TitleTextProps {
   createdAt: string
   paymentSummary: PaymentSummary
   style?: React.CSSProperties
+  showMemo: boolean
   transaction: Transaction
 }
 
@@ -151,7 +153,7 @@ function TransactionItemText(props: TitleTextProps) {
   const secondary = (
     <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
       <Time time={props.createdAt} />
-      {props.transaction.memo.type !== "none" ? (
+      {props.showMemo && props.transaction.memo.type !== "none" ? (
         <>
           &nbsp;&nbsp;|&nbsp;&nbsp;
           <MemoMessage prefix={<>Memo:&nbsp;</>} memo={props.transaction.memo} />
@@ -383,6 +385,8 @@ interface TransactionListItemProps {
 export const TransactionListItem = React.memo(
   // tslint:disable-next-line no-shadowed-variable
   withStyles(transactionListItemStyles)(function TransactionListItem(props: TransactionListItemProps) {
+    const { hideMemos } = React.useContext(SettingsContext)
+
     const isSmallScreen = useIsMobile()
     const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
@@ -405,6 +409,7 @@ export const TransactionListItem = React.memo(
           alwaysShowSource={props.alwaysShowSource}
           createdAt={props.createdAt}
           paymentSummary={paymentSummary}
+          showMemo={!hideMemos}
           style={{
             fontSize: isSmallScreen ? "0.8rem" : undefined,
             fontWeight: "bold",

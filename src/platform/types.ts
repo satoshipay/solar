@@ -14,4 +14,5 @@ export interface SettingsData {
   biometricLock: boolean
   multisignature: boolean
   testnet: boolean
+  hideMemos: boolean
 }
