@@ -152,6 +152,11 @@ const theme = createMuiTheme({
         }
       }
     },
+    MuiListItemText: {
+      primary: {
+        display: "block"
+      }
+    },
     MuiListSubheader: {
       root: {
         [breakpoints.down(600)]: {
