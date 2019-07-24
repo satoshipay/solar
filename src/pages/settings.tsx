@@ -50,7 +50,7 @@ function Settings() {
         title="Hide memos in transactions overview"
       >
         <Typography
-          color={settings.hideMemos ? "default" : "textSecondary"}
+          color={settings.hideMemos ? undefined : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
@@ -98,6 +98,7 @@ function SettingsPage() {
       <Section top brandColored style={{ flexGrow: 0 }}>
         <Card
           style={{
+            color: "white",
             position: "relative",
             background: "transparent",
             boxShadow: "none"
