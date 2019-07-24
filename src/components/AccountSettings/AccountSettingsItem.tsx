@@ -8,12 +8,18 @@ import { breakpoints } from "../../theme"
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
 const accountSettingsItemStyles: StyleRules = {
-  icon: {
-    color: "rgba(0, 0, 0, 0.25)",
+  caret: {
+    color: "rgba(0, 0, 0, 0.35)",
     fontSize: 48,
     justifyContent: "center",
     marginRight: -8,
     width: 48
+  },
+  icon: {
+    fontSize: 28,
+    justifyContent: "center",
+    marginRight: 4,
+    width: 28
   },
   settingsItem: {
     position: "relative",
@@ -39,16 +45,17 @@ const accountSettingsItemStyles: StyleRules = {
 interface AccountSettingsItemProps {
   children: React.ReactNode
   classes: ClassNameMap<keyof typeof accountSettingsItemStyles>
-  icon?: React.ReactElement
+  icon: React.ReactElement
   onClick: () => void
 }
 
 function NakedAccountSettingsItem(props: AccountSettingsItemProps) {
   return (
     <ListItem button className={props.classes.settingsItem} onClick={props.onClick}>
+      <ListItemIcon className={props.classes.icon}>{props.icon}</ListItemIcon>
       {props.children}
-      <ListItemIcon className={props.classes.icon}>
-        {props.icon || <KeyboardArrowRightIcon className={props.classes.icon} />}
+      <ListItemIcon className={props.classes.caret}>
+        <KeyboardArrowRightIcon className={props.classes.caret} />
       </ListItemIcon>
     </ListItem>
   )

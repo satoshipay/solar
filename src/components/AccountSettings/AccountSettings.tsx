@@ -3,8 +3,10 @@ import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItemText from "@material-ui/core/ListItemText"
 import Slide from "@material-ui/core/Slide"
-import red from "@material-ui/core/colors/red"
+import EyeIcon from "@material-ui/icons/RemoveRedEye"
 import DeleteIcon from "@material-ui/icons/Delete"
+import GroupIcon from "@material-ui/icons/Group"
+import KeyIcon from "@material-ui/icons/VpnKey"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile, useRouter } from "../../hooks"
@@ -101,8 +103,19 @@ function AccountSettings(props: Props) {
   return (
     <>
       <List style={{ padding: isSmallScreen ? "0 8px" : "24px 16px" }}>
+        <AccountSettingsItem icon={<KeyIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.changePassword}>
+          <ListItemText
+            primary={props.account.requiresPassword ? "Change Password" : "Set Password"}
+            secondary={
+              props.account.requiresPassword
+                ? "Your account is secure, protected by a password"
+                : "Your account is not protected"
+            }
+            style={listItemTextStyle}
+          />
+        </AccountSettingsItem>
         {settings.multiSignature ? (
-          <AccountSettingsItem onClick={navigateTo.manageSigners}>
+          <AccountSettingsItem icon={<GroupIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.manageSigners}>
             <ListItemText
               primary="Multi-Signature"
               secondary={isSmallScreen ? "Manage co-signers" : "Make account multi-signature and manage co-signers"}
@@ -110,33 +123,15 @@ function AccountSettings(props: Props) {
             />
           </AccountSettingsItem>
         ) : null}
-        <AccountSettingsItem onClick={navigateTo.changePassword}>
-          <ListItemText
-            primary={props.account.requiresPassword ? "Change Password" : "Set Password"}
-            secondary={
-              props.account.requiresPassword
-                ? "Your account is protected by a password"
-                : "Your account is not protected"
-            }
-            style={listItemTextStyle}
-          />
-        </AccountSettingsItem>
-        <AccountSettingsItem onClick={navigateTo.exportSecretKey}>
+        <AccountSettingsItem icon={<EyeIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.exportSecretKey}>
           <ListItemText
             primary="Export Secret Key"
             secondary="Decrypt and show private key"
             style={listItemTextStyle}
           />
         </AccountSettingsItem>
-        <AccountSettingsItem
-          icon={<DeleteIcon style={{ color: red[400], fontSize: "80%" }} />}
-          onClick={navigateTo.deleteAccount}
-        >
-          <ListItemText
-            primary={<span style={{ color: red["500"] }}>Merge or Delete Account</span>}
-            secondary={<span style={{ color: red["400"] }}>Delete this account</span>}
-            style={{ ...listItemTextStyle, color: red[500] }}
-          />
+        <AccountSettingsItem icon={<DeleteIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.deleteAccount}>
+          <ListItemText primary="Merge or Delete Account" style={listItemTextStyle} />
         </AccountSettingsItem>
       </List>
       <SettingsDialogs account={props.account} />
