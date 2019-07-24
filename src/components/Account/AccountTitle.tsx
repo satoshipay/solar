@@ -87,6 +87,7 @@ interface TitleTextFieldProps {
   editable: boolean
   inputRef?: React.Ref<HTMLInputElement>
   onChange: TextFieldProps["onChange"]
+  onClick?: () => void
   onKeyDown?: TextFieldProps["onKeyDown"]
   mode: "editing" | "readonly"
   style?: React.CSSProperties
@@ -99,6 +100,7 @@ const TitleTextField = withStyles(titleTextfieldStyles)(function TitleTextField(
     <TextField
       inputProps={{
         className: props.classes.input,
+        onClick: props.onClick,
         size: props.value.length,
         style: {
           cursor: props.mode === "editing" ? "text" : "default",
@@ -190,6 +192,7 @@ function AccountTitle(props: AccountTitleProps) {
     },
     [props.account]
   )
+  const switchToEditMode = React.useCallback(() => setMode("editing"), [])
   const toggleMode = React.useCallback(() => {
     setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
     setTimeout(() => {
@@ -235,6 +238,7 @@ function AccountTitle(props: AccountTitleProps) {
           editable={props.editable || false}
           inputRef={inputRef}
           onChange={handleNameEditing}
+          onClick={switchToEditMode}
           onKeyDown={handleKeyDown}
           mode={mode}
           value={name}
