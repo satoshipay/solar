@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
+import { MemoNone, MemoText } from "stellar-base"
 import FormControl from "@material-ui/core/FormControl"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -13,7 +14,7 @@ import { useIsMobile, useFederationLookup, RefStateObject, ObservedAccountData }
 import { renderFormFieldError } from "../../lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
-import { isKnownExchange } from "../../lib/wellKnownStellarAccounts"
+import { isKnownExchange, getAcceptedMemoType } from "../../lib/wellKnownStellarExchanges"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -133,12 +134,17 @@ function PaymentCreationForm(props: Props) {
   })
 
   const [memoPlaceholder, setMemoPlaceholder] = React.useState("Description (optional)")
+  const [memoLabel, setMemoLabel] = React.useState("Memo")
   React.useEffect(
     () => {
       if (isKnownExchange(formValues.destination)) {
+        const acceptedMemoType = getAcceptedMemoType(formValues.destination)
+        setFormValue("memoType", acceptedMemoType !== MemoNone ? acceptedMemoType : MemoText)
         setMemoPlaceholder("Description (mandatory)")
+        acceptedMemoType !== MemoNone ? setMemoLabel(`Memo (${acceptedMemoType})`) : setMemoLabel("Memo")
       } else {
         setMemoPlaceholder("Description (optional)")
+        setMemoLabel("Memo")
       }
     },
     [formValues.destination]
@@ -259,14 +265,15 @@ function PaymentCreationForm(props: Props) {
         <TextField
           inputProps={{ maxLength: 28 }}
           error={Boolean(errors.memoValue)}
-          label={errors.memoValue ? renderFormFieldError(errors.memoValue) : "Memo"}
+          label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoLabel}
           placeholder={memoPlaceholder}
           margin="normal"
           onChange={event => {
             setFormValues({
               ...formValues,
               memoValue: event.target.value,
-              memoType: event.target.value.length === 0 ? "none" : "text"
+              memoType:
+                event.target.value.length === 0 ? "none" : formValues.memoType === "none" ? "text" : formValues.memoType
             })
           }}
           value={formValues.memoValue}
