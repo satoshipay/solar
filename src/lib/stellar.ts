@@ -3,6 +3,9 @@ import fetch from "isomorphic-fetch"
 import { xdr, Asset, Horizon, Keypair, Server, Transaction } from "stellar-sdk"
 import { joinURL } from "./url"
 
+/** This is what a public key that only consists of zero bytes looks like */
+export const NullPublicKey = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
+
 export interface SmartFeePreset {
   capacityTrigger: number
   maxFee: number
