@@ -42,9 +42,10 @@ interface AccountActionsProps {
 
 function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const isSmallScreen = useIsMobile()
   const buttonStyle = {
     border: "none",
-    borderRadius: props.squareButtons ? 0 : undefined,
+    borderRadius: isSmallScreen ? 0 : 8,
     fontSize: "1rem",
     flexBasis: 1,
     flexGrow: 1,
@@ -153,8 +154,7 @@ function AccountPage(props: Props) {
         style={{
           flexGrow: 1,
           flexShrink: 1,
-          paddingTop: 0,
-          paddingBottom: 0,
+          padding: "0 24px",
           overflowY: "auto"
         }}
       >

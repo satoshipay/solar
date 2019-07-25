@@ -19,6 +19,7 @@ import { SettingsContext } from "../../context/settings"
 import { useIsMobile } from "../../hooks"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { createCheapTxID } from "../../lib/transaction"
+import { breakpoints } from "../../theme"
 import { PublicKey } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
@@ -349,7 +350,7 @@ function TransactionListItemBalance(props: {
         <SingleBalance
           assetCode={paymentSummary[0].asset.getCode()}
           balance={balanceChange.toString()}
-          style={isSmallScreen ? { fontSize: "1rem" } : { fontSize: "1.6rem" }}
+          style={isSmallScreen ? { fontSize: "1rem" } : { fontSize: "1.4rem" }}
         />
       )}
     </ListItemText>
@@ -358,15 +359,26 @@ function TransactionListItemBalance(props: {
 
 export const transactionListItemStyles: StyleRules = {
   listItem: {
-    paddingTop: 8,
-    paddingBottom: 8,
+    padding: "8px 24px",
     background: "#FFFFFF",
     boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+    [breakpoints.down(600)]: {
+      paddingLeft: 16,
+      paddingRight: 16
+    },
     "&:focus": {
       backgroundColor: "#FFFFFF"
     },
     "&:hover": {
-      backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
+      backgroundColor: isMobileDevice ? "#FFFFFF" : "#FAFAFA"
+    },
+    "&:nth-child(2)": {
+      borderTopLeftRadius: 8,
+      borderTopRightRadius: 8
+    },
+    "&:last-child": {
+      borderBottomLeftRadius: 8,
+      borderBottomRightRadius: 8
     }
   }
 }
@@ -394,8 +406,13 @@ export const TransactionListItem = React.memo(
     const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
 
     return (
-      <ListItem button={Boolean(onOpen) as any} className={classes.listItem} onClick={onOpen} style={props.style}>
-        <ListItemIcon>
+      <ListItem
+        button={Boolean(onOpen) as any}
+        className={classes.listItem}
+        onClick={onOpen}
+        style={props.style}
+      >
+        <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
           {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
         </ListItemIcon>
         <TransactionItemText
