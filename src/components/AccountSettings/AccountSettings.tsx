@@ -3,13 +3,14 @@ import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItemText from "@material-ui/core/ListItemText"
 import Slide from "@material-ui/core/Slide"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
 import EyeIcon from "@material-ui/icons/RemoveRedEye"
 import DeleteIcon from "@material-ui/icons/Delete"
 import GroupIcon from "@material-ui/icons/Group"
 import KeyIcon from "@material-ui/icons/VpnKey"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useIsMobile, useRouter } from "../../hooks"
+import { useAccountData, useIsMobile, useRouter } from "../../hooks"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import AccountDeletionDialog from "./AccountDeletionDialog"
@@ -18,7 +19,7 @@ import ChangePasswordDialog from "./ChangePasswordDialog"
 import ExportKeyDialog from "./ExportKeyDialog"
 import ManageSignersDialog from "./ManageSignersDialog"
 
-const SidewaysTransition = (props: any) => <Slide {...props} direction="left" />
+const Transition = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="left" />)
 
 function SettingsDialogs(props: Props) {
   const router = useRouter()
@@ -38,40 +39,25 @@ function SettingsDialogs(props: Props) {
 
   return (
     <>
-      <Dialog
-        fullScreen
-        open={showManageSigners}
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={SidewaysTransition}
-      >
+      <Dialog fullScreen open={showManageSigners} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
         <ManageSignersDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
       <Dialog
         fullScreen
         open={showChangePassword}
         onClose={navigateTo.accountSettings}
-        TransitionComponent={SidewaysTransition}
+        TransitionComponent={Transition}
       >
         <ChangePasswordDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
-      <Dialog
-        fullScreen
-        open={showDeleteAccount}
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={SidewaysTransition}
-      >
+      <Dialog fullScreen open={showDeleteAccount} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
         <AccountDeletionDialog
           account={props.account}
           onClose={navigateTo.accountSettings}
           onDeleted={navigateTo.allAccounts}
         />
       </Dialog>
-      <Dialog
-        fullScreen
-        open={showExportKey}
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={SidewaysTransition}
-      >
+      <Dialog fullScreen open={showExportKey} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
         <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
       </Dialog>
     </>
@@ -83,6 +69,7 @@ interface Props {
 }
 
 function AccountSettings(props: Props) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
@@ -119,7 +106,11 @@ function AccountSettings(props: Props) {
           />
         </AccountSettingsItem>
         {settings.multiSignature ? (
-          <AccountSettingsItem icon={<GroupIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.manageSigners}>
+          <AccountSettingsItem
+            disabled={!accountData.activated}
+            icon={<GroupIcon style={{ fontSize: "100%" }} />}
+            onClick={navigateTo.manageSigners}
+          >
             <ListItemText
               primary="Multi-Signature"
               secondary={isSmallScreen ? "Manage co-signers" : "Make account multi-signature and manage co-signers"}

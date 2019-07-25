@@ -45,13 +45,14 @@ const accountSettingsItemStyles: StyleRules = {
 interface AccountSettingsItemProps {
   children: React.ReactNode
   classes: ClassNameMap<keyof typeof accountSettingsItemStyles>
+  disabled?: boolean
   icon: React.ReactElement
   onClick: () => void
 }
 
 function NakedAccountSettingsItem(props: AccountSettingsItemProps) {
   return (
-    <ListItem button className={props.classes.settingsItem} onClick={props.onClick}>
+    <ListItem button className={props.classes.settingsItem} disabled={props.disabled} onClick={props.onClick}>
       <ListItemIcon className={props.classes.icon}>{props.icon}</ListItemIcon>
       {props.children}
       <ListItemIcon className={props.classes.caret}>
