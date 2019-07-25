@@ -3,7 +3,7 @@ import IconButton from "@material-ui/core/IconButton"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
-import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import CheckIcon from "@material-ui/icons/Check"
 import ClearIcon from "@material-ui/icons/Clear"
 import EditIcon from "@material-ui/icons/Edit"
@@ -72,34 +72,33 @@ const Badges = React.memo(function Badges(props: { account: Account; accountData
   )
 })
 
-const titleTextfieldStyles: StyleRules<"input"> = {
+const useTitleTextfieldStyles = makeStyles({
   input: {
     "&::selection": {
       background: "rgba(255, 255, 255, 0.2)",
       color: "white"
     }
   }
-}
+})
 
 interface TitleTextFieldProps {
   actions?: React.ReactNode
-  classes: ClassNameMap<keyof typeof titleTextfieldStyles>
-  editable: boolean
   inputRef?: React.Ref<HTMLInputElement>
   onChange: TextFieldProps["onChange"]
   onClick?: () => void
   onKeyDown?: TextFieldProps["onKeyDown"]
   mode: "editing" | "readonly"
+  showEdit: boolean
   style?: React.CSSProperties
   value: string
 }
 
-// tslint:disable-next-line no-shadowed-variable
-const TitleTextField = withStyles(titleTextfieldStyles)(function TitleTextField(props: TitleTextFieldProps) {
+function TitleTextField(props: TitleTextFieldProps) {
+  const classes = useTitleTextfieldStyles()
   return (
     <TextField
       inputProps={{
-        className: props.classes.input,
+        className: classes.input,
         onClick: props.onClick,
         size: props.value.length,
         style: {
@@ -110,7 +109,7 @@ const TitleTextField = withStyles(titleTextfieldStyles)(function TitleTextField(
       inputRef={props.inputRef}
       InputProps={{
         disableUnderline: true,
-        endAdornment: !props.editable ? null : (
+        endAdornment: !props.showEdit ? null : (
           <InputAdornment position="end" style={{ height: "auto" }}>
             {props.actions}
           </InputAdornment>
@@ -130,7 +129,7 @@ const TitleTextField = withStyles(titleTextfieldStyles)(function TitleTextField(
       value={props.value}
     />
   )
-})
+}
 
 interface AccountTitleProps {
   account: Account
@@ -193,15 +192,16 @@ function AccountTitle(props: AccountTitleProps) {
     [props.account]
   )
   const switchToEditMode = React.useCallback(() => setMode("editing"), [])
-  const toggleMode = React.useCallback(() => {
-    setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
-    setTimeout(() => {
+  const toggleMode = React.useCallback(
+    () => {
+      setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
       if (inputRef.current) {
         inputRef.current.select()
         inputRef.current.focus()
       }
-    }, 100)
-  }, [])
+    },
+    [inputRef]
+  )
 
   const editActions = React.useMemo(
     () => (
@@ -235,12 +235,12 @@ function AccountTitle(props: AccountTitleProps) {
       title={
         <TitleTextField
           actions={mode === "readonly" ? readonlyActions : editActions}
-          editable={props.editable || false}
           inputRef={inputRef}
           onChange={handleNameEditing}
           onClick={switchToEditMode}
           onKeyDown={handleKeyDown}
           mode={mode}
+          showEdit={props.editable || false}
           value={name}
         />
       }
