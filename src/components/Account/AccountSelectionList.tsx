@@ -17,10 +17,96 @@ import AccountBalances from "./AccountBalances"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
+const accountListItemStyles: StyleRules = {
+  listItem: {
+    background: "#FFFFFF",
+    height: 64,
+    "&:focus": {
+      backgroundColor: "#FFFFFF"
+    },
+    "&:hover": {
+      backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
+    }
+  },
+  newAccountItem: {
+    background: "#FAFAFA",
+    "&:focus": {
+      backgroundColor: "#FAFAFA"
+    },
+    "&:hover": {
+      backgroundColor: isMobileDevice ? "#FAFAFA" : "rgb(232, 232, 232)"
+    }
+  }
+}
+
+interface CreateAccountListItemProps {
+  classes: ClassNameMap<keyof typeof accountListItemStyles>
+  disabled?: boolean
+  index: number
+  onClick: (event: React.MouseEvent) => void
+  selected: boolean
+  style?: React.CSSProperties
+  testnet: boolean
+}
+
+const CreateAccountListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
+  withStyles(accountListItemStyles)(function CreateAccountListItem(props: CreateAccountListItemProps) {
+    return (
+      <ListItem
+        button
+        className={`${props.classes.listItem} ${props.classes.newAccountItem}`}
+        disabled={props.disabled}
+        selected={props.selected}
+        onClick={props.onClick}
+      >
+        <ListItemIcon>
+          <>{null}</>
+        </ListItemIcon>
+        <ListItemText primary={`Create new ${props.testnet ? "testnet" : ""} account`} />
+      </ListItem>
+    )
+  } as React.ComponentType<CreateAccountListItemProps>)
+)
+
+interface AccountSelectionListItemProps {
+  account: Account
+  classes: ClassNameMap<keyof typeof accountListItemStyles>
+  disabled?: boolean
+  index: number
+  onClick: (event: React.MouseEvent, index: number) => void
+  selected: boolean
+  style?: React.CSSProperties
+}
+
+const AccountSelectionListItem = React.memo(
+  // tslint:disable-next-line no-shadowed-variable
+  withStyles(accountListItemStyles)(function AccountSelectionListItem(props: AccountSelectionListItemProps) {
+    return (
+      <ListItem
+        button
+        className={props.classes.listItem}
+        disabled={props.disabled}
+        selected={props.selected}
+        onClick={event => props.onClick(event, props.index)}
+      >
+        <ListItemIcon style={{ marginRight: 0 }}>
+          <Radio checked={props.selected && !props.disabled} color="default" />
+        </ListItemIcon>
+        <ListItemText
+          primary={props.account.name}
+          secondary={<AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />}
+        />
+      </ListItem>
+    )
+  } as React.ComponentType<AccountSelectionListItemProps>)
+)
+
 interface AccountSelectionListProps {
   accounts: Account[]
   disabled?: boolean
   testnet: boolean
+  title?: React.ReactNode
   onChange?: (account: Account) => void
 }
 
@@ -55,7 +141,22 @@ function AccountSelectionList(props: AccountSelectionListProps) {
 
   return (
     <>
-      <List style={{ background: "transparent", paddingLeft: 0, paddingRight: 0 }}>
+      {props.title ? (
+        <Typography color="textSecondary" style={{ padding: "0 16px", marginBottom: 8 }} variant="subtitle1">
+          {props.title}
+        </Typography>
+      ) : null}
+      <List
+        disablePadding
+        style={{
+          background: "transparent",
+          boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+          paddingLeft: 0,
+          paddingRight: 0,
+          maxHeight: "50vh",
+          overflowY: "auto"
+        }}
+      >
         <CreateAccountListItem
           index={0}
           onClick={() => setCreateAccountOpened(true)}
@@ -99,78 +200,5 @@ function AccountSelectionList(props: AccountSelectionListProps) {
     </>
   )
 }
-
-const accountListItemStyles: StyleRules = {
-  listItem: {
-    background: "#FFFFFF",
-    boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-    "&:focus": {
-      backgroundColor: "#FFFFFF"
-    },
-    "&:hover": {
-      backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
-    }
-  }
-}
-
-interface CreateAccountListItemProps {
-  classes: ClassNameMap<keyof typeof accountListItemStyles>
-  disabled?: boolean
-  index: number
-  onClick: (event: React.MouseEvent) => void
-  selected: boolean
-  style?: React.CSSProperties
-  testnet: boolean
-}
-
-const CreateAccountListItem = React.memo(
-  // tslint:disable-next-line no-shadowed-variable
-  withStyles(accountListItemStyles)(function CreateAccountListItem(props: CreateAccountListItemProps) {
-    return (
-      <ListItem
-        button
-        className={props.classes.listItem}
-        disabled={props.disabled}
-        selected={props.selected}
-        onClick={props.onClick}
-      >
-        <ListItemText primary={`Create new ${props.testnet ? "testnet" : ""} account`} />
-      </ListItem>
-    )
-  } as React.ComponentType<CreateAccountListItemProps>)
-)
-
-interface AccountSelectionListItemProps {
-  account: Account
-  classes: ClassNameMap<keyof typeof accountListItemStyles>
-  disabled?: boolean
-  index: number
-  onClick: (event: React.MouseEvent, index: number) => void
-  selected: boolean
-  style?: React.CSSProperties
-}
-
-const AccountSelectionListItem = React.memo(
-  // tslint:disable-next-line no-shadowed-variable
-  withStyles(accountListItemStyles)(function AccountSelectionListItem(props: AccountSelectionListItemProps) {
-    return (
-      <ListItem
-        button
-        className={props.classes.listItem}
-        disabled={props.disabled}
-        selected={props.selected}
-        onClick={event => props.onClick(event, props.index)}
-      >
-        <ListItemIcon style={{ marginRight: 0 }}>
-          <Radio checked={props.selected && !props.disabled} color="default" />
-        </ListItemIcon>
-        <ListItemText
-          primary={props.account.name}
-          secondary={<AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />}
-        />
-      </ListItem>
-    )
-  } as React.ComponentType<AccountSelectionListItemProps>)
-)
 
 export default AccountSelectionList
