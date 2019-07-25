@@ -1,9 +1,13 @@
 import React from "react"
 import { Transaction } from "stellar-sdk"
+import Fade from "@material-ui/core/Fade"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
 import { StellarUriType, StellarUri, TransactionStellarUri } from "@stellarguard/stellar-uri"
 import StellarGuardActivationDialog from "./Dialog/StellarGuardActivation"
 import { TransactionRequestContext } from "../context/transactionRequest"
 import { Dialog } from "@material-ui/core"
+
+const Transition = React.forwardRef((props: TransitionProps, ref) => <Fade ref={ref} {...props} />)
 
 function isStellarGuardTransaction(uri: StellarUri) {
   return uri.originDomain === "stellarguard.me" || uri.originDomain === "test.stellarguard.me"
@@ -11,21 +15,34 @@ function isStellarGuardTransaction(uri: StellarUri) {
 
 function TransactionRequestHandler() {
   const { uri, clearURI } = React.useContext(TransactionRequestContext)
+  const [closedStellarURI, setClosedStellarURI] = React.useState<StellarUri | null>(null)
 
-  if (uri && uri.operation === StellarUriType.Transaction) {
-    if (isStellarGuardTransaction(uri)) {
-      const transaction = new Transaction((uri as TransactionStellarUri).xdr)
+  // We need that so we still know what to render when we fade out the dialog
+  const renderedURI = uri || closedStellarURI
+
+  const closeDialog = React.useCallback(
+    () => {
+      setClosedStellarURI(uri)
+      clearURI()
+    },
+    [uri]
+  )
+
+  if (renderedURI && renderedURI.operation === StellarUriType.Transaction) {
+    if (isStellarGuardTransaction(renderedURI)) {
+      const transaction = new Transaction((renderedURI as TransactionStellarUri).xdr)
       return (
-        <Dialog open={Boolean(uri)} fullScreen>
-          <StellarGuardActivationDialog testnet={uri.isTestNetwork} transaction={transaction} onClose={clearURI} />
+        <Dialog open={Boolean(uri)} fullScreen TransitionComponent={Transition}>
+          <StellarGuardActivationDialog
+            testnet={renderedURI.isTestNetwork}
+            transaction={transaction}
+            onClose={closeDialog}
+          />
         </Dialog>
       )
-    } else {
-      return <></>
     }
-  } else {
-    return <></>
   }
+  return null
 }
 
-export default TransactionRequestHandler
+export default React.memo(TransactionRequestHandler)
