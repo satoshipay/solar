@@ -8,9 +8,10 @@ import OfflineBoltIcon from "@material-ui/icons/OfflineBolt"
 import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
 import grey from "@material-ui/core/colors/grey"
-import withStyles, { ClassNameMap, StyleRulesCallback } from "@material-ui/core/styles/withStyles"
+import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
 import { useOnlineStatus } from "../hooks"
+import theme from "../theme"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   connection: OfflineBoltIcon,
@@ -19,7 +20,7 @@ const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   success: CheckIcon
 }
 
-const styles: StyleRulesCallback = theme => ({
+const styles: StyleRules = {
   clickable: {
     cursor: "pointer"
   },
@@ -38,19 +39,19 @@ const styles: StyleRulesCallback = theme => ({
   icon: {
     fontSize: 20,
     opacity: 0.9,
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   },
   message: {
     display: "flex",
     alignItems: "center",
     whiteSpace: "pre"
   }
-})
+}
 
 interface NotificationProps {
   anchorOrigin?: SnackbarOrigin
   autoHideDuration?: number
-  classes: ClassNameMap<keyof ReturnType<typeof styles>>
+  classes: ClassNameMap<keyof typeof styles>
   contentStyle?: React.CSSProperties
   message: string
   type: NotificationType

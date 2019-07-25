@@ -1,11 +1,12 @@
 import React from "react"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Dialog from "@material-ui/core/Dialog"
 import IconButton from "@material-ui/core/IconButton"
 import Slide from "@material-ui/core/Slide"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
@@ -27,8 +28,12 @@ enum DialogID {
   renameAccount
 }
 
-const DialogTransition = (props: any) => <Slide {...props} direction="up" />
-const DialogSidewaysTransition = (props: any) => <Slide {...props} direction="left" />
+const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
+  <Slide ref={ref} direction="up" {...props} />
+))
+const DialogSidewaysTransition = React.forwardRef((props: TransitionProps, ref) => (
+  <Slide ref={ref} direction="left" {...props} />
+))
 
 interface Props {
   account: Account
@@ -99,6 +104,7 @@ function AccountHeaderCard(props: Props) {
   return (
     <Card
       style={{
+        color: "white",
         position: "relative",
         background: "transparent",
         boxShadow: "none",

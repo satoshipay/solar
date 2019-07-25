@@ -61,7 +61,7 @@ function validateFormValues(formValues: PaymentCreationValues, spendableBalance:
 
 interface AssetSelectorProps {
   assets: string[]
-  onSelect: (assetCode: string) => void
+  onSelect: (assetCode: unknown) => void
   selected: string
   style: React.CSSProperties
 }
@@ -115,7 +115,7 @@ function PaymentCreationForm(props: Props) {
       ? selectedAssetBalance.minus(getAccountMinimumBalance(props.accountData))
       : selectedAssetBalance
 
-  const setFormValue = (fieldName: keyof PaymentCreationValues, value: string | null) => {
+  const setFormValue = (fieldName: keyof PaymentCreationValues, value: unknown | null) => {
     setFormValues({
       ...formValues,
       [fieldName]: value

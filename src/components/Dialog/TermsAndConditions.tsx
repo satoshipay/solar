@@ -2,7 +2,8 @@ import React from "react"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Checkbox from "@material-ui/core/Checkbox"
-import Fade, { FadeProps } from "@material-ui/core/Fade"
+import Fade from "@material-ui/core/Fade"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import FormGroup from "@material-ui/core/FormGroup"
 import Typography from "@material-ui/core/Typography"
@@ -12,7 +13,7 @@ import { Section } from "../Layout/Page"
 const CheckboxLabel = (props: { children: React.ReactNode }) => (
   <span style={{ color: "white", fontSize: "120%" }}>{props.children}</span>
 )
-const Transition = (props: FadeProps) => <Fade {...props} appear={false} />
+const Transition = React.forwardRef((props: TransitionProps, ref) => <Fade ref={ref} {...props} appear={false} />)
 
 function ExternalLink(props: { children: React.ReactNode; href: string }) {
   return (

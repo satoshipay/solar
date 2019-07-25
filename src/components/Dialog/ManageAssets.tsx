@@ -1,8 +1,9 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
 import Slide from "@material-ui/core/Slide"
 import AddIcon from "@material-ui/icons/Add"
 import { Account, AccountsContext } from "../../context/accounts"
@@ -18,7 +19,9 @@ import TransactionSender from "../TransactionSender"
 import CustomTrustlineDialog from "./CustomTrustline"
 import RemoveTrustlineDialog from "./RemoveTrustline"
 
-const DialogTransition = (props: any) => <Slide {...props} direction="up" />
+const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
+  <Slide ref={ref} {...props} direction="up" />
+))
 
 interface Props {
   account: Account

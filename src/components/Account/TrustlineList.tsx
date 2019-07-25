@@ -60,7 +60,6 @@ function TrustedAsset(props: TrustedAssetProps) {
         <CheckIcon />
       </ListItemIcon>
       <ListItemText
-        inset
         primary={balance.asset_code}
         secondary={<SecondaryTrustInfo balance={balance} testnet={account.testnet} />}
       />
@@ -96,12 +95,11 @@ interface UntrustedAssetProps {
 function UntrustedAsset(props: UntrustedAssetProps) {
   const { account, asset } = props
   return (
-    <ListItem button component="li" onClick={() => props.onAddTrustline(asset)}>
+    <ListItem button onClick={() => props.onAddTrustline(asset)}>
       <ListItemIcon style={{ color: "inherit" }}>
         <UncheckedIcon />
       </ListItemIcon>
       <ListItemText
-        inset
         primary={asset.code}
         secondaryTypographyProps={{
           style: { overflow: "hidden", textOverflow: "ellipsis" }
@@ -158,7 +156,7 @@ function TrustlineList(props: Props) {
         <ListItemIcon style={{ color: "inherit" }}>
           <CheckIcon />
         </ListItemIcon>
-        <ListItemText inset primary="XLM" secondary="Stellar Lumens" />
+        <ListItemText primary="XLM" secondary="Stellar Lumens" />
         <ListItemText primaryTypographyProps={{ align: "right" }} style={{ flexShrink: 0 }}>
           <SingleBalance assetCode="" balance={xlmBalance ? xlmBalance.balance : "0.00"} style={{ fontSize }} />
         </ListItemText>

@@ -2,7 +2,8 @@ import BigNumber from "big.js"
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
-import { unstable_useMediaQuery as useMediaQuery } from "@material-ui/core/useMediaQuery"
+import { TransitionProps } from "@material-ui/core/transitions/transition"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
@@ -25,8 +26,10 @@ function isOfferDeletionOperation(operation: Operation) {
   )
 }
 
-const TransitionLeft = (props: any) => <Slide {...props} direction="left" />
-const TransitionUp = (props: any) => <Slide {...props} direction="up" />
+const TransitionLeft = React.forwardRef((props: TransitionProps, ref) => (
+  <Slide ref={ref} {...props} direction="left" />
+))
+const TransitionUp = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="up" />)
 
 function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
   if (!props.transaction) {
