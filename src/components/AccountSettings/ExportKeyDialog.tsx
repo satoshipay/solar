@@ -1,5 +1,4 @@
 import React from "react"
-import DialogContent from "@material-ui/core/DialogContent"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
@@ -14,8 +13,9 @@ import { isWrongPasswordError } from "../../lib/errors"
 import KeyExportBox from "../Account/KeyExportBox"
 import { Box, VerticalLayout } from "../Layout/Box"
 import Background from "../Background"
+import ErrorBoundary from "../ErrorBoundary"
 import MainTitle from "../MainTitle"
-import { ActionButton, DialogActionsBox } from "./Generic"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 
 interface PromptToRevealProps {
   children: React.ReactNode
@@ -108,7 +108,6 @@ function ExportKeyDialog(props: Props) {
   const [passwordError, setPasswordError] = React.useState<Error | null>(null)
   const [isRevealed, setIsRevealed] = React.useState(false)
   const [secretKey, setSecretKey] = React.useState<string | null>(null)
-  const isSmallScreen = useIsMobile()
 
   const onBackButtonClick = React.useCallback(props.onClose || (() => undefined), [props.onClose])
 
@@ -169,8 +168,8 @@ function ExportKeyDialog(props: Props) {
   )
 
   return (
-    <>
-      <DialogContent style={{ padding: isSmallScreen ? "24px" : " 24px 32px" }}>
+    <ErrorBoundary>
+      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
         <Box margin="0 0 32px">
           <MainTitle
             hideBackButton={!props.onClose}
@@ -178,7 +177,7 @@ function ExportKeyDialog(props: Props) {
             title={props.variant === "initial-backup" ? "Secret Key Backup" : "Export Secret Key"}
           />
         </Box>
-        <VerticalLayout margin="0 auto" maxWidth="700px" width="100%">
+        <VerticalLayout margin="0 auto" width="100%">
           {isRevealed && secretKey ? (
             <ShowSecretKey export={secretKey} onConfirm={props.onConfirm} variant={props.variant} />
           ) : (
@@ -193,8 +192,8 @@ function ExportKeyDialog(props: Props) {
             </PromptToReveal>
           )}
         </VerticalLayout>
-      </DialogContent>
-    </>
+      </Box>
+    </ErrorBoundary>
   )
 }
 

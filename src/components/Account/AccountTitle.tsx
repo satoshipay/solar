@@ -1,15 +1,30 @@
 import React from "react"
+import IconButton from "@material-ui/core/IconButton"
+import InputAdornment from "@material-ui/core/InputAdornment"
+import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
+import makeStyles from "@material-ui/core/styles/makeStyles"
+import CheckIcon from "@material-ui/icons/Check"
+import ClearIcon from "@material-ui/icons/Clear"
+import EditIcon from "@material-ui/icons/Edit"
 import GroupIcon from "@material-ui/icons/Group"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
-import { Account } from "../../context/accounts"
-import { useRouter, ObservedAccountData } from "../../hooks"
+import { Account, AccountsContext } from "../../context/accounts"
+import { trackError } from "../../context/notifications"
+import { useRouter, ObservedAccountData, useIsMobile } from "../../hooks"
 import * as routes from "../../routes"
 import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
 import { primaryBackgroundColor } from "../../theme"
 import StellarGuardIcon from "../Icon/StellarGuard"
 import { HorizontalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+
+function clearTextSelection() {
+  const selection = window.getSelection()
+  if (selection) {
+    selection.removeAllRanges()
+  }
+}
 
 function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
   return (
@@ -57,24 +72,182 @@ const Badges = React.memo(function Badges(props: { account: Account; accountData
   )
 })
 
+const useTitleTextfieldStyles = makeStyles({
+  input: {
+    "&::selection": {
+      background: "rgba(255, 255, 255, 0.2)",
+      color: "white"
+    }
+  }
+})
+
+interface TitleTextFieldProps {
+  actions?: React.ReactNode
+  inputRef?: React.Ref<HTMLInputElement>
+  onChange: TextFieldProps["onChange"]
+  onClick?: () => void
+  onKeyDown?: TextFieldProps["onKeyDown"]
+  mode: "editing" | "readonly"
+  showEdit: boolean
+  style?: React.CSSProperties
+  value: string
+}
+
+function TitleTextField(props: TitleTextFieldProps) {
+  const classes = useTitleTextfieldStyles()
+  return (
+    <TextField
+      inputProps={{
+        className: classes.input,
+        onClick: props.onClick,
+        size: props.value.length,
+        style: {
+          cursor: props.mode === "editing" ? "text" : "default",
+          height: 40
+        }
+      }}
+      inputRef={props.inputRef}
+      InputProps={{
+        disableUnderline: true,
+        endAdornment: !props.showEdit ? null : (
+          <InputAdornment position="end" style={{ height: "auto" }}>
+            {props.actions}
+          </InputAdornment>
+        ),
+        readOnly: props.mode === "readonly",
+        style: {
+          color: "inherit",
+          font: "inherit"
+        }
+      }}
+      onChange={props.onChange}
+      onKeyDown={props.onKeyDown}
+      style={{
+        color: "inherit",
+        ...props.style
+      }}
+      value={props.value}
+    />
+  )
+}
+
 interface AccountTitleProps {
   account: Account
   accountData: ObservedAccountData
   actions: React.ReactNode
+  editable?: boolean
 }
 
 function AccountTitle(props: AccountTitleProps) {
   const router = useRouter()
+  const isSmallScreen = useIsMobile()
+  const { renameAccount } = React.useContext(AccountsContext)
+
+  const [mode, setMode] = React.useState<TitleTextFieldProps["mode"]>("readonly")
+  const [name, setName] = React.useState<string>(props.account.name)
   const onNavigateBack = React.useCallback(() => router.history.push(routes.allAccounts()), [])
+
+  const inputRef = React.createRef<HTMLInputElement>()
+
+  React.useEffect(() => {
+    return router.history.listen(() => {
+      setMode("readonly")
+      clearTextSelection()
+    })
+  }, [])
+
+  const handleNameEditing = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value),
+    []
+  )
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter") {
+        renameAccount(props.account.id, name).catch(trackError)
+        setMode("readonly")
+        clearTextSelection()
+      } else if (event.key === "Escape") {
+        setName(props.account.name)
+        setMode("readonly")
+        clearTextSelection()
+      }
+    },
+    [props.account, name]
+  )
+
+  const applyRenaming = React.useCallback(
+    () => {
+      renameAccount(props.account.id, name).catch(trackError)
+      setMode("readonly")
+      clearTextSelection()
+    },
+    [props.account, name]
+  )
+  const cancelRenaming = React.useCallback(
+    () => {
+      setName(props.account.name)
+      setMode("readonly")
+      clearTextSelection()
+    },
+    [props.account]
+  )
+  const switchToEditMode = React.useCallback(() => setMode("editing"), [])
+  const toggleMode = React.useCallback(
+    () => {
+      setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
+      if (inputRef.current) {
+        inputRef.current.select()
+        inputRef.current.focus()
+      }
+    },
+    [inputRef]
+  )
+
+  const editActions = React.useMemo(
+    () => (
+      <>
+        <IconButton onClick={applyRenaming} style={{ color: "inherit" }}>
+          <CheckIcon />
+        </IconButton>
+        <IconButton onClick={cancelRenaming} style={{ color: "inherit", marginLeft: isSmallScreen ? -12 : 0 }}>
+          <ClearIcon />
+        </IconButton>
+      </>
+    ),
+    [applyRenaming, cancelRenaming]
+  )
+
+  const readonlyActions = React.useMemo(
+    () => (
+      <IconButton onClick={toggleMode} style={{ color: "inherit" }}>
+        <EditIcon />
+      </IconButton>
+    ),
+    [toggleMode]
+  )
 
   return (
     <MainTitle
-      title={<span style={{ marginRight: 20 }}>{props.account.name}</span>}
-      titleColor="inherit"
+      actions={props.actions}
+      badges={props.editable ? null : <Badges account={props.account} accountData={props.accountData} />}
       onBack={onNavigateBack}
       style={{ marginTop: -12, marginLeft: 0 }}
-      badges={<Badges account={props.account} accountData={props.accountData} />}
-      actions={props.actions}
+      title={
+        <TitleTextField
+          actions={mode === "readonly" ? readonlyActions : editActions}
+          inputRef={inputRef}
+          onChange={handleNameEditing}
+          onClick={switchToEditMode}
+          onKeyDown={handleKeyDown}
+          mode={mode}
+          showEdit={props.editable || false}
+          value={name}
+        />
+      }
+      titleColor="inherit"
+      titleStyle={{
+        overflowY: "visible"
+      }}
     />
   )
 }

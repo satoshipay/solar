@@ -21,7 +21,6 @@ import AllAccountsPage from "./pages/all-accounts"
 import AccountPage from "./pages/account"
 import CreateAccountPage from "./pages/create-account"
 import SettingsPage from "./pages/settings"
-import * as routes from "./routes"
 import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
 
@@ -60,23 +59,14 @@ const App = () => (
               <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
               <Route
                 path={["/account/:id/:action", "/account/:id"]}
-                render={props => (
-                  <AccountPage
-                    accountID={props.match.params.id}
-                    showAssetManagement={props.match.url.startsWith(routes.manageAccountAssets(props.match.params.id))}
-                    showAssetTrading={props.match.url === routes.tradeAsset(props.match.params.id)}
-                    showCreatePayment={props.match.url === routes.createPayment(props.match.params.id)}
-                    showReceivePayment={props.match.url === routes.receivePayment(props.match.params.id)}
-                    showSignersManagement={props.match.url === routes.manageAccountSigners(props.match.params.id)}
-                  />
-                )}
+                render={props => <AccountPage accountID={props.match.params.id} />}
               />
               <Route exact path="/settings" component={SettingsPage} />
             </Switch>
           </ErrorBoundary>
         </VerticalLayout>
       </VerticalLayout>
-      {/* Notifications need to come after -webkit-overflow-scrolling on iOS */}
+      {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
       <DesktopNotifications />
       <NotificationContainer />
       {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}

@@ -1,20 +1,19 @@
 import React from "react"
 import DialogActions from "@material-ui/core/DialogActions"
-import DialogContent from "@material-ui/core/DialogContent"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
-import { Box, VerticalLayout } from "../Layout/Box"
-import { Account, AccountsContextType } from "../../context/accounts"
+import { Account, AccountsContext } from "../../context/accounts"
 import { NotificationsContext } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
 import { renderFormFieldError, isWrongPasswordError } from "../../lib/errors"
-import CloseButton from "./CloseButton"
-import { ActionButton, DialogActionsBox } from "./Generic"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import { Box, VerticalLayout } from "../Layout/Box"
+import ErrorBoundary from "../ErrorBoundary"
+import MainTitle from "../MainTitle"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -76,7 +75,7 @@ function Actions(props: ActionsProps) {
           </ActionButton>
         ) : (
           <FormControlLabel
-            control={<Switch checked={props.removePassword} onChange={props.onToggleRemovePassword} />}
+            control={<Switch checked={props.removePassword} color="primary" onChange={props.onToggleRemovePassword} />}
             label="Remove password"
           />
         )
@@ -96,12 +95,11 @@ function Actions(props: ActionsProps) {
 
 interface Props {
   account: Account
-  changePassword: AccountsContextType["changePassword"]
-  removePassword: AccountsContextType["removePassword"]
   onClose: () => void
 }
 
 function ChangePasswordDialog(props: Props) {
+  const Accounts = React.useContext(AccountsContext)
   const { showError, showNotification } = React.useContext(NotificationsContext)
   const [errors, setErrors] = React.useState<Errors>({})
   const [formValues, setFormValues] = React.useState<FormValues>({
@@ -122,8 +120,7 @@ function ChangePasswordDialog(props: Props) {
 
     if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
-      props
-        .changePassword(accountID, prevPassword, nextPassword)
+      Accounts.changePassword(accountID, prevPassword, nextPassword)
         .then(() => {
           showNotification("success", requiresPassword ? "Password changed." : "Password set.")
           props.onClose()
@@ -147,8 +144,7 @@ function ChangePasswordDialog(props: Props) {
 
     if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
-      props
-        .removePassword(props.account.id, formValues.prevPassword)
+      Accounts.removePassword(props.account.id, formValues.prevPassword)
         .then(() => {
           showNotification("success", "Password removed.")
           props.onClose()
@@ -167,55 +163,60 @@ function ChangePasswordDialog(props: Props) {
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
   return (
-    <VerticalLayout minWidth={250}>
-      <CloseButton onClick={onClose} />
-      <DialogTitle>{props.account.requiresPassword ? "Change Password" : "Set Password"}</DialogTitle>
-      <DialogContent>
-        <Box hidden={!props.account.requiresPassword} margin="0 0 16px">
-          <TextField
-            autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
-            error={Boolean(errors.prevPassword)}
-            label={errors.prevPassword ? renderFormFieldError(errors.prevPassword) : "Current password"}
-            fullWidth
-            margin="dense"
-            value={formValues.prevPassword}
-            onChange={event => setFormValue("prevPassword", event.target.value)}
-            type="password"
-            InputProps={{ startAdornment: adornmentLockOpen }}
-          />
+    <ErrorBoundary>
+      <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
+        <Box margin="0 0 32px">
+          <MainTitle onBack={onClose} title={props.account.requiresPassword ? "Change Password" : "Set Password"} />
         </Box>
-        <Box hidden={removingPassword}>
-          <TextField
-            error={Boolean(errors.nextPassword)}
-            label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
-            fullWidth
-            margin="dense"
-            value={formValues.nextPassword}
-            onChange={event => setFormValue("nextPassword", event.target.value)}
-            type="password"
-            InputProps={{ startAdornment: adornmentLock }}
-          />
-          <TextField
-            error={Boolean(errors.nextPasswordRepeat)}
-            label={errors.nextPasswordRepeat ? renderFormFieldError(errors.nextPasswordRepeat) : "Repeat new password"}
-            fullWidth
-            margin="dense"
-            value={formValues.nextPasswordRepeat}
-            onChange={event => setFormValue("nextPasswordRepeat", event.target.value)}
-            type="password"
-            InputProps={{ startAdornment: adornmentLock }}
-          />
+        <Box alignSelf="center" maxWidth={400} width="100%">
+          <Box hidden={!props.account.requiresPassword}>
+            <TextField
+              autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
+              error={Boolean(errors.prevPassword)}
+              label={errors.prevPassword ? renderFormFieldError(errors.prevPassword) : "Current password"}
+              fullWidth
+              margin="normal"
+              value={formValues.prevPassword}
+              onChange={event => setFormValue("prevPassword", event.target.value)}
+              type="password"
+              InputProps={{ startAdornment: adornmentLockOpen }}
+            />
+          </Box>
+          <Box hidden={removingPassword}>
+            <TextField
+              error={Boolean(errors.nextPassword)}
+              label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
+              fullWidth
+              margin="normal"
+              value={formValues.nextPassword}
+              onChange={event => setFormValue("nextPassword", event.target.value)}
+              type="password"
+              InputProps={{ startAdornment: adornmentLock }}
+            />
+            <TextField
+              error={Boolean(errors.nextPasswordRepeat)}
+              label={
+                errors.nextPasswordRepeat ? renderFormFieldError(errors.nextPasswordRepeat) : "Repeat new password"
+              }
+              fullWidth
+              margin="normal"
+              value={formValues.nextPasswordRepeat}
+              onChange={event => setFormValue("nextPasswordRepeat", event.target.value)}
+              type="password"
+              InputProps={{ startAdornment: adornmentLock }}
+            />
+          </Box>
+          <DialogActions style={{ margin: "32px 0 0" }}>
+            <Actions
+              isPasswordProtected={props.account.requiresPassword}
+              onSubmit={removingPassword ? removePassword : changePassword}
+              onToggleRemovePassword={toggleRemovePassword}
+              removePassword={removingPassword}
+            />
+          </DialogActions>
         </Box>
-        <DialogActions style={{ margin: "32px 0 0" }}>
-          <Actions
-            isPasswordProtected={props.account.requiresPassword}
-            onSubmit={removingPassword ? removePassword : changePassword}
-            onToggleRemovePassword={toggleRemovePassword}
-            removePassword={removingPassword}
-          />
-        </DialogActions>
-      </DialogContent>
-    </VerticalLayout>
+      </VerticalLayout>
+    </ErrorBoundary>
   )
 }
 

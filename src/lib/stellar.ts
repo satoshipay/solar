@@ -110,6 +110,18 @@ export function getAccountMinimumBalance(
     .mul(baseReserve)
 }
 
+export function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
+  return balances.map(
+    balance =>
+      balance.asset_type === "native"
+        ? Asset.native()
+        : new Asset(
+            (balance as Horizon.BalanceLineAsset).asset_code,
+            (balance as Horizon.BalanceLineAsset).asset_issuer
+          )
+  )
+}
+
 export function getMatchingAccountBalance(balances: Horizon.BalanceLine[], assetCode: string) {
   const matchingBalanceLine = balances.find(balance => {
     return balance.asset_type === "native" ? assetCode === "XLM" : balance.asset_code === assetCode

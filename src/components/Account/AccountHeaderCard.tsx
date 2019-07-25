@@ -1,104 +1,73 @@
 import React from "react"
-import useMediaQuery from "@material-ui/core/useMediaQuery"
-import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
-import Dialog from "@material-ui/core/Dialog"
 import IconButton from "@material-ui/core/IconButton"
-import Slide from "@material-ui/core/Slide"
-import { TransitionProps } from "@material-ui/core/transitions/transition"
+import CloseIcon from "@material-ui/icons/Close"
 import MoreVertIcon from "@material-ui/icons/MoreVert"
-import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
-import { Account, AccountsContext, AccountsContextType } from "../../context/accounts"
+import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useAccountData, useIsMobile, useRouter } from "../../hooks"
-import * as routes from "../../routes"
-import AccountDeletionDialog from "../Dialog/AccountDeletion"
-import ChangePasswordDialog from "../Dialog/ChangePassword"
-import ExportKeyDialog from "../Dialog/ExportKey"
-import RenameDialog from "../Dialog/Rename"
-import ButtonIconLabel from "../ButtonIconLabel"
+import { useAccountData, useIsMobile } from "../../hooks"
+import { Box } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 import AccountTitle from "./AccountTitle"
-
-enum DialogID {
-  changePassword,
-  deleteAccount,
-  exportKey,
-  renameAccount
-}
-
-const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide ref={ref} direction="up" {...props} />
-))
-const DialogSidewaysTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide ref={ref} direction="left" {...props} />
-))
 
 interface Props {
   account: Account
   children?: React.ReactNode
+  editableAccountName?: boolean
+  onAccountSettings: () => void
+  onClose: () => void
   onManageAssets: () => void
-  onManageSigners: () => void
-  onRenameAccount: AccountsContextType["renameAccount"]
+  onTrade: () => void
+  onWithdraw: () => void
+  showCloseButton?: boolean
   style?: React.CSSProperties
 }
 
 function AccountHeaderCard(props: Props) {
-  const { changePassword, removePassword } = React.useContext(AccountsContext)
   const isSmallScreen = useIsMobile()
-  const router = useRouter()
   const settings = React.useContext(SettingsContext)
-
-  const [openDialog, setOpenDialog] = React.useState<DialogID | null>(null)
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const isWidthMax500 = useMediaQuery("(max-width:500px)")
-
-  const closeDialog = React.useCallback(() => setOpenDialog(null), [setOpenDialog])
-  const performRenaming = React.useCallback((newName: string) => props.onRenameAccount(props.account.id, newName), [
-    props.account.id
-  ])
 
   const actions = React.useMemo(
     () => (
-      <>
-        <Button
-          disabled={!accountData.activated}
-          onClick={() => router.history.push(routes.tradeAsset(props.account.id))}
-          style={{
-            borderColor: accountData.activated ? "rgba(255, 255, 255, 0.9)" : undefined,
-            color: accountData.activated ? "white" : undefined,
-            padding: "0 12px",
-            marginRight: isSmallScreen ? 0 : 8,
-            minHeight: 36
-          }}
-          variant="outlined"
-        >
-          <ButtonIconLabel label="Trade">
-            <SwapHorizIcon />
-          </ButtonIconLabel>
-        </Button>
-
-        <AccountContextMenu
-          account={props.account}
-          activated={accountData.activated}
-          settings={settings}
-          onChangePassword={() => setOpenDialog(DialogID.changePassword)}
-          onDelete={() => setOpenDialog(DialogID.deleteAccount)}
-          onExport={() => setOpenDialog(DialogID.exportKey)}
-          onManageAssets={props.onManageAssets}
-          onManageSigners={props.onManageSigners}
-          onRename={() => setOpenDialog(DialogID.renameAccount)}
-        >
-          {({ onOpen }) => (
-            <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -16, fontSize: 32 }}>
-              <MoreVertIcon style={{ fontSize: "inherit" }} />
-            </IconButton>
-          )}
-        </AccountContextMenu>
-      </>
+      <Box height={56}>
+        {props.showCloseButton ? (
+          <IconButton
+            color="inherit"
+            onClick={props.onClose}
+            style={{ boxSizing: "content-box", width: 32, height: 32, marginRight: -16, fontSize: 32 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        ) : (
+          <AccountContextMenu
+            account={props.account}
+            activated={accountData.activated}
+            onAccountSettings={props.onAccountSettings}
+            onManageAssets={props.onManageAssets}
+            onTrade={props.onTrade}
+            onWithdraw={props.onWithdraw}
+            settings={settings}
+          >
+            {({ onOpen }) => (
+              <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -16, fontSize: 32 }}>
+                <MoreVertIcon style={{ fontSize: "inherit" }} />
+              </IconButton>
+            )}
+          </AccountContextMenu>
+        )}
+      </Box>
     ),
-    [props.account, accountData.activated, settings, props.onManageAssets, props.onManageSigners]
+    [
+      props.account,
+      accountData.activated,
+      props.onAccountSettings,
+      props.onTrade,
+      props.onWithdraw,
+      props.showCloseButton,
+      settings
+    ]
   )
 
   return (
@@ -113,60 +82,13 @@ function AccountHeaderCard(props: Props) {
       }}
     >
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
-        <AccountTitle account={props.account} accountData={accountData} actions={actions} />
-
+        <AccountTitle
+          account={props.account}
+          accountData={accountData}
+          actions={actions}
+          editable={props.editableAccountName}
+        />
         {props.children}
-
-        <Dialog
-          open={openDialog === DialogID.deleteAccount}
-          fullScreen
-          onClose={closeDialog}
-          TransitionComponent={DialogSidewaysTransition}
-        >
-          <AccountDeletionDialog
-            account={props.account}
-            accountData={accountData}
-            onClose={closeDialog}
-            onDeleted={() => router.history.push(routes.allAccounts())}
-          />
-        </Dialog>
-        <Dialog
-          open={openDialog === DialogID.changePassword}
-          onClose={closeDialog}
-          PaperProps={{
-            style: isWidthMax500
-              ? { minWidth: 200, transition: "width 2s, min-width 2s" }
-              : { minWidth: 500, transition: "width 2s, min-width 2s" }
-          }}
-          TransitionComponent={DialogTransition}
-        >
-          <ChangePasswordDialog
-            account={props.account}
-            changePassword={changePassword}
-            onClose={closeDialog}
-            removePassword={removePassword}
-          />
-        </Dialog>
-        <Dialog
-          fullScreen
-          open={openDialog === DialogID.exportKey}
-          onClose={closeDialog}
-          TransitionComponent={DialogSidewaysTransition}
-        >
-          <ExportKeyDialog account={props.account} onClose={closeDialog} variant="export" />
-        </Dialog>
-        <Dialog
-          open={openDialog === DialogID.renameAccount}
-          onClose={closeDialog}
-          TransitionComponent={DialogTransition}
-        >
-          <RenameDialog
-            onClose={closeDialog}
-            performRenaming={performRenaming}
-            prevValue={props.account.name}
-            title="Rename account"
-          />
-        </Dialog>
       </CardContent>
     </Card>
   )

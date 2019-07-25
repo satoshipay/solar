@@ -10,7 +10,7 @@ import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import CreatePaymentForm from "./CreatePaymentForm"
+import Offramp from "../Withdrawal/Offramp"
 
 interface Props {
   account: Account
@@ -20,20 +20,16 @@ interface Props {
   sendTransaction: (transaction: Transaction) => Promise<any>
 }
 
-function CreatePaymentDialog(props: Props) {
-  const [txCreationPending, setTxCreationPending] = React.useState(false)
+function WithdrawalDialog(props: Props) {
   const isSmallScreen = useIsMobile()
 
   const handleSubmit = React.useCallback(
     async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
       try {
-        setTxCreationPending(true)
         const tx = await createTx(props.horizon, props.account)
         await props.sendTransaction(tx)
       } catch (error) {
         trackError(error)
-      } finally {
-        setTxCreationPending(false)
       }
     },
     [props.account, props.horizon]
@@ -53,18 +49,19 @@ function CreatePaymentDialog(props: Props) {
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
       </AccountBalancesContainer>
       <Box margin="24px 0 0">{null}</Box>
-      <CreatePaymentForm
-        accountData={props.accountData}
+      <Offramp
+        account={props.account}
+        assets={trustedAssets.filter(asset => !asset.isNative())}
+        horizon={props.horizon}
         onCancel={props.onClose}
         onSubmit={handleSubmit}
-        trustedAssets={trustedAssets}
-        txCreationPending={txCreationPending}
+        testnet={props.account.testnet}
       />
     </Box>
   )
 }
 
-function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "onClose">) {
+function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose">) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
@@ -73,10 +70,10 @@ function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "onClose">)
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <CreatePaymentDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
+        <WithdrawalDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}
     </TransactionSender>
   )
 }
 
-export default ConnectedCreatePaymentDialog
+export default ConnectedWithdrawalDialog

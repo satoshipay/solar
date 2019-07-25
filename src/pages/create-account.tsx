@@ -6,7 +6,7 @@ import { useRouter, useIsSmallMobile } from "../hooks"
 import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
-import ExportKeyDialog from "../components/Dialog/ExportKey"
+import ExportKeyDialog from "../components/AccountSettings/ExportKeyDialog"
 import { AccountsContext, Account } from "../context/accounts"
 import { trackError } from "../context/notifications"
 
