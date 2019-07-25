@@ -5,6 +5,18 @@ interface SettingsData {
 }
 
 interface ElectronContext {
+  getKeyIDs(): Promise<string[]>
+  getPublicKeyData(keyID: string): Promise<PublicKeyData>
+  getPrivateKeyData(keyID: string, password: string): Promise<PrivateKeyData>
+  saveKey(keyID: string, password: string, privateData: PrivateKeyData, publicData?: PublicKeyData): Promise<void>
+  savePublicKeyData(keyID: string, publicData: PublicKeyData): Promise<void>
+  signTransaction(
+    transaction: Transaction,
+    walletAccount: import("../src/context/accounts").Account,
+    password: string
+  ): Promise<Transaction>
+  removeKey(keyID: string): Promise<void>
+
   readIgnoredSignatureRequestHashes(): string[]
   readKeys(): any
   readSettings(): SettingsData

@@ -1,9 +1,61 @@
 const { ipcRenderer } = require("electron")
-
 const electronProcess = process
 
-const readKeys = () => ipcRenderer.sendSync("storage:keys:readSync")
-const updateKeys = data => ipcRenderer.sendSync("storage:keys:storeSync", data)
+// TODO create separate sender method which has a id (seems like getpublickeydata returns the same values because the events are emitted too fast in a row)
+
+let nextCommandID = 1
+
+function sendCommand(commandType, responseType, args) {
+  const messageID = nextCommandID++
+
+  const responsePromise = new Promise(resolve => {
+    const listener = (event, data) => {
+      if (data.messageID === messageID) {
+        // ipcRenderer.removeListener(listener)
+        resolve(data.result)
+      }
+    }
+
+    ipcRenderer.on(responseType, listener)
+  })
+
+  ipcRenderer.send(commandType, { messageID, data: args })
+  return responsePromise
+}
+
+const getKeyIDs = async () => {
+  return sendCommand("keystore:getKeyIDs", "keystore:keyIDs")
+}
+
+const getPublicKeyData = async keyID => {
+  const data = { keyID }
+  return sendCommand("keystore:getPublicKeyData", "keystore:publicKeyData", data)
+}
+
+const getPrivateKeyData = async (keyID, password) => {
+  const data = { keyID, password }
+  return sendCommand("keystore:getPrivateKeyData", "keystore:privateKeyData", data)
+}
+
+const saveKey = async (keyID, password, privateData, publicData) => {
+  const data = { keyID, password, privateData, publicData }
+  return sendCommand("keystore:saveKey", "keystore:savedKey", data)
+}
+
+const savePublicKeyData = async (keyID, publicData) => {
+  const data = { keyID, publicData }
+  return sendCommand("keystore:savePublicKeyData", "keystore:savedPublicKeyData", data)
+}
+
+const signTransaction = async (transactionEnvelope, walletAccount, password) => {
+  const data = { transactionEnvelope, walletAccount, password }
+  return sendCommand("keystore:signTransaction", "keystore:signedTransaction", data)
+}
+
+const removeKey = async keyID => {
+  const data = { keyID }
+  return sendCommand("keystore:removeKey", "keystore:removedKey", data)
+}
 
 const readSettings = () => ipcRenderer.sendSync("storage:settings:readSync")
 const updateSettings = updatedSettings => ipcRenderer.sendSync("storage:settings:storeSync", updatedSettings)
@@ -19,11 +71,17 @@ const subscribeToIPCMain = (channel, subscribeCallback) => {
 }
 
 const electron = {
+  getKeyIDs,
+  getPublicKeyData,
+  getPrivateKeyData,
+  saveKey,
+  savePublicKeyData,
+  signTransaction,
+  removeKey,
+
   readIgnoredSignatureRequestHashes,
-  readKeys,
   readSettings,
   updateIgnoredSignatureRequestHashes,
-  updateKeys,
   updateSettings,
   subscribeToIPCMain
 }

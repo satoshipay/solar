@@ -1,22 +1,98 @@
 const { app, ipcMain } = require("electron")
 const isDev = require("electron-is-dev")
 const Store = require("electron-store")
+const { createStore } = require("key-store")
+const { Network, Keypair, Transaction } = require("stellar-sdk")
+const { commands, events } = require("./key-store-ipc")
 
 // Use different key stores for development and production
 const mainStore = new Store({
   name: isDev ? "development" : "config"
 })
 
+const readKeys = () => {
+  return mainStore.has("keys") ? mainStore.get("keys") : {}
+}
+
+const updateKeys = arg => {
+  mainStore.set("keys", arg)
+  return true
+}
+
+const keystore = createStore(updateKeys, readKeys())
+
+async function signTransaction(transaction, walletAccount, password) {
+  if (walletAccount.requiresPassword && !password) {
+    throw Error(`Account is password-protected, but no password has been provided.`)
+  }
+
+  const privateKeyData = keystore.getPrivateKeyData(walletAccount.id, password)
+  const privateKey = privateKeyData.privateKey
+
+  if (walletAccount.testnet) {
+    Network.useTestNetwork()
+  } else {
+    Network.usePublicNetwork()
+  }
+
+  transaction.sign(Keypair.fromSecret(privateKey))
+  return transaction
+}
+
 /////////
 // Keys:
 
-ipcMain.on("storage:keys:readSync", event => {
-  event.returnValue = mainStore.has("keys") ? mainStore.get("keys") : {}
+ipcMain.on(commands.getKeyIDsCommand, (event, args) => {
+  const { messageID } = args
+  event.sender.send(events.getKeyIDsEvent, { messageID, result: keystore.getKeyIDs() })
 })
 
-ipcMain.on("storage:keys:storeSync", (event, arg) => {
-  mainStore.set("keys", arg)
-  event.returnValue = true
+ipcMain.on(commands.getPublicKeyDataCommand, (event, args) => {
+  const { messageID, data } = args
+  const { keyID } = data
+
+  event.sender.send(events.getPublicKeyDataEvent, { messageID, result: keystore.getPublicKeyData(keyID) })
+})
+
+ipcMain.on(commands.getPrivateKeyDataCommand, (event, args) => {
+  const { messageID, data } = args
+  const { keyID, password } = data
+
+  event.sender.send(events.getPrivateKeyDataEvent, { messageID, result: keystore.getPrivateKeyData(keyID, password) })
+})
+
+ipcMain.on(commands.saveKeyCommand, (event, args) => {
+  const { messageID, data } = args
+  const { keyID, password, privateData, publicData } = data
+
+  event.sender.send(events.saveKeyEvent, {
+    messageID,
+    result: keystore.saveKey(keyID, password, privateData, publicData)
+  })
+})
+
+ipcMain.on(commands.savePublicKeyDataCommand, (event, args) => {
+  const { messageID, data } = args
+  const { keyID, publicData } = data
+
+  event.sender.send(events.savePublicKeyDataEvent, { messageID, result: keystore.savePublicKeyData(keyID, publicData) })
+})
+
+ipcMain.on(commands.signTransactionCommand, async (event, args) => {
+  const { messageID, data } = args
+  const { transactionEnvelope, walletAccount, password } = data
+
+  const transaction = new Transaction(transactionEnvelope)
+  const signedTransaction = await signTransaction(transaction, walletAccount, password)
+  const signedTransactionEnvelope = signedTransaction.toEnvelope().toXDR("base64")
+
+  event.sender.send(events.signTransactionEvent, { messageID, result: signedTransactionEnvelope })
+})
+
+ipcMain.on(commands.removeKeyCommand, (event, args) => {
+  const { messageID, data } = args
+  const { keyID } = data
+  event.sender.send(events.removeKeyEvent, { messageID, result: keystore.removeKey(keyID) })
 })
 
 /////////////
