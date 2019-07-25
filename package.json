@@ -54,6 +54,7 @@
   "devDependencies": {
     "@material-ui/core": "^4.2.1",
     "@material-ui/icons": "^4.2.1",
+    "@material-ui/utils": "^4.1.0",
     "@satoshipay/stellar-sep-10": "^0.1.0",
     "@satoshipay/stellar-sep-6": "^0.1.0",
     "@stellarguard/stellar-uri": "^1.0.0",
