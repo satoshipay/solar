@@ -51,7 +51,7 @@ export function createOrderbookSubscription(
               unsubscribe = streamOrderUpdates(cursor)
             })
           }
-        } as any)
+        })
       // Don't simplify to `return unsubscribe`, since we need to call the current unsubscribe
       return () => unsubscribe()
     })

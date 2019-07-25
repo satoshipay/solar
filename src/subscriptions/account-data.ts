@@ -1,4 +1,4 @@
-import { Horizon, Server } from "stellar-sdk"
+import { AccountResponse, Horizon, Server } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
 import { loadAccount, waitForAccountData } from "../lib/account"
 import { createMessageDeduplicator, manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
@@ -37,7 +37,7 @@ export function createAccountDataSubscription(
   let latestPagingToken: string = "now"
   let pollingInterval: any = 0
 
-  const dedupeMessage = createMessageDeduplicator<Server.AccountRecord>()
+  const dedupeMessage = createMessageDeduplicator<AccountResponse>()
 
   const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget(
     createEmptyAccountData(accountPubKey)
@@ -86,7 +86,7 @@ export function createAccountDataSubscription(
         .cursor(cursor)
         .stream({
           reconnectTimeout: 8000,
-          onmessage(accountData: Server.AccountRecord) {
+          onmessage(accountData: AccountResponse) {
             dedupeMessage(accountData, () => {
               latestPagingToken = accountData.paging_token
               propagateUpdate({
@@ -102,7 +102,7 @@ export function createAccountDataSubscription(
               unsubscribeFromEventSource = subscribeToStream(latestPagingToken)
             })
           }
-        } as any)
+        })
     })
     // Don't simplify to `return unsubscribeFromEventSource`, since the function will change over time
     return () => {

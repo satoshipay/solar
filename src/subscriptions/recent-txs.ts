@@ -1,4 +1,4 @@
-import { Server, Transaction } from "stellar-sdk"
+import { Server, ServerApi, Transaction } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
@@ -17,7 +17,7 @@ const createEmptyTransactionSet = (): ObservedRecentTxs => ({
   transactions: []
 })
 
-function deserializeTx(txResponse: Server.TransactionRecord) {
+function deserializeTx(txResponse: ServerApi.TransactionRecord) {
   return Object.assign(new Transaction(txResponse.envelope_xdr), {
     created_at: txResponse.created_at
   })
@@ -46,7 +46,7 @@ export function createRecentTxsSubscription(
         .forAccount(accountPubKey)
         .cursor(cursor)
         .stream({
-          onmessage(transaction: Server.TransactionRecord) {
+          onmessage(transaction: ServerApi.TransactionRecord) {
             if (
               subscriptionTarget
                 .getLatest()
