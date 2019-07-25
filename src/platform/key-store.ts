@@ -1,7 +1,6 @@
-import { KeyStore } from "key-store"
-import { PrivateKeyData, PublicKeyData } from "./types"
+import { KeyStoreAPI } from "./types"
 
-export default function getKeyStore(): Promise<KeyStore<PrivateKeyData, PublicKeyData>> {
+export default function getKeyStore(): Promise<KeyStoreAPI> {
   if (window.electron) {
     const createElectronKeyStore = require("./electron/key-store").default
     return createElectronKeyStore()
