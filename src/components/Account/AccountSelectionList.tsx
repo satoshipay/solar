@@ -130,7 +130,6 @@ const CreateAccountListItem = React.memo(
       <ListItem
         button
         className={props.classes.listItem}
-        component="li"
         disabled={props.disabled}
         selected={props.selected}
         onClick={props.onClick}
