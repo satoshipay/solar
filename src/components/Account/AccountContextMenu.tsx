@@ -27,7 +27,7 @@ const AccountContextMenuItem = React.forwardRef((props: ItemProps, ref) => {
   }
   return (
     <MenuItem disabled={props.disabled} onClick={props.onClick}>
-      <ListItemIcon style={{ marginRight: 8 }}>{props.icon}</ListItemIcon>
+      <ListItemIcon style={{ flex: "0 0 24px", marginRight: 24, minWidth: 24 }}>{props.icon}</ListItemIcon>
       <ListItemText ref={ref}>{props.label}</ListItemText>
     </MenuItem>
   )
