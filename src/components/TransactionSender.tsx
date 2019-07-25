@@ -251,6 +251,7 @@ class TransactionSender extends React.Component<Props, State> {
           account={this.props.account}
           disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
           passwordError={passwordError}
+          showHash={false}
           showSource={transaction ? this.props.account.publicKey !== transaction.source : undefined}
           signatureRequest={signatureRequest || undefined}
           transaction={transaction}

@@ -24,6 +24,7 @@ interface Props {
   account: Account
   disabled?: boolean
   passwordError?: Error | null
+  showHash?: boolean
   showSource?: boolean
   signatureRequest?: SignatureRequest
   transaction: Transaction
@@ -101,7 +102,7 @@ function TxConfirmationForm(props: Props) {
         <TransactionSummary
           account={props.account}
           onHashClick={props.disabled && !props.signatureRequest ? openInStellarExpert : undefined}
-          showHash={props.disabled}
+          showHash={props.showHash === undefined ? props.disabled : props.showHash}
           showSource={props.showSource}
           signatureRequest={props.signatureRequest}
           testnet={props.account.testnet}

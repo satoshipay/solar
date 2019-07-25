@@ -107,6 +107,9 @@ const theme = createMuiTheme({
       }
     },
     MuiInput: {
+      root: {
+        lineHeight: "27px"
+      },
       formControl: {
         "label + &": {
           marginTop: 12

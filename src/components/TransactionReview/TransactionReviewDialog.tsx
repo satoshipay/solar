@@ -50,6 +50,7 @@ interface Props {
   disabled?: boolean
   open: boolean
   passwordError?: Error | null
+  showHash?: boolean
   showSource?: boolean
   signatureRequest?: SignatureRequest
   submissionProgress?: React.ReactNode
@@ -92,6 +93,7 @@ function TransactionReviewDialog(props: Props) {
                 onClose={props.onClose}
                 onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
                 passwordError={props.passwordError}
+                showHash={props.showHash}
                 showSource={props.showSource}
                 signatureRequest={props.signatureRequest}
                 transaction={props.transaction}
