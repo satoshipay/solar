@@ -12,10 +12,10 @@ import { Transaction } from "stellar-base"
 import AccountSelectionList from "../Account/AccountSelectionList"
 import { Account, AccountsContext } from "../../context/accounts"
 import TransactionSender from "../TransactionSender"
-import { loadAccount } from "../../lib/account"
 import { Server } from "stellar-sdk"
-import { createCopyWithDifferentSourceAccount } from "../../lib/transaction"
 import MainTitle from "../MainTitle"
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 function TrustedBadge(props: { children: React.ReactNode }) {
   return (
@@ -54,12 +54,9 @@ export function StellarGuardActivationDialog(props: Props) {
     if (!selectedAccount) {
       return
     }
-    const stellarAccount = await loadAccount(props.horizon, selectedAccount.publicKey)
-    if (stellarAccount) {
-      const modifiedTransaction = createCopyWithDifferentSourceAccount(props.transaction, stellarAccount)
-      await props.sendTransaction(selectedAccount, modifiedTransaction)
-      setTimeout(props.onClose, 2000)
-    }
+    await props.sendTransaction(selectedAccount, props.transaction)
+    await delay(2000)
+    props.onClose()
   }
 
   const filteredAccounts = React.useMemo(

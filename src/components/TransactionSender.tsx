@@ -2,8 +2,10 @@ import React from "react"
 import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
+import { trackError } from "../context/notifications"
 import { SettingsContext, SettingsContextType } from "../context/settings"
 import { useHorizon } from "../hooks"
+import { loadAccount } from "../lib/account"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
 import {
@@ -12,8 +14,13 @@ import {
   submitNewSignatureRequest,
   SignatureRequest
 } from "../lib/multisig-service"
-import { networkPassphrases } from "../lib/stellar"
-import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
+import { networkPassphrases, NullPublicKey } from "../lib/stellar"
+import {
+  createCopyWithDifferentSourceAccount,
+  hasSigned,
+  requiresRemoteSignatures,
+  signTransaction
+} from "../lib/transaction"
 import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../lib/stellar-guard"
 import TransactionReviewDialog from "./TransactionReview/TransactionReviewDialog"
 import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
@@ -109,18 +116,33 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  setTransaction = (account: Account, transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
-    this.setState({
-      account,
-      confirmationDialogOpen: true,
-      signatureRequest,
-      transaction
-    })
-    return new Promise(resolve => {
-      this.setState(state => ({
-        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve]
-      }))
-    })
+  setTransaction = async (
+    account: Account,
+    transaction: Transaction,
+    signatureRequest: SignatureRequest | null = null
+  ) => {
+    try {
+      if (transaction.source === NullPublicKey) {
+        // We probably received this transaction via a SEP-7 URI and need to fill-in the source
+        const accountData = await loadAccount(this.props.horizon, account.publicKey)
+        if (accountData) {
+          transaction = createCopyWithDifferentSourceAccount(transaction, accountData)
+        }
+      }
+      this.setState({
+        account,
+        confirmationDialogOpen: true,
+        signatureRequest,
+        transaction
+      })
+      return new Promise(resolve => {
+        this.setState(state => ({
+          submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve]
+        }))
+      })
+    } catch (error) {
+      trackError(error)
+    }
   }
 
   triggerSubmissionSuccessCallbacks = () => {
