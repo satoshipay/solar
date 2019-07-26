@@ -164,11 +164,8 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
     throw createWrongPasswordError(`Account is password-protected, but no password has been provided.`)
   }
 
-  const privateKey = await walletAccount.getPrivateKey(password)
-
-  selectNetwork(walletAccount.testnet)
-  transaction.sign(Keypair.fromSecret(privateKey))
-  return transaction
+  const signedTransaction = walletAccount.signTransaction(transaction, walletAccount, password)
+  return signedTransaction
 }
 
 export async function requiresRemoteSignatures(horizon: Server, transaction: Transaction, walletPublicKey: string) {
