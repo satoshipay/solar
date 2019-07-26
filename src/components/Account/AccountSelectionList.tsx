@@ -133,7 +133,10 @@ function AccountSelectionList(props: AccountSelectionListProps) {
   const filteredAccounts =
     props.showAccounts === "all"
       ? accountsMatchingNetwork
-      : accountsMatchingNetwork.filter((account, index) => accountDataSet[index].activated)
+      : accountsMatchingNetwork.filter(
+          (account, index) =>
+            props.showAccounts === "activated" ? accountDataSet[index].activated : !accountDataSet[index].activated
+        )
 
   function handleListItemClick(event: React.MouseEvent, index: number) {
     setSelectedIndex(index)
