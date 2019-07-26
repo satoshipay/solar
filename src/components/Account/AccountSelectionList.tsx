@@ -57,13 +57,13 @@ const CreateAccountListItem = React.memo(
         button
         className={`${props.classes.listItem} ${props.classes.newAccountItem}`}
         disabled={props.disabled}
-        selected={props.selected}
         onClick={props.onClick}
+        selected={props.selected}
       >
         <ListItemIcon>
           <>{null}</>
         </ListItemIcon>
-        <ListItemText primary={`Create new ${props.testnet ? "testnet" : ""} account`} />
+        <ListItemText primary={`Create New ${props.testnet ? "Testnet" : ""} Account`} />
       </ListItem>
     )
   } as React.ComponentType<CreateAccountListItemProps>)
@@ -142,7 +142,7 @@ function AccountSelectionList(props: AccountSelectionListProps) {
   return (
     <>
       {props.title ? (
-        <Typography color="textSecondary" style={{ padding: "0 16px", marginBottom: 8 }} variant="subtitle1">
+        <Typography color="textSecondary" style={{ padding: 0, marginBottom: 8 }} variant="subtitle1">
           {props.title}
         </Typography>
       ) : null}

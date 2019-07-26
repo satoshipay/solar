@@ -77,12 +77,12 @@ export function StellarGuardActivationDialog(props: Props) {
 
   return (
     <>
-      <Box width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto 32px">
+      <Box width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
         <MainTitle actions={logo} hideBackButton onBack={() => undefined} title="Enable Two-Factor Authentication" />
         <Typography variant="body1" style={{ marginTop: 8, paddingRight: 96 }}>
           To add two-factor authentication to your account you need to add StellarGuard as a co-signer to your account.
         </Typography>
-        <VerticalLayout justifyContent="center" alignItems="stretch" margin="48px auto">
+        <VerticalLayout justifyContent="center" alignItems="stretch" margin="24px auto">
           <AccountSelectionList
             accounts={filteredAccounts}
             onChange={setSelectedAccount}
