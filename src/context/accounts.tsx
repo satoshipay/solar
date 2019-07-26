@@ -1,9 +1,9 @@
 import React from "react"
 import { Keypair } from "stellar-sdk"
+import { Transaction } from "stellar-base"
 import { createWrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"
-import { KeyStore } from "key-store"
-import { PrivateKeyData, PublicKeyData } from "../platform/types"
+import { KeyStoreAPI } from "../platform/types"
 import { trackError } from "./notifications"
 
 export interface Account {
@@ -13,6 +13,7 @@ export interface Account {
   requiresPassword: boolean
   testnet: boolean
   getPrivateKey(password: string | null): Promise<string>
+  signTransaction(transaction: Transaction, account: Account, password: string | null): Promise<Transaction>
 }
 
 export type NetworkID = "mainnet" | "testnet"
@@ -40,8 +41,8 @@ interface ContextValue {
  * Creates a wallet account instance. Not to be confused with the Stellar
  * account response, although they map 1:1.
  */
-function createAccountInstance(keyStore: KeyStore<PrivateKeyData, PublicKeyData>, keyID: string): Account {
-  const publicData = keyStore.getPublicKeyData(keyID)
+async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string): Promise<Account> {
+  const publicData = await keyStore.getPublicKeyData(keyID)
   return {
     id: keyID,
     name: publicData.name,
@@ -63,6 +64,16 @@ function createAccountInstance(keyStore: KeyStore<PrivateKeyData, PublicKeyData>
         console.debug("Decrypting private key data failed. Assuming wrong password:", error)
         throw createWrongPasswordError()
       }
+    },
+
+    async signTransaction(transaction: Transaction, account: Account, password: string | null) {
+      const requiresPassword = publicData.password
+
+      if (password === null && requiresPassword) {
+        throw new Error(`Account ${keyID} is password-protected, but no password was passed.`)
+      }
+
+      return keyStore.signTransaction(transaction, account, password || "")
     }
   }
 }
@@ -130,8 +141,9 @@ export function AccountsProvider(props: Props) {
 
   React.useEffect(() => {
     getKeyStore()
-      .then(keyStore => {
-        const loadedAccounts = keyStore.getKeyIDs().map(keyID => createAccountInstance(keyStore, keyID))
+      .then(async keyStore => {
+        const keyIDs = await keyStore.getKeyIDs()
+        const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
         setAccounts(loadedAccounts)
         setNetworkSwitch(getInitialNetwork(loadedAccounts))
       })
@@ -156,10 +168,10 @@ export function AccountsProvider(props: Props) {
   const renameAccount = async (accountID: string, newName: string) => {
     const keyStore = await getKeyStore()
     await keyStore.savePublicKeyData(accountID, {
-      ...keyStore.getPublicKeyData(accountID),
+      ...(await keyStore.getPublicKeyData(accountID)),
       name: newName
     })
-    updateAccountInStore(createAccountInstance(keyStore, accountID))
+    updateAccountInStore(await createAccountInstance(keyStore, accountID))
   }
 
   const deleteAccount = async (accountID: string) => {
@@ -172,10 +184,10 @@ export function AccountsProvider(props: Props) {
     const keyStore = await getKeyStore()
 
     let privateKeyData: PrivateKeyData
-    const publicKeyData = keyStore.getPublicKeyData(accountID)
+    const publicKeyData = await keyStore.getPublicKeyData(accountID)
 
     try {
-      privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+      privateKeyData = await keyStore.getPrivateKeyData(accountID, prevPassword)
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.debug("Decrypting private key data failed. Assuming wrong password:", error)
@@ -185,17 +197,17 @@ export function AccountsProvider(props: Props) {
     // Setting `password: true` explicitly, in case there was no password set before
     await keyStore.saveKey(accountID, nextPassword, privateKeyData, { ...publicKeyData, password: true })
 
-    updateAccountInStore(createAccountInstance(keyStore, accountID))
+    updateAccountInStore(await createAccountInstance(keyStore, accountID))
   }
 
   const removePassword = async (accountID: string, prevPassword: string) => {
     const keyStore = await getKeyStore()
 
     let privateKeyData: PrivateKeyData
-    const publicKeyData = keyStore.getPublicKeyData(accountID)
+    const publicKeyData = await keyStore.getPublicKeyData(accountID)
 
     try {
-      privateKeyData = keyStore.getPrivateKeyData(accountID, prevPassword)
+      privateKeyData = await keyStore.getPrivateKeyData(accountID, prevPassword)
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.debug("Decrypting private key data failed. Assuming wrong password:", error)
@@ -203,7 +215,7 @@ export function AccountsProvider(props: Props) {
     }
 
     await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })
-    updateAccountInStore(createAccountInstance(keyStore, accountID))
+    updateAccountInStore(await createAccountInstance(keyStore, accountID))
   }
 
   const toggleNetwork = () => {
