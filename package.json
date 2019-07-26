@@ -47,7 +47,9 @@
     "history": "^4.7.2",
     "isomorphic-fetch": "^2.2.1",
     "key-store": "^1.0.1",
-    "opn": "^5.4.0"
+    "opn": "^5.4.0",
+    "stellar-base": "^1.0.3",
+    "stellar-sdk": "^2.2.1"
   },
   "devDependencies": {
     "@material-ui/core": "^4.2.1",
@@ -104,8 +106,6 @@
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "run-electron": "^0.1.0",
-    "stellar-base": "^1.0.3",
-    "stellar-sdk": "^2.2.1",
     "storybook-addon-material-ui": "^0.9.0-alpha.18",
     "ts-loader": "^5.3.3",
     "tslint": "^5.10.0",
