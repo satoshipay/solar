@@ -8,7 +8,8 @@ import ListItemText from "@material-ui/core/ListItemText"
 import Radio from "@material-ui/core/Radio"
 import Typography from "@material-ui/core/Typography"
 import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
-import { useIsMobile } from "../../hooks"
+import AddIcon from "@material-ui/icons/Add"
+import { useAccountDataSet, useIsMobile } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import AccountCreationForm, { AccountCreationValues } from "../Form/CreateAccount"
@@ -30,6 +31,7 @@ const accountListItemStyles: StyleRules = {
   },
   newAccountItem: {
     background: "#FAFAFA",
+    justifyContent: "center",
     "&:focus": {
       backgroundColor: "#FAFAFA"
     },
@@ -60,10 +62,10 @@ const CreateAccountListItem = React.memo(
         onClick={props.onClick}
         selected={props.selected}
       >
-        <ListItemIcon>
-          <>{null}</>
+        <ListItemIcon style={{ marginRight: 8, minWidth: 0 }}>
+          <AddIcon />
         </ListItemIcon>
-        <ListItemText primary={`Create New ${props.testnet ? "Testnet" : ""} Account`} />
+        <ListItemText primary={`Create New ${props.testnet ? "Testnet" : ""} Account`} style={{ flex: "0 0 auto" }} />
       </ListItem>
     )
   } as React.ComponentType<CreateAccountListItemProps>)
@@ -105,8 +107,10 @@ const AccountSelectionListItem = React.memo(
 interface AccountSelectionListProps {
   accounts: Account[]
   disabled?: boolean
+  showAccounts: "all" | "activated" | "unactivated"
   testnet: boolean
   title?: React.ReactNode
+  titleNone?: React.ReactNode
   onChange?: (account: Account) => void
 }
 
@@ -117,6 +121,19 @@ function AccountSelectionList(props: AccountSelectionListProps) {
   const [selectedIndex, setSelectedIndex] = React.useState(-1)
 
   const isSmallScreen = useIsMobile()
+
+  const accountsMatchingNetwork = React.useMemo(
+    () => {
+      return props.accounts.filter(account => account.testnet === props.testnet)
+    },
+    [props.accounts, props.testnet]
+  )
+
+  const accountDataSet = useAccountDataSet(accountsMatchingNetwork.map(account => account.publicKey), props.testnet)
+  const filteredAccounts =
+    props.showAccounts === "all"
+      ? accountsMatchingNetwork
+      : accountsMatchingNetwork.filter((account, index) => accountDataSet[index].activated)
 
   function handleListItemClick(event: React.MouseEvent, index: number) {
     setSelectedIndex(index)
@@ -157,15 +174,17 @@ function AccountSelectionList(props: AccountSelectionListProps) {
           overflowY: "auto"
         }}
       >
-        <CreateAccountListItem
-          index={0}
-          onClick={() => setCreateAccountOpened(true)}
-          disabled={props.disabled}
-          selected={false}
-          testnet={props.testnet}
-        />
+        {props.showAccounts === "activated" ? null : (
+          <CreateAccountListItem
+            index={0}
+            onClick={() => setCreateAccountOpened(true)}
+            disabled={props.disabled}
+            selected={false}
+            testnet={props.testnet}
+          />
+        )}
 
-        {props.accounts.map((account, index) => (
+        {filteredAccounts.map((account, index) => (
           <AccountSelectionListItem
             account={account}
             disabled={props.disabled}
@@ -176,7 +195,9 @@ function AccountSelectionList(props: AccountSelectionListProps) {
           />
         ))}
         {props.accounts.length === 0 ? (
-          <Typography style={{ opacity: 0.7, textAlign: "center" }}>(No accounts)</Typography>
+          <Typography style={{ height: 56, lineHeight: "56px", opacity: 0.7, textAlign: "center" }}>
+            ({props.titleNone || "No accounts"})
+          </Typography>
         ) : null}
       </List>
 

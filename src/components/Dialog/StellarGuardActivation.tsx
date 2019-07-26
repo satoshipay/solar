@@ -27,6 +27,8 @@ function TrustedBadge(props: { children: React.ReactNode }) {
             borderRadius: "50%",
             color: "white",
             fontSize: "150%",
+            marginRight: -4,
+            marginTop: 4,
             padding: "0.1em"
           }}
         />
@@ -50,6 +52,15 @@ export function StellarGuardActivationDialog(props: Props) {
   const [selectedAccount, setSelectedAccount] = React.useState<Account | null>(null)
   const isSmallScreen = useIsMobile()
 
+  const logo = React.useMemo(
+    () => (
+      <TrustedBadge>
+        <StellarGuardIcon style={{ color: "blue", height: 48, maxWidth: 150, width: "auto" }} />
+      </TrustedBadge>
+    ),
+    []
+  )
+
   const submit = async () => {
     if (!selectedAccount) {
       return
@@ -58,22 +69,6 @@ export function StellarGuardActivationDialog(props: Props) {
     await delay(2000)
     props.onClose()
   }
-
-  const filteredAccounts = React.useMemo(
-    () => {
-      return props.accounts.filter(account => account.testnet === props.testnet)
-    },
-    [props.accounts, props.testnet]
-  )
-
-  const logo = React.useMemo(
-    () => (
-      <TrustedBadge>
-        <StellarGuardIcon style={{ color: "blue", fontSize: "400%" }} />
-      </TrustedBadge>
-    ),
-    []
-  )
 
   return (
     <>
@@ -84,10 +79,12 @@ export function StellarGuardActivationDialog(props: Props) {
         </Typography>
         <VerticalLayout justifyContent="center" alignItems="stretch" margin="24px auto">
           <AccountSelectionList
-            accounts={filteredAccounts}
+            accounts={props.accounts}
             onChange={setSelectedAccount}
+            showAccounts="activated"
             testnet={props.testnet}
             title="Select the account to protect"
+            titleNone="No activated testnet accounts"
           />
         </VerticalLayout>
         <DialogActionsBox>
