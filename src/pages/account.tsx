@@ -52,16 +52,17 @@ function AccountActions(props: AccountActionsProps) {
     padding: 20
   }
   return (
-    <Collapse in={!props.hidden}>
-      <HorizontalLayout
-        style={{
-          flexGrow: 0,
-          flexShrink: 0,
-          background: props.bottomOfScreen ? "white" : undefined,
-          paddingBottom: "env(safe-area-inset-bottom)",
-          ...props.style
-        }}
-      >
+    <Collapse
+      in={!props.hidden}
+      style={{
+        flexGrow: 0,
+        flexShrink: 0,
+        background: props.bottomOfScreen ? "white" : undefined,
+        paddingBottom: "env(safe-area-inset-bottom)",
+        ...props.style
+      }}
+    >
+      <HorizontalLayout>
         <Button variant="contained" onClick={props.onReceivePayment} style={buttonStyle}>
           <ButtonIconLabel label="Receive">
             <QRCodeIcon style={{ fontSize: "110%" }} />
