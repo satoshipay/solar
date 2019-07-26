@@ -92,7 +92,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   )
 
   return (
-    <List style={{ margin: "24px 0", paddingLeft: 0, paddingRight: 0, ...widthStyling }}>
+    <List style={{ margin: "8px 0", paddingLeft: 0, paddingRight: 0, ...widthStyling }}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
