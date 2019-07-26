@@ -4,6 +4,8 @@ import { verifyTransactionRequest } from "../lib/stellar-uri"
 import { subscribeToDeepLinkURLs } from "../platform/protocol-handler"
 import { trackError } from "./notifications"
 
+const allowUnsafeTestnetURIs = Boolean(process.env.ALLOW_UNSAFE_TESTNET_URIS)
+
 interface Props {
   children: React.ReactNode
 }
@@ -28,7 +30,7 @@ export function TransactionRequestProvider(props: Props) {
   React.useEffect(() => {
     const unsubscribe = subscribeToDeepLinkURLs(async incomingURI => {
       try {
-        const parsedURI = await verifyTransactionRequest(incomingURI)
+        const parsedURI = await verifyTransactionRequest(incomingURI, { allowUnsafeTestnetURIs })
         setURI(parsedURI)
       } catch (error) {
         trackError(error)

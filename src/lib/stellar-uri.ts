@@ -13,6 +13,10 @@ export interface TrustedService {
   validate(this: TrustedService, request: StellarUri, tx: Transaction): void
 }
 
+export interface VerificationOptions {
+  allowUnsafeTestnetURIs?: boolean
+}
+
 export const trustedServices: TrustedService[] = [
   {
     domain: "test.stellarguard.me",
@@ -38,12 +42,16 @@ export const trustedServices: TrustedService[] = [
   }
 ]
 
-export async function verifyTransactionRequest(request: string) {
+export async function verifyTransactionRequest(request: string, options: VerificationOptions = {}) {
   const parsedURI = parseStellarUri(request)
   const isSignatureValid = await parsedURI.verifySignature()
 
   if (!isSignatureValid) {
-    throw Error("Stellar URI's signature could not be verified.")
+    if (parsedURI.isTestNetwork && options.allowUnsafeTestnetURIs) {
+      // ignore
+    } else {
+      throw Error("Stellar URI's signature could not be verified.")
+    }
   }
 
   const trustedService = trustedServices.find(service => parsedURI.originDomain === service.domain)
