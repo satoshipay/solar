@@ -74,10 +74,15 @@ const Badges = React.memo(function Badges(props: { account: Account; accountData
 
 const useTitleTextfieldStyles = makeStyles({
   input: {
+    borderRadius: 0,
+    caretColor: "white",
     "&::selection": {
       background: "rgba(255, 255, 255, 0.2)",
       color: "white"
     }
+  },
+  underlinedInput: {
+    borderBottom: "1px solid white"
   }
 })
 
@@ -89,6 +94,7 @@ interface TitleTextFieldProps {
   onKeyDown?: TextFieldProps["onKeyDown"]
   mode: "editing" | "readonly"
   showEdit: boolean
+  showUnderlineOnEdit?: boolean
   style?: React.CSSProperties
   value: string
 }
@@ -98,7 +104,9 @@ function TitleTextField(props: TitleTextFieldProps) {
   return (
     <TextField
       inputProps={{
-        className: classes.input,
+        className: `${classes.input} ${
+          props.mode === "editing" && props.showUnderlineOnEdit ? classes.underlinedInput : ""
+        }`,
         onClick: props.onClick,
         size: props.value.length,
         style: {
@@ -195,7 +203,8 @@ function AccountTitle(props: AccountTitleProps) {
   const toggleMode = React.useCallback(
     () => {
       setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
-      if (inputRef.current) {
+      // Doesn't work on iOS, even leads to weird broken behavior
+      if (inputRef.current && process.env.PLATFORM !== "ios") {
         inputRef.current.select()
         inputRef.current.focus()
       }
@@ -241,6 +250,8 @@ function AccountTitle(props: AccountTitleProps) {
           onKeyDown={handleKeyDown}
           mode={mode}
           showEdit={props.editable || false}
+          // Since we cannot auto-select the text on iOS, highlight that it's editable by underline
+          showUnderlineOnEdit={process.env.PLATFORM === "ios"}
           value={name}
         />
       }
