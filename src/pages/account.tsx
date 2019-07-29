@@ -36,6 +36,7 @@ interface AccountActionsProps {
   horizontalMargin: number
   onCreatePayment: () => void
   onReceivePayment: () => void
+  padding?: React.CSSProperties["padding"]
   squareButtons?: boolean
   style?: React.CSSProperties
 }
@@ -62,7 +63,7 @@ function AccountActions(props: AccountActionsProps) {
         ...props.style
       }}
     >
-      <HorizontalLayout>
+      <HorizontalLayout padding={props.padding}>
         <Button variant="contained" onClick={props.onReceivePayment} style={buttonStyle}>
           <ButtonIconLabel label="Receive">
             <QRCodeIcon style={{ fontSize: "110%" }} />
@@ -145,7 +146,7 @@ function AccountPage(props: Props) {
               horizontalMargin={40}
               onCreatePayment={navigateTo.createPayment}
               onReceivePayment={navigateTo.receivePayment}
-              style={{ paddingTop: 40 }}
+              padding="40px 0 0"
             />
           )}
         </AccountHeaderCard>
