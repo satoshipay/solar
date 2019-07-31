@@ -199,7 +199,11 @@ function AccountTitle(props: AccountTitleProps) {
     },
     [props.account]
   )
-  const switchToEditMode = React.useCallback(() => setMode("editing"), [])
+  const switchToEditMode = React.useCallback(() => {
+    if (props.editable) {
+      setMode("editing")
+    }
+  }, [])
   const toggleMode = React.useCallback(
     () => {
       setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
