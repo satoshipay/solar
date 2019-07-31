@@ -10,6 +10,7 @@ import AccountBalances from "../components/Account/AccountBalances"
 import AccountBalancesContainer from "../components/Account/AccountBalancesContainer"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
+import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
@@ -98,6 +99,7 @@ function AccountPage(props: Props) {
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
   const showAssetManagement = matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
+  const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
@@ -107,6 +109,7 @@ function AccountPage(props: Props) {
   const navigateTo = React.useMemo(
     () => ({
       accountSettings: () => router.history.push(routes.accountSettings(props.accountID)),
+      balanceDetails: () => router.history.push(routes.balanceDetails(props.accountID)),
       createPayment: () => router.history.push(routes.createPayment(props.accountID)),
       manageAssets: () => router.history.push(routes.manageAccountAssets(props.accountID)),
       receivePayment: () => router.history.push(routes.receivePayment(props.accountID)),
@@ -137,7 +140,11 @@ function AccountPage(props: Props) {
           showCloseButton={showAccountSettings}
         >
           <AccountBalancesContainer>
-            <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
+            <AccountBalances
+              onClick={navigateTo.balanceDetails}
+              publicKey={account.publicKey}
+              testnet={account.testnet}
+            />
           </AccountBalancesContainer>
           {isSmallScreen ? null : (
             <AccountActions
@@ -175,6 +182,14 @@ function AccountPage(props: Props) {
         />
       ) : null}
 
+      <Dialog
+        open={showBalanceDetails}
+        fullScreen
+        onClose={navigateTo.transactions}
+        TransitionComponent={DialogTransition}
+      >
+        <BalanceDetailsDialog account={account} onClose={navigateTo.transactions} />
+      </Dialog>
       <Dialog
         open={showCreatePayment}
         fullScreen

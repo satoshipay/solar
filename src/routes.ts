@@ -3,6 +3,7 @@ import { matchesRoute } from "./lib/routes"
 export const allAccounts = () => "/"
 export const account = (accountID: string) => `/account/${accountID}`
 export const accountSettings = (accountID: string) => `/account/${accountID}/settings`
+export const balanceDetails = (accountID: string) => `/account/${accountID}/balances`
 export const changeAccountPassword = (accountID: string) => `/account/${accountID}/settings/password`
 export const createAccount = (testnet: boolean) => `/account/create/${testnet ? "testnet" : "mainnet"}`
 export const createPayment = (accountID: string) => `/account/${accountID}/send`

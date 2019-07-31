@@ -15,6 +15,7 @@ import {
 } from "./context/caches"
 import { NotificationsContext } from "./context/notifications"
 import { StellarContext } from "./context/stellar"
+import { AsyncStatus } from "./lib/async"
 import * as StellarAddresses from "./lib/stellar-address"
 import { SubscriptionTarget } from "./lib/subscription"
 import {
@@ -30,7 +31,7 @@ import {
   ObservedTradingPair
 } from "./subscriptions"
 import * as Clipboard from "./platform/clipboard"
-import { AsyncStatus } from "./lib/async"
+import { StellarTomlCurrency } from "./types/stellar-toml"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
@@ -291,7 +292,7 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [any, boolea
   return resultMap
 }
 
-export function useAssetMetadata(assets: Asset[], testnet: boolean): WeakMap<Asset, [any, boolean]> {
+export function useAssetMetadata(assets: Asset[], testnet: boolean) {
   const issuerAccountIDs = dedupe(assets.filter(asset => !asset.isNative()).map(asset => asset.getIssuer()))
   const accountDataSet = useAccountDataSet(issuerAccountIDs, testnet)
 
@@ -299,7 +300,7 @@ export function useAssetMetadata(assets: Asset[], testnet: boolean): WeakMap<Ass
     .filter(accountData => accountData.home_domain)
     .map(accountData => accountData.home_domain!)
 
-  const resultMap = new WeakMap<Asset, [any, boolean]>()
+  const resultMap = new WeakMap<Asset, [StellarTomlCurrency | undefined, boolean]>()
   const stellarTomlFiles = useStellarTomlFiles(domains)
 
   for (const asset of assets) {

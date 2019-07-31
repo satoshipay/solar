@@ -108,6 +108,7 @@ interface MultipleBalancesProps {
   balances: Horizon.BalanceLine[]
   component?: React.ComponentType<SingleBalanceProps>
   inline?: boolean
+  onClick?: () => void
 }
 
 export function MultipleBalances(props: MultipleBalancesProps) {
@@ -125,7 +126,7 @@ export function MultipleBalances(props: MultipleBalancesProps) {
   ]
 
   return (
-    <>
+    <span onClick={props.onClick} style={props.onClick ? { cursor: "pointer" } : undefined}>
       {balances.map((balance: Horizon.BalanceLine, index) => (
         <React.Fragment key={stringifyAsset(balancelineToAsset(balance))}>
           <Balance
@@ -136,7 +137,7 @@ export function MultipleBalances(props: MultipleBalancesProps) {
           />{" "}
         </React.Fragment>
       ))}
-    </>
+    </span>
   )
 }
 
@@ -147,6 +148,7 @@ const zeroXLMBalance = {
 
 function AccountBalances(props: {
   component?: React.ComponentType<SingleBalanceProps>
+  onClick?: () => void
   publicKey: string
   testnet: boolean
 }) {
@@ -154,9 +156,9 @@ function AccountBalances(props: {
   return accountData.loading ? (
     <InlineLoader />
   ) : accountData.activated ? (
-    <MultipleBalances balances={accountData.balances} component={props.component} />
+    <MultipleBalances balances={accountData.balances} component={props.component} onClick={props.onClick} />
   ) : (
-    <MultipleBalances balances={[zeroXLMBalance] as any} component={props.component} />
+    <MultipleBalances balances={[zeroXLMBalance] as any} component={props.component} onClick={props.onClick} />
   )
 }
 
