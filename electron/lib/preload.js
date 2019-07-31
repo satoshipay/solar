@@ -1,8 +1,6 @@
 const { ipcRenderer } = require("electron")
 const electronProcess = process
 
-// TODO create separate sender method which has a id (seems like getpublickeydata returns the same values because the events are emitted too fast in a row)
-
 let nextCommandID = 1
 
 function sendCommand(commandType, responseType, args) {
@@ -11,8 +9,7 @@ function sendCommand(commandType, responseType, args) {
   const responsePromise = new Promise(resolve => {
     const listener = (event, data) => {
       if (data.messageID === messageID) {
-        // ipcRenderer.removeListener(listener)
-        resolve(data.result)
+        data.result ? resolve(data.result) : resolve()
       }
     }
 

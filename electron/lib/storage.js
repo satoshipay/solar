@@ -21,15 +21,15 @@ const updateKeys = arg => {
 
 const keystore = createStore(updateKeys, readKeys())
 
-async function signTransaction(transaction, walletAccount, password) {
-  if (walletAccount.requiresPassword && !password) {
+function signTransaction(transaction, account, password) {
+  if (account.requiresPassword && !password) {
     throw Error(`Account is password-protected, but no password has been provided.`)
   }
 
-  const privateKeyData = keystore.getPrivateKeyData(walletAccount.id, password)
+  const privateKeyData = keystore.getPrivateKeyData(account.id, password)
   const privateKey = privateKeyData.privateKey
 
-  if (walletAccount.testnet) {
+  if (account.testnet) {
     Network.useTestNetwork()
   } else {
     Network.usePublicNetwork()
@@ -40,7 +40,7 @@ async function signTransaction(transaction, walletAccount, password) {
 }
 
 /////////
-// Keys:
+// Keystore:
 
 ipcMain.on(commands.getKeyIDsCommand, (event, args) => {
   const { messageID } = args
@@ -65,17 +65,27 @@ ipcMain.on(commands.saveKeyCommand, (event, args) => {
   const { messageID, data } = args
   const { keyID, password, privateData, publicData } = data
 
-  event.sender.send(events.saveKeyEvent, {
-    messageID,
-    result: keystore.saveKey(keyID, password, privateData, publicData)
-  })
+  keystore.saveKey(keyID, password, privateData, publicData)
+
+  event.sender.send(events.saveKeyEvent, { messageID })
 })
 
 ipcMain.on(commands.savePublicKeyDataCommand, (event, args) => {
   const { messageID, data } = args
   const { keyID, publicData } = data
 
-  event.sender.send(events.savePublicKeyDataEvent, { messageID, result: keystore.savePublicKeyData(keyID, publicData) })
+  keystore.savePublicKeyData(keyID, publicData)
+
+  event.sender.send(events.savePublicKeyDataEvent, { messageID })
+})
+
+ipcMain.on(commands.removeKeyCommand, (event, args) => {
+  const { messageID, data } = args
+  const { keyID } = data
+
+  keystore.removeKey(keyID)
+
+  event.sender.send(events.removeKeyEvent, { messageID })
 })
 
 ipcMain.on(commands.signTransactionCommand, async (event, args) => {
@@ -83,16 +93,10 @@ ipcMain.on(commands.signTransactionCommand, async (event, args) => {
   const { transactionEnvelope, walletAccount, password } = data
 
   const transaction = new Transaction(transactionEnvelope)
-  const signedTransaction = await signTransaction(transaction, walletAccount, password)
+  const signedTransaction = signTransaction(transaction, walletAccount, password)
   const signedTransactionEnvelope = signedTransaction.toEnvelope().toXDR("base64")
 
   event.sender.send(events.signTransactionEvent, { messageID, result: signedTransactionEnvelope })
-})
-
-ipcMain.on(commands.removeKeyCommand, (event, args) => {
-  const { messageID, data } = args
-  const { keyID } = data
-  event.sender.send(events.removeKeyEvent, { messageID, result: keystore.removeKey(keyID) })
 })
 
 /////////////
