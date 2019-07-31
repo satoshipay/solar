@@ -1,5 +1,6 @@
-import { trackError } from "./error"
 import { KeyStore } from "key-store"
+import { trackError } from "./error"
+import * as keyStoreIPC from "./keystore"
 
 type CommandHandler = (
   event: MessageEvent,
@@ -8,19 +9,13 @@ type CommandHandler = (
   keyStore: KeyStore<PrivateKeyData, PublicKeyData>
 ) => Promise<void>
 
-interface CommandHandlers {
+export interface CommandHandlers {
   [eventName: string]: CommandHandler
 }
 
 // commands
 export const commands = {
-  getKeyIDsCommand: "keystore:getKeyIDs",
-  getPublicKeyDataCommand: "keystore:getPublicKeyData",
-  getPrivateKeyDataCommand: "keystore:getPrivateKeyData",
-  saveKeyCommand: "keystore:saveKey",
-  savePublicKeyDataCommand: "keystore:savePublicKeyData",
-  signTransactionCommand: "keystore:signTransaction",
-  removeKeyCommand: "keystore:removeKey",
+  keyStore: keyStoreIPC.commands,
 
   readSettingsCommand: "storage:settings:read",
   storeSettingsCommand: "storage:settings:store",
@@ -40,13 +35,7 @@ export const commands = {
 
 // event types
 export const events = {
-  getKeyIDsEvent: "keystore:keyIDs",
-  getPublicKeyDataEvent: "keystore:publicKeyData",
-  getPrivateKeyDataEvent: "keystore:privateKeyData",
-  saveKeyEvent: "keystore:savedKey",
-  savePublicKeyDataEvent: "keystore:savedPublicKeyData",
-  signTransactionEvent: "keystore:signedTransaction",
-  removeKeyEvent: "keystore:removedKey",
+  keyStore: keyStoreIPC.events,
 
   keyResponseEvent: "storage:keys",
   keysStoredEvent: "storage:keys:stored",
