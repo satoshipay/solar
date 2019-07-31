@@ -3,7 +3,7 @@ const isDev = require("electron-is-dev")
 const Store = require("electron-store")
 const { createStore } = require("key-store")
 const { Network, Keypair, Transaction } = require("stellar-sdk")
-const { commands, events } = require("./key-store-ipc")
+const { commands, events } = require("./keystore-ipc")
 
 // Use different key stores for development and production
 const mainStore = new Store({
