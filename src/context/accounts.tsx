@@ -13,7 +13,7 @@ export interface Account {
   requiresPassword: boolean
   testnet: boolean
   getPrivateKey(password: string | null): Promise<string>
-  signTransaction(transaction: Transaction, account: Account, password: string | null): Promise<Transaction>
+  signTransaction(transaction: Transaction, password: string | null): Promise<Transaction>
 }
 
 export type NetworkID = "mainnet" | "testnet"
@@ -41,9 +41,9 @@ interface ContextValue {
  * Creates a wallet account instance. Not to be confused with the Stellar
  * account response, although they map 1:1.
  */
-async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string): Promise<Account> {
+async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
   const publicData = await keyStore.getPublicKeyData(keyID)
-  return {
+  const account: Account = {
     id: keyID,
     name: publicData.name,
     publicKey: publicData.publicKey,
@@ -66,7 +66,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string): Prom
       }
     },
 
-    async signTransaction(transaction: Transaction, account: Account, password: string | null) {
+    async signTransaction(transaction: Transaction, password: string | null) {
       const requiresPassword = publicData.password
 
       if (password === null && requiresPassword) {
@@ -76,6 +76,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string): Prom
       return keyStore.signTransaction(transaction, account, password || "")
     }
   }
+  return account
 }
 
 async function createAccountInKeyStore(accounts: Account[], accountData: NewAccountData) {
