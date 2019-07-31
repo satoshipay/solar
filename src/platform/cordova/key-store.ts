@@ -1,22 +1,46 @@
-import { createStore, KeysData } from "key-store"
-import { PublicKeyData, PrivateKeyData } from "../types"
-import { sendCommand } from "./message-handler"
 import { commands } from "../../cordova/ipc"
+import { KeyStoreAPI } from "../types"
+import { sendCommand } from "./message-handler"
+import { Transaction } from "stellar-sdk"
+import { Account } from "../../context/accounts"
 
-async function readKeys(): Promise<KeysData<PublicKeyData>> {
-  const event = await sendCommand(commands.readKeysCommand)
-  return event.data.keys
-}
+export default async function createKeyStore(): Promise<KeyStoreAPI> {
+  return {
+    async getKeyIDs() {
+      const event = await sendCommand(commands.getKeyIDsCommand)
+      return event.data.result
+    },
+    async getPublicKeyData(keyID: string) {
+      const data = { keyID }
+      const event = await sendCommand(commands.getPublicKeyDataCommand, data)
+      return event.data.result
+    },
+    async getPrivateKeyData(keyID: string, password: string) {
+      const data = { keyID, password }
+      const event = await sendCommand(commands.getPrivateKeyDataCommand, data)
+      return event.data.result
+    },
+    async saveKey(keyID: string, password: string, privateData: PrivateKeyData, publicData?: PublicKeyData) {
+      const data = { keyID, password, privateData, publicData }
+      const event = await sendCommand(commands.saveKeyCommand, data)
+      return event.data
+    },
+    async savePublicKeyData(keyID: string, publicData: PublicKeyData) {
+      const data = { keyID, publicData }
+      const event = await sendCommand(commands.savePublicKeyDataCommand, data)
+      return event.data
+    },
+    async signTransaction(transaction: Transaction, walletAccount: Account, password: string) {
+      const transactionEnvelope = transaction.toEnvelope().toXDR("base64")
+      const data = { transactionEnvelope, walletAccount, password }
+      const event = await sendCommand(commands.signTransactionCommand, data)
 
-async function saveKeys(keysData: KeysData<PublicKeyData>) {
-  const event = await sendCommand(commands.storeKeysCommand, { keys: keysData })
-  return event.data
-}
-
-export default async function createKeyStore() {
-  const storeKeys = async (keysData: KeysData<PublicKeyData>) => {
-    await saveKeys(keysData)
+      return new Transaction(event.data.result)
+    },
+    async removeKey(keyID: string) {
+      const data = { keyID }
+      const event = await sendCommand(commands.removeKeyCommand, data)
+      return event.data
+    }
   }
-
-  return createStore<PrivateKeyData, PublicKeyData>(storeKeys, await readKeys())
 }

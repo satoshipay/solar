@@ -1,6 +1,12 @@
 import { trackError } from "./error"
+import { KeyStore } from "key-store"
 
-type CommandHandler = (event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) => Promise<void>
+type CommandHandler = (
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) => Promise<void>
 
 interface CommandHandlers {
   [eventName: string]: CommandHandler
@@ -8,8 +14,14 @@ interface CommandHandlers {
 
 // commands
 export const commands = {
-  readKeysCommand: "storage:keys:read",
-  storeKeysCommand: "storage:keys:store",
+  getKeyIDsCommand: "keystore:getKeyIDs",
+  getPublicKeyDataCommand: "keystore:getPublicKeyData",
+  getPrivateKeyDataCommand: "keystore:getPrivateKeyData",
+  saveKeyCommand: "keystore:saveKey",
+  savePublicKeyDataCommand: "keystore:savePublicKeyData",
+  signTransactionCommand: "keystore:signTransaction",
+  removeKeyCommand: "keystore:removeKey",
+
   readSettingsCommand: "storage:settings:read",
   storeSettingsCommand: "storage:settings:store",
   readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
@@ -28,6 +40,14 @@ export const commands = {
 
 // event types
 export const events = {
+  getKeyIDsEvent: "keystore:keyIDs",
+  getPublicKeyDataEvent: "keystore:publicKeyData",
+  getPrivateKeyDataEvent: "keystore:privateKeyData",
+  saveKeyEvent: "keystore:savedKey",
+  savePublicKeyDataEvent: "keystore:savedPublicKeyData",
+  signTransactionEvent: "keystore:signedTransaction",
+  removeKeyEvent: "keystore:removedKey",
+
   keyResponseEvent: "storage:keys",
   keysStoredEvent: "storage:keys:stored",
   settingsResponseEvent: "storage:settings",
@@ -44,7 +64,12 @@ export const events = {
 
 let commandHandlers: CommandHandlers = {}
 
-export function handleMessageEvent(event: Event, contentWindow: Window, secureStorage: CordovaSecureStorage) {
+export function handleMessageEvent(
+  event: Event,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
   if (!(event instanceof MessageEvent) || event.source !== contentWindow) {
     return
   }
@@ -52,7 +77,7 @@ export function handleMessageEvent(event: Event, contentWindow: Window, secureSt
   const messageHandler = commandHandlers[event.data.commandType]
 
   if (messageHandler) {
-    messageHandler(event, contentWindow, secureStorage).catch(trackError)
+    messageHandler(event, contentWindow, secureStorage, keyStore).catch(trackError)
   } else {
     throw new Error(`No message handler defined for event type "${event.data.commandType}"`)
   }

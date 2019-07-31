@@ -5,6 +5,9 @@
 import nanoid from "nanoid"
 import { commands, events, registerCommandHandler } from "./ipc"
 import { SettingsData } from "../platform/types"
+import { createStore, KeysData, KeyStore } from "key-store" // TODO
+import { Transaction, Network, Keypair } from "stellar-sdk"
+import { Account } from "../context/accounts"
 
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
 const cordovaSecureStorageName = "solar:keystore"
@@ -16,8 +19,14 @@ export const storeKeys = {
   clientSecret: "clientsecret"
 }
 
-registerCommandHandler(commands.readKeysCommand, respondWithKeys)
-registerCommandHandler(commands.storeKeysCommand, updateKeys)
+registerCommandHandler(commands.getKeyIDsCommand, respondWithKeyIDs)
+registerCommandHandler(commands.getPublicKeyDataCommand, respondWithPublicKeyData)
+registerCommandHandler(commands.getPrivateKeyDataCommand, respondWithPrivateKeyData)
+registerCommandHandler(commands.saveKeyCommand, saveKey)
+registerCommandHandler(commands.savePublicKeyDataCommand, savePublicKeyData)
+registerCommandHandler(commands.signTransactionCommand, respondWithSignedTransaction)
+registerCommandHandler(commands.removeKeyCommand, removeKey)
+
 registerCommandHandler(commands.readSettingsCommand, respondWithSettings)
 registerCommandHandler(commands.storeSettingsCommand, updateSettings)
 registerCommandHandler(commands.readIgnoredSignatureRequestsCommand, respondWithIgnoredSignatureRequests)
@@ -27,21 +36,120 @@ let currentSettings: SettingsData | undefined
 
 export const getCurrentSettings = () => currentSettings
 
-async function respondWithKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  const keys = await getValueFromStorage(secureStorage, storeKeys.keystore)
-  contentWindow.postMessage({ eventType: events.keyResponseEvent, id: event.data.id, keys }, "*")
+// KEYSTORE COMMANDS
+async function respondWithKeyIDs(
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  const keyIDs = keyStore.getKeyIDs()
+  contentWindow.postMessage({ eventType: events.getKeyIDsEvent, id: event.data.id, result: keyIDs }, "*")
 }
 
-async function updateKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  const keysData = event.data.keys
+async function respondWithPublicKeyData(
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  const { keyID } = event.data
 
-  if (!keysData || typeof keysData !== "object") {
-    throw new Error(`Invalid keys passed: ${keysData}`)
+  const publicKeyData = keyStore.getPublicKeyData(keyID)
+  contentWindow.postMessage({ eventType: events.getPublicKeyDataEvent, id: event.data.id, result: publicKeyData }, "*")
+}
+
+async function respondWithPrivateKeyData(
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  const { keyID, password } = event.data
+  const privateKeyData = keyStore.getPrivateKeyData(keyID, password)
+  contentWindow.postMessage(
+    { eventType: events.getPrivateKeyDataEvent, id: event.data.id, result: privateKeyData },
+    "*"
+  )
+}
+
+async function saveKey(
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  const { keyID, password, privateData, publicData } = event.data
+
+  keyStore.saveKey(keyID, password, privateData, publicData)
+  contentWindow.postMessage({ eventType: events.saveKeyEvent, id: event.data.id }, "*")
+}
+
+async function savePublicKeyData(
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  const { keyID, publicData } = event.data
+
+  keyStore.savePublicKeyData(keyID, publicData)
+  contentWindow.postMessage({ eventType: events.savePublicKeyDataEvent, id: event.data.id }, "*")
+}
+
+async function removeKey(
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  const { keyID } = event.data
+
+  keyStore.removeKey(keyID)
+  contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id }, "*")
+}
+
+async function signTransaction(
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  transaction: Transaction,
+  walletAccount: Account,
+  password: string
+) {
+  if (walletAccount.requiresPassword && !password) {
+    throw Error(`Account is password-protected, but no password has been provided.`)
   }
 
-  await saveValueIntoStorage(secureStorage, storeKeys.keystore, keysData)
-  contentWindow.postMessage({ eventType: events.keysStoredEvent, id: event.data.id }, "*")
+  const privateKeyData = keyStore.getPrivateKeyData(walletAccount.id, password)
+  const privateKey = privateKeyData.privateKey
+
+  if (walletAccount.testnet) {
+    Network.useTestNetwork()
+  } else {
+    Network.usePublicNetwork()
+  }
+
+  transaction.sign(Keypair.fromSecret(privateKey))
+  return transaction
 }
+
+async function respondWithSignedTransaction(
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  const { transactionEnvelope, walletAccount, password } = event.data
+
+  const transaction = new Transaction(transactionEnvelope)
+  const signedTransaction = await signTransaction(keyStore, transaction, walletAccount, password)
+  const signedTransactionEnvelope = signedTransaction.toEnvelope().toXDR("base64")
+
+  contentWindow.postMessage(
+    { eventType: events.removeKeyEvent, id: event.data.id, result: signedTransactionEnvelope },
+    "*"
+  )
+}
+// END OF KEYSTORE COMMANDS
 
 async function respondWithSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
   const settings = await getValueFromStorage(secureStorage, storeKeys.settings)
@@ -134,4 +242,14 @@ export function initSecureStorage() {
   })
 
   return secureStoragePromise
+}
+
+export async function initKeyStore(secureStorage: CordovaSecureStorage) {
+  const initialKeys = await getValueFromStorage(secureStorage, storeKeys.keystore)
+  const saveKeys = (keysData: KeysData<PublicKeyData>) => {
+    saveValueIntoStorage(secureStorage, storeKeys.keystore, keysData)
+  }
+
+  const keyStore = createStore<PrivateKeyData, PublicKeyData>(saveKeys, initialKeys)
+  return keyStore
 }

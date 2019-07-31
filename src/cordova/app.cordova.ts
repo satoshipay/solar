@@ -6,7 +6,7 @@
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands, events } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { getCurrentSettings, initSecureStorage, storeKeys } from "./storage"
+import { getCurrentSettings, initSecureStorage, storeKeys, initKeyStore } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 import { registerURLHandler } from "./protocol-handler"
 
@@ -166,22 +166,28 @@ function initializeStorage(contentWindow: Window) {
     return storageInitialization
   }
 
-  const initPromise = initSecureStorage().catch(
-    (): any => {
+  const initPromise = (async () => {
+    try {
+      const secureStorage = await initSecureStorage()
+      const keyStore = await initKeyStore(secureStorage)
+
+      return [secureStorage, keyStore] as const
+    } catch (error) {
       // Assume that it is a 'device not secure' error
       alert(
         "This application requires you to set a PIN or unlock pattern for your device.\n\nPlease retry after setting it up."
       )
-      navigator.app.exitApp()
+      return navigator.app.exitApp()
     }
-  )
+  })()
 
-  // Set up event listener synchronously, so it's working as early as possible
+  // Add event listener synchronously (!), so it subscribes as early as possible, even before `initPromise` resolves
   window.addEventListener("message", async event => {
-    handleMessageEvent(event, contentWindow, await initPromise)
+    const [secureStorage, keyStore] = await initPromise
+    handleMessageEvent(event, contentWindow, secureStorage, keyStore)
   })
 
-  storageInitialization = initPromise
+  storageInitialization = initPromise.then(([secureStorage]) => secureStorage)
   return storageInitialization
 }
 
