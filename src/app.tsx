@@ -14,7 +14,7 @@ import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
 import NotificationContainer from "./components/NotificationContainer"
 import { AccountsProvider } from "./context/accounts"
-import { CachingProvider } from "./context/caches"
+import { CachingProviders } from "./context/caches"
 import { NotificationsProvider } from "./context/notifications"
 import { SettingsProvider } from "./context/settings"
 import { SignatureDelegationProvider } from "./context/signatureDelegation"
@@ -37,11 +37,11 @@ const Providers = (props: { children: React.ReactNode }) => (
       <StellarProvider>
         <AccountsProvider>
           <SettingsProvider>
-            <CachingProvider>
+            <CachingProviders>
               <NotificationsProvider>
                 <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
               </NotificationsProvider>
-            </CachingProvider>
+            </CachingProviders>
           </SettingsProvider>
         </AccountsProvider>
       </StellarProvider>

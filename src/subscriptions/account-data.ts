@@ -8,6 +8,7 @@ export interface ObservedAccountData {
   activated: boolean
   balances: Horizon.BalanceLine[]
   data: Horizon.AccountResponse["data"]
+  home_domain?: string
   id: string
   loading: boolean
   inflation_destination?: string

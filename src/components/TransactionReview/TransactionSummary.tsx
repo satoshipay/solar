@@ -5,8 +5,9 @@ import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
-import { useAccountDataSet, useSigningKeyDomainCache, ObservedAccountData } from "../../hooks"
+import { useAccountDataSet, ObservedAccountData } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
+import { SigningKeyCacheContext } from "../../context/caches"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction, selectNetwork } from "../../lib/transaction"
@@ -166,7 +167,7 @@ interface WebAuthTransactionSummaryProps {
 }
 
 function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
-  const signingKeyCache = useSigningKeyDomainCache()
+  const signingKeyCache = React.useContext(SigningKeyCacheContext).cache
   const { timeBounds } = props.transaction
 
   const domain = signingKeyCache.get(props.transaction.source)
