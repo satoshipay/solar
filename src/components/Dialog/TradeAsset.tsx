@@ -19,14 +19,7 @@ import TransactionSender from "../TransactionSender"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
 function findMatchingBalance(balances: ObservedAccountData["balances"], asset: Asset) {
-  const matchingBalance = balances.find(
-    balance =>
-      (balance.asset_type === "native" && asset.isNative()) ||
-      (balance.asset_type !== "native" &&
-        balance.asset_code === asset.getCode() &&
-        balance.asset_issuer === asset.getIssuer())
-  )
-  return matchingBalance
+  return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
 interface TradeAssetProps {
