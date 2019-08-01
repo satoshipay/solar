@@ -23,7 +23,23 @@ const events = {
   removeKeyEvent: "keystore:removedKey"
 }
 
+function expose(ipc, commandType, eventType, handler) {
+  ipc.on(commandType, async (event, payload) => {
+    const { args, messageID } = payload
+    try {
+      const result = await handler(...args)
+      event.sender.send(eventType, { messageID, result })
+    } catch (error) {
+      event.sender.send(eventType, {
+        error: { name: error.name || "Error", message: error.message, stack: error.stack },
+        messageID
+      })
+    }
+  })
+}
+
 module.exports = {
   commands,
-  events
+  events,
+  expose
 }

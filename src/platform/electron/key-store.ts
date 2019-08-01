@@ -1,38 +1,41 @@
 import { KeyStoreAPI } from "../types"
 import { Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
+import { networkPassphrases } from "../../lib/stellar"
 
 export default async function createKeyStore(): Promise<KeyStoreAPI> {
-  if (!window.electron) {
+  const electron = window.electron
+  if (!electron) {
     throw new Error("No electron runtime context available.")
   }
   return {
     async getKeyIDs() {
-      return window.electron!.getKeyIDs()
+      return electron.getKeyIDs()
     },
     async getPublicKeyData(keyID: string) {
-      return window.electron!.getPublicKeyData(keyID)
+      return electron.getPublicKeyData(keyID)
     },
     async getPrivateKeyData(keyID: string, password: string) {
-      return window.electron!.getPrivateKeyData(keyID, password)
+      return electron.getPrivateKeyData(keyID, password)
     },
     async saveKey(keyID: string, password: string, privateData: PrivateKeyData, publicData?: PublicKeyData) {
-      return window.electron!.saveKey(keyID, password, privateData, publicData)
+      return electron.saveKey(keyID, password, privateData, publicData)
     },
     async savePublicKeyData(keyID: string, publicData: PublicKeyData) {
-      return window.electron!.savePublicKeyData(keyID, publicData)
+      return electron.savePublicKeyData(keyID, publicData)
     },
-    async signTransaction(transaction: Transaction, walletAccount: Account, password: string) {
-      const transactionEnvelope = transaction.toEnvelope().toXDR("base64")
-      const signedTransactionEnvelope = await window.electron!.signTransaction(
+    async signTransaction(transaction: Transaction, account: Account, password: string) {
+      const transactionEnvelope = (transaction.toEnvelope().toXDR("base64") as unknown) as string
+      const signedTransactionEnvelope = await electron.signTransaction(
         transactionEnvelope,
-        walletAccount,
+        account.id,
+        account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet,
         password
       )
       return new Transaction(signedTransactionEnvelope)
     },
     async removeKey(keyID: string) {
-      return window.electron!.removeKey(keyID)
+      return electron.removeKey(keyID)
     }
   }
 }

@@ -10,11 +10,7 @@ interface ElectronContext {
   getPrivateKeyData(keyID: string, password: string): Promise<PrivateKeyData>
   saveKey(keyID: string, password: string, privateData: PrivateKeyData, publicData?: PublicKeyData): Promise<void>
   savePublicKeyData(keyID: string, publicData: PublicKeyData): Promise<void>
-  signTransaction(
-    transaction: Transaction,
-    walletAccount: import("../src/context/accounts").Account,
-    password: string
-  ): Promise<Transaction>
+  signTransaction(txEnvelopeXdr: string, keyID: string, networkPassphrase: string, password: string): Promise<string>
   removeKey(keyID: string): Promise<void>
 
   readIgnoredSignatureRequestHashes(): string[]
