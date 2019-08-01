@@ -37,11 +37,15 @@ export const QRReader = React.memo(function QRReader(props: Props) {
   )
 })
 
-type PriceInputProps = TextFieldProps & { assetCode: React.ReactNode; readOnly?: boolean }
+type PriceInputProps = TextFieldProps & {
+  assetCode: React.ReactNode
+  assetStyle?: React.CSSProperties
+  readOnly?: boolean
+}
 
 // tslint:disable-next-line no-shadowed-variable
 export const PriceInput = React.memo(function PriceInput(props: PriceInputProps) {
-  const { assetCode, readOnly, ...textfieldProps } = props
+  const { assetCode, assetStyle, readOnly, ...textfieldProps } = props
   return (
     <TextField
       {...textfieldProps}
@@ -50,7 +54,10 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
           <InputAdornment
             disableTypography
             position="end"
-            style={{ pointerEvents: typeof assetCode === "string" ? "none" : undefined }}
+            style={{
+              pointerEvents: typeof assetCode === "string" ? "none" : undefined,
+              ...assetStyle
+            }}
           >
             {assetCode}
           </InputAdornment>

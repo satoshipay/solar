@@ -186,6 +186,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
       {props.price.eq(0) ? (
         <PriceInput
           assetCode={props.buying.getCode()}
+          assetStyle={{ fontWeight: "bold" }}
           inputProps={{
             style: { height: 27 }
           }}
