@@ -6,7 +6,6 @@ import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useIsMobile } from "../../hooks"
-import { getSignerKey } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import { ObservedAccountData } from "../../subscriptions"
 import { Box } from "../Layout/Box"
@@ -41,12 +40,12 @@ function ManageSignersDialog(props: Props) {
         // signer removals before adding, so you can remove and immediately re-add signer
         ...update.signersToRemove.map(signer =>
           Operation.setOptions({
-            signer: { ed25519PublicKey: getSignerKey(signer), weight: 0 }
+            signer: { ed25519PublicKey: signer.key, weight: 0 }
           })
         ),
         ...update.signersToAdd.map(signer =>
           Operation.setOptions({
-            signer: { ed25519PublicKey: getSignerKey(signer), weight: signer.weight }
+            signer: { ed25519PublicKey: signer.key, weight: signer.weight }
           })
         )
       ]

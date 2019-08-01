@@ -1,5 +1,4 @@
 import { createStore, KeysData } from "key-store"
-import { PrivateKeyData, PublicKeyData } from "../types"
 
 const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {

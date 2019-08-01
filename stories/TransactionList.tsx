@@ -7,13 +7,16 @@ import { useRecentTransactions } from "../src/hooks"
 
 const account: Account = {
   id: "1",
-  getPrivateKey() {
-    throw Error("Nope.")
-  },
   name: "Test account",
   publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
   requiresPassword: false,
-  testnet: true
+  testnet: true,
+  getPrivateKey() {
+    throw Error("Just a mock.")
+  },
+  signTransaction() {
+    throw Error("Just a mock.")
+  }
 }
 
 function SampleTransactions(props: { children: (transactions: Transaction[]) => React.ReactElement<any> }) {

@@ -1,15 +1,17 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
 import AccountSelectionList from "../src/components/Account/AccountSelectionList"
+import { Account } from "../src/context/accounts"
 
-const accounts = [
+const accounts: Account[] = [
   {
     id: "testid1",
     name: "My Testnet Account #1",
     publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
     requiresPassword: false,
     testnet: true,
-    getPrivateKey: (password: string) => Promise.resolve(password)
+    getPrivateKey: () => Promise.reject(Error("Just a mock.")),
+    signTransaction: () => Promise.reject(Error("Just a mock."))
   },
   {
     id: "testid2",
@@ -17,7 +19,8 @@ const accounts = [
     publicKey: "GDNVDG37WMKPEIXSJRBAQAVPO5WGOPKZRZZBPLWXULSX6NQNLNQP6CFF",
     requiresPassword: false,
     testnet: true,
-    getPrivateKey: (password: string) => Promise.resolve(password)
+    getPrivateKey: () => Promise.reject(Error("Just a mock.")),
+    signTransaction: () => Promise.reject(Error("Just a mock."))
   }
 ]
 

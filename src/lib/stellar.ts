@@ -49,11 +49,6 @@ export function getAllSources(tx: Transaction) {
   ])
 }
 
-// FIXME: Remove this function.
-export function getSignerKey(signer: Horizon.AccountSigner | { key: string; weight: number }) {
-  return signer.key
-}
-
 // FIXME: Wait for proper solution in stellar-sdk: <https://github.com/stellar/js-stellar-sdk/pull/403>
 export function isNotFoundError(error: any): error is NotFoundError {
   return (
