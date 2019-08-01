@@ -62,6 +62,22 @@ export function getSignerKey(signer: Horizon.AccountSigner | { key: string; weig
   return "key" in signer ? signer.key : signer.public_key
 }
 
+export function balancelineToAsset(balanceline: Horizon.BalanceLine): Asset {
+  return balanceline.asset_type === "native"
+    ? Asset.native()
+    : new Asset(balanceline.asset_code, balanceline.asset_issuer)
+}
+
+export function stringifyAsset(assetOrTrustline: Asset | Horizon.BalanceLine) {
+  if (assetOrTrustline instanceof Asset) {
+    const asset: Asset = assetOrTrustline
+    return asset.isNative() ? "XLM" : `${asset.getIssuer()}:${asset.getCode()}`
+  } else {
+    const line: Horizon.BalanceLine = assetOrTrustline
+    return line.asset_type === "native" ? "XLM" : `${line.asset_issuer}:${line.asset_code}`
+  }
+}
+
 async function fetchFeeStats(horizon: Server): Promise<FeeStats> {
   const url = joinURL(getHorizonURL(horizon), "/fee_stats")
   const response = await fetch(url)

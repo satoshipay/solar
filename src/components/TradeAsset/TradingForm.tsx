@@ -25,8 +25,8 @@ interface DialogActionsProps {
 interface Props {
   buying: Asset
   buyingBalance: string
-  onSetBuying: (assetCode: string) => void
-  onSetSelling: (assetCode: string) => void
+  onSetBuying: (asset: Asset) => void
+  onSetSelling: (asset: Asset) => void
   selling: Asset
   sellingBalance: string
   testnet: boolean
@@ -76,7 +76,7 @@ function TradingForm(props: Props) {
             onSetAmount={setAmountString}
             onSetManualPrice={setManualPriceString}
             onSetTolerance={setTolerance}
-            price={worstPriceOfBestMatches ? BigNumber(worstPriceOfBestMatches) : BigNumber(0)}
+            price={worstPriceOfBestMatches || BigNumber(0)}
             tolerance={tolerance}
           />
           {relativeSpread > 0.01 ? (
