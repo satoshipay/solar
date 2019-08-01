@@ -5,6 +5,7 @@ import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useIsMobile, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
+import { balancelineToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
@@ -13,33 +14,19 @@ import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
 import TradingForm from "../TradeAsset/TradingForm"
 import ErrorBoundary from "../ErrorBoundary"
+import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import { ActionButton, DialogActionsBox } from "./Generic"
-import MainTitle from "../MainTitle"
 
-function findMatchingBalance(balances: ObservedAccountData["balances"], assetCode: string) {
+function findMatchingBalance(balances: ObservedAccountData["balances"], asset: Asset) {
   const matchingBalance = balances.find(
     balance =>
-      (balance.asset_type !== "native" && balance.asset_code === assetCode) ||
-      (balance.asset_type === "native" && assetCode === "XLM")
+      (balance.asset_type === "native" && asset.isNative()) ||
+      (balance.asset_type !== "native" &&
+        balance.asset_code === asset.getCode() &&
+        balance.asset_issuer === asset.getIssuer())
   )
-
-  if (matchingBalance && matchingBalance.asset_type !== "native") {
-    return {
-      asset: new Asset(matchingBalance.asset_code, matchingBalance.asset_issuer),
-      balance: matchingBalance
-    }
-  } else if (matchingBalance && matchingBalance.asset_type === "native") {
-    return {
-      asset: Asset.native(),
-      balance: matchingBalance
-    }
-  } else {
-    return {
-      asset: null,
-      balance: null
-    }
-  }
+  return matchingBalance
 }
 
 interface TradeAssetProps {
@@ -58,19 +45,15 @@ function TradeAsset(props: TradeAssetProps) {
     Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
   >
 
-  const [rawBuyingAssetCode, setBuyingAssetCode] = React.useState<string | null>(null)
-  const buyingAssetCode = rawBuyingAssetCode || (trustlines.length > 0 ? trustlines[0].asset_code : "XLM")
-  const [rawSellingAssetCode, setSellingAssetCode] = React.useState<string | null>(null)
-  const sellingAssetCode = rawSellingAssetCode || "XLM"
+  const [rawBuyingAsset, setBuyingAsset] = React.useState<Asset | null>(null)
+  const [rawSellingAsset, setSellingAsset] = React.useState<Asset | null>(null)
 
-  const { asset: rawBuyingAsset, balance: buyingBalance } = findMatchingBalance(accountData.balances, buyingAssetCode)
-  const { asset: rawSellingAsset, balance: sellingBalance } = findMatchingBalance(
-    accountData.balances,
-    sellingAssetCode
-  )
-
-  const buyingAsset = rawBuyingAsset || Asset.native()
+  // Cannot set fallback value in React.useState(), since `trustlines` will become available asynchronously
+  const buyingAsset = rawBuyingAsset || (trustlines.length > 0 ? balancelineToAsset(trustlines[0]) : Asset.native())
   const sellingAsset = rawSellingAsset || Asset.native()
+
+  const buyingBalance = findMatchingBalance(accountData.balances, buyingAsset)
+  const sellingBalance = findMatchingBalance(accountData.balances, sellingAsset)
 
   const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: BigNumber, price: BigNumber) => {
     const tx = createTransaction(
@@ -125,8 +108,8 @@ function TradeAsset(props: TradeAssetProps) {
           <TradingForm
             buying={buyingAsset}
             buyingBalance={buyingBalance.balance}
-            onSetBuying={setBuyingAssetCode}
-            onSetSelling={setSellingAssetCode}
+            onSetBuying={setBuyingAsset}
+            onSetSelling={setSellingAsset}
             selling={sellingAsset}
             sellingBalance={sellingBalance.balance}
             testnet={props.account.testnet}

@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Horizon } from "stellar-sdk"
 import { useAccountData } from "../../hooks"
+import { balancelineToAsset, stringifyAsset } from "../../lib/stellar"
 import InlineLoader from "../InlineLoader"
 
 function addThousandsSeparators(digits: string, thousandsSeparator: string) {
@@ -125,8 +126,8 @@ export function MultipleBalances(props: MultipleBalancesProps) {
 
   return (
     <>
-      {balances.map((balance: any, index) => (
-        <React.Fragment key={balance.asset_code || "XLM"}>
+      {balances.map((balance: Horizon.BalanceLine, index) => (
+        <React.Fragment key={stringifyAsset(balancelineToAsset(balance))}>
           <Balance
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
