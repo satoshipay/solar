@@ -1,8 +1,9 @@
+import { Transaction } from "stellar-sdk"
 import { commands } from "../../cordova/ipc"
+import { Account } from "../../context/accounts"
+import { networkPassphrases } from "../../lib/stellar"
 import { KeyStoreAPI } from "../types"
 import { sendCommand } from "./message-handler"
-import { Transaction } from "stellar-sdk"
-import { Account } from "../../context/accounts"
 
 export default async function createKeyStore(): Promise<KeyStoreAPI> {
   return {
@@ -28,12 +29,14 @@ export default async function createKeyStore(): Promise<KeyStoreAPI> {
       const data = { keyID, publicData }
       await sendCommand(commands.keyStore.savePublicKeyDataCommand, data)
     },
-    async signTransaction(transaction: Transaction, walletAccount: Account, password: string) {
+    async signTransaction(transaction: Transaction, account: Account, password: string) {
       const transactionEnvelope = transaction.toEnvelope().toXDR("base64")
-      const stringifiedAccount = JSON.stringify(walletAccount)
-      const data = { transactionEnvelope, stringifiedAccount, password }
-
-      const event = await sendCommand(commands.keyStore.signTransactionCommand, data)
+      const event = await sendCommand(commands.keyStore.signTransactionCommand, {
+        keyID: account.id,
+        networkPassphrase: account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet,
+        password,
+        transactionEnvelope
+      })
       const signedTransactionEnvelope = event.data.result
       return new Transaction(signedTransactionEnvelope)
     },

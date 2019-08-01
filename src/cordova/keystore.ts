@@ -111,45 +111,21 @@ async function removeKey(
   contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id }, "*")
 }
 
-function signTransaction(
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
-  transaction: Transaction,
-  account: Account,
-  password: string
-) {
-  if (account.requiresPassword && !password) {
-    throw Error(`Account is password-protected, but no password has been provided.`)
-  }
-
-  const privateKeyData = keyStore.getPrivateKeyData(account.id, password)
-  const privateKey = privateKeyData.privateKey
-
-  if (account.testnet) {
-    Network.useTestNetwork()
-  } else {
-    Network.usePublicNetwork()
-  }
-
-  transaction.sign(Keypair.fromSecret(privateKey))
-  return transaction
-}
-
 async function respondWithSignedTransaction(
   event: MessageEvent,
   contentWindow: Window,
   secureStorage: CordovaSecureStorage,
   keyStore: KeyStore<PrivateKeyData, PublicKeyData>
 ) {
-  const { transactionEnvelope, stringifiedAccount, password } = event.data
-
-  const account = JSON.parse(stringifiedAccount)
+  const { keyID, networkPassphrase, password, transactionEnvelope } = event.data
 
   const transaction = new Transaction(transactionEnvelope)
-  const signedTransaction = signTransaction(keyStore, transaction, account, password)
-  const signedTransactionEnvelope = signedTransaction.toEnvelope().toXDR("base64")
+  const { privateKey } = keyStore.getPrivateKeyData(keyID, password)
 
-  contentWindow.postMessage(
-    { eventType: events.removeKeyEvent, id: event.data.id, result: signedTransactionEnvelope },
-    "*"
-  )
+  Network.use(new Network(networkPassphrase))
+  transaction.sign(Keypair.fromSecret(privateKey))
+
+  const result = transaction.toEnvelope().toXDR("base64")
+
+  contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id, result }, "*")
 }
