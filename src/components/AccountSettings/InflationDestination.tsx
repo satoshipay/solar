@@ -1,43 +1,137 @@
 import React from "react"
 import { Operation, Transaction, Server } from "stellar-sdk"
-import { InputAdornment, InputLabel, Input } from "@material-ui/core"
+import { InputLabel } from "@material-ui/core"
 import DialogContent from "@material-ui/core/DialogContent"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
-import DestinationIcon from "@material-ui/icons/Place"
-import { useAccountData, useIsMobile } from "../../hooks"
+import ClearIcon from "@material-ui/icons/Clear"
+import CheckIcon from "@material-ui/icons/Check"
+import EditIcon from "@material-ui/icons/Edit"
+import { useAccountData, useIsMobile, useRouter } from "../../hooks"
 import { Account } from "../../context/accounts"
 import { isPublicKey } from "../../lib/stellar-address"
 import TransactionSender from "../TransactionSender"
-import { VerticalLayout } from "../Layout/Box"
+import { VerticalLayout, Box } from "../Layout/Box"
 import { createTransaction } from "../../lib/transaction"
-import { renderFormFieldError } from "../../lib/errors"
-import { ActionButton, CloseButton, DialogActionsBox } from "../Dialog/Generic"
-import { QRReader } from "../Form/FormFields"
-import { CopyableAddress } from "../PublicKey"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import MainTitle from "../MainTitle"
 
-interface Props {
+interface InflationDestinationDialogProps {
   account: Account
   horizon: Server
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }
 
-function InflationDestinationDialog(props: Props) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const [destination, setDestination] = React.useState("")
-  const [error, setError] = React.useState<Error | null>(null)
+function clearTextSelection() {
+  const selection = window.getSelection()
+  if (selection) {
+    selection.removeAllRanges()
+  }
+}
 
+function InflationDestinationDialog(props: InflationDestinationDialogProps) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const router = useRouter()
   const isSmallScreen = useIsMobile()
 
-  const validateDestination = () => {
+  const [destination, setDestination] = React.useState("")
+  const [error, setError] = React.useState<Error | null>(null)
+  const [mode, setMode] = React.useState<"editing" | "readonly">("readonly")
+
+  React.useEffect(() => {
+    return router.history.listen(() => {
+      setMode("readonly")
+      clearTextSelection()
+    })
+  }, [])
+
+  const handleDestinationEditing = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setDestination(event.target.value)
+  }, [])
+
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter") {
+        changeInflationDestination(destination)
+      } else if (event.key === "Escape") {
+        setDestination(accountData.inflation_destination ? accountData.inflation_destination : "")
+        setMode("readonly")
+        clearTextSelection()
+      }
+    },
+    [accountData, destination]
+  )
+
+  const applyDestination = React.useCallback(
+    () => {
+      changeInflationDestination(destination)
+    },
+    [destination]
+  )
+
+  const cancelEditing = React.useCallback(
+    () => {
+      setDestination("")
+      setError(null)
+      setMode("readonly")
+      clearTextSelection()
+    },
+    [accountData]
+  )
+
+  const switchToEditMode = React.useCallback(() => {
+    setMode("editing")
+  }, [])
+
+  const editableActions = React.useMemo(
+    () => (
+      <>
+        <ActionButton icon={<ClearIcon />} onClick={cancelEditing} type="primary">
+          Cancel
+        </ActionButton>
+        <ActionButton icon={<CheckIcon />} onClick={applyDestination} type="primary">
+          Submit
+        </ActionButton>
+      </>
+    ),
+    [applyDestination, cancelEditing]
+  )
+
+  const readonlyActions = React.useMemo(
+    () => (
+      <ActionButton onClick={switchToEditMode} icon={<EditIcon />} type="primary">
+        Edit
+      </ActionButton>
+    ),
+    []
+  )
+
+  const getDisplayName = () => {
     if (destination === "") {
+      if (accountData.inflation_destination === undefined) {
+        return "No inflation destination set."
+      } else {
+        return accountData.inflation_destination
+      }
+    } else {
+      return destination
+    }
+  }
+
+  const changeInflationDestination = (newDestination: string) => {
+    if (validateDestination(newDestination)) {
+      submitTransaction(newDestination)
+    }
+  }
+
+  const validateDestination = (newDestination: string) => {
+    if (newDestination === "") {
       setError(new Error("No destination has been entered."))
       return false
-    } else if (!isPublicKey(destination)) {
+    } else if (!isPublicKey(newDestination)) {
       setError(new Error("Invalid stellar account id."))
       return false
-    } else if (accountData.inflation_destination === destination) {
+    } else if (accountData.inflation_destination === newDestination) {
       setError(new Error("Same inflation destination selected."))
       return false
     } else {
@@ -46,13 +140,13 @@ function InflationDestinationDialog(props: Props) {
     }
   }
 
-  const submitTransaction = async () => {
+  const submitTransaction = async (newDestination: string) => {
     const { horizon } = props
     const transaction = await createTransaction(
       [
         Operation.setOptions({
           source: props.account.publicKey,
-          inflationDest: destination
+          inflationDest: newDestination
         })
       ],
       { accountData, horizon, walletAccount: props.account }
@@ -62,70 +156,39 @@ function InflationDestinationDialog(props: Props) {
     setTimeout(props.onClose, 1000)
   }
 
-  const onSubmit = () => {
-    if (validateDestination()) {
-      submitTransaction()
-    }
-  }
-
-  const CurrentInflationDestinationComponent = React.useCallback(
-    () => (
-      <CopyableAddress
-        address={accountData.inflation_destination ? accountData.inflation_destination : "None"}
-        variant="full"
-      />
-    ),
-    [accountData.inflation_destination]
-  )
+  const inputLabelText = mode === "readonly" ? "Current Inflation destination" : "New inflation destination"
 
   return (
-    <VerticalLayout minWidth={isSmallScreen ? 120 : 250}>
-      <DialogTitle>Set inflation destination</DialogTitle>
-      <DialogContent>
-        <form style={{ minWidth: isSmallScreen ? 120 : 400 }} onSubmit={onSubmit}>
-          <InputLabel style={{ overflow: "visible", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-            Current inflation destination
-          </InputLabel>
-          <br />
-          <Input
-            disableUnderline
-            inputComponent={CurrentInflationDestinationComponent}
+    <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
+      <Box margin="0 0 32px">
+        <MainTitle hideBackButton={!props.onClose} onBack={props.onClose} title={"Inflation destination"} />
+      </Box>
+      <VerticalLayout minWidth={isSmallScreen ? 120 : 250}>
+        <DialogContent>
+          <InputLabel
             style={{
-              maxWidth: "100%",
-              overflow: "hidden",
-              fontSize: isSmallScreen ? 12 : 14,
-              wordBreak: "break-word"
+              overflow: "visible",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+              color: error ? "red" : undefined
             }}
-          />
+          >
+            {error ? error.message : inputLabelText}
+          </InputLabel>
           <TextField
-            error={Boolean(error)}
-            label={error ? renderFormFieldError(error) : "Destination address"}
-            placeholder="GABCDEFGHIJK... or alice*example.org"
+            autoFocus
+            disabled={mode === "readonly"}
             fullWidth
-            autoFocus={process.env.PLATFORM !== "ios"}
-            margin="normal"
-            value={destination}
-            onChange={event => setDestination(event.target.value)}
-            inputProps={{
-              style: { textOverflow: "ellipsis" }
-            }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment disableTypography position="end">
-                  <QRReader iconStyle={{ fontSize: 20 }} onScan={key => setDestination(key)} />
-                </InputAdornment>
-              )
-            }}
+            onChange={handleDestinationEditing}
+            onKeyDown={handleKeyDown}
+            placeholder="GABCDEFGHIJK... or example.org"
+            value={mode === "readonly" ? getDisplayName() : destination}
           />
-          <DialogActionsBox smallDialog>
-            <CloseButton onClick={props.onClose} />
-            <ActionButton icon={<DestinationIcon />} onClick={onSubmit} type="primary">
-              Set destination
-            </ActionButton>
-          </DialogActionsBox>
-        </form>
-      </DialogContent>
-    </VerticalLayout>
+
+          <DialogActionsBox smallDialog>{mode === "editing" ? editableActions : readonlyActions}</DialogActionsBox>
+        </DialogContent>
+      </VerticalLayout>
+    </Box>
   )
 }
 
