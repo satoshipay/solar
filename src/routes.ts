@@ -11,6 +11,7 @@ export const exportSecretKey = (accountID: string) => `/account/${accountID}/set
 export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/assets`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
+export const setInflationDestination = (accountID: string) => `/account/${accountID}/settings/inflation`
 export const settings = () => "/settings"
 export const tradeAsset = (accountID: string) => `/account/${accountID}/trade`
 export const withdrawAsset = (accountID: string) => `/account/${accountID}/withdraw`

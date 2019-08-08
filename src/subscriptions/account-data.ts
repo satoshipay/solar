@@ -10,6 +10,7 @@ export interface ObservedAccountData {
   data: Horizon.AccountResponse["data"]
   id: string
   loading: boolean
+  inflation_destination?: string
   signers: Horizon.AccountSigner[]
   thresholds: Horizon.AccountThresholds
 }

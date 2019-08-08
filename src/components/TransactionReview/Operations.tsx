@@ -258,6 +258,16 @@ function SetOptionsOperation(props: {
         />
       </SummaryItem>
     )
+  } else if (props.operation.inflationDest) {
+    return (
+      <SummaryItem heading="Set inflation destination">
+        <SummaryDetailsField
+          fullWidth
+          label="New destination"
+          value={<CopyableAddress address={props.operation.inflationDest} variant="full" />}
+        />
+      </SummaryItem>
+    )
   }
 
   return (
