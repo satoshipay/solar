@@ -34,7 +34,7 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
   const router = useRouter()
   const isSmallScreen = useIsMobile()
 
-  const [destination, setDestination] = React.useState("")
+  const [destination, setDestination] = React.useState(accountData.inflation_destination || "")
   const [error, setError] = React.useState<Error | null>(null)
   const [mode, setMode] = React.useState<"editing" | "readonly">("readonly")
 
