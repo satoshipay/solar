@@ -131,8 +131,12 @@ function AccountSettings(props: Props) {
           onClick={navigateTo.setInflationDestination}
         >
           <ListItemText
-            primary={accountData.inflation_destination ? "Set Inflation Destination" : "Join Inflation Pool"}
-            secondary={isSmallScreen ? "Join a pool for weekly payouts." : "Inflation is 1% per year. Join a pool for weekly payouts."}
+            primary={accountData.inflation_destination ? "Change Inflation Pool" : "Join Inflation Pool"}
+            secondary={
+              isSmallScreen
+                ? "Join a pool for weekly payouts."
+                : "Inflation is 1% per year. Join a pool for weekly payouts."
+            }
             style={listItemTextStyle}
           />
         </AccountSettingsItem>
