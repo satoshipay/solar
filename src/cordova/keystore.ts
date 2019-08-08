@@ -1,6 +1,5 @@
 import { KeyStore } from "key-store"
 import { Transaction, Network, Keypair } from "stellar-sdk"
-import { Account } from "../context/accounts"
 import { CommandHandlers, registerCommandHandler } from "./ipc"
 
 export const commands = {
