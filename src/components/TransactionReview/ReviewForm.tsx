@@ -67,6 +67,8 @@ function TxConfirmationForm(props: Props) {
   )
 
   const onSubmit = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
     if (props.disabled) {
       // Just a precaution; we shouldn't even get here if the component is disabled
       return
@@ -79,7 +81,6 @@ function TxConfirmationForm(props: Props) {
       })
     }
 
-    event.preventDefault()
     setErrors({})
     onConfirm(formValues)
   }
