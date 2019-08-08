@@ -17,11 +17,11 @@ export function createAccountEffectsSubscription(
         .forAccount(accountPubKey)
         .cursor(cursor)
         .stream({
-          onmessage(effects: ServerApi.CollectionPage<ServerApi.EffectRecord>) {
-            for (const effect of effects.records) {
+          onmessage(effect: ServerApi.EffectRecord) {
+            if (effect.paging_token) {
               cursor = effect.paging_token
-              propagateUpdate(effect)
             }
+            propagateUpdate(effect)
           },
           onerror() {
             trackStreamError(Error("Account effects stream errored."))
