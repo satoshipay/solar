@@ -59,7 +59,7 @@ export function handleMessageEvent(
   secureStorage: CordovaSecureStorage,
   keyStore: KeyStore<PrivateKeyData, PublicKeyData>
 ) {
-  if (!(event instanceof MessageEvent) || event.source !== contentWindow) {
+  if (!(event instanceof MessageEvent) || event.source !== contentWindow || typeof event.data !== "object") {
     return
   }
 
@@ -68,7 +68,10 @@ export function handleMessageEvent(
   if (messageHandler) {
     messageHandler(event, contentWindow, secureStorage, keyStore).catch(trackError)
   } else {
-    throw new Error(`No message handler defined for event type "${event.data.commandType}"`)
+    throw Error(
+      `No message handler defined for event type "${event.data.commandType}".\n` +
+        `Event data: ${JSON.stringify(event.data)}`
+    )
   }
 }
 
