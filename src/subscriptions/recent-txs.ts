@@ -46,7 +46,7 @@ export function createRecentTxsSubscription(
         .forAccount(accountPubKey)
         .cursor(cursor)
         .stream({
-          onmessage(transaction: ServerApi.TransactionRecord) {
+          onmessage: ((transaction: ServerApi.TransactionRecord) => {
             if (
               subscriptionTarget
                 .getLatest()
@@ -61,7 +61,7 @@ export function createRecentTxsSubscription(
                 transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
               })
             }
-          },
+          }) as any,
           onerror() {
             trackStreamError(Error("Recent transactions update stream errored."))
             unsubscribe()
