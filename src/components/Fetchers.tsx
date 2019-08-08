@@ -1,6 +1,6 @@
 import React from "react"
 import Async from "react-promise"
-import { Server } from "stellar-sdk"
+import { Server, ServerApi } from "stellar-sdk"
 import { useHorizon } from "../hooks"
 import { getHorizonURL } from "../lib/stellar"
 
@@ -84,7 +84,7 @@ async function fetchLatestLedger(horizon: Server) {
   return ledgerData
 }
 
-type LedgerDataRenderProp = (ledgerData: Server.LedgerRecord) => React.ReactNode
+type LedgerDataRenderProp = (ledgerData: ServerApi.LedgerRecord) => React.ReactNode
 
 const LedgerMetadata = (props: { children: LedgerDataRenderProp; testnet: boolean }) => {
   const horizon = useHorizon(props.testnet)

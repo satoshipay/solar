@@ -1,4 +1,4 @@
-import { Asset, Server } from "stellar-sdk"
+import { Asset, Server, ServerApi } from "stellar-sdk"
 import { getHorizonURL } from "../lib/stellar"
 import { SubscriptionTarget } from "../lib/subscription"
 import { createAccountDataSubscription, ObservedAccountData } from "./account-data"
@@ -10,7 +10,7 @@ import { createRecentTxsSubscription, ObservedRecentTxs } from "./recent-txs"
 export { ObservedAccountData, ObservedAccountOffers, ObservedRecentTxs, ObservedTradingPair }
 
 const accountDataSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountData>>()
-const accountEffectsSubscriptionsCache = new Map<string, SubscriptionTarget<Server.EffectRecord | null>>()
+const accountEffectsSubscriptionsCache = new Map<string, SubscriptionTarget<ServerApi.EffectRecord | null>>()
 const accountOffersSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedAccountOffers>>()
 const orderbookSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedTradingPair>>()
 const recentTxsSubscriptionsCache = new Map<string, SubscriptionTarget<ObservedRecentTxs>>()
@@ -63,7 +63,7 @@ export function subscribeToAccount(horizon: Server, accountPubKey: string): Subs
 export function subscribeToAccountEffects(
   horizon: Server,
   accountPubKey: string
-): SubscriptionTarget<Server.EffectRecord | null> {
+): SubscriptionTarget<ServerApi.EffectRecord | null> {
   const cacheKey = getHorizonURL(horizon) + accountPubKey
   const cached = accountEffectsSubscriptionsCache.get(cacheKey)
 

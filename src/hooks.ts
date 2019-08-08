@@ -1,7 +1,7 @@
 import * as JWT from "jsonwebtoken"
 import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
-import { Asset, Server, Transaction } from "stellar-sdk"
+import { Asset, Server, ServerApi, Transaction } from "stellar-sdk"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 import { Account } from "./context/accounts"
@@ -99,7 +99,7 @@ export function useAccountOffers(accountID: string, testnet: boolean): ObservedA
   return useDataSubscription(offersSubscription)
 }
 
-type EffectHandler = (account: Account, effect: Server.EffectRecord) => void
+type EffectHandler = (account: Account, effect: ServerApi.EffectRecord) => void
 
 export function useAccountEffectSubscriptions(accounts: Account[], handler: EffectHandler) {
   const mainnetHorizon = useHorizon(false)

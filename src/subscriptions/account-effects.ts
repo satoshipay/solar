@@ -1,4 +1,4 @@
-import { Server } from "stellar-sdk"
+import { Server, ServerApi } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
@@ -7,8 +7,8 @@ import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscriptio
 export function createAccountEffectsSubscription(
   horizon: Server,
   accountPubKey: string
-): SubscriptionTarget<Server.EffectRecord | null> {
-  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget<Server.EffectRecord | null>(null)
+): SubscriptionTarget<ServerApi.EffectRecord | null> {
+  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ServerApi.EffectRecord | null>(null)
 
   const subscribeToEffects = (cursor: string = "now") => {
     let unsubscribe = manageStreamConnection(ServiceType.Horizon, trackStreamError => {
@@ -17,12 +17,12 @@ export function createAccountEffectsSubscription(
         .forAccount(accountPubKey)
         .cursor(cursor)
         .stream({
-          onmessage(effect: Server.EffectRecord) {
+          onmessage: ((effect: ServerApi.EffectRecord) => {
             if (effect.paging_token) {
               cursor = effect.paging_token
             }
             propagateUpdate(effect)
-          },
+          }) as any,
           onerror() {
             trackStreamError(Error("Account effects stream errored."))
             unsubscribe()
