@@ -1,6 +1,7 @@
-import { NotFoundError, Server, ServerApi, Transaction } from "stellar-sdk"
+import { Server, ServerApi, Transaction } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
+import { isNotFoundError } from "../lib/stellar"
 import { manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { createCheapTxID } from "../lib/transaction"
@@ -93,7 +94,7 @@ export function createRecentTxsSubscription(
       const unsubscribeCompletely = subscribeToTxs(recentTxs[0].paging_token)
       closing.then(unsubscribeCompletely)
     } catch (error) {
-      if (error instanceof NotFoundError) {
+      if (isNotFoundError(error)) {
         propagateUpdate({
           ...subscriptionTarget.getLatest(),
           activated: false,
