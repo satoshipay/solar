@@ -86,7 +86,7 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
   const editableActions = React.useMemo(
     () => (
       <>
-        <ActionButton icon={<ClearIcon />} onClick={cancelEditing} type="primary">
+        <ActionButton icon={<ClearIcon />} onClick={cancelEditing} type="secondary">
           Cancel
         </ActionButton>
         <ActionButton icon={<CheckIcon />} onClick={applyDestination} type="primary">
@@ -156,12 +156,14 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
     setTimeout(props.onClose, 1000)
   }
 
-  const inputLabelText = mode === "readonly" ? "Current Inflation destination" : "New inflation destination"
-
   return (
     <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
       <Box margin="0 0 32px">
-        <MainTitle hideBackButton={!props.onClose} onBack={props.onClose} title={"Inflation destination"} />
+        <MainTitle
+          hideBackButton={!props.onClose}
+          onBack={props.onClose}
+          title={accountData.inflation_destination ? "Change Inflation Pool" : "Join Inflation Pool"}
+        />
       </Box>
       <VerticalLayout minWidth={isSmallScreen ? 120 : 250}>
         <DialogContent>
@@ -173,7 +175,7 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
               color: error ? "red" : undefined
             }}
           >
-            {error ? error.message : inputLabelText}
+            {error ? error.message : "Inflation destination"}
           </InputLabel>
           <TextField
             autoFocus
