@@ -92,6 +92,7 @@ interface TitleTextFieldProps {
   onChange: TextFieldProps["onChange"]
   onClick?: () => void
   onKeyDown?: TextFieldProps["onKeyDown"]
+  preventClicks?: boolean
   mode: "editing" | "readonly"
   showEdit: boolean
   showUnderlineOnEdit?: boolean
@@ -125,7 +126,8 @@ function TitleTextField(props: TitleTextFieldProps) {
         readOnly: props.mode === "readonly",
         style: {
           color: "inherit",
-          font: "inherit"
+          font: "inherit",
+          pointerEvents: props.preventClicks ? "none" : undefined
         }
       }}
       onChange={props.onChange}
@@ -250,8 +252,9 @@ function AccountTitle(props: AccountTitleProps) {
           actions={mode === "readonly" ? readonlyActions : editActions}
           inputRef={inputRef}
           onChange={handleNameEditing}
-          onClick={switchToEditMode}
+          onClick={props.editable ? switchToEditMode : undefined}
           onKeyDown={handleKeyDown}
+          preventClicks={!props.editable}
           mode={mode}
           showEdit={props.editable || false}
           // Since we cannot auto-select the text on iOS, highlight that it's editable by underline
