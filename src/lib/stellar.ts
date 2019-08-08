@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import fetch from "isomorphic-fetch"
-import { xdr, Asset, Horizon, Keypair, Server, Transaction } from "stellar-sdk"
+import { xdr, Asset, Horizon, Keypair, Server, ServerApi, Transaction } from "stellar-sdk"
 import { joinURL } from "./url"
 
 export interface SmartFeePreset {
@@ -33,14 +33,6 @@ interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
 }
 
-interface URI {
-  toString: () => string
-}
-
-interface HorizonWithUndocumentedProps extends Server {
-  serverURL: URI
-}
-
 const MAX_INT64 = "9223372036854775807"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
@@ -57,9 +49,9 @@ export function getAllSources(tx: Transaction) {
   ])
 }
 
-// Hacky fix for the breaking change recently introduced to the horizon's account endpoint
+// FIXME: Remove this function.
 export function getSignerKey(signer: Horizon.AccountSigner | { key: string; weight: number }) {
-  return "key" in signer ? signer.key : signer.public_key
+  return signer.key
 }
 
 export function balancelineToAsset(balanceline: Horizon.BalanceLine): Asset {
@@ -146,14 +138,14 @@ export function getMatchingAccountBalance(balances: Horizon.BalanceLine[], asset
 }
 
 export function getHorizonURL(horizon: Server) {
-  return (horizon as HorizonWithUndocumentedProps).serverURL.toString()
+  return horizon.serverURL.toString()
 }
 
 export function isSignedByAnyOf(signature: xdr.DecoratedSignature, publicKeys: string[]) {
   return publicKeys.some(publicKey => signatureMatchesPublicKey(signature, publicKey))
 }
 
-export function offerAssetToAsset(offerAsset: Server.OfferAsset) {
+export function offerAssetToAsset(offerAsset: ServerApi.OfferAsset) {
   return offerAsset.asset_type === "native"
     ? Asset.native()
     : new Asset(offerAsset.asset_code as string, offerAsset.asset_issuer as string)

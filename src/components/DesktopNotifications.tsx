@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, Horizon, Server } from "stellar-sdk"
+import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { Account, AccountsContext } from "../context/accounts"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
 import { useAccountEffectSubscriptions, useRouter } from "../hooks"
@@ -8,7 +8,7 @@ import { SignatureRequest } from "../lib/multisig-service"
 import * as routes from "../routes"
 import { OfferDetailsString } from "./TransactionReview/Operations"
 
-type TradeEffect = Server.EffectRecord & {
+type TradeEffect = ServerApi.EffectRecord & {
   id: string
   account: string
   bought_amount: string
@@ -25,7 +25,7 @@ type TradeEffect = Server.EffectRecord & {
   type_i: 33
 }
 
-const isTradeEffect = (effect: Server.EffectRecord): effect is TradeEffect => effect.type === "trade"
+const isTradeEffect = (effect: ServerApi.EffectRecord): effect is TradeEffect => effect.type === "trade"
 
 function DesktopNotifications() {
   const { accounts } = React.useContext(AccountsContext)
@@ -46,7 +46,7 @@ function DesktopNotifications() {
     return unsubscribeFromNewSignatureRequests
   }, [])
 
-  useAccountEffectSubscriptions(accounts, (account: Account, effect: Server.EffectRecord) => {
+  useAccountEffectSubscriptions(accounts, (account: Account, effect: ServerApi.EffectRecord) => {
     if (isTradeEffect(effect)) {
       const buying =
         effect.bought_asset_code && effect.bought_asset_issuer

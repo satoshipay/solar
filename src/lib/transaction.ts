@@ -1,4 +1,15 @@
-import { Asset, Keypair, Memo, Network, Operation, Server, TransactionBuilder, Transaction, xdr } from "stellar-sdk"
+import {
+  Asset,
+  Keypair,
+  Memo,
+  Network,
+  Operation,
+  Server,
+  ServerApi,
+  TransactionBuilder,
+  Transaction,
+  xdr
+} from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
 import { getAllSources, getSignerKey, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
@@ -18,7 +29,7 @@ const highFeePreset: SmartFeePreset = {
 // on the network later when the tx will be submitted to the network
 export const multisigMinimumFee = 10_000
 
-export function createCheapTxID(transaction: Transaction | Server.TransactionRecord): string {
+export function createCheapTxID(transaction: Transaction | ServerApi.TransactionRecord): string {
   const source = "source" in transaction ? transaction.source : transaction.source_account
   const sequence = "sequence" in transaction ? transaction.sequence : transaction.source_account_sequence
 
@@ -75,13 +86,13 @@ async function selectTransactionFeeWithFallback(horizon: Server, fallbackFee: nu
   }
 }
 
-function selectTransactionTimeout(accountData: Pick<Server.AccountRecord, "signers">): number {
+function selectTransactionTimeout(accountData: Pick<ServerApi.AccountRecord, "signers">): number {
   // Don't forget that we must give the user enough time to enter their password and click ok
   return accountData.signers.length > 1 ? 30 * 24 * 60 * 60 * 1000 : 90
 }
 
 interface TxBlueprint {
-  accountData: Pick<Server.AccountRecord, "id" | "signers">
+  accountData: Pick<ServerApi.AccountRecord, "id" | "signers">
   horizon: Server
   memo?: Memo | null
   minTransactionFee?: number
@@ -179,7 +190,7 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
  */
 export function isPotentiallyDangerousTransaction(
   transaction: Transaction,
-  localAccounts: Array<Pick<Server.AccountRecord, "id" | "signers">>
+  localAccounts: Array<Pick<ServerApi.AccountRecord, "id" | "signers">>
 ) {
   const allTxSources = getAllSources(transaction)
   const localAffectedAccounts = localAccounts.filter(account => allTxSources.indexOf(account.id) > -1)
@@ -191,7 +202,7 @@ export function isPotentiallyDangerousTransaction(
   // Co-signers of local accounts
   const knownCosigners = localAffectedAccounts.reduce(
     (signers, affectedAccountData) => [...signers, ...affectedAccountData.signers],
-    [] as Server.AccountRecord["signers"]
+    [] as ServerApi.AccountRecord["signers"]
   )
   const isSignedByKnownCosigner = transaction.signatures.some(signature =>
     isSignedByAnyOf(signature, knownCosigners.map(cosigner => getSignerKey(cosigner)))

@@ -4,22 +4,13 @@ const STELLARGUARD_TRANSACTION_ENDPOINT_MAINNET = "https://stellarguard.me/api/t
 const STELLARGUARD_TRANSACTION_ENDPOINT_TESTNET = "https://test.stellarguard.me/api/transactions"
 const STELLARGUARD_PUBLIC_KEY = "GCVHEKSRASJBD6O2Z532LWH4N2ZLCBVDLLTLKSYCSMBLOYTNMEEGUARD"
 
-interface AccountSignerWithKey {
-  public_key: string
-  key: string
-  weight: number
-}
-
 export async function isStellarGuardProtected(horizon: Server, accountPubKey: string) {
   const account = await horizon.loadAccount(accountPubKey)
-
-  const signers = account.signers as AccountSignerWithKey[] // the name of the property is key and not public_key
-  return signers.some(signer => signer.key === STELLARGUARD_PUBLIC_KEY)
+  return account.signers.some(signer => signer.key === STELLARGUARD_PUBLIC_KEY)
 }
 
 export function containsStellarGuardAsSigner(signers: Horizon.AccountSigner[]) {
-  const accountSigners = signers as AccountSignerWithKey[] // the name of the property is key and not public_key
-  return accountSigners.some(signer => signer.key === STELLARGUARD_PUBLIC_KEY)
+  return signers.some(signer => signer.key === STELLARGUARD_PUBLIC_KEY)
 }
 
 export async function submitTransactionToStellarGuard(signedTransaction: Transaction, testnet: boolean) {

@@ -73,7 +73,8 @@ function SignersEditor(props: SignersEditorProps) {
       }
 
       props.addSigner({
-        public_key: cosignerPublicKey,
+        key: cosignerPublicKey,
+        type: "ed25519_public_key",
         weight: parseInt(newSignerValues.weight, 10)
       })
 

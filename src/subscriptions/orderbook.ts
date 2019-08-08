@@ -1,4 +1,4 @@
-import { Asset, Server } from "stellar-sdk"
+import { Asset, Server, ServerApi } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
 import { createMessageDeduplicator, manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
@@ -33,7 +33,7 @@ export function createOrderbookSubscription(
         .orderbook(selling, buying)
         .cursor(cursor)
         .stream({
-          onmessage(record: FixedOrderbookRecord) {
+          onmessage: (((record: FixedOrderbookRecord) => {
             dedupeMessage(record, () => {
               const previous = subscriptionTarget.getLatest()
               propagateUpdate({
@@ -43,7 +43,7 @@ export function createOrderbookSubscription(
                 bids: [...previous.bids, ...record.bids]
               })
             })
-          },
+          }) as unknown) as (record: ServerApi.OrderbookRecord) => () => void,
           onerror() {
             trackStreamError(Error("Orderbook update stream errored."))
             unsubscribe()
