@@ -9,7 +9,6 @@ import PersonIcon from "@material-ui/icons/Person"
 import RemoveIcon from "@material-ui/icons/Close"
 import { trackError } from "../../context/notifications"
 import { useFederationLookup } from "../../hooks"
-import { getSignerKey } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import SpaciousList from "../List/SpaciousList"
 import { Address } from "../PublicKey"
@@ -30,7 +29,7 @@ function validateNewSignerValues(values: SignerFormValues, signers: Horizon.Acco
 
   if (!isPublicKey(values.publicKey) && !isStellarAddress(values.publicKey)) {
     errors.publicKey = new Error("Expected a public key or stellar address.")
-  } else if (signers.find(existingSigner => getSignerKey(existingSigner) === values.publicKey)) {
+  } else if (signers.find(existingSigner => existingSigner.key === values.publicKey)) {
     errors.publicKey = new Error("Cannot add existing signer.")
   }
   if (!values.weight.match(/^[0-9]+$/)) {
@@ -99,16 +98,16 @@ function SignersEditor(props: SignersEditorProps) {
   return (
     <SpaciousList fitHorizontal>
       {props.signers.map(signer => (
-        <ListItem key={getSignerKey(signer)}>
+        <ListItem key={signer.key}>
           <ListItemIcon>
             <PersonIcon style={{ fontSize: "2rem" }} />
           </ListItemIcon>
           <ListItemText
-            primary={<Address address={getSignerKey(signer)} variant="full" />}
+            primary={<Address address={signer.key} variant="full" />}
             secondary={
               <>
                 {props.showKeyWeights ? <span style={{ marginRight: 24 }}>Weight: {signer.weight}</span> : null}
-                {getSignerKey(signer) === props.localPublicKey ? <span>Local key</span> : null}
+                {signer.key === props.localPublicKey ? <span>Local key</span> : null}
               </>
             }
           />

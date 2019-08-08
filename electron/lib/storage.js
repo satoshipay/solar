@@ -1,22 +1,74 @@
-const { app, ipcMain } = require("electron")
+const { ipcMain } = require("electron")
 const isDev = require("electron-is-dev")
 const Store = require("electron-store")
+const { createStore } = require("key-store")
+const { Network, Keypair, Transaction } = require("stellar-sdk")
+const { commands, events, expose } = require("./ipc")
 
 // Use different key stores for development and production
 const mainStore = new Store({
   name: isDev ? "development" : "config"
 })
 
-/////////
-// Keys:
+const readKeys = () => {
+  return mainStore.has("keys") ? mainStore.get("keys") : {}
+}
 
-ipcMain.on("storage:keys:readSync", event => {
-  event.returnValue = mainStore.has("keys") ? mainStore.get("keys") : {}
+const updateKeys = arg => {
+  mainStore.set("keys", arg)
+  return true
+}
+
+const keystore = createStore(updateKeys, readKeys())
+
+/////////////
+// Keystore:
+
+expose(ipcMain, commands.getKeyIDsCommand, events.getKeyIDsEvent, function getKeyIDs() {
+  return keystore.getKeyIDs()
 })
 
-ipcMain.on("storage:keys:storeSync", (event, arg) => {
-  mainStore.set("keys", arg)
-  event.returnValue = true
+expose(ipcMain, commands.getPublicKeyDataCommand, events.getPublicKeyDataEvent, function getPublicKeyData(keyID) {
+  return keystore.getPublicKeyData(keyID)
+})
+
+expose(ipcMain, commands.getPrivateKeyDataCommand, events.getPrivateKeyDataEvent, function getPrivateKeyData(
+  keyID,
+  password
+) {
+  return keystore.getPrivateKeyData(keyID, password)
+})
+
+expose(ipcMain, commands.saveKeyCommand, events.saveKeyEvent, function saveKey(
+  keyID,
+  password,
+  privateData,
+  publicData
+) {
+  return keystore.saveKey(keyID, password, privateData, publicData)
+})
+
+expose(ipcMain, commands.savePublicKeyDataCommand, events.savePublicKeyDataEvent, function saveKey(keyID, publicData) {
+  return keystore.savePublicKeyData(keyID, publicData)
+})
+
+expose(ipcMain, commands.removeKeyCommand, events.removeKeyEvent, function removeKey(keyID) {
+  return keystore.removeKey(keyID)
+})
+
+expose(ipcMain, commands.signTransactionCommand, events.signTransactionEvent, function signTransaction(
+  txEnvelopeXdr,
+  keyID,
+  networkPassphrase,
+  password
+) {
+  const transaction = new Transaction(txEnvelopeXdr)
+  const { privateKey } = keystore.getPrivateKeyData(keyID, password)
+
+  Network.use(new Network(networkPassphrase))
+  transaction.sign(Keypair.fromSecret(privateKey))
+
+  return transaction.toEnvelope().toXDR("base64")
 })
 
 /////////////

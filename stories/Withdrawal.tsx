@@ -18,7 +18,10 @@ const account: Account = {
   requiresPassword: false,
   testnet: false,
   getPrivateKey() {
-    throw new Error("Not implemented")
+    throw Error("Just a mock.")
+  },
+  signTransaction() {
+    throw Error("Just a mock.")
   }
 }
 

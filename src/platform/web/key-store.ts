@@ -1,5 +1,7 @@
 import { createStore, KeysData } from "key-store"
-import { PrivateKeyData, PublicKeyData } from "../types"
+import { Keypair, Network, Transaction } from "stellar-sdk"
+import { Account } from "../../context/accounts"
+import { KeyStoreAPI } from "../types"
 
 const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {
@@ -50,11 +52,33 @@ function saveKeys(keysData: KeysData<PublicKeyData>) {
   localStorage.setItem("solar:keys", JSON.stringify(keysData))
 }
 
-export default async function createKeyStore() {
+export default async function createKeyStore(): Promise<KeyStoreAPI> {
   const keys = localStorage.getItem("solar:keys")
 
   const initialKeys = keys ? JSON.parse(keys) : defaultTestingKeys
+  const keyStore = createStore<PrivateKeyData, PublicKeyData>(saveKeys, initialKeys)
 
-  // tslint:disable-next-line
-  return createStore<PrivateKeyData, PublicKeyData>(saveKeys, initialKeys)
+  return {
+    getKeyIDs: async () => keyStore.getKeyIDs(),
+    getPublicKeyData: async (...args) => keyStore.getPublicKeyData(...args),
+    getPrivateKeyData: async (...args) => keyStore.getPrivateKeyData(...args),
+    removeKey: async keyID => keyStore.removeKey(keyID),
+    saveKey: async (...args) => keyStore.saveKey(...args),
+    savePublicKeyData: async (...args) => keyStore.savePublicKeyData(...args),
+    async signTransaction(tx: Transaction, account: Account, password: string): Promise<Transaction> {
+      if (account.testnet) {
+        Network.useTestNetwork()
+      } else {
+        Network.usePublicNetwork()
+      }
+
+      const { privateKey } = keyStore.getPrivateKeyData(account.id, password)
+      const keypair = Keypair.fromSecret(privateKey)
+
+      const signedTx = new Transaction((tx.toEnvelope().toXDR("base64") as unknown) as string)
+      signedTx.sign(keypair)
+
+      return signedTx
+    }
+  }
 }

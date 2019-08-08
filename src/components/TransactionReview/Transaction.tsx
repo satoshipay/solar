@@ -9,7 +9,7 @@ import UpdateIcon from "@material-ui/icons/Update"
 import WarningIcon from "@material-ui/icons/Warning"
 import { useIsMobile } from "../../hooks"
 import { Account } from "../../context/accounts"
-import { getSignerKey, signatureMatchesPublicKey } from "../../lib/stellar"
+import { signatureMatchesPublicKey } from "../../lib/stellar"
 import { ObservedAccountData } from "../../subscriptions"
 import { warningColor } from "../../theme"
 import { Address } from "../PublicKey"
@@ -53,7 +53,7 @@ const Signer = React.memo(function Signer(props: {
       <SignerStatus hasSigned={props.hasSigned} style={{ fontSize: "100%", marginRight: 8 }} />
       <div style={{ whiteSpace: "nowrap" }}>
         <Address
-          address={getSignerKey(props.signer)}
+          address={props.signer.key}
           style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
           variant={isSmallScreen ? "short" : "full"}
         />
@@ -79,12 +79,12 @@ export function Signers(props: {
     <SummaryItem>
       {props.accountData.signers.map((signer, index) => (
         <SummaryDetailsField
-          key={getSignerKey(signer)}
+          key={signer.key}
           label={index === 0 ? `Signers (${headingDetails})` : undefined}
           value={
             <Signer
               hasSigned={props.transaction.signatures.some(signature =>
-                signatureMatchesPublicKey(signature, getSignerKey(signer))
+                signatureMatchesPublicKey(signature, signer.key)
               )}
               signer={signer}
               transaction={props.transaction}

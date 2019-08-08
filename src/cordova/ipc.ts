@@ -1,15 +1,22 @@
+import { KeyStore } from "key-store"
 import { trackError } from "./error"
+import * as keyStoreIPC from "./keystore"
 
-type CommandHandler = (event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) => Promise<void>
+type CommandHandler = (
+  event: MessageEvent,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) => Promise<void>
 
-interface CommandHandlers {
+export interface CommandHandlers {
   [eventName: string]: CommandHandler
 }
 
 // commands
 export const commands = {
-  readKeysCommand: "storage:keys:read",
-  storeKeysCommand: "storage:keys:store",
+  keyStore: keyStoreIPC.commands,
+
   readSettingsCommand: "storage:settings:read",
   storeSettingsCommand: "storage:settings:store",
   readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
@@ -28,6 +35,8 @@ export const commands = {
 
 // event types
 export const events = {
+  keyStore: keyStoreIPC.events,
+
   keyResponseEvent: "storage:keys",
   keysStoredEvent: "storage:keys:stored",
   settingsResponseEvent: "storage:settings",
@@ -44,17 +53,25 @@ export const events = {
 
 let commandHandlers: CommandHandlers = {}
 
-export function handleMessageEvent(event: Event, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  if (!(event instanceof MessageEvent) || event.source !== contentWindow) {
+export function handleMessageEvent(
+  event: Event,
+  contentWindow: Window,
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+) {
+  if (!(event instanceof MessageEvent) || event.source !== contentWindow || typeof event.data !== "object") {
     return
   }
 
   const messageHandler = commandHandlers[event.data.commandType]
 
   if (messageHandler) {
-    messageHandler(event, contentWindow, secureStorage).catch(trackError)
+    messageHandler(event, contentWindow, secureStorage, keyStore).catch(trackError)
   } else {
-    throw new Error(`No message handler defined for event type "${event.data.commandType}"`)
+    throw Error(
+      `No message handler defined for event type "${event.data.commandType}".\n` +
+        `Event data: ${JSON.stringify(event.data)}`
+    )
   }
 }
 

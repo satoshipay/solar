@@ -12,14 +12,7 @@ import {
 } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
-import {
-  getAllSources,
-  getSignerKey,
-  isNotFoundError,
-  isSignedByAnyOf,
-  selectSmartTransactionFee,
-  SmartFeePreset
-} from "./stellar"
+import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
@@ -164,11 +157,8 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
     throw createWrongPasswordError(`Account is password-protected, but no password has been provided.`)
   }
 
-  const privateKey = await walletAccount.getPrivateKey(password)
-
-  selectNetwork(walletAccount.testnet)
-  transaction.sign(Keypair.fromSecret(privateKey))
-  return transaction
+  const signedTransaction = walletAccount.signTransaction(transaction, password)
+  return signedTransaction
 }
 
 export async function requiresRemoteSignatures(horizon: Server, transaction: Transaction, walletPublicKey: string) {
@@ -181,7 +171,7 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
   const accounts = await Promise.all(sources.map(sourcePublicKey => horizon.loadAccount(sourcePublicKey)))
 
   return accounts.some(account => {
-    const thisWalletSigner = account.signers.find(signer => getSignerKey(signer) === walletPublicKey)
+    const thisWalletSigner = account.signers.find(signer => signer.key === walletPublicKey)
 
     // requires another signature?
     return thisWalletSigner ? thisWalletSigner.weight < account.thresholds.high_threshold : true
@@ -212,7 +202,7 @@ export function isPotentiallyDangerousTransaction(
     [] as ServerApi.AccountRecord["signers"]
   )
   const isSignedByKnownCosigner = transaction.signatures.some(signature =>
-    isSignedByAnyOf(signature, knownCosigners.map(cosigner => getSignerKey(cosigner)))
+    isSignedByAnyOf(signature, knownCosigners.map(cosigner => cosigner.key))
   )
 
   return localAffectedAccounts.length > 0 && !isSignedByLocalAccount && !isSignedByKnownCosigner

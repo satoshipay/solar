@@ -5,6 +5,8 @@
 import nanoid from "nanoid"
 import { commands, events, registerCommandHandler } from "./ipc"
 import { SettingsData } from "../platform/types"
+import { createStore, KeysData } from "key-store"
+import { registerKeyStoreCommandHandlers } from "./keystore"
 
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
 const cordovaSecureStorageName = "solar:keystore"
@@ -16,8 +18,6 @@ export const storeKeys = {
   clientSecret: "clientsecret"
 }
 
-registerCommandHandler(commands.readKeysCommand, respondWithKeys)
-registerCommandHandler(commands.storeKeysCommand, updateKeys)
 registerCommandHandler(commands.readSettingsCommand, respondWithSettings)
 registerCommandHandler(commands.storeSettingsCommand, updateSettings)
 registerCommandHandler(commands.readIgnoredSignatureRequestsCommand, respondWithIgnoredSignatureRequests)
@@ -26,22 +26,6 @@ registerCommandHandler(commands.storeIgnoredSignatureRequestsCommand, updateIgno
 let currentSettings: SettingsData | undefined
 
 export const getCurrentSettings = () => currentSettings
-
-async function respondWithKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  const keys = await getValueFromStorage(secureStorage, storeKeys.keystore)
-  contentWindow.postMessage({ eventType: events.keyResponseEvent, id: event.data.id, keys }, "*")
-}
-
-async function updateKeys(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  const keysData = event.data.keys
-
-  if (!keysData || typeof keysData !== "object") {
-    throw new Error(`Invalid keys passed: ${keysData}`)
-  }
-
-  await saveValueIntoStorage(secureStorage, storeKeys.keystore, keysData)
-  contentWindow.postMessage({ eventType: events.keysStoredEvent, id: event.data.id }, "*")
-}
 
 async function respondWithSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
   const settings = await getValueFromStorage(secureStorage, storeKeys.settings)
@@ -134,4 +118,15 @@ export function initSecureStorage() {
   })
 
   return secureStoragePromise
+}
+
+export async function initKeyStore(secureStorage: CordovaSecureStorage) {
+  const initialKeys = await getValueFromStorage(secureStorage, storeKeys.keystore)
+  const saveKeys = (keysData: KeysData<PublicKeyData>) => {
+    saveValueIntoStorage(secureStorage, storeKeys.keystore, keysData)
+  }
+
+  const keyStore = createStore<PrivateKeyData, PublicKeyData>(saveKeys, initialKeys)
+  registerKeyStoreCommandHandlers()
+  return keyStore
 }
