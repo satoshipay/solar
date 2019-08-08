@@ -184,6 +184,7 @@ function ChangePasswordDialog(props: Props) {
           </Box>
           <Box hidden={removingPassword}>
             <TextField
+              autoFocus={!props.account.requiresPassword && process.env.PLATFORM !== "ios"}
               error={Boolean(errors.nextPassword)}
               label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
               fullWidth
