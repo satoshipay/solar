@@ -12,7 +12,14 @@ import {
 } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
-import { getAllSources, getSignerKey, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
+import {
+  getAllSources,
+  getSignerKey,
+  isNotFoundError,
+  isSignedByAnyOf,
+  selectSmartTransactionFee,
+  SmartFeePreset
+} from "./stellar"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
   hint(): Buffer
@@ -67,7 +74,7 @@ async function accountExists(horizon: Server, publicKey: string) {
     // Hack to fix SatoshiPay horizons responding with status 200 and an empty object on non-existent accounts
     return Object.keys(account).length > 0
   } catch (error) {
-    if (error && error.response && error.response.status === 404) {
+    if (isNotFoundError(error)) {
       return false
     } else {
       throw error

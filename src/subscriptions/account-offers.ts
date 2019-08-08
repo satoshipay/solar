@@ -1,6 +1,7 @@
 import { Server, ServerApi } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
+import { isNotFoundError } from "../lib/stellar"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 import { manageStreamConnection, ServiceType } from "../lib/stream"
 
@@ -58,7 +59,7 @@ export function createAccountOffersSubscription(
       const unsubscribeCompletely = subscribeToStream()
       closing.then(unsubscribeCompletely)
     } catch (error) {
-      if (error.response && error.response.status === 404) {
+      if (isNotFoundError(error)) {
         propagateUpdate({
           ...subscriptionTarget.getLatest(),
           loading: false

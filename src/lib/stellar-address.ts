@@ -1,5 +1,6 @@
 import LRUCache from "lru-cache"
 import { FederationServer } from "stellar-sdk"
+import { isNotFoundError } from "./stellar"
 
 export const isPublicKey = (str: string) => Boolean(str.match(/^G[A-Z0-9]{55}$/))
 export const isStellarAddress = (str: string) =>
@@ -21,7 +22,7 @@ export async function lookupFederationRecord(
   } catch (error) {
     if (error && error.request && !error.response) {
       throw new Error(`Request for resolving the stellar address failed: ${stellarAddress}`)
-    } else if (error && error.response && error.response.status === 404) {
+    } else if (isNotFoundError(error)) {
       throw new Error(`Stellar address not found: ${stellarAddress}`)
     } else {
       throw error

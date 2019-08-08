@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import fetch from "isomorphic-fetch"
-import { xdr, Asset, Horizon, Keypair, Server, ServerApi, Transaction } from "stellar-sdk"
+import { xdr, Asset, Horizon, Keypair, NotFoundError, Server, ServerApi, Transaction } from "stellar-sdk"
 import { joinURL } from "./url"
 
 export interface SmartFeePreset {
@@ -52,6 +52,14 @@ export function getAllSources(tx: Transaction) {
 // FIXME: Remove this function.
 export function getSignerKey(signer: Horizon.AccountSigner | { key: string; weight: number }) {
   return signer.key
+}
+
+// FIXME: Wait for proper solution in stellar-sdk: <https://github.com/stellar/js-stellar-sdk/pull/403>
+export function isNotFoundError(error: any): error is NotFoundError {
+  return (
+    (error && (error instanceof Error && error.message === "Request failed with status code 404")) ||
+    (error.response && error.response.status === 404)
+  )
 }
 
 export function balancelineToAsset(balanceline: Horizon.BalanceLine): Asset {

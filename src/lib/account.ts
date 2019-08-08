@@ -1,5 +1,6 @@
 import { Server } from "stellar-sdk"
 import { Cancellation } from "./errors"
+import { isNotFoundError } from "./stellar"
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -9,7 +10,7 @@ export async function loadAccount(horizon: Server, accountPubKey: string) {
   try {
     return await horizon.loadAccount(accountPubKey)
   } catch (error) {
-    if (error && error.response && error.response.status === 404) {
+    if (isNotFoundError(error)) {
       return null
     } else {
       throw error
