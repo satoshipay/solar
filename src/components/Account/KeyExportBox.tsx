@@ -19,7 +19,7 @@ function KeyExportBox(props: Props) {
         <Box onClick={copyToClipboard} margin="0 auto" style={{ cursor: "pointer" }}>
           <QRCode size={256} value={props.export} />
         </Box>
-        <Box margin="12px auto">
+        <Box margin="16px auto">
           <Typography align="center" style={{ display: props.hideTapToCopy ? "none" : undefined, marginBottom: 12 }}>
             Tap to copy:
           </Typography>
