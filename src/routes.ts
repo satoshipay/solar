@@ -15,6 +15,8 @@ export const setInflationDestination = (accountID: string) => `/account/${accoun
 export const settings = () => "/settings"
 export const tradeAsset = (accountID: string) => `/account/${accountID}/trade`
 export const withdrawAsset = (accountID: string) => `/account/${accountID}/withdraw`
+export const viewTransaction = (accountID: string, transactionHash: string) =>
+  `/account/${accountID}/tx/${transactionHash}`
 
 export function routeUp(currentPath: string) {
   const match = currentPath.match(/^\/account\/([^\/]+)\/.+/)
@@ -27,6 +29,8 @@ export function routeUp(currentPath: string) {
   } else if (accountID && matchesRoute(currentPath, "/account/*/settings/*", false)) {
     return accountSettings(accountID)
   } else if (accountID && matchesRoute(currentPath, "/account/*/*", false)) {
+    return account(accountID)
+  } else if (accountID && matchesRoute(currentPath, "/account/*/tx/*", false)) {
     return account(accountID)
   } else {
     return "/"
