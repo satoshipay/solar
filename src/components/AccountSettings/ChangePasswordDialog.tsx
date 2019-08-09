@@ -11,9 +11,9 @@ import { NotificationsContext } from "../../context/notifications"
 import { useIsMobile } from "../../hooks"
 import { renderFormFieldError, isWrongPasswordError } from "../../lib/errors"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import { Box, VerticalLayout } from "../Layout/Box"
-import ErrorBoundary from "../ErrorBoundary"
+import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+import DialogBody from "../Dialog/DialogBody"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -163,61 +163,58 @@ function ChangePasswordDialog(props: Props) {
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
   return (
-    <ErrorBoundary>
-      <VerticalLayout width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <Box margin="0 0 32px">
-          <MainTitle onBack={onClose} title={props.account.requiresPassword ? "Change Password" : "Set Password"} />
+    <DialogBody
+      top={<MainTitle onBack={onClose} title={props.account.requiresPassword ? "Change Password" : "Set Password"} />}
+      bottom={
+        <DialogActions style={{ margin: "32px 0 0" }}>
+          <Actions
+            isPasswordProtected={props.account.requiresPassword}
+            onSubmit={removingPassword ? removePassword : changePassword}
+            onToggleRemovePassword={toggleRemovePassword}
+            removePassword={removingPassword}
+          />
+        </DialogActions>
+      }
+    >
+      <Box alignSelf="center" margin="24px auto 0" maxWidth={400} width="100%">
+        <Box hidden={!props.account.requiresPassword} margin="0 0 8px">
+          <TextField
+            autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
+            error={Boolean(errors.prevPassword)}
+            label={errors.prevPassword ? renderFormFieldError(errors.prevPassword) : "Current password"}
+            fullWidth
+            margin="normal"
+            value={formValues.prevPassword}
+            onChange={event => setFormValue("prevPassword", event.target.value)}
+            type="password"
+            InputProps={{ startAdornment: adornmentLockOpen }}
+          />
         </Box>
-        <Box alignSelf="center" maxWidth={400} width="100%">
-          <Box hidden={!props.account.requiresPassword}>
-            <TextField
-              autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
-              error={Boolean(errors.prevPassword)}
-              label={errors.prevPassword ? renderFormFieldError(errors.prevPassword) : "Current password"}
-              fullWidth
-              margin="normal"
-              value={formValues.prevPassword}
-              onChange={event => setFormValue("prevPassword", event.target.value)}
-              type="password"
-              InputProps={{ startAdornment: adornmentLockOpen }}
-            />
-          </Box>
-          <Box hidden={removingPassword}>
-            <TextField
-              autoFocus={!props.account.requiresPassword && process.env.PLATFORM !== "ios"}
-              error={Boolean(errors.nextPassword)}
-              label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
-              fullWidth
-              margin="normal"
-              value={formValues.nextPassword}
-              onChange={event => setFormValue("nextPassword", event.target.value)}
-              type="password"
-              InputProps={{ startAdornment: adornmentLock }}
-            />
-            <TextField
-              error={Boolean(errors.nextPasswordRepeat)}
-              label={
-                errors.nextPasswordRepeat ? renderFormFieldError(errors.nextPasswordRepeat) : "Repeat new password"
-              }
-              fullWidth
-              margin="normal"
-              value={formValues.nextPasswordRepeat}
-              onChange={event => setFormValue("nextPasswordRepeat", event.target.value)}
-              type="password"
-              InputProps={{ startAdornment: adornmentLock }}
-            />
-          </Box>
-          <DialogActions style={{ margin: "32px 0 0" }}>
-            <Actions
-              isPasswordProtected={props.account.requiresPassword}
-              onSubmit={removingPassword ? removePassword : changePassword}
-              onToggleRemovePassword={toggleRemovePassword}
-              removePassword={removingPassword}
-            />
-          </DialogActions>
+        <Box hidden={removingPassword}>
+          <TextField
+            autoFocus={!props.account.requiresPassword && process.env.PLATFORM !== "ios"}
+            error={Boolean(errors.nextPassword)}
+            label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
+            fullWidth
+            margin="normal"
+            value={formValues.nextPassword}
+            onChange={event => setFormValue("nextPassword", event.target.value)}
+            type="password"
+            InputProps={{ startAdornment: adornmentLock }}
+          />
+          <TextField
+            error={Boolean(errors.nextPasswordRepeat)}
+            label={errors.nextPasswordRepeat ? renderFormFieldError(errors.nextPasswordRepeat) : "Repeat new password"}
+            fullWidth
+            margin="normal"
+            value={formValues.nextPasswordRepeat}
+            onChange={event => setFormValue("nextPasswordRepeat", event.target.value)}
+            type="password"
+            InputProps={{ startAdornment: adornmentLock }}
+          />
         </Box>
-      </VerticalLayout>
-    </ErrorBoundary>
+      </Box>
+    </DialogBody>
   )
 }
 
