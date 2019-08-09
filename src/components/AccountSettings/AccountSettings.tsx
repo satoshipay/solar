@@ -19,7 +19,7 @@ import AccountSettingsItem from "./AccountSettingsItem"
 import ChangePasswordDialog from "./ChangePasswordDialog"
 import ExportKeyDialog from "./ExportKeyDialog"
 import InflationDestinationDialog from "./InflationDestination"
-import ManageSignersDialog from "./ManageSignersDialog"
+import ManageSignersDialog from "../ManageSigners/ManageSignersDialog"
 
 const Transition = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="left" />)
 
