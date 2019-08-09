@@ -64,6 +64,8 @@ function MainTitle(props: Props) {
             flexGrow: 1,
             flexShrink: 1,
             fontSize: isSmallScreen ? 20 : 24,
+            height: 40,
+            lineHeight: "40px",
             marginRight: 12,
             minWidth: "40%",
             overflow: "hidden",

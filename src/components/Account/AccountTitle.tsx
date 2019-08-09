@@ -113,6 +113,7 @@ function TitleTextField(props: TitleTextFieldProps) {
         style: {
           cursor: props.mode === "editing" ? "text" : "default",
           height: 40,
+          padding: 0,
           textOverflow: "ellipsis"
         }
       }}
