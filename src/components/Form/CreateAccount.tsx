@@ -95,7 +95,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
   }
 
   return (
-    <form onSubmit={props.onSubmit}>
+    <form noValidate onSubmit={props.onSubmit}>
       <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
         <Typography variant="h5" style={{ display: "flex" }}>
           <TextField

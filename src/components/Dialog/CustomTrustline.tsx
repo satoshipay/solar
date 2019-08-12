@@ -58,7 +58,7 @@ function CustomTrustlineDialog(props: Props) {
     <>
       <DialogTitle>Add Custom Asset</DialogTitle>
       <DialogContent>
-        <form style={{ display: "block", width: "100%" }}>
+        <form noValidate style={{ display: "block", width: "100%" }}>
           <TextField
             label="Code"
             placeholder="EURT, USDT, BTC, ..."

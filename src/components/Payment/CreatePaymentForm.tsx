@@ -169,7 +169,7 @@ function PaymentCreationForm(props: Props) {
   }
 
   return (
-    <form onSubmit={submit}>
+    <form noValidate onSubmit={submit}>
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
