@@ -34,7 +34,7 @@ function PromptToReveal(props: PromptToRevealProps) {
         <WarnIcon style={{ fontSize: 220 }} />
       </Background>
       {props.children}
-      <form onSubmit={props.onReveal}>
+      <form noValidate onSubmit={props.onReveal}>
         {props.requiresPassword ? (
           <TextField
             autoFocus={process.env.PLATFORM !== "ios"}

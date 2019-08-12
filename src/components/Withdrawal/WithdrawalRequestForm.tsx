@@ -145,7 +145,7 @@ function AnchorWithdrawalInitForm(props: Props) {
   }, [])
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form noValidate onSubmit={handleSubmit}>
       <VerticalLayout>
         <HorizontalLayout justifyContent="space-between">
           <TextField

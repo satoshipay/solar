@@ -28,7 +28,7 @@ function WithdrawalKYCRedirect(props: KYCRedirectProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form noValidate onSubmit={handleSubmit}>
       <VerticalLayout grow>
         <VerticalLayout alignItems="center" margin="48px auto 0" maxWidth="500px" textAlign="center" width="80%">
           <Typography variant="h5">Additional information needed</Typography>

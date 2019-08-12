@@ -98,7 +98,7 @@ function TxConfirmationForm(props: Props) {
   )
 
   return (
-    <form onSubmit={onSubmit}>
+    <form noValidate onSubmit={onSubmit}>
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
