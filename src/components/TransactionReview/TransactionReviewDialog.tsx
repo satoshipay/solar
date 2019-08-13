@@ -9,8 +9,8 @@ import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { isStellarWebAuthTransaction } from "../../lib/transaction"
 import { useIsMobile } from "../../hooks"
+import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
-import ErrorBoundary from "../ErrorBoundary"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import ReviewForm from "./ReviewForm"
@@ -63,6 +63,21 @@ function TransactionReviewDialog(props: Props) {
   const isScreen600pxWide = useMediaQuery("(min-width:600px)")
   const isSmallScreen = useIsMobile()
 
+  const titleContent = React.useMemo(
+    () => (
+      <MainTitle
+        title={
+          <>
+            <Title disabled={props.disabled} transaction={props.transaction} />{" "}
+            {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+          </>
+        }
+        onBack={props.onClose}
+      />
+    ),
+    [props.account, props.disabled, props.onClose, props.transaction]
+  )
+
   return (
     <Dialog
       open={props.open}
@@ -74,35 +89,24 @@ function TransactionReviewDialog(props: Props) {
         style: { minWidth: isScreen600pxWide ? 500 : undefined }
       }}
     >
-      <ErrorBoundary>
-        <Box padding={isSmallScreen ? "24px" : " 24px 32px"} overflow="auto">
-          <MainTitle
-            title={
-              <>
-                <Title disabled={props.disabled} transaction={props.transaction} />{" "}
-                {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-              </>
-            }
-            onBack={props.onClose}
-          />
-          {props.transaction ? (
-            <Box margin="0 auto" textAlign="center">
-              <ReviewForm
-                account={props.account}
-                disabled={props.disabled}
-                onClose={props.onClose}
-                onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
-                passwordError={props.passwordError}
-                showHash={props.showHash}
-                showSource={props.showSource}
-                signatureRequest={props.signatureRequest}
-                transaction={props.transaction}
-              />
-            </Box>
-          ) : null}
-        </Box>
+      <DialogBody top={titleContent}>
+        {props.transaction ? (
+          <Box margin="0 auto" textAlign="center">
+            <ReviewForm
+              account={props.account}
+              disabled={props.disabled}
+              onClose={props.onClose}
+              onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
+              passwordError={props.passwordError}
+              showHash={props.showHash}
+              showSource={props.showSource}
+              signatureRequest={props.signatureRequest}
+              transaction={props.transaction}
+            />
+          </Box>
+        ) : null}
         {props.submissionProgress}
-      </ErrorBoundary>
+      </DialogBody>
     </Dialog>
   )
 }
