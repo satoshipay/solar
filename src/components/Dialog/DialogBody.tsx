@@ -48,7 +48,7 @@ function DialogBody(props: Props) {
           {props.bottom}
         </Box>
       ) : null,
-    [props.top]
+    [props.bottom]
   )
 
   const background = React.useMemo(
