@@ -120,16 +120,20 @@ export type BoxStyles = SizingStyles &
     hidden?: boolean
     margin?: React.CSSProperties["margin"]
     overflow?: React.CSSProperties["overflow"]
+    overflowX?: React.CSSProperties["overflow"]
+    overflowY?: React.CSSProperties["overflow"]
     position?: React.CSSProperties["position"]
   }
 
 const createBoxStyle = (styleProps: BoxStyles) => {
-  const { hidden = false, margin = 0, overflow = "visible" } = styleProps
+  const { hidden = false, margin = 0, overflow = "visible", overflowX, overflowY } = styleProps
 
   const style = {
     boxSizing: "border-box",
     margin,
     overflow,
+    overflowX,
+    overflowY,
     ...(hidden ? { display: "none" } : {}),
     ...createSizingStyle(styleProps),
     ...createFlexParentStyle(styleProps),

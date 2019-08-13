@@ -9,7 +9,7 @@ type BoxProps = BoxStyles & {
   style?: React.CSSProperties
 }
 
-const Box = ({ children, className, component, onClick, style, ...styleProps }: BoxProps) => {
+function Box({ children, className, component, onClick, style, ...styleProps }: BoxProps) {
   const inlineStyle = { ...createBoxStyle(styleProps), ...style }
   const Component = ((component || "div") as any) as React.ComponentType<any>
   return (
@@ -26,7 +26,7 @@ interface BoxLayoutProps extends BoxStyles {
   style?: React.CSSProperties
 }
 
-const HorizontalLayout = ({ children, className, inline, style, ...styleProps }: BoxLayoutProps) => {
+function HorizontalLayout({ children, className, inline, style, ...styleProps }: BoxLayoutProps) {
   const effectiveStyle: React.CSSProperties = {
     display: inline ? "inline-flex" : "flex",
     flexDirection: "row",
@@ -41,7 +41,7 @@ const HorizontalLayout = ({ children, className, inline, style, ...styleProps }:
   )
 }
 
-const VerticalLayout = ({ children, className, inline, style, ...styleProps }: BoxLayoutProps) => {
+function VerticalLayout({ children, className, inline, style, ...styleProps }: BoxLayoutProps) {
   const effectiveStyle: React.CSSProperties = {
     display: inline ? "inline-flex" : "flex",
     flexDirection: "column",
@@ -55,11 +55,7 @@ const VerticalLayout = ({ children, className, inline, style, ...styleProps }: B
   )
 }
 
-const AspectRatioBox = ({
-  children,
-  ratio,
-  ...styleProps
-}: BoxStyles & { children: React.ReactNode; ratio: string }) => {
+function AspectRatioBox({ children, ratio, ...styleProps }: BoxStyles & { children: React.ReactNode; ratio: string }) {
   let heightOfWidthPercentage = 100
 
   try {
@@ -93,7 +89,7 @@ const AspectRatioBox = ({
   )
 }
 
-const FloatingBox = ({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) => {
+function FloatingBox({ children, ...styleProps }: BoxStyles & { children: React.ReactNode }) {
   const style: React.CSSProperties = {
     position: "absolute",
     top: "50%",
