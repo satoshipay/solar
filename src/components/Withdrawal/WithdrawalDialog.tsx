@@ -6,6 +6,7 @@ import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import AccountBalances from "../Account/AccountBalances"
 import AccountBalancesContainer from "../Account/AccountBalancesContainer"
+import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
@@ -40,11 +41,14 @@ function WithdrawalDialog(props: Props) {
   ])
 
   return (
-    <Box width="100%" maxHeight="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
-      <MainTitle
-        title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
-        onBack={props.onClose}
-      />
+    <DialogBody
+      top={
+        <MainTitle
+          title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+          onBack={props.onClose}
+        />
+      }
+    >
       <AccountBalancesContainer>
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
       </AccountBalancesContainer>
@@ -57,7 +61,7 @@ function WithdrawalDialog(props: Props) {
         onSubmit={handleSubmit}
         testnet={props.account.testnet}
       />
-    </Box>
+    </DialogBody>
   )
 }
 
