@@ -67,7 +67,7 @@ function DialogBody(props: Props) {
       >
         {topContent}
         {background}
-        <VerticalLayout grow maxHeight="100%" overflow="auto" shrink width="100%">
+        <VerticalLayout grow maxHeight="100%" overflowY="auto" shrink width="100%">
           {props.children}
         </VerticalLayout>
         {bottomContent}
