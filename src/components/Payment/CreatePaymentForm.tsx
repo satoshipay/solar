@@ -126,16 +126,19 @@ function PaymentCreationForm(props: Props) {
   })
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
+
+  // FIXME: Pass no. of open offers to getAccountMinimumBalance()
   const spendableBalance = getSpendableBalance(
     getAccountMinimumBalance(props.accountData),
     findMatchingBalanceLine(props.accountData.balances, formValues.asset)
   )
 
   const setFormValue = (fieldName: keyof PaymentCreationValues, value: unknown | null) => {
-    setFormValues({
+    const updatedFormValues = {
       ...formValues,
       [fieldName]: value
-    })
+    }
+    setFormValues(updatedFormValues)
   }
 
   const createPaymentTx = async (horizon: Server, account: Account) => {
@@ -174,8 +177,7 @@ function PaymentCreationForm(props: Props) {
     return tx
   }
 
-  const submit = (event: React.SyntheticEvent) => {
-    event.preventDefault()
+  const submitTransaction = () => {
     const validation = validateFormValues(formValues, spendableBalance)
     setErrors(validation.errors)
 
@@ -184,8 +186,13 @@ function PaymentCreationForm(props: Props) {
     }
   }
 
+  const handleFormSubmission = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+    submitTransaction()
+  }
+
   return (
-    <form noValidate onSubmit={submit}>
+    <form noValidate onSubmit={handleFormSubmission}>
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
@@ -261,7 +268,7 @@ function PaymentCreationForm(props: Props) {
           type="submit"
         >
           Send
-        </ActionButton>
+          </ActionButton>
       </DialogActionsBox>
     </form>
   )
