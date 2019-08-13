@@ -140,18 +140,19 @@ export const DialogActionsBox = React.memo(function DialogActionsBox(props: Dial
   }
   return (
     <DialogActions style={desktopStyle}>
-      {React.Children.map(
-        props.children,
-        (child, index) =>
-          index === 0 ? (
-            child
-          ) : (
-            <>
-              <HorizontalMargin size={props.spacing === "large" ? 32 : 16} />
-              {child}
-            </>
-          )
-      )}
+      {React.Children.toArray(props.children)
+        .filter(child => Boolean(child))
+        .map(
+          (child, index) =>
+            index === 0 ? (
+              child
+            ) : (
+              <React.Fragment key={index}>
+                <HorizontalMargin size={props.spacing === "large" ? 32 : 16} />
+                {child}
+              </React.Fragment>
+            )
+        )}
     </DialogActions>
   )
 })
