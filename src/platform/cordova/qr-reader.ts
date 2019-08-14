@@ -13,11 +13,16 @@ interface Props {
 
 function CordovaQRReader(props: Props): ReturnType<React.FunctionComponent<Props>> {
   React.useEffect(() => {
+    // send pause event to signal that streaming errors should not be shown temporarily
+    window.postMessage("app:pause", "*")
+
     sendCommand(commands.scanQRCodeCommand)
       .then(event => {
+        window.postMessage("app:resume", "*")
         props.onScan(event.data.qrdata)
       })
       .catch(error => {
+        window.postMessage("app:resume", "*")
         props.onError(error)
         trackError(error)
       })
