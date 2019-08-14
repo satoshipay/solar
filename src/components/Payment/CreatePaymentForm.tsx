@@ -10,7 +10,7 @@ import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useFederationLookup, ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
-import { getMatchingAccountBalance, getAccountMinimumBalance } from "../../lib/stellar"
+import { getMatchingAccountBalance, getAccountMinimumBalance, getMatchingAccountBalanceLine } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
@@ -109,11 +109,21 @@ function PaymentCreationForm(props: Props) {
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
   const selectedAssetBalance = getMatchingAccountBalance(props.accountData.balances, formValues.asset)
 
-  // FIXME: Pass no. of open offers to getAccountMinimumBalance()
-  const spendableBalance =
-    formValues.asset === "XLM"
-      ? selectedAssetBalance.minus(getAccountMinimumBalance(props.accountData))
-      : selectedAssetBalance
+  const getSpendableBalanceForAsset = () => {
+    const balanceLineForAsset = getMatchingAccountBalanceLine(props.accountData.balances, formValues.asset)
+
+    if (balanceLineForAsset !== undefined) {
+      const baseBalance =
+        formValues.asset === "XLM"
+          ? selectedAssetBalance.minus(getAccountMinimumBalance(props.accountData))
+          : selectedAssetBalance
+      return baseBalance.minus(balanceLineForAsset.selling_liabilities)
+    } else {
+      return BigNumber(0)
+    }
+  }
+
+  const spendableBalance = getSpendableBalanceForAsset()
 
   const setFormValue = (fieldName: keyof PaymentCreationValues, value: unknown | null) => {
     setFormValues({

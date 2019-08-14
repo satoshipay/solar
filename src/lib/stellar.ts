@@ -140,6 +140,13 @@ export function getMatchingAccountBalance(balances: Horizon.BalanceLine[], asset
   return matchingBalanceLine ? BigNumber(matchingBalanceLine.balance) : BigNumber(0)
 }
 
+export function getMatchingAccountBalanceLine(balances: Horizon.BalanceLine[], assetCode: string) {
+  const matchingBalanceLine = balances.find(balance => {
+    return balance.asset_type === "native" ? assetCode === "XLM" : balance.asset_code === assetCode
+  })
+  return matchingBalanceLine
+}
+
 export function getHorizonURL(horizon: Server) {
   return horizon.serverURL.toString()
 }
