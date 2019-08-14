@@ -9,7 +9,7 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
-import { useIsMobile, useFederationLookup, ObservedAccountData } from "../../hooks"
+import { useIsMobile, useFederationLookup, RefStateObject, ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
@@ -108,7 +108,7 @@ function AssetSelector(props: AssetSelectorProps) {
 
 interface Props {
   accountData: ObservedAccountData
-  dialogActions?: HTMLElement
+  actionsRef: RefStateObject
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onCancel: () => void
@@ -263,7 +263,7 @@ function PaymentCreationForm(props: Props) {
           }}
         />
       </HorizontalLayout>
-      <Portal target={props.dialogActions}>
+      <Portal target={props.actionsRef.element}>
         <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
           <ActionButton
             disabled={isDisabled}

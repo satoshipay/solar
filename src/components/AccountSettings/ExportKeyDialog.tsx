@@ -32,7 +32,7 @@ function PromptToReveal(props: PromptToRevealProps) {
     <DialogBody
       background={<WarnIcon style={{ fontSize: 220 }} />}
       top={props.title}
-      bottom={
+      actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
           <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} type="primary">
             {isSmallScreen ? "Reveal key" : "Click to reveal secret key"}
@@ -79,7 +79,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
     <DialogBody
       background={<LockFilledIcon style={{ fontSize: 220 }} />}
       top={props.title}
-      bottom={
+      actions={
         props.onConfirm ? (
           <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
             <ActionButton onClick={props.onConfirm} type="primary">

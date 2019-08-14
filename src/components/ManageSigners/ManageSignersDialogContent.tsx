@@ -183,7 +183,7 @@ function ManageSignersDialogContent(props: Props) {
   )
 
   return (
-    <DialogBody top={props.title} bottom={actionsContent}>
+    <DialogBody top={props.title} actions={actionsContent}>
       <VerticalLayout
         justifyContent="space-between"
         margin="8px 0 0"

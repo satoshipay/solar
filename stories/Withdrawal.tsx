@@ -8,6 +8,7 @@ import AnchorWithdrawalInitForm from "../src/components/Withdrawal/WithdrawalReq
 import WithdrawalKYCRedirect from "../src/components/Withdrawal/WithdrawalKYCRedirect"
 import WithdrawalKYCStatus from "../src/components/Withdrawal/WithdrawalKYCStatus"
 import { Account } from "../src/context/accounts"
+import { RefStateObject } from "../src/hooks"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
 
@@ -25,6 +26,11 @@ const account: Account = {
   }
 }
 
+const actionsRef: RefStateObject = {
+  element: null,
+  update: () => undefined
+}
+
 const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
   account_id: "",
   eta: 24 * 60 * 60,
@@ -38,6 +44,7 @@ storiesOf("Withdrawal", module)
   .addDecorator(render => <div style={{ minWidth: "70vw", margin: "20px" }}>{render()}</div>)
   .add("Request", () => (
     <AnchorWithdrawalInitForm
+      actionsRef={actionsRef}
       assets={[eurt]}
       onCancel={action("Clicked cancel")}
       onSubmit={action("Clicked submit")}
@@ -47,6 +54,7 @@ storiesOf("Withdrawal", module)
   .add("Finish", () => (
     <WithdrawalTransactionForm
       account={account}
+      actionsRef={actionsRef}
       asset={eurt}
       anchorResponse={withdrawalSuccessResponse}
       onCancel={action("Clicked cancel")}

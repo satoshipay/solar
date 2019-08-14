@@ -8,7 +8,7 @@ import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { isStellarWebAuthTransaction } from "../../lib/transaction"
-import { useIsMobile } from "../../hooks"
+import { useDialogActions, useIsMobile } from "../../hooks"
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
@@ -60,7 +60,7 @@ interface Props {
 }
 
 function TransactionReviewDialog(props: Props) {
-  const [dialogActions, setDialogActions] = React.useState<HTMLElement | undefined>(undefined)
+  const dialogActionsRef = useDialogActions()
   const isScreen600pxWide = useMediaQuery("(min-width:600px)")
   const isSmallScreen = useIsMobile()
 
@@ -90,12 +90,12 @@ function TransactionReviewDialog(props: Props) {
         style: { minWidth: isScreen600pxWide ? 500 : undefined }
       }}
     >
-      <DialogBody top={titleContent} bottomRef={setDialogActions}>
+      <DialogBody top={titleContent} actions={dialogActionsRef}>
         {props.transaction ? (
           <Box margin="0 auto" textAlign="center">
             <ReviewForm
               account={props.account}
-              dialogActions={dialogActions}
+              actionsRef={dialogActionsRef}
               disabled={props.disabled}
               onClose={props.onClose}
               onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}

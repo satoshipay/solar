@@ -4,7 +4,7 @@ import { Asset } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { AssetTransferInfo, EmptyAssetTransferInfo, TransferServer } from "@satoshipay/stellar-sep-6"
-import { useIsMobile, useIsSmallMobile } from "../../hooks"
+import { useIsMobile, useIsSmallMobile, RefStateObject } from "../../hooks"
 import theme from "../../theme"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { ReadOnlyTextfield } from "../Form/FormFields"
@@ -37,8 +37,8 @@ interface FormValues {
 }
 
 interface Props {
+  actionsRef: RefStateObject
   assets: Asset[]
-  dialogActions?: HTMLElement
   initialAsset?: Asset
   initialFormValues?: FormValues
   initialMethod?: string
@@ -252,7 +252,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             />
           ) : null}
         </HorizontalLayout>
-        <Portal target={props.dialogActions}>
+        <Portal target={props.actionsRef.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 0 }} spacing="large">
             <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton

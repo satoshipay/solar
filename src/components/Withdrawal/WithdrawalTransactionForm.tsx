@@ -5,7 +5,7 @@ import { Asset } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
 import { WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
 import { Account } from "../../context/accounts"
-import { useAccountData } from "../../hooks"
+import { useAccountData, RefStateObject } from "../../hooks"
 import { findMatchingBalanceLine } from "../../lib/stellar"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -16,9 +16,9 @@ import Portal from "../Portal"
 
 interface Props {
   account: Account
+  actionsRef: RefStateObject
   asset: Asset
   anchorResponse: WithdrawalSuccessResponse
-  dialogActions?: HTMLElement
   onCancel: () => void
   onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalSuccessResponse) => void
 }
@@ -96,7 +96,7 @@ function WithdrawalTransactionForm(props: Props) {
           <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info[extraKey]} />
         ))}
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
-        <Portal target={props.dialogActions}>
+        <Portal target={props.actionsRef.element}>
           <DialogActionsBox spacing="large">
             <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton

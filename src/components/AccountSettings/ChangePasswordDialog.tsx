@@ -165,7 +165,7 @@ function ChangePasswordDialog(props: Props) {
   return (
     <DialogBody
       top={<MainTitle onBack={onClose} title={props.account.requiresPassword ? "Change Password" : "Set Password"} />}
-      bottom={
+      actions={
         <DialogActions style={{ margin: "32px 0 0" }}>
           <Actions
             isPasswordProtected={props.account.requiresPassword}

@@ -6,6 +6,7 @@ import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
+import { RefStateObject } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { createCheapTxID, selectNetwork } from "../../lib/transaction"
@@ -24,7 +25,7 @@ interface FormValues {
 
 interface Props {
   account: Account
-  dialogActions?: HTMLElement
+  actionsRef: RefStateObject
   disabled?: boolean
   passwordError?: Error | null
   showHash?: boolean
@@ -126,7 +127,7 @@ function TxConfirmationForm(props: Props) {
           />
         ) : null}
       </VerticalLayout>
-      <Portal target={props.dialogActions}>
+      <Portal target={props.actionsRef.element}>
         <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
           {props.signatureRequest ? (
             <ActionButton onClick={requestDismissalConfirmation}>

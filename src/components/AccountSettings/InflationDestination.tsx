@@ -146,7 +146,9 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
           title={accountData.inflation_destination ? "Change Inflation Pool" : "Join Inflation Pool"}
         />
       }
-      bottom={<DialogActionsBox smallDialog>{mode === "editing" ? editableActions : readonlyActions}</DialogActionsBox>}
+      actions={
+        <DialogActionsBox smallDialog>{mode === "editing" ? editableActions : readonlyActions}</DialogActionsBox>
+      }
     >
       <VerticalLayout margin="64px auto 0">
         <InputLabel

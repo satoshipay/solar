@@ -118,7 +118,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           style={{ marginTop: 0, marginLeft: 0 }}
         />
       }
-      bottom={
+      actions={
         <DialogActionsBox>
           {mergeAccountEnabled ? (
             <ActionButton
