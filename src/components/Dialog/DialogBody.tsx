@@ -24,10 +24,10 @@ function Background(props: { children: React.ReactNode; opacity?: number }) {
 interface Props {
   background?: React.ReactNode
   bottom?: React.ReactNode
-  bottomRef?: React.RefObject<HTMLElement>
+  bottomRef?: (element: HTMLElement) => void
   children: React.ReactNode
   top?: React.ReactNode
-  topRef?: React.RefObject<HTMLElement>
+  topRef?: (element: HTMLElement) => void
 }
 
 function DialogBody(props: Props) {

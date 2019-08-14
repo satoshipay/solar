@@ -108,7 +108,7 @@ function AssetSelector(props: AssetSelectorProps) {
 
 interface Props {
   accountData: ObservedAccountData
-  dialogActionsRef: React.RefObject<HTMLElement>
+  dialogActions?: HTMLElement
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onCancel: () => void
@@ -263,7 +263,7 @@ function PaymentCreationForm(props: Props) {
           }}
         />
       </HorizontalLayout>
-      <Portal target={props.dialogActionsRef}>
+      <Portal target={props.dialogActions}>
         <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
           <ActionButton
             disabled={isDisabled}

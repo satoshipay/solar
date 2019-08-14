@@ -68,7 +68,7 @@ interface WithdrawalRequestData {
 interface Props {
   account: Account
   assets: Asset[]
-  dialogActionsRef: React.RefObject<HTMLElement>
+  dialogActions?: HTMLElement
   horizon: Server
   onCancel: () => void
   onSubmit: (createTx: () => Promise<Transaction>) => Promise<any>
@@ -250,7 +250,7 @@ function Offramp(props: Props) {
         account={props.account}
         asset={currentState.details.asset}
         anchorResponse={currentState.withdrawal}
-        dialogActionsRef={props.dialogActionsRef}
+        dialogActions={props.dialogActions}
         onCancel={startOver}
         onSubmit={sendWithdrawalTx}
       />
@@ -269,7 +269,7 @@ function Offramp(props: Props) {
       <>
         <AnchorWithdrawalInitForm
           assets={props.assets}
-          dialogActionsRef={props.dialogActionsRef}
+          dialogActions={props.dialogActions}
           initialAsset={currentState.details && currentState.details.asset}
           initialFormValues={currentState.details && currentState.details.withdrawalFormValues}
           initialMethod={currentState.details && currentState.details.method}

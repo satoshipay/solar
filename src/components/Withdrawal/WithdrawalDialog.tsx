@@ -2,7 +2,7 @@ import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
+import { useAccountData, ObservedAccountData } from "../../hooks"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import AccountBalances from "../Account/AccountBalances"
 import AccountBalancesContainer from "../Account/AccountBalancesContainer"
@@ -22,7 +22,7 @@ interface Props {
 }
 
 function WithdrawalDialog(props: Props) {
-  const dialogActionsRef = React.useMemo(() => React.createRef<HTMLElement>(), [])
+  const [dialogActions, setDialogActions] = React.useState<HTMLElement | undefined>(undefined)
 
   const handleSubmit = React.useCallback(
     async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
@@ -48,7 +48,7 @@ function WithdrawalDialog(props: Props) {
           onBack={props.onClose}
         />
       }
-      bottomRef={dialogActionsRef}
+      bottomRef={setDialogActions}
     >
       <AccountBalancesContainer>
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
@@ -57,7 +57,7 @@ function WithdrawalDialog(props: Props) {
       <Offramp
         account={props.account}
         assets={trustedAssets.filter(asset => !asset.isNative())}
-        dialogActionsRef={dialogActionsRef}
+        dialogActions={dialogActions}
         horizon={props.horizon}
         onCancel={props.onClose}
         onSubmit={handleSubmit}

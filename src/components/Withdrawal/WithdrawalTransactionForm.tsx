@@ -18,7 +18,7 @@ interface Props {
   account: Account
   asset: Asset
   anchorResponse: WithdrawalSuccessResponse
-  dialogActionsRef: React.RefObject<HTMLElement>
+  dialogActions?: HTMLElement
   onCancel: () => void
   onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalSuccessResponse) => void
 }
@@ -96,7 +96,7 @@ function WithdrawalTransactionForm(props: Props) {
           <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info[extraKey]} />
         ))}
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
-        <Portal target={props.dialogActionsRef}>
+        <Portal target={props.dialogActions}>
           <DialogActionsBox spacing="large">
             <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton

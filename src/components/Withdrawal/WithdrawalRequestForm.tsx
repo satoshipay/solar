@@ -38,7 +38,7 @@ interface FormValues {
 
 interface Props {
   assets: Asset[]
-  dialogActionsRef: React.RefObject<HTMLElement>
+  dialogActions?: HTMLElement
   initialAsset?: Asset
   initialFormValues?: FormValues
   initialMethod?: string
@@ -252,7 +252,7 @@ function AnchorWithdrawalInitForm(props: Props) {
             />
           ) : null}
         </HorizontalLayout>
-        <Portal target={props.dialogActionsRef}>
+        <Portal target={props.dialogActions}>
           <DialogActionsBox desktopStyle={{ marginTop: 0 }} spacing="large">
             <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton
