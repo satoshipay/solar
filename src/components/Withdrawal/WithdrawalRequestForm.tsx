@@ -1,3 +1,4 @@
+import nanoid from "nanoid"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -11,6 +12,7 @@ import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { formatDescriptionText, formatIdentifier } from "./formatters"
 import { useAssetTransferServerInfos } from "./transferservice"
 import FormBuilder, { FormBuilderField } from "./FormBuilder"
+import Portal from "../Portal"
 
 type FormValueTransform<Value = string> = (input: Value) => Value
 
@@ -36,6 +38,7 @@ interface FormValues {
 
 interface Props {
   assets: Asset[]
+  dialogActionsRef: React.RefObject<HTMLElement>
   initialAsset?: Asset
   initialFormValues?: FormValues
   initialMethod?: string
@@ -46,6 +49,7 @@ interface Props {
 }
 
 function AnchorWithdrawalInitForm(props: Props) {
+  const formID = React.useMemo(() => nanoid(), [])
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
@@ -145,9 +149,9 @@ function AnchorWithdrawalInitForm(props: Props) {
   }, [])
 
   return (
-    <form noValidate onSubmit={handleSubmit}>
+    <form id={formID} noValidate onSubmit={handleSubmit}>
       <VerticalLayout>
-        <HorizontalLayout justifyContent="space-between">
+        <HorizontalLayout justifyContent="space-between" margin="0 0 -8px">
           <TextField
             label={isTinyScreen ? "Asset" : "Asset to withdraw"}
             margin="normal"
@@ -220,7 +224,7 @@ function AnchorWithdrawalInitForm(props: Props) {
           fieldStyle={{ marginTop: 24 }}
           formValues={formValues}
           onSetFormValue={setFormValue}
-          style={{ marginBottom: 64 }}
+          style={{ marginBottom: 24 }}
         />
         <HorizontalLayout alignItems="center" justifyContent="space-between" wrap="wrap">
           {withdrawalMetadata && withdrawalMetadata.withdraw ? (
@@ -247,10 +251,13 @@ function AnchorWithdrawalInitForm(props: Props) {
               }
             />
           ) : null}
+        </HorizontalLayout>
+        <Portal target={props.dialogActionsRef}>
           <DialogActionsBox desktopStyle={{ marginTop: 0 }} spacing="large">
             <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton
               disabled={isDisabled}
+              form={formID}
               loading={props.pendingAnchorCommunication}
               onClick={() => undefined}
               type="submit"
@@ -258,7 +265,7 @@ function AnchorWithdrawalInitForm(props: Props) {
               Proceed
             </ActionButton>
           </DialogActionsBox>
-        </HorizontalLayout>
+        </Portal>
       </VerticalLayout>
     </form>
   )

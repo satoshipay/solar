@@ -22,6 +22,7 @@ interface Props {
 }
 
 function CreatePaymentDialog(props: Props) {
+  const dialogActionsRef = React.useMemo(() => React.createRef<HTMLDivElement>(), [])
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const handleSubmit = React.useCallback(
@@ -52,6 +53,7 @@ function CreatePaymentDialog(props: Props) {
           onBack={props.onClose}
         />
       }
+      bottomRef={dialogActionsRef}
     >
       <AccountBalancesContainer>
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
@@ -59,6 +61,7 @@ function CreatePaymentDialog(props: Props) {
       <Box margin="24px 0 0">{null}</Box>
       <CreatePaymentForm
         accountData={props.accountData}
+        dialogActionsRef={dialogActionsRef}
         onCancel={props.onClose}
         onSubmit={handleSubmit}
         trustedAssets={trustedAssets}

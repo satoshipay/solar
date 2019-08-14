@@ -22,7 +22,7 @@ interface Props {
 }
 
 function WithdrawalDialog(props: Props) {
-  const isSmallScreen = useIsMobile()
+  const dialogActionsRef = React.useMemo(() => React.createRef<HTMLElement>(), [])
 
   const handleSubmit = React.useCallback(
     async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
@@ -48,6 +48,7 @@ function WithdrawalDialog(props: Props) {
           onBack={props.onClose}
         />
       }
+      bottomRef={dialogActionsRef}
     >
       <AccountBalancesContainer>
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
@@ -56,6 +57,7 @@ function WithdrawalDialog(props: Props) {
       <Offramp
         account={props.account}
         assets={trustedAssets.filter(asset => !asset.isNative())}
+        dialogActionsRef={dialogActionsRef}
         horizon={props.horizon}
         onCancel={props.onClose}
         onSubmit={handleSubmit}

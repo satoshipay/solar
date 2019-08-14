@@ -1,4 +1,5 @@
 import BigNumber from "big.js"
+import nanoid from "nanoid"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
@@ -11,11 +12,13 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { formatBalanceRange, formatDescriptionText, formatDuration } from "./formatters"
+import Portal from "../Portal"
 
 interface Props {
   account: Account
   asset: Asset
   anchorResponse: WithdrawalSuccessResponse
+  dialogActionsRef: React.RefObject<HTMLElement>
   onCancel: () => void
   onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalSuccessResponse) => void
 }
@@ -23,6 +26,7 @@ interface Props {
 function WithdrawalTransactionForm(props: Props) {
   // TODO: extra_info is not handled
 
+  const formID = React.useMemo(() => nanoid(), [])
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const [amountString, setAmountString] = React.useState("")
 
@@ -55,7 +59,7 @@ function WithdrawalTransactionForm(props: Props) {
   )
 
   return (
-    <form noValidate onSubmit={handleSubmit}>
+    <form id={formID} noValidate onSubmit={handleSubmit}>
       <VerticalLayout>
         <HorizontalLayout>
           <PriceInput
@@ -92,12 +96,20 @@ function WithdrawalTransactionForm(props: Props) {
           <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info[extraKey]} />
         ))}
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
-        <DialogActionsBox spacing="large">
-          <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
-          <ActionButton disabled={isDisabled} icon={<SendIcon />} onClick={() => undefined} type="submit">
-            Withdraw
-          </ActionButton>
-        </DialogActionsBox>
+        <Portal target={props.dialogActionsRef}>
+          <DialogActionsBox spacing="large">
+            <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
+            <ActionButton
+              disabled={isDisabled}
+              form={formID}
+              icon={<SendIcon />}
+              onClick={() => undefined}
+              type="submit"
+            >
+              Withdraw
+            </ActionButton>
+          </DialogActionsBox>
+        </Portal>
       </VerticalLayout>
     </form>
   )
