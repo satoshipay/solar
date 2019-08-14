@@ -60,6 +60,7 @@ interface Props {
 }
 
 function TransactionReviewDialog(props: Props) {
+  const [dialogActions, setDialogActions] = React.useState<HTMLElement | undefined>(undefined)
   const isScreen600pxWide = useMediaQuery("(min-width:600px)")
   const isSmallScreen = useIsMobile()
 
@@ -89,11 +90,12 @@ function TransactionReviewDialog(props: Props) {
         style: { minWidth: isScreen600pxWide ? 500 : undefined }
       }}
     >
-      <DialogBody top={titleContent}>
+      <DialogBody top={titleContent} bottomRef={setDialogActions}>
         {props.transaction ? (
           <Box margin="0 auto" textAlign="center">
             <ReviewForm
               account={props.account}
+              dialogActions={dialogActions}
               disabled={props.disabled}
               onClose={props.onClose}
               onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}

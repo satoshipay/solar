@@ -1,3 +1,4 @@
+import nanoid from "nanoid"
 import React from "react"
 import { Transaction } from "stellar-sdk"
 import TextField from "@material-ui/core/TextField"
@@ -13,6 +14,7 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
 import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
 import TransactionSummary from "./TransactionSummary"
+import Portal from "../Portal"
 
 type FormErrors = { [formField in keyof FormValues]: Error | null }
 
@@ -22,6 +24,7 @@ interface FormValues {
 
 interface Props {
   account: Account
+  dialogActions?: HTMLElement
   disabled?: boolean
   passwordError?: Error | null
   showHash?: boolean
@@ -36,6 +39,7 @@ function TxConfirmationForm(props: Props) {
   const { onConfirm = () => undefined } = props
 
   const settings = React.useContext(SettingsContext)
+  const formID = React.useMemo(() => nanoid(), [])
   const [dismissalConfirmationPending, setDismissalConfirmationPending] = React.useState(false)
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
@@ -97,7 +101,7 @@ function TxConfirmationForm(props: Props) {
   }, [])
 
   return (
-    <form noValidate onSubmit={handleFormSubmission}>
+    <form id={formID} noValidate onSubmit={handleFormSubmission}>
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
@@ -122,19 +126,21 @@ function TxConfirmationForm(props: Props) {
           />
         ) : null}
       </VerticalLayout>
-      <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
-        {props.signatureRequest ? (
-          <ActionButton onClick={requestDismissalConfirmation}>
-            Dismiss&nbsp;
-            <CloseIcon style={{ fontSize: "140%" }} />
-          </ActionButton>
-        ) : null}
-        {props.disabled ? null : (
-          <ActionButton icon={<CheckIcon />} onClick={() => undefined} type="submit">
-            Confirm
-          </ActionButton>
-        )}
-      </DialogActionsBox>
+      <Portal target={props.dialogActions}>
+        <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
+          {props.signatureRequest ? (
+            <ActionButton onClick={requestDismissalConfirmation}>
+              Dismiss&nbsp;
+              <CloseIcon style={{ fontSize: "140%" }} />
+            </ActionButton>
+          ) : null}
+          {props.disabled ? null : (
+            <ActionButton icon={<CheckIcon />} form={formID} onClick={() => undefined} type="submit">
+              Confirm
+            </ActionButton>
+          )}
+        </DialogActionsBox>
+      </Portal>
       <DismissalConfirmationDialog
         onCancel={cancelDismissal}
         onConfirm={dismissSignatureRequest}
