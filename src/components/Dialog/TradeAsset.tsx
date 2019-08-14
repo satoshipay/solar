@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
-import { Typography } from "@material-ui/core"
+import { Typography, Box } from "@material-ui/core"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -128,21 +128,18 @@ function TradeAsset(props: TradeAssetProps) {
   )
 
   const LinkToManageAssets = (
-    <>
-      <Typography align="center" color="initial" style={{ fontWeight: "inherit", margin: "32px 0 16px" }} variant="h6">
-        This account doesn't have any trustlines yet.
-      </Typography>
-      <DialogActionsBox>
+    <Box margin="32px 0 0" textAlign="center">
+      <Typography>This account doesn't have any trustlines yet.</Typography>
+      <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
         <ActionButton
           autoFocus
           onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
-          style={{ marginLeft: "auto", marginRight: "auto" }}
           type="primary"
         >
-          Add assets
+          Add asset
         </ActionButton>
       </DialogActionsBox>
-    </>
+    </Box>
   )
 
   return (
