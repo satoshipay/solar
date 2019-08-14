@@ -15,7 +15,7 @@ export const setInflationDestination = (accountID: string) => `/account/${accoun
 export const settings = () => "/settings"
 export const tradeAsset = (accountID: string) => `/account/${accountID}/trade`
 export const withdrawAsset = (accountID: string) => `/account/${accountID}/withdraw`
-export const viewTransaction = (accountID: string, transactionHash: string) =>
+export const showTransaction = (accountID: string, transactionHash: string) =>
   `/account/${accountID}/tx/${transactionHash}`
 
 export function routeUp(currentPath: string) {
