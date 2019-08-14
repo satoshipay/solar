@@ -31,6 +31,7 @@ interface ActionButtonProps {
   autoFocus?: boolean
   children: React.ReactNode
   disabled?: boolean
+  form?: string
   icon?: React.ReactNode
   loading?: boolean
   onClick?: (event: React.SyntheticEvent) => void
@@ -66,6 +67,7 @@ export function ActionButton(props: ActionButtonProps) {
       autoFocus={props.autoFocus}
       color={type === "primary" || type === "submit" ? "primary" : undefined}
       disabled={props.disabled}
+      form={props.form}
       onClick={props.onClick}
       style={isSmallScreen ? mobileStyle : desktopStyle}
       type={type === "submit" ? "submit" : undefined}

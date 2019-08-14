@@ -24,8 +24,10 @@ function Background(props: { children: React.ReactNode; opacity?: number }) {
 interface Props {
   background?: React.ReactNode
   bottom?: React.ReactNode
+  bottomRef?: React.RefObject<HTMLElement>
   children: React.ReactNode
   top?: React.ReactNode
+  topRef?: React.RefObject<HTMLElement>
 }
 
 function DialogBody(props: Props) {
@@ -33,8 +35,8 @@ function DialogBody(props: Props) {
 
   const topContent = React.useMemo(
     () =>
-      props.top ? (
-        <Box grow={0} position="relative" shrink={0} width="100%">
+      props.top || props.topRef ? (
+        <Box grow={0} position="relative" ref={props.topRef} shrink={0} width="100%">
           {props.top}
         </Box>
       ) : null,
@@ -43,8 +45,8 @@ function DialogBody(props: Props) {
 
   const bottomContent = React.useMemo(
     () =>
-      props.bottom ? (
-        <Box grow={0} position="relative" shrink={0} width="100%">
+      props.bottom || props.bottomRef ? (
+        <Box grow={0} position="relative" ref={props.bottomRef} shrink={0} width="100%">
           {props.bottom}
         </Box>
       ) : null,
@@ -60,14 +62,14 @@ function DialogBody(props: Props) {
     <ErrorBoundary>
       <VerticalLayout
         width="100%"
-        maxHeight="100%"
+        height="100%"
         maxWidth={900}
         padding={isSmallScreen ? "24px" : " 24px 32px"}
         margin="0 auto"
       >
         {topContent}
         {background}
-        <VerticalLayout grow maxHeight="100%" overflowY="auto" shrink width="100%">
+        <VerticalLayout grow maxHeight="100%" overflowX="hidden" overflowY="auto" shrink width="100%">
           {props.children}
         </VerticalLayout>
         {bottomContent}

@@ -9,15 +9,17 @@ type BoxProps = BoxStyles & {
   style?: React.CSSProperties
 }
 
-function Box({ children, className, component, onClick, style, ...styleProps }: BoxProps) {
+// tslint:disable-next-line no-shadowed-variable
+const Box = React.forwardRef(function Box(props: BoxProps, ref: React.Ref<unknown>) {
+  const { children, className, component, onClick, style, ...styleProps } = props
   const inlineStyle = { ...createBoxStyle(styleProps), ...style }
   const Component = ((component || "div") as any) as React.ComponentType<any>
   return (
-    <Component className={className} onClick={onClick} style={inlineStyle}>
+    <Component className={className} onClick={onClick} ref={ref} style={inlineStyle}>
       {children}
     </Component>
   )
-}
+})
 
 interface BoxLayoutProps extends BoxStyles {
   children: React.ReactNode
