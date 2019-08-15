@@ -130,7 +130,7 @@ function TradeAsset(props: TradeAssetProps) {
 
   const LinkToManageAssets = (
     <Box margin="32px 0 0" textAlign="center">
-      <Typography>This account doesn't have any trustlines yet.</Typography>
+      <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
       <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
         <ActionButton
           autoFocus
