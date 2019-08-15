@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -26,6 +26,17 @@ function createMemo(formValues: PaymentCreationValues) {
       return Memo.text(formValues.memoValue)
     default:
       return Memo.none()
+  }
+}
+
+function getSpendableBalance(accountMinimumBalance: BigNumber, balanceLine?: Horizon.BalanceLine) {
+  if (balanceLine !== undefined) {
+    const fullBalance = BigNumber(balanceLine.balance)
+    return balanceLine.asset_type === "native"
+      ? fullBalance.minus(accountMinimumBalance).minus(balanceLine.selling_liabilities)
+      : fullBalance.minus(balanceLine.selling_liabilities)
+  } else {
+    return BigNumber(0)
   }
 }
 
@@ -115,23 +126,10 @@ function PaymentCreationForm(props: Props) {
   })
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
-  const selectedAssetBalanceLine = findMatchingBalanceLine(props.accountData.balances, formValues.asset)
-  const selectedAssetBalance = selectedAssetBalanceLine ? BigNumber(selectedAssetBalanceLine.balance) : BigNumber(0)
-
-  const getSpendableBalanceForAsset = () => {
-    const balanceLineForAsset = findMatchingBalanceLine(props.accountData.balances, formValues.asset)
-
-    if (balanceLineForAsset !== undefined) {
-      const baseBalance = formValues.asset.isNative()
-        ? selectedAssetBalance.minus(getAccountMinimumBalance(props.accountData))
-        : selectedAssetBalance
-      return baseBalance.minus(balanceLineForAsset.selling_liabilities)
-    } else {
-      return BigNumber(0)
-    }
-  }
-
-  const spendableBalance = getSpendableBalanceForAsset()
+  const spendableBalance = getSpendableBalance(
+    getAccountMinimumBalance(props.accountData),
+    findMatchingBalanceLine(props.accountData.balances, formValues.asset)
+  )
 
   const setFormValue = (fieldName: keyof PaymentCreationValues, value: unknown | null) => {
     setFormValues({
