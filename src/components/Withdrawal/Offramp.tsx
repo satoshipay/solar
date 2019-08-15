@@ -2,7 +2,6 @@ import BigNumber from "big.js"
 import { Buffer } from "buffer"
 import React from "react"
 import { Asset, Memo, Operation, Server, Transaction } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import {
   TransferServer,
@@ -17,6 +16,7 @@ import { trackError } from "../../context/notifications"
 import { useAccountData, useRouter, useWebAuth } from "../../hooks"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
 import { usePolling } from "./util"
@@ -228,13 +228,17 @@ function Offramp(props: Props) {
     )
   } else if (withdrawableAssetCodes.length === 0) {
     return (
-      <Box margin="48px 0 0" textAlign="center">
+      <Box margin="32px 0 0" textAlign="center">
         <Typography>This account holds no withdrawable assets.</Typography>
-        <Box margin="24px 0 0">
-          <Button onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))} variant="outlined">
-            Add another asset
-          </Button>
-        </Box>
+        <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
+          <ActionButton
+            autoFocus
+            onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+            type="primary"
+          >
+            Add asset
+          </ActionButton>
+        </DialogActionsBox>
       </Box>
     )
   }

@@ -1,6 +1,8 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import Box from "@material-ui/core/Box"
+import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -33,6 +35,7 @@ function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
   const isSmallScreen = useIsMobile()
+  const router = useRouter()
 
   const trustlines = (accountData.balances.filter(balance => balance.asset_type !== "native") as any) as Array<
     Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
@@ -76,55 +79,75 @@ function TradeAsset(props: TradeAssetProps) {
     }
   }
 
+  const MainContent = (
+    <>
+      <AccountBalancesContainer>
+        <AccountBalances
+          component={balanceProps => (
+            <SingleBalance
+              {...balanceProps}
+              style={{
+                ...balanceProps.style,
+                opacity: [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
+              }}
+            />
+          )}
+          publicKey={props.account.publicKey}
+          testnet={props.account.testnet}
+        />
+      </AccountBalancesContainer>
+      <VerticalMargin size={isSmallScreen ? 12 : 40} />
+      {buyingBalance && sellingBalance ? (
+        <TradingForm
+          buying={buyingAsset}
+          buyingBalance={buyingBalance.balance}
+          onSetBuying={setBuyingAsset}
+          onSetSelling={setSellingAsset}
+          selling={sellingAsset}
+          sellingBalance={sellingBalance.balance}
+          testnet={props.account.testnet}
+          trustlines={trustlines}
+          DialogActions={({ amount, disabled, price, style }) => (
+            <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
+              <DialogActionsBox>
+                <ActionButton
+                  disabled={disabled}
+                  icon={<GavelIcon />}
+                  onClick={() =>
+                    awaitThenSendTransaction(createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price))
+                  }
+                  type="primary"
+                >
+                  Place order
+                </ActionButton>
+              </DialogActionsBox>
+            </HorizontalLayout>
+          )}
+        />
+      ) : null}
+    </>
+  )
+
+  const LinkToManageAssets = (
+    <Box margin="32px 0 0" textAlign="center">
+      <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
+      <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
+        <ActionButton
+          autoFocus
+          onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+          type="primary"
+        >
+          Add asset
+        </ActionButton>
+      </DialogActionsBox>
+    </Box>
+  )
+
   return (
     <ErrorBoundary>
       <VerticalLayout width="100%" maxWidth={900} padding="24px 32px" margin="0 auto">
         <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
-        <AccountBalancesContainer>
-          <AccountBalances
-            component={balanceProps => (
-              <SingleBalance
-                {...balanceProps}
-                style={{
-                  ...balanceProps.style,
-                  opacity:
-                    [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
-                }}
-              />
-            )}
-            publicKey={props.account.publicKey}
-            testnet={props.account.testnet}
-          />
-        </AccountBalancesContainer>
-        <VerticalMargin size={isSmallScreen ? 12 : 40} />
-        {buyingBalance && sellingBalance ? (
-          <TradingForm
-            buying={buyingAsset}
-            buyingBalance={buyingBalance.balance}
-            onSetBuying={setBuyingAsset}
-            onSetSelling={setSellingAsset}
-            selling={sellingAsset}
-            sellingBalance={sellingBalance.balance}
-            testnet={props.account.testnet}
-            trustlines={trustlines}
-            DialogActions={({ amount, disabled, price, style }) => (
-              <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
-                <DialogActionsBox>
-                  <ActionButton
-                    disabled={disabled}
-                    icon={<GavelIcon />}
-                    onClick={() =>
-                      awaitThenSendTransaction(createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price))
-                    }
-                    type="primary"
-                  >
-                    Place order
-                  </ActionButton>
-                </DialogActionsBox>
-              </HorizontalLayout>
-            )}
-          />
-        ) : null}
+        {trustlines.length > 0 ? MainContent : LinkToManageAssets}
       </VerticalLayout>
     </ErrorBoundary>
   )
@@ -133,6 +156,7 @@ function TradeAsset(props: TradeAssetProps) {
 function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "onClose">) {
   const router = useRouter()
   const navigateToAssets = () => router.history.push(routes.account(props.account.id))
+
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={navigateToAssets}>
       {txContext => <TradeAsset {...props} {...txContext} />}
