@@ -65,10 +65,6 @@ const App = () => (
             </Switch>
           </ErrorBoundary>
         </VerticalLayout>
-        <DesktopNotifications />
-        <NotificationContainer />
-        {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
-        {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
       </VerticalLayout>
       {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
       <DesktopNotifications />
