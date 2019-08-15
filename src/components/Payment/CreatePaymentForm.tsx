@@ -10,7 +10,7 @@ import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useFederationLookup, ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
-import { getMatchingAccountBalance, getAccountMinimumBalance, getMatchingAccountBalanceLine } from "../../lib/stellar"
+import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
@@ -31,7 +31,7 @@ function createMemo(formValues: PaymentCreationValues) {
 
 export interface PaymentCreationValues {
   amount: string
-  asset: string
+  asset: Asset
   destination: string
   memoType: "id" | "none" | "text"
   memoValue: string
@@ -60,24 +60,32 @@ function validateFormValues(formValues: PaymentCreationValues, spendableBalance:
 }
 
 interface AssetSelectorProps {
-  assets: string[]
-  onSelect: (assetCode: unknown) => void
-  selected: string
+  assets: Asset[]
+  onSelect: (asset: Asset) => void
+  selected: Asset
   style: React.CSSProperties
 }
 
 function AssetSelector(props: AssetSelectorProps) {
+  const handleSelection = React.useCallback(
+    (event: React.ChangeEvent<{ value: any }>) => {
+      const selectedAssetKey = event.target.value
+      const matchingAsset = props.assets.find(asset => stringifyAsset(asset) === selectedAssetKey)
+
+      if (matchingAsset) {
+        props.onSelect(matchingAsset)
+      } else {
+        throw Error(`Could not find selected asset in provided assets: ${event.target.value}`)
+      }
+    },
+    [props.assets, props.onSelect]
+  )
   return (
     <FormControl>
-      <Select
-        disableUnderline
-        onChange={event => props.onSelect(event.target.value)}
-        style={props.style}
-        value={props.selected}
-      >
-        {props.assets.map(assetCode => (
-          <MenuItem key={assetCode} value={assetCode}>
-            {assetCode}
+      <Select disableUnderline onChange={handleSelection} style={props.style} value={stringifyAsset(props.selected)}>
+        {props.assets.map(asset => (
+          <MenuItem key={stringifyAsset(asset)} value={stringifyAsset(asset)}>
+            {asset.getCode()}
           </MenuItem>
         ))}
       </Select>
@@ -100,23 +108,23 @@ function PaymentCreationForm(props: Props) {
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
   const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
     amount: "",
-    asset: "XLM",
+    asset: Asset.native(),
     destination: "",
     memoType: "none",
     memoValue: ""
   })
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
-  const selectedAssetBalance = getMatchingAccountBalance(props.accountData.balances, formValues.asset)
+  const selectedAssetBalanceLine = findMatchingBalanceLine(props.accountData.balances, formValues.asset)
+  const selectedAssetBalance = selectedAssetBalanceLine ? BigNumber(selectedAssetBalanceLine.balance) : BigNumber(0)
 
   const getSpendableBalanceForAsset = () => {
-    const balanceLineForAsset = getMatchingAccountBalanceLine(props.accountData.balances, formValues.asset)
+    const balanceLineForAsset = findMatchingBalanceLine(props.accountData.balances, formValues.asset)
 
     if (balanceLineForAsset !== undefined) {
-      const baseBalance =
-        formValues.asset === "XLM"
-          ? selectedAssetBalance.minus(getAccountMinimumBalance(props.accountData))
-          : selectedAssetBalance
+      const baseBalance = formValues.asset.isNative()
+        ? selectedAssetBalance.minus(getAccountMinimumBalance(props.accountData))
+        : selectedAssetBalance
       return baseBalance.minus(balanceLineForAsset.selling_liabilities)
     } else {
       return BigNumber(0)
@@ -133,7 +141,7 @@ function PaymentCreationForm(props: Props) {
   }
 
   const createPaymentTx = async (horizon: Server, account: Account) => {
-    const asset = props.trustedAssets.find(trustedAsset => trustedAsset.code === formValues.asset)
+    const asset = props.trustedAssets.find(trustedAsset => trustedAsset.equals(formValues.asset))
     const federationRecord =
       formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
     const destination = federationRecord ? federationRecord.account_id : formValues.destination
@@ -204,7 +212,7 @@ function PaymentCreationForm(props: Props) {
         <PriceInput
           assetCode={
             <AssetSelector
-              assets={props.trustedAssets.map(asset => asset.code)}
+              assets={props.trustedAssets}
               onSelect={code => setFormValue("asset", code)}
               selected={formValues.asset}
               style={{ alignSelf: "center" }}
