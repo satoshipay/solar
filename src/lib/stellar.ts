@@ -133,11 +133,15 @@ export function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   )
 }
 
-export function getMatchingAccountBalance(balances: Horizon.BalanceLine[], assetCode: string) {
+export function findMatchingBalanceLine(balances: Horizon.BalanceLine[], asset: Asset) {
   const matchingBalanceLine = balances.find(balance => {
-    return balance.asset_type === "native" ? assetCode === "XLM" : balance.asset_code === assetCode
+    if (balance.asset_type === "native") {
+      return asset.isNative()
+    } else {
+      return balance.asset_code === asset.getCode() && balance.asset_issuer === asset.getIssuer()
+    }
   })
-  return matchingBalanceLine ? BigNumber(matchingBalanceLine.balance) : BigNumber(0)
+  return matchingBalanceLine
 }
 
 export function getHorizonURL(horizon: Server) {

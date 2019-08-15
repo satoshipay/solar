@@ -5,7 +5,7 @@ import SendIcon from "@material-ui/icons/Send"
 import { WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
 import { Account } from "../../context/accounts"
 import { useAccountData } from "../../hooks"
-import { getMatchingAccountBalance } from "../../lib/stellar"
+import { findMatchingBalanceLine } from "../../lib/stellar"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
@@ -26,7 +26,9 @@ function WithdrawalTransactionForm(props: Props) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const [amountString, setAmountString] = React.useState("")
 
-  const balance = getMatchingAccountBalance(accountData.balances, props.asset.getCode())
+  const balanceLine = findMatchingBalanceLine(accountData.balances, props.asset)
+  const balance = balanceLine ? BigNumber(balanceLine.balance) : BigNumber(0)
+
   const data = props.anchorResponse
   const minAmount = data.min_amount ? BigNumber(data.min_amount) : undefined
   const maxAmount = data.max_amount ? BigNumber(data.max_amount) : balance
