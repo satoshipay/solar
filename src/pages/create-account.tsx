@@ -27,7 +27,7 @@ function CreateAccountPage(props: { testnet: boolean }) {
         testnet: props.testnet
       })
 
-      if (formValues.createNewKey) {
+      if (formValues.createNewKey && !props.testnet) {
         setCreatedAccount(account)
       } else {
         router.history.push(routes.account(account.id))
