@@ -16,15 +16,17 @@ import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useIsMobile } from "../../hooks"
+import { useIsMobile, useRouter } from "../../hooks"
+import * as routes from "../../routes"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
-import { createCheapTxID } from "../../lib/transaction"
+import { createCheapTxID, selectNetwork } from "../../lib/transaction"
 import { breakpoints } from "../../theme"
 import { PublicKey } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
 import { formatOperation } from "../TransactionReview/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
+import { matchesRoute } from "../../lib/routes"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -406,12 +408,7 @@ export const TransactionListItem = React.memo(
     const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
 
     return (
-      <ListItem
-        button={Boolean(onOpen) as any}
-        className={classes.listItem}
-        onClick={onOpen}
-        style={props.style}
-      >
+      <ListItem button={Boolean(onOpen) as any} className={classes.listItem} onClick={onOpen} style={props.style}>
         <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
           {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
         </ListItemIcon>
@@ -449,10 +446,27 @@ function TransactionList(props: {
   onOpenTransaction?: (transaction: Transaction) => void
   transactions: Transaction[]
 }) {
-  const [openedTransaction, setOpenTransaction] = React.useState<Transaction | null>(null)
+  const router = useRouter()
+
+  selectNetwork(props.account.testnet) // needed for hashing
+
+  const openedTxHash = matchesRoute(router.location.pathname, routes.showTransaction("*", "*"))
+    ? (router.match.params as { id: string; hash: string }).hash
+    : null
+  
+  const openedTransaction = openedTxHash
+    ? props.transactions.find(recentTx => recentTx.hash().toString("hex") === openedTxHash) || null
+    : null
+
+  const openTransaction = React.useCallback(
+    (transaction: Transaction) => {
+      router.history.push(routes.showTransaction(props.account.id, transaction.hash().toString("hex")))
+    },
+    [props.account, router]
+  )
 
   const closeTransaction = React.useCallback(() => {
-    setOpenTransaction(null)
+    router.history.push(routes.account(props.account.id))
 
     // A little hack to prevent :focus style being set again on list item after closing the dialog
     setTimeout(() => {
@@ -482,7 +496,7 @@ function TransactionList(props: {
             accountPublicKey={props.account.publicKey}
             createdAt={transaction.created_at}
             transaction={transaction}
-            onOpenTransaction={() => setOpenTransaction(transaction)}
+            onOpenTransaction={openTransaction}
           />
         </EntryAnimation>
       ))}

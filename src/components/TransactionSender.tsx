@@ -66,9 +66,11 @@ interface RenderFunctionProps {
 
 interface Props {
   account: Account
+  forceClose?: boolean
   horizon: Server
   settings: SettingsContextType
   children: (props: RenderFunctionProps) => React.ReactNode
+  onCloseTransactionDialog?: () => void
   onSubmissionCompleted?: (transaction: Transaction) => void
   onSubmissionFailure?: (error: Error, transaction: Transaction) => void
 }
@@ -126,6 +128,9 @@ class TransactionSender extends React.Component<Props, State> {
     if (!this.state.submissionPromise || this.state.submissionStatus !== "pending") {
       // Prevent manually closing the submission progress if tx submission is pending
       this.clearSubmissionPromise()
+    }
+    if (this.props.onCloseTransactionDialog) {
+      this.props.onCloseTransactionDialog()
     }
   }
 
@@ -247,7 +252,7 @@ class TransactionSender extends React.Component<Props, State> {
       <>
         {content}
         <TransactionReviewDialog
-          open={confirmationDialogOpen}
+          open={confirmationDialogOpen && !this.props.forceClose}
           account={this.props.account}
           disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
           passwordError={passwordError}
