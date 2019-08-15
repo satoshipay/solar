@@ -6,10 +6,9 @@ import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import SendIcon from "@material-ui/icons/Send"
 import ButtonIconLabel from "../components/ButtonIconLabel"
-import AccountBalances from "../components/Account/AccountBalances"
-import AccountBalancesContainer from "../components/Account/AccountBalancesContainer"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
+import ScrollableBalances from "../components/Account/ScrollableBalances"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
@@ -139,13 +138,7 @@ function AccountPage(props: Props) {
           onWithdraw={navigateTo.withdraw}
           showCloseButton={showAccountSettings}
         >
-          <AccountBalancesContainer>
-            <AccountBalances
-              onClick={navigateTo.balanceDetails}
-              publicKey={account.publicKey}
-              testnet={account.testnet}
-            />
-          </AccountBalancesContainer>
+          <ScrollableBalances account={account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
           {isSmallScreen ? null : (
             <AccountActions
               account={account}
