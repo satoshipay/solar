@@ -450,15 +450,13 @@ function TransactionList(props: {
 
   selectNetwork(props.account.testnet) // needed for hashing
 
-  const showTransaction = matchesRoute(router.location.pathname, routes.showTransaction("*", "*"))
-
-  let openedTransaction: Transaction | null = null
-  if (showTransaction) {
-    const txHash = (router.match.params as { id: string; hash: string }).hash
-    const tx = props.transactions.find(recentTx => recentTx.hash().toString("hex") === txHash)
-
-    openedTransaction = tx ? tx : null
-  }
+  const openedTxHash = matchesRoute(router.location.pathname, routes.showTransaction("*", "*"))
+    ? (router.match.params as { id: string; hash: string }).hash
+    : null
+  
+  const openedTransaction = openedTxHash
+    ? props.transactions.find(recentTx => recentTx.hash().toString("hex") === openedTxHash) || null
+    : null
 
   const openTransaction = React.useCallback(
     (transaction: Transaction) => {
