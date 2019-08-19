@@ -27,14 +27,14 @@ function trimBalance(balance: BigNumber): string {
 }
 
 interface BalanceFormattingOptions {
-  groupThousands: boolean
-  maximumDecimals: number
-  maximumSignificants: number
-  minimumDecimals: number
-  minimumSignificants: number
+  groupThousands?: boolean
+  maximumDecimals?: number
+  maximumSignificants?: number
+  minimumDecimals?: number
+  minimumSignificants?: number
 }
 
-export function formatBalance(input: BigNumber | string, options: Partial<BalanceFormattingOptions> = {}) {
+export function formatBalance(input: BigNumber | string, options: BalanceFormattingOptions = {}) {
   if (typeof input === "string" && Number.isNaN(Number.parseFloat(input))) {
     return "-"
   }
@@ -81,9 +81,16 @@ interface SingleBalanceProps {
 
 export function SingleBalance(props: SingleBalanceProps) {
   const thousandsSeparator = ","
-  const balance = BigNumber(props.balance)
-  const trimmedUnformattedBalance = trimBalance(balance.abs())
-  const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
+  const balance = BigNumber(props.balance).abs()
+
+  const formattingOptions: BalanceFormattingOptions = balance.eq(0)
+    ? { maximumDecimals: 0, minimumDecimals: 0 }
+    : balance.lt(1000)
+      ? { maximumDecimals: 4, minimumDecimals: 4 }
+      : { maximumDecimals: 0, minimumDecimals: 0 }
+
+  const formattedBalance = formatBalance(balance, formattingOptions)
+  const [integerPart, decimalPart = ""] = formattedBalance.split(".")
   return (
     <span style={props.style}>
       {balance.gte(0) ? null : <span>-&nbsp;</span>}
@@ -91,15 +98,19 @@ export function SingleBalance(props: SingleBalanceProps) {
         {addThousandsSeparators(integerPart, thousandsSeparator)}
         <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
       </span>
-      {props.assetCode ? <>&nbsp;</> : null}
-      <span
-        style={{
-          fontWeight: props.inline ? undefined : "bold",
-          marginLeft: props.inline ? undefined : "0.4em"
-        }}
-      >
-        {props.assetCode}
-      </span>
+      {props.assetCode ? (
+        <>
+          &nbsp;
+          <span
+            style={{
+              fontWeight: props.inline ? undefined : "bold",
+              marginLeft: props.inline ? undefined : "0.4em"
+            }}
+          >
+            {props.assetCode}
+          </span>
+        </>
+      ) : null}
     </span>
   )
 }
