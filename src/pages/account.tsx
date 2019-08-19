@@ -8,8 +8,8 @@ import SendIcon from "@material-ui/icons/Send"
 import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
-import ScrollableBalances from "../components/Account/ScrollableBalances"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
+import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
 import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
@@ -138,7 +138,11 @@ function AccountPage(props: Props) {
           onWithdraw={navigateTo.withdraw}
           showCloseButton={showAccountSettings}
         >
-          <ScrollableBalances account={account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
+          <ScrollableBalances
+            account={account}
+            onClick={navigateTo.balanceDetails}
+            style={{ marginTop: 20, marginBottom: isSmallScreen ? 0 : 12 }}
+          />
           {isSmallScreen ? null : (
             <AccountActions
               account={account}
@@ -146,7 +150,7 @@ function AccountPage(props: Props) {
               horizontalMargin={40}
               onCreatePayment={navigateTo.createPayment}
               onReceivePayment={navigateTo.receivePayment}
-              padding="40px 0 0"
+              padding="24px 0 0"
             />
           )}
         </AccountHeaderCard>

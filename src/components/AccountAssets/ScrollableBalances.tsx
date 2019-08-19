@@ -1,14 +1,13 @@
 import { Asset, Horizon } from "stellar-sdk"
 import React from "react"
-import Avatar from "@material-ui/core/Avatar"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import { Account } from "../../context/accounts"
-import { useAccountData, useAssetMetadata } from "../../hooks"
+import { useAccountData, useAssetMetadata, useIsMobile } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
-import { breakpoints, brandColor } from "../../theme"
+import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
-import LumenIcon from "../Icon/Lumen"
-import { SingleBalance } from "./AccountBalances"
+import { SingleBalance } from "../Account/AccountBalances"
+import AssetLogo from "./AssetLogo"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
   if (balance.asset_type === "native") {
@@ -18,103 +17,95 @@ function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boo
   }
 }
 
+interface ScrollableBalancesStyleProps {
+  horizontal: boolean
+}
+
 const useScrollableBalancesStyles = makeStyles({
   root: {
     display: "flex",
     fontSize: 18,
+    marginLeft: -8,
+    marginRight: -8,
     overflowX: "auto",
-    paddingTop: 8,
-    paddingBottom: 8,
     transition: "background .25s",
     WebkitOverflowScrolling: "touch",
 
     [breakpoints.down(600)]: {
-      fontSize: 16
+      marginLeft: -16,
+      marginRight: -16
     }
   },
+  balanceItem: (props: ScrollableBalancesStyleProps) => ({
+    alignItems: "center",
+    display: "flex",
+    flex: "0 0 auto",
+    flexDirection: props.horizontal ? "row" : "column",
+    justifyContent: "flex-start",
+    minWidth: 130,
+    padding: "8px 16px",
+
+    [breakpoints.down(600)]: {
+      minWidth: 100,
+      paddingLeft: props.horizontal ? undefined : 8,
+      paddingRight: props.horizontal ? undefined : 8
+    },
+    [breakpoints.down(350)]: {
+      minWidth: 90
+    }
+  }),
   clickable: {
     borderRadius: 6,
     cursor: "pointer",
-    margin: "-4px -6px",
-    padding: "12px 6px",
 
     "&:hover": {
       background: "rgba(255, 255, 255, 0.05)"
     }
   },
-  balanceItem: {
-    flex: "0 0 auto",
-    textAlign: "center",
-    minWidth: 150
-  },
-  logo: {
+  logo: (props: ScrollableBalancesStyleProps) => ({
     boxShadow: "0 0 2px #fff",
     boxSizing: "border-box",
-    margin: "0 auto",
+    margin: 0,
+    marginLeft: props.horizontal ? 0 : "auto",
+    marginRight: props.horizontal ? 0 : "auto",
     width: 48,
     height: 48
-  },
-  imageAvatar: {
-    backgroundColor: "white"
-  },
-  textAvatar: {
-    backgroundColor: brandColor.main15,
-    border: "1px solid rgba(255, 255, 255, 0.66)",
-    color: "rgba(255, 255, 255, 1)",
-    fontSize: 12,
-    fontWeight: 500
-  },
-  xlmAvatar: {
-    background: "white",
-    color: "black"
-  },
-  icon: {
-    width: "100%",
-    height: "100%"
-  },
+  }),
+  balance: (props: ScrollableBalancesStyleProps) => ({
+    fontSize: 16,
+    marginTop: props.horizontal ? 0 : 8,
+    marginLeft: props.horizontal ? 16 : 0,
+    textAlign: props.horizontal ? "left" : "center"
+  }),
   assetCode: {
     display: "block",
-    margin: "12px auto 4px"
+    fontWeight: 700
   }
 })
 
 interface BalanceWithLogoProps {
   assetMetadata?: StellarTomlCurrency
   balance: Horizon.BalanceLine
+  horizontal: boolean
+  onClick?: () => void
 }
 
 function BalanceWithLogo(props: BalanceWithLogoProps) {
   const classes = useScrollableBalancesStyles(props)
 
-  const logo =
-    props.balance.asset_type === "native" ? (
-      <Avatar alt="Stellar Lumens" className={`${classes.logo} ${classes.xlmAvatar}`}>
-        <LumenIcon className={classes.icon} />
-      </Avatar>
-    ) : (
-      <Avatar
-        alt={name}
-        className={
-          props.assetMetadata && props.assetMetadata.image
-            ? `${classes.logo} ${classes.imageAvatar}`
-            : `${classes.logo} ${classes.textAvatar}`
-        }
-      >
-        {props.assetMetadata && props.assetMetadata.image ? (
-          <img className={classes.icon} src={props.assetMetadata.image} />
-        ) : (
-          props.balance.asset_code
-        )}
-      </Avatar>
-    )
-
   return (
-    <div className={classes.balanceItem}>
-      {logo}
-      <span className={classes.assetCode}>
-        {props.balance.asset_type === "native" ? "XLM" : props.balance.asset_code}
-      </span>
-      <SingleBalance assetCode="" balance={props.balance.balance} inline />
+    <div className={`${classes.balanceItem} ${props.onClick ? classes.clickable : ""}`} onClick={props.onClick}>
+      <AssetLogo
+        balance={props.balance}
+        className={classes.logo}
+        imageURL={props.assetMetadata ? props.assetMetadata.image : undefined}
+      />
+      <div className={classes.balance}>
+        <span className={classes.assetCode}>
+          {props.balance.asset_type === "native" ? "XLM" : props.balance.asset_code}
+        </span>
+        <SingleBalance assetCode="" balance={props.balance.balance} inline />
+      </div>
     </div>
   )
 }
@@ -127,7 +118,9 @@ interface ScrollableBalancesProps {
 
 function ScrollableBalances(props: ScrollableBalancesProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const classes = useScrollableBalancesStyles(props)
+  const isSmallScreen = useIsMobile()
+  const horizontal = !isSmallScreen || accountData.balances.length < 2
+  const classes = useScrollableBalancesStyles({ horizontal })
 
   const trustedAssets = accountData.balances
     .filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native")
@@ -145,11 +138,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
   const assetMetadata = useAssetMetadata(trustedAssets, props.account.testnet)
 
   return (
-    <div
-      className={`${classes.root} ${props.onClick ? classes.clickable : ""}`}
-      onClick={props.onClick}
-      style={props.style}
-    >
+    <div className={classes.root} style={props.style}>
       {trustedAssets.map(asset => {
         const [metadata] = assetMetadata.get(asset) || [undefined, false]
         return (
@@ -157,10 +146,12 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
             key={stringifyAsset(asset)}
             assetMetadata={metadata}
             balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
+            horizontal={horizontal}
+            onClick={props.onClick}
           />
         )
       })}
-      <BalanceWithLogo balance={nativeBalance} />
+      <BalanceWithLogo balance={nativeBalance} horizontal={horizontal} onClick={props.onClick} />
     </div>
   )
 }
