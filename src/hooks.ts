@@ -1,3 +1,5 @@
+/* tslint:disable:no-string-literal */
+
 import * as JWT from "jsonwebtoken"
 import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
@@ -307,7 +309,7 @@ export function useAssetMetadata(assets: Asset[], testnet: boolean) {
     const assetCode = asset.isNative() ? undefined : asset.getCode()
     const issuerAccountID = asset.isNative() ? undefined : asset.getIssuer()
     const accountData = issuerAccountID
-      ? accountDataSet.find(accountData => accountData.id === issuerAccountID)
+      ? accountDataSet.find(someAccountData => someAccountData.id === issuerAccountID)
       : undefined
     const domain = accountData ? accountData.home_domain : undefined
     const [stellarTomlData, loading] = domain ? stellarTomlFiles.get(domain)! : [undefined, false]
