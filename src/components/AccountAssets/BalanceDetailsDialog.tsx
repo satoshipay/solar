@@ -168,7 +168,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const itemHPadding = isLargeScreen ? "16px" : 0
 
   return (
-    <DialogBody top={<MainTitle onBack={props.onClose} title={props.account.name} />}>
+    <DialogBody excessWidth={12} top={<MainTitle onBack={props.onClose} title={props.account.name} />}>
       <List style={{ paddingLeft: hpadding, paddingRight: hpadding }}>
         {trustedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]

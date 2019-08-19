@@ -28,11 +28,13 @@ interface Props {
   actions?: React.ReactNode | RefStateObject
   background?: React.ReactNode
   children: React.ReactNode
+  excessWidth?: number
   top?: React.ReactNode
 }
 
 function DialogBody(props: Props) {
   const isSmallScreen = useIsMobile()
+  const excessWidth = props.excessWidth || 0
 
   const topContent = React.useMemo(
     () =>
@@ -76,7 +78,16 @@ function DialogBody(props: Props) {
       >
         {topContent}
         {background}
-        <VerticalLayout grow maxHeight="100%" overflowX="hidden" overflowY="auto" shrink width="100%">
+        <VerticalLayout
+          grow
+          margin={`0 -${excessWidth}px`}
+          maxHeight="100%"
+          overflowX="hidden"
+          overflowY="auto"
+          padding={`0 ${excessWidth}px`}
+          shrink
+          width="100%"
+        >
           {props.children}
           {isSmallScreen ? null : actionsContent}
         </VerticalLayout>
