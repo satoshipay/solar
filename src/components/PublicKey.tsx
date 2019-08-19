@@ -42,7 +42,8 @@ interface PublicKeyProps {
   style?: React.CSSProperties
 }
 
-export function PublicKey(props: PublicKeyProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   const { variant = "full" } = props
   const digits = getDigitCounts(props.variant)
   const { accounts } = React.useContext(AccountsContext)
@@ -78,7 +79,7 @@ export function PublicKey(props: PublicKeyProps) {
         : props.publicKey.substr(0, digits.leading) + "…" + props.publicKey.substr(-digits.trailing)}
     </Typography>
   )
-}
+})
 
 interface AddressProps {
   /** Account ID (public key) or stellar address (alice*example.com) */
@@ -87,7 +88,8 @@ interface AddressProps {
   style?: React.CSSProperties
 }
 
-export function Address(props: AddressProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const Address = React.memo(function Address(props: AddressProps) {
   const { lookupStellarAddress } = useFederationLookup()
 
   const style: React.CSSProperties = {
@@ -120,7 +122,7 @@ export function Address(props: AddressProps) {
       <span style={style}>{props.address}</span>
     )
   }
-}
+})
 
 interface ClickableAddressProps extends AddressProps {
   icon?: React.ReactNode
