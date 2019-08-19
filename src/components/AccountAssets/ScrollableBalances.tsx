@@ -69,7 +69,12 @@ const useScrollableBalancesStyles = makeStyles({
     marginLeft: props.horizontal ? 0 : "auto",
     marginRight: props.horizontal ? 0 : "auto",
     width: 48,
-    height: 48
+    height: 48,
+
+    [breakpoints.down(350)]: {
+      width: 40,
+      height: 40
+    }
   }),
   balance: (props: ScrollableBalancesStyleProps) => ({
     fontSize: 16,

@@ -10,11 +10,17 @@ const useAssetLogoStyles = makeStyles({
     backgroundColor: "white"
   },
   textAvatar: {
-    backgroundColor: brandColor.main15,
+    background: `linear-gradient(145deg, ${brandColor.main} 0%, ${brandColor.dark} 35%, ${brandColor.dark} 75%, ${
+      brandColor.main
+    } 100%)`,
     border: "1px solid rgba(255, 255, 255, 0.66)",
     color: "rgba(255, 255, 255, 1)",
     fontSize: 12,
     fontWeight: 500
+  },
+  darkTextAvatar: {
+    background: brandColor.dark,
+    border: `1px solid ${brandColor.main15}`
   },
   xlmAvatar: {
     background: "white",
@@ -29,6 +35,7 @@ const useAssetLogoStyles = makeStyles({
 interface Props {
   balance: Horizon.BalanceLine
   className?: string
+  dark?: boolean
   imageURL?: string
   style?: React.CSSProperties
 }
@@ -39,17 +46,18 @@ function AssetLogo(props: Props) {
 
   if (props.balance.asset_type === "native") {
     return (
-      <Avatar alt="Stellar Lumens" className={`${className} ${classes.xlmAvatar}`} style={props.style}>
+      <Avatar alt="Stellar Lumens (XLM)" className={`${className} ${classes.xlmAvatar}`} style={props.style}>
         <LumenIcon className={classes.icon} />
       </Avatar>
     )
   } else {
+    const avatarClassName = [
+      className,
+      props.imageURL ? classes.imageAvatar : classes.textAvatar,
+      props.dark && !props.imageURL ? classes.darkTextAvatar : ""
+    ].join(" ")
     return (
-      <Avatar
-        alt={name}
-        className={props.imageURL ? `${className} ${classes.imageAvatar}` : `${className} ${classes.textAvatar}`}
-        style={props.style}
-      >
+      <Avatar alt={name} className={avatarClassName} style={props.style}>
         {props.imageURL ? <img className={classes.icon} src={props.imageURL} /> : props.balance.asset_code}
       </Avatar>
     )

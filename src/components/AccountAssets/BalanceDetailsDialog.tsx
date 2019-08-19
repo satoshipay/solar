@@ -1,6 +1,5 @@
 import React from "react"
 import { Asset, Horizon } from "stellar-sdk"
-import Avatar from "@material-ui/core/Avatar"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -11,12 +10,14 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useIsMobile } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
+import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
-import LumenIcon from "../Icon/Lumen"
-import { Box, VerticalLayout } from "../Layout/Box"
+import { SingleBalance } from "../Account/AccountBalances"
 import ErrorBoundary from "../ErrorBoundary"
 import { AccountName } from "../Fetchers"
+import { Box, VerticalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+import AssetLogo from "./AssetLogo"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
@@ -28,32 +29,46 @@ function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boo
 }
 
 const useBalanceItemStyles = makeStyles({
-  avatar: {
-    backgroundColor: "transparent"
-  },
-  textAvatar: {
-    backgroundColor: "transparent",
-    border: "2px solid rgba(0, 0, 0, 0.66)",
-    boxSizing: "border-box",
-    color: "rgba(0, 0, 0, 0.66)",
-    fontSize: 12,
-    fontWeight: 500
-  },
-  xlmAvatar: {
-    background: "transparent",
-    color: "black"
-  },
   icon: {
-    width: "100%",
-    height: "100%"
+    [breakpoints.down(350)]: {
+      minWidth: 48
+    }
+  },
+  logo: {
+    [breakpoints.down(350)]: {
+      width: 36,
+      height: 36
+    }
   },
   mainListItemText: {
     flex: "1 1 auto",
-    textOverflow: "ellipsis",
     whiteSpace: "nowrap"
   },
+  mainListItemTextPrimaryTypography: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+
+    [breakpoints.down(400)]: {
+      fontSize: 15
+    },
+    [breakpoints.down(350)]: {
+      fontSize: 13
+    }
+  },
+  mainListItemTextSecondaryTypography: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+
+    [breakpoints.down(400)]: {
+      fontSize: 14
+    },
+    [breakpoints.down(350)]: {
+      fontSize: 12
+    }
+  },
   balanceListItemText: {
-    flex: "1 0 180px",
+    flex: "1 0 auto",
+    marginLeft: 8,
     textAlign: "right"
   },
   balanceText: {
@@ -70,51 +85,61 @@ interface BalanceListItemProps {
 
 function BalanceListItem(props: BalanceListItemProps) {
   const classes = useBalanceItemStyles()
+  const balance = React.useMemo(() => <SingleBalance assetCode={""} balance={props.balance.balance} />, [
+    props.balance.balance
+  ])
 
   if (props.balance.asset_type === "native") {
     return (
       <ListItem style={props.style}>
-        <ListItemIcon>
-          <Avatar alt="Stellar Lumens" className={classes.xlmAvatar}>
-            <LumenIcon className={classes.icon} />
-          </Avatar>
+        <ListItemIcon className={classes.icon}>
+          <AssetLogo balance={props.balance} className={classes.logo} />
         </ListItemIcon>
         <ListItemText
           className={classes.mainListItemText}
-          primary="Stellar Lumens"
-          secondary="Native token of the Stellar network"
+          classes={{
+            primary: classes.mainListItemTextPrimaryTypography,
+            secondary: classes.mainListItemTextSecondaryTypography
+          }}
+          primary="Stellar Lumens (XLM)"
+          secondary="stellar.org"
         />
         <ListItemText
           className={classes.balanceListItemText}
-          primary={props.balance.balance}
-          primaryTypographyProps={{ className: classes.balanceText }}
+          classes={{
+            primary: classes.balanceText
+          }}
+          primary={balance}
         />
       </ListItem>
     )
   }
-  const name = (props.assetMetadata && props.assetMetadata.name) || props.balance.asset_code
+  const assetName = (props.assetMetadata && props.assetMetadata.name) || props.balance.asset_code
+  const title =
+    assetName !== props.balance.asset_code ? `${assetName} (${props.balance.asset_code})` : props.balance.asset_code
+
   return (
     <ListItem style={props.style}>
-      <ListItemIcon>
-        <Avatar
-          alt={name}
-          className={props.assetMetadata && props.assetMetadata.image ? classes.avatar : classes.textAvatar}
-        >
-          {props.assetMetadata && props.assetMetadata.image ? (
-            <img className={classes.icon} src={props.assetMetadata.image} />
-          ) : (
-            props.balance.asset_code
-          )}
-        </Avatar>
+      <ListItemIcon className={classes.icon}>
+        <AssetLogo
+          balance={props.balance}
+          className={classes.logo}
+          dark
+          imageURL={props.assetMetadata && props.assetMetadata.image}
+        />
       </ListItemIcon>
       <ListItemText
         className={classes.mainListItemText}
-        primary={name}
+        classes={{
+          primary: classes.mainListItemTextPrimaryTypography,
+          secondary: classes.mainListItemTextSecondaryTypography
+        }}
+        primary={title}
         secondary={<AccountName publicKey={props.balance.asset_issuer} testnet={props.testnet} />}
       />
       <ListItemText
         className={classes.balanceListItemText}
-        primary={props.balance.balance}
+        primary={balance}
         primaryTypographyProps={{ className: classes.balanceText }}
       />
     </ListItem>
@@ -175,7 +200,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
             account={props.account}
             accountData={accountData}
             baseReserve={0.5}
-            style={{ paddingLeft: itemHPadding, paddingRight: itemHPadding }}
+            style={{ paddingLeft: itemHPadding, paddingRight: itemHPadding, paddingBottom: 0 }}
           />
         </List>
       </VerticalLayout>

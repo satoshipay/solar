@@ -2,11 +2,51 @@ import BigNumber from "big.js"
 import React from "react"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
+import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
-import { ObservedAccountData, useAccountOffers } from "../../hooks"
+import { useAccountOffers, ObservedAccountData } from "../../hooks"
+import { breakpoints } from "../../theme"
+import { SingleBalance } from "../Account/AccountBalances"
+
+const useBreakdownItemStyles = makeStyles({
+  root: {
+    paddingTop: 0,
+    paddingBottom: 0
+  },
+  mainListItemText: {
+    flexShrink: 5,
+    marginLeft: 56,
+
+    [breakpoints.down(350)]: {
+      marginLeft: 48
+    }
+  },
+  mainListItemTextPrimaryTypography: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+
+    [breakpoints.down(400)]: {
+      fontSize: 15
+    },
+    [breakpoints.down(350)]: {
+      fontSize: 13
+    }
+  },
+  mainListItemTextSecondaryTypography: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+
+    [breakpoints.down(400)]: {
+      fontSize: 14
+    },
+    [breakpoints.down(350)]: {
+      fontSize: 12
+    }
+  }
+})
 
 interface BreakdownItemProps {
-  amount: React.ReactNode
+  amount: string
   hide?: boolean
   primary: React.ReactNode
   secondary?: React.ReactNode
@@ -16,22 +56,31 @@ interface BreakdownItemProps {
 
 function BreakdownItem(props: BreakdownItemProps) {
   const { variant = "deduction" } = props
+  const classes = useBreakdownItemStyles()
 
   if (props.hide) {
     return null
   }
   return (
-    <ListItem style={{ marginTop: -16, ...props.style }}>
-      <ListItemText primary={props.primary} secondary={props.secondary} style={{ marginLeft: "calc(56px + 2.5vw)" }} />
+    <ListItem className={classes.root} style={props.style}>
+      <ListItemText
+        classes={{
+          root: classes.mainListItemText,
+          primary: classes.mainListItemTextPrimaryTypography,
+          secondary: classes.mainListItemTextSecondaryTypography
+        }}
+        primary={props.primary}
+        secondary={props.secondary}
+      />
       <ListItemText
         primaryTypographyProps={{
           style: { fontSize: "140%" }
         }}
-        style={{ textAlign: "right" }}
+        style={{ marginLeft: 8, textAlign: "right" }}
       >
         {variant === "deduction" ? "-" : "="}
         &nbsp;
-        {props.amount}
+        <SingleBalance assetCode="" balance={props.amount} />
       </ListItemText>
     </ListItem>
   )
@@ -74,34 +123,34 @@ function SpendableBalanceBreakdown(props: Props) {
       <BreakdownItem
         amount={signersReserve.toFixed(1)}
         primary="Account signers reserve"
-        secondary={props.accountData.signers.length === 1 ? "Single key minimum reserve" : "Master key plus co-signers"}
+        secondary={props.accountData.signers.length === 1 ? "Single key reserve" : "Master key + co-signers"}
         style={props.style}
       />
       <BreakdownItem
         amount={trustlinesReserve.toFixed(1)}
         hide={trustlinesReserve === 0}
         primary="Trustlines reserve"
-        secondary="Reserve for every non-XLM balance"
+        secondary="For each non-XLM balance"
         style={props.style}
       />
       <BreakdownItem
         amount={openOrdersReserve.toFixed(1)}
         hide={openOrdersReserve === 0}
         primary="Open orders reserve"
-        secondary="Open trading orders on the SDEX"
+        secondary="Open SDEX orders"
         style={props.style}
       />
       <BreakdownItem
         amount={dataReserve.toFixed(1)}
         hide={dataReserve === 0}
         primary="Data fields reserve"
-        secondary="Data fields set on the account"
+        secondary="Account data fields"
         style={props.style}
       />
       <BreakdownItem
         amount={spendableBalance.toString()}
         primary="Spendable balance"
-        secondary="Amount that can be freely used"
+        secondary="Freely useable amount"
         style={props.style}
         variant="total"
       />
