@@ -13,9 +13,8 @@ import { stringifyAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
 import { SingleBalance } from "../Account/AccountBalances"
-import ErrorBoundary from "../ErrorBoundary"
+import DialogBody from "../Dialog/DialogBody"
 import { AccountName } from "../Fetchers"
-import { Box, VerticalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import AssetLogo from "./AssetLogo"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
@@ -169,42 +168,37 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const itemHPadding = isLargeScreen ? "16px" : 0
 
   return (
-    <ErrorBoundary>
-      <VerticalLayout width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
-        <Box margin="0 0 16px">
-          <MainTitle onBack={props.onClose} title={props.account.name} />
-        </Box>
-        <List style={{ paddingLeft: hpadding, paddingRight: hpadding }}>
-          {trustedAssets.map(asset => {
-            const [metadata] = assetMetadata.get(asset) || [undefined, false]
-            return (
-              <BalanceListItem
-                key={stringifyAsset(asset)}
-                assetMetadata={metadata}
-                balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
-                style={{ paddingLeft: itemHPadding, paddingRight: itemHPadding }}
-                testnet={props.account.testnet}
-              />
-            )
-          })}
-          {trustedAssets.length > 0 ? <Divider style={{ margin: "8px 0" }} /> : null}
-          {nativeBalance ? (
+    <DialogBody top={<MainTitle onBack={props.onClose} title={props.account.name} />}>
+      <List style={{ paddingLeft: hpadding, paddingRight: hpadding }}>
+        {trustedAssets.map(asset => {
+          const [metadata] = assetMetadata.get(asset) || [undefined, false]
+          return (
             <BalanceListItem
-              key="XLM"
-              balance={nativeBalance}
+              key={stringifyAsset(asset)}
+              assetMetadata={metadata}
+              balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
               style={{ paddingLeft: itemHPadding, paddingRight: itemHPadding }}
               testnet={props.account.testnet}
             />
-          ) : null}
-          <SpendableBalanceBreakdown
-            account={props.account}
-            accountData={accountData}
-            baseReserve={0.5}
+          )
+        })}
+        {trustedAssets.length > 0 ? <Divider style={{ margin: "8px 0" }} /> : null}
+        {nativeBalance ? (
+          <BalanceListItem
+            key="XLM"
+            balance={nativeBalance}
             style={{ paddingLeft: itemHPadding, paddingRight: itemHPadding, paddingBottom: 0 }}
+            testnet={props.account.testnet}
           />
-        </List>
-      </VerticalLayout>
-    </ErrorBoundary>
+        ) : null}
+        <SpendableBalanceBreakdown
+          account={props.account}
+          accountData={accountData}
+          baseReserve={0.5}
+          style={{ paddingLeft: itemHPadding, paddingRight: itemHPadding }}
+        />
+      </List>
+    </DialogBody>
   )
 }
 
