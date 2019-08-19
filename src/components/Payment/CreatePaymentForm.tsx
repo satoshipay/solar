@@ -1,4 +1,5 @@
 import BigNumber from "big.js"
+import nanoid from "nanoid"
 import React from "react"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import FormControl from "@material-ui/core/FormControl"
@@ -8,7 +9,7 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
-import { useIsMobile, useFederationLookup, ObservedAccountData } from "../../hooks"
+import { useIsMobile, useFederationLookup, RefStateObject, ObservedAccountData } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
@@ -17,6 +18,7 @@ import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, QRReader } from "../Form/FormFields"
 import { HorizontalLayout } from "../Layout/Box"
+import Portal from "../Portal"
 
 function createMemo(formValues: PaymentCreationValues) {
   switch (formValues.memoType) {
@@ -106,6 +108,7 @@ function AssetSelector(props: AssetSelectorProps) {
 
 interface Props {
   accountData: ObservedAccountData
+  actionsRef: RefStateObject
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onCancel: () => void
@@ -116,6 +119,7 @@ function PaymentCreationForm(props: Props) {
   const isSmallScreen = useIsMobile()
   const { lookupFederationRecord } = useFederationLookup()
 
+  const formID = React.useMemo(() => nanoid(), [])
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
   const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
     amount: "",
@@ -126,16 +130,19 @@ function PaymentCreationForm(props: Props) {
   })
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
+
+  // FIXME: Pass no. of open offers to getAccountMinimumBalance()
   const spendableBalance = getSpendableBalance(
     getAccountMinimumBalance(props.accountData),
     findMatchingBalanceLine(props.accountData.balances, formValues.asset)
   )
 
   const setFormValue = (fieldName: keyof PaymentCreationValues, value: unknown | null) => {
-    setFormValues({
+    const updatedFormValues = {
       ...formValues,
       [fieldName]: value
-    })
+    }
+    setFormValues(updatedFormValues)
   }
 
   const createPaymentTx = async (horizon: Server, account: Account) => {
@@ -174,8 +181,7 @@ function PaymentCreationForm(props: Props) {
     return tx
   }
 
-  const submit = (event: React.SyntheticEvent) => {
-    event.preventDefault()
+  const submitTransaction = () => {
     const validation = validateFormValues(formValues, spendableBalance)
     setErrors(validation.errors)
 
@@ -184,8 +190,13 @@ function PaymentCreationForm(props: Props) {
     }
   }
 
+  const handleFormSubmission = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+    submitTransaction()
+  }
+
   return (
-    <form noValidate onSubmit={submit}>
+    <form id={formID} noValidate onSubmit={handleFormSubmission}>
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
@@ -252,17 +263,20 @@ function PaymentCreationForm(props: Props) {
           }}
         />
       </HorizontalLayout>
-      <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
-        <ActionButton
-          disabled={isDisabled}
-          icon={<SendIcon style={{ fontSize: 16 }} />}
-          loading={props.txCreationPending}
-          onClick={() => undefined}
-          type="submit"
-        >
-          Send
-        </ActionButton>
-      </DialogActionsBox>
+      <Portal target={props.actionsRef.element}>
+        <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
+          <ActionButton
+            disabled={isDisabled}
+            form={formID}
+            icon={<SendIcon style={{ fontSize: 16 }} />}
+            loading={props.txCreationPending}
+            onClick={() => undefined}
+            type="submit"
+          >
+            Send
+          </ActionButton>
+        </DialogActionsBox>
+      </Portal>
     </form>
   )
 }

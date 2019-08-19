@@ -138,6 +138,19 @@ export function useClipboard() {
   )
 }
 
+export interface RefStateObject {
+  element: HTMLElement | null
+  update: (element: HTMLElement) => void
+}
+
+export function useDialogActions(): RefStateObject {
+  const [dialogActions, setDialogActions] = React.useState<HTMLElement | null>(null)
+  return {
+    element: dialogActions,
+    update: setDialogActions
+  }
+}
+
 export function useOnlineStatus() {
   const [isOnline, setOnlineStatus] = React.useState(window.navigator.onLine)
   const setOffline = () => setOnlineStatus(false)

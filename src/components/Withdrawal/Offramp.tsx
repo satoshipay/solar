@@ -13,7 +13,7 @@ import {
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useRouter, useWebAuth } from "../../hooks"
+import { useAccountData, useRouter, useWebAuth, RefStateObject } from "../../hooks"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -67,6 +67,7 @@ interface WithdrawalRequestData {
 
 interface Props {
   account: Account
+  actionsRef: RefStateObject
   assets: Asset[]
   horizon: Server
   onCancel: () => void
@@ -247,8 +248,9 @@ function Offramp(props: Props) {
     return (
       <WithdrawalTransactionForm
         account={props.account}
-        asset={currentState.details.asset}
+        actionsRef={props.actionsRef}
         anchorResponse={currentState.withdrawal}
+        asset={currentState.details.asset}
         onCancel={startOver}
         onSubmit={sendWithdrawalTx}
       />
@@ -267,6 +269,7 @@ function Offramp(props: Props) {
       <>
         <AnchorWithdrawalInitForm
           assets={props.assets}
+          actionsRef={props.actionsRef}
           initialAsset={currentState.details && currentState.details.asset}
           initialFormValues={currentState.details && currentState.details.withdrawalFormValues}
           initialMethod={currentState.details && currentState.details.method}

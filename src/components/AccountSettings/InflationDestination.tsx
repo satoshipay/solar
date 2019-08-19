@@ -1,7 +1,6 @@
 import React from "react"
 import { Operation, Transaction, Server } from "stellar-sdk"
 import { InputLabel } from "@material-ui/core"
-import DialogContent from "@material-ui/core/DialogContent"
 import TextField from "@material-ui/core/TextField"
 import ClearIcon from "@material-ui/icons/Clear"
 import CheckIcon from "@material-ui/icons/Check"
@@ -11,8 +10,9 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { isPublicKey } from "../../lib/stellar-address"
 import TransactionSender from "../TransactionSender"
-import { VerticalLayout, Box } from "../Layout/Box"
+import { VerticalLayout } from "../Layout/Box"
 import { createTransaction } from "../../lib/transaction"
+import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import MainTitle from "../MainTitle"
 
@@ -138,40 +138,42 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
   )
 
   return (
-    <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-      <Box margin="0 0 32px">
+    <DialogBody
+      top={
         <MainTitle
           hideBackButton={!props.onClose}
           onBack={props.onClose}
           title={accountData.inflation_destination ? "Change Inflation Pool" : "Join Inflation Pool"}
         />
-      </Box>
-      <VerticalLayout minWidth={isSmallScreen ? 120 : 250}>
-        <DialogContent>
-          <InputLabel
-            style={{
-              overflow: "visible",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-              color: error ? "red" : undefined
-            }}
-          >
-            {error ? error.message : "Inflation destination"}
-          </InputLabel>
-          <TextField
-            autoFocus
-            disabled={mode === "readonly"}
-            error={Boolean(error)}
-            fullWidth
-            onChange={handleDestinationEditing}
-            onKeyDown={handleKeyDown}
-            placeholder="GABCDEFGHIJK... or pool*example.org"
-            value={mode === "readonly" ? readonlyDisplayName : destination}
-          />
-          <DialogActionsBox smallDialog>{mode === "editing" ? editableActions : readonlyActions}</DialogActionsBox>
-        </DialogContent>
+      }
+      actions={
+        <DialogActionsBox smallDialog>{mode === "editing" ? editableActions : readonlyActions}</DialogActionsBox>
+      }
+    >
+      <VerticalLayout margin="64px auto 0">
+        <InputLabel
+          style={{
+            overflow: "visible",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            color: error ? "red" : undefined
+          }}
+        >
+          {error ? error.message : "Inflation destination"}
+        </InputLabel>
+        <TextField
+          autoFocus
+          disabled={mode === "readonly"}
+          error={Boolean(error)}
+          fullWidth
+          inputProps={{ size: isSmallScreen ? 24 : 56 }}
+          onChange={handleDestinationEditing}
+          onKeyDown={handleKeyDown}
+          placeholder="GABCDEFGHIJK... or pool*example.org"
+          value={mode === "readonly" ? readonlyDisplayName : destination}
+        />
       </VerticalLayout>
-    </Box>
+    </DialogBody>
   )
 }
 

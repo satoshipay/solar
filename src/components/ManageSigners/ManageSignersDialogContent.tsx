@@ -11,8 +11,9 @@ import { useIsMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { ObservedAccountData } from "../../subscriptions"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import SignersEditor from "./SignersEditor"
+import DialogBody from "../Dialog/DialogBody"
 
 const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
 const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
@@ -90,9 +91,10 @@ interface Props {
   onCancel: () => void
   onSubmit: (values: SignerUpdate) => void
   style?: React.CSSProperties
+  title: React.ReactNode
 }
 
-function ManageSignersForm(props: Props) {
+function ManageSignersDialogContent(props: Props) {
   const { accountData } = props
 
   const [signersToAdd, setSignersToAdd] = React.useState<Horizon.AccountSigner[]>([])
@@ -147,9 +149,47 @@ function ManageSignersForm(props: Props) {
     ? `Every transaction needs to be signed by ${sanitizedKeyWeight} signers`
     : `Every transaction needs to be signed by signers with a combined key weight of ${sanitizedKeyWeight} `
 
+  const actionsContent = (
+    <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0" wrap="wrap">
+      <TextField
+        error={!!weightThresholdError}
+        label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
+        onChange={event => setWeightThreshold(event.target.value)}
+        value={weightThreshold}
+        variant="outlined"
+        style={isSmallScreen ? { width: "100%" } : {}}
+        type="number"
+        InputProps={{
+          endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
+        }}
+      />
+      <HorizontalLayout
+        alignItems="center"
+        justifyContent={isSmallScreen ? "center" : "end"}
+        margin="20px 0px"
+        style={{ marginLeft: "auto" }}
+        width={isSmallScreen ? "100%" : "auto"}
+      >
+        <DialogActionsBox desktopStyle={{ margin: 0 }}>
+          <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
+            Cancel
+          </ActionButton>
+          <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
+            {isSmallScreen ? "Apply" : "Apply changes"}
+          </ActionButton>
+        </DialogActionsBox>
+      </HorizontalLayout>
+    </HorizontalLayout>
+  )
+
   return (
-    <VerticalLayout minHeight="400px" justifyContent="space-between" style={props.style}>
-      <Box margin="20px 0 0">
+    <DialogBody top={props.title} actions={actionsContent}>
+      <VerticalLayout
+        justifyContent="space-between"
+        margin="8px 0 0"
+        minHeight={isSmallScreen ? undefined : "40vh"}
+        style={props.style}
+      >
         <SignersEditor
           isEditingNewSigner={props.isEditingNewSigner}
           setIsEditingNewSigner={props.setIsEditingNewSigner}
@@ -159,38 +199,9 @@ function ManageSignersForm(props: Props) {
           signers={updatedSigners}
           showKeyWeights={!allDefaultKeyweights}
         />
-      </Box>
-      <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0" wrap="wrap">
-        <TextField
-          error={!!weightThresholdError}
-          label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
-          onChange={event => setWeightThreshold(event.target.value)}
-          value={weightThreshold}
-          variant="outlined"
-          style={isSmallScreen ? { width: "100%" } : {}}
-          type="number"
-          InputProps={{
-            endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
-          }}
-        />
-        <HorizontalLayout
-          justifyContent={isSmallScreen ? "center" : "end"}
-          alignItems="center"
-          width={isSmallScreen ? "100%" : "auto"}
-          margin="20px 0px"
-        >
-          <DialogActionsBox desktopStyle={{ margin: 0 }}>
-            <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
-              Cancel
-            </ActionButton>
-            <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
-              {isSmallScreen ? "Apply" : "Apply changes"}
-            </ActionButton>
-          </DialogActionsBox>
-        </HorizontalLayout>
-      </HorizontalLayout>
-    </VerticalLayout>
+      </VerticalLayout>
+    </DialogBody>
   )
 }
 
-export default ManageSignersForm
+export default React.memo(ManageSignersDialogContent)

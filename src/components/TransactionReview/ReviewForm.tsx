@@ -1,10 +1,12 @@
+import nanoid from "nanoid"
 import React from "react"
+import { Transaction } from "stellar-sdk"
 import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
-import { Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
+import { RefStateObject } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { createCheapTxID, selectNetwork } from "../../lib/transaction"
@@ -13,6 +15,7 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
 import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
 import TransactionSummary from "./TransactionSummary"
+import Portal from "../Portal"
 
 type FormErrors = { [formField in keyof FormValues]: Error | null }
 
@@ -22,6 +25,7 @@ interface FormValues {
 
 interface Props {
   account: Account
+  actionsRef: RefStateObject
   disabled?: boolean
   passwordError?: Error | null
   showHash?: boolean
@@ -36,18 +40,12 @@ function TxConfirmationForm(props: Props) {
   const { onConfirm = () => undefined } = props
 
   const settings = React.useContext(SettingsContext)
+  const formID = React.useMemo(() => nanoid(), [])
+  const [dismissalConfirmationPending, setDismissalConfirmationPending] = React.useState(false)
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
-  const [dismissalConfirmationPending, setDismissalConfirmationPending] = React.useState(false)
 
   const passwordError = props.passwordError || errors.password
-
-  const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
-    setFormValues(prevValues => ({
-      ...prevValues,
-      [key]: value
-    }))
-  }
 
   const cancelDismissal = React.useCallback(() => setDismissalConfirmationPending(false), [])
   const requestDismissalConfirmation = React.useCallback(() => setDismissalConfirmationPending(true), [])
@@ -65,8 +63,26 @@ function TxConfirmationForm(props: Props) {
     },
     [props.signatureRequest]
   )
+  const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
+    setFormValues(prevValues => ({
+      ...prevValues,
+      [key]: value
+    }))
+  }
 
-  const onSubmit = (event: React.SyntheticEvent) => {
+  const openInStellarExpert = React.useCallback(
+    () => {
+      selectNetwork(props.account.testnet)
+      openLink(
+        `https://stellar.expert/explorer/${
+          props.account.testnet ? "testnet" : "public"
+        }/tx/${props.transaction.hash().toString("hex")}`
+      )
+    },
+    [createCheapTxID(props.transaction)]
+  )
+
+  const handleFormSubmission = React.useCallback((event: React.SyntheticEvent) => {
     event.preventDefault()
 
     if (props.disabled) {
@@ -83,22 +99,10 @@ function TxConfirmationForm(props: Props) {
 
     setErrors({})
     onConfirm(formValues)
-  }
-
-  const openInStellarExpert = React.useCallback(
-    () => {
-      selectNetwork(props.account.testnet)
-      openLink(
-        `https://stellar.expert/explorer/${
-          props.account.testnet ? "testnet" : "public"
-        }/tx/${props.transaction.hash().toString("hex")}`
-      )
-    },
-    [createCheapTxID(props.transaction)]
-  )
+  }, [])
 
   return (
-    <form noValidate onSubmit={onSubmit}>
+    <form id={formID} noValidate onSubmit={handleFormSubmission}>
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
@@ -122,6 +126,8 @@ function TxConfirmationForm(props: Props) {
             style={{ marginBottom: 32 }}
           />
         ) : null}
+      </VerticalLayout>
+      <Portal target={props.actionsRef.element}>
         <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
           {props.signatureRequest ? (
             <ActionButton onClick={requestDismissalConfirmation}>
@@ -130,19 +136,19 @@ function TxConfirmationForm(props: Props) {
             </ActionButton>
           ) : null}
           {props.disabled ? null : (
-            <ActionButton icon={<CheckIcon />} onClick={() => undefined} type="submit">
+            <ActionButton icon={<CheckIcon />} form={formID} onClick={() => undefined} type="submit">
               Confirm
             </ActionButton>
           )}
         </DialogActionsBox>
-        <DismissalConfirmationDialog
-          onCancel={cancelDismissal}
-          onConfirm={dismissSignatureRequest}
-          open={dismissalConfirmationPending}
-        />
-      </VerticalLayout>
+      </Portal>
+      <DismissalConfirmationDialog
+        onCancel={cancelDismissal}
+        onConfirm={dismissSignatureRequest}
+        open={dismissalConfirmationPending}
+      />
     </form>
   )
 }
 
-export default TxConfirmationForm
+export default React.memo(TxConfirmationForm)

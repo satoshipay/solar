@@ -2,10 +2,11 @@ import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useIsMobile, ObservedAccountData } from "../../hooks"
+import { useAccountData, useDialogActions, ObservedAccountData } from "../../hooks"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import AccountBalances from "../Account/AccountBalances"
 import AccountBalancesContainer from "../Account/AccountBalancesContainer"
+import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
@@ -21,7 +22,7 @@ interface Props {
 }
 
 function WithdrawalDialog(props: Props) {
-  const isSmallScreen = useIsMobile()
+  const dialogActionsRef = useDialogActions()
 
   const handleSubmit = React.useCallback(
     async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
@@ -40,24 +41,29 @@ function WithdrawalDialog(props: Props) {
   ])
 
   return (
-    <Box width="100%" maxHeight="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto">
-      <MainTitle
-        title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
-        onBack={props.onClose}
-      />
+    <DialogBody
+      top={
+        <MainTitle
+          title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+          onBack={props.onClose}
+        />
+      }
+      actions={dialogActionsRef}
+    >
       <AccountBalancesContainer>
         <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
       </AccountBalancesContainer>
       <Box margin="24px 0 0">{null}</Box>
       <Offramp
         account={props.account}
+        actionsRef={dialogActionsRef}
         assets={trustedAssets.filter(asset => !asset.isNative())}
         horizon={props.horizon}
         onCancel={props.onClose}
         onSubmit={handleSubmit}
         testnet={props.account.testnet}
       />
-    </Box>
+    </DialogBody>
   )
 }
 

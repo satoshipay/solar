@@ -31,6 +31,7 @@ interface ActionButtonProps {
   autoFocus?: boolean
   children: React.ReactNode
   disabled?: boolean
+  form?: string
   icon?: React.ReactNode
   loading?: boolean
   onClick?: (event: React.SyntheticEvent) => void
@@ -66,6 +67,7 @@ export function ActionButton(props: ActionButtonProps) {
       autoFocus={props.autoFocus}
       color={type === "primary" || type === "submit" ? "primary" : undefined}
       disabled={props.disabled}
+      form={props.form}
       onClick={props.onClick}
       style={isSmallScreen ? mobileStyle : desktopStyle}
       type={type === "submit" ? "submit" : undefined}
@@ -140,18 +142,19 @@ export const DialogActionsBox = React.memo(function DialogActionsBox(props: Dial
   }
   return (
     <DialogActions style={desktopStyle}>
-      {React.Children.map(
-        props.children,
-        (child, index) =>
-          index === 0 ? (
-            child
-          ) : (
-            <>
-              <HorizontalMargin size={props.spacing === "large" ? 32 : 16} />
-              {child}
-            </>
-          )
-      )}
+      {React.Children.toArray(props.children)
+        .filter(child => Boolean(child))
+        .map(
+          (child, index) =>
+            index === 0 ? (
+              child
+            ) : (
+              <React.Fragment key={index}>
+                <HorizontalMargin size={props.spacing === "large" ? 32 : 16} />
+                {child}
+              </React.Fragment>
+            )
+        )}
     </DialogActions>
   )
 })

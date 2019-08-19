@@ -11,9 +11,9 @@ import { useAccountData, useIsMobile, useIsSmallMobile } from "../../hooks"
 import { closeAccountSubscriptions } from "../../subscriptions"
 import AccountBalances from "../Account/AccountBalances"
 import AccountSelectionList from "../Account/AccountSelectionList"
-import Background from "../Background"
+import DialogBody from "../Dialog/DialogBody"
 import MergeIcon from "../Icon/Merge"
-import { Box } from "../Layout/Box"
+import { HorizontalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import { ActionButton, ConfirmDialog, DialogActionsBox } from "../Dialog/Generic"
@@ -37,6 +37,8 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
+
+  const toggleMergeAccount = React.useCallback(() => setMergeAccountEnabled(enabled => !enabled), [])
 
   const onDelete = () => {
     deleteAccount(props.account.id)
@@ -71,69 +73,52 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     }
   }
 
+  const remainingFundsContent = React.useMemo(
+    () =>
+      accountData.activated ? (
+        <>
+          <HorizontalLayout alignItems="center" style={{ marginTop: 24, marginLeft: -12, marginBottom: 8 }}>
+            <Switch color="primary" checked={mergeAccountEnabled} onChange={toggleMergeAccount} />
+            <Typography
+              onClick={toggleMergeAccount}
+              variant="h6"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: 48,
+                cursor: "pointer",
+                fontSize: isSmallScreen ? 16 : 20
+              }}
+            >
+              Send remaining funds to
+            </Typography>
+          </HorizontalLayout>
+
+          <AccountSelectionList
+            disabled={!mergeAccountEnabled}
+            accounts={accounts.filter(
+              account => account.publicKey !== props.account.publicKey && account.testnet === props.account.testnet
+            )}
+            testnet={props.account.testnet}
+            onChange={setSelectedMergeAccount}
+          />
+        </>
+      ) : null,
+    [props.account, accounts, accountData, mergeAccountEnabled, setMergeAccountEnabled, setSelectedMergeAccount]
+  )
+
   return (
-    <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-      <Background opacity={0.08}>
-        <WarnIcon style={{ fontSize: 160 }} />
-      </Background>
-      <MainTitle
-        title={<span>Confirm Account Deletion</span>}
-        titleColor="inherit"
-        onBack={props.onClose}
-        style={{ marginTop: 0, marginLeft: 0 }}
-      />
-      <DialogContent style={{ padding: isSmallScreen ? "0 4px" : "0 42px" }}>
-        <DialogContentText
-          style={{ display: accountData.activated ? undefined : "none", color: "inherit", marginTop: 12 }}
-        >
-          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-        </DialogContentText>
-
-        <DialogContentText style={{ marginTop: 16 }}>
-          Are you sure you want to delete the account "{props.account.name}
-          "?
-        </DialogContentText>
-        <DialogContentText style={{ display: accountData.activated ? undefined : "none", marginTop: 16 }}>
-          Make sure to backup your private key or merge the funds into another account of yours, since there are still
-          funds left!
-        </DialogContentText>
-
-        {accountData.activated ? (
-          <>
-            <Box style={{ display: "flex", marginTop: 24, marginLeft: -12, marginBottom: 8 }}>
-              <Switch
-                color="primary"
-                checked={mergeAccountEnabled}
-                onChange={() => setMergeAccountEnabled(!mergeAccountEnabled)}
-              />
-              <Typography
-                onClick={() => setMergeAccountEnabled(!mergeAccountEnabled)}
-                variant="h6"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  height: 48,
-                  cursor: "pointer",
-                  fontSize: isSmallScreen ? 16 : 20
-                }}
-              >
-                Send remaining funds to
-              </Typography>
-            </Box>
-
-            <AccountSelectionList
-              disabled={!mergeAccountEnabled}
-              accounts={accounts.filter(
-                account => account.publicKey !== props.account.publicKey && account.testnet === props.account.testnet
-              )}
-              testnet={props.account.testnet}
-              onChange={setSelectedMergeAccount}
-            />
-          </>
-        ) : (
-          undefined
-        )}
-
+    <DialogBody
+      background={<WarnIcon style={{ fontSize: 160 }} />}
+      top={
+        <MainTitle
+          title={<span>Confirm Account Deletion</span>}
+          titleColor="inherit"
+          onBack={props.onClose}
+          style={{ marginTop: 0, marginLeft: 0 }}
+        />
+      }
+      actions={
         <DialogActionsBox>
           {mergeAccountEnabled ? (
             <ActionButton
@@ -151,6 +136,25 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
             </ActionButton>
           )}
         </DialogActionsBox>
+      }
+    >
+      <DialogContent style={{ padding: isSmallScreen ? "0 4px" : "0 42px" }}>
+        <DialogContentText
+          style={{ display: accountData.activated ? undefined : "none", color: "inherit", marginTop: 12 }}
+        >
+          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+        </DialogContentText>
+
+        <DialogContentText style={{ marginTop: 24 }}>
+          Are you sure you want to delete the account "{props.account.name}
+          "?
+        </DialogContentText>
+        <DialogContentText style={{ display: accountData.activated ? undefined : "none", marginTop: 16 }}>
+          Make sure to backup your private key or merge the funds into another account of yours, since there are still
+          funds left!
+        </DialogContentText>
+
+        {remainingFundsContent}
 
         <ConfirmDialog
           cancelButton={<ActionButton onClick={() => setConfirmationPending(false)}>Cancel</ActionButton>}
@@ -167,7 +171,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           {mergeAccountEnabled ? " and the remaining funds transferred" : ""}. Are you sure?
         </ConfirmDialog>
       </DialogContent>
-    </Box>
+    </DialogBody>
   )
 }
 

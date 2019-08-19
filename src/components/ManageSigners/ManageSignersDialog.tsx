@@ -8,12 +8,10 @@ import { trackError } from "../../context/notifications"
 import { useAccountData, useIsMobile } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
 import { ObservedAccountData } from "../../subscriptions"
-import { Box } from "../Layout/Box"
-import ManageSignersForm, { SignerUpdate } from "../ManageSigners/ManageSignersForm"
 import TransactionSender from "../TransactionSender"
 import ButtonIconLabel from "../ButtonIconLabel"
-import ErrorBoundary from "../ErrorBoundary"
 import MainTitle from "../MainTitle"
+import ManageSignersDialogContent, { SignerUpdate } from "./ManageSignersDialogContent"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -80,32 +78,35 @@ function ManageSignersDialog(props: Props) {
     }
   }
 
+  const titleContent = React.useMemo(
+    () => (
+      <MainTitle
+        title={isSmallScreen ? "Manage Signers" : "Manage Account Signers"}
+        actions={
+          <>
+            <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
+              <ButtonIconLabel label={isWidthMax450 ? "Signer" : "Add Co-Signer"}>
+                <PersonAddIcon />
+              </ButtonIconLabel>
+            </Button>
+          </>
+        }
+        onBack={props.onClose}
+        style={{ marginBottom: 24 }}
+      />
+    ),
+    [props.onClose, isSmallScreen, isWidthMax450]
+  )
+
   return (
-    <ErrorBoundary>
-      <Box width="100%" maxWidth={900} padding="32px" margin="0 auto">
-        <MainTitle
-          title={isSmallScreen ? "Manage Signers" : "Manage Account Signers"}
-          actions={
-            <>
-              <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
-                <ButtonIconLabel label={isWidthMax450 ? "Signer" : "Add Co-Signer"}>
-                  <PersonAddIcon />
-                </ButtonIconLabel>
-              </Button>
-            </>
-          }
-          onBack={props.onClose}
-          style={{ marginBottom: 24 }}
-        />
-        <ManageSignersForm
-          accountData={props.accountData}
-          isEditingNewSigner={isEditingNewSigner}
-          setIsEditingNewSigner={setIsEditingNewSigner}
-          onCancel={props.onClose}
-          onSubmit={submitTransaction}
-        />
-      </Box>
-    </ErrorBoundary>
+    <ManageSignersDialogContent
+      accountData={props.accountData}
+      isEditingNewSigner={isEditingNewSigner}
+      onCancel={props.onClose}
+      onSubmit={submitTransaction}
+      setIsEditingNewSigner={setIsEditingNewSigner}
+      title={titleContent}
+    />
   )
 }
 
@@ -120,4 +121,4 @@ function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizo
   )
 }
 
-export default ManageSignersDialogContainer
+export default React.memo(ManageSignersDialogContainer)
