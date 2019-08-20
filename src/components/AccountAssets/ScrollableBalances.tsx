@@ -9,9 +9,8 @@ import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useIsMobile } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
-import { StellarTomlCurrency } from "../../types/stellar-toml"
-import { SingleBalance } from "../Account/AccountBalances"
-import AssetLogo from "./AssetLogo"
+import { useScrollHandlers } from "./hooks"
+import ScrollableBalanceItem from "./ScrollableBalanceItem"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
   if (balance.asset_type === "native") {
@@ -19,185 +18,6 @@ function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boo
   } else {
     return balance.asset_code === asset.getCode() && balance.asset_issuer === asset.getIssuer()
   }
-}
-
-const maxHorizontalScroll = (dom: HTMLElement) => dom.scrollWidth - dom.clientWidth
-
-// TypeScript version of <https://github.com/perrin4869/react-scroll-ondrag/blob/master/src/index.js>
-function useScrollHandlers() {
-  const domRef = React.useRef<HTMLElement | null>(null)
-  const [, setCounterState] = React.useState(0)
-  const [scrollState, setScrollState] = React.useState({
-    activeScrollStep: 0,
-    canScrollLeft: false,
-    canScrollRight: false,
-    scrollStepCount: 1
-  })
-
-  const forceRerender = () => setCounterState(counter => counter + 1)
-
-  const getActiveScrollStep = (dom: HTMLElement) => {
-    return Math.ceil(dom.scrollLeft / getScrollStepWidth(dom))
-  }
-  const getScrollStepWidth = (dom: HTMLElement) => {
-    return dom.parentElement!.clientWidth / 2
-  }
-
-  const updateOverflowState = () => {
-    if (!domRef.current) {
-      return
-    }
-
-    const activeScrollStep = getActiveScrollStep(domRef.current)
-    const canScrollLeft = domRef.current.scrollLeft > 0
-    const canScrollRight = domRef.current.scrollLeft < maxHorizontalScroll(domRef.current)
-    const scrollStepCount = Math.ceil(maxHorizontalScroll(domRef.current) / getScrollStepWidth(domRef.current)) + 1
-
-    const scrollingHitBoundary =
-      canScrollLeft !== scrollState.canScrollLeft || canScrollRight !== scrollState.canScrollRight
-    const scrollStepsChanged =
-      activeScrollStep !== scrollState.activeScrollStep || scrollStepCount !== scrollState.scrollStepCount
-
-    console.log(">", {
-      activeScrollStep,
-      maxHorizontalScroll: maxHorizontalScroll(domRef.current),
-      scrollLeft: domRef.current.scrollLeft,
-      scrollStepCount,
-      scrollStepWidth: getScrollStepWidth(domRef.current),
-      scrollWidth: domRef.current.scrollWidth
-    })
-    if (scrollingHitBoundary || scrollStepsChanged) {
-      setScrollState({ activeScrollStep, canScrollLeft, canScrollRight, scrollStepCount })
-    }
-  }
-
-  const setRef = (domElement: HTMLElement | null) => {
-    if (domElement && domElement !== domRef.current) {
-      domRef.current = domElement
-      updateOverflowState()
-      forceRerender()
-    }
-  }
-
-  const scrollLeft = React.useCallback(
-    () => {
-      if (domRef.current) {
-        domRef.current.scrollBy({
-          left: -getScrollStepWidth(domRef.current),
-          behavior: "smooth"
-        })
-      }
-    },
-    [domRef.current]
-  )
-
-  const scrollRight = React.useCallback(
-    () => {
-      if (domRef.current) {
-        domRef.current.scrollBy({
-          left: getScrollStepWidth(domRef.current),
-          behavior: "smooth"
-        })
-      }
-    },
-    [domRef.current]
-  )
-
-  return {
-    ...scrollState,
-    domRef,
-    scrollLeft,
-    scrollRight,
-    props: {
-      onLoad: React.useCallback(updateOverflowState, []),
-      onScroll: React.useCallback(updateOverflowState, []),
-      ref: React.useCallback(setRef, [])
-    }
-  }
-}
-
-interface ScrollableBalancesStyleProps {
-  horizontal: boolean
-}
-
-const useBalanceItemStyles = makeStyles({
-  root: (props: ScrollableBalancesStyleProps) => ({
-    alignItems: "center",
-    display: "flex",
-    flex: "0 0 auto",
-    flexDirection: props.horizontal ? "row" : "column",
-    justifyContent: "flex-start",
-    minWidth: 130,
-    padding: "8px 16px",
-
-    [breakpoints.down(600)]: {
-      minWidth: 100,
-      paddingLeft: props.horizontal ? undefined : 8,
-      paddingRight: props.horizontal ? undefined : 8
-    },
-    [breakpoints.down(350)]: {
-      minWidth: 90
-    }
-  }),
-  clickable: {
-    borderRadius: 6,
-    cursor: "pointer",
-
-    "&:hover": {
-      background: "rgba(255, 255, 255, 0.05)"
-    }
-  },
-  logo: (props: ScrollableBalancesStyleProps) => ({
-    boxShadow: "0 0 2px #fff",
-    boxSizing: "border-box",
-    margin: 0,
-    marginLeft: props.horizontal ? 0 : "auto",
-    marginRight: props.horizontal ? 0 : "auto",
-    width: 48,
-    height: 48,
-
-    [breakpoints.down(350)]: {
-      width: 40,
-      height: 40
-    }
-  }),
-  balance: (props: ScrollableBalancesStyleProps) => ({
-    fontSize: 16,
-    marginTop: props.horizontal ? 0 : 8,
-    marginLeft: props.horizontal ? 16 : 0,
-    textAlign: props.horizontal ? "left" : "center"
-  }),
-  assetCode: {
-    display: "block",
-    fontWeight: 700
-  }
-})
-
-interface BalanceWithLogoProps {
-  assetMetadata?: StellarTomlCurrency
-  balance: Horizon.BalanceLine
-  horizontal: boolean
-  onClick?: () => void
-}
-
-function BalanceWithLogo(props: BalanceWithLogoProps) {
-  const classes = useBalanceItemStyles(props)
-
-  return (
-    <div className={`${classes.root} ${props.onClick ? classes.clickable : ""}`} onClick={props.onClick}>
-      <AssetLogo
-        balance={props.balance}
-        className={classes.logo}
-        imageURL={props.assetMetadata ? props.assetMetadata.image : undefined}
-      />
-      <div className={classes.balance}>
-        <span className={classes.assetCode}>
-          {props.balance.asset_type === "native" ? "XLM" : props.balance.asset_code}
-        </span>
-        <SingleBalance assetCode="" balance={props.balance.balance} inline />
-      </div>
-    </div>
-  )
 }
 
 const useScrollableBalancesStyles = makeStyles({
@@ -324,7 +144,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         {trustedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]
           return (
-            <BalanceWithLogo
+            <ScrollableBalanceItem
               key={stringifyAsset(asset)}
               assetMetadata={metadata}
               balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
@@ -333,7 +153,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
             />
           )
         })}
-        <BalanceWithLogo balance={nativeBalance} horizontal={horizontal} onClick={props.onClick} />
+        <ScrollableBalanceItem balance={nativeBalance} horizontal={horizontal} onClick={props.onClick} />
       </div>
       {scrollHandlers.canScrollLeft || scrollHandlers.canScrollRight ? (
         <MobileStepper
