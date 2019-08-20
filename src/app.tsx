@@ -5,6 +5,7 @@ import "regenerator-runtime/runtime"
 import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router, Route, Switch } from "react-router-dom"
+import SmoothScroll from "smoothscroll-polyfill"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
 import AndroidBackButton from "./components/AndroidBackButton"
@@ -27,6 +28,7 @@ import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
 
 Network.usePublicNetwork()
+SmoothScroll.polyfill()
 
 const CreateMainnetAccount = () => <CreateAccountPage testnet={false} />
 const CreateTestnetAccount = () => <CreateAccountPage testnet={true} />
