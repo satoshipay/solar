@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
