@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
@@ -38,7 +38,9 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
     }
   }
 
-  const assetBalance = props.accountData.balances.find((balance: any) => balance.asset_code === props.asset.code)
+  const assetBalance = (props.accountData.balances as Horizon.BalanceLineAsset[]).find(
+    balance => balance.asset_code === props.asset.getCode() && balance.asset_issuer === props.asset.getIssuer()
+  )
   const stillOwnsTokens = assetBalance && parseFloat(assetBalance.balance) > 0
 
   return (
@@ -85,4 +87,4 @@ function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon
   )
 }
 
-export default ConnectedRemoveTrustlineDialog
+export default React.memo(ConnectedRemoveTrustlineDialog)
