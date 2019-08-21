@@ -99,7 +99,7 @@ function TxConfirmationForm(props: Props) {
 
     setErrors({})
     onConfirm(formValues)
-  }, [])
+  }, [props.account, props.disabled, formValues, onConfirm])
 
   return (
     <form id={formID} noValidate onSubmit={handleFormSubmission}>
