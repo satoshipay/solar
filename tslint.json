@@ -10,5 +10,8 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "semicolon": false
+  },
+  "linterOptions": {
+    "exclude": ["*.json", "**/*.json"]
   }
 }
