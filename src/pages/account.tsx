@@ -141,7 +141,7 @@ function AccountPage(props: Props) {
           <ScrollableBalances
             account={account}
             onClick={navigateTo.balanceDetails}
-            style={{ marginTop: 20, marginBottom: isSmallScreen ? -16 : -4, paddingBottom: 16 }}
+            style={{ marginTop: 20, marginBottom: isSmallScreen ? -16 : -4, paddingBottom: isSmallScreen ? 4 : 16 }}
           />
           {isSmallScreen ? null : (
             <AccountActions

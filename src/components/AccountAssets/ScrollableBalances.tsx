@@ -1,5 +1,7 @@
-import { Asset, Horizon } from "stellar-sdk"
 import React from "react"
+import ReactDOM from "react-dom"
+import SwipeableViews from "react-swipeable-views"
+import { Asset, Horizon } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import MobileStepper from "@material-ui/core/MobileStepper"
 import makeStyles from "@material-ui/core/styles/makeStyles"
@@ -9,7 +11,6 @@ import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useIsMobile } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
-import { useScrollHandlers } from "./hooks"
 import ScrollableBalanceItem from "./ScrollableBalanceItem"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
@@ -22,36 +23,21 @@ function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boo
 
 const useScrollableBalancesStyles = makeStyles({
   root: {
-    display: "flex",
-    fontSize: 18,
     marginLeft: -8,
     marginRight: -8,
-    overflowX: "auto",
-    scrollBehavior: "smooth",
-    transition: "background .25s, -webkit-mask-position-x 1s, -webkit-mask-size 1s",
-    WebkitOverflowScrolling: "touch",
 
-    [breakpoints.down(600)]: {
+    [breakpoints.down(500)]: {
       marginLeft: -16,
       marginRight: -16
     }
   },
   canScroll: {
     WebkitMaskImage:
-      "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 5%, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0.3) 95%, rgba(0, 0, 0, 0) 100%)",
-
-    [breakpoints.down(600)]: {
-      WebkitMaskImage:
-        "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 7.5%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0.3) 92.5%, rgba(0, 0, 0, 0) 100%)"
-    }
+      "linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 5%, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0.3) 95%, rgba(0, 0, 0, 0) 100%)"
   },
   canScrollLeft: {
     WebkitMaskPositionX: "0",
-    WebkitMaskSize: "110%",
-
-    [breakpoints.down(600)]: {
-      WebkitMaskSize: "115%"
-    }
+    WebkitMaskSize: "110%"
   },
   canScrollLeftRight: {
     WebkitMaskPositionX: "0",
@@ -59,12 +45,10 @@ const useScrollableBalancesStyles = makeStyles({
   },
   canScrollRight: {
     WebkitMaskPositionX: "-10vw",
-    WebkitMaskSize: "110%",
-
-    [breakpoints.down(600)]: {
-      WebkitMaskPositionX: "-15vw",
-      WebkitMaskSize: "115%"
-    }
+    WebkitMaskSize: "110%"
+  },
+  slide: {
+    width: "auto !important"
   }
 })
 
@@ -76,7 +60,8 @@ const useStepperStyles = makeStyles({
     width: "fit-content",
 
     [breakpoints.down(600)]: {
-      marginTop: 16
+      marginTop: 16,
+      marginBottom: -12
     }
   },
   dotActive: {
@@ -104,10 +89,11 @@ interface ScrollableBalancesProps {
 
 function ScrollableBalances(props: ScrollableBalancesProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const scrollHandlers = useScrollHandlers()
+  const swipeableContainerRef = React.useRef<(HTMLDivElement & SwipeableViews) | null>(null)
+  const [currentSlide, setCurrentSlide] = React.useState(0)
 
   const isSmallScreen = useIsMobile()
-  const horizontal = !isSmallScreen || accountData.balances.length < 2
+  const horizontal = !isSmallScreen
 
   const classes = useScrollableBalancesStyles({ horizontal })
   const stepperClasses = useStepperStyles({})
@@ -126,21 +112,41 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
   }
 
   const assetMetadata = useAssetMetadata(trustedAssets, props.account.testnet)
+
+  const swipeableMasterContainer = swipeableContainerRef.current && ReactDOM.findDOMNode(swipeableContainerRef.current)
+  const swipeableContainer = swipeableMasterContainer ? (swipeableMasterContainer.firstChild as HTMLDivElement) : null
+  const slideCount = swipeableContainer ? Math.ceil(swipeableContainer.scrollWidth / swipeableContainer.clientWidth) : 1
+
+  const canScrollLeft = currentSlide > 0
+  const canScrollRight = currentSlide < slideCount - 1
+  const scrollLeft = () => setCurrentSlide(index => index - 1)
+  const scrollRight = () => setCurrentSlide(index => index + 1)
+
   const className = [
     classes.root,
-    scrollHandlers.canScrollLeft || scrollHandlers.canScrollRight ? classes.canScroll : "",
-    scrollHandlers.canScrollLeft && scrollHandlers.canScrollRight
+    canScrollLeft || canScrollRight ? classes.canScroll : "",
+    canScrollLeft && canScrollRight
       ? classes.canScrollLeftRight
-      : scrollHandlers.canScrollLeft
+      : canScrollLeft
         ? classes.canScrollLeft
-        : scrollHandlers.canScrollRight
+        : canScrollRight
           ? classes.canScrollRight
           : ""
   ].join(" ")
 
   return (
     <>
-      <div {...scrollHandlers.props} className={className} style={props.style}>
+      <SwipeableViews
+        className={className}
+        disableLazyLoading
+        enableMouseEvents
+        hysteresis={0.2}
+        index={currentSlide}
+        onChangeIndex={setCurrentSlide}
+        ref={swipeableContainerRef}
+        slideClassName={classes.slide}
+        style={props.style}
+      >
         {trustedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]
           return (
@@ -154,32 +160,32 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
           )
         })}
         <ScrollableBalanceItem balance={nativeBalance} horizontal={horizontal} onClick={props.onClick} />
-      </div>
-      {scrollHandlers.canScrollLeft || scrollHandlers.canScrollRight ? (
+      </SwipeableViews>
+      {canScrollLeft || canScrollRight ? (
         <MobileStepper
-          activeStep={scrollHandlers.activeScrollStep}
+          activeStep={currentSlide}
           classes={{
             dotActive: stepperClasses.dotActive,
             root: stepperClasses.root
           }}
           backButton={
             <IconButton
-              className={`${stepperClasses.navButton} ${scrollHandlers.canScrollLeft ? "" : stepperClasses.hidden}`}
-              onClick={scrollHandlers.scrollLeft}
+              className={`${stepperClasses.navButton} ${canScrollLeft ? "" : stepperClasses.hidden}`}
+              onClick={scrollLeft}
             >
               <LeftIcon className={stepperClasses.navButtonIcon} />
             </IconButton>
           }
           nextButton={
             <IconButton
-              className={`${stepperClasses.navButton} ${scrollHandlers.canScrollRight ? "" : stepperClasses.hidden}`}
-              onClick={scrollHandlers.scrollRight}
+              className={`${stepperClasses.navButton} ${canScrollRight ? "" : stepperClasses.hidden}`}
+              onClick={scrollRight}
             >
               <RightIcon className={stepperClasses.navButtonIcon} />
             </IconButton>
           }
           position="static"
-          steps={scrollHandlers.scrollStepCount}
+          steps={slideCount}
           variant="dots"
         />
       ) : null}
