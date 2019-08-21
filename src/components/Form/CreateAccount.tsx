@@ -68,6 +68,7 @@ function validateFormValues(formValues: AccountCreationValues, accounts: Account
 interface AccountCreationFormProps {
   errors: AccountCreationErrors
   formValues: AccountCreationValues
+  importedSecretKey?: string
   testnet: boolean
   onCancel(): void
   onSubmit(): void
@@ -93,6 +94,16 @@ function AccountCreationForm(props: AccountCreationFormProps) {
     setFormValue("privateKey", key)
     setFormValue("createNewKey", false)
   }
+
+  React.useEffect(
+    () => {
+      if (props.importedSecretKey) {
+        setFormValue("privateKey", props.importedSecretKey)
+        setFormValue("createNewKey", false)
+      }
+    },
+    [props.importedSecretKey]
+  )
 
   return (
     <form onSubmit={props.onSubmit}>
@@ -184,12 +195,13 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         </ToggleSection>
         <ToggleSection
           checked={!formValues.createNewKey}
+          disabled={Boolean(props.importedSecretKey)}
           onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
           title="Import Existing"
         >
           <HorizontalLayout alignItems="center">
             <TextField
-              disabled={Boolean(formValues.createNewKey)}
+              disabled={Boolean(props.importedSecretKey || formValues.createNewKey)}
               error={Boolean(errors.privateKey)}
               label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Secret key"}
               placeholder="SABCDEFGH…"
@@ -200,13 +212,17 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               inputProps={{
                 style: { textOverflow: "ellipsis" }
               }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment disableTypography position="end">
-                    <QRReader iconStyle={{ fontSize: 20 }} onScan={onQRImport} />
-                  </InputAdornment>
-                )
-              }}
+              InputProps={
+                props.importedSecretKey
+                  ? undefined
+                  : {
+                      endAdornment: (
+                        <InputAdornment disableTypography position="end">
+                          <QRReader iconStyle={{ fontSize: 20 }} onScan={onQRImport} />
+                        </InputAdornment>
+                      )
+                    }
+              }
             />
           </HorizontalLayout>
         </ToggleSection>
@@ -223,6 +239,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
 
 interface Props {
   accounts: Account[]
+  importedSecretKey?: string
   testnet: boolean
   onCancel(): void
   onSubmit(formValues: AccountCreationValues): void
@@ -285,6 +302,7 @@ function StatefulAccountCreationForm(props: Props) {
         onCancel={props.onCancel}
         onSubmit={validate}
         setFormValue={setFormValue}
+        importedSecretKey={props.importedSecretKey}
       />
       <ConfirmDialog
         cancelButton={<ActionButton onClick={() => setPendingConfirmation(false)}>Cancel</ActionButton>}
