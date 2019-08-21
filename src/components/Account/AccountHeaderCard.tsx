@@ -2,14 +2,29 @@ import React from "react"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import CloseIcon from "@material-ui/icons/Close"
-import MoreVertIcon from "@material-ui/icons/MoreVert"
+import MenuIcon from "@material-ui/icons/Menu"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useAccountData, useIsMobile } from "../../hooks"
 import { Box } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 import AccountTitle from "./AccountTitle"
+
+const useAccountHeaderStyles = makeStyles({
+  closeButton: {
+    boxSizing: "content-box",
+    width: 32,
+    height: 32,
+    marginRight: -16,
+    fontSize: 32
+  },
+  menuButton: {
+    fontSize: 32,
+    marginRight: -16
+  }
+})
 
 interface Props {
   account: Account
@@ -25,19 +40,16 @@ interface Props {
 }
 
 function AccountHeaderCard(props: Props) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const classes = useAccountHeaderStyles({})
   const isSmallScreen = useIsMobile()
   const settings = React.useContext(SettingsContext)
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
 
   const actions = React.useMemo(
     () => (
       <Box height={56}>
         {props.showCloseButton ? (
-          <IconButton
-            color="inherit"
-            onClick={props.onClose}
-            style={{ boxSizing: "content-box", width: 32, height: 32, marginRight: -16, fontSize: 32 }}
-          >
+          <IconButton className={classes.closeButton} color="inherit" onClick={props.onClose}>
             <CloseIcon />
           </IconButton>
         ) : (
@@ -51,8 +63,8 @@ function AccountHeaderCard(props: Props) {
             settings={settings}
           >
             {({ onOpen }) => (
-              <IconButton color="inherit" onClick={onOpen} style={{ marginRight: -16, fontSize: 32 }}>
-                <MoreVertIcon style={{ fontSize: "inherit" }} />
+              <IconButton className={classes.menuButton} color="inherit" onClick={onOpen}>
+                <MenuIcon style={{ fontSize: "inherit" }} />
               </IconButton>
             )}
           </AccountContextMenu>
