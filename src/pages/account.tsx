@@ -138,11 +138,7 @@ function AccountPage(props: Props) {
           onWithdraw={navigateTo.withdraw}
           showCloseButton={showAccountSettings}
         >
-          <ScrollableBalances
-            account={account}
-            onClick={navigateTo.balanceDetails}
-            style={{ marginTop: 20, marginBottom: isSmallScreen ? -16 : -4, paddingBottom: isSmallScreen ? 4 : 16 }}
-          />
+          <ScrollableBalances account={account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
           {isSmallScreen ? null : (
             <AccountActions
               account={account}

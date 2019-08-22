@@ -6,6 +6,16 @@ import { StellarTomlCurrency } from "../../types/stellar-toml"
 import { SingleBalance } from "../Account/AccountBalances"
 import AssetLogo from "./AssetLogo"
 
+export function getBalanceItemMinMaxWidth() {
+  if (window.innerWidth < 350) {
+    return [90, 90 * 1.5]
+  } else if (window.innerWidth < 600) {
+    return [100, 100 * 1.5]
+  } else {
+    return [130, 130 * 1.5]
+  }
+}
+
 interface BalanceItemStyleProps {
   horizontal: boolean
 }
@@ -45,25 +55,25 @@ const useBalanceItemStyles = makeStyles({
     margin: 0,
     marginLeft: props.horizontal ? 0 : "auto",
     marginRight: props.horizontal ? 0 : "auto",
-    width: 48,
-    height: 48,
+    width: props.horizontal ? 40 : 48,
+    height: props.horizontal ? 40 : 48,
 
-    [breakpoints.down(600)]: props.horizontal
-      ? {
-          width: 40,
-          height: 40
-        }
-      : {},
-    [breakpoints.down(350)]: {
-      width: 40,
-      height: 40
+    [breakpoints.down(400)]: {
+      width: props.horizontal ? 36 : 40,
+      height: props.horizontal ? 36 : 40
     }
   }),
   balance: (props: BalanceItemStyleProps) => ({
     fontSize: 16,
+    lineHeight: "20px",
     marginTop: props.horizontal ? 0 : 8,
     marginLeft: props.horizontal ? 16 : 0,
-    textAlign: props.horizontal ? "left" : "center"
+    textAlign: props.horizontal ? "left" : "center",
+
+    [breakpoints.down(600)]: {
+      fontSize: 14,
+      lineHeight: "18px"
+    }
   }),
   assetCode: {
     display: "block",
