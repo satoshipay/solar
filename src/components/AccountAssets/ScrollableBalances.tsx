@@ -117,6 +117,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const balanceItemsRef = React.useRef<Map<number, HTMLElement | null>>(new Map())
   const latestStepRef = React.useRef(0)
+  const mouseState = React.useRef({ latestMouseMoveEndTime: 0 })
   const swipeableContainerRef = React.useRef<HTMLDivElement | null>(null)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [spring, setSpring] = useSpring(() => ({ x: 0 }))
@@ -153,7 +154,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
   const scrollLeft = () => scrollTo(Math.max(latestStepRef.current - 1, 0))
   const scrollRight = () => scrollTo(Math.min(latestStepRef.current + 1, stepCount - 1))
 
-  const bind = useDrag(({ cancel, delta, direction, down }) => {
+  const bind = useDrag(({ cancel, delta, direction, distance, down }) => {
     const lastXBeforeGesture = getStepX(latestStepRef.current)
 
     if (down && Math.abs(delta[0]) > 50) {
@@ -162,7 +163,22 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     } else {
       setSpring({ x: down ? lastXBeforeGesture + delta[0] : lastXBeforeGesture })
     }
+
+    if (distance > 5) {
+      mouseState.current.latestMouseMoveEndTime = Date.now()
+    }
   })
+
+  const handleClick = React.useCallback(
+    () => {
+      const mouseDragJustHappened = Date.now() - mouseState.current.latestMouseMoveEndTime < 100
+
+      if (props.onClick && !mouseDragJustHappened) {
+        props.onClick()
+      }
+    },
+    [props.onClick]
+  )
 
   const classes = useScrollableBalancesStyles({})
 
@@ -200,7 +216,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
             ref={domElement => (domElement ? balanceItemsRef.current.set(index, domElement) : undefined)}
             assetMetadata={metadata}
             balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
-            onClick={props.onClick}
+            onClick={handleClick}
           />
         )
       }),
@@ -210,10 +226,10 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
           domElement ? balanceItemsRef.current.set(accountData.balances.length - 1, domElement) : undefined
         }
         balance={nativeBalance}
-        onClick={props.onClick}
+        onClick={handleClick}
       />
     ],
-    [accountData.balances, nativeBalance, props.onClick, trustedAssets]
+    [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets]
   )
 
   return (

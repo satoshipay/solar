@@ -82,33 +82,9 @@ interface BalanceWithLogoProps {
 
 function BalanceItem(props: BalanceWithLogoProps, ref: React.Ref<any>) {
   const classes = useBalanceItemStyles(props)
-  const lastMouseDown = React.useRef({ mouseX: 0, mouseY: 0 })
-
-  const handleMouseClick = React.useCallback(
-    (event: React.MouseEvent) => {
-      const epsilonX = Math.abs(lastMouseDown.current.mouseX - event.clientX)
-      const epsilonY = Math.abs(lastMouseDown.current.mouseY - event.clientY)
-
-      // Prevent click event handler being triggered on swipe
-      if (props.onClick && epsilonX < 20 && epsilonY < 20) {
-        props.onClick()
-      }
-    },
-    [props.onClick]
-  )
-
-  const handleMouseDown = React.useCallback((event: React.MouseEvent) => {
-    lastMouseDown.current.mouseX = event.clientX
-    lastMouseDown.current.mouseY = event.clientY
-  }, [])
 
   return (
-    <div
-      className={`${classes.root} ${props.onClick ? classes.clickable : ""}`}
-      onClick={handleMouseClick}
-      onMouseDown={handleMouseDown}
-      ref={ref}
-    >
+    <div className={`${classes.root} ${props.onClick ? classes.clickable : ""}`} onClick={props.onClick} ref={ref}>
       <AssetLogo
         balance={props.balance}
         className={classes.logo}
