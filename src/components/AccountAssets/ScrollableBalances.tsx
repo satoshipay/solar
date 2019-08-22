@@ -158,7 +158,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
 
     if (down && Math.abs(delta[0]) > 50) {
       direction[0] < 0 ? scrollRight() : scrollLeft()
-      cancel && cancel()
+      cancel!()
     } else {
       setSpring({ x: down ? lastXBeforeGesture + delta[0] : lastXBeforeGesture })
     }
@@ -200,7 +200,6 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
             ref={domElement => (domElement ? balanceItemsRef.current.set(index, domElement) : undefined)}
             assetMetadata={metadata}
             balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
-            horizontal
             onClick={props.onClick}
           />
         )
@@ -211,7 +210,6 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
           domElement ? balanceItemsRef.current.set(accountData.balances.length - 1, domElement) : undefined
         }
         balance={nativeBalance}
-        horizontal
         onClick={props.onClick}
       />
     ],

@@ -16,29 +16,22 @@ export function getBalanceItemMinMaxWidth() {
   }
 }
 
-interface BalanceItemStyleProps {
-  horizontal: boolean
-}
-
 const useBalanceItemStyles = makeStyles({
-  root: (props: BalanceItemStyleProps) => ({
+  root: {
     alignItems: "center",
     display: "flex",
     flex: "0 0 auto",
-    flexDirection: props.horizontal ? "row" : "column",
     justifyContent: "flex-start",
     minWidth: 130,
     padding: "8px 16px",
 
     [breakpoints.down(600)]: {
-      minWidth: 100,
-      paddingLeft: props.horizontal ? undefined : 8,
-      paddingRight: props.horizontal ? undefined : 8
+      minWidth: 100
     },
     [breakpoints.down(350)]: {
       minWidth: 90
     }
-  }),
+  },
   clickable: {
     borderRadius: 6,
     cursor: "pointer",
@@ -49,32 +42,32 @@ const useBalanceItemStyles = makeStyles({
       }
     }
   },
-  logo: (props: BalanceItemStyleProps) => ({
+  logo: {
     boxShadow: "0 0 2px #fff",
     boxSizing: "border-box",
     margin: 0,
-    marginLeft: props.horizontal ? 0 : "auto",
-    marginRight: props.horizontal ? 0 : "auto",
-    width: props.horizontal ? 40 : 48,
-    height: props.horizontal ? 40 : 48,
+    marginLeft: 0,
+    marginRight: 0,
+    width: 40,
+    height: 40,
 
     [breakpoints.down(400)]: {
-      width: props.horizontal ? 36 : 40,
-      height: props.horizontal ? 36 : 40
+      width: 36,
+      height: 36
     }
-  }),
-  balance: (props: BalanceItemStyleProps) => ({
+  },
+  balance: {
     fontSize: 16,
     lineHeight: "20px",
-    marginTop: props.horizontal ? 0 : 8,
-    marginLeft: props.horizontal ? 16 : 0,
-    textAlign: props.horizontal ? "left" : "center",
+    marginTop: 0,
+    marginLeft: 16,
+    textAlign: "left",
 
     [breakpoints.down(600)]: {
       fontSize: 14,
       lineHeight: "18px"
     }
-  }),
+  },
   assetCode: {
     display: "block",
     fontWeight: 700
@@ -84,7 +77,6 @@ const useBalanceItemStyles = makeStyles({
 interface BalanceWithLogoProps {
   assetMetadata?: StellarTomlCurrency
   balance: Horizon.BalanceLine
-  horizontal: boolean
   onClick?: () => void
 }
 
