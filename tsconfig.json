@@ -3,15 +3,13 @@
     "outDir": "./dist/",
     "sourceMap": true,
     "strict": true,
-    "module": "commonjs",
+    "module": "es2015",
+    "moduleResolution": "node",
     "esModuleInterop": true,
-    "target": "es5",
+    "target": "es2017",
     "lib": ["es6", "dom"],
     "jsx": "react",
     "noUnusedLocals": true,
     "skipLibCheck": true
-  },
-  "rules": {
-    "no-submodule-imports": false
   }
 }

@@ -1,5 +1,7 @@
 /// <reference types="parcel-env" />
 
+import "core-js/stable"
+import "regenerator-runtime/runtime"
 import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router, Route, Switch } from "react-router-dom"
