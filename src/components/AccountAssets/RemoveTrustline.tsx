@@ -8,8 +8,8 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
-import { ActionButton, DialogActionsBox } from "./Generic"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 

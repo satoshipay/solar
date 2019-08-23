@@ -13,6 +13,16 @@ import AssetLogo from "./AssetLogo"
 export const actionsSize = 36
 
 const useBalanceItemStyles = makeStyles({
+  clickable: {
+    backgroundColor: "transparent",
+    filter: "none",
+    transition: "filter .3s",
+
+    "&:hover": {
+      backgroundColor: "transparent",
+      filter: "drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25))"
+    }
+  },
   icon: {
     [breakpoints.down(350)]: {
       minWidth: 48
@@ -74,19 +84,27 @@ interface BalanceListItemProps {
   actions?: React.ReactNode
   assetMetadata?: StellarTomlCurrency
   balance: Horizon.BalanceLine
+  hideBalance?: boolean
+  onClick?: () => void
   style?: React.CSSProperties
   testnet: boolean
 }
 
 function BalanceListItem(props: BalanceListItemProps) {
   const classes = useBalanceItemStyles()
-  const balance = React.useMemo(() => <SingleBalance assetCode={""} balance={props.balance.balance} />, [
-    props.balance.balance
-  ])
+  const balance = React.useMemo(
+    () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
+    [props.balance]
+  )
 
   if (props.balance.asset_type === "native") {
     return (
-      <ListItem style={props.style}>
+      <ListItem
+        button={Boolean(props.onClick) as any}
+        className={props.onClick ? classes.clickable : undefined}
+        onClick={props.onClick}
+        style={props.style}
+      >
         <ListItemIcon className={classes.icon}>
           <AssetLogo balance={props.balance} className={classes.logo} />
         </ListItemIcon>
@@ -116,7 +134,12 @@ function BalanceListItem(props: BalanceListItemProps) {
     assetName !== props.balance.asset_code ? `${assetName} (${props.balance.asset_code})` : props.balance.asset_code
 
   return (
-    <ListItem style={props.style}>
+    <ListItem
+      button={Boolean(props.onClick) as any}
+      className={props.onClick ? classes.clickable : undefined}
+      onClick={props.onClick}
+      style={props.style}
+    >
       <ListItemIcon className={classes.icon}>
         <AssetLogo
           balance={props.balance}

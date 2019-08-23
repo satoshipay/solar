@@ -7,18 +7,24 @@ import List from "@material-ui/core/List"
 import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
+import AddIcon from "@material-ui/icons/Add"
 import RemoveIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useIsMobile } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
 import DialogBody from "../Dialog/DialogBody"
-import RemoveTrustlineDialog from "../Dialog/RemoveTrustline"
 import MainTitle from "../MainTitle"
+import AddAssetDialog from "./AddAssetDialog"
 import BalanceDetailsListItem, { actionsSize } from "./BalanceDetailsListItem"
+import ButtonListItem from "./ButtonListItem"
+import RemoveTrustlineDialog from "./RemoveTrustline"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
 
-const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide ref={ref} {...props} direction="up" />
+const DialogHorizontalTransition = React.forwardRef((props: TransitionProps, ref) => (
+  <Slide {...props} direction="left" ref={ref} />
+))
+const DialogVerticalTransition = React.forwardRef((props: TransitionProps, ref) => (
+  <Slide {...props} direction="up" ref={ref} />
 ))
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
@@ -38,7 +44,11 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const isLargeScreen = useMediaQuery("(min-width: 900px)")
   const isSmallScreen = useIsMobile()
+  const [addAssetDialogOpen, setAddAssetDialogOpen] = React.useState(false)
   const [removalDialogAsset, setRemovalDialogAsset] = React.useState<Asset | null>(null)
+
+  const openAddAssetDialog = () => setAddAssetDialogOpen(true)
+  const closeAddAssetDialog = () => setAddAssetDialogOpen(false)
 
   const { closeRemoveTrustlineDialog, removeTrustline } = React.useMemo(
     () => ({
@@ -57,7 +67,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   )
 
   const assetMetadata = useAssetMetadata(trustedAssets, props.account.testnet)
-  const hpadding = isSmallScreen ? 0 : 24
+  const hpadding = isSmallScreen ? 0 : 8
   const itemHPadding = isLargeScreen ? 16 : 0
 
   return (
@@ -80,7 +90,11 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
             />
           )
         })}
-        {trustedAssets.length > 0 ? <Divider style={{ margin: "8px 0" }} /> : null}
+        <ButtonListItem onClick={openAddAssetDialog}>
+          <AddIcon />
+          &nbsp;&nbsp;Add Asset To Your Account
+        </ButtonListItem>
+        <Divider style={{ margin: "16px 0 8px" }} />
         {nativeBalance ? (
           <BalanceDetailsListItem
             key="XLM"
@@ -97,9 +111,23 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
         />
       </List>
       <Dialog
+        fullScreen
+        open={addAssetDialogOpen}
+        onClose={closeAddAssetDialog}
+        TransitionComponent={DialogHorizontalTransition}
+      >
+        <AddAssetDialog
+          account={props.account}
+          accountData={accountData}
+          hpadding={hpadding}
+          itemHPadding={itemHPadding}
+          onClose={closeAddAssetDialog}
+        />
+      </Dialog>
+      <Dialog
         open={removalDialogAsset !== null}
         onClose={closeRemoveTrustlineDialog}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={DialogVerticalTransition}
       >
         <RemoveTrustlineDialog
           account={props.account}

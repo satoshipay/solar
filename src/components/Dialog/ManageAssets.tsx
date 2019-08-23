@@ -16,8 +16,8 @@ import ButtonIconLabel from "../ButtonIconLabel"
 import ErrorBoundary from "../ErrorBoundary"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import CustomTrustlineDialog from "./CustomTrustline"
-import RemoveTrustlineDialog from "./RemoveTrustline"
+import CustomTrustlineDialog from "../AccountAssets/CustomTrustline"
+import RemoveTrustlineDialog from "../AccountAssets/RemoveTrustline"
 
 const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
   <Slide ref={ref} {...props} direction="up" />
