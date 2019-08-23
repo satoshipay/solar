@@ -132,8 +132,8 @@ export function MultipleBalances(props: MultipleBalancesProps) {
   const nativeBalance = props.balances.find(balance => balance.asset_type === "native")
 
   const balances = [
-    ...(nativeBalance ? [nativeBalance] : []),
-    ...props.balances.filter(balance => balance.asset_type !== "native").sort(byAssetCode)
+    ...props.balances.filter(balance => balance.asset_type !== "native").sort(byAssetCode),
+    ...(nativeBalance ? [nativeBalance] : [])
   ]
 
   return (
