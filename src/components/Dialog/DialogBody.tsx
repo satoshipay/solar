@@ -86,7 +86,6 @@ function DialogBody(props: Props) {
           overflowY="auto"
           padding={`0 ${excessWidth}px`}
           shrink
-          width="100%"
         >
           {props.children}
           {isSmallScreen ? null : actionsContent}

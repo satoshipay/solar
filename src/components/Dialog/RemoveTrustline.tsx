@@ -57,7 +57,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
             </>
           )}
         </DialogContentText>
-        <DialogActionsBox>
+        <DialogActionsBox smallDialog>
           <ActionButton onClick={props.onClose}>Cancel</ActionButton>
           <ActionButton autoFocus disabled={stillOwnsTokens} icon={<CloseIcon />} onClick={removeAsset} type="primary">
             Remove
