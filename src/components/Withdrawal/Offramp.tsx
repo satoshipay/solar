@@ -281,13 +281,14 @@ function Offramp(props: Props) {
         <TransactionReviewDialog
           account={props.account}
           open={Boolean(currentState.step === "before-webauth" && webauth)}
-          transaction={webauth ? webauth.transaction : null}
           onClose={startOver}
           onSubmitTransaction={
             currentState.step === "before-webauth" && webauth
               ? (tx, { password }) => performWebAuthentication(currentState.details, webauth, password)
               : doNothing
           }
+          showSubmissionProgress={false}
+          transaction={webauth ? webauth.transaction : null}
         />
       </>
     )

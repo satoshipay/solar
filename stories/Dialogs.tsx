@@ -65,9 +65,10 @@ storiesOf("Dialogs", module)
               <TransactionReviewDialog
                 account={accounts[0]}
                 open={open}
-                transaction={transaction}
                 onClose={onClose}
                 onSubmitTransaction={() => undefined}
+                showSubmissionProgress={false}
+                transaction={transaction}
               />
             )}
           </DialogContainer>
@@ -84,9 +85,10 @@ storiesOf("Dialogs", module)
               <TransactionReviewDialog
                 account={accounts[1]}
                 open={open}
-                transaction={transaction}
                 onClose={onClose}
                 onSubmitTransaction={() => undefined}
+                showSubmissionProgress={false}
+                transaction={transaction}
               />
             )}
           </DialogContainer>

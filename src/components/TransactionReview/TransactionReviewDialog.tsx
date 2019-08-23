@@ -52,6 +52,7 @@ interface Props {
   passwordError?: Error | null
   showHash?: boolean
   showSource?: boolean
+  showSubmissionProgress: boolean
   signatureRequest?: SignatureRequest
   submissionProgress?: React.ReactNode
   transaction: Transaction | null
@@ -90,7 +91,7 @@ function TransactionReviewDialog(props: Props) {
         style: { minWidth: isScreen600pxWide ? 500 : undefined }
       }}
     >
-      <DialogBody top={titleContent} actions={dialogActionsRef}>
+      <DialogBody top={titleContent} actions={props.showSubmissionProgress ? null : dialogActionsRef}>
         {props.transaction ? (
           <Box margin="0 auto" textAlign="center">
             <ReviewForm

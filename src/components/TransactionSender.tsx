@@ -258,6 +258,7 @@ class TransactionSender extends React.Component<Props, State> {
           passwordError={passwordError}
           showHash={false}
           showSource={transaction ? this.props.account.publicKey !== transaction.source : undefined}
+          showSubmissionProgress={Boolean(submissionPromise)}
           signatureRequest={signatureRequest || undefined}
           transaction={transaction}
           onClose={this.onConfirmationDrawerCloseRequest}

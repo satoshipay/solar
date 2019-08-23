@@ -453,7 +453,7 @@ function TransactionList(props: {
   const openedTxHash = matchesRoute(router.location.pathname, routes.showTransaction("*", "*"))
     ? (router.match.params as { id: string; hash: string }).hash
     : null
-  
+
   const openedTransaction = openedTxHash
     ? props.transactions.find(recentTx => recentTx.hash().toString("hex") === openedTxHash) || null
     : null
@@ -505,6 +505,7 @@ function TransactionList(props: {
         account={props.account}
         disabled={true}
         showSource
+        showSubmissionProgress={false}
         transaction={openedTransaction}
         onClose={closeTransaction}
         onSubmitTransaction={() => undefined}
