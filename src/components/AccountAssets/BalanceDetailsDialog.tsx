@@ -10,8 +10,9 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import AddIcon from "@material-ui/icons/Add"
 import RemoveIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
-import { useAccountData, useAssetMetadata, useIsMobile } from "../../hooks"
+import { useAccountData, useAssetMetadata, useIsMobile, useRouter } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
+import * as routes from "../../routes"
 import DialogBody from "../Dialog/DialogBody"
 import MainTitle from "../MainTitle"
 import AddAssetDialog from "./AddAssetDialog"
@@ -44,11 +45,12 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const isLargeScreen = useMediaQuery("(min-width: 900px)")
   const isSmallScreen = useIsMobile()
-  const [addAssetDialogOpen, setAddAssetDialogOpen] = React.useState(false)
+  const router = useRouter()
   const [removalDialogAsset, setRemovalDialogAsset] = React.useState<Asset | null>(null)
 
-  const openAddAssetDialog = () => setAddAssetDialogOpen(true)
-  const closeAddAssetDialog = () => setAddAssetDialogOpen(false)
+  const openAddAssetDialog = () => router.history.push(routes.manageAccountAssets(props.account.id))
+  const closeAddAssetDialog = () => router.history.push(routes.balanceDetails(props.account.id))
+  const addAssetDialogOpen = router.location.pathname.startsWith(routes.manageAccountAssets(props.account.id))
 
   const { closeRemoveTrustlineDialog, removeTrustline } = React.useMemo(
     () => ({

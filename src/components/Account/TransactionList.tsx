@@ -465,7 +465,7 @@ function TransactionList(props: TransactionListProps) {
   selectNetwork(props.account.testnet) // needed for hashing
 
   const openedTxHash = matchesRoute(router.location.pathname, routes.showTransaction("*", "*"))
-    ? (router.match.params as { id: string; hash: string }).hash
+    ? (router.match.params as { id: string; subaction: string }).subaction
     : null
 
   const openedTransaction = openedTxHash

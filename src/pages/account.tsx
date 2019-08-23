@@ -11,7 +11,6 @@ import AccountTransactions from "../components/Account/AccountTransactions"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
-import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
 import TradeAssetDialog from "../components/Dialog/TradeAsset"
 import QRCodeIcon from "../components/Icon/QRCode"
@@ -96,7 +95,6 @@ function AccountPage(props: Props) {
   const router = useRouter()
 
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
-  const showAssetManagement = matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
@@ -110,7 +108,6 @@ function AccountPage(props: Props) {
       accountSettings: () => router.history.push(routes.accountSettings(props.accountID)),
       balanceDetails: () => router.history.push(routes.balanceDetails(props.accountID)),
       createPayment: () => router.history.push(routes.createPayment(props.accountID)),
-      manageAssets: () => router.history.push(routes.manageAccountAssets(props.accountID)),
       receivePayment: () => router.history.push(routes.receivePayment(props.accountID)),
       tradeAssets: () => router.history.push(routes.tradeAsset(props.accountID)),
       transactions: () => router.history.push(routes.account(props.accountID)),
@@ -133,7 +130,7 @@ function AccountPage(props: Props) {
           editableAccountName={showAccountSettings}
           onAccountSettings={navigateTo.accountSettings}
           onClose={navigateTo.transactions}
-          onManageAssets={navigateTo.manageAssets}
+          onManageAssets={navigateTo.balanceDetails}
           onTrade={navigateTo.tradeAssets}
           onWithdraw={navigateTo.withdraw}
           showCloseButton={showAccountSettings}
@@ -190,14 +187,6 @@ function AccountPage(props: Props) {
         TransitionComponent={DialogTransition}
       >
         <CreatePaymentDialog account={account} onClose={navigateTo.transactions} />
-      </Dialog>
-      <Dialog
-        open={showAssetManagement}
-        fullScreen
-        onClose={navigateTo.transactions}
-        TransitionComponent={DialogTransition}
-      >
-        <ManageAssetsDialog account={account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog
         open={showReceivePayment}

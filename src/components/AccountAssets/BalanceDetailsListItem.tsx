@@ -20,7 +20,7 @@ const useBalanceItemStyles = makeStyles({
 
     "&:hover": {
       backgroundColor: "transparent",
-      filter: "drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25))"
+      filter: "drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2))"
     }
   },
   icon: {

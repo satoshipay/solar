@@ -62,7 +62,7 @@ const App = () => (
               <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
               <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
               <Route
-                path={["/account/:id/tx/:hash", "/account/:id/:action", "/account/:id"]}
+                path={["/account/:id/:action/:subaction", "/account/:id/:action", "/account/:id"]}
                 render={props => <AccountPage accountID={props.match.params.id} />}
               />
               <Route exact path="/settings" component={SettingsPage} />
