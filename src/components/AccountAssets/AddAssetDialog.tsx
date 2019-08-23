@@ -63,6 +63,7 @@ function AddAssetDialog(props: AddAssetDialogProps) {
       walletAccount: props.account
     })
   }
+
   const sendTransaction = async (createTransactionToSend: () => Promise<Transaction>) => {
     try {
       setTxCreationPending(true)
@@ -75,10 +76,18 @@ function AddAssetDialog(props: AddAssetDialogProps) {
     }
   }
 
+  const isAssetAlreadyAdded = (asset: Asset) => {
+    return props.accountData.balances.some(
+      (balance: any) => balance.asset_code === asset.code && balance.asset_issuer === asset.issuer
+    )
+  }
+
+  const notYetAddedAssets = assets.filter(asset => !isAssetAlreadyAdded(asset))
+
   return (
     <DialogBody excessWidth={12} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
       <List style={{ paddingLeft: props.hpadding, paddingRight: props.hpadding }}>
-        {assets.map(asset => {
+        {notYetAddedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]
           const addThisAsset = () => sendTransaction(() => createAddAssetTransaction(asset))
           return (
