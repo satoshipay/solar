@@ -97,8 +97,8 @@ function AccountCard(props: {
     <StyledCard elevation={5} onClick={onClick} style={{ background: "white", color: "black" }}>
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
         <VerticalLayout minHeight="100px" justifyContent="space-evenly" textAlign="left">
-          <HorizontalLayout margin="0 0 20px">
-            <Typography variant="h5" style={{ flexGrow: 1 }}>
+          <HorizontalLayout margin="0 0 12px">
+            <Typography variant="h5" style={{ flexGrow: 1, fontSize: 20 }}>
               {props.account.name}
             </Typography>
             <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
@@ -153,4 +153,4 @@ function AccountList(props: AccountListProps) {
   )
 }
 
-export default AccountList
+export default React.memo(AccountList)

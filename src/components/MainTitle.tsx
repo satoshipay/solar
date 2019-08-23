@@ -1,17 +1,16 @@
 import React from "react"
 import IconButton from "@material-ui/core/IconButton"
-import Typography from "@material-ui/core/Typography"
-import ArrowBackIcon from "@material-ui/icons/ArrowBack"
+import Typography, { TypographyProps } from "@material-ui/core/Typography"
+import ArrowBackIcon from "@material-ui/icons/KeyboardArrowLeft"
 import { useIsMobile } from "../hooks"
 import { Box, HorizontalLayout } from "./Layout/Box"
-import { PropTypes } from "@material-ui/core"
 
 interface BackButtonProps {
   onClick: () => void
   style?: React.CSSProperties
 }
 
-const BackButton = (props: BackButtonProps) => {
+function BackButton(props: BackButtonProps) {
   const style = {
     padding: 6,
     fontSize: 32,
@@ -19,7 +18,7 @@ const BackButton = (props: BackButtonProps) => {
   }
   return (
     <IconButton color="inherit" onClick={props.onClick} style={style}>
-      <ArrowBackIcon style={{ fontSize: "inherit" }} />
+      <ArrowBackIcon style={{ fontSize: 32 }} />
     </IconButton>
   )
 }
@@ -31,7 +30,7 @@ interface Props {
   onBack: () => void
   style?: React.CSSProperties
   title: React.ReactNode
-  titleColor?: PropTypes.Color
+  titleColor?: TypographyProps["color"]
   titleStyle?: React.CSSProperties
 }
 
@@ -47,7 +46,13 @@ function MainTitle(props: Props) {
       {props.hideBackButton ? null : (
         <BackButton
           onClick={props.onBack}
-          style={{ fontSize: 28, flexGrow: 0, flexShrink: 0, marginLeft: -8, marginRight: 8 }}
+          style={{
+            fontSize: 28,
+            flexGrow: 0,
+            flexShrink: 0,
+            marginLeft: isSmallScreen ? -16 : -8,
+            marginRight: 6
+          }}
         />
       )}
       <HorizontalLayout
@@ -59,7 +64,7 @@ function MainTitle(props: Props) {
       >
         <Typography
           variant="h5"
-          color={props.titleColor === "default" ? "initial" : props.titleColor}
+          color={props.titleColor}
           style={{
             flexGrow: 1,
             flexShrink: 1,
