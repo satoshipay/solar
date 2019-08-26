@@ -90,11 +90,11 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       }
     >
       {props.variant === "initial-backup" ? (
-        <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 24 }}>
+        <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 16 }}>
           Write down the key on paper and store it in a safe place.
         </Typography>
       ) : null}
-      <Box padding="8px 0 16px">
+      <Box padding={"8px 0 0"}>
         <KeyExportBox hideTapToCopy={props.variant === "initial-backup"} export={props.export} />
       </Box>
     </DialogBody>

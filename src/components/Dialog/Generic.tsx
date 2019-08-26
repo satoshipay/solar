@@ -169,12 +169,13 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog(props: ConfirmDialogProps) {
+  const isSmallScreen = useIsMobile()
   return (
     <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
       <DialogTitle>{props.title}</DialogTitle>
-      <DialogContent>
+      <DialogContent style={{ paddingBottom: isSmallScreen ? 24 : undefined }}>
         <Typography variant="body2">{props.children}</Typography>
-        <DialogActionsBox>
+        <DialogActionsBox smallDialog>
           {props.cancelButton}
           {props.confirmButton}
         </DialogActionsBox>
