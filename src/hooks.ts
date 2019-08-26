@@ -44,9 +44,7 @@ export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
 
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
-  const horizonURL = testnet ? stellar.horizonTestnetURL : stellar.horizonLivenetURL
-  const horizon = React.useMemo(() => new Server(horizonURL), [horizonURL])
-  return horizon
+  return testnet ? stellar.horizonTestnet : stellar.horizonLivenet
 }
 
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
@@ -80,14 +78,15 @@ function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTar
       const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
       return unsubscribe
     },
-    [subscriptions.map(subscription => subscription.id).join(",")]
+    [subscriptions]
   )
 
   return currentDataSets
 }
 
 function useDataSubscription<ObservedData>(subscription: SubscriptionTarget<ObservedData>): ObservedData {
-  return useDataSubscriptions([subscription])[0]
+  const subscriptions = React.useMemo(() => [subscription], [subscription])
+  return useDataSubscriptions(subscriptions)[0]
 }
 
 export function useAccountDataSet(accountIDs: string[], testnet: boolean): ObservedAccountData[] {
