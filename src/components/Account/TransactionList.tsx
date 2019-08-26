@@ -35,6 +35,7 @@ type TransactionWithUndocumentedProps = Transaction & {
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
+const doNothing = () => undefined
 
 function sum(...amounts: Array<string | number | BigNumber>): BigNumber {
   return amounts.reduce<BigNumber>((total, amount) => total.add(amount), BigNumber(0))
@@ -147,22 +148,26 @@ interface TitleTextProps {
 }
 
 // TODO: Re-use code of transaction summary operation heading
-function TransactionItemText(props: TitleTextProps) {
+// tslint:disable-next-line no-shadowed-variable
+const TransactionItemText = React.memo(function TransactionItemText(props: TitleTextProps) {
   const remotePublicKeys = props.paymentSummary.reduce(
     (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
     [] as string[]
   )
 
-  const secondary = (
-    <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
-      <Time time={props.createdAt} />
-      {props.showMemo && props.transaction.memo.type !== "none" ? (
-        <>
-          &nbsp;&nbsp;|&nbsp;&nbsp;
-          <MemoMessage prefix={<>Memo:&nbsp;</>} memo={props.transaction.memo} />
-        </>
-      ) : null}
-    </span>
+  const secondary = React.useMemo(
+    () => (
+      <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <Time time={props.createdAt} />
+        {props.showMemo && props.transaction.memo.type !== "none" ? (
+          <>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            <MemoMessage prefix={<>Memo:&nbsp;</>} memo={props.transaction.memo} />
+          </>
+        ) : null}
+      </span>
+    ),
+    [props.createdAt, props.showMemo, props.transaction]
   )
 
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
@@ -323,7 +328,7 @@ function TransactionItemText(props: TitleTextProps) {
       />
     )
   }
-}
+})
 
 function TransactionListItemBalance(props: {
   accountPublicKey: string
@@ -523,7 +528,7 @@ function TransactionList(props: TransactionListProps) {
         showSubmissionProgress={false}
         transaction={openedTransaction}
         onClose={closeTransaction}
-        onSubmitTransaction={() => undefined}
+        onSubmitTransaction={doNothing}
       />
     </List>
   )
