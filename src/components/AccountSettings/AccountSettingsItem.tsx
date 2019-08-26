@@ -23,11 +23,11 @@ const accountSettingsItemStyles: StyleRules = {
   },
   settingsItem: {
     position: "relative",
-    padding: "16px 0",
+    padding: "16px 24px",
     background: "#FFFFFF",
 
-    [breakpoints.up(600)]: {
-      padding: "16px 24px"
+    [breakpoints.down(600)]: {
+      padding: "16px 12px"
     },
 
     "&:focus": {
