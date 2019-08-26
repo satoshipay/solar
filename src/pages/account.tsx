@@ -156,7 +156,7 @@ function AccountPage(props: Props) {
         style={{
           flexGrow: 1,
           flexShrink: 1,
-          padding: "0 24px",
+          padding: isSmallScreen ? 0 : "0 24px",
           overflowY: "auto"
         }}
       >

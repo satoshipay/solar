@@ -129,6 +129,7 @@ function TitleTextField(props: TitleTextFieldProps) {
         style: {
           color: "inherit",
           font: "inherit",
+          height: 40, // Will otherwise jump when edit icon button appears
           pointerEvents: props.preventClicks ? "none" : undefined
         }
       }}

@@ -9,7 +9,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
-import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
+import { makeStyles, StyleRules } from "@material-ui/core/styles"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
@@ -361,13 +361,9 @@ function TransactionListItemBalance(props: {
 
 export const transactionListItemStyles: StyleRules = {
   listItem: {
-    padding: "8px 24px",
     background: "#FFFFFF",
-    boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-    [breakpoints.down(600)]: {
-      paddingLeft: 16,
-      paddingRight: 16
-    },
+    boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.1)",
+
     "&:focus": {
       backgroundColor: "#FFFFFF"
     },
@@ -383,12 +379,14 @@ export const transactionListItemStyles: StyleRules = {
       borderBottomRightRadius: 8
     }
   }
-}
+} as const
+
+const useTransactionListItemStyles = makeStyles(transactionListItemStyles)
 
 interface TransactionListItemProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
-  classes: ClassNameMap<keyof typeof transactionListItemStyles>
+  className?: string
   createdAt: string
   icon?: React.ReactElement<any>
   onOpenTransaction?: (transaction: Transaction) => void
@@ -396,56 +394,72 @@ interface TransactionListItemProps {
   transaction: Transaction
 }
 
-export const TransactionListItem = React.memo(
-  // tslint:disable-next-line no-shadowed-variable
-  withStyles(transactionListItemStyles)(function TransactionListItem(props: TransactionListItemProps) {
-    const { hideMemos } = React.useContext(SettingsContext)
+// tslint:disable-next-line no-shadowed-variable
+export const TransactionListItem = React.memo(function TransactionListItem(props: TransactionListItemProps) {
+  const { hideMemos } = React.useContext(SettingsContext)
+  const classes = useTransactionListItemStyles(props)
 
-    const isSmallScreen = useIsMobile()
-    const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
+  const isSmallScreen = useIsMobile()
+  const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
-    const { classes, onOpenTransaction, transaction } = props
-    const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
+  const { onOpenTransaction, transaction } = props
+  const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
 
-    return (
-      <ListItem button={Boolean(onOpen) as any} className={classes.listItem} onClick={onOpen} style={props.style}>
-        <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
-          {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
-        </ListItemIcon>
-        <TransactionItemText
-          accountPublicKey={props.accountPublicKey}
-          alwaysShowSource={props.alwaysShowSource}
-          createdAt={props.createdAt}
-          paymentSummary={paymentSummary}
-          showMemo={!hideMemos}
-          style={{
-            fontSize: isSmallScreen ? "0.8rem" : undefined,
-            fontWeight: "bold",
-            overflow: "hidden",
-            paddingRight: 0,
-            textOverflow: "ellipsis"
-          }}
-          transaction={props.transaction}
-        />
-        <TransactionListItemBalance
-          accountPublicKey={props.accountPublicKey}
-          paymentSummary={paymentSummary}
-          style={{ paddingRight: 0 }}
-          transaction={props.transaction}
-        />
-      </ListItem>
-    )
-  } as React.ComponentType<TransactionListItemProps>)
-)
+  const className = `${classes.listItem} ${props.className || ""}`
 
-function TransactionList(props: {
+  return (
+    <ListItem button={Boolean(onOpen) as any} className={className} onClick={onOpen} style={props.style}>
+      <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
+        {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
+      </ListItemIcon>
+      <TransactionItemText
+        accountPublicKey={props.accountPublicKey}
+        alwaysShowSource={props.alwaysShowSource}
+        createdAt={props.createdAt}
+        paymentSummary={paymentSummary}
+        showMemo={!hideMemos}
+        style={{
+          fontSize: isSmallScreen ? "0.8rem" : undefined,
+          fontWeight: "bold",
+          overflow: "hidden",
+          paddingRight: 0,
+          textOverflow: "ellipsis"
+        }}
+        transaction={props.transaction}
+      />
+      <TransactionListItemBalance
+        accountPublicKey={props.accountPublicKey}
+        paymentSummary={paymentSummary}
+        style={{ paddingRight: 0 }}
+        transaction={props.transaction}
+      />
+    </ListItem>
+  )
+})
+
+const useTransactionListStyles = makeStyles({
+  listItem: {
+    padding: "8px 24px",
+
+    [breakpoints.down(600)]: {
+      paddingLeft: 24,
+      paddingRight: 24
+    }
+  }
+})
+
+interface TransactionListProps {
   account: Account
   background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
   onOpenTransaction?: (transaction: Transaction) => void
   transactions: Transaction[]
-}) {
+}
+
+function TransactionList(props: TransactionListProps) {
+  const classes = useTransactionListStyles(props)
+  const isSmallScreen = useIsMobile()
   const router = useRouter()
 
   selectNetwork(props.account.testnet) // needed for hashing
@@ -481,8 +495,8 @@ function TransactionList(props: {
   }
 
   return (
-    <List style={{ background: props.background }}>
-      <ListSubheader disableSticky style={{ background: props.background }}>
+    <List disablePadding={isSmallScreen} style={{ background: props.background }}>
+      <ListSubheader className={classes.listItem} disableSticky style={{ background: props.background }}>
         {props.title}
       </ListSubheader>
       {(props.transactions as TransactionWithUndocumentedProps[]).map(transaction => (
@@ -494,6 +508,7 @@ function TransactionList(props: {
           <TransactionListItem
             key={createCheapTxID(transaction)}
             accountPublicKey={props.account.publicKey}
+            className={classes.listItem}
             createdAt={transaction.created_at}
             transaction={transaction}
             onOpenTransaction={openTransaction}

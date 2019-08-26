@@ -100,7 +100,7 @@ function AccountSettings(props: Props) {
 
   return (
     <>
-      <List style={{ padding: isSmallScreen ? "0 8px" : "24px 16px" }}>
+      <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
         <AccountSettingsItem icon={<KeyIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.changePassword}>
           <ListItemText
             primary={props.account.requiresPassword ? "Change Password" : "Set Password"}
