@@ -30,22 +30,7 @@ function CustomTrustlineDialog(props: Props) {
   const addCustomAsset = () => props.sendTransaction(createTransaction)
 
   return (
-    <DialogBody
-      top={<DialogTitle>Add Custom Asset</DialogTitle>}
-      actions={
-        <DialogActionsBox>
-          <ActionButton onClick={props.onClose}>Cancel</ActionButton>
-          <ActionButton
-            icon={<VerifiedUserIcon />}
-            loading={props.txCreationPending}
-            onClick={addCustomAsset}
-            type="primary"
-          >
-            {isWidthMax450 ? "Trust" : "Trust Asset"}
-          </ActionButton>
-        </DialogActionsBox>
-      }
-    >
+    <DialogBody top={<DialogTitle>Add Custom Asset</DialogTitle>}>
       <form noValidate style={{ display: "block", width: "100%" }}>
         <TextField
           label="Code"
@@ -75,6 +60,18 @@ function CustomTrustlineDialog(props: Props) {
           type="number"
           onChange={event => setLimit(event.target.value)}
         />
+        {/* Not in the DialogBody's `actions` prop as it's not a fullscreen dialog */}
+        <DialogActionsBox preventMobileActionsBox>
+          <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+          <ActionButton
+            icon={<VerifiedUserIcon />}
+            loading={props.txCreationPending}
+            onClick={addCustomAsset}
+            type="primary"
+          >
+            {isWidthMax450 ? "Trust" : "Trust Asset"}
+          </ActionButton>
+        </DialogActionsBox>
       </form>
     </DialogBody>
   )
