@@ -80,7 +80,6 @@ interface SingleBalanceProps {
 }
 
 export function SingleBalance(props: SingleBalanceProps) {
-  const thousandsSeparator = ","
   const balance = BigNumber(props.balance).abs()
 
   const formattingOptions: BalanceFormattingOptions = balance.eq(0)
@@ -97,7 +96,7 @@ export function SingleBalance(props: SingleBalanceProps) {
     <span style={props.style}>
       {balance.gte(0) ? null : <span>-&nbsp;</span>}
       <span style={{ fontWeight: 300 }}>
-        {addThousandsSeparators(integerPart, thousandsSeparator)}
+        {integerPart}
         <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
       </span>
       {props.assetCode ? (
