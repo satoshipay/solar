@@ -1,6 +1,6 @@
 /// <reference types="parcel-env" />
 
-import "core-js/stable"
+import "core-js/es6"
 import "regenerator-runtime/runtime"
 import React from "react"
 import ReactDOM from "react-dom"
