@@ -110,7 +110,7 @@
     "run-electron": "^0.1.0",
     "storybook-addon-material-ui": "^0.9.0-alpha.18",
     "ts-loader": "^5.3.3",
-    "tslint": "^5.10.0",
+    "tslint": "^5.19.0",
     "tslint-config-prettier": "^1.13.0",
     "typescript": "^3.5.1"
   }
