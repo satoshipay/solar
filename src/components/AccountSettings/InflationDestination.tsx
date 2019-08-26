@@ -1,6 +1,6 @@
 import React from "react"
 import { Operation, Transaction, Server } from "stellar-sdk"
-import { InputLabel } from "@material-ui/core"
+import InputLabel from "@material-ui/core/InputLabel"
 import TextField from "@material-ui/core/TextField"
 import ClearIcon from "@material-ui/icons/Clear"
 import CheckIcon from "@material-ui/icons/Check"

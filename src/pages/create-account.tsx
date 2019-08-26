@@ -1,6 +1,6 @@
 import React from "react"
 import { Keypair } from "stellar-sdk"
-import { Dialog } from "@material-ui/core"
+import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import { useRouter, useIsSmallMobile } from "../hooks"
 import * as routes from "../routes"
