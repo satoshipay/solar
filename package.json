@@ -113,5 +113,10 @@
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
     "typescript": "^3.5.1"
-  }
+  },
+  "browserslist": [
+    "Chrome 50",
+    "ChromeAndroid 50",
+    "iOS 10"
+  ]
 }

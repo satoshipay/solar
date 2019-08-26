@@ -3,8 +3,6 @@
  * Wire-up cordova plugins with window.postMessage()-based IPC here.
  */
 
-import "core-js/es6"
-import "regenerator-runtime/runtime"
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands, events } from "./ipc"
 import initializeQRReader from "./qr-reader"
