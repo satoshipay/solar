@@ -1,3 +1,4 @@
+import debounce from "lodash.debounce"
 import LRUCache from "lru-cache"
 import React from "react"
 import { FederationServer } from "stellar-sdk"
@@ -26,16 +27,18 @@ export type WebAuthTokenContextType = CacheContextType<CacheKey, JWT>
 function useCachingContext<K, V>(cache: LRUCache<K, V>): CacheContextType<K, V> {
   // Little hack to force propagating updates
   const [counter, setUpdateCounter] = React.useState(0)
+  const forceRerender = debounce(() => setUpdateCounter(ctr => ctr + 1), 50)
+
   const contextValue = React.useMemo<CacheContextType<K, V>>(
     () => ({
       cache,
       delete(key) {
         cache.del(key)
-        setUpdateCounter(counter + 1)
+        forceRerender()
       },
       store(key, value, maxAge?: number) {
         cache.set(key, value, maxAge)
-        setUpdateCounter(counter + 1)
+        forceRerender()
       }
     }),
     [cache, counter]
