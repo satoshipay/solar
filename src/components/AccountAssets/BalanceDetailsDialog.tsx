@@ -10,7 +10,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import AddIcon from "@material-ui/icons/Add"
 import RemoveIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
-import { useAccountData, useAssetMetadata, useIsMobile, useRouter } from "../../hooks"
+import { useAccountData, useAccountOffers, useAssetMetadata, useIsMobile, useRouter } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
 import * as routes from "../../routes"
 import DialogBody from "../Dialog/DialogBody"
@@ -43,9 +43,11 @@ interface BalanceDetailsProps {
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountOffers = useAccountOffers(props.account.publicKey, props.account.testnet)
   const isLargeScreen = useMediaQuery("(min-width: 900px)")
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+
   const [removalDialogAsset, setRemovalDialogAsset] = React.useState<Asset | null>(null)
 
   const openAddAssetDialog = () => router.history.push(routes.manageAccountAssets(props.account.id))
@@ -77,6 +79,12 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
       <List style={{ paddingLeft: hpadding, paddingRight: hpadding }}>
         {trustedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]
+          const balance = accountData.balances.find(bal => isAssetMatchingBalance(asset, bal))
+          const openOffers = accountOffers.offers.filter(
+            offer =>
+              (offer.buying.asset_code === asset.code && offer.buying.asset_issuer === asset.issuer) ||
+              (offer.selling.asset_code === asset.code && offer.selling.asset_issuer === asset.issuer)
+          )
           return (
             <BalanceDetailsListItem
               key={stringifyAsset(asset)}
@@ -86,7 +94,8 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
                 </IconButton>
               }
               assetMetadata={metadata}
-              balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
+              badgeCount={openOffers.length}
+              balance={balance!}
               style={{ paddingLeft: itemHPadding, paddingRight: itemHPadding }}
               testnet={props.account.testnet}
             />

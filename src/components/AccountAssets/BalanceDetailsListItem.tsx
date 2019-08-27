@@ -1,5 +1,6 @@
 import React from "react"
 import { Horizon } from "stellar-sdk"
+import Badge from "@material-ui/core/Badge"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -33,6 +34,11 @@ const useBalanceItemStyles = makeStyles({
       width: 36,
       height: 36
     }
+  },
+  badge: {
+    top: 4,
+    right: 4,
+    boxShadow: "0 0 3px 1px white"
   },
   mainListItemText: {
     flex: "1 1 auto",
@@ -83,7 +89,9 @@ const useBalanceItemStyles = makeStyles({
 interface BalanceListItemProps {
   actions?: React.ReactNode
   assetMetadata?: StellarTomlCurrency
+  badgeCount?: number
   balance: Horizon.BalanceLine
+  className?: string
   hideBalance?: boolean
   onClick?: () => void
   style?: React.CSSProperties
@@ -92,6 +100,8 @@ interface BalanceListItemProps {
 
 function BalanceListItem(props: BalanceListItemProps) {
   const classes = useBalanceItemStyles()
+  const className = `${props.className || ""} ${props.onClick ? classes.clickable : ""}`
+
   const balance = React.useMemo(
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
     [props.balance]
@@ -101,7 +111,7 @@ function BalanceListItem(props: BalanceListItemProps) {
     return (
       <ListItem
         button={Boolean(props.onClick) as any}
-        className={props.onClick ? classes.clickable : undefined}
+        className={className}
         onClick={props.onClick}
         style={props.style}
       >
@@ -134,19 +144,16 @@ function BalanceListItem(props: BalanceListItemProps) {
     assetName !== props.balance.asset_code ? `${assetName} (${props.balance.asset_code})` : props.balance.asset_code
 
   return (
-    <ListItem
-      button={Boolean(props.onClick) as any}
-      className={props.onClick ? classes.clickable : undefined}
-      onClick={props.onClick}
-      style={props.style}
-    >
+    <ListItem button={Boolean(props.onClick) as any} className={className} onClick={props.onClick} style={props.style}>
       <ListItemIcon className={classes.icon}>
-        <AssetLogo
-          balance={props.balance}
-          className={classes.logo}
-          dark
-          imageURL={props.assetMetadata && props.assetMetadata.image}
-        />
+        <Badge badgeContent={props.badgeCount} classes={{ badge: classes.badge }} color="primary">
+          <AssetLogo
+            balance={props.balance}
+            className={classes.logo}
+            dark
+            imageURL={props.assetMetadata && props.assetMetadata.image}
+          />
+        </Badge>
       </ListItemIcon>
       <ListItemText
         className={classes.mainListItemText}
