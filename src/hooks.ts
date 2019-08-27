@@ -248,6 +248,8 @@ export function useWebAuth() {
   }
 }
 
+const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
+
 export function useStellarTomlFiles(domains: string[]): Map<string, [any, boolean]> {
   const stellarTomls = React.useContext(StellarTomlCacheContext)
   const loadingStates = React.useContext(StellarTomlLoadingCacheContext)
@@ -268,6 +270,7 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [any, boolea
           .then(stellarTomlData => {
             loadingStates.delete(domain)
             stellarTomls.store(domain, stellarTomlData)
+            localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
           })
           .catch(error => {
             loadingStates.store(domain, AsyncStatus.rejected(error))
@@ -284,9 +287,11 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [any, boolea
     if (cached) {
       resultMap.set(domain, [cached, false])
     } else if (loadingState && loadingState.state === "rejected") {
-      resultMap.set(domain, [undefined, false])
+      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, false])
     } else {
-      resultMap.set(domain, [undefined, true])
+      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, true])
     }
   }
 
