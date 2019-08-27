@@ -1,13 +1,23 @@
+/* tslint:disable:no-string-literal */
+
 import * as JWT from "jsonwebtoken"
 import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
-import { Asset, Server, ServerApi, Transaction } from "stellar-sdk"
+import { Asset, Server, ServerApi, StellarTomlResolver, Transaction } from "stellar-sdk"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 import { Account } from "./context/accounts"
-import { CachingContext } from "./context/caches"
+import {
+  SigningKeyCacheContext,
+  StellarAddressCacheContext,
+  StellarAddressReverseCacheContext,
+  StellarTomlCacheContext,
+  StellarTomlLoadingCacheContext,
+  WebAuthTokenCacheContext
+} from "./context/caches"
 import { NotificationsContext } from "./context/notifications"
 import { StellarContext } from "./context/stellar"
+import { AsyncStatus } from "./lib/async"
 import * as StellarAddresses from "./lib/stellar-address"
 import { SubscriptionTarget } from "./lib/subscription"
 import {
@@ -23,17 +33,18 @@ import {
   ObservedTradingPair
 } from "./subscriptions"
 import * as Clipboard from "./platform/clipboard"
+import { StellarTomlCurrency } from "./types/stellar-toml"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
+
+const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
 export const useIsMobile = () => useMediaQuery("(max-width:600px)")
 export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
 
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
-  const horizonURL = testnet ? stellar.horizonTestnetURL : stellar.horizonLivenetURL
-  const horizon = React.useMemo(() => new Server(horizonURL), [horizonURL])
-  return horizon
+  return testnet ? stellar.horizonTestnet : stellar.horizonLivenet
 }
 
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
@@ -67,14 +78,15 @@ function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTar
       const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
       return unsubscribe
     },
-    [subscriptions.map(subscription => subscription.id).join(",")]
+    [subscriptions]
   )
 
   return currentDataSets
 }
 
 function useDataSubscription<ObservedData>(subscription: SubscriptionTarget<ObservedData>): ObservedData {
-  return useDataSubscriptions([subscription])[0]
+  const subscriptions = React.useMemo(() => [subscription], [subscription])
+  return useDataSubscriptions(subscriptions)[0]
 }
 
 export function useAccountDataSet(accountIDs: string[], testnet: boolean): ObservedAccountData[] {
@@ -185,29 +197,22 @@ export function useRecentTransactions(accountID: string, testnet: boolean): Obse
   return useDataSubscription(recentTxsSubscription)
 }
 
-export function useSigningKeyDomainCache() {
-  const caches = React.useContext(CachingContext)
-  return caches.signingKeyDomain
-}
-
 export function useFederationLookup() {
-  const caches = React.useContext(CachingContext)
+  const lookup = React.useContext(StellarAddressCacheContext)
+  const reverseLookup = React.useContext(StellarAddressReverseCacheContext)
   return {
     lookupFederationRecord(stellarAddress: string) {
-      return StellarAddresses.lookupFederationRecord(
-        stellarAddress,
-        caches.stellarAddresses,
-        caches.stellarAddressesReverse
-      )
+      return StellarAddresses.lookupFederationRecord(stellarAddress, lookup.cache, reverseLookup.cache)
     },
     lookupStellarAddress(publicKey: string) {
-      return caches.stellarAddressesReverse.get(publicKey)
+      return reverseLookup.cache.get(publicKey)
     }
   }
 }
 
 export function useWebAuth() {
-  const caches = React.useContext(CachingContext)
+  const signingKeys = React.useContext(SigningKeyCacheContext)
+  const webauthTokens = React.useContext(WebAuthTokenCacheContext)
   const createCacheKey = React.useCallback(
     (endpointURL: string, localPublicKey: string) => `${endpointURL}:${localPublicKey}`,
     []
@@ -219,13 +224,13 @@ export function useWebAuth() {
     async fetchWebAuthData(horizon: Server, issuerAccountID: string) {
       const metadata = await WebAuth.fetchWebAuthData(horizon, issuerAccountID)
       if (metadata) {
-        caches.signingKeyDomain.set(metadata.signingKey, metadata.domain)
+        signingKeys.store(metadata.signingKey, metadata.domain)
       }
       return metadata
     },
 
     getCachedAuthToken(endpointURL: string, localPublicKey: string) {
-      return caches.webauthTokens.get(createCacheKey(endpointURL, localPublicKey))
+      return webauthTokens.cache.get(createCacheKey(endpointURL, localPublicKey))
     },
 
     async postResponse(endpointURL: string, transaction: Transaction) {
@@ -236,11 +241,94 @@ export function useWebAuth() {
       if (localPublicKey) {
         const decoded = JWT.decode(authToken) as any
         const maxAge = decoded.exp ? Number.parseInt(decoded.exp, 10) * 1000 - Date.now() - 60_000 : undefined
-        caches.webauthTokens.set(createCacheKey(endpointURL, localPublicKey), authToken, maxAge)
+        webauthTokens.store(createCacheKey(endpointURL, localPublicKey), authToken, maxAge)
       }
       return authToken
     }
   }
+}
+
+const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
+
+export function useStellarTomlFiles(domains: string[]): Map<string, [any, boolean]> {
+  const stellarTomls = React.useContext(StellarTomlCacheContext)
+  const loadingStates = React.useContext(StellarTomlLoadingCacheContext)
+  const resultMap = new Map<string, [any, boolean]>()
+
+  React.useEffect(
+    () => {
+      for (const domain of domains) {
+        // This is semantically different from `.filter()`-ing above, since this will
+        // prevent double-fetching from domains that were part of this iteration
+        if (stellarTomls.cache.has(domain) || loadingStates.cache.has(domain)) {
+          continue
+        }
+
+        loadingStates.store(domain, AsyncStatus.pending())
+
+        StellarTomlResolver.resolve(domain)
+          .then(stellarTomlData => {
+            loadingStates.delete(domain)
+            stellarTomls.store(domain, stellarTomlData)
+            localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
+          })
+          .catch(error => {
+            loadingStates.store(domain, AsyncStatus.rejected(error))
+          })
+      }
+    },
+    [domains, loadingStates, stellarTomls]
+  )
+
+  for (const domain of domains) {
+    const cached = stellarTomls.cache.get(domain)
+    const loadingState = loadingStates.cache.get(domain)
+
+    if (cached) {
+      resultMap.set(domain, [cached, false])
+    } else if (loadingState && loadingState.state === "rejected") {
+      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, false])
+    } else {
+      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, true])
+    }
+  }
+
+  return resultMap
+}
+
+export function useAssetMetadata(assets: Asset[], testnet: boolean) {
+  const issuerAccountIDs = dedupe(assets.filter(asset => !asset.isNative()).map(asset => asset.getIssuer()))
+  const accountDataSet = useAccountDataSet(issuerAccountIDs, testnet)
+
+  const domains = accountDataSet
+    .filter(accountData => accountData.home_domain)
+    .map(accountData => accountData.home_domain!)
+
+  const resultMap = new WeakMap<Asset, [StellarTomlCurrency | undefined, boolean]>()
+  const stellarTomlFiles = useStellarTomlFiles(domains)
+
+  for (const asset of assets) {
+    const assetCode = asset.isNative() ? undefined : asset.getCode()
+    const issuerAccountID = asset.isNative() ? undefined : asset.getIssuer()
+    const accountData = issuerAccountID
+      ? accountDataSet.find(someAccountData => someAccountData.id === issuerAccountID)
+      : undefined
+    const domain = accountData ? accountData.home_domain : undefined
+    const [stellarTomlData, loading] = domain ? stellarTomlFiles.get(domain)! : [undefined, false]
+
+    const assetMetadata =
+      stellarTomlData && stellarTomlData["CURRENCIES"] && Array.isArray(stellarTomlData["CURRENCIES"])
+        ? stellarTomlData["CURRENCIES"].find(
+            (currency: any) => currency.code === assetCode && currency.issuer === issuerAccountID
+          )
+        : undefined
+
+    resultMap.set(asset, [assetMetadata, loading])
+  }
+
+  return resultMap
 }
 
 // TODO: Get rid of this hook once react-router is shipped with a hook out-of-the-box

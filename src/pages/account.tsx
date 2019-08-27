@@ -6,12 +6,11 @@ import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import SendIcon from "@material-ui/icons/Send"
 import ButtonIconLabel from "../components/ButtonIconLabel"
-import AccountBalances from "../components/Account/AccountBalances"
-import AccountBalancesContainer from "../components/Account/AccountBalancesContainer"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
+import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
+import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
-import ManageAssetsDialog from "../components/Dialog/ManageAssets"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
 import TradeAssetDialog from "../components/Dialog/TradeAsset"
 import QRCodeIcon from "../components/Icon/QRCode"
@@ -86,18 +85,14 @@ function AccountActions(props: AccountActionsProps) {
   )
 }
 
-interface Props {
-  accountID: string
-}
-
-function AccountPage(props: Props) {
-  const { accounts } = React.useContext(AccountsContext)
+// tslint:disable-next-line no-shadowed-variable
+const AccountPageContent = React.memo(function AccountPageContent(props: { account: Account }) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
-  const showAssetManagement = matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
+  const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
@@ -106,50 +101,50 @@ function AccountPage(props: Props) {
 
   const navigateTo = React.useMemo(
     () => ({
-      accountSettings: () => router.history.push(routes.accountSettings(props.accountID)),
-      createPayment: () => router.history.push(routes.createPayment(props.accountID)),
-      manageAssets: () => router.history.push(routes.manageAccountAssets(props.accountID)),
-      receivePayment: () => router.history.push(routes.receivePayment(props.accountID)),
-      tradeAssets: () => router.history.push(routes.tradeAsset(props.accountID)),
-      transactions: () => router.history.push(routes.account(props.accountID)),
-      withdraw: () => router.history.push(routes.withdrawAsset(props.accountID))
+      accountSettings: () => router.history.push(routes.accountSettings(props.account.id)),
+      balanceDetails: () => router.history.push(routes.balanceDetails(props.account.id)),
+      createPayment: () => router.history.push(routes.createPayment(props.account.id)),
+      receivePayment: () => router.history.push(routes.receivePayment(props.account.id)),
+      tradeAssets: () => router.history.push(routes.tradeAsset(props.account.id)),
+      transactions: () => router.history.push(routes.account(props.account.id)),
+      withdraw: () => router.history.push(routes.withdrawAsset(props.account.id))
     }),
-    [router.history, props.accountID]
+    [router.history.push, props.account.id]
   )
 
-  const account = accounts.find(someAccount => someAccount.id === props.accountID)
-  if (!account) {
-    // FIXME: Use error boundaries
-    return <div>Wallet account not found. ID: {props.accountID}</div>
-  }
+  // Let's memo the AccountHeaderCard as it's pretty expensive to re-render
+  const headerCard = React.useMemo(
+    () => (
+      <AccountHeaderCard
+        account={props.account}
+        editableAccountName={showAccountSettings}
+        onAccountSettings={navigateTo.accountSettings}
+        onClose={navigateTo.transactions}
+        onManageAssets={navigateTo.balanceDetails}
+        onTrade={navigateTo.tradeAssets}
+        onWithdraw={navigateTo.withdraw}
+        showCloseButton={showAccountSettings}
+      >
+        <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
+        {isSmallScreen ? null : (
+          <AccountActions
+            account={props.account}
+            hidden={!showSendReceiveButtons}
+            horizontalMargin={40}
+            onCreatePayment={navigateTo.createPayment}
+            onReceivePayment={navigateTo.receivePayment}
+            padding="24px 0 0"
+          />
+        )}
+      </AccountHeaderCard>
+    ),
+    [isSmallScreen, navigateTo, props.account, showAccountSettings, showSendReceiveButtons]
+  )
 
   return (
     <VerticalLayout height="100%">
       <Section top brandColored grow={0}>
-        <AccountHeaderCard
-          account={account}
-          editableAccountName={showAccountSettings}
-          onAccountSettings={navigateTo.accountSettings}
-          onClose={navigateTo.transactions}
-          onManageAssets={navigateTo.manageAssets}
-          onTrade={navigateTo.tradeAssets}
-          onWithdraw={navigateTo.withdraw}
-          showCloseButton={showAccountSettings}
-        >
-          <AccountBalancesContainer>
-            <AccountBalances publicKey={account.publicKey} testnet={account.testnet} />
-          </AccountBalancesContainer>
-          {isSmallScreen ? null : (
-            <AccountActions
-              account={account}
-              hidden={!showSendReceiveButtons}
-              horizontalMargin={40}
-              onCreatePayment={navigateTo.createPayment}
-              onReceivePayment={navigateTo.receivePayment}
-              padding="40px 0 0"
-            />
-          )}
-        </AccountHeaderCard>
+        {headerCard}
       </Section>
       <Section
         bottom={!isSmallScreen}
@@ -160,36 +155,40 @@ function AccountPage(props: Props) {
           overflowY: "auto"
         }}
       >
-        {showAccountSettings ? <AccountSettings account={account} /> : <AccountTransactions account={account} />}
+        {showAccountSettings ? (
+          <AccountSettings account={props.account} />
+        ) : (
+          <AccountTransactions account={props.account} />
+        )}
       </Section>
       {isSmallScreen ? (
         <AccountActions
-          account={account}
+          account={props.account}
           bottomOfScreen
           hidden={!showSendReceiveButtons}
           horizontalMargin={0}
-          onCreatePayment={() => router.history.push(routes.createPayment(props.accountID))}
-          onReceivePayment={() => router.history.push(routes.receivePayment(props.accountID))}
+          onCreatePayment={() => router.history.push(routes.createPayment(props.account.id))}
+          onReceivePayment={() => router.history.push(routes.receivePayment(props.account.id))}
           squareButtons
           style={{ boxShadow: "0 -8px 16px 0 rgba(0, 0, 0, 0.1)", zIndex: 1 }}
         />
       ) : null}
 
       <Dialog
+        open={showBalanceDetails}
+        fullScreen
+        onClose={navigateTo.transactions}
+        TransitionComponent={DialogTransition}
+      >
+        <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
+      </Dialog>
+      <Dialog
         open={showCreatePayment}
         fullScreen
         onClose={navigateTo.transactions}
         TransitionComponent={DialogTransition}
       >
-        <CreatePaymentDialog account={account} onClose={navigateTo.transactions} />
-      </Dialog>
-      <Dialog
-        open={showAssetManagement}
-        fullScreen
-        onClose={navigateTo.transactions}
-        TransitionComponent={DialogTransition}
-      >
-        <ManageAssetsDialog account={account} onClose={navigateTo.transactions} />
+        <CreatePaymentDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog
         open={showReceivePayment}
@@ -197,7 +196,7 @@ function AccountPage(props: Props) {
         onClose={navigateTo.transactions}
         TransitionComponent={DialogTransition}
       >
-        <ReceivePaymentDialog account={account} onClose={navigateTo.transactions} />
+        <ReceivePaymentDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog
         open={showAssetTrading}
@@ -205,13 +204,25 @@ function AccountPage(props: Props) {
         onClose={navigateTo.transactions}
         TransitionComponent={DialogTransition}
       >
-        <TradeAssetDialog account={account} onClose={navigateTo.transactions} />
+        <TradeAssetDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog open={showWithdrawal} fullScreen onClose={navigateTo.transactions} TransitionComponent={DialogTransition}>
-        <WithdrawalDialog account={account} onClose={navigateTo.transactions} />
+        <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
     </VerticalLayout>
   )
+})
+
+function AccountPage(props: { accountID: string }) {
+  const { accounts } = React.useContext(AccountsContext)
+  const account = accounts.find(someAccount => someAccount.id === props.accountID)
+
+  if (!account) {
+    // FIXME: Use error boundaries
+    return <div>Wallet account not found. ID: {props.accountID}</div>
+  }
+
+  return <AccountPageContent account={account} />
 }
 
 export default React.memo(AccountPage)

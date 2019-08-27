@@ -27,14 +27,14 @@ function trimBalance(balance: BigNumber): string {
 }
 
 interface BalanceFormattingOptions {
-  groupThousands: boolean
-  maximumDecimals: number
-  maximumSignificants: number
-  minimumDecimals: number
-  minimumSignificants: number
+  groupThousands?: boolean
+  maximumDecimals?: number
+  maximumSignificants?: number
+  minimumDecimals?: number
+  minimumSignificants?: number
 }
 
-export function formatBalance(input: BigNumber | string, options: Partial<BalanceFormattingOptions> = {}) {
+export function formatBalance(input: BigNumber | string, options: BalanceFormattingOptions = {}) {
   if (typeof input === "string" && Number.isNaN(Number.parseFloat(input))) {
     return "-"
   }
@@ -80,26 +80,38 @@ interface SingleBalanceProps {
 }
 
 export function SingleBalance(props: SingleBalanceProps) {
-  const thousandsSeparator = ","
-  const balance = BigNumber(props.balance)
-  const trimmedUnformattedBalance = trimBalance(balance.abs())
-  const [integerPart, decimalPart = ""] = trimmedUnformattedBalance.split(".")
+  const balance = BigNumber(props.balance).abs()
+
+  const formattingOptions: BalanceFormattingOptions = balance.eq(0)
+    ? { maximumDecimals: 0, minimumDecimals: 0 }
+    : balance.gt(0) && balance.lt(0.0001)
+      ? { maximumDecimals: 7, minimumDecimals: 7 }
+      : balance.lt(1000)
+        ? { maximumDecimals: 4, minimumDecimals: 4 }
+        : { maximumDecimals: 0, minimumDecimals: 0 }
+
+  const formattedBalance = formatBalance(balance, formattingOptions)
+  const [integerPart, decimalPart = ""] = formattedBalance.split(".")
   return (
     <span style={props.style}>
       {balance.gte(0) ? null : <span>-&nbsp;</span>}
       <span style={{ fontWeight: 300 }}>
-        {addThousandsSeparators(integerPart, thousandsSeparator)}
+        {integerPart}
         <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
       </span>
-      {props.assetCode ? <>&nbsp;</> : null}
-      <span
-        style={{
-          fontWeight: props.inline ? undefined : "bold",
-          marginLeft: props.inline ? undefined : "0.4em"
-        }}
-      >
-        {props.assetCode}
-      </span>
+      {props.assetCode ? (
+        <>
+          &nbsp;
+          <span
+            style={{
+              fontWeight: props.inline ? undefined : "bold",
+              marginLeft: props.inline ? undefined : "0.4em"
+            }}
+          >
+            {props.assetCode}
+          </span>
+        </>
+      ) : null}
     </span>
   )
 }
@@ -108,6 +120,7 @@ interface MultipleBalancesProps {
   balances: Horizon.BalanceLine[]
   component?: React.ComponentType<SingleBalanceProps>
   inline?: boolean
+  onClick?: () => void
 }
 
 export function MultipleBalances(props: MultipleBalancesProps) {
@@ -120,12 +133,12 @@ export function MultipleBalances(props: MultipleBalancesProps) {
   const nativeBalance = props.balances.find(balance => balance.asset_type === "native")
 
   const balances = [
-    ...(nativeBalance ? [nativeBalance] : []),
-    ...props.balances.filter(balance => balance.asset_type !== "native").sort(byAssetCode)
+    ...props.balances.filter(balance => balance.asset_type !== "native").sort(byAssetCode),
+    ...(nativeBalance ? [nativeBalance] : [])
   ]
 
   return (
-    <>
+    <span onClick={props.onClick} style={props.onClick ? { cursor: "pointer" } : undefined}>
       {balances.map((balance: Horizon.BalanceLine, index) => (
         <React.Fragment key={stringifyAsset(balancelineToAsset(balance))}>
           <Balance
@@ -136,7 +149,7 @@ export function MultipleBalances(props: MultipleBalancesProps) {
           />{" "}
         </React.Fragment>
       ))}
-    </>
+    </span>
   )
 }
 
@@ -147,6 +160,7 @@ const zeroXLMBalance = {
 
 function AccountBalances(props: {
   component?: React.ComponentType<SingleBalanceProps>
+  onClick?: () => void
   publicKey: string
   testnet: boolean
 }) {
@@ -154,9 +168,9 @@ function AccountBalances(props: {
   return accountData.loading ? (
     <InlineLoader />
   ) : accountData.activated ? (
-    <MultipleBalances balances={accountData.balances} component={props.component} />
+    <MultipleBalances balances={accountData.balances} component={props.component} onClick={props.onClick} />
   ) : (
-    <MultipleBalances balances={[zeroXLMBalance] as any} component={props.component} />
+    <MultipleBalances balances={[zeroXLMBalance] as any} component={props.component} onClick={props.onClick} />
   )
 }
 

@@ -122,6 +122,7 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
 interface DialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
   desktopStyle?: React.CSSProperties
+  preventMobileActionsBox?: boolean
   smallDialog?: boolean
   spacing?: "normal" | "large"
 }
@@ -129,15 +130,19 @@ interface DialogActionsBoxProps {
 // tslint:disable-next-line no-shadowed-variable
 export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
   const isSmallScreen = useIsMobile()
-  if (isSmallScreen) {
+
+  if (isSmallScreen && !props.preventMobileActionsBox) {
     return <MobileDialogActionsBox smallDialog={props.smallDialog}>{props.children}</MobileDialogActionsBox>
   }
+
   const desktopStyle: React.CSSProperties = {
     alignItems: "stretch",
+    justifyContent: isSmallScreen ? "center" : undefined,
     marginTop: 32,
-    marginLeft: 0,
-    marginRight: 0,
+    marginLeft: isSmallScreen ? -12 : 0,
+    marginRight: isSmallScreen ? -12 : 0,
     marginBottom: 0,
+    padding: "8px 0",
     ...props.desktopStyle
   }
   return (
@@ -146,7 +151,7 @@ export const DialogActionsBox = React.memo(function DialogActionsBox(props: Dial
         .filter(child => Boolean(child))
         .map(
           (child, index) =>
-            index === 0 ? (
+            index === 0 || isSmallScreen ? (
               child
             ) : (
               <React.Fragment key={index}>

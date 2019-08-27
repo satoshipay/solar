@@ -5,6 +5,7 @@ import "regenerator-runtime/runtime"
 import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router, Route, Switch } from "react-router-dom"
+import SmoothScroll from "smoothscroll-polyfill"
 import { Network } from "stellar-sdk"
 import { MuiThemeProvider } from "@material-ui/core/styles"
 import AndroidBackButton from "./components/AndroidBackButton"
@@ -14,7 +15,7 @@ import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
 import NotificationContainer from "./components/NotificationContainer"
 import { AccountsProvider } from "./context/accounts"
-import { CachingProvider } from "./context/caches"
+import { CachingProviders } from "./context/caches"
 import { NotificationsProvider } from "./context/notifications"
 import { SettingsProvider } from "./context/settings"
 import { SignatureDelegationProvider } from "./context/signatureDelegation"
@@ -27,6 +28,7 @@ import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
 
 Network.usePublicNetwork()
+SmoothScroll.polyfill()
 
 const CreateMainnetAccount = () => <CreateAccountPage testnet={false} />
 const CreateTestnetAccount = () => <CreateAccountPage testnet={true} />
@@ -37,11 +39,11 @@ const Providers = (props: { children: React.ReactNode }) => (
       <StellarProvider>
         <AccountsProvider>
           <SettingsProvider>
-            <CachingProvider>
+            <CachingProviders>
               <NotificationsProvider>
                 <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
               </NotificationsProvider>
-            </CachingProvider>
+            </CachingProviders>
           </SettingsProvider>
         </AccountsProvider>
       </StellarProvider>
@@ -60,7 +62,7 @@ const App = () => (
               <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
               <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
               <Route
-                path={["/account/:id/tx/:hash", "/account/:id/:action", "/account/:id"]}
+                path={["/account/:id/:action/:subaction", "/account/:id/:action", "/account/:id"]}
                 render={props => <AccountPage accountID={props.match.params.id} />}
               />
               <Route exact path="/settings" component={SettingsPage} />

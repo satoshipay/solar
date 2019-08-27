@@ -1,6 +1,7 @@
 import React from "react"
 import Snackbar, { SnackbarOrigin } from "@material-ui/core/Snackbar"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import ErrorIcon from "@material-ui/icons/Error"
 import InfoIcon from "@material-ui/icons/Info"
@@ -8,7 +9,6 @@ import OfflineBoltIcon from "@material-ui/icons/OfflineBolt"
 import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
 import grey from "@material-ui/core/colors/grey"
-import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
 import { useOnlineStatus } from "../hooks"
 import theme from "../theme"
@@ -20,7 +20,7 @@ const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   success: CheckIcon
 }
 
-const styles: StyleRules = {
+const useNotificationStyles = makeStyles({
   clickable: {
     cursor: "pointer"
   },
@@ -46,12 +46,11 @@ const styles: StyleRules = {
     alignItems: "center",
     whiteSpace: "pre"
   }
-}
+})
 
 interface NotificationProps {
   anchorOrigin?: SnackbarOrigin
   autoHideDuration?: number
-  classes: ClassNameMap<keyof typeof styles>
   contentStyle?: React.CSSProperties
   message: string
   type: NotificationType
@@ -61,8 +60,10 @@ interface NotificationProps {
   style?: React.CSSProperties
 }
 
-function NotificationSnackbar(props: NotificationProps) {
-  const { classes, open = true } = props
+// tslint:disable-next-line no-shadowed-variable
+const Notification = React.memo(function Notification(props: NotificationProps) {
+  const { open = true } = props
+  const classes = useNotificationStyles()
 
   const Icon = icons[props.type]
   const contentClassnames: { [key in NotificationType]: string } = {
@@ -94,9 +95,30 @@ function NotificationSnackbar(props: NotificationProps) {
       />
     </Snackbar>
   )
-}
+})
 
-const StyledNotification = withStyles(styles)(NotificationSnackbar)
+type OfflineNotificationProps = Pick<NotificationProps, "message" | "open">
+
+// tslint:disable-next-line no-shadowed-variable
+const OfflineNotification = React.memo(function OfflineNotification(props: OfflineNotificationProps) {
+  const anchorOrigin = React.useMemo(
+    () =>
+      ({
+        horizontal: "left",
+        vertical: "bottom"
+      } as const),
+    []
+  )
+  const contentStyle = React.useMemo(
+    () =>
+      ({
+        minWidth: 0
+      } as const),
+    []
+  )
+
+  return <Notification anchorOrigin={anchorOrigin} contentStyle={contentStyle} type="connection" {...props} />
+})
 
 function NotificationsContainer() {
   const { notifications } = React.useContext(NotificationsContext)
@@ -107,11 +129,11 @@ function NotificationsContainer() {
   const latestNotificationItem = notifications[notifications.length - 1] || null
   const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID
 
-  const closeNotification = (someNotification: Notification) => setLastClosedNotificationID(someNotification.id)
-
   // Fall back to the values of a just-removed notification if necessary
   // Reason: Notification might still be visible / in closing transition when it suddenly gets removed
   const notification = latestNotificationItem || lastShownNotification.current
+
+  const closeNotification = React.useCallback(() => setLastClosedNotificationID(notification.id), [notification])
 
   if (latestNotificationItem && latestNotificationItem !== lastShownNotification.current) {
     lastShownNotification.current = latestNotificationItem
@@ -119,25 +141,15 @@ function NotificationsContainer() {
 
   return (
     <>
-      <StyledNotification
+      <Notification
         autoHideDuration={5000}
         message={notification ? notification.message : ""}
         type={notification ? notification.type : "error"}
         open={open}
         onClick={notification ? notification.onClick : undefined}
-        onClose={() => closeNotification(notification)}
+        onClose={closeNotification}
       />
-      <StyledNotification
-        anchorOrigin={{
-          horizontal: "left",
-          vertical: "bottom"
-        }}
-        contentStyle={{ minWidth: 0 }}
-        message="Offline"
-        open={!isOnline}
-        style={{ bottom: 0 }}
-        type="connection"
-      />
+      <OfflineNotification message="Offline" open={!isOnline} />
     </>
   )
 }

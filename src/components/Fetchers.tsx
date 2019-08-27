@@ -3,6 +3,7 @@ import Async from "react-promise"
 import { Server, ServerApi } from "stellar-sdk"
 import { useHorizon } from "../hooks"
 import { getHorizonURL } from "../lib/stellar"
+import { Address } from "./PublicKey"
 
 const memCache = new Map<string, any>()
 const memCacheCurrentlyFetching = new Map<string, boolean>()
@@ -43,15 +44,15 @@ const Memoized = <Value extends {}>(props: MemoizedProps<Value>) => {
   )
 }
 
-export function AccountName(props: { publicKey: string; testnet: boolean }) {
+interface AccountNameProps {
+  publicKey: string
+  testnet: boolean
+}
+
+// tslint:disable-next-line no-shadowed-variable
+export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
   const horizon = useHorizon(props.testnet)
-  const getFallbackName = () => {
-    if (props.publicKey === "GD5J6HLF5666X4AZLTFTXLY46J5SW7EXRKBLEYPJP33S33MXZGV6CWFN") {
-      // FIXME: Remove once they set their home_domain
-      return "bitbondsto.com"
-    }
-    return props.publicKey
-  }
+  const fallback = React.useMemo(() => <Address address={props.publicKey} variant="short" />, [props.publicKey])
   return (
     <Memoized
       cacheKey={`AccountData:${props.publicKey}`}
@@ -61,14 +62,14 @@ export function AccountName(props: { publicKey: string; testnet: boolean }) {
           .accountId(props.publicKey)
           .call()
       }
-      then={(accountData: any) => (
-        <span style={{ userSelect: "text" }}>{accountData.home_domain || getFallbackName()}</span>
-      )}
-      catch={() => props.publicKey}
-      pending={props.publicKey}
+      then={(accountData: any) =>
+        accountData.home_domain ? <span style={{ userSelect: "text" }}>{accountData.home_domain}</span> : fallback
+      }
+      catch={() => fallback}
+      pending={fallback}
     />
   )
-}
+})
 
 async function fetchHorizonMetadata(horizon: Server) {
   const response = await fetch(getHorizonURL(horizon))
@@ -91,10 +92,11 @@ const LedgerMetadata = (props: { children: LedgerDataRenderProp; testnet: boolea
   return <Memoized cacheKey={getHorizonURL(horizon)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
 }
 
-export const MinimumAccountBalance = (props: { testnet: boolean }) => {
+// tslint:disable-next-line no-shadowed-variable
+export const MinimumAccountBalance = React.memo(function MinimumAccountBalance(props: { testnet: boolean }) {
   return (
     <LedgerMetadata testnet={props.testnet}>
       {ledgerData => <>{(ledgerData.base_reserve_in_stroops / 1e7) * 2}</>}
     </LedgerMetadata>
   )
-}
+})

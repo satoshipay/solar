@@ -8,8 +8,8 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { ObservedAccountData } from "../../hooks"
 import { createTransaction } from "../../lib/transaction"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
-import { ActionButton, DialogActionsBox } from "./Generic"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -57,11 +57,23 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
             </>
           )}
         </DialogContentText>
-        <DialogActionsBox>
-          <ActionButton onClick={props.onClose}>Cancel</ActionButton>
-          <ActionButton autoFocus disabled={stillOwnsTokens} icon={<CloseIcon />} onClick={removeAsset} type="primary">
-            Remove
+        {/* Not in the DialogBody's `actions` prop as it's not a fullscreen dialog */}
+        <DialogActionsBox preventMobileActionsBox>
+          <ActionButton onClick={props.onClose} style={{ maxWidth: "none" }}>
+            Cancel
           </ActionButton>
+          {stillOwnsTokens ? null : (
+            <ActionButton
+              autoFocus
+              disabled={stillOwnsTokens}
+              icon={<CloseIcon />}
+              onClick={removeAsset}
+              style={{ maxWidth: "none" }}
+              type="primary"
+            >
+              Remove
+            </ActionButton>
+          )}
         </DialogActionsBox>
       </DialogContent>
     </>

@@ -1,20 +1,36 @@
 import fetch from "isomorphic-fetch"
 import React from "react"
+import { Server } from "stellar-sdk"
 import { trackError } from "./notifications"
 import { resetAllSubscriptions } from "../subscriptions"
+
+async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
+  try {
+    const primaryResponse = await fetch(primaryHorizonURL)
+    if (primaryResponse.ok) {
+      return primaryHorizonURL
+    }
+  } catch (error) {
+    // tslint:disable-next-line
+    console.error(error)
+  }
+
+  const secondaryResponse = await fetch(secondaryHorizonURL)
+  return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
+}
 
 interface Props {
   children: React.ReactNode
 }
 
 interface ContextType {
-  horizonLivenetURL: string
-  horizonTestnetURL: string
+  horizonLivenet: Server
+  horizonTestnet: Server
 }
 
 const initialValues: ContextType = {
-  horizonLivenetURL: "https://stellar-horizon.satoshipay.io/",
-  horizonTestnetURL: "https://stellar-horizon-testnet.satoshipay.io/"
+  horizonLivenet: new Server("https://stellar-horizon.satoshipay.io/"),
+  horizonTestnet: new Server("https://stellar-horizon-testnet.satoshipay.io/")
 }
 
 const StellarContext = React.createContext<ContextType>(initialValues)
@@ -25,21 +41,6 @@ export function StellarProvider(props: Props) {
   React.useEffect(() => {
     let cancelled = false
 
-    const checkHorizonOrFailover = async (primaryHorizonURL: string, secondaryHorizonURL: string) => {
-      try {
-        const primaryResponse = await fetch(primaryHorizonURL)
-        if (primaryResponse.ok) {
-          return primaryHorizonURL
-        }
-      } catch (error) {
-        // tslint:disable-next-line
-        console.error(error)
-      }
-
-      const secondaryResponse = await fetch(secondaryHorizonURL)
-      return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
-    }
-
     const init = async () => {
       const [horizonLivenetURL, horizonTestnetURL] = await Promise.all([
         checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
@@ -47,14 +48,20 @@ export function StellarProvider(props: Props) {
       ])
 
       if (!cancelled) {
-        setContextValue({
-          horizonLivenetURL,
-          horizonTestnetURL
-        })
+        setContextValue(prevValues => ({
+          horizonLivenet:
+            horizonLivenetURL !== String(prevValues.horizonLivenet.serverURL)
+              ? new Server(horizonLivenetURL)
+              : prevValues.horizonLivenet,
+          horizonTestnet:
+            horizonTestnetURL !== String(prevValues.horizonTestnet.serverURL)
+              ? new Server(horizonTestnetURL)
+              : prevValues.horizonTestnet
+        }))
 
         if (
-          horizonLivenetURL !== initialValues.horizonLivenetURL ||
-          horizonTestnetURL !== initialValues.horizonTestnetURL
+          horizonLivenetURL !== String(initialValues.horizonLivenet.serverURL) ||
+          horizonTestnetURL !== String(initialValues.horizonTestnet.serverURL)
         ) {
           resetAllSubscriptions()
         }

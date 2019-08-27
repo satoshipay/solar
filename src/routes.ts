@@ -3,13 +3,14 @@ import { matchesRoute } from "./lib/routes"
 export const allAccounts = () => "/"
 export const account = (accountID: string) => `/account/${accountID}`
 export const accountSettings = (accountID: string) => `/account/${accountID}/settings`
+export const balanceDetails = (accountID: string) => `/account/${accountID}/balances`
 export const changeAccountPassword = (accountID: string) => `/account/${accountID}/settings/password`
 export const createAccount = (testnet: boolean) => `/account/create/${testnet ? "testnet" : "mainnet"}`
 export const createPayment = (accountID: string) => `/account/${accountID}/send`
 export const deleteAccount = (accountID: string) => `/account/${accountID}/settings/delete`
 export const exportSecretKey = (accountID: string) => `/account/${accountID}/settings/export`
 export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
-export const manageAccountAssets = (accountID: string) => `/account/${accountID}/assets`
+export const manageAccountAssets = (accountID: string) => `/account/${accountID}/balances/manage`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
 export const setInflationDestination = (accountID: string) => `/account/${accountID}/settings/inflation`
 export const settings = () => "/settings"
@@ -32,6 +33,8 @@ export function routeUp(currentPath: string) {
     return account(accountID)
   } else if (accountID && matchesRoute(currentPath, "/account/*/tx/*", false)) {
     return account(accountID)
+  } else if (accountID && currentPath === manageAccountAssets(accountID)) {
+    return balanceDetails(accountID)
   } else {
     return "/"
   }
