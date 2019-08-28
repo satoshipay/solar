@@ -7,10 +7,11 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import Typography from "@material-ui/core/Typography"
+import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks"
+import { breakpoints } from "../../theme"
 import { HorizontalLayout } from "../Layout/Box"
-import { HorizontalMargin } from "../Layout/Spacing"
 import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
@@ -27,9 +28,51 @@ function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; load
   )
 }
 
+const useActionButtonStyles = makeStyles({
+  inlineDialogActionsBox: {
+    alignItems: "stretch",
+    margin: "32px 0 0",
+    padding: "8px 0",
+
+    [breakpoints.down(600)]: {
+      justifyContent: "center",
+      marginLeft: -12,
+      marginRight: -12
+    }
+  },
+  mobileDialogActionsBox: {
+    position: "fixed",
+    left: 0,
+    bottom: 0,
+    padding: undefined,
+    width: "100%",
+    background: "white",
+    boxShadow: "0 0 16px 0 rgba(0, 0, 0, 0.1)",
+    justifyContent: "flex-end"
+  },
+  actionButton: {
+    "$inlineDialogActionsBox &": {
+      boxShadow: "none",
+      padding: "10px 20px"
+    },
+
+    "$mobileDialogActionsBox &": {
+      flexGrow: 1,
+      margin: 12,
+      maxWidth: "calc(50% - 24px)",
+      padding: "12px 16px",
+
+      "&:first-child:last-child": {
+        maxWidth: "calc(100% - 16px)"
+      }
+    }
+  }
+})
+
 interface ActionButtonProps {
   autoFocus?: boolean
   children: React.ReactNode
+  className?: string
   disabled?: boolean
   form?: string
   icon?: React.ReactNode
@@ -41,37 +84,20 @@ interface ActionButtonProps {
 
 export function ActionButton(props: ActionButtonProps) {
   const { type = "secondary" } = props
+  const classes = useActionButtonStyles()
   const isSmallScreen = useIsMobile()
-
-  const desktopStyle = React.useMemo(
-    () => ({
-      padding: "10px 20px",
-      ...props.style
-    }),
-    [props.style]
-  )
-
-  const mobileStyle = React.useMemo(
-    () => ({
-      flexGrow: 1,
-      margin: 12,
-      maxWidth: "calc(50% - 32px)",
-      padding: "12px 16px",
-      ...props.style
-    }),
-    [props.style]
-  )
 
   return (
     <Button
       autoFocus={props.autoFocus}
       color={type === "primary" || type === "submit" ? "primary" : undefined}
+      className={`${classes.actionButton} ${props.className || ""}`}
       disabled={props.disabled}
       form={props.form}
       onClick={props.onClick}
-      style={isSmallScreen ? mobileStyle : desktopStyle}
+      style={props.style}
       type={type === "submit" ? "submit" : undefined}
-      variant="contained"
+      variant={!isSmallScreen && (props.type === "secondary" || !props.type) ? "text" : "contained"}
     >
       <MaybeIcon icon={props.icon} label={props.children} loading={props.loading} />
     </Button>
@@ -93,6 +119,7 @@ interface MobileDialogActionsBoxProps {
 
 // tslint:disable-next-line no-shadowed-variable
 const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps) {
+  const classes = useActionButtonStyles()
   return (
     <>
       {props.smallDialog ? null : (
@@ -100,19 +127,7 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
         // Make sure its height matches the height of the actions box
         <div style={{ width: "100%", height: 72 }} />
       )}
-      <HorizontalLayout
-        className="iphone-notch-bottom-spacing"
-        style={{
-          position: "fixed",
-          left: 0,
-          bottom: 0,
-          padding: undefined,
-          width: "100%",
-          background: "white",
-          boxShadow: "0 0 16px 0 rgba(0, 0, 0, 0.1)",
-          justifyContent: "flex-end"
-        }}
-      >
+      <HorizontalLayout className={`iphone-notch-bottom-spacing ${classes.mobileDialogActionsBox}`}>
         {props.children}
       </HorizontalLayout>
     </>
@@ -129,37 +144,16 @@ interface DialogActionsBoxProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
+  const classes = useActionButtonStyles()
   const isSmallScreen = useIsMobile()
 
   if (isSmallScreen && !props.preventMobileActionsBox) {
     return <MobileDialogActionsBox smallDialog={props.smallDialog}>{props.children}</MobileDialogActionsBox>
   }
 
-  const desktopStyle: React.CSSProperties = {
-    alignItems: "stretch",
-    justifyContent: isSmallScreen ? "center" : undefined,
-    marginTop: 32,
-    marginLeft: isSmallScreen ? -12 : 0,
-    marginRight: isSmallScreen ? -12 : 0,
-    marginBottom: 0,
-    padding: "8px 0",
-    ...props.desktopStyle
-  }
   return (
-    <DialogActions style={desktopStyle}>
-      {React.Children.toArray(props.children)
-        .filter(child => Boolean(child))
-        .map(
-          (child, index) =>
-            index === 0 || isSmallScreen ? (
-              child
-            ) : (
-              <React.Fragment key={index}>
-                <HorizontalMargin size={props.spacing === "large" ? 32 : 16} />
-                {child}
-              </React.Fragment>
-            )
-        )}
+    <DialogActions className={classes.inlineDialogActionsBox} style={props.desktopStyle}>
+      {props.children}
     </DialogActions>
   )
 })

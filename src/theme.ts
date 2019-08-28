@@ -20,6 +20,9 @@ export const breakpoints = createBreakpoints({})
 
 const theme = createMuiTheme({
   props: {
+    MuiDialogActions: {
+      // disableSpacing: true
+    },
     MuiInputLabel: {
       shrink: true
     }
@@ -27,22 +30,27 @@ const theme = createMuiTheme({
   overrides: {
     MuiButton: {
       root: {
-        borderRadius: 3,
-        boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-        [breakpoints.up(600)]: {
-          minHeight: 48
-        },
+        borderRadius: 8,
+        boxShadow: "none",
+        minHeight: 48,
+
         [breakpoints.down(600)]: {
+          boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
           minHeight: 36
         }
       },
       contained: {
         backgroundColor: "white",
-        boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+        boxShadow: "none",
         border: `none`,
         color: brandColor.dark,
+
         "&:hover": {
           backgroundColor: "#fafafa"
+        },
+
+        [breakpoints.down(600)]: {
+          boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)"
         }
       },
       containedPrimary: {
@@ -175,6 +183,11 @@ const theme = createMuiTheme({
       },
       sticky: {
         background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
+      }
+    },
+    MuiPaper: {
+      rounded: {
+        borderRadius: 8
       }
     },
     MuiTab: {
