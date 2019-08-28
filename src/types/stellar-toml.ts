@@ -46,4 +46,12 @@ export type StellarTomlCurrency = Partial<{
   anchor_asset: string
   redemption_instructions: string
   regulated: boolean
+  approval_server: string
+  approval_criteria: string
+}>
+
+export type StellarToml = Partial<{
+  CURRENCIES: StellarTomlCurrency[]
+  DOCUMENTATION: StellarTomlIssuer
+  PRINCIPALS: StellarTomlPrincipal[]
 }>

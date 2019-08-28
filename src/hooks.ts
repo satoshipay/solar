@@ -33,7 +33,7 @@ import {
   ObservedTradingPair
 } from "./subscriptions"
 import * as Clipboard from "./platform/clipboard"
-import { StellarTomlCurrency } from "./types/stellar-toml"
+import { StellarToml, StellarTomlCurrency } from "./types/stellar-toml"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
 
@@ -250,10 +250,10 @@ export function useWebAuth() {
 
 const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
 
-export function useStellarTomlFiles(domains: string[]): Map<string, [any, boolean]> {
+export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml, boolean]> {
   const stellarTomls = React.useContext(StellarTomlCacheContext)
   const loadingStates = React.useContext(StellarTomlLoadingCacheContext)
-  const resultMap = new Map<string, [any, boolean]>()
+  const resultMap = new Map<string, [StellarToml, boolean]>()
 
   React.useEffect(
     () => {
@@ -296,6 +296,11 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [any, boolea
   }
 
   return resultMap
+}
+
+export function useStellarToml(domain: string | null | undefined): [StellarToml | undefined, boolean] {
+  const tomlFiles = useStellarTomlFiles(domain ? [domain] : [])
+  return domain ? tomlFiles.get(domain)! : [undefined, false]
 }
 
 export function useAssetMetadata(assets: Asset[], testnet: boolean) {
