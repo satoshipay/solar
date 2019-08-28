@@ -1,5 +1,6 @@
 import React from "react"
 import IconButton from "@material-ui/core/IconButton"
+import { InputProps } from "@material-ui/core/Input"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import { trackError } from "../../context/notifications"
@@ -77,19 +78,21 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
   )
 })
 
-export function ReadOnlyTextfield(props: TextFieldProps) {
-  return (
-    <TextField
-      {...props}
-      style={{
-        pointerEvents: "none",
-        ...props.style
-      }}
-      tabIndex={-1}
-      InputProps={{
-        readOnly: true,
-        ...props.InputProps
-      }}
-    />
-  )
+type ReadOnlyTextfieldProps = TextFieldProps & {
+  disableUnderline?: boolean
+  multiline?: boolean
 }
+
+// tslint:disable-next-line no-shadowed-variable
+export const ReadOnlyTextfield = React.memo(function ReadOnlyTextfield(props: ReadOnlyTextfieldProps) {
+  const { disableUnderline, multiline, ...textfieldProps } = props
+
+  // tslint:disable-next-line no-shadowed-variable
+  const InputProps: InputProps = {
+    disableUnderline,
+    multiline,
+    readOnly: true,
+    ...props.InputProps
+  }
+  return <TextField {...textfieldProps} tabIndex={-1} InputProps={InputProps} />
+})
