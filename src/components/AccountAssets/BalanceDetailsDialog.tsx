@@ -78,6 +78,18 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   return (
     <DialogBody excessWidth={12} top={<MainTitle onBack={props.onClose} title={props.account.name} />}>
       <List style={{ paddingLeft: hpadding, paddingRight: hpadding }}>
+        <ButtonListItem
+          onClick={openAddAssetDialog}
+          style={{
+            boxSizing: "content-box",
+            padding: `0 ${itemHPadding}px`,
+            marginLeft: -itemHPadding,
+            marginRight: -itemHPadding
+          }}
+        >
+          <AddIcon />
+          &nbsp;&nbsp;Add Asset To Your Account
+        </ButtonListItem>
         {trustedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]
           const balance = accountData.balances.find(bal => isAssetMatchingBalance(asset, bal))
@@ -109,18 +121,6 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
             />
           )
         })}
-        <ButtonListItem
-          onClick={openAddAssetDialog}
-          style={{
-            boxSizing: "content-box",
-            padding: `0 ${itemHPadding}px`,
-            marginLeft: -itemHPadding,
-            marginRight: -itemHPadding
-          }}
-        >
-          <AddIcon />
-          &nbsp;&nbsp;Add Asset To Your Account
-        </ButtonListItem>
         <Divider style={{ margin: "16px 0" }} />
         {nativeBalance ? (
           <>
