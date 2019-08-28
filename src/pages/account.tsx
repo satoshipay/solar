@@ -6,6 +6,7 @@ import { TransitionProps } from "@material-ui/core/transitions/transition"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
+import AssetDetailsDialog from "../components/AccountAssets/AssetDetailsDialog"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
@@ -99,6 +100,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const router = useRouter()
 
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
+  const showAssetDetails =
+    matchesRoute(router.location.pathname, routes.assetDetails("*", "*")) &&
+    !matchesRoute(router.location.pathname, routes.assetDetails("*", "manage"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
@@ -155,6 +159,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       <Section
         bottom={!isSmallScreen}
         style={{
+          backgroundColor: "#fcfcfc",
           flexGrow: 1,
           flexShrink: 1,
           padding: isSmallScreen ? 0 : "0 24px",
@@ -184,6 +189,18 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         TransitionComponent={DialogTransition}
       >
         <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
+      </Dialog>
+      <Dialog
+        open={showAssetDetails}
+        fullScreen
+        onClose={navigateTo.balanceDetails}
+        TransitionComponent={DialogTransition}
+      >
+        <AssetDetailsDialog
+          account={props.account}
+          assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
+          onClose={navigateTo.balanceDetails}
+        />
       </Dialog>
       <Dialog
         open={showCreatePayment}

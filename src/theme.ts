@@ -125,6 +125,9 @@ const theme = createMuiTheme({
         "label + &": {
           marginTop: 12
         }
+      },
+      inputMultiline: {
+        lineHeight: "24px"
       }
     },
     MuiInputBase: {

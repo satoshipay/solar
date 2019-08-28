@@ -63,6 +63,16 @@ export function balancelineToAsset(balanceline: Horizon.BalanceLine): Asset {
     : new Asset(balanceline.asset_code, balanceline.asset_issuer)
 }
 
+/** Reversal of stringifyAsset() */
+export function parseAssetID(assetID: string) {
+  if (assetID === "XLM") {
+    return Asset.native()
+  } else {
+    const [issuer, code] = assetID.split(":")
+    return new Asset(code, issuer)
+  }
+}
+
 export function stringifyAsset(assetOrTrustline: Asset | Horizon.BalanceLine) {
   if (assetOrTrustline instanceof Asset) {
     const asset: Asset = assetOrTrustline

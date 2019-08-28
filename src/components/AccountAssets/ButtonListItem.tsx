@@ -40,12 +40,18 @@ const useButtonListItemStyles = makeStyles({
 interface ButtonListItemProps {
   children: React.ReactNode
   onClick: () => void
+  style?: React.CSSProperties
 }
 
 function ButtonListItem(props: ButtonListItemProps) {
   const classes = useButtonListItemStyles(props)
   return (
-    <ListItem button={Boolean(props.onClick) as any} className={classes.root} onClick={props.onClick}>
+    <ListItem
+      button={Boolean(props.onClick) as any}
+      className={classes.root}
+      onClick={props.onClick}
+      style={props.style}
+    >
       <ListItemText classes={{ primary: classes.textTypography }}>{props.children}</ListItemText>
     </ListItem>
   )
