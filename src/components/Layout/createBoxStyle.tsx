@@ -21,7 +21,7 @@ interface SizingStyles {
   padding?: React.CSSProperties["padding"]
 }
 
-const createSizingStyle = ({ width, height, minWidth, maxWidth, minHeight, maxHeight, padding = 0 }: SizingStyles) => {
+const createSizingStyle = ({ width, height, minWidth, maxWidth, minHeight, maxHeight, padding }: SizingStyles) => {
   return {
     padding,
     width,
@@ -126,7 +126,7 @@ export type BoxStyles = SizingStyles &
   }
 
 const createBoxStyle = (styleProps: BoxStyles) => {
-  const { hidden = false, margin = 0, overflow = "visible", overflowX, overflowY } = styleProps
+  const { hidden = false, margin, overflow = "visible", overflowX, overflowY } = styleProps
 
   const style = {
     boxSizing: "border-box",
