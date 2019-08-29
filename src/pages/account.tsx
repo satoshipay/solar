@@ -40,6 +40,9 @@ const useButtonStyles = makeStyles(theme => ({
     }
   },
   mobile: {},
+  hidden: {
+    paddingTop: 0
+  },
   collapse: {
     width: "100%",
     zIndex: 1
@@ -71,8 +74,9 @@ interface AccountActionsProps {
 const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
+  const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
   return (
-    <DialogActionsBox className={props.bottomOfScreen ? classes.mobile : classes.desktop} hidden={props.hidden}>
+    <DialogActionsBox className={className} hidden={props.hidden}>
       <ActionButton
         className={`${classes.button} ${classes.secondaryButton}`}
         icon={<QRCodeIcon style={{ fontSize: "110%" }} />}
