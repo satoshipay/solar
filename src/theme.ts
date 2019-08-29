@@ -173,6 +173,29 @@ const theme = createMuiTheme({
           paddingLeft: 8,
           paddingRight: 8
         }
+      },
+      button: {
+        background: "#FFFFFF",
+        boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.1)",
+
+        "&:focus": {
+          backgroundColor: "#FFFFFF"
+        },
+        "&:hover": {
+          backgroundColor: "#F8F8F8",
+
+          [breakpoints.down(600)]: {
+            backgroundColor: "#FFFFFF"
+          }
+        },
+        "&:nth-child(2)": {
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8
+        },
+        "&:last-child": {
+          borderBottomLeftRadius: 8,
+          borderBottomRightRadius: 8
+        }
       }
     },
     MuiListItemText: {

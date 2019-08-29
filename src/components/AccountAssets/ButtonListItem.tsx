@@ -7,9 +7,11 @@ import { breakpoints } from "../../theme"
 const useButtonListItemStyles = makeStyles({
   root: {
     backgroundColor: "rgba(0, 0, 0, 0.08)",
-    borderRadius: 6,
+    borderRadius: 8,
+    boxShadow: "none",
     height: 56,
-    margin: "8px 0",
+    marginTop: 0,
+    marginBottom: 0,
 
     [breakpoints.down(600)]: {
       height: 52
@@ -26,6 +28,9 @@ const useButtonListItemStyles = makeStyles({
       }
     }
   },
+  gutterBottom: {
+    marginBottom: 16
+  },
   textTypography: {
     alignItems: "center",
     display: "flex",
@@ -39,6 +44,7 @@ const useButtonListItemStyles = makeStyles({
 
 interface ButtonListItemProps {
   children: React.ReactNode
+  gutterBottom?: boolean
   onClick: () => void
   style?: React.CSSProperties
 }
@@ -47,8 +53,8 @@ function ButtonListItem(props: ButtonListItemProps) {
   const classes = useButtonListItemStyles(props)
   return (
     <ListItem
-      button={Boolean(props.onClick) as any}
-      className={classes.root}
+      button
+      className={`${classes.root} ${props.gutterBottom ? classes.gutterBottom : ""}`}
       onClick={props.onClick}
       style={props.style}
     >

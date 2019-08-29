@@ -15,9 +15,7 @@ import AssetLogo from "./AssetLogo"
 export const actionsSize = 36
 
 const useBalanceItemStyles = makeStyles({
-  clickable: {
-    borderRadius: 6
-  },
+  clickable: {},
   icon: {
     [breakpoints.down(350)]: {
       minWidth: 48
@@ -84,7 +82,6 @@ const useBalanceItemStyles = makeStyles({
 })
 
 interface BalanceListItemProps {
-  actions?: React.ReactNode
   assetMetadata?: StellarTomlCurrency
   badgeCount?: number
   balance: Horizon.BalanceLine
@@ -107,8 +104,6 @@ function BalanceListItem(props: BalanceListItemProps) {
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
     [props.balance]
   )
-
-  const stopEventPropagation = React.useCallback((event: React.SyntheticEvent) => event.stopPropagation(), [])
 
   if (props.balance.asset_type === "native") {
     return (
@@ -137,7 +132,6 @@ function BalanceListItem(props: BalanceListItemProps) {
           }}
           primary={balance}
         />
-        <ListItemText className={classes.actions} />
       </ListItem>
     )
   }
@@ -172,9 +166,6 @@ function BalanceListItem(props: BalanceListItemProps) {
         primary={balance}
         primaryTypographyProps={{ className: classes.balanceText }}
       />
-      <ListItemText className={classes.actions} onClick={stopEventPropagation}>
-        {props.actions}
-      </ListItemText>
     </ListItem>
   )
 }

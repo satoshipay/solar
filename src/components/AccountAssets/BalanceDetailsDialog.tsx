@@ -73,18 +73,19 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
 
   const assetMetadata = useAssetMetadata(trustedAssets, props.account.testnet)
   const hpadding = isSmallScreen ? 0 : 8
-  const itemHPadding = isSmallScreen ? 0 : 16
+  const itemHPadding = 16
+  const itemHMargin = 0
 
   return (
     <DialogBody excessWidth={12} top={<MainTitle onBack={props.onClose} title={props.account.name} />}>
-      <List style={{ paddingLeft: hpadding, paddingRight: hpadding }}>
+      <List style={{ paddingLeft: hpadding, paddingRight: hpadding, margin: "0 -8px" }}>
         <ButtonListItem
+          gutterBottom
           onClick={openAddAssetDialog}
           style={{
-            boxSizing: "content-box",
             padding: `0 ${itemHPadding}px`,
-            marginLeft: -itemHPadding,
-            marginRight: -itemHPadding
+            marginLeft: itemHMargin,
+            marginRight: itemHMargin
           }}
         >
           <AddIcon />
@@ -101,27 +102,23 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           return (
             <BalanceDetailsListItem
               key={stringifyAsset(asset)}
-              actions={
-                <IconButton onClick={() => removeTrustline(asset)} style={{ padding: 8 }}>
-                  <RemoveIcon />
-                </IconButton>
-              }
               assetMetadata={metadata}
               badgeCount={openOffers.length}
               balance={balance!}
               onClick={() => openAssetDetails(asset)}
               style={{
-                boxSizing: "content-box",
                 paddingLeft: itemHPadding,
                 paddingRight: itemHPadding,
-                marginLeft: -itemHPadding,
-                marginRight: -itemHPadding
+                marginLeft: itemHMargin,
+                marginRight: itemHMargin
               }}
               testnet={props.account.testnet}
             />
           )
         })}
-        <Divider style={{ margin: "16px 0" }} />
+      </List>
+      <Divider style={{ margin: "16px 0" }} />
+      <List style={{ paddingLeft: hpadding, paddingRight: hpadding, margin: "0 -8px 8px" }}>
         {nativeBalance ? (
           <>
             <BalanceDetailsListItem
@@ -129,11 +126,10 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
               balance={nativeBalance}
               onClick={() => openAssetDetails(Asset.native())}
               style={{
-                boxSizing: "content-box",
                 paddingLeft: itemHPadding,
                 paddingRight: itemHPadding,
-                marginLeft: -itemHPadding,
-                marginRight: -itemHPadding
+                marginLeft: itemHMargin,
+                marginRight: itemHMargin
               }}
               testnet={props.account.testnet}
             />
@@ -148,14 +144,14 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
                       .toString()
               }}
               hideLogo
+              onClick={() => openAssetDetails(Asset.native())}
               spendableBalance
               style={{
-                boxSizing: "content-box",
                 marginTop: -8,
                 paddingLeft: itemHPadding,
                 paddingRight: itemHPadding,
-                marginLeft: -itemHPadding,
-                marginRight: -itemHPadding
+                marginLeft: itemHMargin,
+                marginRight: itemHMargin
               }}
               testnet={props.account.testnet}
             />

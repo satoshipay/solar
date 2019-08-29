@@ -87,17 +87,16 @@ function AddAssetDialog(props: AddAssetDialogProps) {
   return (
     <DialogBody excessWidth={12} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
       <List style={{ paddingLeft: props.hpadding, paddingRight: props.hpadding }}>
+        <ButtonListItem gutterBottom onClick={openCustomTrustlineDialog}>
+          <AddIcon />
+          &nbsp;&nbsp;Add Custom Asset
+        </ButtonListItem>
         {notYetAddedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]
           const addThisAsset = () => sendTransaction(() => createAddAssetTransaction(asset))
           return (
             <BalanceDetailsListItem
               key={stringifyAsset(asset)}
-              actions={
-                <IconButton onClick={addThisAsset}>
-                  <AddIcon />
-                </IconButton>
-              }
               assetMetadata={metadata}
               balance={assetToBalance(asset)}
               hideBalance
@@ -107,10 +106,6 @@ function AddAssetDialog(props: AddAssetDialogProps) {
             />
           )
         })}
-        <ButtonListItem onClick={openCustomTrustlineDialog}>
-          <AddIcon />
-          &nbsp;&nbsp;Add Custom Asset
-        </ButtonListItem>
       </List>
       <Dialog
         open={customTrustlineDialogOpen}
