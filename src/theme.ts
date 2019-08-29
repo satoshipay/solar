@@ -46,7 +46,7 @@ const theme = createMuiTheme({
         color: brandColor.dark,
 
         "&:hover": {
-          backgroundColor: "#fafafa"
+          backgroundColor: "#F8F8F8"
         },
 
         [breakpoints.down(600)]: {
@@ -72,6 +72,7 @@ const theme = createMuiTheme({
         borderColor: "rgba(255, 255, 255, 0.87)",
         boxShadow: "none",
         color: "white",
+
         "&:disabled": {
           opacity: 0.5
         },
@@ -93,7 +94,9 @@ const theme = createMuiTheme({
         WebkitOverflowScrolling: "touch"
       },
       paperFullScreen: {
+        backgroundColor: "#fcfcfc",
         boxSizing: "border-box",
+
         "&": {
           // iOS 11
           paddingTop: "constant(safe-area-inset-top)",

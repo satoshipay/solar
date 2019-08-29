@@ -48,7 +48,7 @@ interface SectionProps {
 }
 
 function Section(props: SectionProps) {
-  const background = props.brandColored ? primaryBackground : props.backgroundColor || "white"
+  const background = props.brandColored ? primaryBackground : props.backgroundColor || "#fcfcfc"
   const isSmallScreen = useIsMobile()
 
   const className = [

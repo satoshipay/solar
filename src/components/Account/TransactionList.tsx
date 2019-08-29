@@ -373,7 +373,7 @@ export const transactionListItemStyles: StyleRules = {
       backgroundColor: "#FFFFFF"
     },
     "&:hover": {
-      backgroundColor: isMobileDevice ? "#FFFFFF" : "#FAFAFA"
+      backgroundColor: isMobileDevice ? "#FFFFFF" : "#F8F8F8"
     },
     "&:nth-child(2)": {
       borderTopLeftRadius: 8,

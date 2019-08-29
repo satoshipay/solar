@@ -1,5 +1,5 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
+import Button, { ButtonProps } from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -46,7 +46,7 @@ const useActionButtonStyles = makeStyles({
     bottom: 0,
     padding: undefined,
     width: "100%",
-    background: "white",
+    backgroundColor: "#fcfcfc",
     boxShadow: "0 0 16px 0 rgba(0, 0, 0, 0.1)",
     justifyContent: "flex-end"
   },
@@ -57,13 +57,18 @@ const useActionButtonStyles = makeStyles({
     },
 
     "$mobileDialogActionsBox &": {
+      flexBasis: "calc(100% - 24px)",
       flexGrow: 1,
       margin: 12,
-      maxWidth: "calc(50% - 24px)",
-      padding: "12px 16px",
+      padding: 20,
 
-      "&:first-child:last-child": {
-        maxWidth: "calc(100% - 16px)"
+      "&:not(:first-child)": {
+        flexBasis: "calc(50% - 16px)",
+        marginLeft: 6
+      },
+      "&:not(:last-child)": {
+        flexBasis: "calc(50% - 16px)",
+        marginRight: 6
       }
     }
   }
@@ -79,6 +84,7 @@ interface ActionButtonProps {
   loading?: boolean
   onClick?: (event: React.SyntheticEvent) => void
   style?: React.CSSProperties
+  variant?: ButtonProps["variant"]
   type?: "primary" | "secondary" | "submit"
 }
 
@@ -86,6 +92,7 @@ export function ActionButton(props: ActionButtonProps) {
   const { type = "secondary" } = props
   const classes = useActionButtonStyles()
   const isSmallScreen = useIsMobile()
+  const autoVariant = !isSmallScreen && (props.type === "secondary" || !props.type) ? "text" : "contained"
 
   return (
     <Button
@@ -97,7 +104,7 @@ export function ActionButton(props: ActionButtonProps) {
       onClick={props.onClick}
       style={props.style}
       type={type === "submit" ? "submit" : undefined}
-      variant={!isSmallScreen && (props.type === "secondary" || !props.type) ? "text" : "contained"}
+      variant={props.variant || autoVariant}
     >
       <MaybeIcon icon={props.icon} label={props.children} loading={props.loading} />
     </Button>
@@ -125,7 +132,7 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
       {props.smallDialog ? null : (
         // Placeholder to prevent other dialog content from being hidden below the actions box
         // Make sure its height matches the height of the actions box
-        <div style={{ width: "100%", height: 72 }} />
+        <div style={{ width: "100%", height: 88 }} />
       )}
       <HorizontalLayout className={`iphone-notch-bottom-spacing ${classes.mobileDialogActionsBox}`}>
         {props.children}
@@ -136,6 +143,7 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
 
 interface DialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
+  className?: string
   desktopStyle?: React.CSSProperties
   preventMobileActionsBox?: boolean
   smallDialog?: boolean
@@ -152,7 +160,7 @@ export const DialogActionsBox = React.memo(function DialogActionsBox(props: Dial
   }
 
   return (
-    <DialogActions className={classes.inlineDialogActionsBox} style={props.desktopStyle}>
+    <DialogActions className={`${classes.inlineDialogActionsBox} ${props.className || ""}`} style={props.desktopStyle}>
       {props.children}
     </DialogActions>
   )
