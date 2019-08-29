@@ -139,18 +139,12 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
 
   return (
     <DialogBody
-      top={
-        <MainTitle
-          hideBackButton={!props.onClose}
-          onBack={props.onClose}
-          title={accountData.inflation_destination ? "Change Inflation Pool" : "Join Inflation Pool"}
-        />
-      }
+      top={<MainTitle hideBackButton={!props.onClose} onBack={props.onClose} title="Set Inflation Destination" />}
       actions={
         <DialogActionsBox smallDialog>{mode === "editing" ? editableActions : readonlyActions}</DialogActionsBox>
       }
     >
-      <VerticalLayout margin="64px auto 0">
+      <VerticalLayout margin={isSmallScreen ? "64px 0" : "64px auto"}>
         <InputLabel
           style={{
             overflow: "visible",
@@ -166,7 +160,10 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
           disabled={mode === "readonly"}
           error={Boolean(error)}
           fullWidth
-          inputProps={{ size: isSmallScreen ? 24 : 56 }}
+          inputProps={{
+            size: isSmallScreen ? 24 : 56,
+            style: { textOverflow: "ellipsis" }
+          }}
           onChange={handleDestinationEditing}
           onKeyDown={handleKeyDown}
           placeholder="GABCDEFGHIJK... or pool*example.org"
