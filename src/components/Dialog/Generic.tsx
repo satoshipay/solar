@@ -11,7 +11,6 @@ import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks"
 import { breakpoints } from "../../theme"
-import { HorizontalLayout } from "../Layout/Box"
 import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
@@ -28,7 +27,7 @@ function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; load
   )
 }
 
-const useActionButtonStyles = makeStyles({
+const useActionButtonStyles = makeStyles(theme => ({
   inlineDialogActionsBox: {
     alignItems: "stretch",
     margin: "32px 0 0",
@@ -41,14 +40,23 @@ const useActionButtonStyles = makeStyles({
     }
   },
   mobileDialogActionsBox: {
+    display: "flex",
     position: "fixed",
     left: 0,
     bottom: 0,
-    padding: undefined,
     width: "100%",
     backgroundColor: "#fcfcfc",
     boxShadow: "0 0 16px 0 rgba(0, 0, 0, 0.1)",
     justifyContent: "flex-end"
+  },
+  common: {
+    maxHeight: 88,
+    overflow: "hidden",
+    transition: `max-height ${theme.transitions.duration.standard}ms ${theme.transitions.easing.easeInOut}`,
+    zIndex: 1
+  },
+  hidden: {
+    maxHeight: 0
   },
   actionButton: {
     "$inlineDialogActionsBox &": {
@@ -72,7 +80,7 @@ const useActionButtonStyles = makeStyles({
       }
     }
   }
-})
+}))
 
 interface ActionButtonProps {
   autoFocus?: boolean
@@ -121,6 +129,7 @@ export function CloseButton(props: { onClick?: (event: React.SyntheticEvent) => 
 
 interface MobileDialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
+  hidden?: boolean
   smallDialog?: boolean
 }
 
@@ -132,11 +141,18 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
       {props.smallDialog ? null : (
         // Placeholder to prevent other dialog content from being hidden below the actions box
         // Make sure its height matches the height of the actions box
-        <div style={{ width: "100%", height: 88 }} />
+        <div
+          className={`${classes.common} ${props.hidden ? classes.hidden : ""}`}
+          style={{ width: "100%", height: 88 }}
+        />
       )}
-      <HorizontalLayout className={`iphone-notch-bottom-spacing ${classes.mobileDialogActionsBox}`}>
+      <div
+        className={`iphone-notch-bottom-spacing ${classes.common} ${classes.mobileDialogActionsBox} ${
+          props.hidden ? classes.hidden : ""
+        }`}
+      >
         {props.children}
-      </HorizontalLayout>
+      </div>
     </>
   )
 })
@@ -145,6 +161,7 @@ interface DialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
   className?: string
   desktopStyle?: React.CSSProperties
+  hidden?: boolean
   preventMobileActionsBox?: boolean
   smallDialog?: boolean
   spacing?: "normal" | "large"
@@ -156,11 +173,20 @@ export const DialogActionsBox = React.memo(function DialogActionsBox(props: Dial
   const isSmallScreen = useIsMobile()
 
   if (isSmallScreen && !props.preventMobileActionsBox) {
-    return <MobileDialogActionsBox smallDialog={props.smallDialog}>{props.children}</MobileDialogActionsBox>
+    return (
+      <MobileDialogActionsBox hidden={props.hidden} smallDialog={props.smallDialog}>
+        {props.children}
+      </MobileDialogActionsBox>
+    )
   }
 
   return (
-    <DialogActions className={`${classes.inlineDialogActionsBox} ${props.className || ""}`} style={props.desktopStyle}>
+    <DialogActions
+      className={`${classes.common} ${classes.inlineDialogActionsBox} ${
+        props.hidden ? classes.hidden : ""
+      } ${props.className || ""}`}
+      style={props.desktopStyle}
+    >
       {props.children}
     </DialogActions>
   )

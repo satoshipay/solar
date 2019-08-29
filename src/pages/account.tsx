@@ -1,5 +1,4 @@
 import React from "react"
-import Collapse from "@material-ui/core/Collapse"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
 import { makeStyles } from "@material-ui/core/styles"
@@ -41,9 +40,6 @@ const useButtonStyles = makeStyles(theme => ({
   },
   mobile: {},
   collapse: {
-    flexGrow: 0,
-    flexShrink: 0,
-    paddingBottom: "env(safe-area-inset-bottom)",
     width: "100%",
     zIndex: 1
   },
@@ -75,27 +71,25 @@ const AccountActions = React.memo(function AccountActions(props: AccountActionsP
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
   return (
-    <Collapse className={classes.collapse} in={!props.hidden}>
-      <DialogActionsBox className={props.bottomOfScreen ? classes.mobile : classes.desktop}>
-        <ActionButton
-          className={`${classes.button} ${classes.secondaryButton}`}
-          icon={<QRCodeIcon style={{ fontSize: "110%" }} />}
-          onClick={props.onReceivePayment}
-          variant="contained"
-        >
-          Receive
-        </ActionButton>
-        <ActionButton
-          className={classes.button}
-          disabled={!accountData.activated}
-          icon={<SendIcon style={{ fontSize: "110%" }} />}
-          onClick={props.onCreatePayment}
-          type="primary"
-        >
-          Send
-        </ActionButton>
-      </DialogActionsBox>
-    </Collapse>
+    <DialogActionsBox className={props.bottomOfScreen ? classes.mobile : classes.desktop} hidden={props.hidden}>
+      <ActionButton
+        className={`${classes.button} ${classes.secondaryButton}`}
+        icon={<QRCodeIcon style={{ fontSize: "110%" }} />}
+        onClick={props.onReceivePayment}
+        variant="contained"
+      >
+        Receive
+      </ActionButton>
+      <ActionButton
+        className={classes.button}
+        disabled={!accountData.activated}
+        icon={<SendIcon style={{ fontSize: "110%" }} />}
+        onClick={props.onCreatePayment}
+        type="primary"
+      >
+        Send
+      </ActionButton>
+    </DialogActionsBox>
   )
 })
 
