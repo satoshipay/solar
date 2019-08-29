@@ -273,7 +273,7 @@ function PaymentCreationForm(props: Props) {
             onClick={() => undefined}
             type="submit"
           >
-            Send
+            Send now
           </ActionButton>
         </DialogActionsBox>
       </Portal>
