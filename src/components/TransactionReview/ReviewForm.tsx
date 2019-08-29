@@ -82,24 +82,27 @@ function TxConfirmationForm(props: Props) {
     [createCheapTxID(props.transaction)]
   )
 
-  const handleFormSubmission = React.useCallback((event: React.SyntheticEvent) => {
-    event.preventDefault()
+  const handleFormSubmission = React.useCallback(
+    (event: React.SyntheticEvent) => {
+      event.preventDefault()
 
-    if (props.disabled) {
-      // Just a precaution; we shouldn't even get here if the component is disabled
-      return
-    }
+      if (props.disabled) {
+        // Just a precaution; we shouldn't even get here if the component is disabled
+        return
+      }
 
-    if (props.account.requiresPassword && !formValues.password) {
-      return setErrors({
-        ...errors,
-        password: new Error("Password required")
-      })
-    }
+      if (props.account.requiresPassword && !formValues.password) {
+        return setErrors({
+          ...errors,
+          password: new Error("Password required")
+        })
+      }
 
-    setErrors({})
-    onConfirm(formValues)
-  }, [props.account, props.disabled, formValues, onConfirm])
+      setErrors({})
+      onConfirm(formValues)
+    },
+    [props.account, props.disabled, formValues, onConfirm]
+  )
 
   return (
     <form id={formID} noValidate onSubmit={handleFormSubmission}>
@@ -128,11 +131,10 @@ function TxConfirmationForm(props: Props) {
         ) : null}
       </VerticalLayout>
       <Portal target={props.actionsRef.element}>
-        <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
+        <DialogActionsBox>
           {props.signatureRequest ? (
-            <ActionButton onClick={requestDismissalConfirmation}>
-              Dismiss&nbsp;
-              <CloseIcon style={{ fontSize: "140%" }} />
+            <ActionButton icon={<CloseIcon style={{ fontSize: "140%" }} />} onClick={requestDismissalConfirmation}>
+              Dismiss
             </ActionButton>
           ) : null}
           {props.disabled ? null : (

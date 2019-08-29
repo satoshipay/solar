@@ -1,21 +1,19 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
-import Collapse from "@material-ui/core/Collapse"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
+import { makeStyles } from "@material-ui/core/styles"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import SendIcon from "@material-ui/icons/Send"
-import ButtonIconLabel from "../components/ButtonIconLabel"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
+import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
 import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
 import TradeAssetDialog from "../components/Dialog/TradeAsset"
 import QRCodeIcon from "../components/Icon/QRCode"
-import { HorizontalLayout, VerticalLayout } from "../components/Layout/Box"
-import { HorizontalMargin } from "../components/Layout/Spacing"
+import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import CreatePaymentDialog from "../components/Payment/CreatePaymentDialog"
 import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
@@ -28,62 +26,72 @@ const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
   <Slide ref={ref} {...props} direction="left" />
 ))
 
+const useButtonStyles = makeStyles(theme => ({
+  desktop: {
+    margin: 0,
+    padding: "24px 0 0",
+
+    "& $button:firt-child": {
+      marginRight: 40
+    },
+    "& $button:last-child": {
+      marginLeft: 40
+    }
+  },
+  mobile: {},
+  collapse: {
+    width: "100%",
+    zIndex: 1
+  },
+  button: {
+    border: "none",
+    borderRadius: 8,
+    boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
+    fontSize: "1rem",
+    flexBasis: 1,
+    flexGrow: 1,
+    padding: "20px !important"
+  },
+  secondaryButton: {
+    background: "white",
+    color: theme.palette.primary.dark
+  }
+}))
+
 interface AccountActionsProps {
   account: Account
   bottomOfScreen?: boolean
   hidden?: boolean
-  horizontalMargin: number
   onCreatePayment: () => void
   onReceivePayment: () => void
-  padding?: React.CSSProperties["padding"]
-  squareButtons?: boolean
-  style?: React.CSSProperties
 }
 
-function AccountActions(props: AccountActionsProps) {
+// tslint:disable-next-line no-shadowed-variable
+const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const isSmallScreen = useIsMobile()
-  const buttonStyle = {
-    border: "none",
-    borderRadius: isSmallScreen ? 0 : 8,
-    fontSize: "1rem",
-    flexBasis: 1,
-    flexGrow: 1,
-    padding: 20
-  }
+  const classes = useButtonStyles()
   return (
-    <Collapse
-      in={!props.hidden}
-      style={{
-        flexGrow: 0,
-        flexShrink: 0,
-        background: props.bottomOfScreen ? "white" : undefined,
-        paddingBottom: "env(safe-area-inset-bottom)",
-        ...props.style
-      }}
-    >
-      <HorizontalLayout padding={props.padding}>
-        <Button variant="contained" onClick={props.onReceivePayment} style={buttonStyle}>
-          <ButtonIconLabel label="Receive">
-            <QRCodeIcon style={{ fontSize: "110%" }} />
-          </ButtonIconLabel>
-        </Button>
-        {props.horizontalMargin > 0 ? <HorizontalMargin size={props.horizontalMargin} /> : null}
-        <Button
-          color="primary"
-          variant="contained"
-          disabled={!accountData.activated}
-          onClick={props.onCreatePayment}
-          style={buttonStyle}
-        >
-          <ButtonIconLabel label="Send">
-            <SendIcon style={{ fontSize: "110%" }} />
-          </ButtonIconLabel>
-        </Button>
-      </HorizontalLayout>
-    </Collapse>
+    <DialogActionsBox className={props.bottomOfScreen ? classes.mobile : classes.desktop} hidden={props.hidden}>
+      <ActionButton
+        className={`${classes.button} ${classes.secondaryButton}`}
+        icon={<QRCodeIcon style={{ fontSize: "110%" }} />}
+        onClick={props.onReceivePayment}
+        variant="contained"
+      >
+        Receive
+      </ActionButton>
+      <ActionButton
+        className={classes.button}
+        disabled={!accountData.activated}
+        icon={<SendIcon style={{ fontSize: "110%" }} />}
+        onClick={props.onCreatePayment}
+        type="primary"
+      >
+        Send
+      </ActionButton>
+    </DialogActionsBox>
   )
-}
+})
 
 // tslint:disable-next-line no-shadowed-variable
 const AccountPageContent = React.memo(function AccountPageContent(props: { account: Account }) {
@@ -130,10 +138,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
           <AccountActions
             account={props.account}
             hidden={!showSendReceiveButtons}
-            horizontalMargin={40}
             onCreatePayment={navigateTo.createPayment}
             onReceivePayment={navigateTo.receivePayment}
-            padding="24px 0 0"
           />
         )}
       </AccountHeaderCard>
@@ -166,11 +172,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
           account={props.account}
           bottomOfScreen
           hidden={!showSendReceiveButtons}
-          horizontalMargin={0}
-          onCreatePayment={() => router.history.push(routes.createPayment(props.account.id))}
-          onReceivePayment={() => router.history.push(routes.receivePayment(props.account.id))}
-          squareButtons
-          style={{ boxShadow: "0 -8px 16px 0 rgba(0, 0, 0, 0.1)", zIndex: 1 }}
+          onCreatePayment={navigateTo.createPayment}
+          onReceivePayment={navigateTo.receivePayment}
         />
       ) : null}
 
