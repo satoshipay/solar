@@ -40,6 +40,13 @@ const useButtonStyles = makeStyles(theme => ({
     }
   },
   mobile: {},
+  collapse: {
+    flexGrow: 0,
+    flexShrink: 0,
+    paddingBottom: "env(safe-area-inset-bottom)",
+    width: "100%",
+    zIndex: 1
+  },
   button: {
     border: "none",
     borderRadius: 8,
@@ -61,25 +68,14 @@ interface AccountActionsProps {
   hidden?: boolean
   onCreatePayment: () => void
   onReceivePayment: () => void
-  // padding?: React.CSSProperties["padding"]
-  style?: React.CSSProperties
 }
 
-function AccountActions(props: AccountActionsProps) {
+// tslint:disable-next-line no-shadowed-variable
+const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
   return (
-    <Collapse
-      in={!props.hidden}
-      style={{
-        flexGrow: 0,
-        flexShrink: 0,
-        paddingBottom: "env(safe-area-inset-bottom)",
-        width: "100%",
-        zIndex: 1,
-        ...props.style
-      }}
-    >
+    <Collapse className={classes.collapse} in={!props.hidden}>
       <DialogActionsBox className={props.bottomOfScreen ? classes.mobile : classes.desktop}>
         <ActionButton
           className={`${classes.button} ${classes.secondaryButton}`}
@@ -101,7 +97,7 @@ function AccountActions(props: AccountActionsProps) {
       </DialogActionsBox>
     </Collapse>
   )
-}
+})
 
 // tslint:disable-next-line no-shadowed-variable
 const AccountPageContent = React.memo(function AccountPageContent(props: { account: Account }) {
@@ -182,8 +178,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
           account={props.account}
           bottomOfScreen
           hidden={!showSendReceiveButtons}
-          onCreatePayment={() => router.history.push(routes.createPayment(props.account.id))}
-          onReceivePayment={() => router.history.push(routes.receivePayment(props.account.id))}
+          onCreatePayment={navigateTo.createPayment}
+          onReceivePayment={navigateTo.receivePayment}
         />
       ) : null}
 
