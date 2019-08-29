@@ -3,12 +3,10 @@ import React from "react"
 import { Asset, Horizon } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Divider from "@material-ui/core/Divider"
-import IconButton from "@material-ui/core/IconButton"
 import List from "@material-ui/core/List"
 import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import AddIcon from "@material-ui/icons/Add"
-import RemoveIcon from "@material-ui/icons/Close"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAccountOffers, useAssetMetadata, useIsMobile, useRouter } from "../../hooks"
 import { stringifyAsset, getAccountMinimumBalance } from "../../lib/stellar"
@@ -18,13 +16,9 @@ import MainTitle from "../MainTitle"
 import AddAssetDialog from "./AddAssetDialog"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
-import RemoveTrustlineDialog from "./RemoveTrustline"
 
 const DialogHorizontalTransition = React.forwardRef((props: TransitionProps, ref) => (
   <Slide {...props} direction="left" ref={ref} />
-))
-const DialogVerticalTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide {...props} direction="up" ref={ref} />
 ))
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
@@ -46,22 +40,12 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
-  const [removalDialogAsset, setRemovalDialogAsset] = React.useState<Asset | null>(null)
-
   const openAddAssetDialog = () => router.history.push(routes.manageAccountAssets(props.account.id))
   const closeAddAssetDialog = () => router.history.push(routes.balanceDetails(props.account.id))
   const addAssetDialogOpen = router.location.pathname.startsWith(routes.manageAccountAssets(props.account.id))
 
   const openAssetDetails = (asset: Asset) =>
     router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
-
-  const { closeRemoveTrustlineDialog, removeTrustline } = React.useMemo(
-    () => ({
-      closeRemoveTrustlineDialog: () => setRemovalDialogAsset(null),
-      removeTrustline: (asset: Asset) => setRemovalDialogAsset(asset)
-    }),
-    []
-  )
 
   const trustedAssets = accountData.balances
     .filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native")
@@ -170,18 +154,6 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           hpadding={hpadding}
           itemHPadding={itemHPadding}
           onClose={closeAddAssetDialog}
-        />
-      </Dialog>
-      <Dialog
-        open={removalDialogAsset !== null}
-        onClose={closeRemoveTrustlineDialog}
-        TransitionComponent={DialogVerticalTransition}
-      >
-        <RemoveTrustlineDialog
-          account={props.account}
-          accountData={accountData}
-          asset={removalDialogAsset || Asset.native()}
-          onClose={closeRemoveTrustlineDialog}
         />
       </Dialog>
     </DialogBody>

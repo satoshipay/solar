@@ -16,6 +16,7 @@ import { AccountName } from "../Fetchers"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { VerticalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+import AssetDetailsActions from "./AssetDetailsActions"
 import AssetLogo from "./AssetLogo"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
 
@@ -25,7 +26,8 @@ const useDetailContentStyles = makeStyles(theme => ({
   card: {
     backgroundColor: "#fbfbfb",
     borderRadius: 8,
-    margin: "12px -8px"
+    margin: "12px -8px",
+    overflowY: "auto"
   },
   cardContent: {
     position: "relative",
@@ -368,11 +370,16 @@ interface Props {
 }
 
 function AssetDetailsDialog(props: Props) {
-  const asset = parseAssetID(props.assetID)
+  const asset = React.useMemo(() => parseAssetID(props.assetID), [props.assetID])
   const classes = useAssetDetailStyles()
 
   const metadataMap = useAssetMetadata([asset], props.account.testnet)
   const [metadata] = metadataMap.get(asset) || [undefined, false]
+
+  const dialogActions = React.useMemo(
+    () => (asset.isNative() ? null : <AssetDetailsActions account={props.account} asset={asset} />),
+    [props.account, asset]
+  )
 
   return (
     <DialogBody
@@ -380,6 +387,7 @@ function AssetDetailsDialog(props: Props) {
       top={
         <>
           <MainTitle
+            nowrap
             onBack={props.onClose}
             style={{ position: "relative", zIndex: 1 }}
             title={
@@ -390,6 +398,7 @@ function AssetDetailsDialog(props: Props) {
                   : asset.getCode()
             }
             titleStyle={{
+              maxWidth: "calc(100% - 100px)",
               textShadow: "0 0 5px white, 0 0 5px white, 0 0 5px white"
             }}
           />
@@ -403,20 +412,14 @@ function AssetDetailsDialog(props: Props) {
           <AssetLogo asset={asset} className={classes.logo} imageURL={metadata && metadata.image} />
         </>
       }
+      actions={dialogActions}
+      actionsPosition="before-content"
     >
-      <VerticalLayout margin="16px 0 0">
+      <VerticalLayout margin="16px 4px 0" padding="0 0 64px" shrink={0}>
         {asset.isNative() ? (
-          <>
-            <LumenDetails account={props.account} />
-            {/* TODO: Show reserves */}
-          </>
+          <LumenDetails account={props.account} />
         ) : (
-          <>
-            {/* TODO: If trustline: Balance and open orders */}
-            <AssetDetails account={props.account} asset={asset} metadata={metadata} />
-            {/* TODO: Anchor details */}
-            {/* TODO: Actions */}
-          </>
+          <AssetDetails account={props.account} asset={asset} metadata={metadata} />
         )}
       </VerticalLayout>
     </DialogBody>

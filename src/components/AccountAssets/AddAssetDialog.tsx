@@ -1,17 +1,17 @@
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import IconButton from "@material-ui/core/IconButton"
 import List from "@material-ui/core/List"
 import Slide from "@material-ui/core/Slide"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAssetMetadata, ObservedAccountData } from "../../hooks"
+import { useAssetMetadata, useRouter, ObservedAccountData } from "../../hooks"
 import * as popularAssets from "../../lib/popularAssets"
 import { stringifyAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
+import * as routes from "../../routes"
 import DialogBody from "../Dialog/DialogBody"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
@@ -49,8 +49,12 @@ interface AddAssetDialogProps {
 function AddAssetDialog(props: AddAssetDialogProps) {
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
   const assetMetadata = useAssetMetadata(assets, props.account.testnet)
+  const router = useRouter()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+
+  const openAssetDetails = (asset: Asset) =>
+    router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
 
   const openCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(true)
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
@@ -93,14 +97,13 @@ function AddAssetDialog(props: AddAssetDialogProps) {
         </ButtonListItem>
         {notYetAddedAssets.map(asset => {
           const [metadata] = assetMetadata.get(asset) || [undefined, false]
-          const addThisAsset = () => sendTransaction(() => createAddAssetTransaction(asset))
           return (
             <BalanceDetailsListItem
               key={stringifyAsset(asset)}
               assetMetadata={metadata}
               balance={assetToBalance(asset)}
               hideBalance
-              onClick={addThisAsset}
+              onClick={() => openAssetDetails(asset)}
               style={{ paddingLeft: props.itemHPadding, paddingRight: props.itemHPadding }}
               testnet={props.account.testnet}
             />
