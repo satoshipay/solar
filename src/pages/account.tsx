@@ -118,6 +118,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const navigateTo = React.useMemo(
     () => ({
       accountSettings: () => router.history.push(routes.accountSettings(props.account.id)),
+      addAssets: () => router.history.push(routes.manageAccountAssets(props.account.id)),
       balanceDetails: () => router.history.push(routes.balanceDetails(props.account.id)),
       createPayment: () => router.history.push(routes.createPayment(props.account.id)),
       receivePayment: () => router.history.push(routes.receivePayment(props.account.id)),
@@ -126,6 +127,14 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       withdraw: () => router.history.push(routes.withdrawAsset(props.account.id))
     }),
     [router.history.push, props.account.id]
+  )
+
+  const closeAssetDetails = React.useCallback(
+    () => {
+      // We might need to go back to either "balance details" or "add assets"
+      router.history.goBack()
+    },
+    [navigateTo, router.history]
   )
 
   // Let's memo the AccountHeaderCard as it's pretty expensive to re-render
@@ -203,7 +212,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         <AssetDetailsDialog
           account={props.account}
           assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
-          onClose={navigateTo.balanceDetails}
+          onClose={closeAssetDetails}
         />
       </Dialog>
       <Dialog
