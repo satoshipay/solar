@@ -46,7 +46,6 @@ const useActionButtonStyles = makeStyles(theme => ({
     bottom: 0,
     width: "100%",
     backgroundColor: "#fcfcfc",
-    boxShadow: "0 0 16px 0 rgba(0, 0, 0, 0.1)",
     justifyContent: "flex-end"
   },
   common: {
