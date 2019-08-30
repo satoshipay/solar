@@ -27,6 +27,7 @@ interface Props {
   actions?: React.ReactNode
   badges?: React.ReactNode
   hideBackButton?: boolean
+  nowrap?: boolean
   onBack: () => void
   style?: React.CSSProperties
   title: React.ReactNode
@@ -40,7 +41,7 @@ function MainTitle(props: Props) {
   return (
     <HorizontalLayout
       alignItems="center"
-      wrap={isSmallScreen ? (props.hideBackButton ? "wrap-reverse" : "wrap") : "nowrap"}
+      wrap={isSmallScreen && !props.nowrap ? (props.hideBackButton ? "wrap-reverse" : "wrap") : "nowrap"}
       style={{ minHeight: isSmallScreen ? undefined : 56, ...props.style }}
     >
       {props.hideBackButton ? null : (

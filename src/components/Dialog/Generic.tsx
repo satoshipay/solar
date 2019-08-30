@@ -49,6 +49,7 @@ const useActionButtonStyles = makeStyles(theme => ({
     justifyContent: "flex-end"
   },
   common: {
+    flexShrink: 0,
     maxHeight: 88,
     overflow: "hidden",
     transition: `max-height ${theme.transitions.duration.standard}ms ${theme.transitions.easing.easeInOut}`,

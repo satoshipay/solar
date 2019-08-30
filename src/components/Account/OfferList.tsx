@@ -5,7 +5,6 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
-import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles"
 import ArrowRightIcon from "@material-ui/icons/ArrowRightAlt"
 import BarChartIcon from "@material-ui/icons/BarChart"
 import { Account } from "../../context/accounts"
@@ -17,7 +16,6 @@ import { HorizontalLayout } from "../Layout/Box"
 import { List } from "../List"
 import TransactionSender from "../TransactionSender"
 import { SingleBalance } from "./AccountBalances"
-import { transactionListItemStyles } from "./TransactionList"
 
 function createDismissalTransaction(
   horizon: Server,
@@ -41,7 +39,6 @@ function createDismissalTransaction(
 
 interface OfferListItemProps {
   accountPublicKey: string
-  classes: ClassNameMap<keyof typeof transactionListItemStyles>
   offer: ServerApi.OfferRecord
   onCancel?: () => void
   style?: React.CSSProperties
@@ -49,14 +46,13 @@ interface OfferListItemProps {
 
 const OfferListItem = React.memo(
   // tslint:disable-next-line no-shadowed-variable
-  withStyles(transactionListItemStyles)(function OfferListItem(props: OfferListItemProps) {
+  function OfferListItem(props: OfferListItemProps) {
     const buying = offerAssetToAsset(props.offer.buying)
     const selling = offerAssetToAsset(props.offer.selling)
     const isSmallScreen = useIsMobile()
     return (
       <ListItem
         button={Boolean(props.onCancel) as any}
-        className={props.classes.listItem}
         onClick={props.onCancel}
         style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
       >
@@ -95,7 +91,7 @@ const OfferListItem = React.memo(
         </ListItemText>
       </ListItem>
     )
-  } as React.ComponentType<OfferListItemProps>)
+  }
 )
 
 interface Props {

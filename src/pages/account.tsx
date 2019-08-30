@@ -6,6 +6,7 @@ import { TransitionProps } from "@material-ui/core/transitions/transition"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
+import AssetDetailsDialog from "../components/AccountAssets/AssetDetailsDialog"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
@@ -39,6 +40,9 @@ const useButtonStyles = makeStyles(theme => ({
     }
   },
   mobile: {},
+  hidden: {
+    paddingTop: 0
+  },
   collapse: {
     width: "100%",
     zIndex: 1
@@ -70,8 +74,9 @@ interface AccountActionsProps {
 const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
+  const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
   return (
-    <DialogActionsBox className={props.bottomOfScreen ? classes.mobile : classes.desktop} hidden={props.hidden}>
+    <DialogActionsBox className={className} hidden={props.hidden}>
       <ActionButton
         className={`${classes.button} ${classes.secondaryButton}`}
         icon={<QRCodeIcon style={{ fontSize: "110%" }} />}
@@ -99,6 +104,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const router = useRouter()
 
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
+  const showAssetDetails =
+    matchesRoute(router.location.pathname, routes.assetDetails("*", "*")) &&
+    !matchesRoute(router.location.pathname, routes.assetDetails("*", "manage"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
@@ -110,6 +118,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const navigateTo = React.useMemo(
     () => ({
       accountSettings: () => router.history.push(routes.accountSettings(props.account.id)),
+      addAssets: () => router.history.push(routes.manageAccountAssets(props.account.id)),
       balanceDetails: () => router.history.push(routes.balanceDetails(props.account.id)),
       createPayment: () => router.history.push(routes.createPayment(props.account.id)),
       receivePayment: () => router.history.push(routes.receivePayment(props.account.id)),
@@ -118,6 +127,14 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       withdraw: () => router.history.push(routes.withdrawAsset(props.account.id))
     }),
     [router.history.push, props.account.id]
+  )
+
+  const closeAssetDetails = React.useCallback(
+    () => {
+      // We might need to go back to either "balance details" or "add assets"
+      router.history.goBack()
+    },
+    [navigateTo, router.history]
   )
 
   // Let's memo the AccountHeaderCard as it's pretty expensive to re-render
@@ -155,6 +172,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       <Section
         bottom={!isSmallScreen}
         style={{
+          backgroundColor: "#fcfcfc",
           flexGrow: 1,
           flexShrink: 1,
           padding: isSmallScreen ? 0 : "0 24px",
@@ -184,6 +202,18 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         TransitionComponent={DialogTransition}
       >
         <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
+      </Dialog>
+      <Dialog
+        open={showAssetDetails}
+        fullScreen
+        onClose={navigateTo.balanceDetails}
+        TransitionComponent={DialogTransition}
+      >
+        <AssetDetailsDialog
+          account={props.account}
+          assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
+          onClose={closeAssetDetails}
+        />
       </Dialog>
       <Dialog
         open={showCreatePayment}

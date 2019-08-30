@@ -8,6 +8,7 @@ export interface ObservedAccountData {
   activated: boolean
   balances: Horizon.BalanceLine[]
   data: Horizon.AccountResponse["data"]
+  flags: Horizon.AccountResponse["flags"]
   home_domain?: string
   id: string
   loading: boolean
@@ -22,6 +23,11 @@ const createEmptyAccountData = (accountID: string): ObservedAccountData => ({
   activated: false,
   balances: [],
   data: {},
+  flags: {
+    auth_immutable: false,
+    auth_required: false,
+    auth_revocable: false
+  },
   id: accountID,
   loading: true,
   signers: [],

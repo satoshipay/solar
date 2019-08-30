@@ -1,5 +1,5 @@
 import React from "react"
-import { Horizon } from "stellar-sdk"
+import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import { brandColor } from "../../theme"
@@ -24,7 +24,10 @@ const useAssetLogoStyles = makeStyles({
   },
   xlmAvatar: {
     background: "white",
-    color: "black"
+    boxSizing: "border-box",
+    color: "black",
+    fontSize: 12,
+    padding: "0.5em"
   },
   icon: {
     width: "100%",
@@ -33,7 +36,7 @@ const useAssetLogoStyles = makeStyles({
 })
 
 interface Props {
-  balance: Horizon.BalanceLine
+  asset: Asset
   className?: string
   dark?: boolean
   imageURL?: string
@@ -44,7 +47,7 @@ function AssetLogo(props: Props) {
   const className = props.className || ""
   const classes = useAssetLogoStyles({})
 
-  if (props.balance.asset_type === "native") {
+  if (props.asset.isNative()) {
     return (
       <Avatar alt="Stellar Lumens (XLM)" className={`${className} ${classes.xlmAvatar}`} style={props.style}>
         <LumenIcon className={classes.icon} />
@@ -58,7 +61,7 @@ function AssetLogo(props: Props) {
     ].join(" ")
     return (
       <Avatar alt={name} className={avatarClassName} style={props.style}>
-        {props.imageURL ? <img className={classes.icon} src={props.imageURL} /> : props.balance.asset_code}
+        {props.imageURL ? <img className={classes.icon} src={props.imageURL} /> : props.asset.code}
       </Avatar>
     )
   }

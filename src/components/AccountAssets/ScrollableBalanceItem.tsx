@@ -2,6 +2,7 @@ import { Horizon } from "stellar-sdk"
 import React from "react"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import { breakpoints } from "../../theme"
+import { balancelineToAsset } from "../../lib/stellar"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
 import { SingleBalance } from "../Account/AccountBalances"
 import AssetLogo from "./AssetLogo"
@@ -48,6 +49,7 @@ const useBalanceItemStyles = makeStyles({
     margin: 0,
     marginLeft: 0,
     marginRight: 0,
+    pointerEvents: "none", // images are handled differently by web views
     width: 40,
     height: 40,
 
@@ -83,10 +85,12 @@ interface BalanceWithLogoProps {
 function BalanceItem(props: BalanceWithLogoProps, ref: React.Ref<any>) {
   const classes = useBalanceItemStyles(props)
 
+  const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
+
   return (
     <div className={`${classes.root} ${props.onClick ? classes.clickable : ""}`} onClick={props.onClick} ref={ref}>
       <AssetLogo
-        balance={props.balance}
+        asset={asset}
         className={classes.logo}
         imageURL={props.assetMetadata ? props.assetMetadata.image : undefined}
       />

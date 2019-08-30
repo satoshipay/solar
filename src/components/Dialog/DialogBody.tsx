@@ -24,8 +24,17 @@ function Background(props: { children: React.ReactNode; opacity?: number }) {
   )
 }
 
+const topStyle: React.CSSProperties = {
+  flexGrow: 0,
+  flexShrink: 0,
+  position: "relative",
+  width: "100%",
+  zIndex: 1
+}
+
 interface Props {
   actions?: React.ReactNode | RefStateObject
+  actionsPosition?: "before-content" | "after-content"
   background?: React.ReactNode
   children: React.ReactNode
   excessWidth?: number
@@ -34,17 +43,10 @@ interface Props {
 
 function DialogBody(props: Props) {
   const isSmallScreen = useIsMobile()
+  const actionsPosition = isSmallScreen ? "bottom" : props.actionsPosition || "after-content"
   const excessWidth = props.excessWidth || 0
 
-  const topContent = React.useMemo(
-    () =>
-      props.top ? (
-        <Box grow={0} position="relative" shrink={0} width="100%">
-          {props.top}
-        </Box>
-      ) : null,
-    [props.top]
-  )
+  const topContent = React.useMemo(() => (props.top ? <Box style={topStyle}>{props.top}</Box> : null), [props.top])
 
   const actionsContent = React.useMemo(
     () =>
@@ -73,6 +75,7 @@ function DialogBody(props: Props) {
         width="100%"
         height="100%"
         maxWidth={900}
+        overflowX="hidden"
         padding={isSmallScreen ? "24px" : " 24px 32px"}
         margin="0 auto"
       >
@@ -87,10 +90,11 @@ function DialogBody(props: Props) {
           padding={`0 ${excessWidth}px`}
           shrink
         >
+          {actionsPosition === "before-content" ? actionsContent : null}
           {props.children}
-          {isSmallScreen ? null : actionsContent}
+          {actionsPosition === "after-content" ? actionsContent : null}
         </VerticalLayout>
-        {isSmallScreen ? actionsContent : null}
+        {actionsPosition === "bottom" ? actionsContent : null}
       </VerticalLayout>
     </ErrorBoundary>
   )

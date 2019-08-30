@@ -7,9 +7,11 @@ import { breakpoints } from "../../theme"
 const useButtonListItemStyles = makeStyles({
   root: {
     backgroundColor: "rgba(0, 0, 0, 0.08)",
-    borderRadius: 6,
+    borderRadius: 8,
+    boxShadow: "none",
     height: 56,
-    margin: "8px 0",
+    marginTop: 0,
+    marginBottom: 0,
 
     [breakpoints.down(600)]: {
       height: 52
@@ -17,7 +19,8 @@ const useButtonListItemStyles = makeStyles({
     [breakpoints.down(350)]: {
       height: 48
     },
-    "&:hover": {
+
+    "&:hover, &:focus": {
       "@media (hover: hover)": {
         backgroundColor: "rgba(0, 0, 0, 0.12)"
       },
@@ -25,6 +28,9 @@ const useButtonListItemStyles = makeStyles({
         backgroundColor: "rgba(0, 0, 0, 0.08)"
       }
     }
+  },
+  gutterBottom: {
+    marginBottom: 16
   },
   textTypography: {
     alignItems: "center",
@@ -39,13 +45,20 @@ const useButtonListItemStyles = makeStyles({
 
 interface ButtonListItemProps {
   children: React.ReactNode
+  gutterBottom?: boolean
   onClick: () => void
+  style?: React.CSSProperties
 }
 
 function ButtonListItem(props: ButtonListItemProps) {
   const classes = useButtonListItemStyles(props)
   return (
-    <ListItem button={Boolean(props.onClick) as any} className={classes.root} onClick={props.onClick}>
+    <ListItem
+      button
+      className={`${classes.root} ${props.gutterBottom ? classes.gutterBottom : ""}`}
+      onClick={props.onClick}
+      style={props.style}
+    >
       <ListItemText classes={{ primary: classes.textTypography }}>{props.children}</ListItemText>
     </ListItem>
   )

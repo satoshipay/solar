@@ -1,13 +1,13 @@
 import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
 import { ObservedAccountData } from "../../hooks"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import MainTitle from "../MainTitle"
 
 interface Props {
   account: Account
@@ -30,7 +30,7 @@ function CustomTrustlineDialog(props: Props) {
   const addCustomAsset = () => props.sendTransaction(createTransaction)
 
   return (
-    <DialogBody top={<DialogTitle>Add Custom Asset</DialogTitle>}>
+    <DialogBody top={<MainTitle hideBackButton onBack={props.onClose} title="Add Custom Asset" />}>
       <form noValidate style={{ display: "block", width: "100%" }}>
         <TextField
           label="Code"

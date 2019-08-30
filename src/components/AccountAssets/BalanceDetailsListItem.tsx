@@ -5,6 +5,7 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
+import { balancelineToAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
 import { SingleBalance } from "../Account/AccountBalances"
@@ -14,16 +15,7 @@ import AssetLogo from "./AssetLogo"
 export const actionsSize = 36
 
 const useBalanceItemStyles = makeStyles({
-  clickable: {
-    backgroundColor: "transparent",
-    filter: "none",
-    transition: "filter .3s",
-
-    "&:hover": {
-      backgroundColor: "transparent",
-      filter: "drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2))"
-    }
-  },
+  clickable: {},
   icon: {
     [breakpoints.down(350)]: {
       minWidth: 48
@@ -34,6 +26,9 @@ const useBalanceItemStyles = makeStyles({
       width: 36,
       height: 36
     }
+  },
+  logoHidden: {
+    visibility: "hidden"
   },
   badge: {
     top: 4,
@@ -87,13 +82,14 @@ const useBalanceItemStyles = makeStyles({
 })
 
 interface BalanceListItemProps {
-  actions?: React.ReactNode
   assetMetadata?: StellarTomlCurrency
   badgeCount?: number
   balance: Horizon.BalanceLine
   className?: string
   hideBalance?: boolean
+  hideLogo?: boolean
   onClick?: () => void
+  spendableBalance?: boolean
   style?: React.CSSProperties
   testnet: boolean
 }
@@ -101,6 +97,8 @@ interface BalanceListItemProps {
 function BalanceListItem(props: BalanceListItemProps) {
   const classes = useBalanceItemStyles()
   const className = `${props.className || ""} ${props.onClick ? classes.clickable : ""}`
+
+  const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
 
   const balance = React.useMemo(
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
@@ -116,7 +114,7 @@ function BalanceListItem(props: BalanceListItemProps) {
         style={props.style}
       >
         <ListItemIcon className={classes.icon}>
-          <AssetLogo balance={props.balance} className={classes.logo} />
+          <AssetLogo asset={asset} className={`${classes.logo} ${props.hideLogo ? classes.logoHidden : ""}`} />
         </ListItemIcon>
         <ListItemText
           classes={{
@@ -124,8 +122,8 @@ function BalanceListItem(props: BalanceListItemProps) {
             primary: classes.mainListItemTextPrimaryTypography,
             secondary: classes.mainListItemTextSecondaryTypography
           }}
-          primary="Stellar Lumens (XLM)"
-          secondary="stellar.org"
+          primary={props.spendableBalance ? "Spendable balance" : "Stellar Lumens (XLM)"}
+          secondary={props.spendableBalance ? undefined : "stellar.org"}
         />
         <ListItemText
           classes={{
@@ -134,7 +132,6 @@ function BalanceListItem(props: BalanceListItemProps) {
           }}
           primary={balance}
         />
-        <ListItemText className={classes.actions} />
       </ListItem>
     )
   }
@@ -148,8 +145,8 @@ function BalanceListItem(props: BalanceListItemProps) {
       <ListItemIcon className={classes.icon}>
         <Badge badgeContent={props.badgeCount} classes={{ badge: classes.badge }} color="primary">
           <AssetLogo
-            balance={props.balance}
-            className={classes.logo}
+            asset={asset}
+            className={`${classes.logo} ${props.hideLogo ? classes.logoHidden : ""}`}
             dark
             imageURL={props.assetMetadata && props.assetMetadata.image}
           />
@@ -169,7 +166,6 @@ function BalanceListItem(props: BalanceListItemProps) {
         primary={balance}
         primaryTypographyProps={{ className: classes.balanceText }}
       />
-      <ListItemText className={classes.actions}>{props.actions}</ListItemText>
     </ListItem>
   )
 }

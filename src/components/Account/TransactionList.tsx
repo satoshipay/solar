@@ -9,7 +9,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
-import { makeStyles, StyleRules } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import SettingsIcon from "@material-ui/icons/Settings"
@@ -31,8 +31,6 @@ import { matchesRoute } from "../../lib/routes"
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
 }
-
-const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 const doNothing = () => undefined
@@ -364,30 +362,6 @@ function TransactionListItemBalance(props: {
   )
 }
 
-export const transactionListItemStyles: StyleRules = {
-  listItem: {
-    background: "#FFFFFF",
-    boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.1)",
-
-    "&:focus": {
-      backgroundColor: "#FFFFFF"
-    },
-    "&:hover": {
-      backgroundColor: isMobileDevice ? "#FFFFFF" : "#F8F8F8"
-    },
-    "&:nth-child(2)": {
-      borderTopLeftRadius: 8,
-      borderTopRightRadius: 8
-    },
-    "&:last-child": {
-      borderBottomLeftRadius: 8,
-      borderBottomRightRadius: 8
-    }
-  }
-} as const
-
-const useTransactionListItemStyles = makeStyles(transactionListItemStyles)
-
 interface TransactionListItemProps {
   accountPublicKey: string
   alwaysShowSource?: boolean
@@ -402,7 +376,6 @@ interface TransactionListItemProps {
 // tslint:disable-next-line no-shadowed-variable
 export const TransactionListItem = React.memo(function TransactionListItem(props: TransactionListItemProps) {
   const { hideMemos } = React.useContext(SettingsContext)
-  const classes = useTransactionListItemStyles(props)
 
   const isSmallScreen = useIsMobile()
   const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
@@ -410,10 +383,8 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
   const { onOpenTransaction, transaction } = props
   const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
 
-  const className = `${classes.listItem} ${props.className || ""}`
-
   return (
-    <ListItem button={Boolean(onOpen) as any} className={className} onClick={onOpen} style={props.style}>
+    <ListItem button={Boolean(onOpen) as any} className={props.className || ""} onClick={onOpen} style={props.style}>
       <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
         {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
       </ListItemIcon>
