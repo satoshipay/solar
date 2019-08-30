@@ -33,6 +33,8 @@ function createMainWindow() {
     }
   })
 
+  window.removeMenu()
+
   const pathname =
     process.env.NODE_ENV === "development"
       ? path.join(__dirname, "../../dist/index.dev.html")
