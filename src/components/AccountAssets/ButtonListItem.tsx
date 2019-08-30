@@ -19,7 +19,8 @@ const useButtonListItemStyles = makeStyles({
     [breakpoints.down(350)]: {
       height: 48
     },
-    "&:hover": {
+
+    "&:hover, &:focus": {
       "@media (hover: hover)": {
         backgroundColor: "rgba(0, 0, 0, 0.12)"
       },
