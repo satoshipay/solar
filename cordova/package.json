@@ -5,8 +5,8 @@
   "displayName": "Solar",
   "cordova": {
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ],
     "plugins": {
       "cordova-plugin-secure-storage": {},
@@ -34,7 +34,6 @@
     }
   },
   "dependencies": {
-    "@satoshipay/cordova-plugin-fingerprint-aio": "git+https://github.com/satoshipay/cordova-plugin-fingerprint-aio.git",
     "cordova": "^9.0.0",
     "cordova-android": "^8.0.0",
     "cordova-clipboard": "^1.2.1",
@@ -42,10 +41,11 @@
     "cordova-plugin-customurlscheme": "git+https://github.com/bytelabsco/Custom-URL-scheme.git",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
+    "cordova-plugin-fingerprint-aio": "git+https://github.com/satoshipay/cordova-plugin-fingerprint-aio.git",
     "cordova-plugin-keyboard": "^1.2.0",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-safariviewcontroller": "^1.6.0",
-    "cordova-plugin-secure-storage": "^3.0.1",
+    "cordova-plugin-secure-storage": "git+https://github.com/satoshipay/cordova-plugin-secure-storage.git",
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-plugin-wkwebview-engine": "^1.1.4",
