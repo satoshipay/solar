@@ -134,8 +134,8 @@ function AccountSettings(props: Props) {
             primary={"Set Inflation Destination"}
             secondary={
               isSmallScreen
-                ? "Join a pool for weekly payouts."
-                : "Inflation is 1% per year. Join a pool for weekly payouts."
+                ? "Join a pool for weekly payouts"
+                : "Inflation is 1% per year. Join a pool for weekly payouts"
             }
             style={listItemTextStyle}
           />
