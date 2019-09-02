@@ -10,6 +10,7 @@ import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata } from "../../hooks"
 import { stringifyAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
+import { sortBalances } from "../Account/AccountBalances"
 import ScrollableBalanceItem, { getBalanceItemMinMaxWidth } from "./ScrollableBalanceItem"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
@@ -122,7 +123,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
   const [currentStep, setCurrentStep] = React.useState(0)
   const [spring, setSpring] = useSpring(() => ({ x: 0 }))
 
-  const trustedAssets = accountData.balances
+  const trustedAssets = sortBalances(accountData.balances)
     .filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native")
     .map(balance => new Asset(balance.asset_code, balance.asset_issuer))
 

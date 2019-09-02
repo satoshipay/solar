@@ -72,6 +72,25 @@ export function formatBalance(input: BigNumber | string, options: BalanceFormatt
   )
 }
 
+export function sortBalances(balances: Horizon.BalanceLine[]) {
+  const sorter = (balance1: Horizon.BalanceLineAsset, balance2: Horizon.BalanceLineAsset) => {
+    if (Number.parseFloat(balance1.balance) === 0 && Number.parseFloat(balance2.balance) !== 0) {
+      return 1
+    } else if (Number.parseFloat(balance1.balance) !== 0 && Number.parseFloat(balance2.balance) === 0) {
+      return -1
+    }
+
+    return balance1.asset_code === balance2.asset_code ? 0 : balance1.asset_code < balance2.asset_code ? -1 : 1
+  }
+
+  const nativeBalance = balances.find(balance => balance.asset_type === "native")
+
+  return [
+    ...balances.filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native").sort(sorter),
+    ...(nativeBalance ? [nativeBalance] : [])
+  ]
+}
+
 interface SingleBalanceProps {
   assetCode: string
   balance: BigNumber | string
@@ -93,19 +112,23 @@ export function SingleBalance(props: SingleBalanceProps) {
   const formattedBalance = formatBalance(balance, formattingOptions)
   const [integerPart, decimalPart = ""] = formattedBalance.split(".")
   return (
-    <span style={props.style}>
-      {balance.gte(0) ? null : <span>-&nbsp;</span>}
-      <span style={{ fontWeight: 300 }}>
-        {integerPart}
-        <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
+    <span style={{ whiteSpace: "nowrap", ...props.style }}>
+      <span style={{ display: "inline-block", minWidth: props.inline ? undefined : 70 }}>
+        {balance.gte(0) ? null : <span>-&nbsp;</span>}
+        <span style={{ fontWeight: 300 }}>
+          {integerPart}
+          <span style={{ opacity: 0.8 }}>{decimalPart ? "." + decimalPart : ""}</span>
+        </span>
       </span>
       {props.assetCode ? (
         <>
           &nbsp;
           <span
             style={{
+              display: "inline-block",
               fontWeight: props.inline ? undefined : "bold",
-              marginLeft: props.inline ? undefined : "0.4em"
+              marginLeft: props.inline ? undefined : "0.4em",
+              minWidth: props.inline ? undefined : 45
             }}
           >
             {props.assetCode}
@@ -123,19 +146,14 @@ interface MultipleBalancesProps {
   onClick?: () => void
 }
 
-export function MultipleBalances(props: MultipleBalancesProps) {
+// tslint:disable-next-line no-shadowed-variable
+export const MultipleBalances = React.memo(function MultipleBalances(props: MultipleBalancesProps) {
   if (props.balances.length === 0) {
     return <></>
   }
 
   const Balance = props.component || SingleBalance
-  const byAssetCode = (balance1: any, balance2: any) => (balance1.asset_code < balance2.asset_code ? -1 : 1)
-  const nativeBalance = props.balances.find(balance => balance.asset_type === "native")
-
-  const balances = [
-    ...props.balances.filter(balance => balance.asset_type !== "native").sort(byAssetCode),
-    ...(nativeBalance ? [nativeBalance] : [])
-  ]
+  const balances = sortBalances(props.balances)
 
   return (
     <span onClick={props.onClick} style={props.onClick ? { cursor: "pointer" } : undefined}>
@@ -145,13 +163,13 @@ export function MultipleBalances(props: MultipleBalancesProps) {
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
             balance={balance.balance}
             inline={props.inline}
-            style={index < balances.length - 1 ? { marginRight: "1.2em" } : undefined}
+            style={{ marginRight: index < balances.length - 1 ? "1.2em" : undefined }}
           />{" "}
         </React.Fragment>
       ))}
     </span>
   )
-}
+})
 
 const zeroXLMBalance = {
   asset_type: "native",
