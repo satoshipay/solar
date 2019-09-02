@@ -24,8 +24,6 @@ interface Props {
 }
 
 function WithdrawalTransactionForm(props: Props) {
-  // TODO: extra_info is not handled
-
   const formID = React.useMemo(() => nanoid(), [])
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const [amountString, setAmountString] = React.useState("")
@@ -92,9 +90,13 @@ function WithdrawalTransactionForm(props: Props) {
           />
           <ReadOnlyTextfield label="ETA" style={{ flexGrow: 0, width: 160 }} value={eta} />
         </HorizontalLayout>
-        {Object.keys(data.extra_info || {}).map(extraKey => (
-          <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info[extraKey]} />
-        ))}
+        {data.extra_info && typeof data.extra_info === "string" ? (
+          <ReadOnlyTextfield label="Information" value={data.extra_info} />
+        ) : (
+          Object.keys(data.extra_info || {}).map(extraKey => (
+            <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info[extraKey]} />
+          ))
+        )}
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
         <Portal target={props.actionsRef.element}>
           <DialogActionsBox spacing="large">
