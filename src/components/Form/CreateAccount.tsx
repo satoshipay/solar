@@ -9,9 +9,10 @@ import { Account } from "../../context/accounts"
 import { useIsMobile, useIsSmallMobile } from "../../hooks"
 import { renderFormFieldError } from "../../lib/errors"
 import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
-import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { HorizontalLayout } from "../Layout/Box"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
+import DialogBody from "../Dialog/DialogBody"
 
 export interface AccountCreationValues {
   name: string
@@ -94,37 +95,56 @@ function AccountCreationForm(props: AccountCreationFormProps) {
     setFormValue("createNewKey", false)
   }
 
+  const headerContent = React.useMemo(
+    () => (
+      <Typography variant="h5" style={{ display: "flex" }}>
+        <TextField
+          error={Boolean(errors.name)}
+          label={errors.name ? renderFormFieldError(errors.name) : undefined}
+          placeholder={props.testnet ? "New Testnet Account" : "New Account"}
+          autoFocus={process.env.PLATFORM !== "ios"}
+          margin="normal"
+          value={formValues.name}
+          onChange={event => setFormValue("name", event.target.value)}
+          InputProps={{
+            disableUnderline: true,
+            endAdornment: (
+              <InputAdornment position="end">
+                <EditIcon />
+              </InputAdornment>
+            ),
+            style: {
+              fontFamily: "inherit",
+              fontSize: isTinyScreen ? "1.3rem" : "1.5rem",
+              fontWeight: "inherit"
+            }
+          }}
+          style={{ minWidth: isTinyScreen ? 230 : 300, maxWidth: "70%", margin: 0 }}
+        />
+      </Typography>
+    ),
+    [errors, formValues, isTinyScreen, props.testnet]
+  )
+
+  const actionsContent = React.useMemo(
+    () => (
+      <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
+        <CloseButton onClick={props.onCancel} />
+        <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="primary">
+          {primaryButtonLabel}
+        </ActionButton>
+      </DialogActionsBox>
+    ),
+    [primaryButtonLabel, props.onCancel, props.onSubmit]
+  )
+
   return (
-    <form noValidate onSubmit={props.onSubmit}>
-      <VerticalLayout minHeight="400px" justifyContent="space-between" style={{ marginLeft: -6, marginRight: 6 }}>
-        <Typography variant="h5" style={{ display: "flex" }}>
-          <TextField
-            error={Boolean(errors.name)}
-            label={errors.name ? renderFormFieldError(errors.name) : undefined}
-            placeholder={props.testnet ? "New Testnet Account" : "New Account"}
-            autoFocus={process.env.PLATFORM !== "ios"}
-            margin="normal"
-            value={formValues.name}
-            onChange={event => setFormValue("name", event.target.value)}
-            InputProps={{
-              disableUnderline: true,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <EditIcon />
-                </InputAdornment>
-              ),
-              style: {
-                fontFamily: "inherit",
-                fontSize: isTinyScreen ? "1.3rem" : "1.5rem",
-                fontWeight: "inherit"
-              }
-            }}
-            style={{ minWidth: isTinyScreen ? 230 : 300, maxWidth: "70%", margin: 0, paddingLeft: 12 }}
-          />
-        </Typography>
+    <form noValidate onSubmit={props.onSubmit} style={{ display: "block", height: "100vh" }}>
+      <DialogBody top={headerContent} actions={actionsContent}>
         <ToggleSection
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
+          style={{ marginLeft: -12 }}
           title="Password Protect"
         >
           <>
@@ -185,6 +205,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         <ToggleSection
           checked={!formValues.createNewKey}
           onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
+          style={{ marginLeft: -12 }}
           title="Import Existing"
         >
           <HorizontalLayout alignItems="center">
@@ -210,13 +231,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
             />
           </HorizontalLayout>
         </ToggleSection>
-        <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
-          <CloseButton onClick={props.onCancel} />
-          <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="primary">
-            {primaryButtonLabel}
-          </ActionButton>
-        </DialogActionsBox>
-      </VerticalLayout>
+      </DialogBody>
     </form>
   )
 }

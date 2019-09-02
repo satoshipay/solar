@@ -119,9 +119,9 @@ export function ActionButton(props: ActionButtonProps) {
   )
 }
 
-export function CloseButton(props: { onClick?: (event: React.SyntheticEvent) => void }) {
+export function CloseButton(props: { form?: string; onClick?: (event: React.SyntheticEvent) => void }) {
   return (
-    <ActionButton icon={closeIcon} onClick={props.onClick} type="secondary">
+    <ActionButton form={props.form} icon={closeIcon} onClick={props.onClick} type="secondary">
       Close
     </ActionButton>
   )

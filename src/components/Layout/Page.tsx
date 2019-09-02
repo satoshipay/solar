@@ -41,13 +41,15 @@ interface SectionProps {
   bottom?: boolean
   brandColored?: boolean
   grow?: number
+  noPadding?: boolean
   shrink?: number
   pageInset?: boolean
   top?: boolean
   style?: React.CSSProperties
 }
 
-function Section(props: SectionProps) {
+// tslint:disable-next-line no-shadowed-variable
+const Section = React.memo(function Section(props: SectionProps) {
   const background = props.brandColored ? primaryBackground : props.backgroundColor || "#fcfcfc"
   const isSmallScreen = useIsMobile()
 
@@ -69,7 +71,7 @@ function Section(props: SectionProps) {
   const MaybeInset = props.pageInset ? PageInset : React.Fragment
   return (
     <>
-      <Box className={className} component="section" padding={16} style={style}>
+      <Box className={className} component="section" padding={props.noPadding ? 0 : 16} style={style}>
         {props.top ? <TopOfTopSection background={background} /> : null}
         {/* Add a little padding to the top if window is frameless */}
         {props.top && !isSmallScreen ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
@@ -77,7 +79,7 @@ function Section(props: SectionProps) {
       </Box>
     </>
   )
-}
+})
 
 // To circumvent TypeScript name inference bug: <https://github.com/Microsoft/TypeScript/issues/14127>
 export { Section }
