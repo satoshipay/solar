@@ -51,7 +51,7 @@ function MainTitle(props: Props) {
             fontSize: 28,
             flexGrow: 0,
             flexShrink: 0,
-            marginLeft: isSmallScreen ? -16 : -8,
+            marginLeft: isSmallScreen ? -12 : -4,
             marginRight: 6
           }}
         />

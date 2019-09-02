@@ -1,6 +1,5 @@
 import { Horizon } from "stellar-sdk"
 import React from "react"
-import ButtonBase from "@material-ui/core/ButtonBase"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import { breakpoints } from "../../theme"
 import { balancelineToAsset } from "../../lib/stellar"
@@ -25,6 +24,7 @@ const useBalanceItemStyles = makeStyles({
     flex: "0 0 auto",
     justifyContent: "flex-start",
     minWidth: 130,
+    opacity: 0.9,
     padding: "8px 16px",
 
     [breakpoints.down(600)]: {
@@ -34,9 +34,20 @@ const useBalanceItemStyles = makeStyles({
       minWidth: 90
     }
   },
+  compact: {
+    minWidth: 100,
+
+    [breakpoints.down(600)]: {
+      minWidth: 90
+    },
+    [breakpoints.down(350)]: {
+      minWidth: 80
+    }
+  },
   clickable: {
     borderRadius: 6,
     cursor: "pointer",
+    opacity: 1,
 
     "@media (hover: hover)": {
       "&:hover": {
@@ -49,7 +60,7 @@ const useBalanceItemStyles = makeStyles({
     boxSizing: "border-box",
     margin: 0,
     marginLeft: 0,
-    marginRight: 0,
+    marginRight: 16,
     pointerEvents: "none", // images are handled differently by web views
     width: 40,
     height: 40,
@@ -57,40 +68,60 @@ const useBalanceItemStyles = makeStyles({
     [breakpoints.down(400)]: {
       width: 36,
       height: 36
+    },
+
+    "$compact &": {
+      fontSize: 8,
+      marginRight: 10,
+      width: 24,
+      height: 24
     }
   },
   balance: {
     fontSize: 16,
     lineHeight: "20px",
     marginTop: 0,
-    marginLeft: 16,
     textAlign: "left",
 
     [breakpoints.down(600)]: {
       fontSize: 14,
       lineHeight: "18px"
+    },
+
+    "$compact &": {
+      fontSize: 16
+    },
+
+    "$compact & span": {
+      fontWeight: "300 !important" as any,
+      opacity: "1 !important" as any
     }
   },
   assetCode: {
     display: "block",
-    fontWeight: 700
+    fontWeight: 700,
+
+    "$compact &": {
+      display: "none"
+    }
   }
 })
 
-interface BalanceWithLogoProps {
+interface BalanceItemProps {
   assetMetadata?: StellarTomlCurrency
   balance: Horizon.BalanceLine
+  compact?: boolean
   onClick?: () => void
 }
 
-function BalanceItem(props: BalanceWithLogoProps, ref: React.Ref<any>) {
+function BalanceItem(props: BalanceItemProps, ref: React.Ref<any>) {
   const classes = useBalanceItemStyles(props)
 
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
 
   return (
-    <ButtonBase
-      className={`${classes.root} ${props.onClick ? classes.clickable : ""}`}
+    <div
+      className={`${classes.root} ${props.compact ? classes.compact : ""} ${props.onClick ? classes.clickable : ""}`}
       onClick={props.onClick}
       ref={ref}
     >
@@ -105,7 +136,7 @@ function BalanceItem(props: BalanceWithLogoProps, ref: React.Ref<any>) {
         </span>
         <SingleBalance assetCode="" balance={props.balance.balance} inline />
       </div>
-    </ButtonBase>
+    </div>
   )
 }
 

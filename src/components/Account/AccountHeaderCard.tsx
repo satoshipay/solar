@@ -11,19 +11,24 @@ import { useAccountData, useIsMobile } from "../../hooks"
 import { Box } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 import AccountTitle from "./AccountTitle"
+import { breakpoints } from "../../theme"
 
 const useAccountHeaderStyles = makeStyles({
+  button: {
+    fontSize: 32,
+    marginRight: -4,
+    padding: 6,
+
+    [breakpoints.down(600)]: {
+      marginRight: -12
+    }
+  },
   closeButton: {
     boxSizing: "content-box",
     width: 32,
-    height: 32,
-    marginRight: -16,
-    fontSize: 32
+    height: 32
   },
-  menuButton: {
-    fontSize: 32,
-    marginRight: -16
-  }
+  menuButton: {}
 })
 
 interface Props {
@@ -47,9 +52,9 @@ function AccountHeaderCard(props: Props) {
 
   const actions = React.useMemo(
     () => (
-      <Box height={56}>
+      <Box alignItems="center" display="flex" height={56} justifyContent="flex-end">
         {props.showCloseButton ? (
-          <IconButton className={classes.closeButton} color="inherit" onClick={props.onClose}>
+          <IconButton className={`${classes.button} ${classes.closeButton}`} color="inherit" onClick={props.onClose}>
             <CloseIcon />
           </IconButton>
         ) : (
@@ -63,7 +68,7 @@ function AccountHeaderCard(props: Props) {
             settings={settings}
           >
             {({ onOpen }) => (
-              <IconButton className={classes.menuButton} color="inherit" onClick={onOpen}>
+              <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
                 <MenuIcon style={{ fontSize: "inherit" }} />
               </IconButton>
             )}

@@ -10,8 +10,8 @@ import { Account, AccountsContext } from "../../context/accounts"
 import { createTransaction } from "../../lib/transaction"
 import { useAccountData, useIsMobile, useIsSmallMobile } from "../../hooks"
 import { closeAccountSubscriptions } from "../../subscriptions"
-import AccountBalances from "../Account/AccountBalances"
 import AccountSelectionList from "../Account/AccountSelectionList"
+import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import DialogBody from "../Dialog/DialogBody"
 import MergeIcon from "../Icon/Merge"
 import { HorizontalLayout } from "../Layout/Box"
@@ -112,12 +112,15 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     <DialogBody
       background={<WarnIcon style={{ fontSize: 160 }} />}
       top={
-        <MainTitle
-          title={<span>Confirm Account Deletion</span>}
-          titleColor="inherit"
-          onBack={props.onClose}
-          style={{ marginTop: 0, marginLeft: 0 }}
-        />
+        <>
+          <MainTitle
+            title={<span>Confirm Account Deletion</span>}
+            titleColor="inherit"
+            onBack={props.onClose}
+            style={{ marginTop: 0, marginLeft: 0 }}
+          />
+          <ScrollableBalances account={props.account} compact />
+        </>
       }
       actions={
         <DialogActionsBox>
@@ -139,13 +142,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
         </DialogActionsBox>
       }
     >
-      <DialogContent style={{ padding: isSmallScreen ? "0 4px" : "0 42px" }}>
-        <DialogContentText
-          style={{ display: accountData.activated ? undefined : "none", color: "inherit", marginTop: 12 }}
-        >
-          <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-        </DialogContentText>
-
+      <DialogContent style={{ padding: 0 }}>
         <DialogContentText style={{ marginTop: 24 }}>
           Are you sure you want to delete the account "{props.account.name}
           "?

@@ -10,8 +10,7 @@ import { useAccountData, useIsMobile, useHorizon, useRouter, ObservedAccountData
 import { balancelineToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
-import AccountBalances, { SingleBalance } from "../Account/AccountBalances"
-import AccountBalancesContainer from "../Account/AccountBalancesContainer"
+import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
 import TradingForm from "../TradeAsset/TradingForm"
@@ -81,21 +80,7 @@ function TradeAsset(props: TradeAssetProps) {
 
   const MainContent = (
     <>
-      <AccountBalancesContainer>
-        <AccountBalances
-          component={balanceProps => (
-            <SingleBalance
-              {...balanceProps}
-              style={{
-                ...balanceProps.style,
-                opacity: [buyingAsset.getCode(), sellingAsset.getCode()].indexOf(balanceProps.assetCode) > -1 ? 1 : 0.4
-              }}
-            />
-          )}
-          publicKey={props.account.publicKey}
-          testnet={props.account.testnet}
-        />
-      </AccountBalancesContainer>
+      <ScrollableBalances account={props.account} compact />
       <VerticalMargin size={isSmallScreen ? 12 : 40} />
       {buyingBalance && sellingBalance ? (
         <TradingForm

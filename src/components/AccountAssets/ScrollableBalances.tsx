@@ -23,8 +23,8 @@ function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boo
 
 const useScrollableBalancesStyles = makeStyles({
   root: {
-    marginLeft: -16,
-    marginRight: -16,
+    marginLeft: -10,
+    marginRight: -10,
     position: "relative",
 
     [breakpoints.down(600)]: {
@@ -33,12 +33,12 @@ const useScrollableBalancesStyles = makeStyles({
     }
   },
   sliderContainer: {
+    marginLeft: 8,
+    marginRight: 8,
     overflowX: "hidden"
   },
   slider: {
-    display: "flex",
-    paddingLeft: 8,
-    paddingRight: 8
+    display: "flex"
   },
   canScroll: {
     WebkitMaskImage:
@@ -61,8 +61,8 @@ const useScrollableBalancesStyles = makeStyles({
     boxSizing: "content-box",
     position: "absolute",
     top: "50%",
-    marginTop: -28,
-    padding: 8,
+    marginTop: -22,
+    padding: 2,
     width: 40,
     height: 40,
 
@@ -85,14 +85,14 @@ const useScrollableBalancesStyles = makeStyles({
     }
   },
   scrollButtonLeft: {
-    left: 0,
+    left: 6,
 
     [breakpoints.down(600)]: {
       left: 12
     }
   },
   scrollButtonRight: {
-    right: 0,
+    right: 6,
 
     [breakpoints.down(600)]: {
       right: 12
@@ -110,6 +110,7 @@ const useScrollableBalancesStyles = makeStyles({
 
 interface ScrollableBalancesProps {
   account: Account
+  compact?: boolean
   onClick?: () => void
   style?: React.CSSProperties
 }
@@ -118,7 +119,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const balanceItemsRef = React.useRef<Map<number, HTMLElement | null>>(new Map())
   const latestStepRef = React.useRef(0)
-  const mouseState = React.useRef({ latestMouseMoveEndTime: 0 })
+  const mouseState = React.useRef({ currentlyDragging: false, latestMouseMoveEndTime: 0 })
   const swipeableContainerRef = React.useRef<HTMLDivElement | null>(null)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [spring, setSpring] = useSpring(() => ({ x: 0 }))
@@ -159,9 +160,11 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     const lastXBeforeGesture = getStepX(latestStepRef.current)
 
     if (down && Math.abs(delta[0]) > 50) {
+      mouseState.current.currentlyDragging = false
       direction[0] < 0 ? scrollRight() : scrollLeft()
       cancel!()
     } else {
+      mouseState.current.currentlyDragging = true
       setSpring({ x: down ? lastXBeforeGesture + delta[0] : lastXBeforeGesture })
     }
 
@@ -217,7 +220,8 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
             ref={domElement => (domElement ? balanceItemsRef.current.set(index, domElement) : undefined)}
             assetMetadata={metadata}
             balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
-            onClick={handleClick}
+            compact={props.compact}
+            onClick={props.onClick ? handleClick : undefined}
           />
         )
       }),
@@ -227,6 +231,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
           domElement ? balanceItemsRef.current.set(accountData.balances.length - 1, domElement) : undefined
         }
         balance={nativeBalance}
+        compact={props.compact}
         onClick={handleClick}
       />
     ],
