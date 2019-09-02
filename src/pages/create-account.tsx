@@ -2,7 +2,7 @@ import React from "react"
 import { Keypair } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Slide from "@material-ui/core/Slide"
-import { useRouter, useIsSmallMobile } from "../hooks"
+import { useRouter } from "../hooks"
 import * as routes from "../routes"
 import { Section } from "../components/Layout/Page"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
@@ -16,7 +16,6 @@ function CreateAccountPage(props: { testnet: boolean }) {
   const { accounts, createAccount } = React.useContext(AccountsContext)
   const [createdAccount, setCreatedAccount] = React.useState<Account | null>(null)
   const router = useRouter()
-  const isTinyScreen = useIsSmallMobile()
 
   const onCreateAccount = async (formValues: AccountCreationValues) => {
     try {
@@ -46,7 +45,7 @@ function CreateAccountPage(props: { testnet: boolean }) {
   const onClose = () => router.history.push(routes.allAccounts())
 
   return (
-    <Section top bottom pageInset={!isTinyScreen}>
+    <Section top bottom noPadding>
       <AccountCreationForm accounts={accounts} onCancel={onClose} onSubmit={onCreateAccount} testnet={props.testnet} />
       <Dialog
         fullScreen
