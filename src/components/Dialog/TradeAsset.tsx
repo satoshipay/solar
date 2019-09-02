@@ -36,9 +36,11 @@ function TradeAsset(props: TradeAssetProps) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
-  const trustlines = (accountData.balances.filter(balance => balance.asset_type !== "native") as any) as Array<
-    Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
-  >
+  const trustlines = React.useMemo(
+    () =>
+      accountData.balances.filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native"),
+    [accountData.balances]
+  )
 
   const [rawBuyingAsset, setBuyingAsset] = React.useState<Asset | null>(null)
   const [rawSellingAsset, setSellingAsset] = React.useState<Asset | null>(null)
@@ -113,19 +115,22 @@ function TradeAsset(props: TradeAssetProps) {
     </>
   )
 
-  const LinkToManageAssets = (
-    <Box margin="32px 0 0" textAlign="center">
-      <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
-      <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
-        <ActionButton
-          autoFocus
-          onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
-          type="primary"
-        >
-          Add asset
-        </ActionButton>
-      </DialogActionsBox>
-    </Box>
+  const LinkToManageAssets = React.useMemo(
+    () => (
+      <Box margin="32px 0 0" textAlign="center">
+        <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
+        <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
+          <ActionButton
+            autoFocus
+            onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+            type="primary"
+          >
+            Add asset
+          </ActionButton>
+        </DialogActionsBox>
+      </Box>
+    ),
+    [props.account, router]
   )
 
   return (

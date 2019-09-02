@@ -52,7 +52,10 @@ function PaymentOperation(props: { operation: Operation.Payment; style?: React.C
   const { amount, asset, destination, source } = props.operation
   return (
     <SummaryItem heading="Payment">
-      <SummaryDetailsField label="Amount" value={<SingleBalance assetCode={asset.code} balance={String(amount)} />} />
+      <SummaryDetailsField
+        label="Amount"
+        value={<SingleBalance assetCode={asset.code} balance={String(amount)} untrimmed />}
+      />
       <SummaryDetailsField label="Destination" value={<CopyableAddress address={destination} variant="short" />} />
       {source ? (
         <SummaryDetailsField label="Source" value={<CopyableAddress address={source} variant="short" />} />
@@ -71,7 +74,7 @@ function CreateAccountOperation(props: { operation: Operation.CreateAccount; sty
       />
       <SummaryDetailsField
         label="Funding amount"
-        value={<SingleBalance assetCode="XLM" balance={String(startingBalance)} />}
+        value={<SingleBalance assetCode="XLM" balance={String(startingBalance)} untrimmed />}
       />
       {source ? (
         <SummaryDetailsField label="Funding account" value={<CopyableAddress address={source} variant="short" />} />
@@ -158,10 +161,13 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
     // Offer creation
     return (
       <SummaryItem heading="Create trade offer">
-        <SummaryDetailsField label="Sell" value={<SingleBalance assetCode={selling.code} balance={String(amount)} />} />
+        <SummaryDetailsField
+          label="Sell"
+          value={<SingleBalance assetCode={selling.code} balance={String(amount)} untrimmed />}
+        />
         <SummaryDetailsField
           label="Buy"
-          value={<SingleBalance assetCode={buying.code} balance={String(amount.mul(price))} />}
+          value={<SingleBalance assetCode={buying.code} balance={String(amount.mul(price))} untrimmed />}
         />
       </SummaryItem>
     )
