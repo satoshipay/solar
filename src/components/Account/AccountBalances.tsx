@@ -113,7 +113,7 @@ export function SingleBalance(props: SingleBalanceProps) {
   const [integerPart, decimalPart = ""] = formattedBalance.split(".")
   return (
     <span style={{ whiteSpace: "nowrap", ...props.style }}>
-      <span style={{ display: "inline-block", minWidth: props.inline ? undefined : 70 }}>
+      <span style={{ display: "inline-block", minWidth: props.inline ? undefined : 65 }}>
         {balance.gte(0) ? null : <span>-&nbsp;</span>}
         <span style={{ fontWeight: 300 }}>
           {integerPart}
