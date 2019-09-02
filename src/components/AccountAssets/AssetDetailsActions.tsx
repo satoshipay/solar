@@ -18,7 +18,7 @@ const DialogVerticalTransition = React.forwardRef((props: TransitionProps, ref) 
 ))
 
 const dialogActionsBoxStyle: React.CSSProperties = {
-  marginTop: 0
+  marginTop: 8
 }
 
 interface Props {

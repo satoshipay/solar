@@ -58,7 +58,7 @@ function MainTitle(props: Props) {
       )}
       <HorizontalLayout
         alignItems="center"
-        grow={isSmallScreen ? 1 : undefined}
+        grow={isSmallScreen ? 1 : props.badges ? undefined : 1}
         minWidth={isTitleOnSecondRow ? "100%" : undefined}
         maxWidth="100%"
         order={isTitleOnSecondRow ? 4 : undefined}
