@@ -178,7 +178,7 @@ const theme = createMuiTheme({
         background: "#FFFFFF",
         boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.1)",
 
-        "&:focus": {
+        "&:focus:not($selected)": {
           backgroundColor: "#FFFFFF"
         },
         "&:hover": {
