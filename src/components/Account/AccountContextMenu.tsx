@@ -33,6 +33,12 @@ const AccountContextMenuItem = React.forwardRef((props: ItemProps, ref) => {
   )
 })
 
+const MenuListProps = {
+  style: {
+    padding: 0
+  }
+}
+
 interface MenuProps {
   account: Account
   activated: boolean
@@ -50,7 +56,13 @@ function AccountContextMenu(props: MenuProps) {
     <ContextMenu
       anchor={props.children}
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
-        <Menu anchorEl={anchorEl || undefined} disableAutoFocusItem={isSmallScreen} open={open} onClose={onClose}>
+        <Menu
+          anchorEl={anchorEl || undefined}
+          disableAutoFocusItem={isSmallScreen}
+          open={open}
+          onClose={onClose}
+          MenuListProps={MenuListProps}
+        >
           <AccountContextMenuItem
             disabled={!props.activated}
             icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
@@ -81,4 +93,4 @@ function AccountContextMenu(props: MenuProps) {
   )
 }
 
-export default AccountContextMenu
+export default React.memo(AccountContextMenu)

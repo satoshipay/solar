@@ -1,5 +1,6 @@
 import { Horizon } from "stellar-sdk"
 import React from "react"
+import ButtonBase from "@material-ui/core/ButtonBase"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import { breakpoints } from "../../theme"
 import { balancelineToAsset } from "../../lib/stellar"
@@ -88,7 +89,11 @@ function BalanceItem(props: BalanceWithLogoProps, ref: React.Ref<any>) {
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
 
   return (
-    <div className={`${classes.root} ${props.onClick ? classes.clickable : ""}`} onClick={props.onClick} ref={ref}>
+    <ButtonBase
+      className={`${classes.root} ${props.onClick ? classes.clickable : ""}`}
+      onClick={props.onClick}
+      ref={ref}
+    >
       <AssetLogo
         asset={asset}
         className={classes.logo}
@@ -100,7 +105,7 @@ function BalanceItem(props: BalanceWithLogoProps, ref: React.Ref<any>) {
         </span>
         <SingleBalance assetCode="" balance={props.balance.balance} inline />
       </div>
-    </div>
+    </ButtonBase>
   )
 }
 

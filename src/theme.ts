@@ -188,7 +188,11 @@ const theme = createMuiTheme({
             backgroundColor: "#FFFFFF"
           }
         },
-        "&:nth-child(2)": {
+        "&:first-child": {
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8
+        },
+        "*:not($root):not(hr) + &": {
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8
         },
@@ -214,6 +218,7 @@ const theme = createMuiTheme({
         background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
       }
     },
+    MuiMenu: {},
     MuiPaper: {
       rounded: {
         borderRadius: 8
