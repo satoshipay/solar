@@ -11,6 +11,7 @@ import { Account } from "../../context/accounts"
 import { useAccountData, useAccountOffers, useAssetMetadata, useIsMobile, useRouter } from "../../hooks"
 import { stringifyAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import * as routes from "../../routes"
+import { sortBalances } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import MainTitle from "../MainTitle"
 import AddAssetDialog from "./AddAssetDialog"
@@ -47,7 +48,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const openAssetDetails = (asset: Asset) =>
     router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
 
-  const trustedAssets = accountData.balances
+  const trustedAssets = sortBalances(accountData.balances)
     .filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native")
     .map(balance => new Asset(balance.asset_code, balance.asset_issuer))
 
