@@ -208,7 +208,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent style={{ paddingBottom: isSmallScreen ? 24 : undefined }}>
         <Typography variant="body2">{props.children}</Typography>
-        <DialogActionsBox smallDialog>
+        <DialogActionsBox preventMobileActionsBox smallDialog>
           {props.cancelButton}
           {props.confirmButton}
         </DialogActionsBox>
