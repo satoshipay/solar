@@ -12,12 +12,13 @@ import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { useIsMobile, useRouter } from "../hooks"
 import * as routes from "../routes"
+import DialogBody from "../components/Dialog/DialogBody"
 
 function AllAccountsPage() {
   const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
-  const testnetAccounts = accounts.filter(account => account.testnet)
+  const testnetAccounts = React.useMemo(() => accounts.filter(account => account.testnet), [accounts])
 
   const isSmallScreen = useIsMobile()
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
@@ -30,8 +31,9 @@ function AllAccountsPage() {
       {networkSwitch === "testnet" ? switchToMainnetLabel : switchToTestnetLabel}
     </Button>
   )
-  return (
-    <Section top bottom brandColored pageInset>
+
+  const headerContent = React.useMemo(
+    () => (
       <MainTitle
         title={networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
         titleColor="inherit"
@@ -52,14 +54,22 @@ function AllAccountsPage() {
           </Box>
         }
       />
-      <Box margin="16px 0 0">
-        <AccountList
-          accounts={accounts}
-          testnet={networkSwitch === "testnet"}
-          onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
-          onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
-        />
-      </Box>
+    ),
+    [isWidthMax450, networkSwitch, router, settings.showTestnet, testnetAccounts]
+  )
+
+  return (
+    <Section top bottom brandColored noPadding style={{ height: "100vh" }}>
+      <DialogBody top={headerContent}>
+        <Box margin="16px 0 0">
+          <AccountList
+            accounts={accounts}
+            testnet={networkSwitch === "testnet"}
+            onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
+            onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
+          />
+        </Box>
+      </DialogBody>
       <TermsAndConditions open={!settings.agreedToTermsAt} onConfirm={settings.confirmToC} />
     </Section>
   )
