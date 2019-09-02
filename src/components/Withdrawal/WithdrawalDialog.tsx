@@ -4,8 +4,7 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData, useDialogActions, ObservedAccountData } from "../../hooks"
 import { getAssetsFromBalances } from "../../lib/stellar"
-import AccountBalances from "../Account/AccountBalances"
-import AccountBalancesContainer from "../Account/AccountBalancesContainer"
+import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
@@ -43,16 +42,16 @@ function WithdrawalDialog(props: Props) {
   return (
     <DialogBody
       top={
-        <MainTitle
-          title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
-          onBack={props.onClose}
-        />
+        <>
+          <MainTitle
+            title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+            onBack={props.onClose}
+          />
+          <ScrollableBalances account={props.account} compact />
+        </>
       }
       actions={dialogActionsRef}
     >
-      <AccountBalancesContainer>
-        <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-      </AccountBalancesContainer>
       <Box margin="24px 0 0">{null}</Box>
       <Offramp
         account={props.account}
