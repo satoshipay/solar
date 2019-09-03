@@ -126,7 +126,7 @@ function TxConfirmationForm(props: Props) {
             margin="dense"
             value={formValues.password || ""}
             onChange={event => setFormValue("password", event.target.value)}
-            style={{ marginBottom: 32 }}
+            style={{ marginTop: 16, marginBottom: 32 }}
           />
         ) : null}
       </VerticalLayout>

@@ -82,7 +82,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   )
 
   const isWideScreen = useMediaQuery("(min-width:900px)")
-  const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
+  const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 400 } : { minWidth: "66vw" }
 
   const transaction = props.transaction as TransactionWithUndocumentedProps
   const transactionHash = React.useMemo(
