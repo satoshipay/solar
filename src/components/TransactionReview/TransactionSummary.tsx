@@ -5,7 +5,7 @@ import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
-import { useAccountDataSet, ObservedAccountData } from "../../hooks"
+import { useAccountDataSet, useIsMobile, ObservedAccountData } from "../../hooks"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SigningKeyCacheContext } from "../../context/caches"
 import { SignatureRequest } from "../../lib/multisig-service"
@@ -63,6 +63,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
   const accountDataSet = useAccountDataSet(allTxSources, props.testnet)
+  const isSmallScreen = useIsMobile()
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
 
@@ -93,7 +94,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   )
 
   return (
-    <List style={{ margin: "24px 0", paddingLeft: 0, paddingRight: 0, ...widthStyling }}>
+    <List disablePadding style={widthStyling}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
@@ -123,12 +124,14 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
         <SummaryItem>
           {props.showSource ? (
             <SummaryDetailsField
+              fullWidth={isSmallScreen}
               label="Source Account"
               value={<CopyableAddress address={props.transaction.source} variant="short" />}
             />
           ) : null}
           {props.showHash ? (
             <SummaryDetailsField
+              fullWidth={isSmallScreen}
               label="Hash"
               value={
                 <ClickableAddress
@@ -153,7 +156,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
       <SummaryItem>
         <SummaryDetailsField label="Fee" value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />} />
         {transaction.created_at ? (
-          <SummaryDetailsField label="Submission" value={getTime(transaction.created_at)} />
+          <SummaryDetailsField fullWidth={isSmallScreen} label="Submission" value={getTime(transaction.created_at)} />
         ) : null}
       </SummaryItem>
     </List>
@@ -179,7 +182,7 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
   }
 
   return (
-    <List style={props.style}>
+    <List disablePadding style={props.style}>
       <SummaryItem>
         <SummaryDetailsField
           label="Service"
@@ -239,13 +242,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
   const widthStyling = wideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
 
   if (isStellarWebAuthTransaction(props.transaction)) {
-    return (
-      <WebAuthTransactionSummary
-        style={{ paddingLeft: 0, paddingRight: 0, ...widthStyling }}
-        testnet={props.testnet}
-        transaction={props.transaction}
-      />
-    )
+    return <WebAuthTransactionSummary style={widthStyling} testnet={props.testnet} transaction={props.transaction} />
   } else {
     return (
       <DefaultTransactionSummary

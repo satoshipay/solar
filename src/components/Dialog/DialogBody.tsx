@@ -76,7 +76,7 @@ function DialogBody(props: Props) {
         height="100%"
         maxWidth={900}
         overflowX="hidden"
-        padding={isSmallScreen ? "24px" : " 24px 32px"}
+        padding={isSmallScreen ? "12px 24px" : " 24px 32px"}
         margin="0 auto"
       >
         {topContent}
