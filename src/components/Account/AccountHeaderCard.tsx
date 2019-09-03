@@ -52,7 +52,7 @@ function AccountHeaderCard(props: Props) {
 
   const actions = React.useMemo(
     () => (
-      <Box alignItems="center" display="flex" height={56} justifyContent="flex-end">
+      <Box alignItems="center" display="flex" height={44} justifyContent="flex-end">
         {props.showCloseButton ? (
           <IconButton className={`${classes.button} ${classes.closeButton}`} color="inherit" onClick={props.onClose}>
             <CloseIcon />
