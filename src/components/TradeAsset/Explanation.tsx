@@ -14,11 +14,12 @@ function Explanation() {
       </Typography>
       <Typography style={{ marginTop: 8 }} variant="body2">
         The trade will be made at the best price currently on offer and should happen immediately. High price volatility
-        and low market volume can lead to delayed order executions.
+        and low market volume can lead to delayed order executions. The Stellar network will always try to buy at the
+        lowest price first.
       </Typography>
       <Typography style={{ marginTop: 8 }} variant="body2">
-        You can opt for a price tolerance, increasing your chance of an immediate trade. The Stellar network will always
-        try to buy at the lowest price first.
+        You can edit the price. If there is no matching counter offer on the exchange, your order will stay in the order
+        book until someone creates a matching counter offer or you cancel the open offer.
       </Typography>
     </Box>
   )

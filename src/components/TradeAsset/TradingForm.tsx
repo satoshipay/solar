@@ -41,18 +41,26 @@ function TradingForm(props: Props) {
   const isTinyScreen = useIsSmallMobile()
 
   const [amountString, setAmountString] = React.useState("")
-  const [manualPriceString, setManualPriceString] = React.useState("")
   const [tolerance, setTolerance] = React.useState<ToleranceValue>(0)
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? BigNumber(0) : BigNumber(amountString)
-  const manualPrice = Number.isNaN(Number.parseFloat(manualPriceString)) ? BigNumber(0) : BigNumber(manualPriceString)
   const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(
     tradePair.bids,
     amount.gt(0) ? amount : BigNumber(0.01),
     tolerance
   )
 
-  const price = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : manualPrice
+  const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
+
+  const [manualPriceString, setManualPriceString] = React.useState<string | undefined>(
+    () => (bestPrice ? bestPrice.toString() : "")
+  )
+  const manualPrice =
+    manualPriceString === undefined || Number.isNaN(Number.parseFloat(manualPriceString))
+      ? BigNumber(0)
+      : BigNumber(manualPriceString)
+
+  const price = manualPrice.gt(0) ? manualPrice : bestPrice || BigNumber(0)
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
   const dialogActions = (
@@ -71,12 +79,12 @@ function TradingForm(props: Props) {
           <TradePropertiesForm
             {...props}
             amount={amountString}
+            bestPrice={bestPrice}
             estimatedReturn={estimatedReturn}
             manualPrice={manualPriceString}
             onSetAmount={setAmountString}
             onSetManualPrice={setManualPriceString}
             onSetTolerance={setTolerance}
-            price={worstPriceOfBestMatches || BigNumber(0)}
             tolerance={tolerance}
           />
           {relativeSpread > 0.01 ? (
@@ -106,4 +114,4 @@ function TradingForm(props: Props) {
   )
 }
 
-export default TradingForm
+export default React.memo(TradingForm)

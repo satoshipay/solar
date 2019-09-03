@@ -1,23 +1,24 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
 import Typography from "@material-ui/core/Typography"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, useIsMobile, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
+import { useAccountData, useDialogActions, useIsMobile, useHorizon, useRouter, ObservedAccountData } from "../../hooks"
 import { balancelineToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import ScrollableBalances from "../AccountAssets/ScrollableBalances"
-import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { VerticalMargin } from "../Layout/Spacing"
-import TradingForm from "../TradeAsset/TradingForm"
-import ErrorBoundary from "../ErrorBoundary"
 import MainTitle from "../MainTitle"
+import TradingForm from "../TradeAsset/TradingForm"
 import TransactionSender from "../TransactionSender"
+import DialogBody from "./DialogBody"
 import { ActionButton, DialogActionsBox } from "./Generic"
+import Portal from "../Portal"
+import { HorizontalLayout } from "../Layout/Box"
 
 function findMatchingBalance(balances: ObservedAccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
@@ -32,13 +33,16 @@ interface TradeAssetProps {
 
 function TradeAsset(props: TradeAssetProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const dialogActionsRef = useDialogActions()
   const horizon = useHorizon(props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
-  const trustlines = (accountData.balances.filter(balance => balance.asset_type !== "native") as any) as Array<
-    Horizon.BalanceLine<AssetType.credit4 | AssetType.credit12>
-  >
+  const trustlines = React.useMemo(
+    () =>
+      accountData.balances.filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native"),
+    [accountData.balances]
+  )
 
   const [rawBuyingAsset, setBuyingAsset] = React.useState<Asset | null>(null)
   const [rawSellingAsset, setSellingAsset] = React.useState<Asset | null>(null)
@@ -78,9 +82,17 @@ function TradeAsset(props: TradeAssetProps) {
     }
   }
 
+  const ActionsContainer = (subProps: { children: React.ReactNode; style?: React.CSSProperties }) =>
+    isSmallScreen ? (
+      <Portal target={dialogActionsRef.element}>{subProps.children}</Portal>
+    ) : (
+      <HorizontalLayout justifyContent="flex-end" shrink={0} style={subProps.style}>
+        {subProps.children}
+      </HorizontalLayout>
+    )
+
   const MainContent = (
     <>
-      <ScrollableBalances account={props.account} compact />
       <VerticalMargin size={isSmallScreen ? 12 : 40} />
       {buyingBalance && sellingBalance ? (
         <TradingForm
@@ -93,8 +105,8 @@ function TradeAsset(props: TradeAssetProps) {
           testnet={props.account.testnet}
           trustlines={trustlines}
           DialogActions={({ amount, disabled, price, style }) => (
-            <HorizontalLayout justifyContent="flex-end" shrink={0} style={style}>
-              <DialogActionsBox>
+            <ActionsContainer style={style}>
+              <DialogActionsBox smallDialog>
                 <ActionButton
                   disabled={disabled}
                   icon={<GavelIcon />}
@@ -106,35 +118,43 @@ function TradeAsset(props: TradeAssetProps) {
                   Place order
                 </ActionButton>
               </DialogActionsBox>
-            </HorizontalLayout>
+            </ActionsContainer>
           )}
         />
       ) : null}
     </>
   )
 
-  const LinkToManageAssets = (
-    <Box margin="32px 0 0" textAlign="center">
-      <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
-      <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
-        <ActionButton
-          autoFocus
-          onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
-          type="primary"
-        >
-          Add asset
-        </ActionButton>
-      </DialogActionsBox>
-    </Box>
+  const LinkToManageAssets = React.useMemo(
+    () => (
+      <Box margin="32px 0 0" textAlign="center">
+        <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
+        <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
+          <ActionButton
+            autoFocus
+            onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+            type="primary"
+          >
+            Add asset
+          </ActionButton>
+        </DialogActionsBox>
+      </Box>
+    ),
+    [props.account, router]
   )
 
   return (
-    <ErrorBoundary>
-      <VerticalLayout width="100%" maxWidth={900} padding="24px 32px" margin="0 auto">
-        <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
-        {trustlines.length > 0 ? MainContent : LinkToManageAssets}
-      </VerticalLayout>
-    </ErrorBoundary>
+    <DialogBody
+      top={
+        <>
+          <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
+          <ScrollableBalances account={props.account} compact />
+        </>
+      }
+      actions={dialogActionsRef}
+    >
+      {trustlines.length > 0 ? MainContent : LinkToManageAssets}
+    </DialogBody>
   )
 }
 
