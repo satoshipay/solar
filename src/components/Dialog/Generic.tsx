@@ -56,7 +56,9 @@ const useActionButtonStyles = makeStyles(theme => ({
     zIndex: 1
   },
   hidden: {
-    maxHeight: 0
+    maxHeight: 0,
+    paddingTop: 0,
+    paddingBottom: 0
   },
   actionButton: {
     "$inlineDialogActionsBox &": {
