@@ -22,26 +22,26 @@ function Settings() {
   return (
     <>
       <ToggleSection
+        checked={settings.biometricLock}
+        onChange={settings.toggleBiometricLock}
+        style={biometricLockAvailable ? {} : { display: "none" }}
+        title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
+      >
+        <Typography
+          color={settings.biometricLock ? "initial" : "textSecondary"}
+          style={{ margin: "8px 0 0" }}
+          variant="body2"
+        >
+          Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
+          your fingerprint).
+        </Typography>
+      </ToggleSection>
+      <ToggleSection
         checked={settings.showTestnet}
         disabled={hasTestnetAccount}
         onChange={settings.toggleTestnet}
         title="Show Testnet Accounts"
       >
-        <ToggleSection
-          checked={settings.biometricLock}
-          onChange={settings.toggleBiometricLock}
-          style={biometricLockAvailable ? {} : { display: "none" }}
-          title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
-        >
-          <Typography
-            color={settings.biometricLock ? "initial" : "textSecondary"}
-            style={{ margin: "8px 0 0" }}
-            variant="body2"
-          >
-            Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
-            your fingerprint).
-          </Typography>
-        </ToggleSection>
         <Typography
           color={settings.showTestnet ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
