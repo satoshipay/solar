@@ -126,7 +126,7 @@ function AddAccountCard(props: { onClick: () => any; style?: React.CSSProperties
         <div>
           <AddIcon style={{ fontSize: "200%" }} />
         </div>
-        <div>Add new</div>
+        <div>Add account</div>
       </VerticalLayout>
     </StyledCard>
   )

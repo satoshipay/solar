@@ -8,7 +8,7 @@ import { Box, VerticalLayout } from "../components/Layout/Box"
 import MainTitle from "../components/MainTitle"
 import ToggleSection from "../components/Layout/ToggleSection"
 import { Section } from "../components/Layout/Page"
-import { useRouter } from "../hooks"
+import { useIsMobile, useRouter } from "../hooks"
 import { biometricLockAvailable } from "../platform/settings"
 import * as routes from "../routes"
 
@@ -27,6 +27,21 @@ function Settings() {
         onChange={settings.toggleTestnet}
         title="Show Testnet Accounts"
       >
+        <ToggleSection
+          checked={settings.biometricLock}
+          onChange={settings.toggleBiometricLock}
+          style={biometricLockAvailable ? {} : { display: "none" }}
+          title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
+        >
+          <Typography
+            color={settings.biometricLock ? "initial" : "textSecondary"}
+            style={{ margin: "8px 0 0" }}
+            variant="body2"
+          >
+            Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
+            your fingerprint).
+          </Typography>
+        </ToggleSection>
         <Typography
           color={settings.showTestnet ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
@@ -59,21 +74,6 @@ function Settings() {
         </Typography>
       </ToggleSection>
       <ToggleSection
-        checked={settings.biometricLock}
-        onChange={settings.toggleBiometricLock}
-        style={biometricLockAvailable ? {} : { display: "none" }}
-        title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
-      >
-        <Typography
-          color={settings.biometricLock ? "initial" : "textSecondary"}
-          style={{ margin: "8px 0 0" }}
-          variant="body2"
-        >
-          Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
-          your fingerprint).
-        </Typography>
-      </ToggleSection>
-      <ToggleSection
         checked={settings.multiSignature}
         onChange={settings.toggleMultiSignature}
         title="Enable Multi-Signature"
@@ -92,6 +92,7 @@ function Settings() {
 }
 
 function SettingsPage() {
+  const isSmallScreen = useIsMobile()
   const router = useRouter()
   return (
     <>
@@ -114,9 +115,9 @@ function SettingsPage() {
           </CardContent>
         </Card>
       </Section>
-      <Section bottom style={{ display: "flex", flexDirection: "column", overflow: "auto" }}>
+      <Section bottom style={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
         <VerticalLayout height="100%" padding="0 8px" grow>
-          <Box grow>
+          <Box grow margin={isSmallScreen ? 0 : "24px 12px"}>
             <Settings />
           </Box>
           <Box grow={0} margin="16px 0 0">

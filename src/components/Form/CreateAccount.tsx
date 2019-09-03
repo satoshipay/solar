@@ -147,60 +147,48 @@ function AccountCreationForm(props: AccountCreationFormProps) {
           style={{ marginLeft: -12 }}
           title="Password Protect"
         >
-          <>
-            <Typography
-              color={formValues.setPassword ? "initial" : "textSecondary"}
-              variant="body2"
-              style={{ margin: "8px 0 0" }}
-            >
-              <b>Note:</b> The key to your account will be encrypted using the password you set here. If you forget your
-              password, your funds will be lost unless you have a backup of your private key! You can export your
-              private key at any time.
-            </Typography>
-
-            <HorizontalLayout
-              wrap="wrap"
+          <HorizontalLayout
+            wrap="wrap"
+            style={{
+              marginLeft: isSmallScreen ? -6 : -16,
+              marginRight: isSmallScreen ? -6 : -16
+            }}
+          >
+            <TextField
+              disabled={!formValues.setPassword}
+              error={Boolean(errors.password)}
+              fullWidth
+              label={errors.password ? renderFormFieldError(errors.password) : "Password"}
+              placeholder="Enter a password"
+              margin="normal"
+              onChange={event => setFormValue("password", event.target.value)}
               style={{
-                marginLeft: isSmallScreen ? -6 : -16,
-                marginRight: isSmallScreen ? -6 : -16
+                flex: "1 0 0",
+                marginLeft: isSmallScreen ? 6 : 16,
+                marginRight: isSmallScreen ? 6 : 16,
+                minWidth: isTinyScreen ? 150 : 250
               }}
-            >
-              <TextField
-                disabled={!formValues.setPassword}
-                error={Boolean(errors.password)}
-                fullWidth
-                label={errors.password ? renderFormFieldError(errors.password) : "Password"}
-                placeholder="Enter a password"
-                margin="normal"
-                onChange={event => setFormValue("password", event.target.value)}
-                style={{
-                  flex: "1 0 0",
-                  marginLeft: isSmallScreen ? 6 : 16,
-                  marginRight: isSmallScreen ? 6 : 16,
-                  minWidth: isTinyScreen ? 150 : 250
-                }}
-                type="password"
-                value={formValues.password}
-              />
-              <TextField
-                disabled={!formValues.setPassword}
-                error={Boolean(errors.passwordRepeat)}
-                fullWidth
-                label={errors.passwordRepeat ? renderFormFieldError(errors.passwordRepeat) : "Repeat password"}
-                margin="normal"
-                onChange={event => setFormValue("passwordRepeat", event.target.value)}
-                placeholder="Repeat your password"
-                style={{
-                  flex: "1 0 0",
-                  marginLeft: isSmallScreen ? 6 : 16,
-                  marginRight: isSmallScreen ? 6 : 16,
-                  minWidth: isTinyScreen ? 150 : 250
-                }}
-                type="password"
-                value={formValues.passwordRepeat}
-              />
-            </HorizontalLayout>
-          </>
+              type="password"
+              value={formValues.password}
+            />
+            <TextField
+              disabled={!formValues.setPassword}
+              error={Boolean(errors.passwordRepeat)}
+              fullWidth
+              label={errors.passwordRepeat ? renderFormFieldError(errors.passwordRepeat) : "Repeat password"}
+              margin="normal"
+              onChange={event => setFormValue("passwordRepeat", event.target.value)}
+              placeholder="Repeat your password"
+              style={{
+                flex: "1 0 0",
+                marginLeft: isSmallScreen ? 6 : 16,
+                marginRight: isSmallScreen ? 6 : 16,
+                minWidth: isTinyScreen ? 150 : 250
+              }}
+              type="password"
+              value={formValues.passwordRepeat}
+            />
+          </HorizontalLayout>
         </ToggleSection>
         <ToggleSection
           checked={!formValues.createNewKey}
