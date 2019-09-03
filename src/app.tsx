@@ -55,7 +55,7 @@ const App = () => (
   <Providers>
     <>
       <VerticalLayout height="100%" style={{ WebkitOverflowScrolling: "touch" }}>
-        <VerticalLayout height="100%" grow overflowY="auto">
+        <VerticalLayout height="100%" grow overflowY="hidden">
           <ErrorBoundary>
             <Switch>
               <Route exact path="/" component={AllAccountsPage} />

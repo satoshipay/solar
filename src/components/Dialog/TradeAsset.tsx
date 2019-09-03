@@ -147,7 +147,7 @@ function TradeAsset(props: TradeAssetProps) {
     <DialogBody
       top={
         <>
-          <MainTitle title="Trade" onBack={props.onClose} style={{ height: 56 }} />
+          <MainTitle title="Trade" onBack={props.onClose} />
           <ScrollableBalances account={props.account} compact />
         </>
       }
