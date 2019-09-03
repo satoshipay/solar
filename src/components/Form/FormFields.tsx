@@ -3,6 +3,7 @@ import IconButton from "@material-ui/core/IconButton"
 import { InputProps } from "@material-ui/core/Input"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
+import { makeStyles } from "@material-ui/core/styles"
 import { trackError } from "../../context/notifications"
 import QRImportDialog from "../Dialog/QRImport"
 import QRReaderIcon from "../Icon/QRReader"
@@ -78,6 +79,14 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
   )
 })
 
+const useReadOnlyTextfieldStyles = makeStyles({
+  input: {
+    "&&, && > div": {
+      color: "inherit"
+    }
+  }
+})
+
 type ReadOnlyTextfieldProps = TextFieldProps & {
   disableUnderline?: boolean
   multiline?: boolean
@@ -86,13 +95,22 @@ type ReadOnlyTextfieldProps = TextFieldProps & {
 // tslint:disable-next-line no-shadowed-variable
 export const ReadOnlyTextfield = React.memo(function ReadOnlyTextfield(props: ReadOnlyTextfieldProps) {
   const { disableUnderline, multiline, ...textfieldProps } = props
+  const classes = useReadOnlyTextfieldStyles()
 
   // tslint:disable-next-line no-shadowed-variable
   const InputProps: InputProps = {
     disableUnderline,
     multiline,
+    disabled: true,
     readOnly: true,
     ...props.InputProps
   }
-  return <TextField {...textfieldProps} tabIndex={-1} InputProps={InputProps} />
+  return (
+    <TextField
+      {...textfieldProps}
+      className={`${classes.input} ${props.className || ""}`}
+      tabIndex={-1}
+      InputProps={InputProps}
+    />
+  )
 })
