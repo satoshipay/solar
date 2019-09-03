@@ -128,7 +128,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
 
   const actionsContent = React.useMemo(
     () => (
-      <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
+      <DialogActionsBox desktopStyle={{ marginTop: 40 }}>
         <CloseButton onClick={props.onCancel} />
         <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="primary">
           {primaryButtonLabel}
@@ -144,7 +144,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         <ToggleSection
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
-          style={{ marginLeft: -12 }}
+          style={{ marginTop: 24 }}
           title="Password Protect"
         >
           <HorizontalLayout
@@ -193,7 +193,6 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         <ToggleSection
           checked={!formValues.createNewKey}
           onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
-          style={{ marginLeft: -12 }}
           title="Import Existing"
         >
           <HorizontalLayout alignItems="center">
