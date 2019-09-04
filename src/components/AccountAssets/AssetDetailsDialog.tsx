@@ -6,7 +6,14 @@ import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
-import { useAccountData, useAccountOffers, useAssetMetadata, useClipboard, useStellarToml } from "../../hooks"
+import {
+  useAccountData,
+  useAccountOffers,
+  useAssetMetadata,
+  useClipboard,
+  useIsMobile,
+  useStellarToml
+} from "../../hooks"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
 import { breakpoints } from "../../theme"
@@ -372,6 +379,7 @@ interface Props {
 function AssetDetailsDialog(props: Props) {
   const asset = React.useMemo(() => parseAssetID(props.assetID), [props.assetID])
   const classes = useAssetDetailStyles()
+  const isSmallScreen = useIsMobile()
 
   const metadataMap = useAssetMetadata([asset], props.account.testnet)
   const [metadata] = metadataMap.get(asset) || [undefined, false]
@@ -413,9 +421,10 @@ function AssetDetailsDialog(props: Props) {
         </>
       }
       actions={dialogActions}
-      actionsPosition="before-content"
+      actionsPosition="bottom"
+      fitToShrink
     >
-      <VerticalLayout margin="16px 4px 0" padding="0 0 64px" shrink={0}>
+      <VerticalLayout margin="16px 4px 0" padding={`0 0 ${isSmallScreen ? 64 : 0}px`} shrink={0}>
         {asset.isNative() ? (
           <LumenDetails account={props.account} />
         ) : (
