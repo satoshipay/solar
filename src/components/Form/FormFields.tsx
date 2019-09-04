@@ -80,7 +80,10 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
 })
 
 const useReadOnlyTextfieldStyles = makeStyles({
-  input: {
+  root: {
+    "&:focus": {
+      outline: "none"
+    },
     "&&, && > div": {
       color: "inherit"
     }
@@ -108,7 +111,7 @@ export const ReadOnlyTextfield = React.memo(function ReadOnlyTextfield(props: Re
   return (
     <TextField
       {...textfieldProps}
-      className={`${classes.input} ${props.className || ""}`}
+      className={`${classes.root} ${props.className || ""}`}
       tabIndex={-1}
       InputProps={InputProps}
     />

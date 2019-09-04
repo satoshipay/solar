@@ -34,10 +34,11 @@ const topStyle: React.CSSProperties = {
 
 interface Props {
   actions?: React.ReactNode | RefStateObject
-  actionsPosition?: "before-content" | "after-content"
+  actionsPosition?: "after-content" | "bottom"
   background?: React.ReactNode
   children: React.ReactNode
   excessWidth?: number
+  fitToShrink?: boolean
   top?: React.ReactNode
 }
 
@@ -82,7 +83,7 @@ function DialogBody(props: Props) {
         {topContent}
         {background}
         <VerticalLayout
-          grow
+          grow={props.fitToShrink ? 0 : 1}
           margin={`0 -${excessWidth}px`}
           maxHeight="100%"
           overflowX="hidden"
@@ -90,7 +91,6 @@ function DialogBody(props: Props) {
           padding={`0 ${excessWidth}px`}
           shrink
         >
-          {actionsPosition === "before-content" ? actionsContent : null}
           {props.children}
           {actionsPosition === "after-content" ? actionsContent : null}
         </VerticalLayout>
