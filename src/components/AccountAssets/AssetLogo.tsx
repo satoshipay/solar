@@ -5,6 +5,8 @@ import makeStyles from "@material-ui/core/styles/makeStyles"
 import { brandColor } from "../../theme"
 import LumenIcon from "../Icon/Lumen"
 
+const paddedAssetIconsRegex = /bitbondsto\.com/
+
 const useAssetLogoStyles = makeStyles({
   imageAvatar: {
     backgroundColor: "white"
@@ -32,6 +34,10 @@ const useAssetLogoStyles = makeStyles({
   icon: {
     width: "100%",
     height: "100%"
+  },
+  padding: {
+    width: 72,
+    height: 72
   }
 })
 
@@ -54,14 +60,16 @@ function AssetLogo(props: Props) {
       </Avatar>
     )
   } else {
+    const applyPadding = props.imageURL && props.imageURL.match(paddedAssetIconsRegex)
     const avatarClassName = [
       className,
       props.imageURL ? classes.imageAvatar : classes.textAvatar,
       props.dark && !props.imageURL ? classes.darkTextAvatar : ""
     ].join(" ")
+    const iconClassName = [classes.icon, applyPadding ? classes.padding : ""].join(" ")
     return (
       <Avatar alt={name} className={avatarClassName} style={props.style}>
-        {props.imageURL ? <img className={classes.icon} src={props.imageURL} /> : props.asset.code}
+        {props.imageURL ? <img className={iconClassName} src={props.imageURL} /> : props.asset.code}
       </Avatar>
     )
   }
