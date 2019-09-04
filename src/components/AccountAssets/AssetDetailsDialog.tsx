@@ -251,9 +251,9 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
                 fullWidth
                 label="Website"
                 margin="dense"
+                onClick={() => openLink(stellarToml!.DOCUMENTATION!.ORG_URL!)}
                 value={stellarToml.DOCUMENTATION.ORG_URL}
                 inputProps={{
-                  onClick: () => openLink(stellarToml!.DOCUMENTATION!.ORG_URL!),
                   style: {
                     cursor: "pointer",
                     textDecoration: "underline"
@@ -293,9 +293,9 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
                 label="Email address"
                 margin="dense"
                 multiline
+                onClick={() => openLink("mailto:" + stellarToml!.DOCUMENTATION!.ORG_OFFICIAL_EMAIL!)}
                 value={stellarToml.DOCUMENTATION.ORG_OFFICIAL_EMAIL}
                 inputProps={{
-                  onClick: () => openLink("mailto:" + stellarToml!.DOCUMENTATION!.ORG_OFFICIAL_EMAIL!),
                   style: {
                     cursor: "pointer",
                     textDecoration: "underline"
@@ -361,7 +361,7 @@ const useAssetDetailStyles = makeStyles({
   },
   domain: {
     marginTop: -4,
-    marginLeft: 44,
+    marginLeft: 47, // should be 46, but somehow 47 looks correct
     marginBottom: 16,
 
     [breakpoints.down(600)]: {
@@ -424,7 +424,7 @@ function AssetDetailsDialog(props: Props) {
       actionsPosition="bottom"
       fitToShrink
     >
-      <VerticalLayout margin="16px 4px 0" padding={`0 0 ${isSmallScreen ? 64 : 0}px`} shrink={0}>
+      <VerticalLayout margin="16px 4px 0" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
         {asset.isNative() ? (
           <LumenDetails account={props.account} />
         ) : (
