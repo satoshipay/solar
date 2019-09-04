@@ -36,8 +36,8 @@ const useAssetLogoStyles = makeStyles({
     height: "100%"
   },
   padding: {
-    width: 72,
-    height: 72
+    width: "75%",
+    height: "75%"
   }
 })
 
