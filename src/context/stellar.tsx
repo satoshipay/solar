@@ -2,6 +2,7 @@ import fetch from "isomorphic-fetch"
 import React from "react"
 import { Server } from "stellar-sdk"
 import { trackError } from "./notifications"
+import { fetchStellarExpertAccountDirectory } from "../lib/wellKnownStellarAccounts"
 import { resetAllSubscriptions } from "../subscriptions"
 
 async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
@@ -68,6 +69,8 @@ export function StellarProvider(props: Props) {
 
         // tslint:disable-next-line no-console
         console.debug(`Selected horizon servers:`, { horizonLivenetURL, horizonTestnetURL })
+
+        fetchStellarExpertAccountDirectory()
       }
     }
 
