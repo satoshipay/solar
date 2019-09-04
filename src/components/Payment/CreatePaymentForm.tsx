@@ -14,7 +14,7 @@ import { useIsMobile, useFederationLookup, RefStateObject, ObservedAccountData }
 import { renderFormFieldError } from "../../lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
-import { isKnownExchange, getAcceptedMemoType } from "../../lib/wellKnownStellarExchanges"
+import { isKnownExchange, getAcceptedMemoType } from "../../lib/wellKnownStellarAccounts"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -66,10 +66,14 @@ function validateFormValues(formValues: PaymentCreationValues, spendableBalance:
     errors.amount = new Error("Not enough funds.")
   }
 
-  if (isKnownExchange(formValues.destination) && formValues.memoValue === "") {
-    errors.memoValue = new Error("You must add a memo before sending funds to a known exchange.")
-  } else if (formValues.memoValue.length > 28) {
-    errors.memoValue = new Error("Memo too long.")
+  if (isKnownExchange(formValues.destination)) {
+    if (formValues.memoValue.length === 0) {
+      errors.memoValue = new Error("You must add a memo before sending funds to a known exchange.")
+    } else if (formValues.memoType === "text" && formValues.memoValue.length > 28) {
+      errors.memoValue = new Error("Memo too long.")
+    } else if (formValues.memoType === "id" && !formValues.memoValue.match(/^[0-9]+$/)) {
+      errors.memoValue = new Error("Memo must be an integer.")
+    }
   }
 
   const success = Object.keys(errors).length === 0
@@ -147,7 +151,7 @@ function PaymentCreationForm(props: Props) {
         setMemoLabel("Memo")
       }
     },
-    [formValues.destination]
+    [formValues.destination, formValues.memoType]
   )
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
