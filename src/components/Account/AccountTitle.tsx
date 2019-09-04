@@ -109,7 +109,7 @@ function TitleTextField(props: TitleTextFieldProps) {
           props.mode === "editing" && props.showUnderlineOnEdit ? classes.underlinedInput : ""
         }`,
         onClick: props.onClick,
-        size: props.value.length,
+        size: Math.max(props.value.length + 1, 4),
         style: {
           cursor: props.mode === "editing" ? "text" : "default",
           height: 40,
