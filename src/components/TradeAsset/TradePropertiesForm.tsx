@@ -12,15 +12,6 @@ import { HorizontalMargin } from "../Layout/Spacing"
 type ToleranceValue = 0 | 0.01 | 0.02
 type Trustline = Horizon.BalanceLineAsset<AssetType.credit4 | AssetType.credit12>
 
-const assetSelectorSelectProps = {
-  MenuProps: {
-    MenuListProps: {
-      style: { padding: 0 }
-    }
-  },
-  style: { fontWeight: "bold" }
-} as const
-
 interface AssetSelectorProps {
   label: TextFieldProps["label"]
   onChange: (asset: Asset) => void
@@ -52,7 +43,6 @@ function AssetSelector(props: AssetSelectorProps) {
       label={props.label}
       onChange={onChange}
       select
-      SelectProps={assetSelectorSelectProps}
       style={{ flexGrow: 0, flexShrink: 0 }}
       value={stringifyAsset(props.value)}
     >

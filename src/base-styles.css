@@ -9,6 +9,7 @@ body,
 
 body {
   background-color: white;
+  color: rgba(0, 0, 0, 0.87);
   cursor: default;
   font-family: "Roboto", sans-serif;
   font-size: 13px;

@@ -172,6 +172,9 @@ const theme = createMuiTheme({
         [breakpoints.down(600)]: {
           paddingLeft: 8,
           paddingRight: 8
+        },
+        "&": {
+          borderBottom: "1px solid rgba(0,0,0,0.04)"
         }
       },
       button: {
@@ -218,7 +221,11 @@ const theme = createMuiTheme({
         background: "linear-gradient(to bottom, white 0%, white 70%, rgba(255, 255, 255, 0) 100%)"
       }
     },
-    MuiMenu: {},
+    MuiMenu: {
+      list: {
+        padding: 0
+      }
+    } as any,
     MuiPaper: {
       rounded: {
         borderRadius: 8
