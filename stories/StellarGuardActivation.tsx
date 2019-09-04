@@ -1,21 +1,22 @@
 import React from "react"
-import { storiesOf } from "@storybook/react"
-import { StellarGuardActivationDialog } from "../src/components/Dialog/StellarGuardActivation"
+import { Server, Transaction } from "stellar-sdk"
 import { Dialog, Slide } from "@material-ui/core"
-import { Transaction } from "stellar-base"
 import { parseStellarUri, TransactionStellarUri } from "@stellarguard/stellar-uri"
-import { Server } from "stellar-sdk"
+import { storiesOf } from "@storybook/react"
+import { Account } from "../src/context/accounts"
+import { StellarGuardActivationDialog } from "../src/components/Dialog/StellarGuardActivation"
 
 const DialogTransition = (props: any) => <Slide {...props} direction="left" />
 
-const accounts = [
+const accounts: Account[] = [
   {
     id: "testid1",
     name: "My Testnet Account #1",
     publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
     requiresPassword: false,
     testnet: true,
-    getPrivateKey: (password: string) => Promise.resolve(password)
+    getPrivateKey: (password: string) => Promise.resolve(password),
+    signTransaction: () => Promise.reject("Just a mock")
   },
   {
     id: "testid2",
@@ -23,7 +24,8 @@ const accounts = [
     publicKey: "GDNVDG37WMKPEIXSJRBAQAVPO5WGOPKZRZZBPLWXULSX6NQNLNQP6CFF",
     requiresPassword: false,
     testnet: true,
-    getPrivateKey: (password: string) => Promise.resolve(password)
+    getPrivateKey: (password: string) => Promise.resolve(password),
+    signTransaction: () => Promise.reject("Just a mock")
   }
 ]
 
@@ -38,12 +40,12 @@ const transaction = new Transaction((uri as TransactionStellarUri).xdr)
 storiesOf("StellarGuard Activation", module).add("StellarGuard Activation Dialog", () => (
   <Dialog open={true} fullScreen onClose={undefined} TransitionComponent={DialogTransition}>
     <StellarGuardActivationDialog
-      sendTransaction={(account, tx) => undefined}
       accounts={accounts}
+      horizon={horizon}
+      onClose={() => undefined}
+      sendTransaction={(account, tx) => undefined}
       testnet={true}
       transaction={transaction}
-      onClose={() => undefined}
-      horizon={horizon}
     />
   </Dialog>
 ))

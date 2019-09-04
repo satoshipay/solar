@@ -1,6 +1,7 @@
 import BigNumber from "big.js"
 import {
   Asset,
+  Horizon,
   Keypair,
   Memo,
   Network,
@@ -220,14 +221,17 @@ export function isStellarWebAuthTransaction(transaction: Transaction) {
   )
 }
 
-export function createCopyWithDifferentSourceAccount(transaction: Transaction, account: ServerApi.AccountRecord) {
+export function createCopyWithDifferentSourceAccount(
+  transaction: Transaction,
+  account: Pick<Horizon.AccountResponse, "id" | "sequence">
+) {
   const envelope = transaction.toEnvelope()
 
   const sequenceNumber = new BigNumber(account.sequence).add(1)
 
   const attrs = {
     // @ts-ignore
-    sourceAccount: Keypair.fromPublicKey(account.accountId()).xdrAccountId(),
+    sourceAccount: Keypair.fromPublicKey(account.id).xdrAccountId(),
     fee: transaction.fee,
     // @ts-ignore
     seqNum: xdr.SequenceNumber.fromString(sequenceNumber.toString()),
