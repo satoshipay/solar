@@ -169,12 +169,14 @@ const theme = createMuiTheme({
     },
     MuiListItem: {
       root: {
+        borderBottom: "1px solid rgba(0,0,0,0.04)",
+
         [breakpoints.down(600)]: {
           paddingLeft: 8,
           paddingRight: 8
         },
-        "&": {
-          borderBottom: "1px solid rgba(0,0,0,0.04)"
+        "& + hr": {
+          borderBottom: "none"
         }
       },
       button: {
@@ -226,6 +228,11 @@ const theme = createMuiTheme({
         padding: 0
       }
     } as any,
+    MuiMenuItem: {
+      root: {
+        borderBottom: "none"
+      }
+    },
     MuiPaper: {
       rounded: {
         borderRadius: 8
