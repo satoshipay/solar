@@ -365,7 +365,7 @@ const useAssetDetailStyles = makeStyles({
     marginBottom: 16,
 
     [breakpoints.down(600)]: {
-      marginLeft: 36
+      marginLeft: 39
     }
   }
 })
