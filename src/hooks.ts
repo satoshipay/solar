@@ -33,6 +33,7 @@ import {
   ObservedTradingPair
 } from "./subscriptions"
 import * as Clipboard from "./platform/clipboard"
+import { AccountRecord } from "./types/well-known-accounts"
 import { StellarToml, StellarTomlCurrency } from "./types/stellar-toml"
 
 export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
@@ -107,22 +108,17 @@ function useDataSubscriptions<ObservedData>(subscriptions: Array<SubscriptionTar
 
   // Asynchronously subscribe to remote data to keep state in sync
   // `unsubscribe` will only unsubscribe state updating code, won't close remote data subscription itself
-  React.useEffect(
-    () => {
-      // Some time has passed since the last `getLatest()`, so refresh
-      setCurrentDataSets(subscriptions.map(subscription => subscription.getLatest()))
+  React.useEffect(() => {
+    // Some time has passed since the last `getLatest()`, so refresh
+    setCurrentDataSets(subscriptions.map(subscription => subscription.getLatest()))
 
-      const unsubscribeHandlers = subscriptions.map((subscription, index) =>
-        subscription.subscribe(update =>
-          setCurrentDataSets(prevDataSets => updateDataSets(prevDataSets, update, index))
-        )
-      )
+    const unsubscribeHandlers = subscriptions.map((subscription, index) =>
+      subscription.subscribe(update => setCurrentDataSets(prevDataSets => updateDataSets(prevDataSets, update, index)))
+    )
 
-      const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
-      return unsubscribe
-    },
-    [subscriptions]
-  )
+    const unsubscribe = () => unsubscribeHandlers.forEach(unsubscribeHandler => unsubscribeHandler())
+    return unsubscribe
+  }, [subscriptions])
 
   return currentDataSets
 }
@@ -160,19 +156,16 @@ export function useAccountEffectSubscriptions(accounts: Account[], handler: Effe
   const mainnetHorizon = useHorizon(false)
   const testnetHorizon = useHorizon(true)
 
-  return React.useEffect(
-    () => {
-      const unsubscribeHandlers = accounts.map(account => {
-        const horizon = account.testnet ? testnetHorizon : mainnetHorizon
-        const subscription = subscribeToAccountEffects(horizon, account.publicKey)
-        const unsubscribe = subscription.subscribe(effect => effect && handler(account, effect))
-        return unsubscribe
-      })
+  return React.useEffect(() => {
+    const unsubscribeHandlers = accounts.map(account => {
+      const horizon = account.testnet ? testnetHorizon : mainnetHorizon
+      const subscription = subscribeToAccountEffects(horizon, account.publicKey)
+      const unsubscribe = subscription.subscribe(effect => effect && handler(account, effect))
+      return unsubscribe
+    })
 
-      return () => unsubscribeHandlers.forEach(unsubscribe => unsubscribe())
-    },
-    [accounts, mainnetHorizon, testnetHorizon]
-  )
+    return () => unsubscribeHandlers.forEach(unsubscribe => unsubscribe())
+  }, [accounts, mainnetHorizon, testnetHorizon])
 }
 
 export function useClipboard() {
@@ -298,30 +291,27 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml
   const loadingStates = React.useContext(StellarTomlLoadingCacheContext)
   const resultMap = new Map<string, [StellarToml, boolean]>()
 
-  React.useEffect(
-    () => {
-      for (const domain of domains) {
-        // This is semantically different from `.filter()`-ing above, since this will
-        // prevent double-fetching from domains that were part of this iteration
-        if (stellarTomls.cache.has(domain) || loadingStates.cache.has(domain)) {
-          continue
-        }
-
-        loadingStates.store(domain, AsyncStatus.pending())
-
-        StellarTomlResolver.resolve(domain)
-          .then(stellarTomlData => {
-            loadingStates.delete(domain)
-            stellarTomls.store(domain, stellarTomlData)
-            localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
-          })
-          .catch(error => {
-            loadingStates.store(domain, AsyncStatus.rejected(error))
-          })
+  React.useEffect(() => {
+    for (const domain of domains) {
+      // This is semantically different from `.filter()`-ing above, since this will
+      // prevent double-fetching from domains that were part of this iteration
+      if (stellarTomls.cache.has(domain) || loadingStates.cache.has(domain)) {
+        continue
       }
-    },
-    [domains, loadingStates, stellarTomls]
-  )
+
+      loadingStates.store(domain, AsyncStatus.pending())
+
+      StellarTomlResolver.resolve(domain)
+        .then(stellarTomlData => {
+          loadingStates.delete(domain)
+          stellarTomls.store(domain, stellarTomlData)
+          localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
+        })
+        .catch(error => {
+          loadingStates.store(domain, AsyncStatus.rejected(error))
+        })
+    }
+  }, [domains, loadingStates, stellarTomls])
 
   for (const domain of domains) {
     const cached = stellarTomls.cache.get(domain)
@@ -390,13 +380,53 @@ export function useRouter<Params = {}>() {
     throw new Error("useRouter() hook can only be used within a react-router provider.")
   }
 
-  React.useEffect(
-    () => {
-      const unsubscribe = routerContext.history.listen(() => forceUpdate())
-      return unsubscribe
-    },
-    [routerContext]
-  )
+  React.useEffect(() => {
+    const unsubscribe = routerContext.history.listen(() => forceUpdate())
+    return unsubscribe
+  }, [routerContext])
 
   return routerContext
+}
+
+export function useWellKnownAccounts() {
+  const [loadingState, setLoadingState] = React.useState<AsyncStatus<AccountRecord[]>>(AsyncStatus.pending())
+
+  React.useEffect(() => {
+    const cachedAccountsString = localStorage.getItem("known-accounts")
+    const timestamp = localStorage.getItem("timestamp")
+    if (cachedAccountsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
+      // use cached accounts if they are not older than 24h
+      const accounts = JSON.parse(cachedAccountsString)
+      setLoadingState(AsyncStatus.resolved(accounts))
+    } else {
+      fetch("https://api.stellar.expert/api/explorer/public/directory").then(async response => {
+        if (response.status >= 400) {
+          setLoadingState(
+            AsyncStatus.rejected(new Error(`Bad response (${response.status}) from stellar.expert server`))
+          )
+        }
+
+        try {
+          const json = await response.json()
+          const knownAccounts = json._embedded.records as AccountRecord[]
+          localStorage.setItem("known-accounts", JSON.stringify(knownAccounts))
+          localStorage.setItem("timestamp", Date.now().toString())
+          setLoadingState(AsyncStatus.resolved(knownAccounts))
+        } catch (error) {
+          setLoadingState(AsyncStatus.rejected(error))
+        }
+      })
+    }
+  }, [])
+
+  return {
+    lookup(publicKey: string): AccountRecord | undefined {
+      if (loadingState.state === "resolved") {
+        const accounts = loadingState.data
+        return accounts.find(account => account.address === publicKey)
+      } else {
+        return undefined
+      }
+    }
+  }
 }
