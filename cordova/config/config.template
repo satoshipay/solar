@@ -105,6 +105,7 @@
     <engine name="ios" spec="^5.0.0" />
 
     <preference name="AndroidLaunchMode" value="singleTask"/>
+    <preference name="AppendUserAgent" value="SatoshiPaySolar/$PACKAGE_VERSION" />
     <preference name="AutoHideSplashScreen" value="$AUTO_HIDE" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="ShowSplashScreenSpinner" value="false" />
