@@ -2,8 +2,9 @@ import React from "react"
 import IconButton from "@material-ui/core/IconButton"
 import { InputProps } from "@material-ui/core/Input"
 import InputAdornment from "@material-ui/core/InputAdornment"
-import TextField, { TextFieldProps } from "@material-ui/core/TextField"
+import TextField, { OutlinedTextFieldProps, TextFieldProps } from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
+import SearchIcon from "@material-ui/icons/Search"
 import { trackError } from "../../context/notifications"
 import QRImportDialog from "../Dialog/QRImport"
 import QRReaderIcon from "../Icon/QRReader"
@@ -95,7 +96,6 @@ type ReadOnlyTextfieldProps = TextFieldProps & {
   multiline?: boolean
 }
 
-// tslint:disable-next-line no-shadowed-variable
 export const ReadOnlyTextfield = React.memo(function ReadOnlyTextfield(props: ReadOnlyTextfieldProps) {
   const { disableUnderline, multiline, ...textfieldProps } = props
   const classes = useReadOnlyTextfieldStyles()
@@ -114,6 +114,24 @@ export const ReadOnlyTextfield = React.memo(function ReadOnlyTextfield(props: Re
       className={`${classes.root} ${props.className || ""}`}
       tabIndex={-1}
       InputProps={InputProps}
+    />
+  )
+})
+
+export const SearchField = React.memo(function SearchField(props: Omit<OutlinedTextFieldProps, "variant">) {
+  return (
+    <TextField
+      fullWidth
+      variant="outlined"
+      {...props}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <SearchIcon />
+          </InputAdornment>
+        ),
+        ...props.InputProps
+      }}
     />
   )
 })
