@@ -44,7 +44,9 @@ function WithdrawalDialog(props: Props) {
       top={
         <>
           <MainTitle
-            title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+            title={
+              <span>Withdraw funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>
+            }
             onBack={props.onClose}
           />
           <ScrollableBalances account={props.account} compact />
