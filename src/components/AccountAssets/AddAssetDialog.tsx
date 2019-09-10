@@ -2,7 +2,13 @@ import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import ListItemIcon from "@material-ui/core/ListItemIcon"
+import ListItemText from "@material-ui/core/ListItemText"
+import { makeStyles } from "@material-ui/core/styles"
 import AddIcon from "@material-ui/icons/Add"
+import ExpandLessIcon from "@material-ui/icons/ExpandLess"
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAssetMetadata } from "../../hooks/stellar"
@@ -14,6 +20,8 @@ import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
+import { SearchField } from "../Form/FormFields"
+import { VerticalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
@@ -33,6 +41,25 @@ function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
   }
 }
 
+const useAddAssetStyles = makeStyles({
+  expandIcon: {
+    fontSize: 32
+  },
+  list: {
+    flexGrow: 1,
+    marginTop: 32,
+    padding: 0
+  },
+  searchField: {
+    background: "white"
+  },
+  searchFieldInput: {
+    fontSize: 16,
+    paddingTop: 14,
+    paddingBottom: 14
+  }
+})
+
 interface AddAssetDialogProps {
   account: Account
   accountData: ObservedAccountData
@@ -46,6 +73,7 @@ interface AddAssetDialogProps {
 function AddAssetDialog(props: AddAssetDialogProps) {
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
   const assetMetadata = useAssetMetadata(assets, props.account.testnet)
+  const classes = useAddAssetStyles()
   const router = useRouter()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
@@ -86,27 +114,60 @@ function AddAssetDialog(props: AddAssetDialogProps) {
   const notYetAddedAssets = assets.filter(asset => !isAssetAlreadyAdded(asset))
 
   return (
-    <DialogBody excessWidth={12} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
-      <List style={{ paddingLeft: props.hpadding, paddingRight: props.hpadding }}>
-        <ButtonListItem gutterBottom onClick={openCustomTrustlineDialog}>
-          <AddIcon />
-          &nbsp;&nbsp;Add Custom Asset
-        </ButtonListItem>
-        {notYetAddedAssets.map(asset => {
-          const [metadata] = assetMetadata.get(asset) || [undefined, false]
-          return (
-            <BalanceDetailsListItem
-              key={stringifyAsset(asset)}
-              assetMetadata={metadata}
-              balance={assetToBalance(asset)}
-              hideBalance
-              onClick={() => openAssetDetails(asset)}
-              style={{ paddingLeft: props.itemHPadding, paddingRight: props.itemHPadding }}
-              testnet={props.account.testnet}
-            />
-          )
-        })}
-      </List>
+    <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
+      <VerticalLayout margin="16px 0 0">
+        <SearchField
+          className={classes.searchField}
+          inputProps={{
+            className: classes.searchFieldInput
+          }}
+          placeholder="Search assets by code or name…"
+        />
+        <List className={classes.list}>
+          <ButtonListItem gutterBottom onClick={openCustomTrustlineDialog}>
+            <AddIcon />
+            &nbsp;&nbsp;Add Custom Asset
+          </ButtonListItem>
+          {notYetAddedAssets.map(asset => {
+            const [metadata] = assetMetadata.get(asset) || [undefined, false]
+            return (
+              <BalanceDetailsListItem
+                key={stringifyAsset(asset)}
+                assetMetadata={metadata}
+                balance={assetToBalance(asset)}
+                hideBalance
+                onClick={() => openAssetDetails(asset)}
+                testnet={props.account.testnet}
+              />
+            )
+          })}
+          {[0 /* FIXME */].map((/* issuer */) => (
+            <>
+              <ListItem button style={{ marginTop: 16 }}>
+                <ListItemText primary="example.com" secondary="Example Stellar token issuer" />
+                <ListItemIcon>
+                  {/* FIXME */ true ? (
+                    <ExpandLessIcon className={classes.expandIcon} />
+                  ) : (
+                    <ExpandMoreIcon className={classes.expandIcon} />
+                  )}
+                </ListItemIcon>
+              </ListItem>
+              {[0 /* FIXME */].map((/* asset */) => (
+                <BalanceDetailsListItem
+                  key={"TODO"}
+                  assetMetadata={undefined}
+                  balance={assetToBalance(Asset.native())}
+                  hideBalance
+                  onClick={() => openAssetDetails(Asset.native())}
+                  style={{ paddingLeft: 24 }}
+                  testnet={props.account.testnet}
+                />
+              ))}
+            </>
+          ))}
+        </List>
+      </VerticalLayout>
       <Dialog
         open={customTrustlineDialogOpen}
         onClose={closeCustomTrustlineDialog}
