@@ -47,11 +47,12 @@ const useAddAssetStyles = makeStyles({
   },
   list: {
     flexGrow: 1,
-    marginTop: 32,
+    marginTop: 16,
     padding: 0
   },
   searchField: {
-    background: "white"
+    background: "white",
+    marginBottom: 16
   },
   searchFieldInput: {
     fontSize: 16,
@@ -124,10 +125,12 @@ function AddAssetDialog(props: AddAssetDialogProps) {
           placeholder="Search assets by code or name…"
         />
         <List className={classes.list}>
-          <ButtonListItem gutterBottom onClick={openCustomTrustlineDialog}>
+          <ButtonListItem onClick={openCustomTrustlineDialog}>
             <AddIcon />
             &nbsp;&nbsp;Add Custom Asset
           </ButtonListItem>
+        </List>
+        <List className={classes.list}>
           {notYetAddedAssets.map(asset => {
             const [metadata] = assetMetadata.get(asset) || [undefined, false]
             return (
@@ -141,32 +144,32 @@ function AddAssetDialog(props: AddAssetDialogProps) {
               />
             )
           })}
-          {[0 /* FIXME */].map((/* issuer */) => (
-            <>
-              <ListItem button style={{ marginTop: 16 }}>
-                <ListItemText primary="example.com" secondary="Example Stellar token issuer" />
-                <ListItemIcon>
-                  {/* FIXME */ true ? (
-                    <ExpandLessIcon className={classes.expandIcon} />
-                  ) : (
-                    <ExpandMoreIcon className={classes.expandIcon} />
-                  )}
-                </ListItemIcon>
-              </ListItem>
-              {[0 /* FIXME */].map((/* asset */) => (
-                <BalanceDetailsListItem
-                  key={"TODO"}
-                  assetMetadata={undefined}
-                  balance={assetToBalance(Asset.native())}
-                  hideBalance
-                  onClick={() => openAssetDetails(Asset.native())}
-                  style={{ paddingLeft: 24 }}
-                  testnet={props.account.testnet}
-                />
-              ))}
-            </>
-          ))}
         </List>
+        {[0 /* FIXME */].map((/* issuer */) => (
+          <List className={classes.list}>
+            <ListItem button>
+              <ListItemText primary="example.com" secondary="Example Stellar token issuer" />
+              <ListItemIcon>
+                {/* FIXME */ true ? (
+                  <ExpandLessIcon className={classes.expandIcon} />
+                ) : (
+                  <ExpandMoreIcon className={classes.expandIcon} />
+                )}
+              </ListItemIcon>
+            </ListItem>
+            {[0 /* FIXME */].map((/* asset */) => (
+              <BalanceDetailsListItem
+                key={"TODO"}
+                assetMetadata={undefined}
+                balance={assetToBalance(Asset.native())}
+                hideBalance
+                onClick={() => openAssetDetails(Asset.native())}
+                style={{ paddingLeft: 24 }}
+                testnet={props.account.testnet}
+              />
+            ))}
+          </List>
+        ))}
       </VerticalLayout>
       <Dialog
         open={customTrustlineDialogOpen}
