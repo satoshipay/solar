@@ -19,10 +19,12 @@ function Settings() {
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
   const hasTestnetAccount = accounts.some(account => account.testnet)
+
   return (
     <>
       <ToggleSection
-        checked={settings.biometricLock}
+        disabled={!settings.biometricLockUsable}
+        checked={settings.biometricLock && settings.biometricLockUsable}
         onChange={settings.toggleBiometricLock}
         style={biometricLockAvailable ? {} : { display: "none" }}
         title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
