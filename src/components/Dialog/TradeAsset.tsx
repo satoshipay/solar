@@ -106,7 +106,7 @@ function TradeAsset(props: TradeAssetProps) {
           trustlines={trustlines}
           DialogActions={({ amount, disabled, price, style }) => (
             <ActionsContainer style={style}>
-              <DialogActionsBox smallDialog>
+              <DialogActionsBox>
                 <ActionButton
                   disabled={disabled}
                   icon={<GavelIcon />}
