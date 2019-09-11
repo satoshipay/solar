@@ -59,6 +59,7 @@ function onDeviceReady() {
   initializeIPhoneNotchFix()
 
   setupLinkListener()
+  setupBioAuthAvailableHandler()
   setupBioAuthTestHandler()
 
   document.addEventListener("backbutton", () => contentWindow.postMessage("app:backbutton", "*"), false)
@@ -111,6 +112,8 @@ function authenticate(contentWindow: Window) {
       await bioAuthenticate(clientSecret)
       refreshLastNativeInteractionTime()
     } catch (error) {
+      // tslint:disable-next-line no-console
+      console.error("Biometric auth failed:", error)
       // Just start over if auth fails - Block user interactions until auth is done
       return performAuth()
     }
@@ -236,6 +239,28 @@ function setupBioAuthTestHandler() {
   }
 
   registerCommandHandler(commands.testBioAuthCommand, messageHandler)
+}
+
+function setupBioAuthAvailableHandler() {
+  const messageHandler = async (event: MessageEvent, contentWindow: Window) => {
+    const checkAuthAvailability = async () => {
+      const authAvailable = await isBiometricAuthAvailable()
+      contentWindow.postMessage(
+        { eventType: events.bioAuthAvailableResponseEvent, id: event.data.id, available: authAvailable },
+        "*"
+      )
+    }
+
+    if (bioAuthInProgress) {
+      // wait for bio auth to finish because the plugin does not resolve both promises
+      // if they have to be handled simultaneously
+      bioAuthInProgress.then(checkAuthAvailability)
+    } else {
+      checkAuthAvailability()
+    }
+  }
+
+  registerCommandHandler(commands.bioAuthAvailableCommand, messageHandler)
 }
 
 function openUrl(url: string) {
