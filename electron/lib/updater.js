@@ -1,18 +1,30 @@
 const { Notification } = require("electron")
 const fetch = require("isomorphic-fetch")
 const open = require("opn")
+const { URL } = require("url")
 const pkg = require("../../package.json")
+const { readInstallationID } = require("./storage")
 
 const owner = "satoshipay"
 const repo = "solar"
 
+const updateEndpoint =
+  process.env.NODE_ENV === "production" ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
+
 checkForUpdates().catch(console.error)
 
 async function checkForUpdates() {
+  if (!updateEndpoint) {
+    return
+  }
+
+  const update = await fetchUpdateMetadata(updateEndpoint)
+  console.debug(update ? `Update available: ${update.version}` : `No update available`)
+
+  if (!update) return
+
   const release = await fetchLatestRelease(owner, repo)
   const releaseIsNewer = release.name.replace(/^v/, "") > pkg.version
-
-  console.debug(`Latest release: ${release.name}`)
 
   const urlToOpen = selectURLToOpen(release)
 
@@ -27,6 +39,24 @@ async function checkForUpdates() {
     })
     notification.show()
   }
+}
+
+async function fetchUpdateMetadata(endpointURL) {
+  const url = new URL(`/update/${process.platform}/${pkg.version}`, endpointURL).toString()
+  const updateResponse = await fetch(url, {
+    headers: {
+      "User-Agent": `SatoshiPaySolar/${pkg.version}`,
+      "X-Installation": await readInstallationID()
+    }
+  })
+
+  if (!updateResponse.ok) {
+    throw new Error(
+      `Could not fetch latest release data from GitHub. ` + `Request failed with status ${releaseResponse.status}.`
+    )
+  }
+
+  return updateResponse.status === 204 ? undefined : updateResponse.json()
 }
 
 async function fetchLatestRelease(owner, repo) {

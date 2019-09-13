@@ -47,6 +47,7 @@
     "history": "^4.10.1",
     "isomorphic-fetch": "^2.2.1",
     "key-store": "^1.1.0",
+    "nanoid": "^2.1.1",
     "opn": "^5.5.0",
     "stellar-base": "^1.1.2",
     "stellar-sdk": "^2.3.0"
@@ -95,7 +96,6 @@
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "lru-cache": "^5.1.1",
-    "nanoid": "^2.1.1",
     "npm-run-all": "^4.1.5",
     "nunjucks": "^3.2.0",
     "parcel-bundler": "^1.12.3",

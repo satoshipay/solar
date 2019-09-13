@@ -2,6 +2,7 @@ const { ipcMain } = require("electron")
 const isDev = require("electron-is-dev")
 const Store = require("electron-store")
 const { createStore } = require("key-store")
+const generateID = require("nanoid/generate")
 const { Network, Keypair, Transaction } = require("stellar-sdk")
 const { commands, events, expose } = require("./ipc")
 
@@ -20,6 +21,16 @@ const updateKeys = arg => {
 }
 
 const keystore = createStore(updateKeys, readKeys())
+
+/////////////
+// Internal:
+
+exports.readInstallationID = function readInstallationID() {
+  if (!mainStore.get("installation")) {
+    mainStore.set("installation", generateID("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 8))
+  }
+  return mainStore.get("installation")
+}
 
 /////////////
 // Keystore:
