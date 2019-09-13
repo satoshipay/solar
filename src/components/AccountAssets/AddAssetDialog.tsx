@@ -12,6 +12,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAssetMetadata } from "../../hooks/stellar"
+import { useStellarAssets, AssetRecord, useWellKnownAccounts } from "../../hooks/stellar-ecosystem"
 import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
 import * as popularAssets from "../../lib/popularAssets"
@@ -22,6 +23,7 @@ import { CompactDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
 import { SearchField } from "../Form/FormFields"
 import { VerticalLayout } from "../Layout/Box"
+import { AccountName } from "../Fetchers"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
@@ -39,6 +41,18 @@ function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
     buying_liabilities: "0",
     selling_liabilities: "0"
   }
+}
+
+function groupAssets(values: AssetRecord[], createKey: (arg: AssetRecord) => string) {
+  const map: { [issuer: string]: AssetRecord[] } = {}
+
+  for (const value of values) {
+    const key = createKey(value)
+    const existingValues = map[key]
+    existingValues ? existingValues.push(value) : (map[key] = [value])
+  }
+
+  return map
 }
 
 const useAddAssetStyles = makeStyles({
@@ -75,9 +89,13 @@ function AddAssetDialog(props: AddAssetDialogProps) {
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
   const assetMetadata = useAssetMetadata(assets, props.account.testnet)
   const classes = useAddAssetStyles()
+  const knownAccounts = useWellKnownAccounts()
+  const knownAssets = useStellarAssets(props.account.testnet)
   const router = useRouter()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const [assetsByIssuer, setAssetsByIssuer] = React.useState<{ [issuer: string]: AssetRecord[] }>({})
+  const [searchFieldValue, setSearchFieldValue] = React.useState("")
 
   const openAssetDetails = (asset: Asset) =>
     router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
@@ -93,6 +111,10 @@ function AddAssetDialog(props: AddAssetDialogProps) {
       walletAccount: props.account
     })
   }
+
+  const createBalanceLine = React.useCallback((code: string, issuer: string) => {
+    return issuer === "native" ? assetToBalance(Asset.native()) : assetToBalance(new Asset(code, issuer))
+  }, [])
 
   const sendTransaction = async (createTransactionToSend: () => Promise<Transaction>) => {
     try {
@@ -114,6 +136,41 @@ function AddAssetDialog(props: AddAssetDialogProps) {
 
   const notYetAddedAssets = assets.filter(asset => !isAssetAlreadyAdded(asset))
 
+  const onSearchFieldChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setSearchFieldValue(event.target.value)
+  }, [])
+
+  const getIssuerName = React.useCallback(
+    (issuerKey: string) => {
+      const knownAccount = knownAccounts.lookup(issuerKey)
+      if (knownAccount) {
+        return knownAccount.name
+      } else {
+        const assetRecords = assetsByIssuer[issuerKey]
+        const recordWithIssuerName = assetRecords.find(assetRecord => assetRecord.issuer_detail.name !== "")
+        return recordWithIssuerName ? recordWithIssuerName.issuer_detail.name : issuerKey
+      }
+    },
+    [assetsByIssuer, knownAccounts]
+  )
+
+  React.useEffect(() => {
+    if (searchFieldValue !== "") {
+      const allAssets = knownAssets.getAll()
+      if (allAssets) {
+        const filteredAssets = allAssets.filter(
+          asset =>
+            asset.code.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
+            asset.name.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
+            asset.issuer.toLowerCase().startsWith(searchFieldValue.toLowerCase())
+        )
+
+        const assetsGroupedByIssuer = groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
+        setAssetsByIssuer(assetsGroupedByIssuer)
+      }
+    }
+  }, [searchFieldValue])
+
   return (
     <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
       <VerticalLayout margin="16px 0 0">
@@ -122,6 +179,8 @@ function AddAssetDialog(props: AddAssetDialogProps) {
           inputProps={{
             className: classes.searchFieldInput
           }}
+          onChange={onSearchFieldChange}
+          value={searchFieldValue}
           placeholder="Search assets by code or name…"
         />
         <List className={classes.list}>
@@ -145,10 +204,14 @@ function AddAssetDialog(props: AddAssetDialogProps) {
             )
           })}
         </List>
-        {[0 /* FIXME */].map((/* issuer */) => (
+        {Object.keys(assetsByIssuer).map(issuer => (
           <List className={classes.list}>
-            <ListItem button>
-              <ListItemText primary="example.com" secondary="Example Stellar token issuer" />
+            <ListItem button key={issuer}>
+              <ListItemText
+                primary={<AccountName publicKey={issuer} testnet={props.account.testnet} />}
+                secondary={getIssuerName(issuer)}
+                style={{ textOverflow: "ellipsis", overflow: "hidden" }}
+              />
               <ListItemIcon>
                 {/* FIXME */ true ? (
                   <ExpandLessIcon className={classes.expandIcon} />
@@ -157,17 +220,19 @@ function AddAssetDialog(props: AddAssetDialogProps) {
                 )}
               </ListItemIcon>
             </ListItem>
-            {[0 /* FIXME */].map((/* asset */) => (
-              <BalanceDetailsListItem
-                key={"TODO"}
-                assetMetadata={undefined}
-                balance={assetToBalance(Asset.native())}
-                hideBalance
-                onClick={() => openAssetDetails(Asset.native())}
-                style={{ paddingLeft: 24 }}
-                testnet={props.account.testnet}
-              />
-            ))}
+            {Object.values(
+              assetsByIssuer[issuer].map(asset => (
+                <BalanceDetailsListItem
+                  key={`${asset.issuer}:${asset.code}:${asset.name}:${asset.desc}`}
+                  assetMetadata={undefined}
+                  balance={createBalanceLine(asset.code, asset.issuer)}
+                  hideBalance
+                  onClick={() => openAssetDetails(new Asset(asset.code, asset.issuer))}
+                  style={{ paddingLeft: 24 }}
+                  testnet={props.account.testnet}
+                />
+              ))
+            )}
           </List>
         ))}
       </VerticalLayout>
