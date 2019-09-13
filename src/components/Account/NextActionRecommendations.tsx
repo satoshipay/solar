@@ -19,6 +19,9 @@ const useStyles = makeStyles({
     width: "40%",
     padding: "0px 12px",
     margin: "16px 0"
+  },
+  button: {
+    boxShadow: "0 0 0 white"
   }
 })
 
@@ -76,7 +79,7 @@ function StyledCard(props: StyledCardProps) {
         </CardContent>
       </CardActionArea>
       <CardActions style={{ justifyContent: "center" }}>
-        <Button color="primary" onClick={props.onClick}>
+        <Button className={classes.button} color="primary" onClick={props.onClick}>
           {props.buttonText}
         </Button>
       </CardActions>
