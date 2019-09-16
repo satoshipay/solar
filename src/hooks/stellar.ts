@@ -10,7 +10,6 @@ import {
   StellarAddressReverseCacheContext,
   StellarIssuerAccountCacheContext,
   StellarTomlCacheContext,
-  StellarTomlLoadingCacheContext,
   WebAuthTokenCacheContext
 } from "../context/caches"
 import { StellarContext } from "../context/stellar"
@@ -81,41 +80,35 @@ const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${doma
 
 export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml, boolean]> {
   const stellarTomls = React.useContext(StellarTomlCacheContext)
-  const loadingStates = React.useContext(StellarTomlLoadingCacheContext)
   const resultMap = new Map<string, [StellarToml, boolean]>()
 
-  React.useEffect(
-    () => {
-      for (const domain of domains) {
-        // This is semantically different from `.filter()`-ing above, since this will
-        // prevent double-fetching from domains that were part of this iteration
-        if (stellarTomls.cache.has(domain) || loadingStates.cache.has(domain)) {
-          continue
-        }
-
-        loadingStates.store(domain, FetchState.pending())
-
-        StellarTomlResolver.resolve(domain)
-          .then(stellarTomlData => {
-            loadingStates.delete(domain)
-            stellarTomls.store(domain, stellarTomlData)
-            localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
-          })
-          .catch(error => {
-            loadingStates.store(domain, FetchState.rejected(error))
-          })
+  React.useEffect(() => {
+    for (const domain of domains) {
+      // This is semantically different from `.filter()`-ing the domains before the loop,
+      // since this will prevent double-fetching from domains that were part of this iteration
+      if (stellarTomls.cache.has(domain)) {
+        continue
       }
-    },
-    [domains, loadingStates, stellarTomls]
-  )
+
+      stellarTomls.store(domain, FetchState.pending())
+
+      StellarTomlResolver.resolve(domain)
+        .then(stellarTomlData => {
+          stellarTomls.store(domain, FetchState.resolved(stellarTomlData))
+          localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
+        })
+        .catch(error => {
+          stellarTomls.store(domain, FetchState.rejected(error))
+        })
+    }
+  }, [domains.join(","), stellarTomls])
 
   for (const domain of domains) {
     const cached = stellarTomls.cache.get(domain)
-    const loadingState = loadingStates.cache.get(domain)
 
-    if (cached) {
-      resultMap.set(domain, [cached, false])
-    } else if (loadingState && loadingState.state === "rejected") {
+    if (cached && cached.state === "resolved") {
+      resultMap.set(domain, [cached.data, false])
+    } else if (cached && cached.state === "rejected") {
       const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
       resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, false])
     } else {
@@ -154,24 +147,21 @@ function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): Is
     }
   )
 
-  React.useEffect(
-    () => {
-      for (const accountID of accountIDs) {
-        if (!loadingStates.cache.has(accountID)) {
-          loadingStates.store(accountID, FetchState.pending())
-          horizon
-            .accounts()
-            .accountId(accountID)
-            .call()
-            .then(
-              account => loadingStates.store(accountID, FetchState.resolved(account)),
-              error => loadingStates.store(accountID, FetchState.rejected(error))
-            )
-        }
+  React.useEffect(() => {
+    for (const accountID of accountIDs) {
+      if (!loadingStates.cache.has(accountID)) {
+        loadingStates.store(accountID, FetchState.pending())
+        horizon
+          .accounts()
+          .accountId(accountID)
+          .call()
+          .then(
+            account => loadingStates.store(accountID, FetchState.resolved(account)),
+            error => loadingStates.store(accountID, FetchState.rejected(error))
+          )
       }
-    },
-    [accountIDs.join(",")]
-  )
+    }
+  }, [accountIDs.join(",")])
 
   return issuerAccounts
 }

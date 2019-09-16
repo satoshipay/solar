@@ -56,3 +56,22 @@ export function useOnlineStatus() {
     isOnline
   }
 }
+
+/**
+ * Does the same as React.useMemo(), just reliably. The React docs state that you
+ * should prepare for useMemo() to forget values once in a while in future React
+ * versions.
+ *
+ * Use this hook to set a value once and return it in consecutive renderings.
+ */
+export function useSingleton<T>(init: () => T): T {
+  const isInitializedRef = React.useRef(false)
+  const valueRef = React.useRef<T | undefined>()
+
+  if (!isInitializedRef.current) {
+    valueRef.current = init()
+    isInitializedRef.current = true
+  }
+
+  return valueRef.current!
+}
