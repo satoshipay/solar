@@ -2,7 +2,7 @@ import debounce from "lodash.debounce"
 import LRUCache from "lru-cache"
 import React from "react"
 import { FederationServer, ServerApi } from "stellar-sdk"
-import { AsyncStatus } from "../lib/async"
+import { FetchState } from "../lib/async"
 
 // Just to make the cache types more readable
 type CacheKey = string
@@ -20,9 +20,9 @@ interface CacheContextType<K, V> {
 export type SigningKeyContextType = CacheContextType<PublicKey, Domain>
 export type StellarAddressContextType = CacheContextType<StellarAddress, FederationServer.Record>
 export type StellarAddressReverseContextType = CacheContextType<PublicKey, StellarAddress>
-export type StellarIssuerAccountDataContextType = CacheContextType<PublicKey, AsyncStatus<ServerApi.AccountRecord>>
+export type StellarIssuerAccountDataContextType = CacheContextType<PublicKey, FetchState<ServerApi.AccountRecord>>
 export type StellarTomlContextType = CacheContextType<Domain, any>
-export type StellarTomlLoadingContextType = CacheContextType<Domain, AsyncStatus<never>>
+export type StellarTomlLoadingContextType = CacheContextType<Domain, FetchState<never>>
 export type WebAuthTokenContextType = CacheContextType<CacheKey, JWT>
 
 function useCachingContext<K, V>(cache: LRUCache<K, V>): CacheContextType<K, V> {
@@ -116,7 +116,7 @@ export function StellarAddressesReverseCachingProvider(props: Props) {
 export function StellarIssuerAccountCachingProvider(props: Props) {
   const cache = React.useMemo(
     () =>
-      new LRUCache<PublicKey, AsyncStatus<ServerApi.AccountRecord>>({
+      new LRUCache<PublicKey, FetchState<ServerApi.AccountRecord>>({
         max: 1000,
         maxAge: 10 * 60 * 1000 // 10 mins (issuer account data is assumed to be almost immutable)
       }),
@@ -143,7 +143,7 @@ export function StellarTomlCachingProvider(props: Props) {
 }
 
 export function StellarTomlLoadingCachingProvider(props: Props) {
-  const cache = React.useMemo(() => new LRUCache<Domain, AsyncStatus<never>>(), [])
+  const cache = React.useMemo(() => new LRUCache<Domain, FetchState<never>>(), [])
   const contextValue = useCachingContext(cache)
   return (
     <StellarTomlLoadingCacheContext.Provider value={contextValue}>

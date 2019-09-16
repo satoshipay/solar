@@ -14,7 +14,7 @@ import {
   WebAuthTokenCacheContext
 } from "../context/caches"
 import { StellarContext } from "../context/stellar"
-import { AsyncStatus } from "../lib/async"
+import { FetchState } from "../lib/async"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
 import { AccountRecord } from "../types/well-known-accounts"
@@ -93,7 +93,7 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml
           continue
         }
 
-        loadingStates.store(domain, AsyncStatus.pending())
+        loadingStates.store(domain, FetchState.pending())
 
         StellarTomlResolver.resolve(domain)
           .then(stellarTomlData => {
@@ -102,7 +102,7 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml
             localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
           })
           .catch(error => {
-            loadingStates.store(domain, AsyncStatus.rejected(error))
+            loadingStates.store(domain, FetchState.rejected(error))
           })
       }
     },
@@ -158,14 +158,14 @@ function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): Is
     () => {
       for (const accountID of accountIDs) {
         if (!loadingStates.cache.has(accountID)) {
-          loadingStates.store(accountID, AsyncStatus.pending())
+          loadingStates.store(accountID, FetchState.pending())
           horizon
             .accounts()
             .accountId(accountID)
             .call()
             .then(
-              account => loadingStates.store(accountID, AsyncStatus.resolved(account)),
-              error => loadingStates.store(accountID, AsyncStatus.rejected(error))
+              account => loadingStates.store(accountID, FetchState.resolved(account)),
+              error => loadingStates.store(accountID, FetchState.rejected(error))
             )
         }
       }
@@ -211,7 +211,7 @@ export function useAssetMetadata(assets: Asset[], testnet: boolean) {
 }
 
 export function useWellKnownAccounts() {
-  const [loadingState, setLoadingState] = React.useState<AsyncStatus<AccountRecord[]>>(AsyncStatus.pending())
+  const [loadingState, setLoadingState] = React.useState<FetchState<AccountRecord[]>>(FetchState.pending())
 
   React.useEffect(() => {
     const cachedAccountsString = localStorage.getItem("known-accounts")
@@ -219,12 +219,12 @@ export function useWellKnownAccounts() {
     if (cachedAccountsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
       // use cached accounts if they are not older than 24h
       const accounts = JSON.parse(cachedAccountsString)
-      setLoadingState(AsyncStatus.resolved(accounts))
+      setLoadingState(FetchState.resolved(accounts))
     } else {
       fetch("https://api.stellar.expert/api/explorer/public/directory").then(async response => {
         if (response.status >= 400) {
           setLoadingState(
-            AsyncStatus.rejected(new Error(`Bad response (${response.status}) from stellar.expert server`))
+            FetchState.rejected(new Error(`Bad response (${response.status}) from stellar.expert server`))
           )
         }
 
@@ -233,9 +233,9 @@ export function useWellKnownAccounts() {
           const knownAccounts = json._embedded.records as AccountRecord[]
           localStorage.setItem("known-accounts", JSON.stringify(knownAccounts))
           localStorage.setItem("timestamp", Date.now().toString())
-          setLoadingState(AsyncStatus.resolved(knownAccounts))
+          setLoadingState(FetchState.resolved(knownAccounts))
         } catch (error) {
-          setLoadingState(AsyncStatus.rejected(error))
+          setLoadingState(FetchState.rejected(error))
         }
       })
     }
