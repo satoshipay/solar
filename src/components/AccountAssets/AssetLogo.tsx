@@ -20,6 +20,10 @@ const useAssetLogoStyles = makeStyles({
     fontSize: 12,
     fontWeight: 500
   },
+  longCodeTextAvatar: {
+    justifyContent: "flex-start",
+    padding: "0 2px"
+  },
   darkTextAvatar: {
     background: brandColor.dark,
     border: `1px solid ${brandColor.main15}`
@@ -61,6 +65,9 @@ function AssetLogo(props: Props) {
     )
   } else {
     const applyPadding = props.imageURL && props.imageURL.match(paddedAssetIconsRegex)
+    const assetCode =
+      props.asset.code.length < 5 ? props.asset.code : props.asset.code.substr(0, 2) + props.asset.code.substr(-2)
+
     const avatarClassName = [
       className,
       props.imageURL ? classes.imageAvatar : classes.textAvatar,
@@ -69,7 +76,7 @@ function AssetLogo(props: Props) {
     const iconClassName = [classes.icon, applyPadding ? classes.padding : ""].join(" ")
     return (
       <Avatar alt={name} className={avatarClassName} style={props.style}>
-        {props.imageURL ? <img className={iconClassName} src={props.imageURL} /> : props.asset.code}
+        {props.imageURL ? <img className={iconClassName} src={props.imageURL} /> : assetCode}
       </Avatar>
     )
   }
