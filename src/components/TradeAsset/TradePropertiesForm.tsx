@@ -21,7 +21,7 @@ interface AssetSelectorProps {
 
 function AssetSelector(props: AssetSelectorProps) {
   const onChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const assets = [Asset.native(), ...props.trustlines.map(balancelineToAsset)]
 
       const matchingAsset = assets.find(asset => stringifyAsset(asset) === event.target.value)
