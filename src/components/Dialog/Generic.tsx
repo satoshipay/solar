@@ -9,7 +9,7 @@ import { TransitionProps } from "@material-ui/core/transitions/transition"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
-import { useIsMobile } from "../../hooks"
+import { useIsMobile } from "../../hooks/userinterface"
 import { breakpoints } from "../../theme"
 import ButtonIconLabel from "../ButtonIconLabel"
 

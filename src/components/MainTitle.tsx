@@ -2,7 +2,7 @@ import React from "react"
 import IconButton from "@material-ui/core/IconButton"
 import Typography, { TypographyProps } from "@material-ui/core/Typography"
 import ArrowBackIcon from "@material-ui/icons/KeyboardArrowLeft"
-import { useIsMobile } from "../hooks"
+import { useIsMobile } from "../hooks/userinterface"
 import { Box, HorizontalLayout } from "./Layout/Box"
 
 interface BackButtonProps {

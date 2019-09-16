@@ -1,7 +1,7 @@
 import React from "react"
 import Async from "react-promise"
 import { Server, ServerApi } from "stellar-sdk"
-import { useHorizon } from "../hooks"
+import { useHorizon } from "../hooks/stellar"
 import { getHorizonURL } from "../lib/stellar"
 import { Address } from "./PublicKey"
 

@@ -6,14 +6,9 @@ import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
-import {
-  useAccountData,
-  useAccountOffers,
-  useAssetMetadata,
-  useClipboard,
-  useIsMobile,
-  useStellarToml
-} from "../../hooks"
+import { useAssetMetadata, useStellarToml } from "../../hooks/stellar"
+import { useAccountData, useAccountOffers } from "../../hooks/stellar-subscriptions"
+import { useClipboard, useIsMobile } from "../../hooks/userinterface"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
 import { breakpoints } from "../../theme"

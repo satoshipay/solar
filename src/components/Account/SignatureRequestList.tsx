@@ -1,7 +1,7 @@
 import React from "react"
 import { Transaction } from "stellar-sdk"
 import ListSubheader from "@material-ui/core/ListSubheader"
-import { useRouter } from "../../hooks"
+import { useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import { Account } from "../../context/accounts"

@@ -10,7 +10,7 @@ import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
 import grey from "@material-ui/core/colors/grey"
 import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
-import { useOnlineStatus } from "../hooks"
+import { useOnlineStatus } from "../hooks/util"
 import theme from "../theme"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {

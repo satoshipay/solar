@@ -1,7 +1,7 @@
 import QRCode from "qrcode.react"
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { useClipboard, useIsMobile } from "../../hooks"
+import { useClipboard, useIsMobile } from "../../hooks/userinterface"
 import { Box, VerticalLayout } from "../Layout/Box"
 
 interface Props {

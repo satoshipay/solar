@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Horizon } from "stellar-sdk"
-import { useAccountData } from "../../hooks"
+import { useAccountData } from "../../hooks/stellar-subscriptions"
 import { balancelineToAsset, stringifyAsset } from "../../lib/stellar"
 import InlineLoader from "../InlineLoader"
 

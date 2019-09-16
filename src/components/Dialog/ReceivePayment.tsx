@@ -1,6 +1,6 @@
 import React from "react"
 import { Account } from "../../context/accounts"
-import { useIsMobile } from "../../hooks"
+import { useIsMobile } from "../../hooks/userinterface"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import KeyExportBox from "../Account/KeyExportBox"

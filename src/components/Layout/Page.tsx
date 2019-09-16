@@ -1,6 +1,6 @@
 import React from "react"
 import { Box } from "./Box"
-import { useIsMobile } from "../../hooks"
+import { useIsMobile } from "../../hooks/userinterface"
 import { primaryBackground } from "../../theme"
 
 // tslint:disable-next-line

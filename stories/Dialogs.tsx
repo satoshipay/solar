@@ -4,7 +4,7 @@ import { storiesOf } from "@storybook/react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import TransactionReviewDialog from "../src/components/TransactionReview/TransactionReviewDialog"
 import { Account, AccountsContext, AccountsProvider } from "../src/context/accounts"
-import { useAccountData } from "../src/hooks"
+import { useAccountData } from "../src/hooks/stellar-subscriptions"
 import { createPaymentOperation, createTransaction } from "../src/lib/transaction"
 
 interface DialogContainerProps {

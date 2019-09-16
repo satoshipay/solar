@@ -1,5 +1,5 @@
 import React from "react"
-import { useIsMobile, RefStateObject } from "../../hooks"
+import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import ErrorBoundary from "../ErrorBoundary"
 import { Box, VerticalLayout } from "../Layout/Box"
 
