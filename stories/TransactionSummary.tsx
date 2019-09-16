@@ -3,7 +3,7 @@ import Async from "react-promise"
 import { Asset, Memo, Network, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import TransactionSummary from "../src/components/TransactionReview/TransactionSummary"
-import { useWebAuth } from "../src/hooks"
+import { useWebAuth } from "../src/hooks/stellar"
 
 interface SampleWebAuthProps {
   accountID: string

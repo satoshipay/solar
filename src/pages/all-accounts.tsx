@@ -3,6 +3,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import SettingsIcon from "@material-ui/icons/Settings"
+import DialogBody from "../components/Dialog/DialogBody"
 import TermsAndConditions from "../components/Dialog/TermsAndConditions"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
@@ -10,9 +11,8 @@ import AccountList from "../components/AccountList"
 import MainTitle from "../components/MainTitle"
 import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
-import { useIsMobile, useRouter } from "../hooks"
+import { useIsMobile, useRouter } from "../hooks/userinterface"
 import * as routes from "../routes"
-import DialogBody from "../components/Dialog/DialogBody"
 
 function AllAccountsPage() {
   const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)

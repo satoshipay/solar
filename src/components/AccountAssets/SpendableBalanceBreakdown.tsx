@@ -5,7 +5,7 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
-import { useAccountOffers, ObservedAccountData } from "../../hooks"
+import { useAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { breakpoints } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 

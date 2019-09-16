@@ -8,7 +8,7 @@ import { Box, VerticalLayout } from "../components/Layout/Box"
 import MainTitle from "../components/MainTitle"
 import ToggleSection from "../components/Layout/ToggleSection"
 import { Section } from "../components/Layout/Page"
-import { useIsMobile, useRouter } from "../hooks"
+import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { biometricLockAvailable } from "../platform/settings"
 import * as routes from "../routes"
 

@@ -10,7 +10,7 @@ import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
-import { useIsMobile } from "../../hooks"
+import { useIsMobile } from "../../hooks/userinterface"
 import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
 
 interface ItemProps {

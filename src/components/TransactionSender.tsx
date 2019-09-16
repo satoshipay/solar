@@ -3,7 +3,7 @@ import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
 import { SettingsContext, SettingsContextType } from "../context/settings"
-import { useHorizon } from "../hooks"
+import { useHorizon } from "../hooks/stellar"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
 import {

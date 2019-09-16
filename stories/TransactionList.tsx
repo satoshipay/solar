@@ -3,7 +3,7 @@ import { Transaction } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import { Account } from "../src/context/accounts"
 import TransactionList from "../src/components/Account/TransactionList"
-import { useRecentTransactions } from "../src/hooks"
+import { useRecentTransactions } from "../src/hooks/stellar-subscriptions"
 
 const account: Account = {
   id: "1",

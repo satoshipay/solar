@@ -8,7 +8,7 @@ import {
   TransferServer
 } from "@satoshipay/stellar-sep-6"
 import { trackError } from "../../context/notifications"
-import { useHorizon } from "../../hooks"
+import { useHorizon } from "../../hooks/stellar"
 
 interface ExtendedTransferInfo {
   transferInfo: AssetTransferInfo | EmptyAssetTransferInfo

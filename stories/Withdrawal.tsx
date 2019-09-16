@@ -8,7 +8,7 @@ import AnchorWithdrawalInitForm from "../src/components/Withdrawal/WithdrawalReq
 import WithdrawalKYCRedirect from "../src/components/Withdrawal/WithdrawalKYCRedirect"
 import WithdrawalKYCStatus from "../src/components/Withdrawal/WithdrawalKYCStatus"
 import { Account } from "../src/context/accounts"
-import { RefStateObject } from "../src/hooks"
+import { RefStateObject } from "../src/hooks/userinterface"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
 
