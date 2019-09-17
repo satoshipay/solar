@@ -7,8 +7,8 @@ import { TransitionProps } from "@material-ui/core/transitions/transition"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import FormGroup from "@material-ui/core/FormGroup"
 import Typography from "@material-ui/core/Typography"
-import { VerticalLayout } from "../Layout/Box"
-import { Section } from "../Layout/Page"
+import { VerticalLayout } from "./Layout/Box"
+import { Section } from "./Layout/Page"
 
 const CheckboxLabel = (props: { children: React.ReactNode }) => (
   <span style={{ color: "white", fontSize: "120%" }}>{props.children}</span>
@@ -106,4 +106,4 @@ function TermsAndConditions(props: Props) {
   )
 }
 
-export default TermsAndConditions
+export default React.memo(TermsAndConditions)

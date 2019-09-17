@@ -11,12 +11,12 @@ import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDial
 import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
 import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
-import ReceivePaymentDialog from "../components/Dialog/ReceivePayment"
-import TradeAssetDialog from "../components/Dialog/TradeAsset"
 import QRCodeIcon from "../components/Icon/QRCode"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import CreatePaymentDialog from "../components/Payment/CreatePaymentDialog"
+import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
+import TradeAssetDialog from "../components/TradeAsset/TradeAssetDialog"
 import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
 import { Account, AccountsContext } from "../context/accounts"
 import { useAccountData } from "../hooks/stellar-subscriptions"
@@ -130,13 +130,10 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
     [router.history.push, props.account.id]
   )
 
-  const closeAssetDetails = React.useCallback(
-    () => {
-      // We might need to go back to either "balance details" or "add assets"
-      router.history.goBack()
-    },
-    [navigateTo, router.history]
-  )
+  const closeAssetDetails = React.useCallback(() => {
+    // We might need to go back to either "balance details" or "add assets"
+    router.history.goBack()
+  }, [navigateTo, router.history])
 
   // Let's memo the AccountHeaderCard as it's pretty expensive to re-render
   const headerCard = React.useMemo(
