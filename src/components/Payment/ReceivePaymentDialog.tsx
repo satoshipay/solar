@@ -23,4 +23,4 @@ function ReceivePaymentDialog(props: Props) {
   )
 }
 
-export default ReceivePaymentDialog
+export default React.memo(ReceivePaymentDialog)
