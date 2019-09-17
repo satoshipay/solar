@@ -23,6 +23,7 @@ export const commands = {
   storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
 
   testBioAuthCommand: "test:auth",
+  bioAuthAvailableCommand: "test:auth:available",
 
   openLink: "link:open",
 
@@ -45,6 +46,7 @@ export const events = {
   storedIgnoredSignatureRequestsEvent: "storage:ignoredSignatureRequests:stored",
 
   testBioAuthResponseEvent: "test:auth:result",
+  bioAuthAvailableResponseEvent: "test:auth:available:result",
 
   qrcodeResultEvent: "qr-code:result",
 
