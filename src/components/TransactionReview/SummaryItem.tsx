@@ -66,7 +66,7 @@ export function SummaryItem(props: SummaryItemProps) {
           color="textSecondary"
           style={{
             display: "block",
-            padding: "11px 0",
+            padding: "16px 0",
             fontSize: 18,
             fontWeight: 400,
             lineHeight: "18px",
