@@ -2,12 +2,12 @@ import { commands } from "../../cordova/ipc"
 import { sendCommand } from "./message-handler"
 
 export function isBiometricAuthAvailable() {
-  return new Promise<boolean>(async resolve => {
-    const event = await sendCommand(commands.bioAuthAvailableCommand)
-    if (event.data.available) {
-      resolve(true)
-    } else {
-      resolve(false)
+  return new Promise<boolean>(async (resolve, reject) => {
+    try {
+      const event = await sendCommand(commands.bioAuthAvailableCommand)
+      resolve(event.data.available ? true : false)
+    } catch (error) {
+      reject(error)
     }
   })
 }
