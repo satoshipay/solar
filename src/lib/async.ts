@@ -1,6 +1,6 @@
-export type AsyncStatus<T> = { state: "pending" } | { state: "resolved"; data: T } | { state: "rejected"; error: Error }
+export type FetchState<T> = { state: "pending" } | { state: "resolved"; data: T } | { state: "rejected"; error: Error }
 
-export const AsyncStatus = {
+export const FetchState = {
   pending() {
     return { state: "pending" } as const
   },
