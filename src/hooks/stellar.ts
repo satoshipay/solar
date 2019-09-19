@@ -16,7 +16,6 @@ import { StellarContext } from "../context/stellar"
 import { FetchState } from "../lib/async"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
-import { AccountRecord } from "../types/well-known-accounts"
 
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
@@ -198,47 +197,4 @@ export function useAssetMetadata(assets: Asset[], testnet: boolean) {
   }
 
   return resultMap
-}
-
-export function useWellKnownAccounts() {
-  const [loadingState, setLoadingState] = React.useState<FetchState<AccountRecord[]>>(FetchState.pending())
-
-  React.useEffect(() => {
-    const cachedAccountsString = localStorage.getItem("known-accounts")
-    const timestamp = localStorage.getItem("timestamp")
-    if (cachedAccountsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
-      // use cached accounts if they are not older than 24h
-      const accounts = JSON.parse(cachedAccountsString)
-      setLoadingState(FetchState.resolved(accounts))
-    } else {
-      fetch("https://api.stellar.expert/api/explorer/public/directory").then(async response => {
-        if (response.status >= 400) {
-          setLoadingState(
-            FetchState.rejected(new Error(`Bad response (${response.status}) from stellar.expert server`))
-          )
-        }
-
-        try {
-          const json = await response.json()
-          const knownAccounts = json._embedded.records as AccountRecord[]
-          localStorage.setItem("known-accounts", JSON.stringify(knownAccounts))
-          localStorage.setItem("timestamp", Date.now().toString())
-          setLoadingState(FetchState.resolved(knownAccounts))
-        } catch (error) {
-          setLoadingState(FetchState.rejected(error))
-        }
-      })
-    }
-  }, [])
-
-  return {
-    lookup(publicKey: string): AccountRecord | undefined {
-      if (loadingState.state === "resolved") {
-        const accounts = loadingState.data
-        return accounts.find(account => account.address === publicKey)
-      } else {
-        return undefined
-      }
-    }
-  }
 }
