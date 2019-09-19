@@ -92,10 +92,11 @@ function AddAssetDialog(props: AddAssetDialogProps) {
   const knownAccounts = useWellKnownAccounts()
   const knownAssets = useStellarAssets(props.account.testnet)
   const router = useRouter()
-  const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
-  const [txCreationPending, setTxCreationPending] = React.useState(false)
   const [assetsByIssuer, setAssetsByIssuer] = React.useState<{ [issuer: string]: AssetRecord[] }>({})
+  const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
+  const [toggleStates, setToggleStates] = React.useState<{ [issuer: string]: boolean }>({})
+  const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const openAssetDetails = (asset: Asset) =>
     router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
@@ -154,6 +155,16 @@ function AddAssetDialog(props: AddAssetDialogProps) {
     [assetsByIssuer, knownAccounts]
   )
 
+  const toggleIssuer = React.useCallback(
+    (issuer: string) => {
+      const toggleStatesCopy = { ...toggleStates }
+      toggleStatesCopy[issuer] = !!!toggleStates[issuer]
+
+      setToggleStates(toggleStatesCopy)
+    },
+    [toggleStates]
+  )
+
   React.useEffect(() => {
     if (searchFieldValue !== "") {
       const allAssets = knownAssets.getAll()
@@ -206,33 +217,35 @@ function AddAssetDialog(props: AddAssetDialogProps) {
         </List>
         {Object.keys(assetsByIssuer).map(issuer => (
           <List className={classes.list}>
-            <ListItem button key={issuer}>
+            <ListItem button key={issuer} onClick={() => toggleIssuer(issuer)}>
               <ListItemText
                 primary={<AccountName publicKey={issuer} testnet={props.account.testnet} />}
                 secondary={getIssuerName(issuer)}
                 style={{ textOverflow: "ellipsis", overflow: "hidden" }}
               />
               <ListItemIcon>
-                {/* FIXME */ true ? (
+                {toggleStates[issuer] ? (
                   <ExpandLessIcon className={classes.expandIcon} />
                 ) : (
                   <ExpandMoreIcon className={classes.expandIcon} />
                 )}
               </ListItemIcon>
             </ListItem>
-            {Object.values(
-              assetsByIssuer[issuer].map(asset => (
-                <BalanceDetailsListItem
-                  key={`${asset.issuer}:${asset.code}:${asset.name}:${asset.desc}`}
-                  assetMetadata={undefined}
-                  balance={createBalanceLine(asset.code, asset.issuer)}
-                  hideBalance
-                  onClick={() => openAssetDetails(new Asset(asset.code, asset.issuer))}
-                  style={{ paddingLeft: 24 }}
-                  testnet={props.account.testnet}
-                />
-              ))
-            )}
+            {toggleStates[issuer]
+              ? Object.values(
+                  assetsByIssuer[issuer].map(asset => (
+                    <BalanceDetailsListItem
+                      key={`${asset.issuer}:${asset.code}:${asset.name}:${asset.desc}`}
+                      assetMetadata={undefined}
+                      balance={createBalanceLine(asset.code, asset.issuer)}
+                      hideBalance
+                      onClick={() => openAssetDetails(new Asset(asset.code, asset.issuer))}
+                      style={{ paddingLeft: 24 }}
+                      testnet={props.account.testnet}
+                    />
+                  ))
+                )
+              : undefined}
           </List>
         ))}
       </VerticalLayout>
