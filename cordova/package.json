@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "cordova": "^9.0.0",
-    "cordova-android": "^8.0.0",
+    "cordova-android": "^8.1.0",
     "cordova-clipboard": "^1.2.1",
     "cordova-ios": "^5.0.1",
     "cordova-plugin-customurlscheme": "git+https://github.com/bytelabsco/Custom-URL-scheme.git",
