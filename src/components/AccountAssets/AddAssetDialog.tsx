@@ -16,7 +16,7 @@ import { useStellarAssets, AssetRecord, useWellKnownAccounts } from "../../hooks
 import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
 import * as popularAssets from "../../lib/popularAssets"
-import { stringifyAsset } from "../../lib/stellar"
+import { stringifyAsset, assetRecordToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
@@ -112,10 +112,6 @@ function AddAssetDialog(props: AddAssetDialogProps) {
       walletAccount: props.account
     })
   }
-
-  const createBalanceLine = React.useCallback((code: string, issuer: string) => {
-    return issuer === "native" ? assetToBalance(Asset.native()) : assetToBalance(new Asset(code, issuer))
-  }, [])
 
   const sendTransaction = async (createTransactionToSend: () => Promise<Transaction>) => {
     try {
@@ -235,13 +231,13 @@ function AddAssetDialog(props: AddAssetDialogProps) {
             </ListItem>
             {toggleStates[issuer]
               ? Object.values(
-                  assetsByIssuer[issuer].map(asset => (
+                  assetsByIssuer[issuer].map(assetRecord => (
                     <BalanceDetailsListItem
-                      key={`${asset.issuer}:${asset.code}:${asset.name}:${asset.desc}`}
+                      key={`${assetRecord.issuer}:${assetRecord.code}:${assetRecord.name}:${assetRecord.desc}`}
                       assetMetadata={undefined}
-                      balance={createBalanceLine(asset.code, asset.issuer)}
+                      balance={assetToBalance(assetRecordToAsset(assetRecord))}
                       hideBalance
-                      onClick={() => openAssetDetails(new Asset(asset.code, asset.issuer))}
+                      onClick={() => openAssetDetails(assetRecordToAsset(assetRecord))}
                       style={{ paddingLeft: 24 }}
                       testnet={props.account.testnet}
                     />

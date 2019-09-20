@@ -1,6 +1,7 @@
 import BigNumber from "big.js"
 import fetch from "isomorphic-fetch"
 import { xdr, Asset, Horizon, Keypair, NotFoundError, Server, ServerApi, Transaction } from "stellar-sdk"
+import { AssetRecord } from "../hooks/stellar-ecosystem"
 import { joinURL } from "./url"
 
 export interface SmartFeePreset {
@@ -132,14 +133,10 @@ export function getAccountMinimumBalance(
 }
 
 export function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
-  return balances.map(
-    balance =>
-      balance.asset_type === "native"
-        ? Asset.native()
-        : new Asset(
-            (balance as Horizon.BalanceLineAsset).asset_code,
-            (balance as Horizon.BalanceLineAsset).asset_issuer
-          )
+  return balances.map(balance =>
+    balance.asset_type === "native"
+      ? Asset.native()
+      : new Asset((balance as Horizon.BalanceLineAsset).asset_code, (balance as Horizon.BalanceLineAsset).asset_issuer)
   )
 }
 
@@ -166,6 +163,10 @@ export function offerAssetToAsset(offerAsset: ServerApi.OfferAsset) {
   return offerAsset.asset_type === "native"
     ? Asset.native()
     : new Asset(offerAsset.asset_code as string, offerAsset.asset_issuer as string)
+}
+
+export function assetRecordToAsset(assetRecord: AssetRecord) {
+  return assetRecord.issuer === "native" ? Asset.native() : new Asset(assetRecord.code, assetRecord.issuer)
 }
 
 export function signatureMatchesPublicKey(signature: xdr.DecoratedSignature, publicKey: string): boolean {
