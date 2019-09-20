@@ -175,6 +175,8 @@ function AddAssetDialog(props: AddAssetDialogProps) {
         const assetsGroupedByIssuer = groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
         setAssetsByIssuer(assetsGroupedByIssuer)
       }
+    } else {
+      setAssetsByIssuer({})
     }
   }, [searchFieldValue])
 
