@@ -221,7 +221,9 @@ function AddAssetDialog(props: AddAssetDialogProps) {
               <ListItemText
                 primary={<AccountName publicKey={issuer} testnet={props.account.testnet} />}
                 secondary={getIssuerName(issuer)}
-                style={{ textOverflow: "ellipsis", overflow: "hidden" }}
+                secondaryTypographyProps={{
+                  style: { overflow: "hidden", textOverflow: "ellipsis" }
+                }}
               />
               <ListItemIcon>
                 {toggleStates[issuer] ? (
