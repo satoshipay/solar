@@ -25,12 +25,6 @@
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest">
             <manifest xmlns:tools="http://schemas.android.com/tools" />
         </edit-config>
-        <edit-config file="app/src/main/AndroidManifest.xml" mode="overwrite" target="/manifest/uses-sdk">
-            <uses-sdk android:targetSdkVersion="28" tools:overrideLibrary="org.apache.cordova" />
-        </edit-config>
-        <edit-config file="CordovaLib/AndroidManifest.xml" mode="overwrite" target="/manifest/uses-sdk">
-            <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="28"/>
-        </edit-config>
 
         <icon background="res/icon/android/adaptiveicon/mipmap-mdpi/ic_launcher_background.png" density="mdpi" foreground="res/icon/android/adaptiveicon/mipmap-mdpi/ic_launcher_foreground.png" />
         <icon background="res/icon/android/adaptiveicon/mipmap-hdpi/ic_launcher_background.png" density="hdpi" foreground="res/icon/android/adaptiveicon/mipmap-hdpi/ic_launcher_foreground.png" />
