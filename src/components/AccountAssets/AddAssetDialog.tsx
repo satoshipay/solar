@@ -162,7 +162,7 @@ function AddAssetDialog(props: AddAssetDialogProps) {
   const router = useRouter()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
-  const [toggleStates, setToggleStates] = React.useState<{ [issuer: string]: boolean }>({})
+  const [expandedIssuers, setExpandedIssuers] = React.useState<string[]>([])
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const openAssetDetails = (asset: Asset) =>
@@ -206,12 +206,11 @@ function AddAssetDialog(props: AddAssetDialogProps) {
 
   const toggleIssuer = React.useCallback(
     (issuer: string) => {
-      const toggleStatesCopy = { ...toggleStates }
-      toggleStatesCopy[issuer] = !!!toggleStates[issuer]
-
-      setToggleStates(toggleStatesCopy)
+      setExpandedIssuers(expanded =>
+        expanded.includes(issuer) ? expanded.filter(iss => iss !== issuer) : [...expanded, issuer]
+      )
     },
-    [toggleStates]
+    [expandedIssuers]
   )
 
   const assetsByIssuer = React.useMemo(() => {
@@ -249,7 +248,7 @@ function AddAssetDialog(props: AddAssetDialogProps) {
             <List className={classes.list}>
               <SearchResults
                 assetRecords={assetsByIssuer[issuer]}
-                expanded={toggleStates[issuer]}
+                expanded={expandedIssuers.includes(issuer)}
                 issuer={issuer}
                 onOpenAssetDetails={openAssetDetails}
                 testnet={props.account.testnet}
