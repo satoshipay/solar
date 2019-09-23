@@ -1,6 +1,7 @@
 const { app, autoUpdater, dialog, Notification } = require("electron")
 const isDev = require("electron-is-dev")
 const fetch = require("isomorphic-fetch")
+const os = require("os")
 const { readInstallationID } = require("./storage")
 const { URL } = require("url")
 
@@ -19,7 +20,7 @@ async function checkForUpdates() {
   const feedURL = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
 
   const headers = {
-    "user-agent": `SatoshiPaySolar/${app.getVersion()}`,
+    "user-agent": `SatoshiPaySolar/${app.getVersion()} ${os.platform()}/${os.release()}`,
     "x-user-staging-id": installationID
   }
 
