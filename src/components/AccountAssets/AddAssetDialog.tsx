@@ -12,18 +12,18 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAssetMetadata } from "../../hooks/stellar"
-import { useStellarAssets, AssetRecord, useWellKnownAccounts } from "../../hooks/stellar-ecosystem"
+import { useStellarAssets, AssetRecord } from "../../hooks/stellar-ecosystem"
 import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
 import * as popularAssets from "../../lib/popularAssets"
-import { stringifyAsset, assetRecordToAsset } from "../../lib/stellar"
+import { assetRecordToAsset, stringifyAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
+import { AccountName } from "../Fetchers"
 import { SearchField } from "../Form/FormFields"
 import { VerticalLayout } from "../Layout/Box"
-import { AccountName } from "../Fetchers"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
@@ -55,10 +55,80 @@ function groupAssets(values: AssetRecord[], createKey: (arg: AssetRecord) => str
   return map
 }
 
+interface PopularAssetsProps {
+  assets: Asset[]
+  onOpenAssetDetails: (asset: Asset) => void
+  testnet: boolean
+}
+
+const PopularAssets = React.memo(function PopularAssets(props: PopularAssetsProps) {
+  const assetMetadata = useAssetMetadata(props.assets, props.testnet)
+
+  return (
+    <>
+      {props.assets.map(asset => {
+        const [metadata] = assetMetadata.get(asset) || [undefined, false]
+        return (
+          <BalanceDetailsListItem
+            key={stringifyAsset(asset)}
+            assetMetadata={metadata}
+            balance={assetToBalance(asset)}
+            hideBalance
+            onClick={() => props.onOpenAssetDetails(asset)}
+            testnet={props.testnet}
+          />
+        )
+      })}
+    </>
+  )
+})
+
+interface SearchResultsProps {
+  assetRecords: AssetRecord[]
+  expanded: boolean
+  issuer: string
+  onOpenAssetDetails: (asset: Asset) => void
+  testnet: boolean
+  toggleExpansion: (issuer: string) => void
+}
+
+const SearchResults = React.memo(function SearchResults(props: SearchResultsProps) {
+  return (
+    <>
+      <ListItem button key={props.issuer} onClick={() => props.toggleExpansion(props.issuer)}>
+        <ListItemText
+          primary={<AccountName publicKey={props.issuer} testnet={props.testnet} />}
+          secondary={
+            props.assetRecords.length === 1 ? `One matching asset` : `${props.assetRecords.length} matching assets`
+          }
+          secondaryTypographyProps={{
+            style: { overflow: "hidden", textOverflow: "ellipsis" }
+          }}
+        />
+        <ListItemIcon>
+          {props.expanded ? <ExpandLessIcon style={{ fontSize: 32 }} /> : <ExpandMoreIcon style={{ fontSize: 32 }} />}
+        </ListItemIcon>
+      </ListItem>
+      {props.expanded
+        ? Object.values(
+            props.assetRecords.map(assetRecord => (
+              <BalanceDetailsListItem
+                key={`${assetRecord.issuer}:${assetRecord.code}:${assetRecord.name}:${assetRecord.desc}`}
+                assetMetadata={undefined}
+                balance={assetToBalance(assetRecordToAsset(assetRecord))}
+                hideBalance
+                onClick={() => props.onOpenAssetDetails(assetRecordToAsset(assetRecord))}
+                style={{ paddingLeft: 24 }}
+                testnet={props.testnet}
+              />
+            ))
+          )
+        : undefined}
+    </>
+  )
+})
+
 const useAddAssetStyles = makeStyles({
-  expandIcon: {
-    fontSize: 32
-  },
   list: {
     flexGrow: 1,
     marginTop: 16,
@@ -87,12 +157,9 @@ interface AddAssetDialogProps {
 
 function AddAssetDialog(props: AddAssetDialogProps) {
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
-  const assetMetadata = useAssetMetadata(assets, props.account.testnet)
   const classes = useAddAssetStyles()
-  const knownAccounts = useWellKnownAccounts()
   const knownAssets = useStellarAssets(props.account.testnet)
   const router = useRouter()
-  const [assetsByIssuer, setAssetsByIssuer] = React.useState<{ [issuer: string]: AssetRecord[] }>({})
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
   const [toggleStates, setToggleStates] = React.useState<{ [issuer: string]: boolean }>({})
@@ -137,20 +204,6 @@ function AddAssetDialog(props: AddAssetDialogProps) {
     setSearchFieldValue(event.target.value)
   }, [])
 
-  const getIssuerName = React.useCallback(
-    (issuerKey: string) => {
-      const knownAccount = knownAccounts.lookup(issuerKey)
-      if (knownAccount) {
-        return knownAccount.name
-      } else {
-        const assetRecords = assetsByIssuer[issuerKey]
-        const recordWithIssuerName = assetRecords.find(assetRecord => assetRecord.issuer_detail.name !== "")
-        return recordWithIssuerName ? recordWithIssuerName.issuer_detail.name : issuerKey
-      }
-    },
-    [assetsByIssuer, knownAccounts]
-  )
-
   const toggleIssuer = React.useCallback(
     (issuer: string) => {
       const toggleStatesCopy = { ...toggleStates }
@@ -161,23 +214,16 @@ function AddAssetDialog(props: AddAssetDialogProps) {
     [toggleStates]
   )
 
-  React.useEffect(() => {
-    if (searchFieldValue !== "") {
-      const allAssets = knownAssets.getAll()
-      if (allAssets) {
-        const filteredAssets = allAssets.filter(
-          asset =>
-            asset.code.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
-            asset.name.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
-            asset.issuer.toLowerCase().startsWith(searchFieldValue.toLowerCase())
-        )
+  const assetsByIssuer = React.useMemo(() => {
+    const allAssets = knownAssets.getAll() || []
+    const filteredAssets = allAssets.filter(
+      asset =>
+        asset.code.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
+        asset.name.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
+        asset.issuer.toLowerCase().startsWith(searchFieldValue.toLowerCase())
+    )
 
-        const assetsGroupedByIssuer = groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
-        setAssetsByIssuer(assetsGroupedByIssuer)
-      }
-    } else {
-      setAssetsByIssuer({})
-    }
+    return groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
   }, [searchFieldValue])
 
   return (
@@ -198,56 +244,28 @@ function AddAssetDialog(props: AddAssetDialogProps) {
             &nbsp;&nbsp;Add Custom Asset
           </ButtonListItem>
         </List>
-        <List className={classes.list}>
-          {notYetAddedAssets.map(asset => {
-            const [metadata] = assetMetadata.get(asset) || [undefined, false]
-            return (
-              <BalanceDetailsListItem
-                key={stringifyAsset(asset)}
-                assetMetadata={metadata}
-                balance={assetToBalance(asset)}
-                hideBalance
-                onClick={() => openAssetDetails(asset)}
+        {searchFieldValue ? (
+          Object.keys(assetsByIssuer).map(issuer => (
+            <List className={classes.list}>
+              <SearchResults
+                assetRecords={assetsByIssuer[issuer]}
+                expanded={toggleStates[issuer]}
+                issuer={issuer}
+                onOpenAssetDetails={openAssetDetails}
                 testnet={props.account.testnet}
+                toggleExpansion={toggleIssuer}
               />
-            )
-          })}
-        </List>
-        {Object.keys(assetsByIssuer).map(issuer => (
+            </List>
+          ))
+        ) : (
           <List className={classes.list}>
-            <ListItem button key={issuer} onClick={() => toggleIssuer(issuer)}>
-              <ListItemText
-                primary={<AccountName publicKey={issuer} testnet={props.account.testnet} />}
-                secondary={getIssuerName(issuer)}
-                secondaryTypographyProps={{
-                  style: { overflow: "hidden", textOverflow: "ellipsis" }
-                }}
-              />
-              <ListItemIcon>
-                {toggleStates[issuer] ? (
-                  <ExpandLessIcon className={classes.expandIcon} />
-                ) : (
-                  <ExpandMoreIcon className={classes.expandIcon} />
-                )}
-              </ListItemIcon>
-            </ListItem>
-            {toggleStates[issuer]
-              ? Object.values(
-                  assetsByIssuer[issuer].map(assetRecord => (
-                    <BalanceDetailsListItem
-                      key={`${assetRecord.issuer}:${assetRecord.code}:${assetRecord.name}:${assetRecord.desc}`}
-                      assetMetadata={undefined}
-                      balance={assetToBalance(assetRecordToAsset(assetRecord))}
-                      hideBalance
-                      onClick={() => openAssetDetails(assetRecordToAsset(assetRecord))}
-                      style={{ paddingLeft: 24 }}
-                      testnet={props.account.testnet}
-                    />
-                  ))
-                )
-              : undefined}
+            <PopularAssets
+              assets={notYetAddedAssets}
+              onOpenAssetDetails={openAssetDetails}
+              testnet={props.account.testnet}
+            />
           </List>
-        ))}
+        )}
       </VerticalLayout>
       <Dialog
         open={customTrustlineDialogOpen}
