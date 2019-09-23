@@ -1,8 +1,10 @@
-const { app, autoUpdater, Notification } = require("electron")
+const { app, autoUpdater, dialog, Notification } = require("electron")
 const isDev = require("electron-is-dev")
 const fetch = require("isomorphic-fetch")
 const { readInstallationID } = require("./storage")
 const { URL } = require("url")
+
+const showMessageBox = options => new Promise(resolve => dialog.showMessageBox(options, resolve))
 
 const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
 
@@ -39,7 +41,31 @@ async function checkForUpdates() {
       ...headers
     }
 
-    autoUpdater.checkForUpdates()
+    await startUpdating(updateInfo.name)
+  }
+}
+
+async function startUpdating(version) {
+  const progressNotification = showProgressNotification(version)
+  autoUpdater.checkForUpdates()
+
+  await new Promise(resolve => {
+    autoUpdater.once("update-downloaded", resolve)
+  })
+
+  progressNotification.close()
+
+  const response = await showMessageBox({
+    type: "info",
+    buttons: ["Restart", "Later"],
+    cancelId: 1,
+    defaultId: 0,
+    title: "Restart the Solar app",
+    message: "Solar needs to quit and re-open to apply the update."
+  })
+
+  if (response === 0) {
+    autoUpdater.quitAndInstall()
   }
 }
 
@@ -52,6 +78,20 @@ function showUpdateNotification(version) {
   notification.show()
 
   return new Promise(resolve => {
-    notification.on("click", () => resolve("click"))
+    notification.once("click", () => {
+      notification.close()
+      resolve("click")
+    })
   })
+}
+
+function showProgressNotification(version) {
+  const notification = new Notification({
+    title: `Updating Solar…`,
+    subtitle: `Download of ${version} in progress.`,
+    silent: true
+  })
+
+  notification.show()
+  return notification
 }
