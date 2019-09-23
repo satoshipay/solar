@@ -1,14 +1,10 @@
-const { app, Notification } = require("electron")
+const { app, autoUpdater, Notification } = require("electron")
+const isDev = require("electron-is-dev")
 const fetch = require("isomorphic-fetch")
-const open = require("opn")
 const { readInstallationID } = require("./storage")
 const { URL } = require("url")
 
-const owner = "satoshipay"
-const repo = "solar"
-
-const updateEndpoint =
-  process.env.NODE_ENV === "production" ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
+const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
 
 checkForUpdates().catch(console.error)
 
@@ -18,7 +14,7 @@ async function checkForUpdates() {
   }
 
   const installationID = readInstallationID()
-  const feedURL = new URL(`/update/${process.platform}/${/*app.getVersion()*/ "0.20.0"}`, updateEndpoint).toString()
+  const feedURL = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
 
   const headers = {
     "user-agent": `SatoshiPaySolar/${app.getVersion()}`,
@@ -30,52 +26,32 @@ async function checkForUpdates() {
   const updateAvailable = response.status === 200 // will see status 204 if local version is latest
   const updateInfo = response.status === 200 ? await response.json() : undefined
 
-  console.debug(updateAvailable ? `Update available: ${updateInfo.version}` : `No update available`)
+  console.debug(updateAvailable ? `Update available: ${updateInfo.name}` : `No update available`)
 
   if (!updateAvailable || !Notification.isSupported()) return
 
-  const release = await fetchLatestRelease(owner, repo)
-  const urlToOpen = selectURLToOpen(release)
+  const userAction = await showUpdateNotification(updateInfo.name)
 
-  showUpdateNotification(release.name, urlToOpen)
-}
+  if (userAction === "click") {
+    autoUpdater.setFeedURL(feedURL)
+    autoUpdater.requestHeaders = {
+      ...autoUpdater.requestHeaders,
+      ...headers
+    }
 
-async function fetchLatestRelease(owner, repo) {
-  const releaseResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`)
-
-  if (!releaseResponse.ok) {
-    throw new Error(
-      `Could not fetch latest release data from GitHub. ` + `Request failed with status ${releaseResponse.status}.`
-    )
-  }
-
-  return releaseResponse.json()
-}
-
-function selectURLToOpen(releaseData) {
-  const downloadURLs = releaseData.assets.map(asset => asset.browser_download_url)
-
-  if (process.platform === "darwin") {
-    const dmgURL = downloadURLs.find(url => url.match(/\.dmg$/i))
-    return dmgURL || releaseData.html_url
-  } else if (process.platform === "win32") {
-    const exeURL = downloadURLs.find(url => url.match(/\.exe$/i))
-    return exeURL || releaseData.html_url
-  } else {
-    return releaseData.html_url
+    autoUpdater.checkForUpdates()
   }
 }
 
-function showUpdateNotification(version, urlToOpen) {
+function showUpdateNotification(version) {
   const notification = new Notification({
     title: `New version ${version} of Solar available`,
-    subtitle: `Click to download the update.`
-  })
-
-  notification.on("click", () => {
-    open("https://solarwallet.io/downloading?download=false")
-    open(urlToOpen)
+    subtitle: `Click to update.`
   })
 
   notification.show()
+
+  return new Promise(resolve => {
+    notification.on("click", () => resolve("click"))
+  })
 }
