@@ -49,6 +49,7 @@
     "key-store": "^1.1.0",
     "nanoid": "^2.1.1",
     "opn": "^5.5.0",
+    "react-window": "^1.8.5",
     "stellar-base": "^1.1.2",
     "stellar-sdk": "^2.3.0"
   },
@@ -78,6 +79,7 @@
     "@types/react-qr-reader": "^2.1.2",
     "@types/react-router": "^4.4.5",
     "@types/react-router-dom": "^4.3.5",
+    "@types/react-window": "^1.8.1",
     "@types/smoothscroll-polyfill": "^0.3.1",
     "@types/stellar-base": "^0.10.2",
     "@types/storybook__addon-actions": "^3.4.3",
