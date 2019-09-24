@@ -26,12 +26,32 @@ export interface AssetRecord {
   type: string
 }
 
+function byAccountCountSorter(a: AssetRecord, b: AssetRecord) {
+  return b.num_accounts - a.num_accounts
+}
+
+function trimAccountRecord(record: AssetRecord) {
+  return {
+    code: record.code,
+    desc: record.desc,
+    issuer: record.issuer,
+    issuer_detail: {
+      name: record.issuer_detail.name,
+      url: record.issuer_detail.url
+    },
+    name: record.name,
+    num_accounts: record.num_accounts,
+    status: record.status,
+    type: record.type
+  }
+}
+
 export function useWellKnownAccounts() {
   const [loadingState, setLoadingState] = React.useState<FetchState<AccountRecord[]>>(FetchState.pending())
 
   React.useEffect(() => {
     const cachedAccountsString = localStorage.getItem("known-accounts")
-    const timestamp = localStorage.getItem("timestamp")
+    const timestamp = localStorage.getItem("known-accounts:timestamp")
     if (cachedAccountsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
       // use cached accounts if they are not older than 24h
       const accounts = JSON.parse(cachedAccountsString)
@@ -48,7 +68,7 @@ export function useWellKnownAccounts() {
           const json = await response.json()
           const knownAccounts = json._embedded.records as AccountRecord[]
           localStorage.setItem("known-accounts", JSON.stringify(knownAccounts))
-          localStorage.setItem("timestamp", Date.now().toString())
+          localStorage.setItem("known-accounts:timestamp", Date.now().toString())
           setLoadingState(FetchState.resolved(knownAccounts))
         } catch (error) {
           setLoadingState(FetchState.rejected(error))
@@ -79,7 +99,8 @@ export function useStellarAssets(testnet: boolean) {
 
   React.useEffect(() => {
     const cachedAssetsString = localStorage.getItem(storageKey)
-    const timestamp = localStorage.getItem("assets-timestamp")
+    const timestamp = localStorage.getItem("known-assets:timestamp")
+
     if (cachedAssetsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
       // use cached assets if they are not older than 24h
       const assets = JSON.parse(cachedAssetsString)
@@ -95,21 +116,10 @@ export function useStellarAssets(testnet: boolean) {
         try {
           const json = await response.json()
           const allAssets = json.assets as AssetRecord[]
-          const abbreviatedAssets = allAssets.map(record => ({
-            code: record.code,
-            desc: record.desc,
-            issuer: record.issuer,
-            issuer_detail: {
-              name: record.issuer_detail.name,
-              url: record.issuer_detail.url
-            },
-            name: record.name,
-            num_accounts: record.num_accounts,
-            status: record.status,
-            type: record.type
-          }))
+          const abbreviatedAssets = allAssets.sort(byAccountCountSorter).map(record => trimAccountRecord(record))
+
           localStorage.setItem(storageKey, JSON.stringify(abbreviatedAssets))
-          localStorage.setItem("assets-timestamp", Date.now().toString())
+          localStorage.setItem("known-assets:timestamp", Date.now().toString())
           setLoadingState(FetchState.resolved(abbreviatedAssets))
         } catch (error) {
           setLoadingState(FetchState.rejected(error))
