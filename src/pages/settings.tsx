@@ -119,7 +119,7 @@ function SettingsPage() {
       </Section>
       <Section bottom style={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
         <VerticalLayout height="100%" padding="0 8px" grow>
-          <Box grow margin={isSmallScreen ? 0 : "24px 12px"}>
+          <Box grow margin={isSmallScreen ? 0 : "24px 12px"} overflowY="auto">
             <Settings />
           </Box>
           <Box grow={0} margin="16px 0 0">
