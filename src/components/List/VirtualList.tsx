@@ -13,9 +13,8 @@ export function FixedSizeList(props: FixedSizeListProps) {
     return null
   }
 
-  const containerRect = props.container.getBoundingClientRect()
-  const height = containerRect.height
-  const width = containerRect.width
+  const height = props.container.clientHeight
+  const width = props.container.clientWidth
 
   return (
     <Window.FixedSizeList height={height} itemCount={props.itemCount} itemSize={props.itemSize} width={width}>

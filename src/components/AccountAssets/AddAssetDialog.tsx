@@ -3,11 +3,9 @@ import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stell
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
-import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
 import AddIcon from "@material-ui/icons/Add"
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAssetMetadata } from "../../hooks/stellar"
@@ -29,6 +27,16 @@ import TransactionSender from "../TransactionSender"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
 import CustomTrustlineDialog from "./CustomTrustline"
+
+function assetRecordMatches(assetRecord: AssetRecord, search: string) {
+  search = search.toLowerCase()
+  return assetRecord.code.toLowerCase().startsWith(search) || assetRecord.name.toLowerCase().startsWith(search)
+}
+
+function issuerMatches(issuerDetails: AssetRecord["issuer_detail"], search: string) {
+  search = search.toLowerCase()
+  return issuerDetails.name.toLowerCase().startsWith(search)
+}
 
 function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
   return {
@@ -83,11 +91,18 @@ const PopularAssets = React.memo(function PopularAssets(props: PopularAssetsProp
   )
 })
 
+const searchResultRowHeight = 73
+
 const useSearchResultStyles = makeStyles({
   assetItem: {
-    borderRadius: "0 !important"
+    borderRadius: "0 !important",
+    height: searchResultRowHeight
   },
   issuerItem: {
+    background: "white",
+    borderRadius: 8,
+    height: searchResultRowHeight,
+
     "&:not($first)": {
       borderTopLeftRadius: "0 !important",
       borderTopRightRadius: "0 !important"
@@ -108,7 +123,9 @@ function createSearchResultRow(
   assetsByIssuer: Record<string, AssetRecord[]>,
   openAssetDetails: (asset: Asset) => void
 ) {
+  // tslint:disable-next-line interface-over-type-literal
   type AssetItemRecord = { type: "asset"; issuer: string; record: AssetRecord }
+  // tslint:disable-next-line interface-over-type-literal
   type IssuerItemRecord = { type: "issuer"; issuer: string }
 
   const itemRenderMap: Array<AssetItemRecord | IssuerItemRecord> = []
@@ -137,7 +154,6 @@ function createSearchResultRow(
         {item.type === "issuer" ? (
           <ListItem
             key={item.issuer}
-            button
             className={[
               classes.issuerItem,
               props.index === 0 ? classes.first : "",
@@ -147,7 +163,10 @@ function createSearchResultRow(
             <ListItemText
               primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
               secondary={
-                assetsByIssuer[item.issuer].length === 1
+                (assetsByIssuer[item.issuer][0]
+                  ? assetsByIssuer[item.issuer][0].issuer_detail.url ||
+                    assetsByIssuer[item.issuer][0].issuer_detail.name
+                  : undefined) || assetsByIssuer[item.issuer].length
                   ? `One matching asset`
                   : `${assetsByIssuer[item.issuer].length} matching assets`
               }
@@ -155,9 +174,6 @@ function createSearchResultRow(
                 style: { overflow: "hidden", textOverflow: "ellipsis" }
               }}
             />
-            <ListItemIcon>
-              <ExpandMoreIcon style={{ fontSize: 32 }} />
-            </ListItemIcon>
           </ListItem>
         ) : null}
         {item.type === "asset" ? (
@@ -169,7 +185,7 @@ function createSearchResultRow(
             }`}
             hideBalance
             onClick={() => openAssetDetails(assetRecordToAsset(item.record))}
-            style={{ paddingLeft: 24 }}
+            style={{ paddingLeft: 32 }}
             testnet={account.testnet}
           />
         ) : null}
@@ -182,9 +198,10 @@ function createSearchResultRow(
 }
 
 const useAddAssetStyles = makeStyles({
+  grow: {
+    flexGrow: 1
+  },
   list: {
-    background: "white",
-    flexGrow: 1,
     marginTop: 16,
     padding: 0
   },
@@ -212,12 +229,11 @@ interface AddAssetDialogProps {
 const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogProps) {
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
   const classes = useAddAssetStyles()
-  const containerRef = React.useRef<HTMLDivElement | null>(null)
+  const containerRef = React.useRef<HTMLUListElement | null>(null)
   const knownAssets = useStellarAssets(props.account.testnet)
   const router = useRouter()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
-  const [expandedIssuers, setExpandedIssuers] = React.useState<string[]>([])
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const openAssetDetails = (asset: Asset) =>
@@ -259,22 +275,11 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
     setSearchFieldValue(event.target.value)
   }, [])
 
-  const toggleIssuer = React.useCallback(
-    (issuer: string) => {
-      setExpandedIssuers(expanded =>
-        expanded.includes(issuer) ? expanded.filter(iss => iss !== issuer) : [...expanded, issuer]
-      )
-    },
-    [expandedIssuers]
-  )
-
   const assetsByIssuer = React.useMemo(() => {
     const allAssets = knownAssets.getAll() || []
     const filteredAssets = allAssets.filter(
       assetRecord =>
-        assetRecord.code.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
-        assetRecord.name.toLowerCase().startsWith(searchFieldValue.toLowerCase()) ||
-        assetRecord.issuer_detail.name.toLowerCase().startsWith(searchFieldValue.toLowerCase())
+        assetRecordMatches(assetRecord, searchFieldValue) || issuerMatches(assetRecord.issuer_detail, searchFieldValue)
     )
 
     return groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
@@ -287,7 +292,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
 
   return (
     <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
-      <VerticalLayout margin="16px 0 0" ref={containerRef}>
+      <VerticalLayout grow margin="16px 0 0">
         <SearchField
           autoFocus
           className={classes.searchField}
@@ -305,13 +310,17 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
           </ButtonListItem>
         </List>
         {searchFieldValue ? (
-          <div className={classes.list}>
-            <FixedSizeList container={containerRef.current} itemCount={SearchResultRow.count} itemSize={73}>
+          <ul className={`${classes.list} ${classes.grow}`} ref={containerRef}>
+            <FixedSizeList
+              container={containerRef.current}
+              itemCount={SearchResultRow.count}
+              itemSize={searchResultRowHeight}
+            >
               {SearchResultRow}
             </FixedSizeList>
-          </div>
+          </ul>
         ) : (
-          <List className={classes.list}>
+          <List className={`${classes.list} ${classes.grow}`}>
             <PopularAssets
               assets={notYetAddedAssets}
               onOpenAssetDetails={openAssetDetails}
