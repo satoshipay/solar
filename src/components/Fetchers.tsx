@@ -2,6 +2,7 @@ import React from "react"
 import Async from "react-promise"
 import { Server, ServerApi } from "stellar-sdk"
 import { useHorizon } from "../hooks/stellar"
+import { useAccountData } from "../hooks/stellar-subscriptions"
 import { getHorizonURL } from "../lib/stellar"
 import { Address } from "./PublicKey"
 
@@ -51,23 +52,12 @@ interface AccountNameProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
-  const horizon = useHorizon(props.testnet)
-  const fallback = React.useMemo(() => <Address address={props.publicKey} variant="short" />, [props.publicKey])
-  return (
-    <Memoized
-      cacheKey={`AccountData:${props.publicKey}`}
-      fetch={() =>
-        horizon
-          .accounts()
-          .accountId(props.publicKey)
-          .call()
-      }
-      then={(accountData: any) =>
-        accountData.home_domain ? <span style={{ userSelect: "text" }}>{accountData.home_domain}</span> : fallback
-      }
-      catch={() => fallback}
-      pending={fallback}
-    />
+  const accountData = useAccountData(props.publicKey, props.testnet)
+
+  return accountData.home_domain ? (
+    <span style={{ userSelect: "text" }}>{accountData.home_domain}</span>
+  ) : (
+    <Address address={props.publicKey} variant="short" />
   )
 })
 
