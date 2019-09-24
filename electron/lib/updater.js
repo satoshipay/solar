@@ -1,56 +1,98 @@
-const { Notification } = require("electron")
+const { app, autoUpdater, dialog, Notification } = require("electron")
+const isDev = require("electron-is-dev")
 const fetch = require("isomorphic-fetch")
-const open = require("opn")
-const pkg = require("../../package.json")
+const os = require("os")
+const { readInstallationID } = require("./storage")
+const { URL } = require("url")
 
-const owner = "satoshipay"
-const repo = "solar"
+const showMessageBox = options => new Promise(resolve => dialog.showMessageBox(options, resolve))
+
+const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
 
 checkForUpdates().catch(console.error)
 
 async function checkForUpdates() {
-  const release = await fetchLatestRelease(owner, repo)
-  const releaseIsNewer = release.name.replace(/^v/, "") > pkg.version
+  if (!updateEndpoint) {
+    return
+  }
 
-  console.debug(`Latest release: ${release.name}`)
+  const installationID = readInstallationID()
+  const feedURL = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
 
-  const urlToOpen = selectURLToOpen(release)
+  const headers = {
+    "user-agent": `SatoshiPaySolar/${app.getVersion()} ${os.platform()}/${os.release()}`,
+    "x-user-staging-id": installationID
+  }
 
-  if (releaseIsNewer && Notification.isSupported()) {
-    const notification = new Notification({
-      title: `New version ${release.name} of Solar available`,
-      subtitle: `Click to download the update.`
-    })
-    notification.on("click", () => {
-      open("https://solarwallet.io/downloading?download=false")
-      open(urlToOpen)
-    })
-    notification.show()
+  const response = await fetch(feedURL, { headers })
+
+  const updateAvailable = response.status === 200 // will see status 204 if local version is latest
+  const updateInfo = response.status === 200 ? await response.json() : undefined
+
+  console.debug(updateAvailable ? `Update available: ${updateInfo.name}` : `No update available`)
+
+  if (!updateAvailable || !Notification.isSupported()) return
+
+  const userAction = await showUpdateNotification(updateInfo.name)
+
+  if (userAction === "click") {
+    autoUpdater.setFeedURL(feedURL)
+    autoUpdater.requestHeaders = {
+      ...autoUpdater.requestHeaders,
+      ...headers
+    }
+
+    await startUpdating(updateInfo.name)
   }
 }
 
-async function fetchLatestRelease(owner, repo) {
-  const releaseResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`)
+async function startUpdating(version) {
+  const progressNotification = showProgressNotification(version)
+  autoUpdater.checkForUpdates()
 
-  if (!releaseResponse.ok) {
-    throw new Error(
-      `Could not fetch latest release data from GitHub. ` + `Request failed with status ${releaseResponse.status}.`
-    )
+  await new Promise(resolve => {
+    autoUpdater.once("update-downloaded", resolve)
+  })
+
+  progressNotification.close()
+
+  const response = await showMessageBox({
+    type: "info",
+    buttons: ["Restart", "Later"],
+    cancelId: 1,
+    defaultId: 0,
+    title: "Restart the Solar app",
+    message: "Solar needs to quit and re-open to apply the update."
+  })
+
+  if (response === 0) {
+    autoUpdater.quitAndInstall()
   }
-
-  return releaseResponse.json()
 }
 
-function selectURLToOpen(releaseData) {
-  const downloadURLs = releaseData.assets.map(asset => asset.browser_download_url)
+function showUpdateNotification(version) {
+  const notification = new Notification({
+    title: `New version ${version} of Solar available`,
+    subtitle: `Click to update.`
+  })
 
-  if (process.platform === "darwin") {
-    const dmgURL = downloadURLs.find(url => url.match(/\.dmg$/i))
-    return dmgURL || releaseData.html_url
-  } else if (process.platform === "win32") {
-    const exeURL = downloadURLs.find(url => url.match(/\.exe$/i))
-    return exeURL || releaseData.html_url
-  } else {
-    return releaseData.html_url
-  }
+  notification.show()
+
+  return new Promise(resolve => {
+    notification.once("click", () => {
+      notification.close()
+      resolve("click")
+    })
+  })
+}
+
+function showProgressNotification(version) {
+  const notification = new Notification({
+    title: `Updating Solar…`,
+    subtitle: `Download of ${version} in progress.`,
+    silent: true
+  })
+
+  notification.show()
+  return notification
 }
