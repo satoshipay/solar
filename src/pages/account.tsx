@@ -189,7 +189,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       ) : null}
 
       <Dialog
-        open={showBalanceDetails}
+        open={showBalanceDetails || showAssetDetails}
         fullScreen
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}

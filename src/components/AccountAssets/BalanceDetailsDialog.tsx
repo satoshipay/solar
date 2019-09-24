@@ -9,6 +9,7 @@ import { Account } from "../../context/accounts"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { useAssetMetadata } from "../../hooks/stellar"
 import { useAccountData, useAccountOffers } from "../../hooks/stellar-subscriptions"
+import { matchesRoute } from "../../lib/routes"
 import { stringifyAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import * as routes from "../../routes"
 import { FullscreenDialogTransition } from "../../theme"
@@ -46,7 +47,10 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
     props.account.id
   ])
 
-  const addAssetDialogOpen = router.location.pathname.startsWith(routes.manageAccountAssets(props.account.id))
+  const addAssetDialogOpen = matchesRoute(router.location.pathname, routes.manageAccountAssets(props.account.id))
+  const assetDetailsDialogOpen =
+    matchesRoute(router.location.pathname, routes.assetDetails("*", "*")) &&
+    !matchesRoute(router.location.pathname, routes.assetDetails("*", "manage"))
 
   const openAssetDetails = (asset: Asset) =>
     router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
@@ -148,7 +152,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
       </List>
       <Dialog
         fullScreen
-        open={addAssetDialogOpen}
+        open={addAssetDialogOpen || assetDetailsDialogOpen}
         onClose={closeAddAssetDialog}
         TransitionComponent={FullscreenDialogTransition}
       >
