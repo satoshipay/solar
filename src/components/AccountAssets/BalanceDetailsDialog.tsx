@@ -38,8 +38,14 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
-  const openAddAssetDialog = () => router.history.push(routes.manageAccountAssets(props.account.id))
-  const closeAddAssetDialog = () => router.history.push(routes.balanceDetails(props.account.id))
+  const openAddAssetDialog = React.useCallback(
+    () => router.history.push(routes.manageAccountAssets(props.account.id)),
+    [props.account.id]
+  )
+  const closeAddAssetDialog = React.useCallback(() => router.history.push(routes.balanceDetails(props.account.id)), [
+    props.account.id
+  ])
+
   const addAssetDialogOpen = router.location.pathname.startsWith(routes.manageAccountAssets(props.account.id))
 
   const openAssetDetails = (asset: Asset) =>
