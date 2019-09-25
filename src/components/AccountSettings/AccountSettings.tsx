@@ -2,8 +2,6 @@ import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItemText from "@material-ui/core/ListItemText"
-import Slide from "@material-ui/core/Slide"
-import { TransitionProps } from "@material-ui/core/transitions/transition"
 import EyeIcon from "@material-ui/icons/RemoveRedEye"
 import DeleteIcon from "@material-ui/icons/Delete"
 import DestinationIcon from "@material-ui/icons/Place"
@@ -15,14 +13,13 @@ import { useAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
+import { FullscreenDialogTransition } from "../../theme"
 import AccountDeletionDialog from "./AccountDeletionDialog"
 import AccountSettingsItem from "./AccountSettingsItem"
 import ChangePasswordDialog from "./ChangePasswordDialog"
 import ExportKeyDialog from "./ExportKeyDialog"
 import InflationDestinationDialog from "./InflationDestination"
 import ManageSignersDialog from "../ManageSigners/ManageSignersDialog"
-
-const Transition = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="left" />)
 
 function SettingsDialogs(props: Props) {
   const router = useRouter()
@@ -47,24 +44,44 @@ function SettingsDialogs(props: Props) {
         fullScreen
         open={showChangePassword}
         onClose={navigateTo.accountSettings}
-        TransitionComponent={Transition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <ChangePasswordDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
-      <Dialog fullScreen open={showDeleteAccount} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
+      <Dialog
+        fullScreen
+        open={showDeleteAccount}
+        onClose={navigateTo.accountSettings}
+        TransitionComponent={FullscreenDialogTransition}
+      >
         <AccountDeletionDialog
           account={props.account}
           onClose={navigateTo.accountSettings}
           onDeleted={navigateTo.allAccounts}
         />
       </Dialog>
-      <Dialog fullScreen open={showExportKey} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
+      <Dialog
+        fullScreen
+        open={showExportKey}
+        onClose={navigateTo.accountSettings}
+        TransitionComponent={FullscreenDialogTransition}
+      >
         <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
       </Dialog>
-      <Dialog fullScreen open={showInflationDest} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
+      <Dialog
+        fullScreen
+        open={showInflationDest}
+        onClose={navigateTo.accountSettings}
+        TransitionComponent={FullscreenDialogTransition}
+      >
         <InflationDestinationDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
-      <Dialog fullScreen open={showManageSigners} onClose={navigateTo.accountSettings} TransitionComponent={Transition}>
+      <Dialog
+        fullScreen
+        open={showManageSigners}
+        onClose={navigateTo.accountSettings}
+        TransitionComponent={FullscreenDialogTransition}
+      >
         <ManageSignersDialog account={props.account} onClose={navigateTo.accountSettings} />
       </Dialog>
     </>

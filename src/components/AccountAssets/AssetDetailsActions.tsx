@@ -1,21 +1,16 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
-import { TransitionProps } from "@material-ui/core/transitions"
 import AddIcon from "@material-ui/icons/Add"
 import ClearIcon from "@material-ui/icons/Clear"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAccountData } from "../../hooks/stellar-subscriptions"
 import { createTransaction } from "../../lib/transaction"
+import { CompactDialogTransition } from "../../theme"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
 import RemoveTrustlineDialog from "./RemoveTrustline"
-
-const DialogVerticalTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide {...props} direction="up" ref={ref} />
-))
 
 const dialogActionsBoxStyle: React.CSSProperties = {
   marginTop: 8
@@ -78,7 +73,7 @@ function AssetDetailsActions(props: Props) {
           </ActionButton>
         )}
       </DialogActionsBox>
-      <Dialog open={removalDialogOpen} onClose={closeRemovalDialog} TransitionComponent={DialogVerticalTransition}>
+      <Dialog open={removalDialogOpen} onClose={closeRemovalDialog} TransitionComponent={CompactDialogTransition}>
         <RemoveTrustlineDialog
           account={props.account}
           accountData={accountData}

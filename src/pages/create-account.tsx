@@ -1,7 +1,6 @@
 import React from "react"
 import { Keypair } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
 import ExportKeyDialog from "../components/AccountSettings/ExportKeyDialog"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
 import { Section } from "../components/Layout/Page"
@@ -9,8 +8,7 @@ import { AccountsContext, Account } from "../context/accounts"
 import { trackError } from "../context/notifications"
 import { useRouter } from "../hooks/userinterface"
 import * as routes from "../routes"
-
-const DialogSidewaysTransition = (props: any) => <Slide {...props} direction="left" />
+import { FullscreenDialogTransition } from "../theme"
 
 function CreateAccountPage(props: { testnet: boolean }) {
   const { accounts, createAccount } = React.useContext(AccountsContext)
@@ -51,7 +49,7 @@ function CreateAccountPage(props: { testnet: boolean }) {
         fullScreen
         open={createdAccount !== null}
         onClose={closeBackupDialog}
-        TransitionComponent={DialogSidewaysTransition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <ExportKeyDialog account={createdAccount!} onConfirm={closeBackupDialog} variant="initial-backup" />
       </Dialog>
