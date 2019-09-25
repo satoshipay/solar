@@ -1,6 +1,7 @@
 /* tslint:disable:no-string-literal */
 
 import * as JWT from "jsonwebtoken"
+import PromiseQueue from "p-queue"
 import React from "react"
 import { Asset, Server, StellarTomlResolver, Transaction } from "stellar-sdk"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
@@ -125,6 +126,9 @@ export function useStellarToml(domain: string | null | undefined): [StellarToml 
   return domain ? tomlFiles.get(domain)! : [undefined, false]
 }
 
+// Limit the number of concurrent fetches
+const accountFetchQueue = new PromiseQueue({ concurrency: 8 })
+
 function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[] {
   const loadingStates = React.useContext(StellarAccountDataCacheContext)
 
@@ -139,12 +143,15 @@ function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[]
     for (const accountID of accountIDs) {
       if (!loadingStates.cache.has(accountID)) {
         loadingStates.store(accountID, FetchState.pending())
-        horizon
-          .loadAccount(accountID)
-          .then(
-            account => loadingStates.store(accountID, FetchState.resolved(account)),
-            error => loadingStates.store(accountID, FetchState.rejected(error))
-          )
+
+        accountFetchQueue.add(async () => {
+          try {
+            const account = await horizon.loadAccount(accountID)
+            loadingStates.store(accountID, FetchState.resolved(account))
+          } catch (error) {
+            loadingStates.store(accountID, FetchState.rejected(error))
+          }
+        })
       }
     }
   }, [accountIDs.join(",")])

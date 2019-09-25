@@ -49,6 +49,7 @@
     "key-store": "^1.1.0",
     "nanoid": "^2.1.1",
     "opn": "^5.5.0",
+    "p-queue": "^6.1.1",
     "react-window": "^1.8.5",
     "stellar-base": "^1.1.2",
     "stellar-sdk": "^2.3.0"
@@ -70,6 +71,7 @@
     "@types/lodash.throttle": "^4.1.6",
     "@types/lru-cache": "^5.1.0",
     "@types/nanoid": "^1.2.1",
+    "@types/p-queue": "^3.2.1",
     "@types/parcel-env": "0.0.0",
     "@types/qrcode.react": "^0.8.2",
     "@types/qs": "^6.5.3",
