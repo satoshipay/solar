@@ -86,6 +86,17 @@ async function selectTransactionFeeWithFallback(horizon: Server, fallbackFee: nu
   }
 }
 
+export async function selectSmartMultisigTransactionFee(horizon: Server) {
+  try {
+    const smartFee = await selectSmartTransactionFee(horizon, highFeePreset)
+    return Math.max(smartFee * 2, multisigMinimumFee)
+  } catch (error) {
+    // tslint:disable-next-line no-console
+    console.error("Smart fee selection failed:", error)
+    return multisigMinimumFee
+  }
+}
+
 function selectTransactionTimeout(accountData: Pick<ServerApi.AccountRecord, "signers">): number {
   // Don't forget that we must give the user enough time to enter their password and click ok
   return accountData.signers.length > 1 ? 30 * 24 * 60 * 60 * 1000 : 90

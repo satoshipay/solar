@@ -15,7 +15,7 @@ import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { renderFormFieldError } from "../../lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
-import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
+import { createPaymentOperation, createTransaction, selectSmartMultisigTransactionFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, QRReader } from "../Form/FormFields"
@@ -176,7 +176,7 @@ function PaymentCreationForm(props: Props) {
     const tx = await createTransaction([payment], {
       accountData: props.accountData,
       memo: federationMemo.type !== "none" ? federationMemo : userMemo,
-      minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
+      minTransactionFee: isMultisigTx ? await selectSmartMultisigTransactionFee(horizon) : 0,
       horizon,
       walletAccount: account
     })
