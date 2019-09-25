@@ -2,7 +2,7 @@ import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions } from "../../hooks/userinterface"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import ScrollableBalances from "../AccountAssets/ScrollableBalances"
@@ -70,7 +70,7 @@ function WithdrawalDialog(props: Props) {
 }
 
 function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose">) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)

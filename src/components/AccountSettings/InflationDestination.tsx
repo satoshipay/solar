@@ -5,8 +5,8 @@ import ClearIcon from "@material-ui/icons/Clear"
 import CheckIcon from "@material-ui/icons/Check"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useWellKnownAccounts } from "../../hooks/stellar"
-import { useAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useWellKnownAccounts } from "../../hooks/stellar-ecosystem"
+import { useLiveAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { isPublicKey } from "../../lib/stellar-address"
 import { createTransaction } from "../../lib/transaction"
@@ -42,7 +42,7 @@ function clearTextSelection() {
 }
 
 function InflationDestinationDialog(props: InflationDestinationDialogProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const wellKnownAccounts = useWellKnownAccounts()
   const router = useRouter()
   const isSmallScreen = useIsMobile()

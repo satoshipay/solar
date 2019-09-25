@@ -7,7 +7,7 @@ import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
 import { useAssetMetadata, useStellarToml } from "../../hooks/stellar"
-import { useAccountData, useAccountOffers } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { useClipboard, useIsMobile } from "../../hooks/userinterface"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
@@ -61,7 +61,7 @@ interface LumenDetailProps {
 
 // tslint:disable-next-line no-shadowed-variable
 const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useDetailContentStyles()
 
   return (
@@ -100,9 +100,9 @@ interface AssetDetailProps {
 
 // tslint:disable-next-line no-shadowed-variable
 const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata }: AssetDetailProps) {
-  const accountData = useAccountData(account.publicKey, account.testnet)
-  const accountOffers = useAccountOffers(account.publicKey, account.testnet)
-  const issuingAccountData = useAccountData(asset.issuer, account.testnet)
+  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
+  const issuingAccountData = useLiveAccountData(asset.issuer, account.testnet)
   const [stellarToml] = useStellarToml(issuingAccountData.home_domain)
 
   const balance = accountData.balances.find(
@@ -397,8 +397,8 @@ function AssetDetailsDialog(props: Props) {
               asset.isNative()
                 ? "Stellar Lumens (XLM)"
                 : metadata && metadata.name
-                  ? `${metadata.name} (${asset.getCode()})`
-                  : asset.getCode()
+                ? `${metadata.name} (${asset.getCode()})`
+                : asset.getCode()
             }
             titleStyle={{
               maxWidth: "calc(100% - 100px)",

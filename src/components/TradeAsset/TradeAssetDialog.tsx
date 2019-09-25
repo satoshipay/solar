@@ -7,7 +7,7 @@ import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks/stellar"
-import { useAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions, useIsMobile, useRouter } from "../../hooks/userinterface"
 import { balancelineToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
@@ -34,7 +34,7 @@ interface TradeAssetProps {
 }
 
 function TradeAsset(props: TradeAssetProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const dialogActionsRef = useDialogActions()
   const horizon = useHorizon(props.account.testnet)
   const isSmallScreen = useIsMobile()

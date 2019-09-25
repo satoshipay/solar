@@ -2,7 +2,7 @@ import React from "react"
 import Async from "react-promise"
 import { Server, ServerApi } from "stellar-sdk"
 import { useHorizon } from "../hooks/stellar"
-import { useAccountData } from "../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { getHorizonURL } from "../lib/stellar"
 import { Address } from "./PublicKey"
 
@@ -52,7 +52,7 @@ interface AccountNameProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
-  const accountData = useAccountData(props.publicKey, props.testnet)
+  const accountData = useLiveAccountData(props.publicKey, props.testnet)
 
   return accountData.home_domain ? (
     <span style={{ userSelect: "text" }}>{accountData.home_domain}</span>

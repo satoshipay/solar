@@ -8,7 +8,7 @@ import MenuIcon from "@material-ui/icons/Menu"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile } from "../../hooks/userinterface"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { Box } from "../Layout/Box"
 import AccountContextMenu from "./AccountContextMenu"
 import AccountTitle from "./AccountTitle"
@@ -46,7 +46,7 @@ interface Props {
 }
 
 function AccountHeaderCard(props: Props) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useAccountHeaderStyles({})
   const isSmallScreen = useIsMobile()
   const settings = React.useContext(SettingsContext)

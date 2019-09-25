@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Horizon } from "stellar-sdk"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { balancelineToAsset, stringifyAsset } from "../../lib/stellar"
 import InlineLoader from "../InlineLoader"
 
@@ -105,12 +105,12 @@ export function SingleBalance(props: SingleBalanceProps) {
   const formattingOptions: BalanceFormattingOptions = props.untrimmed
     ? { minimumSignificants: 7 }
     : balance.eq(0)
-      ? { maximumDecimals: 0, minimumDecimals: 0 }
-      : balance.gt(0) && balance.lt(0.0001)
-        ? { maximumDecimals: 7, minimumDecimals: 7 }
-        : balance.lt(1000)
-          ? { maximumDecimals: 4, minimumDecimals: 4 }
-          : { maximumDecimals: 0, minimumDecimals: 0 }
+    ? { maximumDecimals: 0, minimumDecimals: 0 }
+    : balance.gt(0) && balance.lt(0.0001)
+    ? { maximumDecimals: 7, minimumDecimals: 7 }
+    : balance.lt(1000)
+    ? { maximumDecimals: 4, minimumDecimals: 4 }
+    : { maximumDecimals: 0, minimumDecimals: 0 }
 
   const formattedBalance = formatBalance(balance, formattingOptions)
   const [integerPart, decimalPart = ""] = formattedBalance.split(".")
@@ -184,7 +184,7 @@ function AccountBalances(props: {
   publicKey: string
   testnet: boolean
 }) {
-  const accountData = useAccountData(props.publicKey, props.testnet)
+  const accountData = useLiveAccountData(props.publicKey, props.testnet)
   return accountData.loading ? (
     <InlineLoader />
   ) : accountData.activated ? (

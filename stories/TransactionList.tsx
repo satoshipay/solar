@@ -3,7 +3,7 @@ import { Transaction } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import { Account } from "../src/context/accounts"
 import TransactionList from "../src/components/Account/TransactionList"
-import { useRecentTransactions } from "../src/hooks/stellar-subscriptions"
+import { useLiveRecentTransactions } from "../src/hooks/stellar-subscriptions"
 
 const account: Account = {
   id: "1",
@@ -20,7 +20,7 @@ const account: Account = {
 }
 
 function SampleTransactions(props: { children: (transactions: Transaction[]) => React.ReactElement<any> }) {
-  const { transactions } = useRecentTransactions(account.publicKey, account.testnet)
+  const { transactions } = useLiveRecentTransactions(account.publicKey, account.testnet)
   return props.children(transactions)
 }
 

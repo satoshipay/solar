@@ -8,7 +8,7 @@ import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { useAssetMetadata } from "../../hooks/stellar"
-import { useAccountData, useAccountOffers } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { matchesRoute } from "../../lib/routes"
 import { stringifyAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import * as routes from "../../routes"
@@ -34,8 +34,8 @@ interface BalanceDetailsProps {
 }
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const accountOffers = useAccountOffers(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountOffers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 

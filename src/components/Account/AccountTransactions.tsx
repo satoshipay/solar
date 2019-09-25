@@ -6,7 +6,7 @@ import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { useHorizon } from "../../hooks/stellar"
-import { useRecentTransactions } from "../../hooks/stellar-subscriptions"
+import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
 import { hasSigned } from "../../lib/transaction"
 import { MinimumAccountBalance } from "../Fetchers"
 import FriendbotButton from "./FriendbotButton"
@@ -21,27 +21,21 @@ function PendingMultisigTransactions(props: { account: Account }) {
   const cosignIcon = React.useMemo(() => <DoneAllIcon />, [])
   const waitingIcon = React.useMemo(() => <UpdateIcon style={{ opacity: 0.5 }} />, [])
 
-  const pendingRequestsToCosign = React.useMemo(
-    () => {
-      return pendingSignatureRequests.filter(
-        request =>
-          request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-          !hasSigned(request.meta.transaction, props.account.publicKey)
-      )
-    },
-    [props.account, pendingSignatureRequests]
-  )
+  const pendingRequestsToCosign = React.useMemo(() => {
+    return pendingSignatureRequests.filter(
+      request =>
+        request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+        !hasSigned(request.meta.transaction, props.account.publicKey)
+    )
+  }, [props.account, pendingSignatureRequests])
 
-  const pendingRequestsWaitingForOthers = React.useMemo(
-    () => {
-      return pendingSignatureRequests.filter(
-        request =>
-          request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-          hasSigned(request.meta.transaction, props.account.publicKey)
-      )
-    },
-    [props.account, pendingSignatureRequests]
-  )
+  const pendingRequestsWaitingForOthers = React.useMemo(() => {
+    return pendingSignatureRequests.filter(
+      request =>
+        request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+        hasSigned(request.meta.transaction, props.account.publicKey)
+    )
+  }, [props.account, pendingSignatureRequests])
 
   return (
     <>
@@ -64,7 +58,7 @@ function PendingMultisigTransactions(props: { account: Account }) {
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const horizon = useHorizon(account.testnet)
-  const recentTxs = useRecentTransactions(account.publicKey, account.testnet)
+  const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const settings = React.useContext(SettingsContext)
 
   return (

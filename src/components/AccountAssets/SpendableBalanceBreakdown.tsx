@@ -5,7 +5,7 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
-import { useAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { breakpoints } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 
@@ -102,7 +102,7 @@ interface Props {
 }
 
 function SpendableBalanceBreakdown(props: Props) {
-  const openOrders = useAccountOffers(props.account.publicKey, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
   const nativeBalance = props.accountData.balances.find(balance => balance.asset_type === "native")
   const trustedAssetBalances = props.accountData.balances.filter(balance => balance.asset_type !== "native")

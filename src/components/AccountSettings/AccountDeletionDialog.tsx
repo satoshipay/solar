@@ -8,7 +8,7 @@ import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
 import { Account, AccountsContext } from "../../context/accounts"
 import { createTransaction } from "../../lib/transaction"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useIsSmallMobile } from "../../hooks/userinterface"
 import { closeAccountSubscriptions } from "../../subscriptions"
 import AccountSelectionList from "../Account/AccountSelectionList"
@@ -29,7 +29,7 @@ interface AccountDeletionDialogProps {
 }
 
 function AccountDeletionDialog(props: AccountDeletionDialogProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const horizon = props.horizon
 
   const { accounts, deleteAccount } = React.useContext(AccountsContext)

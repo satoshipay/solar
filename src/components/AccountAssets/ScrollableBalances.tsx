@@ -8,7 +8,7 @@ import LeftIcon from "@material-ui/icons/ArrowLeft"
 import RightIcon from "@material-ui/icons/ArrowRight"
 import { Account } from "../../context/accounts"
 import { useAssetMetadata } from "../../hooks/stellar"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { stringifyAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
 import { sortBalances } from "../Account/AccountBalances"
@@ -117,7 +117,7 @@ interface ScrollableBalancesProps {
 }
 
 function ScrollableBalances(props: ScrollableBalancesProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const balanceItemsRef = React.useRef<Map<number, HTMLElement | null>>(new Map())
   const latestStepRef = React.useRef(0)
   const mouseState = React.useRef({ currentlyDragging: false, latestMouseMoveEndTime: 0 })
@@ -174,16 +174,13 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     }
   })
 
-  const handleClick = React.useCallback(
-    () => {
-      const mouseDragJustHappened = Date.now() - mouseState.current.latestMouseMoveEndTime < 100
+  const handleClick = React.useCallback(() => {
+    const mouseDragJustHappened = Date.now() - mouseState.current.latestMouseMoveEndTime < 100
 
-      if (props.onClick && !mouseDragJustHappened) {
-        props.onClick()
-      }
-    },
-    [props.onClick]
-  )
+    if (props.onClick && !mouseDragJustHappened) {
+      props.onClick()
+    }
+  }, [props.onClick])
 
   const classes = useScrollableBalancesStyles({})
 
@@ -205,10 +202,10 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     canScrollLeft && canScrollRight
       ? classes.canScrollLeftRight
       : canScrollLeft
-        ? classes.canScrollLeft
-        : canScrollRight
-          ? classes.canScrollRight
-          : ""
+      ? classes.canScrollLeft
+      : canScrollRight
+      ? classes.canScrollRight
+      : ""
   ].join(" ")
 
   const balanceItems = React.useMemo(
