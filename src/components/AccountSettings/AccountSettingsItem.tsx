@@ -1,13 +1,13 @@
 import React from "react"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
-import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
 import { breakpoints } from "../../theme"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
-const accountSettingsItemStyles: StyleRules = {
+const useAccountSettingsItemStyles = makeStyles({
   caret: {
     color: "rgba(0, 0, 0, 0.35)",
     fontSize: 48,
@@ -40,28 +40,27 @@ const accountSettingsItemStyles: StyleRules = {
       borderTop: "1px solid rgba(230, 230, 230, 1.0)"
     }
   }
-}
+})
 
 interface AccountSettingsItemProps {
   children: React.ReactNode
-  classes: ClassNameMap<keyof typeof accountSettingsItemStyles>
   disabled?: boolean
   icon: React.ReactElement
   onClick: () => void
 }
 
-function NakedAccountSettingsItem(props: AccountSettingsItemProps) {
+function AccountSettingsItem(props: AccountSettingsItemProps) {
+  const classes = useAccountSettingsItemStyles()
+
   return (
-    <ListItem button className={props.classes.settingsItem} disabled={props.disabled} onClick={props.onClick}>
-      <ListItemIcon className={props.classes.icon}>{props.icon}</ListItemIcon>
+    <ListItem button className={classes.settingsItem} disabled={props.disabled} onClick={props.onClick}>
+      <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
       {props.children}
-      <ListItemIcon className={props.classes.caret}>
-        <KeyboardArrowRightIcon className={props.classes.caret} />
+      <ListItemIcon className={classes.caret}>
+        <KeyboardArrowRightIcon className={classes.caret} />
       </ListItemIcon>
     </ListItem>
   )
 }
-
-const AccountSettingsItem = withStyles(accountSettingsItemStyles)(NakedAccountSettingsItem)
 
 export default AccountSettingsItem

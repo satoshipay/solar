@@ -2,9 +2,9 @@ import React from "react"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
-import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import AddIcon from "@material-ui/icons/Add"
 import GroupIcon from "@material-ui/icons/Group"
 import AccountBalances from "../components/Account/AccountBalances"
@@ -20,7 +20,7 @@ import * as routes from "../routes"
 import StellarGuardIcon from "./Icon/StellarGuard"
 import { Box, HorizontalLayout, VerticalLayout } from "./Layout/Box"
 
-const cardStyles: StyleRules = {
+const useCardStyles = makeStyles({
   cardActionArea: {
     width: "100%",
     height: "100%"
@@ -31,42 +31,41 @@ const cardStyles: StyleRules = {
     padding: "16px 24px",
     textOverflow: "ellipsis"
   }
+})
+
+const StyledCard = (props: {
+  children?: React.ReactNode
+  elevation?: number
+  onClick?: () => void
+  style?: React.CSSProperties
+}) => {
+  const classes = useCardStyles()
+  return (
+    <CardListCard elevation={props.elevation} onClick={props.onClick} style={props.style}>
+      <CardActionArea className={classes.cardActionArea} centerRipple>
+        <CardContent className={classes.content}>{props.children}</CardContent>
+      </CardActionArea>
+    </CardListCard>
+  )
 }
 
-const StyledCard = withStyles(cardStyles)(
-  (props: {
-    children?: React.ReactNode
-    classes: ClassNameMap<keyof typeof cardStyles>
-    elevation?: number
-    onClick?: () => void
-    style?: React.CSSProperties
-  }) => {
-    return (
-      <CardListCard elevation={props.elevation} onClick={props.onClick} style={props.style}>
-        <CardActionArea className={props.classes.cardActionArea} centerRipple>
-          <CardContent className={props.classes.content}>{props.children}</CardContent>
-        </CardActionArea>
-      </CardListCard>
-    )
-  }
-)
-
-const badgeStyles: StyleRules = {
+const useBadgeStyles = makeStyles({
   badge: {
     marginTop: 4,
     marginRight: -2
   }
-}
+})
 
-const StyledBadge = withStyles(badgeStyles)((props: BadgeProps) => {
+const StyledBadge = (props: BadgeProps) => {
+  const classes = useBadgeStyles()
   return props.badgeContent ? (
     <Badge {...props} />
   ) : (
-    <div className={props.className} style={props.style}>
+    <div className={classes.badge} style={props.style}>
       {props.children}
     </div>
   )
-})
+}
 
 function AccountCard(props: {
   account: Account
