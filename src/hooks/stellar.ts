@@ -2,17 +2,18 @@
 
 import * as JWT from "jsonwebtoken"
 import React from "react"
-import { Asset, Server, StellarTomlResolver, Transaction, ServerApi } from "stellar-sdk"
+import { Asset, Server, StellarTomlResolver, Transaction } from "stellar-sdk"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 import {
   SigningKeyCacheContext,
+  StellarAccountDataCacheContext,
   StellarAddressCacheContext,
   StellarAddressReverseCacheContext,
-  StellarIssuerAccountCacheContext,
   StellarTomlCacheContext,
   WebAuthTokenCacheContext
 } from "../context/caches"
 import { StellarContext } from "../context/stellar"
+import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FetchState } from "../lib/async"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
@@ -124,25 +125,13 @@ export function useStellarToml(domain: string | null | undefined): [StellarToml 
   return domain ? tomlFiles.get(domain)! : [undefined, false]
 }
 
-type IssuerAccountData = Pick<ServerApi.AccountRecord, "account_id" | "flags" | "home_domain">
-
-function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): IssuerAccountData[] {
-  const loadingStates = React.useContext(StellarIssuerAccountCacheContext)
+function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[] {
+  const loadingStates = React.useContext(StellarAccountDataCacheContext)
 
   const issuerAccounts = accountIDs.map(
-    (accountID: string): IssuerAccountData => {
+    (accountID: string): AccountData => {
       const cacheItem = loadingStates.cache.get(accountID)
-      return cacheItem && cacheItem.state === "resolved"
-        ? cacheItem.data
-        : {
-            account_id: accountID,
-            flags: {
-              auth_immutable: false,
-              auth_required: false,
-              auth_revocable: false
-            },
-            home_domain: undefined
-          }
+      return cacheItem && cacheItem.state === "resolved" ? cacheItem.data : createEmptyAccountData(accountID)
     }
   )
 
@@ -151,9 +140,7 @@ function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): Is
       if (!loadingStates.cache.has(accountID)) {
         loadingStates.store(accountID, FetchState.pending())
         horizon
-          .accounts()
-          .accountId(accountID)
-          .call()
+          .loadAccount(accountID)
           .then(
             account => loadingStates.store(accountID, FetchState.resolved(account)),
             error => loadingStates.store(accountID, FetchState.rejected(error))
@@ -165,10 +152,15 @@ function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): Is
   return issuerAccounts
 }
 
+export function useAccountData(publicKey: string, testnet: boolean) {
+  const horizon = useHorizon(testnet)
+  return useAccountDataSet(horizon, [publicKey])[0]
+}
+
 export function useAssetMetadata(assets: Asset[], testnet: boolean) {
   const horizon = useHorizon(testnet)
   const issuerAccountIDs = dedupe(assets.filter(asset => !asset.isNative()).map(asset => asset.getIssuer()))
-  const accountDataSet = useFetchIssuerAccountDataSet(horizon, issuerAccountIDs)
+  const accountDataSet = useAccountDataSet(horizon, issuerAccountIDs)
 
   const domains = accountDataSet
     .map(accountData => accountData.home_domain)

@@ -6,7 +6,7 @@ import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { AccountData } from "../../lib/account"
 import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
@@ -15,7 +15,7 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   asset: Asset
   horizon: Server
   onClose: () => void

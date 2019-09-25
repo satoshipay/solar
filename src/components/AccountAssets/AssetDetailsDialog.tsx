@@ -6,8 +6,8 @@ import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
-import { useAssetMetadata, useStellarToml } from "../../hooks/stellar"
-import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
+import { useAccountData, useAssetMetadata, useStellarToml } from "../../hooks/stellar"
+import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { useClipboard, useIsMobile } from "../../hooks/userinterface"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
@@ -61,7 +61,7 @@ interface LumenDetailProps {
 
 // tslint:disable-next-line no-shadowed-variable
 const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const classes = useDetailContentStyles()
 
   return (
@@ -100,9 +100,9 @@ interface AssetDetailProps {
 
 // tslint:disable-next-line no-shadowed-variable
 const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata }: AssetDetailProps) {
-  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const accountData = useAccountData(account.publicKey, account.testnet)
   const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
-  const issuingAccountData = useLiveAccountData(asset.issuer, account.testnet)
+  const issuingAccountData = useAccountData(asset.issuer, account.testnet)
   const [stellarToml] = useStellarToml(issuingAccountData.home_domain)
 
   const balance = accountData.balances.find(

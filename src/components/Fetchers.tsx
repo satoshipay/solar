@@ -1,9 +1,7 @@
 import React from "react"
 import Async from "react-promise"
 import { Server, ServerApi } from "stellar-sdk"
-import { useHorizon } from "../hooks/stellar"
-import { useLiveAccountData } from "../hooks/stellar-subscriptions"
-import { getHorizonURL } from "../lib/stellar"
+import { useAccountData, useHorizon } from "../hooks/stellar"
 import { Address } from "./PublicKey"
 
 const memCache = new Map<string, any>()
@@ -52,7 +50,7 @@ interface AccountNameProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
-  const accountData = useLiveAccountData(props.publicKey, props.testnet)
+  const accountData = useAccountData(props.publicKey, props.testnet)
 
   return accountData.home_domain ? (
     <span style={{ userSelect: "text" }}>{accountData.home_domain}</span>
@@ -62,7 +60,7 @@ export const AccountName = React.memo(function AccountName(props: AccountNamePro
 })
 
 async function fetchHorizonMetadata(horizon: Server) {
-  const response = await fetch(getHorizonURL(horizon))
+  const response = await fetch(String(horizon.serverURL))
   return response.json()
 }
 
@@ -79,7 +77,9 @@ type LedgerDataRenderProp = (ledgerData: ServerApi.LedgerRecord) => React.ReactN
 
 const LedgerMetadata = (props: { children: LedgerDataRenderProp; testnet: boolean }) => {
   const horizon = useHorizon(props.testnet)
-  return <Memoized cacheKey={getHorizonURL(horizon)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
+  return (
+    <Memoized cacheKey={String(horizon.serverURL)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
+  )
 }
 
 // tslint:disable-next-line no-shadowed-variable

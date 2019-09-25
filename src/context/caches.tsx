@@ -1,8 +1,9 @@
 import debounce from "lodash.debounce"
 import LRUCache from "lru-cache"
 import React from "react"
-import { FederationServer, ServerApi } from "stellar-sdk"
+import { FederationServer } from "stellar-sdk"
 import { useSingleton } from "../hooks/util"
+import { AccountData } from "../lib/account"
 import { FetchState } from "../lib/async"
 
 // Just to make the cache types more readable
@@ -19,9 +20,9 @@ interface CacheContextType<K, V> {
 }
 
 export type SigningKeyContextType = CacheContextType<PublicKey, Domain>
+export type StellarAccountDataContextType = CacheContextType<PublicKey, FetchState<AccountData>>
 export type StellarAddressContextType = CacheContextType<StellarAddress, FederationServer.Record>
 export type StellarAddressReverseContextType = CacheContextType<PublicKey, StellarAddress>
-export type StellarIssuerAccountDataContextType = CacheContextType<PublicKey, FetchState<ServerApi.AccountRecord>>
 export type StellarTomlContextType = CacheContextType<Domain, FetchState<any>>
 export type WebAuthTokenContextType = CacheContextType<CacheKey, JWT>
 
@@ -54,11 +55,9 @@ const emptyContextValue: CacheContextType<any, any> = {
 }
 
 export const SigningKeyCacheContext = React.createContext<SigningKeyContextType>(emptyContextValue)
+export const StellarAccountDataCacheContext = React.createContext<StellarAccountDataContextType>(emptyContextValue)
 export const StellarAddressCacheContext = React.createContext<StellarAddressContextType>(emptyContextValue)
 export const StellarAddressReverseCacheContext = React.createContext<StellarAddressReverseContextType>(
-  emptyContextValue
-)
-export const StellarIssuerAccountCacheContext = React.createContext<StellarIssuerAccountDataContextType>(
   emptyContextValue
 )
 export const StellarTomlCacheContext = React.createContext<StellarTomlContextType>(emptyContextValue)
@@ -77,6 +76,22 @@ export function SigningKeyCachingProvider(props: Props) {
   )
   const contextValue = useCachingContext(cache)
   return <SigningKeyCacheContext.Provider value={contextValue}>{props.children}</SigningKeyCacheContext.Provider>
+}
+
+export function StellarAccountDataCachingProvider(props: Props) {
+  const cache = useSingleton(
+    () =>
+      new LRUCache<PublicKey, FetchState<AccountData>>({
+        max: 1000,
+        maxAge: 10 * 60 * 1000 // 10 mins
+      })
+  )
+  const contextValue = useCachingContext(cache)
+  return (
+    <StellarAccountDataCacheContext.Provider value={contextValue}>
+      {props.children}
+    </StellarAccountDataCacheContext.Provider>
+  )
 }
 
 export function StellarAddressesCachingProvider(props: Props) {
@@ -109,22 +124,6 @@ export function StellarAddressesReverseCachingProvider(props: Props) {
   )
 }
 
-export function StellarIssuerAccountCachingProvider(props: Props) {
-  const cache = useSingleton(
-    () =>
-      new LRUCache<PublicKey, FetchState<ServerApi.AccountRecord>>({
-        max: 1000,
-        maxAge: 10 * 60 * 1000 // 10 mins (issuer account data is assumed to be almost immutable)
-      })
-  )
-  const contextValue = useCachingContext(cache)
-  return (
-    <StellarIssuerAccountCacheContext.Provider value={contextValue}>
-      {props.children}
-    </StellarIssuerAccountCacheContext.Provider>
-  )
-}
-
 export function StellarTomlCachingProvider(props: Props) {
   const cache = useSingleton(
     () =>
@@ -152,11 +151,11 @@ export function CachingProviders(props: Props) {
     <SigningKeyCachingProvider>
       <StellarAddressesCachingProvider>
         <StellarAddressesReverseCachingProvider>
-          <StellarIssuerAccountCachingProvider>
+          <StellarAccountDataCachingProvider>
             <StellarTomlCachingProvider>
               <WebAuthCachingProvider>{props.children}</WebAuthCachingProvider>
             </StellarTomlCachingProvider>
-          </StellarIssuerAccountCachingProvider>
+          </StellarAccountDataCachingProvider>
         </StellarAddressesReverseCachingProvider>
       </StellarAddressesCachingProvider>
     </SigningKeyCachingProvider>

@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import fetch from "isomorphic-fetch"
 import { xdr, Asset, Horizon, Keypair, NotFoundError, Server, ServerApi, Transaction } from "stellar-sdk"
 import { AssetRecord } from "../hooks/stellar-ecosystem"
+import { AccountData } from "./account"
 import { joinURL } from "./url"
 
 export interface SmartFeePreset {
@@ -116,7 +117,7 @@ export async function friendbotTopup(horizon: Server, publicKey: string) {
 }
 
 export function getAccountMinimumBalance(
-  accountData: Pick<Horizon.AccountResponse, "balances" | "data" | "signers">,
+  accountData: Pick<AccountData, "balances" | "data_attr" | "signers">,
   openOfferCount: number = 0
 ) {
   // FIXME: Needs to be queried from horizon
@@ -126,7 +127,7 @@ export function getAccountMinimumBalance(
 
   return BigNumber(1)
     .add(accountData.signers.length)
-    .add(Object.keys(accountData.data).length)
+    .add(Object.keys(accountData.data_attr).length)
     .add(openOfferCount)
     .add(trustlineCount)
     .mul(baseReserve)
