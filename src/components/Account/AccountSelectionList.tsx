@@ -3,9 +3,9 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import Radio from "@material-ui/core/Radio"
 import Typography from "@material-ui/core/Typography"
-import withStyles, { ClassNameMap, StyleRules } from "@material-ui/core/styles/withStyles"
 import { Account } from "../../context/accounts"
 import AccountBalances from "./AccountBalances"
 
@@ -47,7 +47,7 @@ function AccountSelectionList(props: AccountSelectionListProps) {
   )
 }
 
-const accountListItemStyles: StyleRules = {
+const useAccountListItemStyles = makeStyles({
   listItem: {
     background: "#FFFFFF",
     boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
@@ -58,11 +58,10 @@ const accountListItemStyles: StyleRules = {
       backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
     }
   }
-}
+})
 
 interface AccountSelectionListItemProps {
   account: Account
-  classes: ClassNameMap<keyof typeof accountListItemStyles>
   disabled?: boolean
   index: number
   onClick: (event: React.MouseEvent, index: number) => void
@@ -72,11 +71,12 @@ interface AccountSelectionListItemProps {
 
 const AccountSelectionListItem = React.memo(
   // tslint:disable-next-line no-shadowed-variable
-  withStyles(accountListItemStyles)(function AccountSelectionListItem(props: AccountSelectionListItemProps) {
+  function AccountSelectionListItem(props: AccountSelectionListItemProps) {
+    const classes = useAccountListItemStyles()
     return (
       <ListItem
         button
-        className={props.classes.listItem}
+        className={classes.listItem}
         disabled={props.disabled}
         selected={props.selected}
         onClick={event => props.onClick(event, props.index)}
@@ -90,7 +90,7 @@ const AccountSelectionListItem = React.memo(
         />
       </ListItem>
     )
-  } as React.ComponentType<AccountSelectionListItemProps>)
+  } as React.ComponentType<AccountSelectionListItemProps>
 )
 
 export default AccountSelectionList
