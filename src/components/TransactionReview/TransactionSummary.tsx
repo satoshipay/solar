@@ -72,27 +72,21 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
     .mul(props.transaction.operations.length)
     .div(1e7)
 
-  const isDangerousSignatureRequest = React.useMemo(
-    () => {
-      const localAccounts = accountDataSet.filter(someAccountData =>
-        accounts.some(account => account.publicKey === someAccountData.id)
-      )
-      return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
-    },
-    [accountDataSet, accounts, props.signatureRequest, props.transaction]
-  )
+  const isDangerousSignatureRequest = React.useMemo(() => {
+    const localAccounts = accountDataSet.filter(someAccountData =>
+      accounts.some(account => account.publicKey === someAccountData.id)
+    )
+    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
+  }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
 
   const isWideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 400 } : { minWidth: "66vw" }
 
   const transaction = props.transaction as TransactionWithUndocumentedProps
-  const transactionHash = React.useMemo(
-    () => {
-      selectNetwork(props.testnet)
-      return transaction.hash().toString("hex")
-    },
-    [transaction]
-  )
+  const transactionHash = React.useMemo(() => {
+    selectNetwork(props.testnet)
+    return transaction.hash().toString("hex")
+  }, [transaction])
 
   return (
     <List disablePadding style={widthStyling}>
@@ -155,7 +149,10 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
         </SummaryItem>
       ) : null}
       <SummaryItem>
-        <SummaryDetailsField label="Fee" value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />} />
+        <SummaryDetailsField
+          label="Maximum Fee"
+          value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />}
+        />
         {transaction.created_at ? (
           <SummaryDetailsField fullWidth={isSmallScreen} label="Submission" value={getTime(transaction.created_at)} />
         ) : null}
@@ -229,15 +226,12 @@ function TransactionSummary(props: TransactionSummaryProps) {
     )
   }
 
-  const isDangerousSignatureRequest = React.useMemo(
-    () => {
-      const localAccounts = accountDataSet.filter(someAccountData =>
-        accounts.some(account => account.publicKey === someAccountData.id)
-      )
-      return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
-    },
-    [accountDataSet, accounts, props.signatureRequest, props.transaction]
-  )
+  const isDangerousSignatureRequest = React.useMemo(() => {
+    const localAccounts = accountDataSet.filter(someAccountData =>
+      accounts.some(account => account.publicKey === someAccountData.id)
+    )
+    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
+  }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
 
   const wideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = wideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
