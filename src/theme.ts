@@ -2,6 +2,7 @@ import { createMuiTheme } from "@material-ui/core/styles"
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
+import { SlideLeftTransition, SlideUpTransition } from "./components/Dialog/Transitions"
 
 // TODO: The dark and light derivation of the brand color have not been design-reviewed!
 export const brandColor = {
@@ -17,6 +18,9 @@ export const primaryBackgroundColor = "#0194E7"
 export const warningColor = amber["500"]
 
 export const breakpoints = createBreakpoints({})
+
+export const FullscreenDialogTransition = SlideLeftTransition
+export const CompactDialogTransition = SlideUpTransition
 
 const theme = createMuiTheme({
   props: {

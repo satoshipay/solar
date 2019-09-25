@@ -2,8 +2,6 @@ import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
-import Slide from "@material-ui/core/Slide"
-import { TransitionProps } from "@material-ui/core/transitions/transition"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -14,16 +12,13 @@ import * as popularAssets from "../../lib/popularAssets"
 import { stringifyAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
+import { CompactDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
 import CustomTrustlineDialog from "./CustomTrustline"
-
-const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide {...props} direction="up" ref={ref} />
-))
 
 function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
   return {
@@ -115,7 +110,7 @@ function AddAssetDialog(props: AddAssetDialogProps) {
       <Dialog
         open={customTrustlineDialogOpen}
         onClose={closeCustomTrustlineDialog}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={CompactDialogTransition}
       >
         <CustomTrustlineDialog
           account={props.account}

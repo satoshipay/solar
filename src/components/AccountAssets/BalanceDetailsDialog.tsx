@@ -4,8 +4,6 @@ import { Asset, Horizon } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
-import Slide from "@material-ui/core/Slide"
-import { TransitionProps } from "@material-ui/core/transitions/transition"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
@@ -13,16 +11,13 @@ import { useAssetMetadata } from "../../hooks/stellar"
 import { useAccountData, useAccountOffers } from "../../hooks/stellar-subscriptions"
 import { stringifyAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import * as routes from "../../routes"
+import { FullscreenDialogTransition } from "../../theme"
 import { sortBalances } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import MainTitle from "../MainTitle"
 import AddAssetDialog from "./AddAssetDialog"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
-
-const DialogHorizontalTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide {...props} direction="left" ref={ref} />
-))
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
   if (balance.asset_type === "native") {
@@ -149,7 +144,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
         fullScreen
         open={addAssetDialogOpen}
         onClose={closeAddAssetDialog}
-        TransitionComponent={DialogHorizontalTransition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <AddAssetDialog
           account={props.account}

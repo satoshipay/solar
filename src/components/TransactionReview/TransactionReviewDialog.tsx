@@ -1,14 +1,13 @@
 import BigNumber from "big.js"
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
-import { TransitionProps } from "@material-ui/core/transitions/transition"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { Operation, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { isStellarWebAuthTransaction } from "../../lib/transaction"
 import { useDialogActions, useIsMobile } from "../../hooks/userinterface"
+import { FullscreenDialogTransition, CompactDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
@@ -25,11 +24,6 @@ function isOfferDeletionOperation(operation: Operation) {
     (operation.type === "manageSellOffer" && BigNumber(operation.amount).eq(0))
   )
 }
-
-const TransitionLeft = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide ref={ref} {...props} direction="left" />
-))
-const TransitionUp = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="up" />)
 
 function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
   if (!props.transaction) {
@@ -86,7 +80,7 @@ function TransactionReviewDialog(props: Props) {
       fullScreen={isSmallScreen}
       onClose={props.onClose}
       maxWidth="lg"
-      TransitionComponent={isSmallScreen ? TransitionLeft : TransitionUp}
+      TransitionComponent={isSmallScreen ? FullscreenDialogTransition : CompactDialogTransition}
       PaperProps={{
         style: { minWidth: isScreen600pxWide ? 500 : undefined }
       }}

@@ -4,18 +4,14 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import Slide from "@material-ui/core/Slide"
-import { TransitionProps } from "@material-ui/core/transitions/transition"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks/userinterface"
-import { breakpoints } from "../../theme"
+import { breakpoints, CompactDialogTransition } from "../../theme"
 import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
-
-const Transition = React.forwardRef((props: TransitionProps, ref) => <Slide ref={ref} {...props} direction="up" />)
 
 function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
   return (
@@ -206,7 +202,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog(props: ConfirmDialogProps) {
   const isSmallScreen = useIsMobile()
   return (
-    <Dialog open={props.open} onClose={props.onClose} TransitionComponent={Transition}>
+    <Dialog open={props.open} onClose={props.onClose} TransitionComponent={CompactDialogTransition}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent style={{ paddingBottom: isSmallScreen ? 24 : undefined }}>
         <Typography variant="body2">{props.children}</Typography>

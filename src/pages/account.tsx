@@ -1,8 +1,6 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
-import Slide from "@material-ui/core/Slide"
 import { makeStyles } from "@material-ui/core/styles"
-import { TransitionProps } from "@material-ui/core/transitions/transition"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
@@ -23,10 +21,7 @@ import { useAccountData } from "../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
-
-const DialogTransition = React.forwardRef((props: TransitionProps, ref) => (
-  <Slide ref={ref} {...props} direction="left" />
-))
+import { FullscreenDialogTransition } from "../theme"
 
 const useButtonStyles = makeStyles(theme => ({
   desktop: {
@@ -197,7 +192,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         open={showBalanceDetails}
         fullScreen
         onClose={navigateTo.transactions}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
@@ -205,7 +200,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         open={showAssetDetails}
         fullScreen
         onClose={navigateTo.balanceDetails}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <AssetDetailsDialog
           account={props.account}
@@ -217,7 +212,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         open={showCreatePayment}
         fullScreen
         onClose={navigateTo.transactions}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <CreatePaymentDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
@@ -225,7 +220,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         open={showReceivePayment}
         fullScreen
         onClose={navigateTo.transactions}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <ReceivePaymentDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
@@ -233,11 +228,16 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         open={showAssetTrading}
         fullScreen
         onClose={navigateTo.transactions}
-        TransitionComponent={DialogTransition}
+        TransitionComponent={FullscreenDialogTransition}
       >
         <TradeAssetDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
-      <Dialog open={showWithdrawal} fullScreen onClose={navigateTo.transactions} TransitionComponent={DialogTransition}>
+      <Dialog
+        open={showWithdrawal}
+        fullScreen
+        onClose={navigateTo.transactions}
+        TransitionComponent={FullscreenDialogTransition}
+      >
         <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
     </VerticalLayout>
