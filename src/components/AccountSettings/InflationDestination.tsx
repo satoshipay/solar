@@ -14,6 +14,7 @@ import { createTransaction } from "../../lib/transaction"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import MainTitle from "../MainTitle"
+import InflationExplanation from "./InflationExplanation"
 
 function validateDestination(accountData: ObservedAccountData, newDestination: string) {
   if (newDestination === "") {
@@ -131,13 +132,13 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
       top={<MainTitle hideBackButton={!props.onClose} onBack={props.onClose} title="Edit Inflation Destination" />}
       actions={<DialogActionsBox smallDialog>{actions}</DialogActionsBox>}
     >
-      <VerticalLayout alignItems="center" margin={isSmallScreen ? "64px 0" : "64px auto"}>
+      <VerticalLayout alignItems="center" margin={isSmallScreen ? "32px 0 0" : "32px auto 0"} maxWidth={700}>
         <TextField
           autoFocus
           error={Boolean(error)}
+          fullWidth
           label={error ? error.message : "Inflation destination"}
           inputProps={{
-            size: isSmallScreen ? 24 : 56,
             style: { textOverflow: "ellipsis" }
           }}
           onChange={handleDestinationEditing}
@@ -145,6 +146,7 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
           placeholder="GABCDEFGHIJK... or pool*example.org"
           value={hasBeenEdited ? destination : accountData.inflation_destination || ""}
         />
+        <InflationExplanation style={{ marginTop: 32 }} />
       </VerticalLayout>
     </DialogBody>
   )
