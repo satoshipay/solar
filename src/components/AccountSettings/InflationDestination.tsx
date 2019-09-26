@@ -5,12 +5,13 @@ import ClearIcon from "@material-ui/icons/Clear"
 import CheckIcon from "@material-ui/icons/Check"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useWellKnownAccounts } from "../../hooks/stellar"
 import { useAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { isPublicKey } from "../../lib/stellar-address"
+import { createTransaction } from "../../lib/transaction"
 import TransactionSender from "../TransactionSender"
 import { VerticalLayout } from "../Layout/Box"
-import { createTransaction } from "../../lib/transaction"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import MainTitle from "../MainTitle"
@@ -42,6 +43,7 @@ function clearTextSelection() {
 
 function InflationDestinationDialog(props: InflationDestinationDialogProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const wellKnownAccounts = useWellKnownAccounts()
   const router = useRouter()
   const isSmallScreen = useIsMobile()
 
@@ -111,7 +113,11 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
   const actions = React.useMemo(
     () => (
       <>
-        <ActionButton icon={<ClearIcon />} onClick={cancelEditing} type="secondary">
+        <ActionButton
+          icon={<ClearIcon />}
+          onClick={hasBeenEditedRef.current ? cancelEditing : props.onClose}
+          type="secondary"
+        >
           Cancel
         </ActionButton>
         <ActionButton
@@ -127,6 +133,9 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
     [accountData, applyInflationDestination, cancelEditing, destination]
   )
 
+  const value = hasBeenEdited ? destination : accountData.inflation_destination || ""
+  const wellKnownAccount = props.account.testnet ? undefined : wellKnownAccounts.lookup(value)
+
   return (
     <DialogBody
       top={<MainTitle hideBackButton={!props.onClose} onBack={props.onClose} title="Edit Inflation Destination" />}
@@ -138,13 +147,14 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
           error={Boolean(error)}
           fullWidth
           label={error ? error.message : "Inflation destination"}
+          helperText={wellKnownAccount ? `${wellKnownAccount.name} (${wellKnownAccount.domain})` : undefined}
           inputProps={{
             style: { textOverflow: "ellipsis" }
           }}
           onChange={handleDestinationEditing}
           onKeyDown={handleKeyDown}
           placeholder="GABCDEFGHIJK... or pool*example.org"
-          value={hasBeenEdited ? destination : accountData.inflation_destination || ""}
+          value={value}
         />
         <InflationExplanation style={{ marginTop: 32 }} />
       </VerticalLayout>
