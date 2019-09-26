@@ -20,14 +20,15 @@ function InflationExplanation(props: Props) {
         Stellar Inflation
       </Typography>
       <Typography style={{ marginTop: 8 }} variant="body2">
-        The Stellar network comes with a built-in inflation of 1% per year. The inflation is paid out weekly by
-        distributing the funds among the existing Stellar accounts, so that each account receives their 1% over the
-        course of the year.
+        The Stellar network comes with a built-in inflation of 1% per year.
       </Typography>
       <Typography style={{ marginTop: 8 }} variant="body2">
-        The inflation is not paid out directly to each account on the network, but to inflation pool accounts. To
-        receive inflation payments you need to join an inflation pool by setting your inflation destination to the pool
-        account of your choice.
+        New lumens are issued each week and distributed among the existing Stellar accounts, according to their balance.
+        The inflation is not paid out to each account directly, but to pool accounts.
+      </Typography>
+      <Typography style={{ marginTop: 8 }} variant="body2">
+        Join an inflation pool by setting your inflation destination to a pool account of your choice and receive weekly
+        inflation payouts.
       </Typography>
       <Typography style={{ marginTop: 8 }} variant="body2">
         Read the{" "}
