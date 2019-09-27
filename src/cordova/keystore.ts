@@ -1,5 +1,5 @@
 import { KeyStore } from "key-store"
-import { Transaction, Network, Keypair } from "stellar-sdk"
+import { Transaction, Keypair } from "stellar-sdk"
 import { CommandHandlers, registerCommandHandler } from "./ipc"
 
 export const commands = {
@@ -118,10 +118,9 @@ async function respondWithSignedTransaction(
 ) {
   const { keyID, networkPassphrase, password, transactionEnvelope } = event.data
 
-  const transaction = new Transaction(transactionEnvelope)
+  const transaction = new Transaction(transactionEnvelope, networkPassphrase)
   const { privateKey } = keyStore.getPrivateKeyData(keyID, password)
 
-  Network.use(new Network(networkPassphrase))
   transaction.sign(Keypair.fromSecret(privateKey))
 
   const result = transaction.toEnvelope().toXDR("base64")

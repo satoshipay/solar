@@ -2,13 +2,13 @@ import {
   Asset,
   Keypair,
   Memo,
-  Network,
   Operation,
   Server,
   ServerApi,
   TransactionBuilder,
   Transaction,
-  xdr
+  xdr,
+  Networks
 } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { createWrongPasswordError } from "../lib/errors"
@@ -38,14 +38,6 @@ export function createCheapTxID(transaction: Transaction | ServerApi.Transaction
   }
 
   return `${source}:${sequence}`
-}
-
-export function selectNetwork(testnet = false) {
-  if (testnet) {
-    Network.useTestNetwork()
-  } else {
-    Network.usePublicNetwork()
-  }
 }
 
 export function hasSigned(transaction: Transaction, publicKey: string) {
@@ -109,14 +101,14 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
     horizon.fetchTimebounds(timeout)
   ])
 
+  const networkPassphrase = walletAccount.testnet ? Networks.TESTNET : Networks.PUBLIC
   const txFee = Math.max(smartTxFee, options.minTransactionFee || 0)
-
-  selectNetwork(walletAccount.testnet)
 
   const builder = new TransactionBuilder(account, {
     fee: txFee,
     memo: options.memo || undefined,
-    timebounds
+    timebounds,
+    networkPassphrase
   })
 
   for (const operation of operations) {

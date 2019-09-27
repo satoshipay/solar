@@ -11,7 +11,7 @@ import { Account, AccountsContext } from "../../context/accounts"
 import { SigningKeyCacheContext } from "../../context/caches"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
-import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction, selectNetwork } from "../../lib/transaction"
+import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction } from "../../lib/transaction"
 import theme from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 import { AccountName } from "../Fetchers"
@@ -84,7 +84,6 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
 
   const transaction = props.transaction as TransactionWithUndocumentedProps
   const transactionHash = React.useMemo(() => {
-    selectNetwork(props.testnet)
     return transaction.hash().toString("hex")
   }, [transaction])
 

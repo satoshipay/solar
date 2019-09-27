@@ -1,4 +1,4 @@
-import { Server, ServerApi, Transaction } from "stellar-sdk"
+import { Server, ServerApi, Transaction, Networks } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
 import { waitForAccountData } from "../lib/account"
 import { isNotFoundError } from "../lib/stellar"
@@ -18,19 +18,20 @@ const createEmptyTransactionSet = (): ObservedRecentTxs => ({
   transactions: []
 })
 
-function deserializeTx(txResponse: ServerApi.TransactionRecord) {
-  return Object.assign(new Transaction(txResponse.envelope_xdr), {
+function deserializeTx(txResponse: ServerApi.TransactionRecord, testnet: boolean) {
+  const networkPassphrase = testnet ? Networks.TESTNET : Networks.PUBLIC
+  return Object.assign(new Transaction(txResponse.envelope_xdr, networkPassphrase), {
     created_at: txResponse.created_at
   })
 }
 
 export function createRecentTxsSubscription(
   horizon: Server,
-  accountPubKey: string
+  accountPubKey: string,
+  testnet: boolean
 ): SubscriptionTarget<ObservedRecentTxs> {
   const maxTxsToLoadCount = 15
   const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget(createEmptyTransactionSet())
-
   const fetchRecentTxs = async (limit: number) => {
     const { records } = await horizon
       .transactions()
@@ -59,7 +60,7 @@ export function createRecentTxsSubscription(
               }
               propagateUpdate({
                 ...subscriptionTarget.getLatest(),
-                transactions: [deserializeTx(transaction), ...subscriptionTarget.getLatest().transactions]
+                transactions: [deserializeTx(transaction, testnet), ...subscriptionTarget.getLatest().transactions]
               })
             }
           }) as any,
@@ -86,7 +87,10 @@ export function createRecentTxsSubscription(
       }
       propagateUpdate({
         ...subscriptionTarget.getLatest(),
-        transactions: [...subscriptionTarget.getLatest().transactions, ...recentTxs.map(deserializeTx)],
+        transactions: [
+          ...subscriptionTarget.getLatest().transactions,
+          ...recentTxs.map(tx => deserializeTx(tx, testnet))
+        ],
         activated: true,
         loading: false
       })

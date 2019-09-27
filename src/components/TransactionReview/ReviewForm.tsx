@@ -9,7 +9,7 @@ import { SettingsContext } from "../../context/settings"
 import { RefStateObject } from "../../hooks/userinterface"
 import { renderFormFieldError } from "../../lib/errors"
 import { SignatureRequest } from "../../lib/multisig-service"
-import { createCheapTxID, selectNetwork } from "../../lib/transaction"
+import { createCheapTxID } from "../../lib/transaction"
 import { openLink } from "../../platform/links"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
@@ -50,19 +50,16 @@ function TxConfirmationForm(props: Props) {
   const cancelDismissal = React.useCallback(() => setDismissalConfirmationPending(false), [])
   const requestDismissalConfirmation = React.useCallback(() => setDismissalConfirmationPending(true), [])
 
-  const dismissSignatureRequest = React.useCallback(
-    () => {
-      if (!props.signatureRequest) return
+  const dismissSignatureRequest = React.useCallback(() => {
+    if (!props.signatureRequest) return
 
-      settings.ignoreSignatureRequest(props.signatureRequest.hash)
-      setDismissalConfirmationPending(false)
+    settings.ignoreSignatureRequest(props.signatureRequest.hash)
+    setDismissalConfirmationPending(false)
 
-      if (props.onClose) {
-        props.onClose()
-      }
-    },
-    [props.signatureRequest]
-  )
+    if (props.onClose) {
+      props.onClose()
+    }
+  }, [props.signatureRequest])
   const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
     setFormValues(prevValues => ({
       ...prevValues,
@@ -70,17 +67,13 @@ function TxConfirmationForm(props: Props) {
     }))
   }
 
-  const openInStellarExpert = React.useCallback(
-    () => {
-      selectNetwork(props.account.testnet)
-      openLink(
-        `https://stellar.expert/explorer/${
-          props.account.testnet ? "testnet" : "public"
-        }/tx/${props.transaction.hash().toString("hex")}`
-      )
-    },
-    [createCheapTxID(props.transaction)]
-  )
+  const openInStellarExpert = React.useCallback(() => {
+    openLink(
+      `https://stellar.expert/explorer/${
+        props.account.testnet ? "testnet" : "public"
+      }/tx/${props.transaction.hash().toString("hex")}`
+    )
+  }, [createCheapTxID(props.transaction)])
 
   const handleFormSubmission = React.useCallback(
     (event: React.SyntheticEvent) => {
