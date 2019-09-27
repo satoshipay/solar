@@ -4,7 +4,7 @@ export interface AccountRecord {
   name: string
   tags: string[]
   domain: string
-  accepts: {
-    memo: string
+  accepts?: {
+    memo: "MEMO_TEXT" | "MEMO_ID"
   }
 }

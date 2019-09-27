@@ -9,7 +9,8 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
-import { useFederationLookup } from "../../hooks/stellar"
+import { AccountRecord } from "../../types/well-known-accounts"
+import { useFederationLookup, useWellKnownAccounts } from "../../hooks/stellar"
 import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { renderFormFieldError } from "../../lib/errors"
@@ -54,7 +55,11 @@ export interface PaymentCreationValues {
 
 type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
 
-function validateFormValues(formValues: PaymentCreationValues, spendableBalance: BigNumber) {
+function validateFormValues(
+  formValues: PaymentCreationValues,
+  spendableBalance: BigNumber,
+  knownAccount: AccountRecord | undefined
+) {
   const errors: PaymentCreationErrors = {}
 
   if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
@@ -68,6 +73,10 @@ function validateFormValues(formValues: PaymentCreationValues, spendableBalance:
 
   if (formValues.memoValue.length > 28) {
     errors.memoValue = new Error("Memo too long.")
+  } else if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1 && formValues.memoValue.length === 0) {
+    errors.memoValue = new Error(`Set a memo when sending funds to ${knownAccount.name}`)
+  } else if (formValues.memoType === "id" && !formValues.memoValue.match(/^[0-9]+$/)) {
+    errors.memoValue = new Error("Memo must be an integer.")
   }
 
   const success = Object.keys(errors).length === 0
@@ -120,6 +129,7 @@ interface Props {
 function PaymentCreationForm(props: Props) {
   const isSmallScreen = useIsMobile()
   const { lookupFederationRecord } = useFederationLookup()
+  const wellknownAccounts = useWellKnownAccounts()
 
   const formID = React.useMemo(() => nanoid(), [])
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
@@ -130,6 +140,21 @@ function PaymentCreationForm(props: Props) {
     memoType: "none",
     memoValue: ""
   })
+
+  const [memoPlaceholder, setMemoPlaceholder] = React.useState("Description (optional)")
+  const [memoLabel, setMemoLabel] = React.useState("Memo")
+  React.useEffect(() => {
+    const knownAccount = wellknownAccounts.lookup(formValues.destination)
+    if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
+      const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
+      setFormValue("memoType", acceptedMemoType === "MEMO_ID" ? "id" : "text")
+      setMemoPlaceholder("Description (mandatory)")
+      setMemoLabel(`Memo ${acceptedMemoType === "MEMO_ID" ? "(ID)" : "(Text)"}`)
+    } else {
+      setMemoPlaceholder("Description (optional)")
+      setMemoLabel("Memo")
+    }
+  }, [formValues.destination, formValues.memoType])
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
 
@@ -184,7 +209,11 @@ function PaymentCreationForm(props: Props) {
   }
 
   const submitTransaction = () => {
-    const validation = validateFormValues(formValues, spendableBalance)
+    const validation = validateFormValues(
+      formValues,
+      spendableBalance,
+      wellknownAccounts.lookup(formValues.destination)
+    )
     setErrors(validation.errors)
 
     if (validation.success) {
@@ -246,14 +275,15 @@ function PaymentCreationForm(props: Props) {
         <TextField
           inputProps={{ maxLength: 28 }}
           error={Boolean(errors.memoValue)}
-          label={errors.memoValue ? renderFormFieldError(errors.memoValue) : "Memo"}
-          placeholder="Description (optional)"
+          label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoLabel}
+          placeholder={memoPlaceholder}
           margin="normal"
           onChange={event => {
             setFormValues({
               ...formValues,
               memoValue: event.target.value,
-              memoType: event.target.value.length === 0 ? "none" : "text"
+              memoType:
+                event.target.value.length === 0 ? "none" : formValues.memoType === "none" ? "text" : formValues.memoType
             })
           }}
           value={formValues.memoValue}
