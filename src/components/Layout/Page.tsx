@@ -20,6 +20,9 @@ function TopOfTopSection(props: { background?: React.CSSProperties["background"]
   } else if (platform === "ios") {
     // Add some additional v-space for the iPhone X notch
     return <div className="iphone-notch-top-spacing" />
+  } else if (platform === "android") {
+    // Add some additional v-space for the android full screen
+    return <div className="android-top-spacing" />
   } else {
     return null
   }
@@ -54,7 +57,11 @@ const Section = React.memo(function Section(props: SectionProps) {
   const isSmallScreen = useIsMobile()
 
   const className = [
-    platform === "ios" && props.top ? "iphone-notch-top-spacing" : "",
+    platform === "ios" && props.top
+      ? "iphone-notch-top-spacing"
+      : platform === "android" && props.top
+      ? "android-top-spacing"
+      : "",
     platform === "ios" ? "iphone-notch-left-spacing" : "",
     platform === "ios" ? "iphone-notch-right-spacing" : "",
     platform === "ios" && props.bottom ? "iphone-notch-bottom-spacing" : ""

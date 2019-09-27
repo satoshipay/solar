@@ -119,16 +119,7 @@ const theme = createMuiTheme({
       },
       paperFullScreen: {
         backgroundColor: "#fcfcfc",
-        boxSizing: "border-box",
-
-        "&": {
-          // iOS 11
-          paddingTop: "constant(safe-area-inset-top)",
-          paddingBottom: "constant(safe-area-inset-bottom)"
-        },
-        // iOS 12
-        paddingTop: "env(safe-area-inset-top)",
-        paddingBottom: "env(safe-area-inset-bottom)"
+        boxSizing: "border-box"
       }
     },
     MuiFormLabel: {
