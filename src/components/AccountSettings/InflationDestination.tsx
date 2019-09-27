@@ -1,21 +1,21 @@
 import React from "react"
 import { Operation, Transaction, Server } from "stellar-sdk"
-import InputLabel from "@material-ui/core/InputLabel"
 import TextField from "@material-ui/core/TextField"
 import ClearIcon from "@material-ui/icons/Clear"
 import CheckIcon from "@material-ui/icons/Check"
-import EditIcon from "@material-ui/icons/Edit"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
+import { useWellKnownAccounts } from "../../hooks/stellar"
 import { useAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { isPublicKey } from "../../lib/stellar-address"
+import { createTransaction } from "../../lib/transaction"
 import TransactionSender from "../TransactionSender"
 import { VerticalLayout } from "../Layout/Box"
-import { createTransaction } from "../../lib/transaction"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import MainTitle from "../MainTitle"
+import InflationExplanation from "./InflationExplanation"
 
 function validateDestination(accountData: ObservedAccountData, newDestination: string) {
   if (newDestination === "") {
@@ -43,26 +43,25 @@ function clearTextSelection() {
 
 function InflationDestinationDialog(props: InflationDestinationDialogProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const wellKnownAccounts = useWellKnownAccounts()
   const router = useRouter()
   const isSmallScreen = useIsMobile()
 
-  const [destination, setDestination] = React.useState(() => accountData.inflation_destination || "")
+  const [destination, setDestination] = React.useState(accountData.inflation_destination || "")
   const [error, setError] = React.useState<Error | null>(null)
-  const [mode, setMode] = React.useState<"editing" | "readonly">("readonly")
 
-  const readonlyDisplayName = destination || accountData.inflation_destination || "No inflation destination set."
-
-  const switchToEditMode = React.useCallback(() => setMode("editing"), [])
+  const hasBeenEditedRef = React.useRef(false)
+  const hasBeenEdited = hasBeenEditedRef.current
 
   React.useEffect(() => {
     return router.history.listen(() => {
-      setMode("readonly")
       clearTextSelection()
     })
   }, [])
 
   const handleDestinationEditing = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setDestination(event.target.value)
+    hasBeenEditedRef.current = true
   }, [])
 
   const submitTransaction = async (newDestination: string) => {
@@ -98,78 +97,66 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
         applyInflationDestination()
       } else if (event.key === "Escape") {
         setDestination(accountData.inflation_destination ? accountData.inflation_destination : "")
-        setMode("readonly")
         clearTextSelection()
       }
     },
     [accountData, destination]
   )
 
-  const cancelEditing = React.useCallback(
-    () => {
-      setDestination(accountData.inflation_destination || "")
-      setError(null)
-      setMode("readonly")
-      clearTextSelection()
-    },
-    [accountData]
-  )
+  const cancelEditing = React.useCallback(() => {
+    setDestination(accountData.inflation_destination || "")
+    setError(null)
+    clearTextSelection()
+    hasBeenEditedRef.current = false
+  }, [accountData])
 
-  const editableActions = React.useMemo(
+  const actions = React.useMemo(
     () => (
       <>
-        <ActionButton icon={<ClearIcon />} onClick={cancelEditing} type="secondary">
+        <ActionButton
+          icon={<ClearIcon />}
+          onClick={hasBeenEditedRef.current ? cancelEditing : props.onClose}
+          type="secondary"
+        >
           Cancel
         </ActionButton>
-        <ActionButton icon={<CheckIcon />} onClick={applyInflationDestination} type="primary">
+        <ActionButton
+          disabled={!destination || destination === accountData.inflation_destination}
+          icon={<CheckIcon />}
+          onClick={applyInflationDestination}
+          type="primary"
+        >
           Submit
         </ActionButton>
       </>
     ),
-    [cancelEditing, applyInflationDestination]
+    [accountData, applyInflationDestination, cancelEditing, destination]
   )
 
-  const readonlyActions = React.useMemo(
-    () => (
-      <ActionButton onClick={switchToEditMode} icon={<EditIcon />} type="primary">
-        Edit
-      </ActionButton>
-    ),
-    []
-  )
+  const value = hasBeenEdited ? destination : accountData.inflation_destination || ""
+  const wellKnownAccount = props.account.testnet ? undefined : wellKnownAccounts.lookup(value)
 
   return (
     <DialogBody
-      top={<MainTitle hideBackButton={!props.onClose} onBack={props.onClose} title="Set Inflation Destination" />}
-      actions={
-        <DialogActionsBox smallDialog>{mode === "editing" ? editableActions : readonlyActions}</DialogActionsBox>
-      }
+      top={<MainTitle hideBackButton={!props.onClose} onBack={props.onClose} title="Edit Inflation Destination" />}
+      actions={<DialogActionsBox smallDialog>{actions}</DialogActionsBox>}
     >
-      <VerticalLayout margin={isSmallScreen ? "64px 0" : "64px auto"}>
-        <InputLabel
-          style={{
-            overflow: "visible",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-            color: error ? "red" : undefined
-          }}
-        >
-          {error ? error.message : "Inflation destination"}
-        </InputLabel>
+      <VerticalLayout alignItems="center" margin={isSmallScreen ? "32px 0 0" : "32px auto 0"} maxWidth={700}>
         <TextField
           autoFocus
-          disabled={mode === "readonly"}
           error={Boolean(error)}
           fullWidth
+          label={error ? error.message : "Inflation destination"}
+          helperText={wellKnownAccount ? `${wellKnownAccount.name} (${wellKnownAccount.domain})` : undefined}
           inputProps={{
-            size: isSmallScreen ? 24 : 56,
             style: { textOverflow: "ellipsis" }
           }}
           onChange={handleDestinationEditing}
           onKeyDown={handleKeyDown}
           placeholder="GABCDEFGHIJK... or pool*example.org"
-          value={mode === "readonly" ? readonlyDisplayName : destination}
+          value={value}
         />
+        <InflationExplanation style={{ marginTop: 32 }} />
       </VerticalLayout>
     </DialogBody>
   )
