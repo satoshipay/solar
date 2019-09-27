@@ -5,7 +5,7 @@ import Button from "@material-ui/core/Button"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
 import { createTransaction } from "../../lib/transaction"
 import { ObservedAccountData } from "../../subscriptions"
@@ -112,7 +112,7 @@ function ManageSignersDialog(props: Props) {
 }
 
 function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   return (
     <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (

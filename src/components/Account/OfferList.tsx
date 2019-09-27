@@ -10,7 +10,7 @@ import BarChartIcon from "@material-ui/icons/BarChart"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks/stellar"
-import { useAccountData, useAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData, useLiveAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
 import { offerAssetToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
@@ -102,8 +102,8 @@ interface Props {
 }
 
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const offers = useAccountOffers(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const offers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
 
   const onCancel = async (offer: ServerApi.OfferRecord) => {

@@ -4,7 +4,7 @@ import { storiesOf } from "@storybook/react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import TransactionReviewDialog from "../src/components/TransactionReview/TransactionReviewDialog"
 import { Account, AccountsContext, AccountsProvider } from "../src/context/accounts"
-import { useAccountData } from "../src/hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../src/hooks/stellar-subscriptions"
 import { createPaymentOperation, createTransaction } from "../src/lib/transaction"
 
 interface DialogContainerProps {
@@ -15,7 +15,7 @@ interface DialogContainerProps {
 function DialogContainer(props: DialogContainerProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [transaction, setTransaction] = React.useState<Transaction | null>(null)
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
 
   React.useEffect(() => {
     const createDemoTx = async () => {

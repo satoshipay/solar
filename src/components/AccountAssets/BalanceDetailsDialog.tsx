@@ -8,7 +8,8 @@ import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { useAssetMetadata } from "../../hooks/stellar"
-import { useAccountData, useAccountOffers } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
+import { matchesRoute } from "../../lib/routes"
 import { stringifyAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import * as routes from "../../routes"
 import { FullscreenDialogTransition } from "../../theme"
@@ -33,14 +34,23 @@ interface BalanceDetailsProps {
 }
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
-  const accountOffers = useAccountOffers(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountOffers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
-  const openAddAssetDialog = () => router.history.push(routes.manageAccountAssets(props.account.id))
-  const closeAddAssetDialog = () => router.history.push(routes.balanceDetails(props.account.id))
-  const addAssetDialogOpen = router.location.pathname.startsWith(routes.manageAccountAssets(props.account.id))
+  const openAddAssetDialog = React.useCallback(
+    () => router.history.push(routes.manageAccountAssets(props.account.id)),
+    [props.account.id]
+  )
+  const closeAddAssetDialog = React.useCallback(() => router.history.push(routes.balanceDetails(props.account.id)), [
+    props.account.id
+  ])
+
+  const addAssetDialogOpen = matchesRoute(router.location.pathname, routes.manageAccountAssets(props.account.id))
+  const assetDetailsDialogOpen =
+    matchesRoute(router.location.pathname, routes.assetDetails("*", "*")) &&
+    !matchesRoute(router.location.pathname, routes.assetDetails("*", "manage"))
 
   const openAssetDetails = (asset: Asset) =>
     router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
@@ -142,7 +152,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
       </List>
       <Dialog
         fullScreen
-        open={addAssetDialogOpen}
+        open={addAssetDialogOpen || assetDetailsDialogOpen}
         onClose={closeAddAssetDialog}
         TransitionComponent={FullscreenDialogTransition}
       >

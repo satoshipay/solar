@@ -3,7 +3,7 @@ import React from "react"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { Account, AccountsContext } from "../context/accounts"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
-import { useAccountEffectSubscriptions } from "../hooks/stellar-subscriptions"
+import { useLiveAccountEffects } from "../hooks/stellar-subscriptions"
 import { useRouter } from "../hooks/userinterface"
 import { SignatureRequest } from "../lib/multisig-service"
 import * as routes from "../routes"
@@ -47,7 +47,7 @@ function DesktopNotifications() {
     return unsubscribeFromNewSignatureRequests
   }, [])
 
-  useAccountEffectSubscriptions(accounts, (account: Account, effect: ServerApi.EffectRecord) => {
+  useLiveAccountEffects(accounts, (account: Account, effect: ServerApi.EffectRecord) => {
     if (isTradeEffect(effect)) {
       const buying =
         effect.bought_asset_code && effect.bought_asset_issuer

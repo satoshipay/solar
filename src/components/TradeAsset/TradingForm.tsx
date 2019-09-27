@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
-import { useOrderbook } from "../../hooks/stellar-subscriptions"
+import { useLiveOrderbook } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useIsSmallMobile } from "../../hooks/userinterface"
 import { calculateSpread } from "../../lib/orderbook"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
@@ -37,7 +37,7 @@ interface Props {
 
 function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
-  const tradePair = useOrderbook(props.selling, props.buying, props.testnet)
+  const tradePair = useLiveOrderbook(props.selling, props.buying, props.testnet)
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
 
@@ -53,8 +53,8 @@ function TradingForm(props: Props) {
 
   const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
 
-  const [manualPriceString, setManualPriceString] = React.useState<string | undefined>(
-    () => (bestPrice ? bestPrice.toString() : "")
+  const [manualPriceString, setManualPriceString] = React.useState<string | undefined>(() =>
+    bestPrice ? bestPrice.toString() : ""
   )
   const manualPrice =
     manualPriceString === undefined || Number.isNaN(Number.parseFloat(manualPriceString))

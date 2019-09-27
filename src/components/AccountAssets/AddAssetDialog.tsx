@@ -2,23 +2,41 @@ import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
+import ListItem from "@material-ui/core/ListItem"
+import ListItemText from "@material-ui/core/ListItemText"
+import { makeStyles } from "@material-ui/core/styles"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAssetMetadata } from "../../hooks/stellar"
+import { useStellarAssets, AssetRecord } from "../../hooks/stellar-ecosystem"
 import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
 import * as popularAssets from "../../lib/popularAssets"
-import { stringifyAsset } from "../../lib/stellar"
+import { assetRecordToAsset, stringifyAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
+import { AccountName } from "../Fetchers"
+import { SearchField } from "../Form/FormFields"
+import { VerticalLayout } from "../Layout/Box"
+import { FixedSizeList } from "../List/VirtualList"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
 import CustomTrustlineDialog from "./CustomTrustline"
+
+function assetRecordMatches(assetRecord: AssetRecord, search: string) {
+  search = search.toLowerCase()
+  return assetRecord.code.toLowerCase().startsWith(search) || assetRecord.name.toLowerCase().startsWith(search)
+}
+
+function issuerMatches(issuerDetails: AssetRecord["issuer_detail"], search: string) {
+  search = search.toLowerCase()
+  return issuerDetails.name.toLowerCase().startsWith(search)
+}
 
 function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
   return {
@@ -33,6 +51,171 @@ function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
   }
 }
 
+function groupAssets(values: AssetRecord[], createKey: (arg: AssetRecord) => string) {
+  const map: { [issuer: string]: AssetRecord[] } = {}
+
+  for (const value of values) {
+    const key = createKey(value)
+    const existingValues = map[key]
+    existingValues ? existingValues.push(value) : (map[key] = [value])
+  }
+
+  return map
+}
+
+interface PopularAssetsProps {
+  assets: Asset[]
+  onOpenAssetDetails: (asset: Asset) => void
+  testnet: boolean
+}
+
+const PopularAssets = React.memo(function PopularAssets(props: PopularAssetsProps) {
+  const assetMetadata = useAssetMetadata(props.assets, props.testnet)
+
+  return (
+    <>
+      {props.assets.map(asset => {
+        const [metadata] = assetMetadata.get(asset) || [undefined, false]
+        return (
+          <BalanceDetailsListItem
+            key={stringifyAsset(asset)}
+            assetMetadata={metadata}
+            balance={assetToBalance(asset)}
+            hideBalance
+            onClick={() => props.onOpenAssetDetails(asset)}
+            testnet={props.testnet}
+          />
+        )
+      })}
+    </>
+  )
+})
+
+const searchResultRowHeight = 73
+
+const useSearchResultStyles = makeStyles({
+  assetItem: {
+    borderRadius: "0 !important",
+    height: searchResultRowHeight
+  },
+  issuerItem: {
+    background: "white",
+    borderRadius: 8,
+    height: searchResultRowHeight,
+
+    "&:not($first)": {
+      borderTopLeftRadius: "0 !important",
+      borderTopRightRadius: "0 !important"
+    },
+    "&:not($last)": {
+      borderBottomLeftRadius: "0 !important",
+      borderBottomRightRadius: "0 !important"
+    }
+  },
+
+  // Only using these as selectors within other class rules
+  first: {},
+  last: {}
+})
+
+function createSearchResultRow(
+  account: Account,
+  assetsByIssuer: Record<string, AssetRecord[]>,
+  openAssetDetails: (asset: Asset) => void
+) {
+  // tslint:disable-next-line interface-over-type-literal
+  type AssetItemRecord = { type: "asset"; issuer: string; record: AssetRecord }
+  // tslint:disable-next-line interface-over-type-literal
+  type IssuerItemRecord = { type: "issuer"; issuer: string }
+
+  const itemRenderMap: Array<AssetItemRecord | IssuerItemRecord> = []
+
+  for (const issuer of Object.keys(assetsByIssuer)) {
+    itemRenderMap.push({
+      type: "issuer",
+      issuer
+    })
+    itemRenderMap.push(
+      ...assetsByIssuer[issuer].map(
+        (assetRecord: AssetRecord): AssetItemRecord => ({
+          type: "asset",
+          issuer,
+          record: assetRecord
+        })
+      )
+    )
+  }
+
+  function SearchResultRow(props: { index: number; style: React.CSSProperties }) {
+    const classes = useSearchResultStyles()
+    const item = itemRenderMap[props.index]
+    return (
+      <div style={props.style}>
+        {item.type === "issuer" ? (
+          <ListItem
+            key={item.issuer}
+            className={[
+              classes.issuerItem,
+              props.index === 0 ? classes.first : "",
+              props.index === itemRenderMap.length - 1 ? classes.last : ""
+            ].join(" ")}
+          >
+            <ListItemText
+              primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
+              secondary={
+                (assetsByIssuer[item.issuer][0]
+                  ? assetsByIssuer[item.issuer][0].issuer_detail.url ||
+                    assetsByIssuer[item.issuer][0].issuer_detail.name
+                  : undefined) || assetsByIssuer[item.issuer].length
+                  ? `One matching asset`
+                  : `${assetsByIssuer[item.issuer].length} matching assets`
+              }
+              secondaryTypographyProps={{
+                style: { overflow: "hidden", textOverflow: "ellipsis" }
+              }}
+            />
+          </ListItem>
+        ) : null}
+        {item.type === "asset" ? (
+          <BalanceDetailsListItem
+            assetMetadata={undefined}
+            balance={assetToBalance(assetRecordToAsset(item.record))}
+            className={`${classes.assetItem} ${props.index === 0 ? classes.first : ""} ${
+              props.index === itemRenderMap.length - 1 ? classes.last : ""
+            }`}
+            hideBalance
+            onClick={() => openAssetDetails(assetRecordToAsset(item.record))}
+            style={{ paddingLeft: 32 }}
+            testnet={account.testnet}
+          />
+        ) : null}
+      </div>
+    )
+  }
+
+  SearchResultRow.count = itemRenderMap.length
+  return SearchResultRow
+}
+
+const useAddAssetStyles = makeStyles({
+  grow: {
+    flexGrow: 1
+  },
+  list: {
+    marginTop: 16,
+    padding: 0
+  },
+  searchField: {
+    background: "white",
+    marginBottom: 16
+  },
+  searchFieldInput: {
+    fontSize: 16,
+    paddingTop: 14,
+    paddingBottom: 14
+  }
+})
+
 interface AddAssetDialogProps {
   account: Account
   accountData: ObservedAccountData
@@ -43,11 +226,14 @@ interface AddAssetDialogProps {
   sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
 }
 
-function AddAssetDialog(props: AddAssetDialogProps) {
+const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogProps) {
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
-  const assetMetadata = useAssetMetadata(assets, props.account.testnet)
+  const classes = useAddAssetStyles()
+  const containerRef = React.useRef<HTMLUListElement | null>(null)
+  const knownAssets = useStellarAssets(props.account.testnet)
   const router = useRouter()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
+  const [searchFieldValue, setSearchFieldValue] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const openAssetDetails = (asset: Asset) =>
@@ -85,28 +271,64 @@ function AddAssetDialog(props: AddAssetDialogProps) {
 
   const notYetAddedAssets = assets.filter(asset => !isAssetAlreadyAdded(asset))
 
+  const onSearchFieldChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setSearchFieldValue(event.target.value)
+  }, [])
+
+  const assetsByIssuer = React.useMemo(() => {
+    const allAssets = knownAssets.getAll() || []
+    const filteredAssets = allAssets.filter(
+      assetRecord =>
+        assetRecordMatches(assetRecord, searchFieldValue) || issuerMatches(assetRecord.issuer_detail, searchFieldValue)
+    )
+
+    return groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
+  }, [searchFieldValue])
+
+  const SearchResultRow = React.useMemo(() => createSearchResultRow(props.account, assetsByIssuer, openAssetDetails), [
+    props.account,
+    assetsByIssuer
+  ])
+
   return (
-    <DialogBody excessWidth={12} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
-      <List style={{ paddingLeft: props.hpadding, paddingRight: props.hpadding }}>
-        <ButtonListItem gutterBottom onClick={openCustomTrustlineDialog}>
-          <AddIcon />
-          &nbsp;&nbsp;Add Custom Asset
-        </ButtonListItem>
-        {notYetAddedAssets.map(asset => {
-          const [metadata] = assetMetadata.get(asset) || [undefined, false]
-          return (
-            <BalanceDetailsListItem
-              key={stringifyAsset(asset)}
-              assetMetadata={metadata}
-              balance={assetToBalance(asset)}
-              hideBalance
-              onClick={() => openAssetDetails(asset)}
-              style={{ paddingLeft: props.itemHPadding, paddingRight: props.itemHPadding }}
+    <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
+      <VerticalLayout grow margin="16px 0 0">
+        <SearchField
+          autoFocus
+          className={classes.searchField}
+          inputProps={{
+            className: classes.searchFieldInput
+          }}
+          onChange={onSearchFieldChange}
+          value={searchFieldValue}
+          placeholder="Search assets by code or name…"
+        />
+        <List className={classes.list}>
+          <ButtonListItem onClick={openCustomTrustlineDialog}>
+            <AddIcon />
+            &nbsp;&nbsp;Add Custom Asset
+          </ButtonListItem>
+        </List>
+        {searchFieldValue ? (
+          <ul className={`${classes.list} ${classes.grow}`} ref={containerRef}>
+            <FixedSizeList
+              container={containerRef.current}
+              itemCount={SearchResultRow.count}
+              itemSize={searchResultRowHeight}
+            >
+              {SearchResultRow}
+            </FixedSizeList>
+          </ul>
+        ) : (
+          <List className={`${classes.list} ${classes.grow}`}>
+            <PopularAssets
+              assets={notYetAddedAssets}
+              onOpenAssetDetails={openAssetDetails}
               testnet={props.account.testnet}
             />
-          )
-        })}
-      </List>
+          </List>
+        )}
+      </VerticalLayout>
       <Dialog
         open={customTrustlineDialogOpen}
         onClose={closeCustomTrustlineDialog}
@@ -124,7 +346,7 @@ function AddAssetDialog(props: AddAssetDialogProps) {
       </Dialog>
     </DialogBody>
   )
-}
+})
 
 function ConnectedAddAssetDialog(props: Omit<AddAssetDialogProps, "horizon" | "sendTransaction">) {
   const closeAfterTimeout = () => {

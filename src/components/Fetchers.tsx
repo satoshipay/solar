@@ -1,8 +1,7 @@
 import React from "react"
 import Async from "react-promise"
 import { Server, ServerApi } from "stellar-sdk"
-import { useHorizon } from "../hooks/stellar"
-import { getHorizonURL } from "../lib/stellar"
+import { useAccountData, useHorizon } from "../hooks/stellar"
 import { Address } from "./PublicKey"
 
 const memCache = new Map<string, any>()
@@ -51,28 +50,17 @@ interface AccountNameProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
-  const horizon = useHorizon(props.testnet)
-  const fallback = React.useMemo(() => <Address address={props.publicKey} variant="short" />, [props.publicKey])
-  return (
-    <Memoized
-      cacheKey={`AccountData:${props.publicKey}`}
-      fetch={() =>
-        horizon
-          .accounts()
-          .accountId(props.publicKey)
-          .call()
-      }
-      then={(accountData: any) =>
-        accountData.home_domain ? <span style={{ userSelect: "text" }}>{accountData.home_domain}</span> : fallback
-      }
-      catch={() => fallback}
-      pending={fallback}
-    />
+  const accountData = useAccountData(props.publicKey, props.testnet)
+
+  return accountData.home_domain ? (
+    <span style={{ userSelect: "text" }}>{accountData.home_domain}</span>
+  ) : (
+    <Address address={props.publicKey} variant="short" />
   )
 })
 
 async function fetchHorizonMetadata(horizon: Server) {
-  const response = await fetch(getHorizonURL(horizon))
+  const response = await fetch(String(horizon.serverURL))
   return response.json()
 }
 
@@ -89,7 +77,9 @@ type LedgerDataRenderProp = (ledgerData: ServerApi.LedgerRecord) => React.ReactN
 
 const LedgerMetadata = (props: { children: LedgerDataRenderProp; testnet: boolean }) => {
   const horizon = useHorizon(props.testnet)
-  return <Memoized cacheKey={getHorizonURL(horizon)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
+  return (
+    <Memoized cacheKey={String(horizon.serverURL)} fetch={() => fetchLatestLedger(horizon)} then={props.children} />
+  )
 }
 
 // tslint:disable-next-line no-shadowed-variable

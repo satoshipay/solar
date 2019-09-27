@@ -5,7 +5,7 @@ import { Asset } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
 import { WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
 import { Account } from "../../context/accounts"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { RefStateObject } from "../../hooks/userinterface"
 import { findMatchingBalanceLine } from "../../lib/stellar"
 import { formatBalance } from "../Account/AccountBalances"
@@ -26,7 +26,7 @@ interface Props {
 
 function WithdrawalTransactionForm(props: Props) {
   const formID = React.useMemo(() => nanoid(), [])
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const [amountString, setAmountString] = React.useState("")
 
   const balanceLine = findMatchingBalanceLine(accountData.balances, props.asset)

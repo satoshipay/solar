@@ -17,7 +17,7 @@ import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
 import TradeAssetDialog from "../components/TradeAsset/TradeAssetDialog"
 import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
 import { Account, AccountsContext } from "../context/accounts"
-import { useAccountData } from "../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
@@ -68,7 +68,7 @@ interface AccountActionsProps {
 
 // tslint:disable-next-line no-shadowed-variable
 const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
   const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
   return (
@@ -189,7 +189,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       ) : null}
 
       <Dialog
-        open={showBalanceDetails}
+        open={showBalanceDetails || showAssetDetails}
         fullScreen
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}

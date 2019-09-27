@@ -9,7 +9,7 @@ import GroupIcon from "@material-ui/icons/Group"
 import KeyIcon from "@material-ui/icons/VpnKey"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
@@ -93,7 +93,7 @@ interface Props {
 }
 
 function AccountSettings(props: Props) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const settings = React.useContext(SettingsContext)

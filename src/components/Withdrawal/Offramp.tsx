@@ -14,7 +14,7 @@ import { WebauthData } from "@satoshipay/stellar-sep-10"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useWebAuth } from "../../hooks/stellar"
-import { useAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter, RefStateObject } from "../../hooks/userinterface"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
@@ -84,7 +84,7 @@ function Offramp(props: Props) {
   const router = useRouter()
   const WebAuth = useWebAuth()
 
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {

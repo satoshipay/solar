@@ -11,7 +11,7 @@ import AccountBalances from "../components/Account/AccountBalances"
 import { CardList, CardListCard } from "../components/CardList"
 import { Account } from "../context/accounts"
 import { SignatureDelegationContext } from "../context/signatureDelegation"
-import { useAccountData } from "../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useRouter } from "../hooks/userinterface"
 import { containsStellarGuardAsSigner } from "../lib/stellar-guard"
 import { SignatureRequest } from "../lib/multisig-service"
@@ -72,7 +72,7 @@ function AccountCard(props: {
   pendingSignatureRequests: SignatureRequest[]
   style?: React.CSSProperties
 }) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const router = useRouter()
 
   const onClick = () => router.history.push(routes.account(props.account.id))

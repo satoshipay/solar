@@ -1,42 +1,15 @@
-import { AccountResponse, Horizon, Server, ServerApi } from "stellar-sdk"
+import { AccountResponse, Server, ServerApi } from "stellar-sdk"
 import { trackConnectionError } from "../context/notifications"
-import { loadAccount, waitForAccountData } from "../lib/account"
+import { createEmptyAccountData, loadAccount, waitForAccountData, AccountData } from "../lib/account"
 import { createMessageDeduplicator, manageStreamConnection, whenBackOnline, ServiceType } from "../lib/stream"
 import { createSubscriptionTarget, SubscriptionTarget } from "../lib/subscription"
 
-export interface ObservedAccountData {
+export interface ObservedAccountData extends AccountData {
   activated: boolean
-  balances: Horizon.BalanceLine[]
-  data: Horizon.AccountResponse["data"]
-  flags: Horizon.AccountResponse["flags"]
-  home_domain?: string
-  id: string
   loading: boolean
-  inflation_destination?: string
-  signers: Horizon.AccountSigner[]
-  thresholds: Horizon.AccountThresholds
 }
 
 const doNothing = () => undefined
-
-const createEmptyAccountData = (accountID: string): ObservedAccountData => ({
-  activated: false,
-  balances: [],
-  data: {},
-  flags: {
-    auth_immutable: false,
-    auth_required: false,
-    auth_revocable: false
-  },
-  id: accountID,
-  loading: true,
-  signers: [],
-  thresholds: {
-    low_threshold: 0,
-    med_threshold: 0,
-    high_threshold: 0
-  }
-})
 
 export function createAccountDataSubscription(
   horizon: Server,
@@ -47,9 +20,11 @@ export function createAccountDataSubscription(
 
   const dedupeMessage = createMessageDeduplicator<ServerApi.AccountRecord | AccountResponse>()
 
-  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget(
-    createEmptyAccountData(accountPubKey)
-  )
+  const { closing, propagateUpdate, subscriptionTarget } = createSubscriptionTarget<ObservedAccountData>({
+    ...createEmptyAccountData(accountPubKey),
+    activated: false,
+    loading: true
+  })
   const setPollingInterval = () => {
     // Bullet-proofing the important account data updates
     return setInterval(async () => {

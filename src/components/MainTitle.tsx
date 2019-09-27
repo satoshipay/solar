@@ -10,7 +10,8 @@ interface BackButtonProps {
   style?: React.CSSProperties
 }
 
-function BackButton(props: BackButtonProps) {
+// React.memo()-ing, since for some reason re-rendering the KeyboardArrowLeft icon is slow
+const BackButton = React.memo(function BackButton(props: BackButtonProps) {
   const style = {
     padding: 6,
     fontSize: 32,
@@ -21,7 +22,7 @@ function BackButton(props: BackButtonProps) {
       <ArrowBackIcon style={{ fontSize: 32 }} />
     </IconButton>
   )
-}
+})
 
 interface Props {
   actions?: React.ReactNode
@@ -38,24 +39,25 @@ interface Props {
 function MainTitle(props: Props) {
   const isSmallScreen = useIsMobile()
   const isTitleOnSecondRow = isSmallScreen && props.actions && !props.hideBackButton
+
+  const backButtonStyle = React.useMemo(
+    () => ({
+      fontSize: 28,
+      flexGrow: 0,
+      flexShrink: 0,
+      marginLeft: isSmallScreen ? -12 : -4,
+      marginRight: 6
+    }),
+    [isSmallScreen]
+  )
+
   return (
     <HorizontalLayout
       alignItems="center"
       wrap={isSmallScreen && !props.nowrap ? (props.hideBackButton ? "wrap-reverse" : "wrap") : "nowrap"}
       style={{ minHeight: isSmallScreen ? undefined : 56, ...props.style }}
     >
-      {props.hideBackButton ? null : (
-        <BackButton
-          onClick={props.onBack}
-          style={{
-            fontSize: 28,
-            flexGrow: 0,
-            flexShrink: 0,
-            marginLeft: isSmallScreen ? -12 : -4,
-            marginRight: 6
-          }}
-        />
-      )}
+      {props.hideBackButton ? null : <BackButton onClick={props.onBack} style={backButtonStyle} />}
       <HorizontalLayout
         alignItems="center"
         grow={isSmallScreen ? 1 : props.badges ? undefined : 1}

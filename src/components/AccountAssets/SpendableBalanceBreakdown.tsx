@@ -5,7 +5,8 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
-import { useAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
+import { AccountData } from "../../lib/account"
 import { breakpoints } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 
@@ -96,18 +97,18 @@ function BreakdownItem(props: BreakdownItemProps) {
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   baseReserve: number
   style?: React.CSSProperties
 }
 
 function SpendableBalanceBreakdown(props: Props) {
-  const openOrders = useAccountOffers(props.account.publicKey, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
   const nativeBalance = props.accountData.balances.find(balance => balance.asset_type === "native")
   const trustedAssetBalances = props.accountData.balances.filter(balance => balance.asset_type !== "native")
 
-  const dataReserve = props.baseReserve * Object.keys(props.accountData.data).length
+  const dataReserve = props.baseReserve * Object.keys(props.accountData.data_attr).length
   const openOrdersReserve = props.baseReserve * openOrders.offers.length
   const signersReserve = props.baseReserve * props.accountData.signers.length
   const trustlinesReserve = props.baseReserve * trustedAssetBalances.length

@@ -2,7 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
-import { useAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { CopyableAddress } from "../PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
@@ -155,7 +155,7 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
   const { buying, offerId, selling } = props.operation
   const amount = BigNumber(props.operation.amount)
   const price = BigNumber(props.operation.price)
-  const offers = useAccountOffers(props.accountData.id, props.testnet)
+  const offers = useLiveAccountOffers(props.accountData.id, props.testnet)
 
   if (offerId === "0") {
     // Offer creation

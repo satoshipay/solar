@@ -1,22 +1,23 @@
 /* tslint:disable:no-string-literal */
 
 import * as JWT from "jsonwebtoken"
+import PromiseQueue from "p-queue"
 import React from "react"
-import { Asset, Server, StellarTomlResolver, Transaction, ServerApi } from "stellar-sdk"
+import { Asset, Server, StellarTomlResolver, Transaction } from "stellar-sdk"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 import {
   SigningKeyCacheContext,
+  StellarAccountDataCacheContext,
   StellarAddressCacheContext,
   StellarAddressReverseCacheContext,
-  StellarIssuerAccountCacheContext,
   StellarTomlCacheContext,
   WebAuthTokenCacheContext
 } from "../context/caches"
 import { StellarContext } from "../context/stellar"
+import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FetchState } from "../lib/async"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
-import { AccountRecord } from "../types/well-known-accounts"
 
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
@@ -125,25 +126,16 @@ export function useStellarToml(domain: string | null | undefined): [StellarToml 
   return domain ? tomlFiles.get(domain)! : [undefined, false]
 }
 
-type IssuerAccountData = Pick<ServerApi.AccountRecord, "account_id" | "flags" | "home_domain">
+// Limit the number of concurrent fetches
+const accountFetchQueue = new PromiseQueue({ concurrency: 8 })
 
-function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): IssuerAccountData[] {
-  const loadingStates = React.useContext(StellarIssuerAccountCacheContext)
+function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[] {
+  const loadingStates = React.useContext(StellarAccountDataCacheContext)
 
   const issuerAccounts = accountIDs.map(
-    (accountID: string): IssuerAccountData => {
+    (accountID: string): AccountData => {
       const cacheItem = loadingStates.cache.get(accountID)
-      return cacheItem && cacheItem.state === "resolved"
-        ? cacheItem.data
-        : {
-            account_id: accountID,
-            flags: {
-              auth_immutable: false,
-              auth_required: false,
-              auth_revocable: false
-            },
-            home_domain: undefined
-          }
+      return cacheItem && cacheItem.state === "resolved" ? cacheItem.data : createEmptyAccountData(accountID)
     }
   )
 
@@ -151,14 +143,15 @@ function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): Is
     for (const accountID of accountIDs) {
       if (!loadingStates.cache.has(accountID)) {
         loadingStates.store(accountID, FetchState.pending())
-        horizon
-          .accounts()
-          .accountId(accountID)
-          .call()
-          .then(
-            account => loadingStates.store(accountID, FetchState.resolved(account)),
-            error => loadingStates.store(accountID, FetchState.rejected(error))
-          )
+
+        accountFetchQueue.add(async () => {
+          try {
+            const account = await horizon.loadAccount(accountID)
+            loadingStates.store(accountID, FetchState.resolved(account))
+          } catch (error) {
+            loadingStates.store(accountID, FetchState.rejected(error))
+          }
+        })
       }
     }
   }, [accountIDs.join(",")])
@@ -166,10 +159,15 @@ function useFetchIssuerAccountDataSet(horizon: Server, accountIDs: string[]): Is
   return issuerAccounts
 }
 
+export function useAccountData(publicKey: string, testnet: boolean) {
+  const horizon = useHorizon(testnet)
+  return useAccountDataSet(horizon, [publicKey])[0]
+}
+
 export function useAssetMetadata(assets: Asset[], testnet: boolean) {
   const horizon = useHorizon(testnet)
   const issuerAccountIDs = dedupe(assets.filter(asset => !asset.isNative()).map(asset => asset.getIssuer()))
-  const accountDataSet = useFetchIssuerAccountDataSet(horizon, issuerAccountIDs)
+  const accountDataSet = useAccountDataSet(horizon, issuerAccountIDs)
 
   const domains = accountDataSet
     .map(accountData => accountData.home_domain)
@@ -198,47 +196,4 @@ export function useAssetMetadata(assets: Asset[], testnet: boolean) {
   }
 
   return resultMap
-}
-
-export function useWellKnownAccounts() {
-  const [loadingState, setLoadingState] = React.useState<FetchState<AccountRecord[]>>(FetchState.pending())
-
-  React.useEffect(() => {
-    const cachedAccountsString = localStorage.getItem("known-accounts")
-    const timestamp = localStorage.getItem("timestamp")
-    if (cachedAccountsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
-      // use cached accounts if they are not older than 24h
-      const accounts = JSON.parse(cachedAccountsString)
-      setLoadingState(FetchState.resolved(accounts))
-    } else {
-      fetch("https://api.stellar.expert/api/explorer/public/directory").then(async response => {
-        if (response.status >= 400) {
-          setLoadingState(
-            FetchState.rejected(new Error(`Bad response (${response.status}) from stellar.expert server`))
-          )
-        }
-
-        try {
-          const json = await response.json()
-          const knownAccounts = json._embedded.records as AccountRecord[]
-          localStorage.setItem("known-accounts", JSON.stringify(knownAccounts))
-          localStorage.setItem("timestamp", Date.now().toString())
-          setLoadingState(FetchState.resolved(knownAccounts))
-        } catch (error) {
-          setLoadingState(FetchState.rejected(error))
-        }
-      })
-    }
-  }, [])
-
-  return {
-    lookup(publicKey: string): AccountRecord | undefined {
-      if (loadingState.state === "resolved") {
-        const accounts = loadingState.data
-        return accounts.find(account => account.address === publicKey)
-      } else {
-        return undefined
-      }
-    }
-  }
 }

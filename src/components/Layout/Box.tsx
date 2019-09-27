@@ -28,7 +28,11 @@ interface BoxLayoutProps extends BoxStyles {
   style?: React.CSSProperties
 }
 
-function HorizontalLayout({ children, className, inline, style, ...styleProps }: BoxLayoutProps) {
+const HorizontalLayout = React.forwardRef(function HorizontalLayout(
+  props: BoxLayoutProps,
+  ref: React.Ref<HTMLDivElement>
+) {
+  const { children, className, inline, style, ...styleProps } = props
   const effectiveStyle: React.CSSProperties = {
     display: inline ? "inline-flex" : "flex",
     flexDirection: "row",
@@ -37,13 +41,14 @@ function HorizontalLayout({ children, className, inline, style, ...styleProps }:
     ...style
   }
   return (
-    <div className={className} style={effectiveStyle}>
+    <div className={className} ref={ref} style={effectiveStyle}>
       {children}
     </div>
   )
-}
+})
 
-function VerticalLayout({ children, className, inline, style, ...styleProps }: BoxLayoutProps) {
+const VerticalLayout = React.forwardRef(function VerticalLayout(props: BoxLayoutProps, ref: React.Ref<HTMLDivElement>) {
+  const { children, className, inline, style, ...styleProps } = props
   const effectiveStyle: React.CSSProperties = {
     display: inline ? "inline-flex" : "flex",
     flexDirection: "column",
@@ -51,11 +56,11 @@ function VerticalLayout({ children, className, inline, style, ...styleProps }: B
     ...style
   }
   return (
-    <div className={className} style={effectiveStyle}>
+    <div className={className} ref={ref} style={effectiveStyle}>
       {children}
     </div>
   )
-}
+})
 
 function AspectRatioBox({ children, ratio, ...styleProps }: BoxStyles & { children: React.ReactNode; ratio: string }) {
   let heightOfWidthPercentage = 100

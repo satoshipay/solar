@@ -5,7 +5,7 @@ import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
-import { useAccountDataSet, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountDataSet, ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SigningKeyCacheContext } from "../../context/caches"
@@ -63,7 +63,7 @@ interface DefaultTransactionSummaryProps {
 function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
-  const accountDataSet = useAccountDataSet(allTxSources, props.testnet)
+  const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
   const isSmallScreen = useIsMobile()
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
@@ -72,27 +72,21 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
     .mul(props.transaction.operations.length)
     .div(1e7)
 
-  const isDangerousSignatureRequest = React.useMemo(
-    () => {
-      const localAccounts = accountDataSet.filter(someAccountData =>
-        accounts.some(account => account.publicKey === someAccountData.id)
-      )
-      return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
-    },
-    [accountDataSet, accounts, props.signatureRequest, props.transaction]
-  )
+  const isDangerousSignatureRequest = React.useMemo(() => {
+    const localAccounts = accountDataSet.filter(someAccountData =>
+      accounts.some(account => account.publicKey === someAccountData.id)
+    )
+    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
+  }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
 
   const isWideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 400 } : { minWidth: "66vw" }
 
   const transaction = props.transaction as TransactionWithUndocumentedProps
-  const transactionHash = React.useMemo(
-    () => {
-      selectNetwork(props.testnet)
-      return transaction.hash().toString("hex")
-    },
-    [transaction]
-  )
+  const transactionHash = React.useMemo(() => {
+    selectNetwork(props.testnet)
+    return transaction.hash().toString("hex")
+  }, [transaction])
 
   return (
     <List disablePadding style={widthStyling}>
@@ -217,7 +211,7 @@ interface TransactionSummaryProps {
 function TransactionSummary(props: TransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
-  const accountDataSet = useAccountDataSet(allTxSources, props.testnet)
+  const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
 
   const accountData = accountDataSet.find(someAccountData => someAccountData.id === props.transaction.source)
   const showSigners = accountDataSet.some(someAccountData => someAccountData.signers.length > 1)
@@ -229,15 +223,12 @@ function TransactionSummary(props: TransactionSummaryProps) {
     )
   }
 
-  const isDangerousSignatureRequest = React.useMemo(
-    () => {
-      const localAccounts = accountDataSet.filter(someAccountData =>
-        accounts.some(account => account.publicKey === someAccountData.id)
-      )
-      return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
-    },
-    [accountDataSet, accounts, props.signatureRequest, props.transaction]
-  )
+  const isDangerousSignatureRequest = React.useMemo(() => {
+    const localAccounts = accountDataSet.filter(someAccountData =>
+      accounts.some(account => account.publicKey === someAccountData.id)
+    )
+    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
+  }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
 
   const wideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = wideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }
