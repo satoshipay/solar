@@ -73,14 +73,10 @@ function validateFormValues(
 
   if (formValues.memoValue.length > 28) {
     errors.memoValue = new Error("Memo too long.")
-  }
-
-  if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
-    if (formValues.memoValue.length === 0) {
-      errors.memoValue = new Error("You must add a memo before sending funds to a known exchange.")
-    } else if (formValues.memoType === "id" && !formValues.memoValue.match(/^[0-9]+$/)) {
-      errors.memoValue = new Error("Memo must be an integer.")
-    }
+  } else if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1 && formValues.memoValue.length === 0) {
+    errors.memoValue = new Error(`Set a memo when sending funds to ${knownAccount.name}`)
+  } else if (formValues.memoType === "id" && !formValues.memoValue.match(/^[0-9]+$/)) {
+    errors.memoValue = new Error("Memo must be an integer.")
   }
 
   const success = Object.keys(errors).length === 0
