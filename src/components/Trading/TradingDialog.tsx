@@ -26,14 +26,14 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], asset: A
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
-interface TradeAssetProps {
+interface TradingDialogProps {
   account: Account
   horizon: Server
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }
 
-function TradeAsset(props: TradeAssetProps) {
+function TradingDialog(props: TradingDialogProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const dialogActionsRef = useDialogActions()
   const horizon = useHorizon(props.account.testnet)
@@ -160,15 +160,15 @@ function TradeAsset(props: TradeAssetProps) {
   )
 }
 
-function TradeAssetContainer(props: Pick<TradeAssetProps, "account" | "onClose">) {
+function TradingDialogContainer(props: Pick<TradingDialogProps, "account" | "onClose">) {
   const router = useRouter()
   const navigateToAssets = () => router.history.push(routes.account(props.account.id))
 
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={navigateToAssets}>
-      {txContext => <TradeAsset {...props} {...txContext} />}
+      {txContext => <TradingDialog {...props} {...txContext} />}
     </TransactionSender>
   )
 }
 
-export default TradeAssetContainer
+export default TradingDialogContainer
