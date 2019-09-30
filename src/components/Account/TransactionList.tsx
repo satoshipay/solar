@@ -19,7 +19,7 @@ import { SettingsContext } from "../../context/settings"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
-import { createCheapTxID, selectNetwork } from "../../lib/transaction"
+import { createCheapTxID } from "../../lib/transaction"
 import { breakpoints } from "../../theme"
 import { PublicKey } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
@@ -99,17 +99,14 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
 }
 
 function Time(props: { time: string }) {
-  const { localeString, unixTime } = React.useMemo(
-    () => {
-      // Turns out that this takes more time than expected
-      const date = new Date(props.time)
-      return {
-        localeString: date.toLocaleString(),
-        unixTime: date.getTime()
-      }
-    },
-    [props.time]
-  )
+  const { localeString, unixTime } = React.useMemo(() => {
+    // Turns out that this takes more time than expected
+    const date = new Date(props.time)
+    return {
+      localeString: date.toLocaleString(),
+      unixTime: date.getTime()
+    }
+  }, [props.time])
   return (
     <Tooltip title={<span style={{ fontSize: "110%" }}>{localeString}</span>}>
       <span style={{ whiteSpace: "nowrap" }}>
@@ -437,8 +434,6 @@ function TransactionList(props: TransactionListProps) {
   const classes = useTransactionListStyles(props)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
-
-  selectNetwork(props.account.testnet) // needed for hashing
 
   const openedTxHash = matchesRoute(router.location.pathname, routes.showTransaction("*", "*"))
     ? (router.match.params as { id: string; subaction: string }).subaction

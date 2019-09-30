@@ -1,6 +1,6 @@
 import fetch from "isomorphic-fetch"
 import qs from "qs"
-import { Transaction } from "stellar-sdk"
+import { Transaction, Networks } from "stellar-sdk"
 import { signatureMatchesPublicKey } from "./stellar"
 import { joinURL } from "./url"
 
@@ -64,13 +64,14 @@ function parseRequestURI(requestURI: string) {
 
 export function deserializeSignatureRequest(rawSignatureRequest: Omit<SignatureRequest, "meta">): SignatureRequest {
   const { operation, parameters } = parseRequestURI(rawSignatureRequest.request_uri)
+  const networkPassphrase = parameters.network_passphrase ? parameters.network_passphrase : Networks.PUBLIC
 
   return {
     ...rawSignatureRequest,
     meta: {
       operation,
       callbackURL: parameters.callback ? parameters.callback.replace(/^url:/, "") : undefined,
-      transaction: new Transaction(parameters.xdr)
+      transaction: new Transaction(parameters.xdr, networkPassphrase)
     }
   }
 }
@@ -142,9 +143,7 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
       // Throw something that can be handled by explainSubmissionError()
       throw Object.assign(
         new Error(
-          `Submitting transaction to multi-signature service failed with status ${response.status}: ${
-            responseBodyObject.message
-          }`
+          `Submitting transaction to multi-signature service failed with status ${response.status}: ${responseBodyObject.message}`
         ),
         {
           response: {

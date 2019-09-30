@@ -109,14 +109,18 @@ export function subscribeToOrders(
   }
 }
 
-export function subscribeToRecentTxs(horizon: Server, accountPubKey: string): SubscriptionTarget<ObservedRecentTxs> {
+export function subscribeToRecentTxs(
+  horizon: Server,
+  accountPubKey: string,
+  testnet: boolean
+): SubscriptionTarget<ObservedRecentTxs> {
   const cacheKey = getHorizonURL(horizon) + accountPubKey
   const cached = recentTxsSubscriptionsCache.get(cacheKey)
 
   if (cached && !cached.closed) {
     return cached
   } else {
-    const recentTxsSubscription = createRecentTxsSubscription(horizon, accountPubKey)
+    const recentTxsSubscription = createRecentTxsSubscription(horizon, accountPubKey, testnet)
     recentTxsSubscriptionsCache.set(cacheKey, recentTxsSubscription)
     return recentTxsSubscription
   }

@@ -111,7 +111,10 @@ export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean
 
 export function useLiveRecentTransactions(accountID: string, testnet: boolean): ObservedRecentTxs {
   const horizon = useHorizon(testnet)
-  const recentTxsSubscription = React.useMemo(() => subscribeToRecentTxs(horizon, accountID), [accountID, horizon])
+  const recentTxsSubscription = React.useMemo(() => subscribeToRecentTxs(horizon, accountID, testnet), [
+    accountID,
+    horizon
+  ])
 
   return useDataSubscription(recentTxsSubscription)
 }

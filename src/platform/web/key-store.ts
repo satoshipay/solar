@@ -1,5 +1,5 @@
 import { createStore, KeysData } from "key-store"
-import { Keypair, Network, Transaction } from "stellar-sdk"
+import { Keypair, Transaction, Networks } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { KeyStoreAPI } from "../types"
 
@@ -66,16 +66,12 @@ export default async function createKeyStore(): Promise<KeyStoreAPI> {
     saveKey: async (...args) => keyStore.saveKey(...args),
     savePublicKeyData: async (...args) => keyStore.savePublicKeyData(...args),
     async signTransaction(tx: Transaction, account: Account, password: string): Promise<Transaction> {
-      if (account.testnet) {
-        Network.useTestNetwork()
-      } else {
-        Network.usePublicNetwork()
-      }
-
       const { privateKey } = keyStore.getPrivateKeyData(account.id, password)
       const keypair = Keypair.fromSecret(privateKey)
 
-      const signedTx = new Transaction((tx.toEnvelope().toXDR("base64") as unknown) as string)
+      const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
+
+      const signedTx = new Transaction((tx.toEnvelope().toXDR("base64") as unknown) as string, networkPassphrase)
       signedTx.sign(keypair)
 
       return signedTx

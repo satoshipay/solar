@@ -1,4 +1,4 @@
-import { Transaction } from "stellar-sdk"
+import { Transaction, Networks } from "stellar-sdk"
 import { commands } from "../../cordova/ipc"
 import { Account } from "../../context/accounts"
 import { networkPassphrases } from "../../lib/stellar"
@@ -38,7 +38,8 @@ export default async function createKeyStore(): Promise<KeyStoreAPI> {
         transactionEnvelope
       })
       const signedTransactionEnvelope = event.data.result
-      return new Transaction(signedTransactionEnvelope)
+      const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
+      return new Transaction(signedTransactionEnvelope, networkPassphrase)
     },
     async removeKey(keyID: string) {
       const data = { keyID }
