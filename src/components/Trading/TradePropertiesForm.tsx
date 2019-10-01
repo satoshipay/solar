@@ -1,85 +1,70 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, AssetType, Horizon } from "stellar-sdk"
-import MenuItem from "@material-ui/core/MenuItem"
-import TextField, { TextFieldProps } from "@material-ui/core/TextField"
-import { balancelineToAsset, stringifyAsset } from "../../lib/stellar"
+import { Asset, Horizon } from "stellar-sdk"
+import TextField from "@material-ui/core/TextField"
+import CallMadeIcon from "@material-ui/icons/CallMade"
+import CallReceivedIcon from "@material-ui/icons/CallReceived"
+import { makeStyles } from "@material-ui/styles"
+import theme from "../../theme"
 import { formatBalance } from "../Account/AccountBalances"
-import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
+import AssetSelector from "../Form/AssetSelector"
+import { ReadOnlyTextfield } from "../Form/FormFields"
 import { HorizontalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
+import TradingPrice from "./TradingPrice"
 
-type ToleranceValue = 0 | 0.01 | 0.02
-type Trustline = Horizon.BalanceLineAsset<AssetType.credit4 | AssetType.credit12>
-
-interface AssetSelectorProps {
-  label: TextFieldProps["label"]
-  onChange: (asset: Asset) => void
-  trustlines: Trustline[]
-  value: Asset
-}
-
-function AssetSelector(props: AssetSelectorProps) {
-  const onChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const assets = [Asset.native(), ...props.trustlines.map(balancelineToAsset)]
-
-      const matchingAsset = assets.find(asset => stringifyAsset(asset) === event.target.value)
-
-      if (matchingAsset) {
-        props.onChange(matchingAsset)
-      } else {
-        // tslint:disable-next-line no-console
-        console.error(
-          `Invariant violation: Trustline with value ${event.target.value} selected, but no matching asset found.`
-        )
-      }
-    },
-    [props.onChange, props.trustlines]
-  )
-
-  return (
-    <TextField
-      label={props.label}
-      onChange={onChange}
-      select
-      style={{ flexGrow: 0, flexShrink: 0 }}
-      value={stringifyAsset(props.value)}
-    >
-      <MenuItem value={stringifyAsset(Asset.native())}>XLM</MenuItem>
-      {props.trustlines.map(trustline => (
-        <MenuItem key={stringifyAsset(trustline)} value={stringifyAsset(trustline)}>
-          {trustline.asset_code}
-        </MenuItem>
-      ))}
-    </TextField>
-  )
-}
+const useTradeFormStyles = makeStyles({
+  rowIcon: {
+    color: theme.palette.action.disabled,
+    fontSize: "300%",
+    marginRight: "calc(8px + 1.5vw)"
+  }
+})
 
 interface TradePropertiesFormProps {
   amount: string
-  bestPrice: BigNumber | undefined
   buying: Asset
+  buyingBalance: string
   estimatedReturn: BigNumber
-  manualPrice: string | undefined
+  manualPrice: BigNumber | undefined
+  priceMode: "fixed-buying" | "fixed-selling"
   onSetAmount: (amount: string) => void
   onSetBuying: (asset: Asset) => void
   onSetSelling: (asset: Asset) => void
-  onSetManualPrice: (priceString: string) => void
-  onSetTolerance: (tolerance: ToleranceValue) => void
+  onSetManualPrice: (price: BigNumber) => void
+  onTogglePriceMode: () => void
+  price: BigNumber
   selling: Asset
   sellingBalance: string
-  tolerance: ToleranceValue
-  trustlines: Trustline[]
+  trustlines: Horizon.BalanceLine[]
 }
 
 function TradePropertiesForm(props: TradePropertiesFormProps) {
-  const estimatedReturn = (() => {
-    if (!props.amount) {
-      return BigNumber(0)
+  const classes = useTradeFormStyles()
+  const [isEditingPrice, setIsEditingPrice] = React.useState(false)
+  const [manualPriceError, setManualPriceError] = React.useState<Error | undefined>()
+  const [manualPriceString, setManualPriceString] = React.useState<string | undefined>()
+
+  const applyManualPrice = () => {
+    if (manualPriceString && /^[0-9]+(\.[0-9]+)?$/.test(manualPriceString)) {
+      setManualPriceError(undefined)
+      setIsEditingPrice(false)
+
+      const manualPrice = BigNumber(manualPriceString)
+      props.onSetManualPrice(props.priceMode === "fixed-buying" ? BigNumber(1).div(manualPrice) : manualPrice)
+    } else {
+      setManualPriceError(Error("Invalid price entered."))
+      setIsEditingPrice(false)
     }
-    return props.manualPrice ? BigNumber(props.amount).mul(props.manualPrice) : props.estimatedReturn
-  })()
+  }
+
+  const dismissManualPrice = () => {
+    setManualPriceString(undefined)
+    setManualPriceError(undefined)
+    setIsEditingPrice(false)
+  }
+
+  const estimatedReturn = props.amount ? BigNumber(props.amount).mul(props.price) : BigNumber(0)
 
   const setBuying = (newBuyingAsset: Asset) => {
     if (newBuyingAsset.equals(props.selling) && !newBuyingAsset.equals(props.buying)) {
@@ -88,6 +73,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
     }
     props.onSetBuying(newBuyingAsset)
   }
+
   const setSelling = (newSellingAsset: Asset) => {
     if (newSellingAsset.equals(props.buying) && !newSellingAsset.equals(props.selling)) {
       // Swap buying and selling asset
@@ -96,49 +82,61 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
     props.onSetSelling(newSellingAsset)
   }
 
+  const startEditingPrice = React.useCallback(() => {
+    const price = props.priceMode === "fixed-buying" ? BigNumber(1).div(props.price) : props.price
+    setManualPriceString(price.toFixed(7))
+    setIsEditingPrice(true)
+  }, [props.price, props.priceMode])
+
   return (
     <>
-      <HorizontalLayout margin="0 0 24px">
-        <AssetSelector label="From" onChange={setSelling} trustlines={props.trustlines} value={props.selling} />
-        <HorizontalMargin size={16} />
+      <HorizontalLayout alignItems="center" margin="24px 0">
+        <CallMadeIcon className={classes.rowIcon} />
+        <AssetSelector onChange={setSelling} trustlines={props.trustlines} value={props.selling} />
+        <HorizontalMargin size={8} />
         <TextField
           autoFocus={process.env.PLATFORM !== "ios"}
           inputProps={{
-            style: { height: 27 }
+            style: { height: 27, textAlign: "right" }
           }}
-          label="Amount to spend"
-          placeholder={`Max. ${formatBalance(props.sellingBalance)}`}
           onChange={event => props.onSetAmount(event.target.value)}
+          placeholder={`Max. ${props.sellingBalance}`}
           type="number"
-          style={{ flexGrow: 1, flexShrink: 1 }}
+          style={{ flexGrow: 1, flexShrink: 1, marginLeft: "auto", maxWidth: 200 }}
           value={props.amount}
         />
       </HorizontalLayout>
-      <PriceInput
-        assetCode={props.buying.getCode()}
-        assetStyle={{ fontWeight: "bold" }}
-        inputProps={{
-          style: { height: 27 }
-        }}
-        label={`Price per ${props.selling.getCode()}`}
-        placeholder={props.bestPrice ? `${props.bestPrice.toFixed()} ${props.buying.getCode()}` : "No offers yet"}
-        onChange={event => props.onSetManualPrice(event.target.value)}
-        style={{ marginBottom: 24 }}
-        value={props.manualPrice || (props.bestPrice ? props.bestPrice.toFixed() : "")}
-      />
-      <HorizontalLayout margin="0 0 24px">
-        <AssetSelector label="To" onChange={setBuying} trustlines={props.trustlines} value={props.buying} />
-        <HorizontalMargin size={16} />
+      <HorizontalLayout alignItems="center" justifyContent="center" margin="24px 0">
+        <TradingPrice
+          buying={props.buying}
+          inputError={manualPriceError}
+          isEditingPrice={isEditingPrice}
+          isPriceSwitched={props.priceMode === "fixed-buying"}
+          manualPrice={manualPriceString}
+          onApplyManualPrice={applyManualPrice}
+          onDismissManualPrice={dismissManualPrice}
+          onEditPrice={startEditingPrice}
+          onSetManualPrice={setManualPriceString}
+          onSwitchPriceAssets={props.onTogglePriceMode}
+          price={props.price}
+          selling={props.selling}
+        />
+      </HorizontalLayout>
+      <HorizontalLayout alignItems="center" margin="24px 0">
+        <CallReceivedIcon className={classes.rowIcon} />
+        <AssetSelector onChange={setBuying} trustlines={props.trustlines} value={props.buying} />
+        <HorizontalMargin size={8} />
         <ReadOnlyTextfield
           disableUnderline
           inputProps={{
             style: {
               cursor: "default",
-              height: 27
+              height: 27,
+              textAlign: "right"
             }
           }}
-          label="Amount to receive"
-          style={{ flexGrow: 1, flexShrink: 1, fontWeight: "bold" }}
+          placeholder={`Max. ${props.buyingBalance}`}
+          style={{ flexGrow: 1, flexShrink: 1, fontWeight: "bold", marginLeft: "auto", maxWidth: 200 }}
           value={formatBalance(String(estimatedReturn), { minimumSignificants: 3 })}
         />
       </HorizontalLayout>

@@ -2,15 +2,11 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, AssetType, Horizon } from "stellar-sdk"
 import { useLiveOrderbook } from "../../hooks/stellar-subscriptions"
-import { useIsMobile, useIsSmallMobile } from "../../hooks/userinterface"
 import { calculateSpread } from "../../lib/orderbook"
-import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { Box, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
-import Explanation from "./Explanation"
 import { useConversionOffers } from "./hooks"
 import TradePropertiesForm from "./TradePropertiesForm"
-
-type ToleranceValue = 0 | 0.01 | 0.02
 
 function isDisabled(amount: BigNumber, price: BigNumber, balance: BigNumber) {
   return [amount.lte(0), amount.gt(balance), price.lte(0)].some(condition => condition === true)
@@ -38,79 +34,55 @@ interface Props {
 function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
   const tradePair = useLiveOrderbook(props.selling, props.buying, props.testnet)
-  const isSmallScreen = useIsMobile()
-  const isTinyScreen = useIsSmallMobile()
 
   const [amountString, setAmountString] = React.useState("")
-  const [tolerance, setTolerance] = React.useState<ToleranceValue>(0)
+  const [manualPrice, setManualPrice] = React.useState<BigNumber | undefined>()
+  const [priceMode, setPriceMode] = React.useState<"fixed-buying" | "fixed-selling">("fixed-selling")
+
+  const togglePriceMode = React.useCallback(
+    () => setPriceMode(prev => (prev === "fixed-buying" ? "fixed-selling" : "fixed-buying")),
+    []
+  )
 
   const amount = Number.isNaN(Number.parseFloat(amountString)) ? BigNumber(0) : BigNumber(amountString)
+
   const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(
     tradePair.bids,
-    amount.gt(0) ? amount : BigNumber(0.01),
-    tolerance
+    amount.gt(0) ? amount : BigNumber(0.01)
   )
 
   const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
 
-  const [manualPriceString, setManualPriceString] = React.useState<string | undefined>(() =>
-    bestPrice ? bestPrice.toString() : ""
-  )
-  const manualPrice =
-    manualPriceString === undefined || Number.isNaN(Number.parseFloat(manualPriceString))
-      ? BigNumber(0)
-      : BigNumber(manualPriceString)
-
-  const price = manualPrice.gt(0) ? manualPrice : bestPrice || BigNumber(0)
+  const price = manualPrice || bestPrice || BigNumber(0)
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
-  const dialogActions = (
-    <DialogActions
-      amount={amount}
-      disabled={amountString === "" || isDisabled(amount, price, BigNumber(props.sellingBalance))}
-      price={price}
-      style={{ justifySelf: "flex-end" }}
-    />
-  )
-
   return (
-    <VerticalLayout>
-      <HorizontalLayout shrink={0} justifyContent="space-between" margin="0 -24px" wrap="wrap">
-        <VerticalLayout alignItems="stretch" basis="40%" grow={1} shrink={1} margin="16px 24px 0">
-          <TradePropertiesForm
-            {...props}
-            amount={amountString}
-            bestPrice={bestPrice}
-            estimatedReturn={estimatedReturn}
-            manualPrice={manualPriceString}
-            onSetAmount={setAmountString}
-            onSetManualPrice={setManualPriceString}
-            onSetTolerance={setTolerance}
-            tolerance={tolerance}
-          />
-          {relativeSpread > 0.01 ? (
-            <Box padding="8px 12px" style={{ background: warningColor }}>
-              <b>Warning</b>
-              <br />
-              Large spread ({(relativeSpread * 100).toFixed(1)}
-              %) between buying and selling price. Converting the funds back might be expensive.
-            </Box>
-          ) : null}
-          <div style={{ flexGrow: 1, maxHeight: 50 }} />
-          {isSmallScreen ? null : dialogActions}
-        </VerticalLayout>
-        <VerticalLayout
-          alignItems="stretch"
-          basis="40%"
-          grow={1}
-          shrink={1}
-          margin="16px 24px 0"
-          minWidth={isTinyScreen ? 250 : 320}
-        >
-          <Explanation />
-          {isSmallScreen ? dialogActions : null}
-        </VerticalLayout>
-      </HorizontalLayout>
+    <VerticalLayout alignItems="stretch" alignSelf="center" grow={1} shrink={1} maxWidth={500} width="100%">
+      <TradePropertiesForm
+        {...props}
+        amount={amountString}
+        estimatedReturn={estimatedReturn}
+        manualPrice={manualPrice}
+        priceMode={priceMode}
+        onSetAmount={setAmountString}
+        onSetManualPrice={setManualPrice}
+        onTogglePriceMode={togglePriceMode}
+        price={price}
+      />
+      {relativeSpread > 0.01 ? (
+        <Box padding="8px 12px" style={{ background: warningColor }}>
+          <b>Warning</b>
+          <br />
+          Large spread ({(relativeSpread * 100).toFixed(1)}
+          %) between buying and selling price. Converting the funds back might be expensive.
+        </Box>
+      ) : null}
+      <DialogActions
+        amount={amount}
+        disabled={amountString === "" || isDisabled(amount, price, BigNumber(props.sellingBalance))}
+        price={price}
+        style={{ justifySelf: "flex-end" }}
+      />
     </VerticalLayout>
   )
 }

@@ -1,5 +1,6 @@
 import { createMuiTheme } from "@material-ui/core/styles"
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
+import ArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 import { SlideLeftTransition, SlideUpTransition } from "./components/Dialog/Transitions"
@@ -29,6 +30,9 @@ const theme = createMuiTheme({
     },
     MuiInputLabel: {
       shrink: true
+    },
+    MuiSelect: {
+      IconComponent: ArrowDownIcon
     }
   },
   overrides: {
@@ -272,6 +276,9 @@ const theme = createMuiTheme({
       main: brandColor.main,
       light: brandColor.light
     }
+  },
+  shape: {
+    borderRadius: 8
   }
 })
 

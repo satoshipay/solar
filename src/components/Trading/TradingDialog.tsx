@@ -95,7 +95,7 @@ function TradingDialog(props: TradingDialogProps) {
 
   const MainContent = (
     <>
-      <VerticalMargin size={isSmallScreen ? 12 : 40} />
+      <VerticalMargin size={24} />
       {buyingBalance && sellingBalance ? (
         <TradingForm
           buying={buyingAsset}
