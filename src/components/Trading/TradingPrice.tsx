@@ -4,12 +4,12 @@ import { Asset } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import InputBase from "@material-ui/core/InputBase"
 import { fade } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import CheckIcon from "@material-ui/icons/Check"
 import ClearIcon from "@material-ui/icons/Clear"
 import EditIcon from "@material-ui/icons/Edit"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
-import { makeStyles } from "@material-ui/styles"
-import theme from "../../theme"
+import theme, { breakpoints } from "../../theme"
 import { formatBalance } from "../Account/AccountBalances"
 import { HorizontalLayout } from "../Layout/Box"
 
@@ -23,16 +23,28 @@ const useTradingPriceStyles = makeStyles({
     fontSize: 14,
     height: 24,
     padding: "8px 16px",
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
+
+    [breakpoints.down(400)]: {
+      paddingLeft: 12,
+      paddingRight: 12
+    }
   },
   action: {
-    background: fade(theme.palette.primary.dark, 0.08),
     color: theme.palette.primary.dark,
     fontSize: 16,
     margin: -8,
     padding: 4
   },
-  filledAction: {},
+  primaryAction: {
+    background: fade(theme.palette.primary.dark, 0.75),
+    color: "white",
+    padding: 2,
+
+    "&:hover": {
+      background: fade(theme.palette.primary.dark, 0.8)
+    }
+  },
   input: {
     height: 16,
     paddingTop: 2,
@@ -132,30 +144,31 @@ function TradingPrice(props: TradingPriceProps) {
   const actionsRight = props.isEditingPrice ? (
     <>
       <IconButton
-        className={`${classes.action} ${classes.filledAction}`}
-        color="primary"
-        onClick={props.onApplyManualPrice}
-        size="small"
-        style={{ marginLeft: 8, marginRight: 8 }}
-      >
-        <CheckIcon />
-      </IconButton>
-      <IconButton
-        className={`${classes.action} ${classes.filledAction}`}
+        className={classes.action}
         color="primary"
         onClick={props.onDismissManualPrice}
         size="small"
+        style={{ marginLeft: 4, marginRight: 12 }}
       >
         <ClearIcon />
+      </IconButton>
+      <IconButton
+        className={`${classes.action} ${classes.primaryAction}`}
+        color="primary"
+        onClick={props.onApplyManualPrice}
+        size="small"
+        style={{ marginRight: -2 }}
+      >
+        <CheckIcon />
       </IconButton>
     </>
   ) : (
     <IconButton
-      className={classes.action}
+      className={`${classes.action} ${classes.primaryAction}`}
       color="primary"
       onClick={props.onEditPrice}
       size="small"
-      style={{ marginLeft: 8 }}
+      style={{ marginLeft: 16, marginRight: -2 }}
     >
       <EditIcon style={{ transform: "scale(0.75)" }} />
     </IconButton>

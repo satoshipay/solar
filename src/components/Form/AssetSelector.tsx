@@ -2,7 +2,7 @@ import React from "react"
 import { Asset, Horizon } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
-import { makeStyles } from "@material-ui/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import { balancelineToAsset, stringifyAsset } from "../../lib/stellar"
 
 const useAssetSelectorStyles = makeStyles({
@@ -14,7 +14,7 @@ const useAssetSelectorStyles = makeStyles({
     alignSelf: "flex-start"
   },
   select: {
-    fontSize: "150%",
+    fontSize: 18,
     fontWeight: 400
   }
 })

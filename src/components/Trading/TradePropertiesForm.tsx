@@ -3,9 +3,9 @@ import React from "react"
 import { Asset, Horizon } from "stellar-sdk"
 import InputLabel from "@material-ui/core/InputLabel"
 import TextField from "@material-ui/core/TextField"
+import { makeStyles } from "@material-ui/core/styles"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
-import { makeStyles } from "@material-ui/styles"
 import theme, { breakpoints } from "../../theme"
 import { formatBalance } from "../Account/AccountBalances"
 import AssetSelector from "../Form/AssetSelector"
@@ -43,11 +43,17 @@ const useTradeFormStyles = makeStyles({
     justifyContent: "center",
     flexBasis: "auto",
     order: 3,
-    width: "100%"
+    width: "100%",
+
+    [breakpoints.down(600)]: {
+      marginTop: 0,
+      marginBottom: 12,
+      order: "initial"
+    }
   },
   rowIcon: {
     color: theme.palette.action.disabled,
-    fontSize: "350%",
+    fontSize: "300%",
     marginRight: "calc(8px + 1.5vw)"
   },
   rowIconLabel: {
