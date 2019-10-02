@@ -1,4 +1,5 @@
 import React from "react"
+import IconButton from "@material-ui/core/IconButton"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
@@ -80,6 +81,8 @@ interface AccountCreationFormProps {
 
 function AccountCreationForm(props: AccountCreationFormProps) {
   const { errors, formValues, setFormValue } = props
+
+  const inputRef = React.useRef<HTMLInputElement | undefined>()
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
   const primaryButtonLabel = formValues.createNewKey
@@ -87,8 +90,8 @@ function AccountCreationForm(props: AccountCreationFormProps) {
       ? "Create"
       : "Create Account"
     : isSmallScreen
-      ? "Import"
-      : "Import Account"
+    ? "Import"
+    : "Import Account"
 
   const onQRImport = (key: string) => {
     setFormValue("privateKey", key)
@@ -99,18 +102,21 @@ function AccountCreationForm(props: AccountCreationFormProps) {
     () => (
       <Typography variant="h5" style={{ display: "flex" }}>
         <TextField
-          error={Boolean(errors.name)}
-          label={errors.name ? renderFormFieldError(errors.name) : undefined}
-          placeholder={props.testnet ? "New Testnet Account" : "New Account"}
           autoFocus={process.env.PLATFORM !== "ios"}
+          error={Boolean(errors.name)}
+          inputRef={inputRef}
+          label={errors.name ? renderFormFieldError(errors.name) : undefined}
           margin="normal"
-          value={formValues.name}
           onChange={event => setFormValue("name", event.target.value)}
+          placeholder={props.testnet ? "New Testnet Account" : "New Account"}
+          value={formValues.name}
           InputProps={{
             disableUnderline: true,
             endAdornment: (
               <InputAdornment position="end">
-                <EditIcon />
+                <IconButton onClick={() => inputRef.current && inputRef.current.focus()}>
+                  <EditIcon />
+                </IconButton>
               </InputAdornment>
             ),
             style: {
