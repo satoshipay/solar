@@ -11,7 +11,7 @@ import {
   Networks
 } from "stellar-sdk"
 import { Account } from "../context/accounts"
-import { createWrongPasswordError } from "../lib/errors"
+import { WrongPasswordError } from "../lib/errors"
 import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
 
 interface SignatureWithHint extends xdr.DecoratedSignature {
@@ -146,7 +146,7 @@ export async function createPaymentOperation(options: PaymentOperationBlueprint)
 
 export async function signTransaction(transaction: Transaction, walletAccount: Account, password: string | null) {
   if (walletAccount.requiresPassword && !password) {
-    throw createWrongPasswordError(`Account is password-protected, but no password has been provided.`)
+    throw WrongPasswordError(`Account is password-protected, but no password has been provided.`)
   }
 
   const signedTransaction = walletAccount.signTransaction(transaction, password)

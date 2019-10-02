@@ -10,7 +10,7 @@ export function isCancellation(thing: any) {
   return thing instanceof Error && thing.name === "Cancellation"
 }
 
-export function createWrongPasswordError(message: string = "Wrong password.") {
+export function WrongPasswordError(message: string = "Wrong password.") {
   return Object.assign(new Error(message), { name: "WrongPasswordError" })
 }
 

@@ -4,6 +4,7 @@ import { Account } from "../../context/accounts"
 import { networkPassphrases } from "../../lib/stellar"
 import { KeyStoreAPI } from "../types"
 import { sendCommand } from "./message-handler"
+import { WrongPasswordError } from "../../lib/errors"
 
 export default async function createKeyStore(): Promise<KeyStoreAPI> {
   return {
@@ -37,9 +38,13 @@ export default async function createKeyStore(): Promise<KeyStoreAPI> {
         password,
         transactionEnvelope
       })
-      const signedTransactionEnvelope = event.data.result
-      const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
-      return new Transaction(signedTransactionEnvelope, networkPassphrase)
+      if (event.data.error === "Wrong password") {
+        throw WrongPasswordError()
+      } else {
+        const signedTransactionEnvelope = event.data.result
+        const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
+        return new Transaction(signedTransactionEnvelope, networkPassphrase)
+      }
     },
     async removeKey(keyID: string) {
       const data = { keyID }

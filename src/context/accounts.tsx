@@ -1,7 +1,7 @@
 import React from "react"
 import { Keypair } from "stellar-sdk"
 import { Transaction } from "stellar-base"
-import { createWrongPasswordError } from "../lib/errors"
+import { WrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"
 import { KeyStoreAPI } from "../platform/types"
 import { trackError } from "./notifications"
@@ -62,7 +62,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
       } catch (error) {
         // tslint:disable-next-line:no-console
         console.debug("Decrypting private key data failed. Assuming wrong password:", error)
-        throw createWrongPasswordError()
+        throw WrongPasswordError()
       }
     },
 
@@ -192,7 +192,7 @@ export function AccountsProvider(props: Props) {
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.debug("Decrypting private key data failed. Assuming wrong password:", error)
-      throw createWrongPasswordError()
+      throw WrongPasswordError()
     }
 
     // Setting `password: true` explicitly, in case there was no password set before
@@ -212,7 +212,7 @@ export function AccountsProvider(props: Props) {
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.debug("Decrypting private key data failed. Assuming wrong password:", error)
-      throw createWrongPasswordError()
+      throw WrongPasswordError()
     }
 
     await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })

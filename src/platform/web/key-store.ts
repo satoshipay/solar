@@ -2,6 +2,7 @@ import { createStore, KeysData } from "key-store"
 import { Keypair, Transaction, Networks } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { KeyStoreAPI } from "../types"
+import { WrongPasswordError } from "../../lib/errors"
 
 const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {
@@ -66,7 +67,13 @@ export default async function createKeyStore(): Promise<KeyStoreAPI> {
     saveKey: async (...args) => keyStore.saveKey(...args),
     savePublicKeyData: async (...args) => keyStore.savePublicKeyData(...args),
     async signTransaction(tx: Transaction, account: Account, password: string): Promise<Transaction> {
-      const { privateKey } = keyStore.getPrivateKeyData(account.id, password)
+      let privateKey: string
+      try {
+        privateKey = keyStore.getPrivateKeyData(account.id, password).privateKey
+      } catch (error) {
+        throw WrongPasswordError()
+      }
+
       const keypair = Keypair.fromSecret(privateKey)
 
       const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
