@@ -70,10 +70,9 @@ expose(ipcMain, commands.signTransactionCommand, events.signTransactionEvent, fu
   networkPassphrase,
   password
 ) {
-  const transaction = new Transaction(txEnvelopeXdr)
+  const transaction = new Transaction(txEnvelopeXdr, networkPassphrase)
   const { privateKey } = keystore.getPrivateKeyData(keyID, password)
 
-  Network.use(new Network(networkPassphrase))
   transaction.sign(Keypair.fromSecret(privateKey))
 
   return transaction.toEnvelope().toXDR("base64")
