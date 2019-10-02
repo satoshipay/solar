@@ -119,10 +119,18 @@ async function respondWithSignedTransaction(
   const { keyID, networkPassphrase, password, transactionEnvelope } = event.data
 
   const transaction = new Transaction(transactionEnvelope, networkPassphrase)
-  const { privateKey } = keyStore.getPrivateKeyData(keyID, password)
+
+  let privateKey: string
+  try {
+    privateKey = keyStore.getPrivateKeyData(keyID, password).privateKey
+  } catch (error) {
+    // tslint:disable-next-line:no-console
+    console.debug("Decrypting private key data failed. Assuming wrong password:", error)
+    contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id, error: "Wrong password" }, "*")
+    return
+  }
 
   transaction.sign(Keypair.fromSecret(privateKey))
-
   const result = transaction.toEnvelope().toXDR("base64")
 
   contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id, result }, "*")
