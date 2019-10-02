@@ -1,6 +1,6 @@
 import React from "react"
 import Async from "react-promise"
-import { Asset, Memo, Network, Operation, Server, TransactionBuilder } from "stellar-sdk"
+import { Asset, Memo, Operation, Server, TransactionBuilder, Networks } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import TransactionSummary from "../src/components/TransactionReview/TransactionSummary"
 import { useWebAuth } from "../src/hooks/stellar"
@@ -12,7 +12,6 @@ interface SampleWebAuthProps {
 }
 
 function SampleWebAuth(props: SampleWebAuthProps) {
-  Network.usePublicNetwork()
   const horizon = new Server("https://horizon.stellar.org")
   const WebAuth = useWebAuth()
 
@@ -37,7 +36,6 @@ function SampleWebAuth(props: SampleWebAuthProps) {
 
 storiesOf("TransactionSummary", module)
   .add("Payment", () => {
-    Network.useTestNetwork()
     const horizon = new Server("https://horizon-testnet.stellar.org")
 
     const promise = (async () => {
@@ -50,6 +48,7 @@ storiesOf("TransactionSummary", module)
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
       )
+      builder.setNetworkPassphrase(Networks.TESTNET)
       builder.setTimeout(60)
       return builder.build()
     })()
@@ -63,7 +62,6 @@ storiesOf("TransactionSummary", module)
     )
   })
   .add("Payment with memo", () => {
-    Network.useTestNetwork()
     const horizon = new Server("https://horizon-testnet.stellar.org")
 
     const promise = (async () => {
@@ -79,6 +77,7 @@ storiesOf("TransactionSummary", module)
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
       )
+      builder.setNetworkPassphrase(Networks.TESTNET)
       builder.setTimeout(60)
       return builder.build()
     })()
@@ -92,7 +91,6 @@ storiesOf("TransactionSummary", module)
     )
   })
   .add("Account creation & Inflation destination", () => {
-    Network.useTestNetwork()
     const horizon = new Server("https://horizon-testnet.stellar.org")
 
     const promise = (async () => {
@@ -109,6 +107,7 @@ storiesOf("TransactionSummary", module)
           inflationDest: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT"
         })
       )
+      builder.setNetworkPassphrase(Networks.TESTNET)
       builder.setTimeout(60)
       return builder.build()
     })()
@@ -138,7 +137,6 @@ storiesOf("TransactionSummary", module)
     )
   })
   .add("Account Merge", () => {
-    Network.useTestNetwork()
     const horizon = new Server("https://horizon-testnet.stellar.org")
 
     const promise = (async () => {
@@ -150,6 +148,7 @@ storiesOf("TransactionSummary", module)
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
       )
+      builder.setNetworkPassphrase(Networks.TESTNET)
       builder.setTimeout(60)
       return builder.build()
     })()
