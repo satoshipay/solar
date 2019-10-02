@@ -57,7 +57,7 @@ function TradingForm(props: Props) {
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
   return (
-    <VerticalLayout alignItems="stretch" alignSelf="center" grow={1} shrink={1} maxWidth={500} width="100%">
+    <VerticalLayout alignItems="stretch" alignSelf="center" grow={1} shrink={1} width="100%">
       <TradePropertiesForm
         {...props}
         amount={amountString}
@@ -70,7 +70,7 @@ function TradingForm(props: Props) {
         price={price}
       />
       {relativeSpread > 0.01 ? (
-        <Box padding="8px 12px" style={{ background: warningColor }}>
+        <Box margin="24px 0 0" padding="8px 12px" style={{ background: warningColor }}>
           <b>Warning</b>
           <br />
           Large spread ({(relativeSpread * 100).toFixed(1)}

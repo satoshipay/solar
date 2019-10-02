@@ -1,23 +1,58 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, Horizon } from "stellar-sdk"
+import InputLabel from "@material-ui/core/InputLabel"
 import TextField from "@material-ui/core/TextField"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import { makeStyles } from "@material-ui/styles"
-import theme from "../../theme"
+import theme, { breakpoints } from "../../theme"
 import { formatBalance } from "../Account/AccountBalances"
 import AssetSelector from "../Form/AssetSelector"
 import { ReadOnlyTextfield } from "../Form/FormFields"
-import { HorizontalLayout } from "../Layout/Box"
+import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 import TradingPrice from "./TradingPrice"
 
 const useTradeFormStyles = makeStyles({
+  root: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+
+    [breakpoints.down(600)]: {
+      alignItems: "stretch",
+      flexDirection: "column"
+    }
+  },
+  tradePairInput: {
+    display: "flex",
+    alignItems: "center",
+    flexBasis: "50%",
+    margin: "24px -1.5vw",
+    padding: "0 1.5vw",
+
+    [breakpoints.down(600)]: {
+      flexBasis: "auto",
+      margin: "24px 0",
+      padding: 0
+    }
+  },
+  displayPrice: {
+    justifyContent: "center",
+    flexBasis: "auto",
+    order: 3,
+    width: "100%"
+  },
   rowIcon: {
     color: theme.palette.action.disabled,
-    fontSize: "300%",
+    fontSize: "350%",
     marginRight: "calc(8px + 1.5vw)"
+  },
+  rowIconLabel: {
+    marginTop: -12,
+    textAlign: "center"
   }
 })
 
@@ -89,11 +124,14 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
   }, [props.price, props.priceMode])
 
   return (
-    <>
-      <HorizontalLayout alignItems="center" margin="24px 0">
-        <CallMadeIcon className={classes.rowIcon} />
+    <Box className={classes.root}>
+      <HorizontalLayout className={classes.tradePairInput}>
+        <VerticalLayout>
+          <InputLabel className={classes.rowIconLabel}>Selling</InputLabel>
+          <CallMadeIcon className={classes.rowIcon} />
+        </VerticalLayout>
         <AssetSelector onChange={setSelling} trustlines={props.trustlines} value={props.selling} />
-        <HorizontalMargin size={8} />
+        <HorizontalMargin size={16} />
         <TextField
           autoFocus={process.env.PLATFORM !== "ios"}
           inputProps={{
@@ -106,7 +144,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           value={props.amount}
         />
       </HorizontalLayout>
-      <HorizontalLayout alignItems="center" justifyContent="center" margin="24px 0">
+      <HorizontalLayout className={`${classes.tradePairInput} ${classes.displayPrice}`}>
         <TradingPrice
           buying={props.buying}
           inputError={manualPriceError}
@@ -122,10 +160,13 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           selling={props.selling}
         />
       </HorizontalLayout>
-      <HorizontalLayout alignItems="center" margin="24px 0">
-        <CallReceivedIcon className={classes.rowIcon} />
+      <HorizontalLayout className={classes.tradePairInput}>
+        <VerticalLayout>
+          <InputLabel className={classes.rowIconLabel}>Buying</InputLabel>
+          <CallReceivedIcon className={classes.rowIcon} />
+        </VerticalLayout>
         <AssetSelector onChange={setBuying} trustlines={props.trustlines} value={props.buying} />
-        <HorizontalMargin size={8} />
+        <HorizontalMargin size={16} />
         <ReadOnlyTextfield
           disableUnderline
           inputProps={{
@@ -140,7 +181,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           value={formatBalance(String(estimatedReturn), { minimumSignificants: 3 })}
         />
       </HorizontalLayout>
-    </>
+    </Box>
   )
 }
 

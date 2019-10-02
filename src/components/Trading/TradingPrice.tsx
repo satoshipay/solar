@@ -3,6 +3,7 @@ import React from "react"
 import { Asset } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import InputBase from "@material-ui/core/InputBase"
+import { fade } from "@material-ui/core/styles"
 import CheckIcon from "@material-ui/icons/Check"
 import ClearIcon from "@material-ui/icons/Clear"
 import EditIcon from "@material-ui/icons/Edit"
@@ -25,11 +26,13 @@ const useTradingPriceStyles = makeStyles({
     whiteSpace: "nowrap"
   },
   action: {
+    background: fade(theme.palette.primary.dark, 0.08),
     color: theme.palette.primary.dark,
     fontSize: 16,
     margin: -8,
-    padding: 8
+    padding: 4
   },
+  filledAction: {},
   input: {
     height: 16,
     paddingTop: 2,
@@ -116,26 +119,45 @@ function TradingPrice(props: TradingPriceProps) {
   const classes = useTradingPriceStyles({})
 
   const actionsLeft = props.isEditingPrice ? null : (
-    <IconButton className={classes.action} onClick={props.onSwitchPriceAssets} style={{ marginRight: 8 }}>
+    <IconButton
+      className={classes.action}
+      color="primary"
+      onClick={props.onSwitchPriceAssets}
+      size="small"
+      style={{ marginRight: 8 }}
+    >
       <SwapHorizIcon />
     </IconButton>
   )
   const actionsRight = props.isEditingPrice ? (
     <>
       <IconButton
-        className={classes.action}
+        className={`${classes.action} ${classes.filledAction}`}
+        color="primary"
         onClick={props.onApplyManualPrice}
+        size="small"
         style={{ marginLeft: 8, marginRight: 8 }}
       >
         <CheckIcon />
       </IconButton>
-      <IconButton className={classes.action} onClick={props.onDismissManualPrice}>
+      <IconButton
+        className={`${classes.action} ${classes.filledAction}`}
+        color="primary"
+        onClick={props.onDismissManualPrice}
+        size="small"
+      >
         <ClearIcon />
       </IconButton>
     </>
   ) : (
-    <IconButton className={classes.action} onClick={props.onEditPrice} style={{ marginLeft: 8 }}>
-      <EditIcon style={{ fontSize: 16 }} />
+    <IconButton
+      className={classes.action}
+      color="primary"
+      onClick={props.onEditPrice}
+      size="small"
+      style={{ marginLeft: 8 }}
+    >
+      <EditIcon style={{ transform: "scale(0.75)" }} />
     </IconButton>
   )
 
