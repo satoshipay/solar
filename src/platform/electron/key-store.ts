@@ -26,13 +26,14 @@ export default async function createKeyStore(): Promise<KeyStoreAPI> {
     },
     async signTransaction(transaction: Transaction, account: Account, password: string) {
       const transactionEnvelope = (transaction.toEnvelope().toXDR("base64") as unknown) as string
+      const networkPassphrase = account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet
       const signedTransactionEnvelope = await electron.signTransaction(
         transactionEnvelope,
         account.id,
-        account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet,
+        networkPassphrase,
         password
       )
-      return new Transaction(signedTransactionEnvelope)
+      return new Transaction(signedTransactionEnvelope, networkPassphrase)
     },
     async removeKey(keyID: string) {
       return electron.removeKey(keyID)
