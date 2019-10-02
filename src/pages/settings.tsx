@@ -117,7 +117,7 @@ function SettingsPage() {
           </CardContent>
         </Card>
       </Section>
-      <Section bottom style={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
+      <Section bottom style={{ display: "flex", paddingTop: 0, flexDirection: "column", overflowY: "auto" }}>
         <VerticalLayout height="100%" padding="0 8px" grow>
           <Box grow margin={isSmallScreen ? 0 : "24px 12px"} overflowY="auto">
             <Settings />
