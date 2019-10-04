@@ -50,6 +50,9 @@ const readIgnoredSignatureRequestHashes = () => ipcRenderer.sendSync("storage:ig
 const updateIgnoredSignatureRequestHashes = (updatedHashes: string[]) =>
   ipcRenderer.sendSync("storage:ignoredSignatureRequests:storeSync", updatedHashes)
 
+const isUpdateAvailable = createCommand<boolean>("app-update:get-availability", "app-update:availability")
+const startUpdate = createCommand<void>("app-update:start", "app-update:started")
+
 const subscribeToIPCMain = (
   channel: string,
   subscribeCallback: (event: Event, ...args: any[]) => void
@@ -72,7 +75,10 @@ const electron: ElectronContext = {
   readSettings,
   updateIgnoredSignatureRequestHashes,
   updateSettings,
-  subscribeToIPCMain
+  subscribeToIPCMain,
+
+  isUpdateAvailable,
+  startUpdate
 }
 
 global.electron = window.electron = electron

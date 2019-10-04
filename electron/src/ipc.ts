@@ -10,7 +10,10 @@ export const commands = {
   readSettingsCommand: "storage:settings:read",
   storeSettingsCommand: "storage:settings:store",
   readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
-  storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store"
+  storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
+
+  getUpdateAvailability: "app-update:get-availability",
+  startUpdate: "app-update:start"
 }
 
 export const events = {
@@ -20,7 +23,9 @@ export const events = {
   saveKeyEvent: "keystore:savedKey",
   savePublicKeyDataEvent: "keystore:savedPublicKeyData",
   signTransactionEvent: "keystore:signedTransaction",
-  removeKeyEvent: "keystore:removedKey"
+  removeKeyEvent: "keystore:removedKey",
+  getUpdateAvailabilityEvent: "app-update:availability",
+  updateStartedEvent: "app-update:started"
 }
 
 export function expose(
