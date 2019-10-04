@@ -8,8 +8,13 @@ import { warningColor } from "../../theme"
 import { useConversionOffers } from "./hooks"
 import TradePropertiesForm from "./TradePropertiesForm"
 
-function isDisabled(amount: BigNumber, price: BigNumber, balance: BigNumber) {
-  return [amount.lte(0), amount.gt(balance), price.lte(0)].some(condition => condition === true)
+function isDisabled(sellingAmount: BigNumber, price: BigNumber, balance: BigNumber) {
+  return sellingAmount.lte(0) || sellingAmount.gt(balance) || price.lte(0)
+}
+
+interface Amounts {
+  buying: BigNumber
+  selling: BigNumber
 }
 
 interface DialogActionsProps {
@@ -22,8 +27,7 @@ interface DialogActionsProps {
 interface Props {
   buying: Asset
   buyingBalance: string
-  onSetBuying: (asset: Asset) => void
-  onSetSelling: (asset: Asset) => void
+  onSelectAssets: (assets: { buying: Asset; selling: Asset }) => void
   selling: Asset
   sellingBalance: string
   testnet: boolean
@@ -35,20 +39,12 @@ function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
   const tradePair = useLiveOrderbook(props.selling, props.buying, props.testnet)
 
-  const [amountString, setAmountString] = React.useState("")
+  const [amounts, setAmounts] = React.useState<Amounts>(() => ({ buying: BigNumber(0), selling: BigNumber(0) }))
   const [manualPrice, setManualPrice] = React.useState<BigNumber | undefined>()
-  const [priceMode, setPriceMode] = React.useState<"fixed-buying" | "fixed-selling">("fixed-selling")
-
-  const togglePriceMode = React.useCallback(
-    () => setPriceMode(prev => (prev === "fixed-buying" ? "fixed-selling" : "fixed-buying")),
-    []
-  )
-
-  const amount = Number.isNaN(Number.parseFloat(amountString)) ? BigNumber(0) : BigNumber(amountString)
 
   const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(
     tradePair.bids,
-    amount.gt(0) ? amount : BigNumber(0.01)
+    amounts.selling.gt(0) ? amounts.selling : BigNumber(0.01)
   )
 
   const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
@@ -56,18 +52,36 @@ function TradingForm(props: Props) {
   const price = manualPrice || bestPrice || BigNumber(0)
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
+  const updateBuyingAmount = (amount: BigNumber) => {
+    setAmounts({
+      buying: amount,
+      selling: amount.div(price)
+    })
+  }
+  const updateSellingAmount = (amount: BigNumber) => {
+    setAmounts({
+      buying: amount.mul(price),
+      selling: amount
+    })
+  }
+
   return (
     <VerticalLayout alignItems="stretch" alignSelf="center" grow={1} shrink={1} width="100%">
       <TradePropertiesForm
-        {...props}
-        amount={amountString}
+        buying={props.buying}
+        buyingAmount={amounts.buying}
+        buyingBalance={props.buyingBalance}
         estimatedReturn={estimatedReturn}
         manualPrice={manualPrice}
-        priceMode={priceMode}
-        onSetAmount={setAmountString}
+        onSelectAssets={props.onSelectAssets}
+        onSetBuyingAmount={updateBuyingAmount}
         onSetManualPrice={setManualPrice}
-        onTogglePriceMode={togglePriceMode}
+        onSetSellingAmount={updateSellingAmount}
         price={price}
+        selling={props.selling}
+        sellingAmount={amounts.selling}
+        sellingBalance={props.sellingBalance}
+        trustlines={props.trustlines}
       />
       {relativeSpread > 0.01 ? (
         <Box margin="24px 0 0" padding="8px 12px" style={{ background: warningColor }}>
@@ -78,8 +92,8 @@ function TradingForm(props: Props) {
         </Box>
       ) : null}
       <DialogActions
-        amount={amount}
-        disabled={amountString === "" || isDisabled(amount, price, BigNumber(props.sellingBalance))}
+        amount={amounts.selling}
+        disabled={isDisabled(amounts.selling, price, BigNumber(props.sellingBalance))}
         price={price}
         style={{ justifySelf: "flex-end" }}
       />

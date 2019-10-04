@@ -26,6 +26,11 @@ function findMatchingBalance(balances: ObservedAccountData["balances"], asset: A
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
+interface Assets {
+  buying: Asset | null
+  selling: Asset | null
+}
+
 interface TradingDialogProps {
   account: Account
   horizon: Server
@@ -46,12 +51,12 @@ function TradingDialog(props: TradingDialogProps) {
     [accountData.balances]
   )
 
-  const [rawBuyingAsset, setBuyingAsset] = React.useState<Asset | null>(null)
+  const [assets, setAssets] = React.useState<Assets>({ buying: null, selling: null })
   const [rawSellingAsset, setSellingAsset] = React.useState<Asset | null>(null)
 
   // Cannot set fallback value in React.useState(), since `trustlines` will become available asynchronously
-  const buyingAsset = rawBuyingAsset || (trustlines.length > 0 ? balancelineToAsset(trustlines[0]) : Asset.native())
-  const sellingAsset = rawSellingAsset || Asset.native()
+  const buyingAsset = assets.buying || (trustlines.length > 0 ? balancelineToAsset(trustlines[0]) : Asset.native())
+  const sellingAsset = assets.selling || Asset.native()
 
   const buyingBalance = findMatchingBalance(accountData.balances, buyingAsset)
   const sellingBalance = findMatchingBalance(accountData.balances, sellingAsset)
@@ -100,8 +105,7 @@ function TradingDialog(props: TradingDialogProps) {
         <TradingForm
           buying={buyingAsset}
           buyingBalance={buyingBalance.balance}
-          onSetBuying={setBuyingAsset}
-          onSetSelling={setSellingAsset}
+          onSelectAssets={setAssets}
           selling={sellingAsset}
           sellingBalance={sellingBalance.balance}
           testnet={props.account.testnet}
