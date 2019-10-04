@@ -4,7 +4,7 @@ import { FixedOrderbookOffer } from "../../lib/orderbook"
 
 const sum = (numbers: BigNumber[]) => numbers.reduce((total, no) => total.add(no), BigNumber(0))
 
-export function useConversionOffers(offers: FixedOrderbookOffer[], amount: BigNumber, tolerance: number) {
+export function useConversionOffers(offers: FixedOrderbookOffer[], amount: BigNumber, tolerance: number = 0) {
   // Best offers always returned first by horizon
   const bestOffers = offers
   const priceMultiplier = 1 + tolerance
