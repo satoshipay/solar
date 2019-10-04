@@ -67,6 +67,12 @@ interface EditableAmount {
   value: string
 }
 
+interface ManualPrice {
+  editingNow: boolean
+  error?: Error
+  value?: string
+}
+
 interface TradePropertiesFormProps {
   buying: Asset
   buyingAmount: BigNumber
@@ -87,9 +93,7 @@ interface TradePropertiesFormProps {
 function TradePropertiesForm(props: TradePropertiesFormProps) {
   const classes = useTradeFormStyles()
   const [editableAmount, setEditableAmount] = React.useState<EditableAmount>({ field: "selling", value: "" })
-  const [isEditingPrice, setIsEditingPrice] = React.useState(false)
-  const [manualPriceError, setManualPriceError] = React.useState<Error | undefined>()
-  const [manualPriceString, setManualPriceString] = React.useState<string | undefined>()
+  const [manualPrice, setManualPrice] = React.useState<ManualPrice>({ editingNow: false })
   const [priceMode, setPriceMode] = React.useState<"fixed-buying" | "fixed-selling">("fixed-selling")
 
   const bigNumberToInputValue = (bignum: BigNumber) => formatBalance(bignum, { minimumSignificants: 3 })
@@ -101,22 +105,33 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
     editableAmount.field === "selling" ? editableAmount.value : bigNumberToInputValue(props.sellingAmount)
 
   const applyManualPrice = () => {
-    if (manualPriceString && /^[0-9]+(\.[0-9]+)?$/.test(manualPriceString)) {
-      setManualPriceError(undefined)
-      setIsEditingPrice(false)
+    if (!manualPrice.value || !/^[0-9]+(\.[0-9]+)?$/.test(manualPrice.value)) {
+      setManualPrice({
+        editingNow: false,
+        error: Error("Invalid price entered.")
+      })
+      return
+    }
 
-      const manualPrice = BigNumber(manualPriceString)
-      props.onSetManualPrice(priceMode === "fixed-buying" ? BigNumber(1).div(manualPrice) : manualPrice)
+    setManualPrice({
+      editingNow: false
+    })
+
+    const price = priceMode === "fixed-buying" ? BigNumber(1).div(manualPrice.value) : BigNumber(manualPrice.value)
+
+    props.onSetManualPrice(price)
+
+    if (editableAmount.field === "buying") {
+      props.onSetSellingAmount(props.buyingAmount.div(price))
     } else {
-      setManualPriceError(Error("Invalid price entered."))
-      setIsEditingPrice(false)
+      props.onSetBuyingAmount(props.sellingAmount.mul(price))
     }
   }
 
   const dismissManualPrice = () => {
-    setManualPriceString(undefined)
-    setManualPriceError(undefined)
-    setIsEditingPrice(false)
+    setManualPrice({
+      editingNow: false
+    })
   }
 
   const setBuying = (newBuyingAsset: Asset) => {
@@ -137,10 +152,19 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
     })
   }
 
+  const updateManualPrice = React.useCallback((value: string) => {
+    setManualPrice({
+      editingNow: true,
+      value
+    })
+  }, [])
+
   const startEditingPrice = React.useCallback(() => {
     const price = priceMode === "fixed-buying" ? BigNumber(1).div(props.price) : props.price
-    setManualPriceString(price.toFixed(7))
-    setIsEditingPrice(true)
+    setManualPrice({
+      editingNow: true,
+      value: price.toFixed(7)
+    })
   }, [props.price, priceMode])
 
   const togglePriceMode = React.useCallback(
@@ -199,14 +223,14 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
       <HorizontalLayout className={`${classes.tradePairInput} ${classes.displayPrice}`}>
         <TradingPrice
           buying={props.buying}
-          inputError={manualPriceError}
-          isEditingPrice={isEditingPrice}
+          inputError={manualPrice.error}
+          isEditingPrice={manualPrice.editingNow}
           isPriceSwitched={priceMode === "fixed-buying"}
-          manualPrice={manualPriceString}
+          manualPrice={manualPrice.value}
           onApplyManualPrice={applyManualPrice}
           onDismissManualPrice={dismissManualPrice}
           onEditPrice={startEditingPrice}
-          onSetManualPrice={setManualPriceString}
+          onSetManualPrice={updateManualPrice}
           onSwitchPriceAssets={togglePriceMode}
           price={props.price}
           selling={props.selling}
