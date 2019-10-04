@@ -87,7 +87,7 @@ function TransactionReviewDialog(props: Props) {
     >
       <DialogBody top={titleContent} actions={props.showSubmissionProgress ? null : dialogActionsRef}>
         {props.transaction ? (
-          <Box margin="12px auto 0" textAlign="center">
+          <Box margin={`12px ${isSmallScreen ? "4px" : "0"} 0`} textAlign="center">
             <ReviewForm
               account={props.account}
               actionsRef={dialogActionsRef}
