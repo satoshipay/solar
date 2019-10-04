@@ -87,8 +87,7 @@ function TradingForm(props: Props) {
         <Box margin="24px 0 0" padding="8px 12px" style={{ background: warningColor }}>
           <b>Warning</b>
           <br />
-          Large spread ({(relativeSpread * 100).toFixed(1)}
-          %) between buying and selling price. Converting the funds back might be expensive.
+          Large spread ({(relativeSpread * 100).toFixed(1)}%) between buying and selling price. Prices are not ideal.
         </Box>
       ) : null}
       <DialogActions
