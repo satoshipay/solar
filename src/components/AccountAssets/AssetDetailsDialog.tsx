@@ -24,7 +24,7 @@ import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
 
 const capitalize = (text: string) => text[0].toUpperCase() + text.substr(1)
 
-const useDetailContentStyles = makeStyles(theme => ({
+const useDetailContentStyles = makeStyles({
   card: {
     backgroundColor: "#fbfbfb",
     borderRadius: 8,
@@ -53,13 +53,12 @@ const useDetailContentStyles = makeStyles(theme => ({
     width: "100%",
     height: "100%"
   }
-}))
+})
 
 interface LumenDetailProps {
   account: Account
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
   const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const classes = useDetailContentStyles()
@@ -98,7 +97,6 @@ interface AssetDetailProps {
   metadata: StellarTomlCurrency | undefined
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata }: AssetDetailProps) {
   const accountData = useAccountData(account.publicKey, account.testnet)
   const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
@@ -148,9 +146,9 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             fullWidth
             label="Issuing account"
             margin="dense"
+            onClick={copyIssuerToClipboard}
             value={asset.getIssuer()}
             inputProps={{
-              onClick: copyIssuerToClipboard,
               style: {
                 cursor: "pointer",
                 textOverflow: "ellipsis"
