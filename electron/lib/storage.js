@@ -73,7 +73,7 @@ expose(ipcMain, commands.signTransactionCommand, events.signTransactionEvent, fu
   const transaction = new Transaction(txEnvelopeXdr, networkPassphrase)
   let privateKey
   try {
-    privateKey = keystore.getPrivateKeyData(keyID, password)
+    privateKey = keystore.getPrivateKeyData(keyID, password).privateKey
   } catch (error) {
     throw Object.assign(new Error("Wrong password."), { name: "WrongPasswordError" })
   }
