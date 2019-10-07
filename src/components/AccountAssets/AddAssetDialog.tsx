@@ -149,17 +149,14 @@ function createSearchResultRow(
   function SearchResultRow(props: { index: number; style: React.CSSProperties }) {
     const classes = useSearchResultStyles()
     const item = itemRenderMap[props.index]
+    const asset = item.type === "asset" ? new Asset(item.record.code, item.record.issuer) : undefined
+    const assetMetadataMap = useAssetMetadata(asset ? [asset] : [], account.testnet)
+    const [assetMetadata] = asset ? assetMetadataMap.get(asset) || [] : []
+
     return (
       <div style={props.style}>
         {item.type === "issuer" ? (
-          <ListItem
-            key={item.issuer}
-            className={[
-              classes.issuerItem,
-              props.index === 0 ? classes.first : "",
-              props.index === itemRenderMap.length - 1 ? classes.last : ""
-            ].join(" ")}
-          >
+          <ListItem key={item.issuer} className={classes.issuerItem}>
             <ListItemText
               primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
               secondary={
@@ -178,11 +175,9 @@ function createSearchResultRow(
         ) : null}
         {item.type === "asset" ? (
           <BalanceDetailsListItem
-            assetMetadata={undefined}
+            assetMetadata={assetMetadata}
             balance={assetToBalance(assetRecordToAsset(item.record))}
-            className={`${classes.assetItem} ${props.index === 0 ? classes.first : ""} ${
-              props.index === itemRenderMap.length - 1 ? classes.last : ""
-            }`}
+            className={classes.assetItem}
             hideBalance
             onClick={() => openAssetDetails(assetRecordToAsset(item.record))}
             style={{ paddingLeft: 32 }}
