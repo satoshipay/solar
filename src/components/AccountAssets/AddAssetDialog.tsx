@@ -101,21 +101,8 @@ const useSearchResultStyles = makeStyles({
   issuerItem: {
     background: "white",
     borderRadius: 8,
-    height: searchResultRowHeight,
-
-    "&:not($first)": {
-      borderTopLeftRadius: "0 !important",
-      borderTopRightRadius: "0 !important"
-    },
-    "&:not($last)": {
-      borderBottomLeftRadius: "0 !important",
-      borderBottomRightRadius: "0 !important"
-    }
-  },
-
-  // Only using these as selectors within other class rules
-  first: {},
-  last: {}
+    height: searchResultRowHeight
+  }
 })
 
 function createSearchResultRow(
