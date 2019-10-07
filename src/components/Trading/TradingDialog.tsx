@@ -52,7 +52,6 @@ function TradingDialog(props: TradingDialogProps) {
   )
 
   const [assets, setAssets] = React.useState<Assets>({ buying: null, selling: null })
-  const [rawSellingAsset, setSellingAsset] = React.useState<Asset | null>(null)
 
   // Cannot set fallback value in React.useState(), since `trustlines` will become available asynchronously
   const buyingAsset = assets.buying || (trustlines.length > 0 ? balancelineToAsset(trustlines[0]) : Asset.native())
