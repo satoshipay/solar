@@ -90,6 +90,7 @@ function DialogBody(props: Props) {
           overflowX="hidden"
           overflowY="auto"
           padding={`0 ${excessWidth}px`}
+          position="relative"
           shrink
         >
           {props.children}
