@@ -1,4 +1,4 @@
-image: node:10-jessie
+image: node:12-buster
 
 stages:
   - test
@@ -11,7 +11,7 @@ test:
     key: ${CI_COMMIT_REF_SLUG}
     policy: push
   script:
-    - npm ci
+    - npm ci --silent
     - npm test
 
 build_storybook:
@@ -28,7 +28,7 @@ build_storybook:
       - stories/**
       - types/**
   script:
-    - npm ci
+    - npm ci --silent
     - npx build-storybook
 
 build_web:
@@ -44,7 +44,7 @@ build_web:
       - types/**
       - web/**
   script:
-    - npm ci
+    - npm ci --silent
     - cd web/ && npm run build
 
 # Note that the `npm run build:*` commands will automatically create a GitHub release and upload binaries
@@ -57,7 +57,7 @@ build_mac:
     key: ${CI_COMMIT_REF_SLUG}
     policy: pull
   script:
-    - npm ci
+    - npm ci --silent
     - npm run build:mac -- --mac=zip
   only:
     - master
@@ -73,7 +73,7 @@ build_linux:
   script:
     - apt-get update && apt-get install apt-file && apt-file update
     - apt-get install -y rpm
-    - npm ci
+    - npm ci --silent
     - npm run build:linux -- --linux=deb --linux=rpm
   only:
     - master
