@@ -8,12 +8,9 @@ import { warningColor } from "../../theme"
 import { useConversionOffers } from "./hooks"
 import TradePropertiesForm from "./TradePropertiesForm"
 
-function isDisabled(sellingAmount: BigNumber, price: BigNumber, balance: BigNumber) {
-  return sellingAmount.lte(0) || sellingAmount.gt(balance) || price.lte(0)
-}
-
 interface Amounts {
   buying: BigNumber
+  price: BigNumber | undefined
   selling: BigNumber
 }
 
@@ -39,31 +36,58 @@ function TradingForm(props: Props) {
   const DialogActions = props.DialogActions
   const tradePair = useLiveOrderbook(props.selling, props.buying, props.testnet)
 
-  const [amounts, setAmounts] = React.useState<Amounts>(() => ({ buying: BigNumber(0), selling: BigNumber(0) }))
-  const [manualPrice, setManualPrice] = React.useState<BigNumber | undefined>()
+  const [amounts, setAmounts] = React.useState<Amounts>(() => ({
+    buying: BigNumber(0),
+    price: undefined,
+    selling: BigNumber(0)
+  }))
 
   const { estimatedReturn, worstPriceOfBestMatches } = useConversionOffers(
     tradePair.bids,
     amounts.selling.gt(0) ? amounts.selling : BigNumber(0.01)
   )
 
-  const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
+  const getPrice = (manualPrice: BigNumber | undefined, autoPrice?: BigNumber) =>
+    manualPrice || autoPrice || BigNumber(0)
 
-  const price = manualPrice || bestPrice || BigNumber(0)
+  const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
+  const isDisabled =
+    amounts.buying.lte(0) ||
+    amounts.selling.lte(0) ||
+    amounts.selling.gt(props.sellingBalance) ||
+    getPrice(amounts.price).lte(0)
+
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
-  const updateBuyingAmount = (amount: BigNumber) => {
-    setAmounts({
-      buying: amount,
-      selling: amount.div(price)
-    })
-  }
-  const updateSellingAmount = (amount: BigNumber) => {
-    setAmounts({
-      buying: amount.mul(price),
-      selling: amount
-    })
-  }
+  const updateBuyingAmount = React.useCallback(
+    (amount: BigNumber) => {
+      setAmounts(prev => ({
+        buying: amount,
+        price: prev.price,
+        selling: getPrice(prev.price, bestPrice).gt(0) ? amount.div(getPrice(prev.price, bestPrice)) : prev.selling
+      }))
+    },
+    [bestPrice]
+  )
+
+  const updatePrice = React.useCallback((newPrice: BigNumber, editing: "buying" | "selling") => {
+    setAmounts(prev => ({
+      buying: editing === "buying" ? prev.buying : prev.selling.mul(newPrice),
+      price: newPrice,
+      selling: editing === "buying" ? prev.buying.div(newPrice) : prev.selling
+    }))
+  }, [])
+
+  const updateSellingAmount = React.useCallback(
+    (amount: BigNumber) => {
+      setAmounts(prev => ({
+        buying: getPrice(prev.price, bestPrice).gt(0) ? amount.mul(getPrice(prev.price, bestPrice)) : prev.buying,
+        price: prev.price,
+        selling: amount
+      }))
+    },
+    [bestPrice]
+  )
 
   return (
     <VerticalLayout alignItems="stretch" alignSelf="center" grow={1} shrink={1} width="100%">
@@ -72,12 +96,11 @@ function TradingForm(props: Props) {
         buyingAmount={amounts.buying}
         buyingBalance={props.buyingBalance}
         estimatedReturn={estimatedReturn}
-        manualPrice={manualPrice}
         onSelectAssets={props.onSelectAssets}
         onSetBuyingAmount={updateBuyingAmount}
-        onSetManualPrice={setManualPrice}
+        onSetPrice={updatePrice}
         onSetSellingAmount={updateSellingAmount}
-        price={price}
+        price={getPrice(amounts.price, bestPrice)}
         selling={props.selling}
         sellingAmount={amounts.selling}
         sellingBalance={props.sellingBalance}
@@ -92,8 +115,8 @@ function TradingForm(props: Props) {
       ) : null}
       <DialogActions
         amount={amounts.selling}
-        disabled={isDisabled(amounts.selling, price, BigNumber(props.sellingBalance))}
-        price={price}
+        disabled={isDisabled}
+        price={getPrice(amounts.price, bestPrice)}
         style={{ justifySelf: "flex-end" }}
       />
     </VerticalLayout>
