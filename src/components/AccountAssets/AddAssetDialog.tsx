@@ -189,6 +189,8 @@ const useAddAssetStyles = makeStyles({
   },
   searchField: {
     background: "white",
+    flexShrink: 0,
+    flexGrow: 0,
     marginBottom: 16
   },
   searchFieldInput: {
