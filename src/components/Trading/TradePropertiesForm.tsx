@@ -14,6 +14,9 @@ import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { HorizontalMargin } from "../Layout/Spacing"
 import TradingPrice from "./TradingPrice"
 
+const bigNumberToInputValue = (bignum: BigNumber) => formatBalance(bignum, { minimumSignificants: 3 })
+const isValidPrice = (price: string) => /^[0-9]+(\.[0-9]+)?$/.test(price)
+
 const useTradeFormStyles = makeStyles({
   root: {
     display: "flex",
@@ -68,7 +71,6 @@ interface EditableAmount {
 }
 
 interface ManualPrice {
-  editingNow: boolean
   error?: Error
   value?: string
 }
@@ -78,11 +80,10 @@ interface TradePropertiesFormProps {
   buyingAmount: BigNumber
   buyingBalance: string
   estimatedReturn: BigNumber
-  manualPrice: BigNumber | undefined
   onSelectAssets: (assets: { buying: Asset; selling: Asset }) => void
   onSetBuyingAmount: (amount: BigNumber) => void
+  onSetPrice: (price: BigNumber, editing: "buying" | "selling") => void
   onSetSellingAmount: (amount: BigNumber) => void
-  onSetManualPrice: (price: BigNumber) => void
   price: BigNumber
   selling: Asset
   sellingAmount: BigNumber
@@ -92,47 +93,18 @@ interface TradePropertiesFormProps {
 
 function TradePropertiesForm(props: TradePropertiesFormProps) {
   const classes = useTradeFormStyles()
+  const priceInputRef = React.useRef<HTMLElement>(null)
   const [editableAmount, setEditableAmount] = React.useState<EditableAmount>({ field: "selling", value: "" })
-  const [manualPrice, setManualPrice] = React.useState<ManualPrice>({ editingNow: false })
+  const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
   const [priceMode, setPriceMode] = React.useState<"fixed-buying" | "fixed-selling">("fixed-selling")
 
-  const bigNumberToInputValue = (bignum: BigNumber) => formatBalance(bignum, { minimumSignificants: 3 })
+  const defaultPrice = bigNumberToInputValue(priceMode === "fixed-buying" ? BigNumber(1).div(props.price) : props.price)
 
   const buyingAmountString =
     editableAmount.field === "buying" ? editableAmount.value : bigNumberToInputValue(props.buyingAmount)
 
   const sellingAmountString =
     editableAmount.field === "selling" ? editableAmount.value : bigNumberToInputValue(props.sellingAmount)
-
-  const applyManualPrice = () => {
-    if (!manualPrice.value || !/^[0-9]+(\.[0-9]+)?$/.test(manualPrice.value)) {
-      setManualPrice({
-        editingNow: false,
-        error: Error("Invalid price entered.")
-      })
-      return
-    }
-
-    setManualPrice({
-      editingNow: false
-    })
-
-    const price = priceMode === "fixed-buying" ? BigNumber(1).div(manualPrice.value) : BigNumber(manualPrice.value)
-
-    props.onSetManualPrice(price)
-
-    if (editableAmount.field === "buying") {
-      props.onSetSellingAmount(props.buyingAmount.div(price))
-    } else {
-      props.onSetBuyingAmount(props.sellingAmount.mul(price))
-    }
-  }
-
-  const dismissManualPrice = () => {
-    setManualPrice({
-      editingNow: false
-    })
-  }
 
   const setBuying = (newBuyingAsset: Asset) => {
     const swapSelection = newBuyingAsset.equals(props.selling) && !newBuyingAsset.equals(props.buying)
@@ -152,25 +124,18 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
     })
   }
 
-  const updateManualPrice = React.useCallback((value: string) => {
-    setManualPrice({
-      editingNow: true,
-      value
-    })
+  const startEditingPrice = React.useCallback(() => {
+    if (priceInputRef.current) {
+      priceInputRef.current.focus()
+    }
   }, [])
 
-  const startEditingPrice = React.useCallback(() => {
-    const price = priceMode === "fixed-buying" ? BigNumber(1).div(props.price) : props.price
-    setManualPrice({
-      editingNow: true,
-      value: price.toFixed(7)
-    })
-  }, [props.price, priceMode])
-
-  const togglePriceMode = React.useCallback(
-    () => setPriceMode(prev => (prev === "fixed-buying" ? "fixed-selling" : "fixed-buying")),
-    []
-  )
+  const togglePriceMode = React.useCallback(() => {
+    setPriceMode(prev => (prev === "fixed-buying" ? "fixed-selling" : "fixed-buying"))
+    setManualPrice(prev => ({
+      value: prev.value && isValidPrice(prev.value) ? bigNumberToInputValue(BigNumber(1).div(prev.value)) : prev.value
+    }))
+  }, [])
 
   const updateAmount = throttle((field: "buying" | "selling", event: React.ChangeEvent<HTMLInputElement>) => {
     const amount = event.target.value
@@ -198,6 +163,25 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
     }))
   }
 
+  const updatePrice = (newPriceAmount: string) => {
+    setManualPrice(prev => ({
+      error: isValidPrice(newPriceAmount) ? undefined : prev.error,
+      value: newPriceAmount
+    }))
+
+    if (isValidPrice(newPriceAmount)) {
+      const newPrice = priceMode === "fixed-buying" ? BigNumber(1).div(newPriceAmount) : BigNumber(newPriceAmount)
+      props.onSetPrice(newPrice, editableAmount.field)
+    }
+  }
+
+  const validatePrice = React.useCallback(() => {
+    setManualPrice(prev => ({
+      error: prev.value && !isValidPrice(prev.value) ? Error("Invalid price") : undefined,
+      value: prev.value
+    }))
+  }, [])
+
   return (
     <Box className={classes.root}>
       <HorizontalLayout className={classes.tradePairInput}>
@@ -215,6 +199,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           onChange={event => updateAmount("selling", event as React.ChangeEvent<HTMLInputElement>)}
           onFocus={() => updateEditingField("selling")}
           placeholder={`Max. ${props.sellingBalance}`}
+          required
           style={{ flexGrow: 1, flexShrink: 1, marginLeft: "auto", maxWidth: 200 }}
           type="number"
           value={sellingAmountString}
@@ -224,16 +209,15 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
         <TradingPrice
           buying={props.buying}
           inputError={manualPrice.error}
-          isEditingPrice={manualPrice.editingNow}
-          isPriceSwitched={priceMode === "fixed-buying"}
-          manualPrice={manualPrice.value}
-          onApplyManualPrice={applyManualPrice}
-          onDismissManualPrice={dismissManualPrice}
-          onEditPrice={startEditingPrice}
-          onSetManualPrice={updateManualPrice}
+          inputRef={priceInputRef}
+          manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
+          onBlur={validatePrice}
+          onChange={updatePrice}
+          onEditClick={startEditingPrice}
           onSwitchPriceAssets={togglePriceMode}
           price={props.price}
           selling={props.selling}
+          variant={priceMode}
         />
       </HorizontalLayout>
       <HorizontalLayout className={classes.tradePairInput}>
@@ -250,6 +234,7 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
           onChange={event => updateAmount("buying", event as React.ChangeEvent<HTMLInputElement>)}
           onFocus={() => updateEditingField("buying")}
           placeholder={`Max. ${props.buyingBalance}`}
+          required
           style={{ flexGrow: 1, flexShrink: 1, marginLeft: "auto", maxWidth: 200 }}
           type="number"
           value={buyingAmountString}

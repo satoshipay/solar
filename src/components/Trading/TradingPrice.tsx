@@ -1,16 +1,12 @@
 import BigNumber from "big.js"
 import React from "react"
+import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 import { Asset } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
-import InputBase from "@material-ui/core/InputBase"
-import { fade } from "@material-ui/core/styles"
-import { makeStyles } from "@material-ui/core/styles"
-import CheckIcon from "@material-ui/icons/Check"
-import ClearIcon from "@material-ui/icons/Clear"
+import { fade, makeStyles } from "@material-ui/core/styles"
 import EditIcon from "@material-ui/icons/Edit"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import theme, { breakpoints } from "../../theme"
-import { formatBalance } from "../Account/AccountBalances"
 import { HorizontalLayout } from "../Layout/Box"
 
 const useTradingPriceStyles = makeStyles({
@@ -22,7 +18,7 @@ const useTradingPriceStyles = makeStyles({
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     height: 24,
-    padding: "8px 16px",
+    padding: "8px 24px",
     whiteSpace: "nowrap",
 
     [breakpoints.down(400)]: {
@@ -36,35 +32,55 @@ const useTradingPriceStyles = makeStyles({
     margin: -8,
     padding: 4
   },
-  primaryAction: {
-    background: fade(theme.palette.primary.dark, 0.75),
-    color: "white",
-    padding: 2,
-
-    "&:hover": {
-      background: fade(theme.palette.primary.dark, 0.8)
-    }
+  error: {
+    color: theme.palette.error.main
   },
   input: {
-    height: 16,
-    paddingTop: 2,
-    paddingBottom: 2,
-    textAlign: "right"
+    position: "relative",
+
+    "&:focus": {
+      outline: "none"
+    },
+    "&:before": {
+      content: "' '",
+      position: "absolute",
+      bottom: -1,
+      left: 0,
+      right: 0,
+      borderBottom: `1px solid ${fade(theme.palette.primary.dark, 0.5)}`
+    },
+    "&$error:before, &$error:after": {
+      borderBottomColor: theme.palette.error.main
+    },
+    "&:after": {
+      transition: `border-bottom ${theme.transitions.duration.shorter}ms, transform ${theme.transitions.duration.shorter}ms`
+    },
+    "&:not($error):after": {
+      content: "' '",
+      position: "absolute",
+      bottom: -1,
+      left: 0,
+      right: 0,
+      borderBottom: `2px solid ${theme.palette.primary.dark}`,
+      transform: "scaleX(0)"
+    },
+    "&:focus:not($error):after": {
+      transform: "scaleX(1)"
+    }
   },
-  inputRoot: {
-    color: "inherit",
-    fontSize: "inherit",
-    fontWeight: "inherit",
-    marginRight: 8,
-    verticalAlign: "bottom"
+  inputContainer: {
+    cursor: "pointer",
+    flexShrink: 0
   }
 })
 
 interface DisplayPriceProps {
   buying: Asset
-  editing: boolean
   inputError?: Error
+  inputRef?: React.RefObject<HTMLElement>
+  onBlur?: () => void
   onChange: (value: string) => void
+  onClick: () => void
   price: BigNumber
   selling: Asset
   value?: string
@@ -76,61 +92,50 @@ function DisplayPrice(props: DisplayPriceProps) {
 
   const assetLeft = props.variant === "fixed-buying" ? props.buying : props.selling
   const assetRight = props.variant === "fixed-buying" ? props.selling : props.buying
-  const price = props.variant === "fixed-buying" ? BigNumber(1).div(props.price) : props.price
 
-  if (props.editing) {
-    return (
-      <span>
-        1&nbsp;{assetLeft.getCode()}
-        &nbsp;&nbsp;=&nbsp;&nbsp;
-        <InputBase
-          autoFocus={process.env.PLATFORM !== "ios"}
-          classes={{
-            root: classes.inputRoot,
-            input: classes.input
-          }}
-          error={Boolean(props.inputError)}
-          inputProps={{
-            size: 10
-          }}
-          onChange={event => props.onChange(event.target.value)}
-          value={props.value}
-        />
-        {assetRight.getCode()}
-      </span>
-    )
-  } else {
-    return (
-      <span>
-        1&nbsp;{assetLeft.getCode()}
-        &nbsp;&nbsp;=&nbsp;&nbsp;
-        {formatBalance(price, { maximumSignificants: 7 })}
-        &nbsp;
-        {assetRight.getCode()}
-      </span>
-    )
-  }
+  const handleEdit = React.useCallback(
+    (event: ContentEditableEvent) => {
+      props.onChange(event.target.value)
+    },
+    [props.onChange]
+  )
+
+  return (
+    <span className={classes.inputContainer} onClick={props.onClick}>
+      1&nbsp;{assetLeft.getCode()}
+      &nbsp;&nbsp;=&nbsp;&nbsp;
+      <ContentEditable
+        className={`${classes.input} ${props.inputError ? classes.error : ""}`}
+        html={props.value || ""}
+        innerRef={props.inputRef}
+        onBlur={props.onBlur}
+        onChange={handleEdit}
+        tagName="span"
+      />
+      &nbsp;
+      {assetRight.getCode()}
+    </span>
+  )
 }
 
 interface TradingPriceProps {
   buying: Asset
   inputError?: Error
-  isEditingPrice: boolean
-  isPriceSwitched?: boolean
+  inputRef?: React.RefObject<HTMLElement>
   manualPrice?: string
-  onApplyManualPrice: () => void
-  onDismissManualPrice: () => void
-  onSetManualPrice: (priceString: string) => void
+  onBlur?: () => void
+  onChange: (priceString: string) => void
+  onEditClick: () => void
   onSwitchPriceAssets: () => void
-  onEditPrice: () => void
   price: BigNumber
   selling: Asset
+  variant: "fixed-buying" | "fixed-selling"
 }
 
 function TradingPrice(props: TradingPriceProps) {
   const classes = useTradingPriceStyles({})
 
-  const actionsLeft = props.isEditingPrice ? null : (
+  const actionsLeft = (
     <IconButton
       className={classes.action}
       color="primary"
@@ -141,34 +146,13 @@ function TradingPrice(props: TradingPriceProps) {
       <SwapHorizIcon />
     </IconButton>
   )
-  const actionsRight = props.isEditingPrice ? (
-    <>
-      <IconButton
-        className={classes.action}
-        color="primary"
-        onClick={props.onDismissManualPrice}
-        size="small"
-        style={{ marginLeft: 4, marginRight: 12 }}
-      >
-        <ClearIcon />
-      </IconButton>
-      <IconButton
-        className={`${classes.action} ${classes.primaryAction}`}
-        color="primary"
-        onClick={props.onApplyManualPrice}
-        size="small"
-        style={{ marginRight: -2 }}
-      >
-        <CheckIcon />
-      </IconButton>
-    </>
-  ) : (
+  const actionsRight = (
     <IconButton
-      className={`${classes.action} ${classes.primaryAction}`}
+      className={classes.action}
       color="primary"
-      onClick={props.onEditPrice}
+      onClick={props.onEditClick}
       size="small"
-      style={{ marginLeft: 16, marginRight: -2 }}
+      style={{ marginLeft: 8 }}
     >
       <EditIcon style={{ transform: "scale(0.75)" }} />
     </IconButton>
@@ -177,15 +161,7 @@ function TradingPrice(props: TradingPriceProps) {
   return (
     <HorizontalLayout alignItems="center" className={classes.root}>
       {actionsLeft}
-      &nbsp;
-      <DisplayPrice
-        {...props}
-        editing={props.isEditingPrice}
-        onChange={props.onSetManualPrice}
-        value={props.manualPrice}
-        variant={props.isPriceSwitched ? "fixed-buying" : "fixed-selling"}
-      />
-      &nbsp;
+      <DisplayPrice {...props} onClick={props.onEditClick} value={props.manualPrice} />
       {actionsRight}
     </HorizontalLayout>
   )
