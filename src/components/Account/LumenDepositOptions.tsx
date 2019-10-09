@@ -33,15 +33,15 @@ const useStyles = makeStyles({
   }
 })
 
-interface StyledCardProps {
+interface DepositOptionCardProps {
+  buttonText: string
   description: string
+  onClick: () => void
   style?: React.CSSProperties
   title: string
-  buttonText: string
-  onClick: () => void
 }
 
-function StyledCard(props: StyledCardProps) {
+function DepositOptionCard(props: DepositOptionCardProps) {
   const classes = useStyles()
 
   return (
@@ -68,11 +68,11 @@ function StyledCard(props: StyledCardProps) {
   )
 }
 
-interface Props {
+interface LumenDepositOptionsProps {
   account: Account
 }
 
-function NextActionRecommendations(props: Props) {
+function LumenDepositOptions(props: LumenDepositOptionsProps) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
@@ -88,7 +88,7 @@ function NextActionRecommendations(props: Props) {
 
   const ReceiveCard = React.useMemo(
     () => (
-      <StyledCard
+      <DepositOptionCard
         buttonText="Open Receive Dialog"
         description="You can send money from a different Stellar account to this one in order to activate it."
         onClick={navigateToReceiveView}
@@ -101,7 +101,7 @@ function NextActionRecommendations(props: Props) {
 
   const MoonPayCard = React.useMemo(
     () => (
-      <StyledCard
+      <DepositOptionCard
         buttonText="Top up with MoonPay"
         description="MoonPay allows you to buy cryptocurrencies instantly with all major debit/credit cards and mobile payment methods such as Apple Pay while providing the highest level of security for their users."
         title="MoonPay"
@@ -127,4 +127,4 @@ function NextActionRecommendations(props: Props) {
   )
 }
 
-export default NextActionRecommendations
+export default LumenDepositOptions

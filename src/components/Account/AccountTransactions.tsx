@@ -12,7 +12,7 @@ import { MinimumAccountBalance } from "../Fetchers"
 import FriendbotButton from "./FriendbotButton"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
-import NextActionRecommendations from "./NextActionRecommendations"
+import LumenDepositOptions from "./LumenDepositOptions"
 import TransactionList from "./TransactionList"
 import TransactionListPlaceholder from "./TransactionListPlaceholder"
 
@@ -89,7 +89,7 @@ function AccountTransactions(props: { account: Account }) {
               <FriendbotButton horizon={horizon} publicKey={account.publicKey} />
             </Typography>
           ) : (
-            <NextActionRecommendations account={account} />
+            <LumenDepositOptions account={account} />
           )}
         </>
       )}
