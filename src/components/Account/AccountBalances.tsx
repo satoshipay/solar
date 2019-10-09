@@ -109,7 +109,7 @@ export function SingleBalance(props: SingleBalanceProps) {
     : balance.gt(0) && balance.lt(0.0001)
     ? { maximumDecimals: 7, minimumDecimals: 7 }
     : balance.lt(1000)
-    ? { maximumDecimals: 4, minimumDecimals: 4 }
+    ? { maximumDecimals: 4, minimumDecimals: 0 }
     : { maximumDecimals: 0, minimumDecimals: 0 }
 
   const formattedBalance = formatBalance(balance, formattingOptions)
