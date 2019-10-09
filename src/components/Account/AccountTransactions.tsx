@@ -5,11 +5,8 @@ import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
-import { useHorizon } from "../../hooks/stellar"
 import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
 import { hasSigned } from "../../lib/transaction"
-import { MinimumAccountBalance } from "../Fetchers"
-import FriendbotButton from "./FriendbotButton"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import LumenDepositOptions from "./LumenDepositOptions"
@@ -58,7 +55,6 @@ function PendingMultisigTransactions(props: { account: Account }) {
 
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
-  const horizon = useHorizon(account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const settings = React.useContext(SettingsContext)
 
@@ -81,16 +77,9 @@ function AccountTransactions(props: { account: Account }) {
       ) : (
         <>
           <Typography align="center" color="textSecondary" style={{ margin: "30px auto", padding: "0 16px" }}>
-            Account does not yet exist on the network. Send at least <MinimumAccountBalance testnet={account.testnet} />
-            &nbsp;XLM to activate the account.
+            Account does not yet exist on the network.
           </Typography>
-          {account.testnet ? (
-            <Typography align="center" style={{ paddingBottom: 30 }}>
-              <FriendbotButton horizon={horizon} publicKey={account.publicKey} />
-            </Typography>
-          ) : (
-            <LumenDepositOptions account={account} />
-          )}
+          <LumenDepositOptions account={account} />
         </>
       )}
     </>

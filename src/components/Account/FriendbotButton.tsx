@@ -1,13 +1,15 @@
 import React from "react"
 import { Server } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
+import Button, { ButtonProps } from "@material-ui/core/Button"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { trackError } from "../../context/notifications"
 import { friendbotTopup } from "../../lib/stellar"
 
 interface Props {
+  color?: ButtonProps["color"]
   horizon: Server
   publicKey: string
+  variant?: ButtonProps["variant"]
 }
 
 function FriendbotButton(props: Props) {
@@ -20,6 +22,8 @@ function FriendbotButton(props: Props) {
 
       // Give the account subscription a little bit of time to recognize the account activation
       await new Promise(resolve => setTimeout(resolve, 2000))
+    } catch (error) {
+      trackError(error)
     } finally {
       setPending(false)
     }
@@ -27,8 +31,8 @@ function FriendbotButton(props: Props) {
 
   return (
     // Extra padding especially for mobile
-    <Button variant="outlined" onClick={() => topup().catch(trackError)} style={{ padding: "10px 20px" }}>
-      <ButtonIconLabel label="Request top-up from friendbot" loading={isPending} loaderColor="inherit" />
+    <Button color={props.color} onClick={topup} variant={props.variant}>
+      <ButtonIconLabel label="Ask the friendbot" loading={isPending} loaderColor="inherit" />
     </Button>
   )
 }
