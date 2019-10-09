@@ -8,6 +8,7 @@ let lastAppPauseTime = 0
 let lastAppResumeTime = 0
 
 const lastErrorTimeByService: { [service in ServiceType]?: number } = {}
+const lastErrorNotificationTimeByService: { [service in ServiceType]?: number } = {}
 
 export const enum ServiceType {
   Horizon = "Horizon",
@@ -87,16 +88,29 @@ export function trackStreamError(service: ServiceType, error: Error) {
     }
 
     const serviceLastErrorTime = lastErrorTimeByService[service]
+    const serviceLastErrorNotificationTime = lastErrorNotificationTimeByService[service]
+
     lastErrorTimeByService[service] = trackingTime
 
-    if (serviceLastErrorTime && Math.abs(serviceLastErrorTime - trackingTime) < 200) {
+    if (!serviceLastErrorTime || Math.abs(serviceLastErrorTime - trackingTime) > 1000) {
+      // tslint:disable-next-line no-console
+      console.debug(
+        `Not showing single streaming error for ${service}, but only after re-confirmation of failure. Error:`,
+        error
+      )
+      return
+    }
+
+    if (serviceLastErrorNotificationTime && Math.abs(serviceLastErrorNotificationTime - trackingTime) < 200) {
       // tslint:disable-next-line no-console
       console.debug(`Not showing streaming error, since we just started showing an error for ${service}:`, error)
       return
     }
 
     if (window.navigator.onLine !== false) {
+      lastErrorNotificationTimeByService[service] = Date.now()
       trackConnectionError(ServiceMessages[service] || error.message)
+
       // tslint:disable-next-line no-console
       console.error("  Detailed error:", error)
     }
