@@ -58,7 +58,7 @@ function onDeviceReady() {
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
 
-  setupLinkListener()
+  setupLinkListener(contentWindow)
   setupBioAuthAvailableHandler()
   setupBioAuthTestHandler()
 
@@ -217,11 +217,11 @@ function initializeIPhoneNotchFix() {
   }
 }
 
-function setupLinkListener() {
+function setupLinkListener(contentWindow: Window) {
   registerCommandHandler(commands.openLink, event => {
     return new Promise(() => {
       const url: string = event.data.url
-      openUrl(url)
+      openUrl(contentWindow, url)
     })
   })
 }
@@ -263,7 +263,7 @@ function setupBioAuthAvailableHandler() {
   registerCommandHandler(commands.bioAuthAvailableCommand, messageHandler)
 }
 
-function openUrl(url: string) {
+function openUrl(contentWindow: Window, url: string) {
   SafariViewController.isAvailable(available => {
     if (available) {
       refreshLastNativeInteractionTime()
@@ -274,7 +274,14 @@ function openUrl(url: string) {
           barColor: "#1c8fea",
           controlTintColor: "#ffffff"
         },
-        () => refreshLastNativeInteractionTime(),
+        result => {
+          refreshLastNativeInteractionTime()
+
+          if (result.event === "closed") {
+            // Make the app reset all horizon event streams
+            contentWindow.postMessage("app:resume", "*")
+          }
+        },
         null
       )
     }
