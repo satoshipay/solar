@@ -4,7 +4,7 @@ import Dialog from "@material-ui/core/Dialog"
 import ClearIcon from "@material-ui/icons/Clear"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAccountData } from "../../hooks/stellar"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { createTransaction } from "../../lib/transaction"
 import { CompactDialogTransition } from "../../theme"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
@@ -27,7 +27,7 @@ function AssetDetailsActions(props: Props) {
   const [removalDialogOpen, setRemovalDialogOpen] = React.useState(false)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
-  const accountData = useAccountData(account.publicKey, account.testnet)
+  const accountData = useLiveAccountData(account.publicKey, account.testnet)
 
   const balance = accountData.balances.find(
     bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
