@@ -1,9 +1,28 @@
 import React from "react"
 import Async from "react-promise"
-import { Asset, Memo, Operation, Server, TransactionBuilder, Networks } from "stellar-sdk"
+import { xdr, AccountResponse, Asset, Memo, Networks, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import TransactionSummary from "../src/components/TransactionReview/TransactionSummary"
 import { useWebAuth } from "../src/hooks/stellar"
+
+const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
+const horizon = new Server("https://horizon-testnet.stellar.org")
+
+function buildTransaction(
+  account: AccountResponse,
+  operations: xdr.Operation[],
+  options?: Partial<TransactionBuilder.TransactionBuilderOptions>
+) {
+  const builder = new TransactionBuilder(account, { fee: 100, ...options })
+
+  for (const operation of operations) {
+    builder.addOperation(operation)
+  }
+
+  builder.setNetworkPassphrase(Networks.TESTNET)
+  builder.setTimeout(60)
+  return builder.build()
+}
 
 interface SampleWebAuthProps {
   accountID: string
@@ -36,21 +55,15 @@ function SampleWebAuth(props: SampleWebAuthProps) {
 
 storiesOf("TransactionSummary", module)
   .add("Payment", () => {
-    const horizon = new Server("https://horizon-testnet.stellar.org")
-
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
-      const builder = new TransactionBuilder(account, { fee: 100 })
-      builder.addOperation(
+      return buildTransaction(account, [
         Operation.payment({
           amount: "1.5",
           asset: Asset.native(),
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
-      )
-      builder.setNetworkPassphrase(Networks.TESTNET)
-      builder.setTimeout(60)
-      return builder.build()
+      ])
     })()
 
     return (
@@ -62,24 +75,19 @@ storiesOf("TransactionSummary", module)
     )
   })
   .add("Payment with memo", () => {
-    const horizon = new Server("https://horizon-testnet.stellar.org")
-
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
-      const builder = new TransactionBuilder(account, {
-        fee: 100,
-        memo: Memo.text("Demo transaction")
-      })
-      builder.addOperation(
-        Operation.payment({
-          amount: "20",
-          asset: Asset.native(),
-          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
-        })
+      return buildTransaction(
+        account,
+        [
+          Operation.payment({
+            amount: "20",
+            asset: Asset.native(),
+            destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
+          })
+        ],
+        { memo: Memo.text("Demo transaction") }
       )
-      builder.setNetworkPassphrase(Networks.TESTNET)
-      builder.setTimeout(60)
-      return builder.build()
     })()
 
     return (
@@ -91,25 +99,35 @@ storiesOf("TransactionSummary", module)
     )
   })
   .add("Account creation & Inflation destination", () => {
-    const horizon = new Server("https://horizon-testnet.stellar.org")
-
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
-      const builder = new TransactionBuilder(account, { fee: 100 })
-      builder.addOperation(
+      return buildTransaction(account, [
         Operation.createAccount({
           startingBalance: "1.0",
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
-        })
-      )
-      builder.addOperation(
+        }),
         Operation.setOptions({
           inflationDest: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT"
         })
-      )
-      builder.setNetworkPassphrase(Networks.TESTNET)
-      builder.setTimeout(60)
-      return builder.build()
+      ])
+    })()
+
+    return (
+      <Async
+        promise={promise}
+        then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        catch={error => <>{error.message}</>}
+      />
+    )
+  })
+  .add("Create trustline", () => {
+    const promise = (async () => {
+      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      return buildTransaction(account, [
+        Operation.changeTrust({
+          asset: eurt
+        })
+      ])
     })()
 
     return (
@@ -137,20 +155,14 @@ storiesOf("TransactionSummary", module)
     )
   })
   .add("Account Merge", () => {
-    const horizon = new Server("https://horizon-testnet.stellar.org")
-
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
-      const builder = new TransactionBuilder(account, { fee: 100 })
-      builder.addOperation(
+      return buildTransaction(account, [
         Operation.accountMerge({
           source: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT",
           destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
         })
-      )
-      builder.setNetworkPassphrase(Networks.TESTNET)
-      builder.setTimeout(60)
-      return builder.build()
+      ])
     })()
 
     return (
