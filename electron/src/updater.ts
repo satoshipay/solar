@@ -64,12 +64,11 @@ async function checkForUpdates() {
 
   if (!updateInfo || updateInfo.name.replace(/^v/, "") < app.getVersion() || !Notification.isSupported()) return
 
+  autoUpdater.setFeedURL({ url: feedURL, headers })
+
   const userAction = await showUpdateNotification(updateInfo.name)
 
   if (userAction === "click") {
-    const feedURLOptions: Electron.FeedURLOptions = { url: feedURL, headers }
-    autoUpdater.setFeedURL(feedURLOptions)
-
     await startUpdating(updateInfo.name)
   }
 }
@@ -93,7 +92,7 @@ async function startUpdatingWithoutInfo() {
   const updateInfo = response.status === 200 ? await response.json() : undefined
 
   if (updateInfo) {
-    startUpdating(updateInfo.name)
+    await startUpdating(updateInfo.name)
   }
 }
 
