@@ -211,7 +211,7 @@ storiesOf("TransactionReviewDialog", module)
       </SampleWebAuth>
     )
   })
-  .add("Account Merge", () => {
+  .add("Merge account", () => {
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       return buildTransaction(account, [

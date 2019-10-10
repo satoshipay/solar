@@ -8,7 +8,6 @@ import { CopyableAddress } from "../PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
 
 const isUTF8 = (buffer: Buffer) => !buffer.toString("utf8").match(/[\x00-\x1F]/)
-const uppercaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1)
 
 function someThresholdSet(operation: Operation.SetOptions) {
   return (
@@ -16,16 +15,6 @@ function someThresholdSet(operation: Operation.SetOptions) {
     typeof operation.medThreshold === "number" ||
     typeof operation.highThreshold === "number"
   )
-}
-
-export function formatOperation(operation: Operation) {
-  if (operation.type === "setOptions" && operation.signer && typeof operation.signer.weight === "number") {
-    return operation.signer.weight > 0 ? "Add signer" : "Remove signer"
-  } else if (operation.type === "setOptions" && someThresholdSet(operation)) {
-    return "Change key threshold"
-  } else {
-    return uppercaseFirstLetter(operation.type.replace(/([A-Z])/g, letter => " " + letter))
-  }
 }
 
 function prettifyCamelcase(identifier: string) {
@@ -44,14 +33,72 @@ function prettifyOperationObject(operation: Operation) {
   return operationDetailLines.join("\n")
 }
 
+export function getOperationTitle(operation: Operation) {
+  if (operation.type === "payment") {
+    return "Payment"
+  } else if (operation.type === "createAccount") {
+    return "Create account"
+  } else if (operation.type === "manageBuyOffer") {
+    const amount = BigNumber(operation.buyAmount)
+    const offerId = operation.offerId
+
+    return offerId === "0" ? "Create buy offer" : amount.eq(0) ? "Delete buy offer" : "Update buy offer"
+  } else if (operation.type === "manageSellOffer") {
+    const amount = BigNumber(operation.amount)
+    const offerId = operation.offerId
+
+    return offerId === "0" ? "Create trade offer" : amount.eq(0) ? "Delete trade offer" : "Update trade offer"
+  } else if (operation.type === "accountMerge") {
+    return "Merge account"
+  } else if (operation.type === "changeTrust") {
+    return BigNumber(operation.limit).eq(0) ? "Remove asset" : "Add asset"
+  } else if (operation.type === "manageData") {
+    return "Set account data"
+  } else if (operation.type === "setOptions" && operation.signer && typeof operation.signer.weight === "number") {
+    return operation.signer.weight > 0 ? "Add signer" : "Remove signer"
+  } else if (
+    operation.type === "setOptions" &&
+    operation.signer &&
+    operation.signer.weight !== undefined &&
+    operation.signer.weight > 0
+  ) {
+    return "Add signer"
+  } else if (
+    operation.type === "setOptions" &&
+    operation.signer &&
+    operation.signer.weight !== undefined &&
+    operation.signer.weight === 0
+  ) {
+    return "Remove signer"
+  } else if (operation.type === "setOptions" && someThresholdSet(operation)) {
+    return "Change signature setup"
+  } else if (operation.type === "setOptions" && operation.masterWeight !== undefined) {
+    return "Set master key weight"
+  } else if (operation.type === "setOptions" && operation.homeDomain) {
+    return "Set home domain"
+  } else if (operation.type === "setOptions" && operation.inflationDest) {
+    return "Set inflation destination"
+  } else if (operation.type === "setOptions") {
+    return "Set account options"
+  } else {
+    return prettifyCamelcase(operation.type)
+  }
+}
+
 function Pre(props: { children: React.ReactNode }) {
   return <pre style={{ width: "100%", overflow: "hidden", fontFamily: "inherit", fontSize: 14 }}>{props.children}</pre>
 }
 
-function PaymentOperation(props: { operation: Operation.Payment; style?: React.CSSProperties }) {
+interface OperationProps<Op extends Operation> {
+  operation: Op
+  hideHeading?: boolean
+  style?: React.CSSProperties
+}
+
+function PaymentOperation(props: OperationProps<Operation.Payment>) {
   const { amount, asset, destination, source } = props.operation
   return (
-    <SummaryItem heading="Payment">
+    <SummaryItem heading={props.hideHeading ? undefined : "Payment"}>
       <SummaryDetailsField
         label="Amount"
         value={<SingleBalance assetCode={asset.code} balance={String(amount)} untrimmed />}
@@ -64,10 +111,10 @@ function PaymentOperation(props: { operation: Operation.Payment; style?: React.C
   )
 }
 
-function CreateAccountOperation(props: { operation: Operation.CreateAccount; style?: React.CSSProperties }) {
+function CreateAccountOperation(props: OperationProps<Operation.CreateAccount>) {
   const { startingBalance, destination, source } = props.operation
   return (
-    <SummaryItem heading="Create account">
+    <SummaryItem heading={props.hideHeading ? undefined : "Create account"}>
       <SummaryDetailsField
         label="Account to create"
         value={<CopyableAddress address={destination} variant="short" />}
@@ -83,10 +130,10 @@ function CreateAccountOperation(props: { operation: Operation.CreateAccount; sty
   )
 }
 
-function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?: React.CSSProperties }) {
+function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust>) {
   if (BigNumber(props.operation.limit).eq(0)) {
     return (
-      <SummaryItem heading="Remove trust in asset">
+      <SummaryItem heading={props.hideHeading ? undefined : "Remove asset"}>
         <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
           label="Issued by"
@@ -96,7 +143,7 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
     )
   } else {
     return (
-      <SummaryItem heading="Trust asset">
+      <SummaryItem heading={props.hideHeading ? undefined : "Add asset"}>
         <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
           label="Issued by"
@@ -106,8 +153,8 @@ function ChangeTrustOperation(props: { operation: Operation.ChangeTrust; style?:
           label="Limit"
           value={
             trustlineLimitEqualsUnlimited(props.operation.limit)
-              ? "Unlimited trust"
-              : `Limited to ${props.operation.limit}`
+              ? "Unlimited"
+              : `Limited to ${props.operation.limit} ${props.operation.line.code}`
           }
         />
       </SummaryItem>
@@ -123,14 +170,17 @@ export function OfferDetailsString(props: { amount: BigNumber; buying: Asset; pr
   )
 }
 
-function ManageDataOperation(props: {
+interface ManageDataOperationProps {
+  hideHeading?: boolean
   operation: Operation.ManageData
   style?: React.CSSProperties
   testnet: boolean
   transaction: Transaction
-}) {
+}
+
+function ManageDataOperation(props: ManageDataOperationProps) {
   return (
-    <SummaryItem heading="Set account data">
+    <SummaryItem heading={props.hideHeading ? undefined : "Set account data"}>
       <SummaryDetailsField
         fullWidth
         label={props.operation.name}
@@ -146,6 +196,7 @@ function ManageDataOperation(props: {
 
 interface ManageOfferOperationProps {
   accountData: ObservedAccountData
+  hideHeading?: boolean
   operation: Operation.ManageSellOffer
   style?: React.CSSProperties
   testnet: boolean
@@ -160,7 +211,7 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
   if (offerId === "0") {
     // Offer creation
     return (
-      <SummaryItem heading="Create trade offer">
+      <SummaryItem heading={props.hideHeading ? undefined : "Create trade offer"}>
         <SummaryDetailsField
           label="Sell"
           value={<SingleBalance assetCode={selling.code} balance={String(amount)} untrimmed />}
@@ -173,11 +224,11 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
     )
   } else {
     // Offer edit
-    const heading = BigNumber(amount).eq(0) ? "Delete trade offer" : "Update trade offer"
+    const heading = amount.eq(0) ? "Delete trade offer" : "Update trade offer"
     const offer = offers.offers.find(someOffer => String(someOffer.id) === String(offerId))
 
     return offer ? (
-      <SummaryItem heading={heading}>
+      <SummaryItem heading={props.hideHeading ? undefined : heading}>
         <SummaryDetailsField
           label="Sell"
           value={<SingleBalance assetCode={offerAssetToAsset(offer.selling).getCode()} balance={offer.amount} />}
@@ -193,7 +244,7 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
         />
       </SummaryItem>
     ) : (
-      <SummaryItem heading={heading}>
+      <SummaryItem heading={props.hideHeading ? undefined : heading}>
         <SummaryDetailsField label="Sell" value={<SingleBalance assetCode={selling.code} balance={String(amount)} />} />
         <SummaryDetailsField
           label="Buy"
@@ -204,11 +255,14 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
   }
 }
 
-function SetOptionsOperation(props: {
+interface SetOptionsOperationProps {
+  hideHeading?: boolean
   operation: Operation.SetOptions
   style?: React.CSSProperties
   transaction: Transaction
-}) {
+}
+
+function SetOptionsOperation(props: SetOptionsOperationProps) {
   if (
     props.operation.signer &&
     "ed25519PublicKey" in props.operation.signer &&
@@ -217,7 +271,7 @@ function SetOptionsOperation(props: {
     const signerPublicKey = String(props.operation.signer.ed25519PublicKey)
     if (props.operation.signer.weight > 0) {
       return (
-        <SummaryItem heading="Add signer">
+        <SummaryItem heading={props.hideHeading ? undefined : "Add signer"}>
           <SummaryDetailsField
             label="New signer"
             value={<CopyableAddress address={signerPublicKey} variant="short" />}
@@ -231,7 +285,7 @@ function SetOptionsOperation(props: {
       )
     } else if (props.operation.signer.weight === 0) {
       return (
-        <SummaryItem heading="Remove signer">
+        <SummaryItem heading={props.hideHeading ? undefined : "Remove signer"}>
           <SummaryDetailsField label="Signer" value={<CopyableAddress address={signerPublicKey} variant="short" />} />
           <SummaryDetailsField
             label="Account to remove signer from"
@@ -244,11 +298,11 @@ function SetOptionsOperation(props: {
     const { highThreshold, lowThreshold, medThreshold } = props.operation
 
     return lowThreshold === medThreshold && medThreshold === highThreshold ? (
-      <SummaryItem heading="Change signature setup">
+      <SummaryItem heading={props.hideHeading ? undefined : "Change signature setup"}>
         <SummaryDetailsField fullWidth label="Required signatures" value={props.operation.lowThreshold} />
       </SummaryItem>
     ) : (
-      <SummaryItem heading="Change signature setup">
+      <SummaryItem heading={props.hideHeading ? undefined : "Change signature setup"}>
         <SummaryDetailsField
           fullWidth
           label="New key thresholds"
@@ -266,11 +320,11 @@ function SetOptionsOperation(props: {
     )
   } else if (props.operation.inflationDest) {
     return (
-      <SummaryItem heading="Set inflation destination">
+      <SummaryItem heading={props.hideHeading ? undefined : "Set inflation destination"}>
         <SummaryDetailsField
           fullWidth
           label="New destination"
-          value={<CopyableAddress address={props.operation.inflationDest} variant="full" />}
+          value={<CopyableAddress address={props.operation.inflationDest} variant="short" />}
         />
       </SummaryItem>
     )
@@ -287,14 +341,14 @@ function SetOptionsOperation(props: {
   )
 }
 
-function AccountMergeOperation(props: { operation: Operation.AccountMerge; style?: React.CSSProperties }) {
+function AccountMergeOperation(props: OperationProps<Operation.AccountMerge>) {
   const { destination, source } = props.operation
   return (
-    <SummaryItem heading="Merge account">
+    <SummaryItem heading={props.hideHeading ? undefined : "Merge account"}>
       {source ? (
-        <SummaryDetailsField label="Account" value={<CopyableAddress address={source} variant="full" />} />
+        <SummaryDetailsField label="Account" value={<CopyableAddress address={source} variant="short" />} />
       ) : null}
-      <SummaryDetailsField label="Merge into" value={<CopyableAddress address={destination} variant="full" />} />
+      <SummaryDetailsField label="Merge into" value={<CopyableAddress address={destination} variant="short" />} />
     </SummaryItem>
   )
 }
@@ -304,7 +358,7 @@ function GenericOperation(props: { operation: Operation; style?: React.CSSProper
     <SummaryItem>
       <SummaryDetailsField
         fullWidth
-        label={formatOperation(props.operation)}
+        label={getOperationTitle(props.operation)}
         value={<Pre>{prettifyOperationObject(props.operation)}</Pre>}
       />
     </SummaryItem>
@@ -320,15 +374,18 @@ interface Props {
 }
 
 function OperationListItem(props: Props) {
+  const hideHeading = props.transaction.operations.length === 1
+
   if (props.operation.type === "changeTrust") {
-    return <ChangeTrustOperation operation={props.operation} style={props.style} />
+    return <ChangeTrustOperation hideHeading={hideHeading} operation={props.operation} style={props.style} />
   } else if (props.operation.type === "createAccount") {
-    return <CreateAccountOperation operation={props.operation} style={props.style} />
+    return <CreateAccountOperation hideHeading={hideHeading} operation={props.operation} style={props.style} />
   } else if (props.operation.type === "payment") {
-    return <PaymentOperation operation={props.operation} style={props.style} />
+    return <PaymentOperation hideHeading={hideHeading} operation={props.operation} style={props.style} />
   } else if (props.operation.type === "manageData") {
     return (
       <ManageDataOperation
+        hideHeading={hideHeading}
         operation={props.operation}
         style={props.style}
         testnet={props.testnet}
@@ -339,15 +396,23 @@ function OperationListItem(props: Props) {
     return (
       <ManageOfferOperation
         accountData={props.accountData}
+        hideHeading={hideHeading}
         operation={props.operation}
         style={props.style}
         testnet={props.testnet}
       />
     )
   } else if (props.operation.type === "setOptions") {
-    return <SetOptionsOperation operation={props.operation} style={props.style} transaction={props.transaction} />
+    return (
+      <SetOptionsOperation
+        hideHeading={hideHeading}
+        operation={props.operation}
+        style={props.style}
+        transaction={props.transaction}
+      />
+    )
   } else if (props.operation.type === "accountMerge") {
-    return <AccountMergeOperation operation={props.operation} style={props.style} />
+    return <AccountMergeOperation hideHeading={hideHeading} operation={props.operation} style={props.style} />
   } else {
     return <GenericOperation operation={props.operation} style={props.style} />
   }

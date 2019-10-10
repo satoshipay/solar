@@ -12,6 +12,7 @@ import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+import { getOperationTitle } from "./Operations"
 import ReviewForm from "./ReviewForm"
 
 function isPaymentOperation(operation: Operation) {
@@ -25,17 +26,19 @@ function isOfferDeletionOperation(operation: Operation) {
   )
 }
 
-function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
-  if (!props.transaction) {
-    return <>Transaction</>
-  } else if (props.transaction.operations.every(isPaymentOperation)) {
-    return <>{props.disabled ? "Payment" : "Confirm Payment"}</>
-  } else if (props.transaction.operations.every(isOfferDeletionOperation)) {
-    return <>{props.disabled ? "Transaction" : "Delete Offer"}</>
-  } else if (isStellarWebAuthTransaction(props.transaction)) {
-    return <>Web Authentication</>
+function getTitle(transaction: Transaction | null): string {
+  if (!transaction) {
+    return "Transaction"
+  } else if (transaction.operations.length === 1) {
+    return getOperationTitle(transaction.operations[0])
+  } else if (transaction.operations.every(isPaymentOperation)) {
+    return "Payment"
+  } else if (transaction.operations.every(isOfferDeletionOperation)) {
+    return "Delete Offers"
+  } else if (isStellarWebAuthTransaction(transaction)) {
+    return "Web Authentication"
   } else {
-    return <>{props.disabled ? "Transaction" : "Confirm Transaction"}</>
+    return "Transaction"
   }
 }
 
@@ -62,7 +65,7 @@ export function TransactionReviewDialogBody(props: TransactionReviewDialogBodyPr
       <MainTitle
         title={
           <>
-            <Title disabled={props.disabled} transaction={props.transaction} />{" "}
+            {getTitle(props.transaction) + " "}
             {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
           </>
         }
