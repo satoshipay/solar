@@ -39,10 +39,9 @@ function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
   }
 }
 
-interface Props {
+interface TransactionReviewDialogBodyProps {
   account: Account
   disabled?: boolean
-  open: boolean
   passwordError?: Error | null
   showHash?: boolean
   showSource?: boolean
@@ -54,9 +53,8 @@ interface Props {
   onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
 }
 
-function TransactionReviewDialog(props: Props) {
+export function TransactionReviewDialogBody(props: TransactionReviewDialogBodyProps) {
   const dialogActionsRef = useDialogActions()
-  const isScreen600pxWide = useMediaQuery("(min-width:600px)")
   const isSmallScreen = useIsMobile()
 
   const titleContent = React.useMemo(
@@ -75,6 +73,48 @@ function TransactionReviewDialog(props: Props) {
   )
 
   return (
+    <DialogBody top={titleContent} actions={props.showSubmissionProgress ? null : dialogActionsRef}>
+      {props.transaction ? (
+        <Box margin={`12px ${isSmallScreen ? "4px" : "0"} 0`} textAlign="center">
+          <ReviewForm
+            account={props.account}
+            actionsRef={dialogActionsRef}
+            disabled={props.disabled}
+            onClose={props.onClose}
+            onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
+            passwordError={props.passwordError}
+            showHash={props.showHash}
+            showSource={props.showSource}
+            signatureRequest={props.signatureRequest}
+            transaction={props.transaction}
+          />
+        </Box>
+      ) : null}
+      {props.submissionProgress}
+    </DialogBody>
+  )
+}
+
+interface Props {
+  account: Account
+  disabled?: boolean
+  open: boolean
+  passwordError?: Error | null
+  showHash?: boolean
+  showSource?: boolean
+  showSubmissionProgress: boolean
+  signatureRequest?: SignatureRequest
+  submissionProgress?: React.ReactNode
+  transaction: Transaction | null
+  onClose: () => void
+  onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
+}
+
+function TransactionReviewDialog(props: Props) {
+  const isScreen600pxWide = useMediaQuery("(min-width:600px)")
+  const isSmallScreen = useIsMobile()
+
+  return (
     <Dialog
       open={props.open}
       fullScreen={isSmallScreen}
@@ -85,27 +125,9 @@ function TransactionReviewDialog(props: Props) {
         style: { minWidth: isScreen600pxWide ? 500 : undefined }
       }}
     >
-      <DialogBody top={titleContent} actions={props.showSubmissionProgress ? null : dialogActionsRef}>
-        {props.transaction ? (
-          <Box margin={`12px ${isSmallScreen ? "4px" : "0"} 0`} textAlign="center">
-            <ReviewForm
-              account={props.account}
-              actionsRef={dialogActionsRef}
-              disabled={props.disabled}
-              onClose={props.onClose}
-              onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
-              passwordError={props.passwordError}
-              showHash={props.showHash}
-              showSource={props.showSource}
-              signatureRequest={props.signatureRequest}
-              transaction={props.transaction}
-            />
-          </Box>
-        ) : null}
-        {props.submissionProgress}
-      </DialogBody>
+      <TransactionReviewDialogBody {...props} />
     </Dialog>
   )
 }
 
-export default TransactionReviewDialog
+export default React.memo(TransactionReviewDialog)

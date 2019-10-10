@@ -2,11 +2,28 @@ import React from "react"
 import Async from "react-promise"
 import { xdr, AccountResponse, Asset, Memo, Networks, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
-import TransactionSummary from "../src/components/TransactionReview/TransactionSummary"
+import { TransactionReviewDialogBody } from "../src/components/TransactionReview/TransactionReviewDialog"
+import { Account } from "../src/context/accounts"
 import { useWebAuth } from "../src/hooks/stellar"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
 const horizon = new Server("https://horizon-testnet.stellar.org")
+
+const doNothing = () => undefined
+
+const accountStub: Account = {
+  id: "1",
+  name: "Testnet account",
+  publicKey: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",
+  requiresPassword: false,
+  testnet: true,
+  getPrivateKey() {
+    throw Error("Just a mock.")
+  },
+  signTransaction() {
+    throw Error("Just a mock.")
+  }
+}
 
 function buildTransaction(
   account: AccountResponse,
@@ -53,7 +70,7 @@ function SampleWebAuth(props: SampleWebAuthProps) {
   return <>{props.children(promise)}</>
 }
 
-storiesOf("TransactionSummary", module)
+storiesOf("TransactionReviewDialog", module)
   .add("Payment", () => {
     const promise = (async () => {
       const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
@@ -69,7 +86,15 @@ storiesOf("TransactionSummary", module)
     return (
       <Async
         promise={promise}
-        then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        then={transaction => (
+          <TransactionReviewDialogBody
+            account={accountStub}
+            onClose={doNothing}
+            onSubmitTransaction={doNothing}
+            showSubmissionProgress={false}
+            transaction={transaction}
+          />
+        )}
         catch={error => <>{error.message}</>}
       />
     )
@@ -93,7 +118,15 @@ storiesOf("TransactionSummary", module)
     return (
       <Async
         promise={promise}
-        then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        then={transaction => (
+          <TransactionReviewDialogBody
+            account={accountStub}
+            onClose={doNothing}
+            onSubmitTransaction={doNothing}
+            showSubmissionProgress={false}
+            transaction={transaction}
+          />
+        )}
         catch={error => <>{error.message}</>}
       />
     )
@@ -115,7 +148,15 @@ storiesOf("TransactionSummary", module)
     return (
       <Async
         promise={promise}
-        then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        then={transaction => (
+          <TransactionReviewDialogBody
+            account={accountStub}
+            onClose={doNothing}
+            onSubmitTransaction={doNothing}
+            showSubmissionProgress={false}
+            transaction={transaction}
+          />
+        )}
         catch={error => <>{error.message}</>}
       />
     )
@@ -133,7 +174,15 @@ storiesOf("TransactionSummary", module)
     return (
       <Async
         promise={promise}
-        then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        then={transaction => (
+          <TransactionReviewDialogBody
+            account={accountStub}
+            onClose={doNothing}
+            onSubmitTransaction={doNothing}
+            showSubmissionProgress={false}
+            transaction={transaction}
+          />
+        )}
         catch={error => <>{error.message}</>}
       />
     )
@@ -147,7 +196,15 @@ storiesOf("TransactionSummary", module)
         {promise => (
           <Async
             promise={promise}
-            then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+            then={transaction => (
+              <TransactionReviewDialogBody
+                account={accountStub}
+                onClose={doNothing}
+                onSubmitTransaction={doNothing}
+                showSubmissionProgress={false}
+                transaction={transaction}
+              />
+            )}
             catch={error => <>{error.message}</>}
           />
         )}
@@ -168,7 +225,15 @@ storiesOf("TransactionSummary", module)
     return (
       <Async
         promise={promise}
-        then={transaction => <TransactionSummary account={null} testnet transaction={transaction} />}
+        then={transaction => (
+          <TransactionReviewDialogBody
+            account={accountStub}
+            onClose={doNothing}
+            onSubmitTransaction={doNothing}
+            showSubmissionProgress={false}
+            transaction={transaction}
+          />
+        )}
         catch={error => <>{error.message}</>}
       />
     )
