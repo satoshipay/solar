@@ -1,8 +1,8 @@
-# Solar Wallet (Beta)
+# Solar Wallet
 
-User-friendly Stellar wallet app, featuring multi-signature, custom assets management and more.
+User-friendly Stellar wallet, featuring multi-signature, custom assets management and more.
 
-Runs on Mac OS, Windows & Linux. Mobile app coming soon.
+Runs on Mac OS, Windows, Linux, Android and iOS.
 
 ## Download
 
