@@ -1,8 +1,11 @@
 import React from "react"
-import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import SettingsIcon from "@material-ui/icons/Settings"
+import Tooltip from "@material-ui/core/Tooltip"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
+import UpdateIcon from "@material-ui/icons/SystemUpdateAlt"
 import AccountList from "../components/AccountList"
 import DialogBody from "../components/Dialog/DialogBody"
 import { Box } from "../components/Layout/Box"
@@ -13,18 +16,72 @@ import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
 import * as routes from "../routes"
+import { NotificationsContext, trackError } from "../context/notifications"
+import getUpdater from "../platform/updater"
+
+const useStyles = makeStyles({
+  "@keyframes glowing": {
+    "0%": { boxShadow: "0 0 -30px 3px #ffffff, inset 0 0 3px #ffffff" },
+    "40%": { boxShadow: "0 0 30px 3px #ffffff, inset 0 0 3px #ffffff" },
+    "60%": { boxShadow: "0 0 30px 3px #ffffff, inset 0 0 3px #ffffff" },
+    "100%": { boxShadow: "0 0 -30px 3px #ffffff, inset 0 0 3px #ffffff" }
+  },
+
+  icon: {
+    animation: "$glowing 5000ms infinite"
+  }
+})
 
 function AllAccountsPage() {
   const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
+  const { showNotification } = React.useContext(NotificationsContext)
   const testnetAccounts = React.useMemo(() => accounts.filter(account => account.testnet), [accounts])
+  const [isUpdateAvailable, setUpdateAvailable] = React.useState(false)
+  const [isUpdateInProgress, setUpdateInProgress] = React.useState(false)
 
+  const styles = useStyles()
   const isSmallScreen = useIsMobile()
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
 
   const switchToMainnetLabel = isSmallScreen ? "Mainnet" : "Switch To Mainnet"
   const switchToTestnetLabel = isSmallScreen ? "Testnet" : "Switch To Testnet"
+
+  const updater = getUpdater()
+
+  React.useEffect(() => {
+    updater.isUpdateAvailable().then(value => {
+      setUpdateAvailable(true)
+    })
+  }, [])
+
+  const startUpdate = React.useCallback(async () => {
+    if (isUpdateAvailable && !updater.isUpdateStarted()) {
+      try {
+        showNotification("info", "Starting download of update...")
+        setUpdateInProgress(true)
+        await updater.startUpdate()
+        showNotification("success", "Download is ready and will be installed on next restart!")
+      } catch (error) {
+        trackError(error)
+      } finally {
+        setUpdateInProgress(false)
+      }
+    }
+  }, [updater, isUpdateAvailable])
+
+  const updateButton = (
+    <Tooltip title={"Update available"}>
+      <IconButton
+        onClick={startUpdate}
+        color="secondary"
+        style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
+      >
+        <UpdateIcon className={styles.icon}></UpdateIcon>
+      </IconButton>
+    </Tooltip>
+  )
 
   const networkSwitchButton = (
     <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
@@ -45,6 +102,7 @@ function AllAccountsPage() {
             {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
               ? networkSwitchButton
               : null}
+            {isUpdateAvailable && !isUpdateInProgress ? updateButton : null}
             <IconButton
               onClick={() => router.history.push(routes.settings())}
               style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
@@ -55,7 +113,7 @@ function AllAccountsPage() {
         }
       />
     ),
-    [isWidthMax450, networkSwitch, router, settings.showTestnet, testnetAccounts]
+    [isWidthMax450, isUpdateAvailable, isUpdateInProgress, networkSwitch, router, settings.showTestnet, testnetAccounts]
   )
 
   return (
