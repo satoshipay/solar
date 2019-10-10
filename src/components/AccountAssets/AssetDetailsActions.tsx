@@ -1,7 +1,6 @@
 import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
-import AddIcon from "@material-ui/icons/Add"
 import ClearIcon from "@material-ui/icons/Clear"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -68,8 +67,8 @@ function AssetDetailsActions(props: Props) {
             Remove asset
           </ActionButton>
         ) : (
-          <ActionButton icon={<AddIcon />} loading={txCreationPending} onClick={addThisAsset} type="primary">
-            Add asset
+          <ActionButton loading={txCreationPending} onClick={addThisAsset} type="primary">
+            Add asset to account
           </ActionButton>
         )}
       </DialogActionsBox>
