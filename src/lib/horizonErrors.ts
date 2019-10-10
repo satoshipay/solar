@@ -88,6 +88,8 @@ function explainSubmissionErrorByTxResultCode(error: HorizonError, resultCode: s
       return deriveError(error, new Error("Sequence number mismatch. Please re-create the transaction."))
     case "tx_insufficient_balance":
       return deriveError(error, new Error("Insufficient balance. Balance would fall below the minimum reserve."))
+    case "tx_too_late":
+      return deriveError(error, new Error("Transaction draft has expired. Try again."))
     default:
       return deriveError(error, new Error(`Transaction rejected by the network. Result code: ${resultCode}`))
   }
