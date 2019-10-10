@@ -5,6 +5,7 @@ import Input from "@material-ui/core/Input"
 import InputLabel from "@material-ui/core/InputLabel"
 import ListItem from "@material-ui/core/ListItem"
 import Typography from "@material-ui/core/Typography"
+import { makeStyles } from "@material-ui/core/styles"
 import { HorizontalLayout } from "../Layout/Box"
 
 interface SummaryDetailsFieldProps {
@@ -15,7 +16,6 @@ interface SummaryDetailsFieldProps {
 }
 
 /** Based on TextField */
-// tslint:disable-next-line no-shadowed-variable
 export const SummaryDetailsField = React.memo(function SummaryDetailsField(props: SummaryDetailsFieldProps) {
   const InputComponent = React.useCallback(() => <>{props.value}</>, [props.value])
   return (
@@ -45,35 +45,35 @@ function SummaryDetailsLine(props: SummaryDetailsLineProps) {
   )
 }
 
+const useSummaryItemStyles = makeStyles({
+  root: {
+    display: "flex",
+    alignItems: "flex-start",
+    borderBottom: "none",
+    flexDirection: "column",
+    padding: "1px 0"
+  },
+  heading: {
+    display: "block",
+    padding: "16px 0",
+    fontSize: 18,
+    fontWeight: 400,
+    lineHeight: "18px",
+    textAlign: "left"
+  }
+})
+
 interface SummaryItemProps {
   children: React.ReactNode
   heading?: React.ReactNode
 }
 
 export function SummaryItem(props: SummaryItemProps) {
+  const classes = useSummaryItemStyles()
   return (
-    <ListItem
-      disableGutters
-      style={{
-        display: "flex",
-        alignItems: "flex-start",
-        flexDirection: "column",
-        padding: "1px 0"
-      }}
-    >
+    <ListItem className={classes.root} disableGutters>
       {props.heading ? (
-        <Typography
-          color="textSecondary"
-          style={{
-            display: "block",
-            padding: "16px 0",
-            fontSize: 18,
-            fontWeight: 400,
-            lineHeight: "18px",
-            textAlign: "left"
-          }}
-          variant="subtitle1"
-        >
+        <Typography color="textSecondary" className={classes.heading} variant="subtitle1">
           {props.heading}
         </Typography>
       ) : null}
