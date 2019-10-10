@@ -16,8 +16,8 @@ export const enum ServiceType {
 }
 
 const ServiceMessages: { [service in ServiceType]: string } = {
-  [ServiceType.Horizon]: "Horizon connection error",
-  [ServiceType.MultiSigCoordinator]: "Multi-signature service connection error"
+  [ServiceType.Horizon]: "Stellar connection issue",
+  [ServiceType.MultiSigCoordinator]: "Multi-signature connection issue"
 }
 
 export function manageStreamConnection(
