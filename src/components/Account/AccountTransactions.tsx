@@ -7,6 +7,7 @@ import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
 import { hasSigned } from "../../lib/transaction"
+import { MinimumAccountBalance } from "../Fetchers"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import LumenDepositOptions from "./LumenDepositOptions"
@@ -77,7 +78,10 @@ function AccountTransactions(props: { account: Account }) {
       ) : (
         <>
           <Typography align="center" color="textSecondary" style={{ margin: "30px auto", padding: "0 16px" }}>
-            Account does not yet exist on the network.
+            Account not found on the network.
+            <br />
+            Fund it with at least <MinimumAccountBalance testnet={props.account.testnet} />
+            &nbsp;XLM.
           </Typography>
           <LumenDepositOptions account={account} />
         </>

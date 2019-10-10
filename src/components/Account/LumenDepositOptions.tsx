@@ -88,20 +88,22 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
           title="Friendbot"
         />
       ) : null}
-      <DepositOptionCard
-        button={
-          <Button color="primary" onClick={navigateToMoonPay}>
-            Deposit using MoonPay
-          </Button>
-        }
-        description={
-          <>
-            MoonPay allows you to buy cryptocurrencies instantly with all major debit/credit cards and mobile payment
-            methods.
-          </>
-        }
-        title="MoonPay"
-      />
+      {props.account.testnet && process.env.NODE_ENV === "production" ? null : (
+        <DepositOptionCard
+          button={
+            <Button color="primary" onClick={navigateToMoonPay}>
+              Deposit using MoonPay
+            </Button>
+          }
+          description={
+            <>
+              MoonPay allows you to buy cryptocurrencies instantly with all major debit/credit cards and mobile payment
+              methods.
+            </>
+          }
+          title="MoonPay"
+        />
+      )}
       <DepositOptionCard
         button={
           <Button color="primary" onClick={navigateToReceiveView}>
@@ -110,7 +112,7 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
         }
         description={
           <>
-            You can send lumens from a different Stellar account to this one in order to activate it. Send at least{" "}
+            You can send lumens from a different Stellar account to create this one. Send at least{" "}
             <MinimumAccountBalance testnet={props.account.testnet} />
             &nbsp;XLM.
           </>
