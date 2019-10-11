@@ -205,6 +205,11 @@ function AccountCreationForm(props: AccountCreationFormProps) {
             <TextField
               disabled={Boolean(formValues.createNewKey)}
               error={Boolean(errors.privateKey)}
+              helperText={
+                errors.privateKey
+                  ? "A Stellar secret key is 56 alphanumeric characters long and always starts with an S"
+                  : undefined
+              }
               label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Secret key"}
               placeholder="SABCDEFGH…"
               fullWidth
