@@ -55,7 +55,7 @@ function TradingForm(props: Props) {
     amounts.buying.lte(0) ||
     amounts.selling.lte(0) ||
     amounts.selling.gt(props.sellingBalance) ||
-    getPrice(amounts.price).lte(0)
+    getPrice(amounts.price, bestPrice).lte(0)
 
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
 
