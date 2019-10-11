@@ -7,7 +7,7 @@ import { Account } from "../src/context/accounts"
 import { useWebAuth } from "../src/hooks/stellar"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
-const horizon = new Server("https://horizon-testnet.stellar.org")
+const testnetHorizon = new Server("https://horizon-testnet.stellar.org")
 
 const doNothing = () => undefined
 
@@ -73,7 +73,7 @@ function SampleWebAuth(props: SampleWebAuthProps) {
 storiesOf("TransactionReviewDialog", module)
   .add("Payment", () => {
     const promise = (async () => {
-      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      const account = await testnetHorizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       return buildTransaction(account, [
         Operation.payment({
           amount: "1.5",
@@ -101,7 +101,7 @@ storiesOf("TransactionReviewDialog", module)
   })
   .add("Payment with memo", () => {
     const promise = (async () => {
-      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      const account = await testnetHorizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       return buildTransaction(
         account,
         [
@@ -133,7 +133,7 @@ storiesOf("TransactionReviewDialog", module)
   })
   .add("Account creation & Inflation destination", () => {
     const promise = (async () => {
-      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      const account = await testnetHorizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       return buildTransaction(account, [
         Operation.createAccount({
           startingBalance: "1.0",
@@ -163,7 +163,7 @@ storiesOf("TransactionReviewDialog", module)
   })
   .add("Create trustline", () => {
     const promise = (async () => {
-      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      const account = await testnetHorizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       return buildTransaction(account, [
         Operation.changeTrust({
           asset: eurt
@@ -213,7 +213,7 @@ storiesOf("TransactionReviewDialog", module)
   })
   .add("Merge account", () => {
     const promise = (async () => {
-      const account = await horizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
+      const account = await testnetHorizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       return buildTransaction(account, [
         Operation.accountMerge({
           source: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT",
