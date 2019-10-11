@@ -98,7 +98,8 @@ function TradePropertiesForm(props: TradePropertiesFormProps) {
   const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
   const [priceMode, setPriceMode] = React.useState<"fixed-buying" | "fixed-selling">("fixed-selling")
 
-  const defaultPrice = bigNumberToInputValue(priceMode === "fixed-buying" ? BigNumber(1).div(props.price) : props.price)
+  const inversePrice = props.price.eq(0) ? BigNumber(0) : BigNumber(1).div(props.price) // prevent division by zero
+  const defaultPrice = bigNumberToInputValue(priceMode === "fixed-buying" ? inversePrice : props.price)
 
   const buyingAmountString =
     editableAmount.field === "buying" ? editableAmount.value : bigNumberToInputValue(props.buyingAmount)
