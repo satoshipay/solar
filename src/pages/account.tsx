@@ -102,7 +102,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
   const showAssetDetails =
     matchesRoute(router.location.pathname, routes.assetDetails("*", "*")) &&
-    !matchesRoute(router.location.pathname, routes.assetDetails("*", "manage"))
+    !matchesRoute(router.location.pathname, routes.manageAccountAssets("*"))
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
