@@ -95,6 +95,38 @@ function BreakdownItem(props: BreakdownItemProps) {
   )
 }
 
+const BreakdownHeadline = React.memo(function BreakdownHeadline(props: { left?: string; right?: string }) {
+  const classes = useBreakdownItemStyles()
+
+  return (
+    <ListItem className={classes.root} style={{ borderBottom: "none" }}>
+      <ListItemText
+        classes={{
+          root: classes.mainListItemText,
+          primary: classes.mainListItemTextPrimaryTypography,
+          secondary: classes.mainListItemTextSecondaryTypography
+        }}
+        primary={props.left}
+      />
+      <ListItemText
+        className={classes.balanceListItem}
+        primaryTypographyProps={{
+          style: {
+            fontSize: "120%",
+            fontWeight: 300
+          }
+        }}
+        style={{
+          marginTop: 0,
+          marginBottom: 0
+        }}
+      >
+        {props.right}
+      </ListItemText>
+    </ListItem>
+  )
+})
+
 interface Props {
   account: Account
   accountData: AccountData
@@ -125,6 +157,7 @@ function SpendableBalanceBreakdown(props: Props) {
 
   return (
     <List style={{ padding: 0 }}>
+      <BreakdownHeadline right="Amounts in XLM" />
       <BreakdownItem
         amount={rawBalance.toFixed(1)}
         primary="Total balance"
