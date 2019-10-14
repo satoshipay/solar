@@ -49,7 +49,6 @@
     "key-store": "^1.1.0",
     "nanoid": "^2.1.1",
     "opn": "^5.5.0",
-    "stellar-base": "^1.1.2",
     "stellar-sdk": "^2.3.0"
   },
   "devDependencies": {

@@ -1,6 +1,5 @@
 import React from "react"
-import { Keypair } from "stellar-sdk"
-import { Transaction } from "stellar-base"
+import { Keypair, Transaction } from "stellar-sdk"
 import { WrongPasswordError } from "../lib/errors"
 import getKeyStore from "../platform/key-store"
 import { KeyStoreAPI } from "../platform/types"
