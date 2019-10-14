@@ -24,7 +24,7 @@ import { breakpoints } from "../../theme"
 import { PublicKey } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
-import { formatOperation } from "../TransactionReview/Operations"
+import { getOperationTitle } from "../TransactionReview/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 import { matchesRoute } from "../../lib/routes"
 
@@ -313,7 +313,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
       )
     }
   } else {
-    const formattedOperations = props.transaction.operations.map(formatOperation)
+    const formattedOperations = props.transaction.operations.map(getOperationTitle)
     return (
       <ListItemText
         primary={<span>{dedupe(formattedOperations).join(", ")}</span>}

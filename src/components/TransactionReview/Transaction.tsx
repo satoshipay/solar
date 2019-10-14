@@ -68,12 +68,17 @@ export function Signers(props: {
   transaction: Transaction
   style?: React.CSSProperties
 }) {
+  const threshold = props.accountData.thresholds.high_threshold || 1
+
   // TODO: We should not get the signers from the source account data, but either
   //       a) from the signature request or
   //       b) by taking the tx source and all operation source accounts into account
-  const headingDetails = props.accountData.signers.every(signer => signer.weight === 1)
-    ? `${props.accountData.thresholds.high_threshold} of ${props.accountData.signers.length} multi-signature`
-    : `Custom consensus multi-signature`
+  const headingDetails =
+    props.accountData.signers.length === 1
+      ? "Single signature"
+      : props.accountData.signers.every(signer => signer.weight === 1)
+      ? `${threshold} of ${props.accountData.signers.length} multi-signature`
+      : `Custom consensus multi-signature`
 
   return (
     <SummaryItem>

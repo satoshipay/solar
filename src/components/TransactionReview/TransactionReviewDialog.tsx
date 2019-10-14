@@ -12,6 +12,7 @@ import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
+import { getOperationTitle } from "./Operations"
 import ReviewForm from "./ReviewForm"
 
 function isPaymentOperation(operation: Operation) {
@@ -25,18 +26,76 @@ function isOfferDeletionOperation(operation: Operation) {
   )
 }
 
-function Title(props: { disabled?: boolean; transaction: Transaction | null }) {
-  if (!props.transaction) {
-    return <>Transaction</>
-  } else if (props.transaction.operations.every(isPaymentOperation)) {
-    return <>{props.disabled ? "Payment" : "Confirm Payment"}</>
-  } else if (props.transaction.operations.every(isOfferDeletionOperation)) {
-    return <>{props.disabled ? "Transaction" : "Delete Offer"}</>
-  } else if (isStellarWebAuthTransaction(props.transaction)) {
-    return <>Web Authentication</>
+function getTitle(transaction: Transaction | null): string {
+  if (!transaction) {
+    return "Transaction"
+  } else if (transaction.operations.length === 1) {
+    return getOperationTitle(transaction.operations[0])
+  } else if (transaction.operations.every(isPaymentOperation)) {
+    return "Payment"
+  } else if (transaction.operations.every(isOfferDeletionOperation)) {
+    return "Delete Offers"
+  } else if (isStellarWebAuthTransaction(transaction)) {
+    return "Web Authentication"
   } else {
-    return <>{props.disabled ? "Transaction" : "Confirm Transaction"}</>
+    return "Transaction"
   }
+}
+
+interface TransactionReviewDialogBodyProps {
+  account: Account
+  disabled?: boolean
+  passwordError?: Error | null
+  showHash?: boolean
+  showSource?: boolean
+  showSubmissionProgress: boolean
+  signatureRequest?: SignatureRequest
+  submissionProgress?: React.ReactNode
+  transaction: Transaction | null
+  onClose: () => void
+  onSubmitTransaction: (tx: Transaction, formValues: { password: string | null }) => void
+}
+
+export function TransactionReviewDialogBody(props: TransactionReviewDialogBodyProps) {
+  const dialogActionsRef = useDialogActions()
+  const isSmallScreen = useIsMobile()
+
+  const titleContent = React.useMemo(
+    () => (
+      <MainTitle
+        title={
+          <>
+            {getTitle(props.transaction) + " "}
+            {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+          </>
+        }
+        onBack={props.onClose}
+      />
+    ),
+    [props.account, props.disabled, props.onClose, props.transaction]
+  )
+
+  return (
+    <DialogBody top={titleContent} actions={props.showSubmissionProgress ? null : dialogActionsRef}>
+      {props.transaction ? (
+        <Box margin={`12px ${isSmallScreen ? "4px" : "0"} 0`} textAlign="center">
+          <ReviewForm
+            account={props.account}
+            actionsRef={dialogActionsRef}
+            disabled={props.disabled}
+            onClose={props.onClose}
+            onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
+            passwordError={props.passwordError}
+            showHash={props.showHash}
+            showSource={props.showSource}
+            signatureRequest={props.signatureRequest}
+            transaction={props.transaction}
+          />
+        </Box>
+      ) : null}
+      {props.submissionProgress}
+    </DialogBody>
+  )
 }
 
 interface Props {
@@ -55,24 +114,8 @@ interface Props {
 }
 
 function TransactionReviewDialog(props: Props) {
-  const dialogActionsRef = useDialogActions()
   const isScreen600pxWide = useMediaQuery("(min-width:600px)")
   const isSmallScreen = useIsMobile()
-
-  const titleContent = React.useMemo(
-    () => (
-      <MainTitle
-        title={
-          <>
-            <Title disabled={props.disabled} transaction={props.transaction} />{" "}
-            {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-          </>
-        }
-        onBack={props.onClose}
-      />
-    ),
-    [props.account, props.disabled, props.onClose, props.transaction]
-  )
 
   return (
     <Dialog
@@ -85,27 +128,9 @@ function TransactionReviewDialog(props: Props) {
         style: { minWidth: isScreen600pxWide ? 500 : undefined }
       }}
     >
-      <DialogBody top={titleContent} actions={props.showSubmissionProgress ? null : dialogActionsRef}>
-        {props.transaction ? (
-          <Box margin={`12px ${isSmallScreen ? "4px" : "0"} 0`} textAlign="center">
-            <ReviewForm
-              account={props.account}
-              actionsRef={dialogActionsRef}
-              disabled={props.disabled}
-              onClose={props.onClose}
-              onConfirm={formValues => props.onSubmitTransaction(props.transaction as Transaction, formValues)}
-              passwordError={props.passwordError}
-              showHash={props.showHash}
-              showSource={props.showSource}
-              signatureRequest={props.signatureRequest}
-              transaction={props.transaction}
-            />
-          </Box>
-        ) : null}
-        {props.submissionProgress}
-      </DialogBody>
+      <TransactionReviewDialogBody {...props} />
     </Dialog>
   )
 }
 
-export default TransactionReviewDialog
+export default React.memo(TransactionReviewDialog)
