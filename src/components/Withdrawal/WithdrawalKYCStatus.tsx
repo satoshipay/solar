@@ -2,7 +2,7 @@ import React from "react"
 import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
-import { WithdrawalKYCStatusResponse } from "@satoshipay/stellar-sep-6"
+import { KYCStatusResponse } from "@satoshipay/stellar-sep-6"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, VerticalLayout } from "../Layout/Box"
 import { formatDuration } from "./formatters"
@@ -16,7 +16,7 @@ function mapTo<Value extends string, Output>(value: Value, mapping: { [input in 
 }
 
 interface KYCStatusProps {
-  meta: WithdrawalKYCStatusResponse
+  meta: KYCStatusResponse
   onCancel: () => void
 }
 

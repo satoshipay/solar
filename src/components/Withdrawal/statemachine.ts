@@ -1,74 +1,77 @@
 // tslint:disable no-object-literal-type-assertion
 import {
-  WithdrawalKYCInteractiveResponse,
-  WithdrawalKYCStatusResponse,
+  DepositSuccessResponse,
+  KYCInteractiveResponse,
+  KYCStatusResponse,
   WithdrawalSuccessResponse,
   TransferServer
 } from "@satoshipay/stellar-sep-6"
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import { Asset, Transaction } from "stellar-sdk"
 
-interface GeneralWithdrawalDetails {
+interface TransferDetails {
   asset: Asset
-  withdrawalFormValues: { [fieldName: string]: string }
+  formValues: {
+    [fieldName: string]: string
+  }
   method: string
   transferServer: TransferServer
 }
 
 export interface InitialState {
   step: "initial"
-  details?: Partial<GeneralWithdrawalDetails>
+  details?: Partial<TransferDetails>
 }
 
 export interface BeforeWebauthState {
   step: "before-webauth"
-  details: GeneralWithdrawalDetails
+  details: TransferDetails
   webauth?: WebauthData & { transaction: Transaction }
 }
 
 export interface AfterWebauthState {
   step: "after-webauth"
   authToken?: string
-  details: GeneralWithdrawalDetails
+  details: TransferDetails
 }
 
-export interface BeforeInteractiveState {
+export interface BeforeKYCState {
   step: "before-interactive-kyc"
-  details: GeneralWithdrawalDetails
-  kyc: WithdrawalKYCInteractiveResponse
+  details: TransferDetails
+  kyc: KYCInteractiveResponse
 }
 
 export interface PendingKYCState {
   step: "pending-kyc"
-  details: GeneralWithdrawalDetails
-  kycStatus: WithdrawalKYCStatusResponse<"pending">
+  details: TransferDetails
+  kycStatus: KYCStatusResponse<"pending">
 }
 
 export interface AfterDeniedKYCState {
   step: "after-denied-kyc"
-  details: GeneralWithdrawalDetails
-  rejection: WithdrawalKYCStatusResponse<"denied">
+  details: TransferDetails
+  rejection: KYCStatusResponse<"denied">
 }
 
-export interface AfterSuccessfulKYC {
+export interface AfterSuccessfulKYC<SuccessResponse extends DepositSuccessResponse | WithdrawalSuccessResponse> {
   step: "after-successful-kyc"
   authToken?: string
-  details: GeneralWithdrawalDetails
-  withdrawal: WithdrawalSuccessResponse
+  details: TransferDetails
+  transfer: SuccessResponse
 }
 
 export interface AfterTransactionState {
   step: "after-tx-submission"
 }
 
-export type WithdrawalState =
+export type TransferState<SuccessResponse extends DepositSuccessResponse | WithdrawalSuccessResponse> =
   | InitialState
   | BeforeWebauthState
   | AfterWebauthState
-  | BeforeInteractiveState
+  | BeforeKYCState
   | PendingKYCState
   | AfterDeniedKYCState
-  | AfterSuccessfulKYC
+  | AfterSuccessfulKYC<SuccessResponse>
   | AfterTransactionState
 
 const backToStart = () =>
@@ -98,19 +101,19 @@ const setAuthToken = (token: string | undefined) =>
     token
   } as const)
 
-const startInteractiveKYC = (response: WithdrawalKYCInteractiveResponse) =>
+const startInteractiveKYC = (response: KYCInteractiveResponse) =>
   ({
     type: "start-interactive-kyc",
     response
   } as const)
 
-const pendingKYC = (response: WithdrawalKYCStatusResponse<"pending">) =>
+const pendingKYC = (response: KYCStatusResponse<"pending">) =>
   ({
     type: "kyc-pending",
     response
   } as const)
 
-const failedKYC = (response: WithdrawalKYCStatusResponse<"denied">) =>
+const failedKYC = (response: KYCStatusResponse<"denied">) =>
   ({
     type: "kyc-denied",
     response
@@ -127,7 +130,7 @@ const transactionSubmitted = () =>
     type: "after-tx-submission"
   } as const)
 
-type WithdrawalAction =
+type TransferAction =
   | ReturnType<typeof backToStart>
   | ReturnType<typeof saveInitFormData>
   | ReturnType<typeof setAuthToken>
@@ -148,11 +151,11 @@ export const Action = {
   transactionSubmitted
 }
 
-export const initialState: WithdrawalState = {
+export const initialState: TransferState<any> = {
   step: "initial"
 }
 
-export function stateMachine(state: WithdrawalState, action: WithdrawalAction): WithdrawalState {
+export function stateMachine(state: TransferState<any>, action: TransferAction): TransferState<any> {
   switch (action.type) {
     case "back-to-start":
       return {
@@ -165,7 +168,7 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
           step: "before-webauth",
           details: {
             asset: action.asset,
-            withdrawalFormValues: action.formValues,
+            formValues: action.formValues,
             method: action.method,
             transferServer: action.transferServer
           },
@@ -177,7 +180,7 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
           authToken: undefined,
           details: {
             asset: action.asset,
-            withdrawalFormValues: action.formValues,
+            formValues: action.formValues,
             method: action.method,
             transferServer: action.transferServer
           }
@@ -226,13 +229,13 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
       return {
         step: "after-successful-kyc",
         details: state.details,
-        withdrawal: action.response
+        transfer: action.response
       }
     case "after-tx-submission":
       return {
         step: "after-tx-submission"
       }
     default:
-      throw Error(`Unexpected action: ${(action as WithdrawalAction).type}`)
+      throw Error(`Unexpected action: ${(action as TransferAction).type}`)
   }
 }

@@ -3,13 +3,13 @@ import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
-import { WithdrawalKYCInteractiveResponse } from "@satoshipay/stellar-sep-6"
+import { KYCInteractiveResponse } from "@satoshipay/stellar-sep-6"
 import { openLink } from "../../platform/links"
 import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, VerticalLayout } from "../Layout/Box"
 
 interface KYCRedirectProps {
-  meta: WithdrawalKYCInteractiveResponse
+  meta: KYCInteractiveResponse
   onCancel: () => void
   onRedirect?: () => void
 }
