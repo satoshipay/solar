@@ -53,8 +53,8 @@
     "stellar-sdk": "^2.3.0"
   },
   "devDependencies": {
-    "@material-ui/core": "^4.4.2",
-    "@material-ui/icons": "^4.4.1",
+    "@material-ui/core": "^4.5.1",
+    "@material-ui/icons": "^4.5.1",
     "@satoshipay/stellar-sep-10": "^0.1.0",
     "@satoshipay/stellar-sep-6": "^0.1.0",
     "@storybook/addon-actions": "^5.2.0",
