@@ -22,10 +22,10 @@ const useButtonListItemStyles = makeStyles({
 
     "&:hover, &:focus": {
       "@media (hover: hover)": {
-        backgroundColor: "rgba(0, 0, 0, 0.12)"
+        backgroundColor: "rgba(0, 0, 0, 0.12) !important"
       },
       "@media (hover: none)": {
-        backgroundColor: "rgba(0, 0, 0, 0.08)"
+        backgroundColor: "rgba(0, 0, 0, 0.08) !important"
       }
     }
   },
