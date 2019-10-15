@@ -214,7 +214,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
   const classes = useAddAssetStyles()
   const containerRef = React.useRef<HTMLUListElement | null>(null)
-  const knownAssets = useStellarAssets(props.account.testnet)
+  const allAssets = useStellarAssets(props.account.testnet)
   const router = useRouter()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
@@ -260,7 +260,6 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   }, [])
 
   const assetsByIssuer = React.useMemo(() => {
-    const allAssets = knownAssets.getAll() || []
     const filteredAssets = allAssets.filter(
       assetRecord =>
         assetRecordMatches(assetRecord, searchFieldValue) || issuerMatches(assetRecord.issuer_detail, searchFieldValue)

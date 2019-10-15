@@ -120,6 +120,7 @@ function AssetSelector(props: AssetSelectorProps) {
 interface Props {
   accountData: ObservedAccountData
   actionsRef: RefStateObject
+  testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onCancel: () => void
@@ -129,7 +130,7 @@ interface Props {
 function PaymentCreationForm(props: Props) {
   const isSmallScreen = useIsMobile()
   const { lookupFederationRecord } = useFederationLookup()
-  const wellknownAccounts = useWellKnownAccounts()
+  const wellknownAccounts = useWellKnownAccounts(props.testnet)
 
   const formID = React.useMemo(() => nanoid(), [])
   const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
