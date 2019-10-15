@@ -10,6 +10,7 @@ export function useWellKnownAccounts(testnet: boolean) {
   const accounts = testnet ? wellknownAccounts.testnet() : wellknownAccounts.mainnet()
 
   return {
+    accounts,
     lookup(publicKey: string): AccountRecord | undefined {
       return accounts.find(account => account.address === publicKey)
     }

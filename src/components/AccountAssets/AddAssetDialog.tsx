@@ -9,7 +9,7 @@ import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAssetMetadata } from "../../hooks/stellar"
-import { useStellarAssets, AssetRecord } from "../../hooks/stellar-ecosystem"
+import { useStellarAssets, useWellKnownAccounts, AssetRecord } from "../../hooks/stellar-ecosystem"
 import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
 import * as popularAssets from "../../lib/popularAssets"
@@ -216,6 +216,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const containerRef = React.useRef<HTMLUListElement | null>(null)
   const allAssets = useStellarAssets(props.account.testnet)
   const router = useRouter()
+  const wellKnownAccounts = useWellKnownAccounts(props.account.testnet)
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
@@ -253,6 +254,18 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
     )
   }
 
+  const wellknownAccountMatches = (accountID: string, search: string) => {
+    const lowerCasedSearch = search.toLowerCase()
+    const record = wellKnownAccounts.lookup(accountID)
+
+    if (!record) {
+      return false
+    }
+    return (
+      record.domain.toLowerCase().includes(lowerCasedSearch) || record.name.toLowerCase().includes(lowerCasedSearch)
+    )
+  }
+
   const notYetAddedAssets = assets.filter(asset => !isAssetAlreadyAdded(asset))
 
   const onSearchFieldChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -262,11 +275,13 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const assetsByIssuer = React.useMemo(() => {
     const filteredAssets = allAssets.filter(
       assetRecord =>
-        assetRecordMatches(assetRecord, searchFieldValue) || issuerMatches(assetRecord.issuer_detail, searchFieldValue)
+        assetRecordMatches(assetRecord, searchFieldValue) ||
+        issuerMatches(assetRecord.issuer_detail, searchFieldValue) ||
+        wellknownAccountMatches(assetRecord.issuer, searchFieldValue)
     )
 
     return groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
-  }, [searchFieldValue])
+  }, [searchFieldValue, wellKnownAccounts.accounts])
 
   const SearchResultRow = React.useMemo(() => createSearchResultRow(props.account, assetsByIssuer, openAssetDetails), [
     props.account,
