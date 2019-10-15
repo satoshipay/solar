@@ -43,7 +43,7 @@ function clearTextSelection() {
 
 function InflationDestinationDialog(props: InflationDestinationDialogProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const wellKnownAccounts = useWellKnownAccounts()
+  const wellKnownAccounts = useWellKnownAccounts(props.account.testnet)
   const router = useRouter()
   const isSmallScreen = useIsMobile()
 

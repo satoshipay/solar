@@ -64,6 +64,7 @@ function CreatePaymentDialog(props: Props) {
         actionsRef={dialogActionsRef}
         onCancel={props.onClose}
         onSubmit={handleSubmit}
+        testnet={props.account.testnet}
         trustedAssets={trustedAssets}
         txCreationPending={txCreationPending}
       />

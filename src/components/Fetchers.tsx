@@ -1,7 +1,8 @@
 import React from "react"
 import Async from "react-promise"
 import { Server, ServerApi } from "stellar-sdk"
-import { useAccountData, useHorizon } from "../hooks/stellar"
+import { useHorizon } from "../hooks/stellar"
+import { useWellKnownAccounts } from "../hooks/stellar-ecosystem"
 import { Address } from "./PublicKey"
 
 const memCache = new Map<string, any>()
@@ -48,12 +49,12 @@ interface AccountNameProps {
   testnet: boolean
 }
 
-// tslint:disable-next-line no-shadowed-variable
 export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
-  const accountData = useAccountData(props.publicKey, props.testnet)
+  const wellknownAccounts = useWellKnownAccounts(props.testnet)
+  const record = wellknownAccounts.lookup(props.publicKey)
 
-  return accountData.home_domain ? (
-    <span style={{ userSelect: "text" }}>{accountData.home_domain}</span>
+  return record && record.domain ? (
+    <span style={{ userSelect: "text" }}>{record.domain}</span>
   ) : (
     <Address address={props.publicKey} variant="short" />
   )
