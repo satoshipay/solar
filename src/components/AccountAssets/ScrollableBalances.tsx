@@ -112,7 +112,7 @@ const useScrollableBalancesStyles = makeStyles({
 interface ScrollableBalancesProps {
   account: Account
   compact?: boolean
-  onClick?: () => void
+  onClick?: (asset: Asset) => void
   style?: React.CSSProperties
 }
 
@@ -174,13 +174,16 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     }
   })
 
-  const handleClick = React.useCallback(() => {
-    const mouseDragJustHappened = Date.now() - mouseState.current.latestMouseMoveEndTime < 100
+  const handleClick = React.useCallback(
+    (asset: Asset) => {
+      const mouseDragJustHappened = Date.now() - mouseState.current.latestMouseMoveEndTime < 100
 
-    if (props.onClick && !mouseDragJustHappened) {
-      props.onClick()
-    }
-  }, [props.onClick])
+      if (props.onClick && !mouseDragJustHappened) {
+        props.onClick(asset)
+      }
+    },
+    [props.onClick]
+  )
 
   const classes = useScrollableBalancesStyles({})
 
@@ -219,7 +222,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
             assetMetadata={metadata}
             balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
             compact={props.compact}
-            onClick={props.onClick ? handleClick : undefined}
+            onClick={props.onClick ? () => handleClick(asset) : undefined}
           />
         )
       }),
@@ -230,7 +233,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         }
         balance={nativeBalance}
         compact={props.compact}
-        onClick={handleClick}
+        onClick={props.onClick ? () => handleClick(Asset.native()) : undefined}
       />
     ],
     [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets]

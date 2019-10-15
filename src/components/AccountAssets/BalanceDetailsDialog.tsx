@@ -17,6 +17,7 @@ import { sortBalances } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import MainTitle from "../MainTitle"
 import AddAssetDialog from "./AddAssetDialog"
+import AssetDetailsDialog from "./AssetDetailsDialog"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
 
@@ -30,6 +31,7 @@ function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boo
 
 interface BalanceDetailsProps {
   account: Account
+  assetDetailsAssetID?: string
   onClose: () => void
 }
 
@@ -64,6 +66,19 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   )
 
   const assetMetadata = useAssetMetadata(trustedAssets, props.account.testnet)
+
+  const navigateTo = React.useMemo(
+    () => ({
+      balanceDetails: () => router.history.push(routes.balanceDetails(props.account.id))
+    }),
+    [router.history.push, props.account.id]
+  )
+
+  const closeAssetDetails = React.useCallback(() => {
+    // We might need to go back to either "balance details" or "add assets"
+    router.history.goBack()
+  }, [router.history])
+
   const hpadding = isSmallScreen ? 0 : 8
   const itemHPadding = 16
   const itemHMargin = 0
@@ -162,6 +177,18 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           hpadding={hpadding}
           itemHPadding={itemHPadding}
           onClose={closeAddAssetDialog}
+        />
+      </Dialog>
+      <Dialog
+        open={Boolean(props.assetDetailsAssetID)}
+        fullScreen
+        onClose={navigateTo.balanceDetails}
+        TransitionComponent={FullscreenDialogTransition}
+      >
+        <AssetDetailsDialog
+          account={props.account}
+          assetID={props.assetDetailsAssetID || "XLM"}
+          onClose={closeAssetDetails}
         />
       </Dialog>
     </DialogBody>

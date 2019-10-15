@@ -1,10 +1,10 @@
 import React from "react"
+import { Asset } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import { makeStyles } from "@material-ui/core/styles"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
-import AssetDetailsDialog from "../components/AccountAssets/AssetDetailsDialog"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
@@ -20,6 +20,7 @@ import { Account, AccountsContext } from "../context/accounts"
 import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { matchesRoute } from "../lib/routes"
+import { stringifyAsset } from "../lib/stellar"
 import * as routes from "../routes"
 import { FullscreenDialogTransition } from "../theme"
 
@@ -115,6 +116,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
     () => ({
       accountSettings: () => router.history.push(routes.accountSettings(props.account.id)),
       addAssets: () => router.history.push(routes.manageAccountAssets(props.account.id)),
+      assetDetails: (assetID: string) => router.history.push(routes.assetDetails(props.account.id, assetID)),
       balanceDetails: () => router.history.push(routes.balanceDetails(props.account.id)),
       createPayment: () => router.history.push(routes.createPayment(props.account.id)),
       receivePayment: () => router.history.push(routes.receivePayment(props.account.id)),
@@ -125,10 +127,12 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
     [router.history.push, props.account.id]
   )
 
-  const closeAssetDetails = React.useCallback(() => {
-    // We might need to go back to either "balance details" or "add assets"
-    router.history.goBack()
-  }, [navigateTo, router.history])
+  const handleBalanceClick = React.useCallback(
+    (asset: Asset) => {
+      navigateTo.assetDetails(stringifyAsset(asset))
+    },
+    [navigateTo.assetDetails]
+  )
 
   // Let's memo the AccountHeaderCard as it's pretty expensive to re-render
   const headerCard = React.useMemo(
@@ -143,7 +147,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onWithdraw={navigateTo.withdraw}
         showCloseButton={showAccountSettings}
       >
-        <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
+        <ScrollableBalances account={props.account} onClick={handleBalanceClick} style={{ marginTop: 8 }} />
         {isSmallScreen ? null : (
           <AccountActions
             account={props.account}
@@ -194,18 +198,10 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
-      </Dialog>
-      <Dialog
-        open={showAssetDetails}
-        fullScreen
-        onClose={navigateTo.balanceDetails}
-        TransitionComponent={FullscreenDialogTransition}
-      >
-        <AssetDetailsDialog
+        <BalanceDetailsDialog
           account={props.account}
-          assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
-          onClose={closeAssetDetails}
+          assetDetailsAssetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : undefined}
+          onClose={navigateTo.transactions}
         />
       </Dialog>
       <Dialog
