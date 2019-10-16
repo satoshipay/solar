@@ -3,12 +3,8 @@ import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
-import ExpansionPanel from "@material-ui/core/ExpansionPanel"
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useStellarToml } from "../../hooks/stellar"
 import { useClipboard, useIsMobile } from "../../hooks/userinterface"
@@ -32,28 +28,17 @@ const useDetailContentStyles = makeStyles({
   card: {
     backgroundColor: "#fbfbfb",
     borderRadius: 8,
-    margin: "12px -8px !important",
+    margin: "12px -8px",
     overflowY: "auto"
   },
-  cardExpanded: {},
   cardContent: {
-    display: "flex",
-    flexDirection: "column",
-    position: "relative"
+    position: "relative",
+    padding: "8px 16px !important"
   },
-  cardSummary: {
-    minHeight: "48px !important"
-  },
-  cardSummaryContent: {
-    "&$cardSummaryExpanded": {
-      marginTop: 12,
-      marginBottom: 4
-    }
-  },
-  cardSummaryExpanded: {},
   cardTitle: {
     fontSize: 20,
-    fontWeight: 400
+    fontWeight: 400,
+    marginBottom: 8
   },
   cardLogo: {
     position: "absolute",
@@ -123,25 +108,8 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
 
   return (
     <>
-      <ExpansionPanel
-        classes={{
-          root: classes.card,
-          expanded: classes.cardExpanded
-        }}
-      >
-        <ExpansionPanelSummary
-          classes={{
-            content: classes.cardSummaryContent,
-            expanded: classes.cardSummaryExpanded,
-            root: classes.cardSummary
-          }}
-          expandIcon={<ExpandMoreIcon />}
-        >
-          <Typography className={classes.cardTitle} variant="h6">
-            Asset details
-          </Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails className={classes.cardContent}>
+      <Card className={classes.card}>
+        <CardContent className={classes.cardContent}>
           {metadata && metadata.desc ? (
             <ReadOnlyTextfield
               disableUnderline
@@ -218,28 +186,14 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               value={metadata.redemption_instructions}
             />
           ) : null}
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+        </CardContent>
+      </Card>
       {stellarToml && stellarToml.DOCUMENTATION ? (
-        <ExpansionPanel
-          classes={{
-            root: classes.card,
-            expanded: classes.cardExpanded
-          }}
-        >
-          <ExpansionPanelSummary
-            classes={{
-              content: classes.cardSummaryContent,
-              expanded: classes.cardSummaryExpanded,
-              root: classes.cardSummary
-            }}
-            expandIcon={<ExpandMoreIcon />}
-          >
+        <Card className={classes.card}>
+          <CardContent className={classes.cardContent}>
             <Typography className={classes.cardTitle} variant="h6">
-              Issuer details
+              Issuer information
             </Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.cardContent}>
             {stellarToml.DOCUMENTATION.ORG_LOGO ? (
               <Avatar className={classes.cardLogo}>
                 <img
@@ -335,8 +289,8 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
                 value={stellarToml.DOCUMENTATION.ORG_PHONE_NUMBER}
               />
             ) : null}
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+          </CardContent>
+        </Card>
       ) : null}
     </>
   )
