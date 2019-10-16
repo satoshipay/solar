@@ -309,13 +309,16 @@ const useAssetDetailStyles = makeStyles({
       fontSize: 18
     }
   },
-  domain: {
+  balance: {
+    fontSize: 18,
+    fontWeight: 300,
     marginTop: -4,
     marginLeft: 47, // should be 46, but somehow 47 looks correct
     marginBottom: 16,
 
     [breakpoints.down(600)]: {
-      marginLeft: 39
+      marginLeft: 39,
+      marginBottom: 12
     }
   }
 })
@@ -367,9 +370,9 @@ function AssetDetailsDialog(props: Props) {
               textShadow: "0 0 5px white, 0 0 5px white, 0 0 5px white"
             }}
           />
-          <Typography className={classes.domain} variant="subtitle1">
+          <Typography className={classes.balance} variant="subtitle1">
             {balance ? (
-              <SingleBalance assetCode={asset.getCode()} balance={balance.balance} />
+              <SingleBalance assetCode={asset.getCode()} balance={balance.balance} inline />
             ) : asset.isNative() ? (
               "stellar.org"
             ) : (
