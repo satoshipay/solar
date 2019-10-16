@@ -13,10 +13,10 @@ import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
 
-function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
+function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; labelFirst?: boolean; loading?: boolean }) {
   return (
     <>
-      <ButtonIconLabel label={props.label} loading={props.loading}>
+      <ButtonIconLabel label={props.label} labelFirst={props.labelFirst} loading={props.loading}>
         {props.icon}
       </ButtonIconLabel>
     </>
@@ -87,6 +87,7 @@ interface ActionButtonProps {
   disabled?: boolean
   form?: string
   icon?: React.ReactNode
+  iconLast?: boolean
   loading?: boolean
   onClick?: (event: React.SyntheticEvent) => void
   style?: React.CSSProperties
@@ -112,7 +113,7 @@ export function ActionButton(props: ActionButtonProps) {
       type={type === "submit" ? "submit" : undefined}
       variant={props.variant || autoVariant}
     >
-      <MaybeIcon icon={props.icon} label={props.children} loading={props.loading} />
+      <MaybeIcon icon={props.icon} label={props.children} labelFirst={props.iconLast} loading={props.loading} />
     </Button>
   )
 }

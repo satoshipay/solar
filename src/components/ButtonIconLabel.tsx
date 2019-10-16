@@ -21,14 +21,24 @@ interface Props {
   loading?: boolean
   loaderColor?: string
   style?: React.CSSProperties
+  labelFirst?: boolean
 }
 
 const ButtonIconLabel = (props: Props) => {
   const loader = <CircularProgress size="1.2em" style={{ color: props.loaderColor || "white" }} />
   return (
     <Container style={props.style}>
-      {props.children || props.loading ? <Icon>{props.loading ? loader : props.children}</Icon> : null}
-      <Label>{props.label}</Label>
+      {props.labelFirst ? (
+        <>
+          <Label>{props.label}</Label>
+          {props.children || props.loading ? <Icon>{props.loading ? loader : props.children}</Icon> : null}
+        </>
+      ) : (
+        <>
+          {props.children || props.loading ? <Icon>{props.loading ? loader : props.children}</Icon> : null}
+          <Label>{props.label}</Label>
+        </>
+      )}
     </Container>
   )
 }
