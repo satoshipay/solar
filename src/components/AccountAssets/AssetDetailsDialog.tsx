@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
@@ -25,6 +26,7 @@ import MainTitle from "../MainTitle"
 import AssetDetailsActions from "./AssetDetailsActions"
 import AssetLogo from "./AssetLogo"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
+import { formatBalance } from "../Account/AccountBalances"
 
 const capitalize = (text: string) => text[0].toUpperCase() + text.substr(1)
 
@@ -70,6 +72,73 @@ const useDetailContentStyles = makeStyles({
   }
 })
 
+interface AccountRelatedDataProps {
+  account: Account
+  asset: Asset
+}
+
+function AccountRelatedData({ account, asset }: AccountRelatedDataProps) {
+  const accountData = useAccountData(account.publicKey, account.testnet)
+  const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
+  const classes = useDetailContentStyles()
+
+  const balance = accountData.balances.find(
+    asset.isNative()
+      ? bal => bal.asset_type === "native"
+      : bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
+  )
+
+  const openBuyOffers = accountOffers.offers.filter(
+    offer =>
+      offer.buying.asset_type !== "native" &&
+      offer.buying.asset_issuer === asset.issuer &&
+      offer.buying.asset_code === asset.code
+  )
+  const openSellOffers = accountOffers.offers.filter(
+    offer =>
+      offer.selling.asset_type !== "native" &&
+      offer.selling.asset_issuer === asset.issuer &&
+      offer.selling.asset_code === asset.code
+  )
+  const allOpenOffers = [...openBuyOffers, ...openSellOffers]
+
+  return balance ? (
+    <Card className={classes.card}>
+      <CardContent className={classes.cardContent}>
+        <ReadOnlyTextfield
+          disableUnderline
+          fullWidth
+          label="Account balance"
+          margin="dense"
+          value={`${balance.balance} ${asset.code}`}
+        />
+        <ReadOnlyTextfield
+          disableUnderline
+          fullWidth
+          label="Open trade offers"
+          margin="dense"
+          value={
+            allOpenOffers.length > 0
+              ? allOpenOffers
+                  .map(offer =>
+                    [
+                      `${formatBalance(offer.amount)} ${
+                        offer.selling.asset_type === "native" ? "XLM" : offer.selling.asset_code
+                      }`,
+                      `${formatBalance(BigNumber(offer.amount).mul(offer.price))} ${
+                        offer.buying.asset_type === "native" ? "XLM" : offer.buying.asset_code
+                      }`
+                    ].join(" → ")
+                  )
+                  .join("\n")
+              : "–"
+          }
+        />
+      </CardContent>
+    </Card>
+  ) : null
+}
+
 interface LumenDetailProps {
   account: Account
 }
@@ -80,6 +149,7 @@ const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
 
   return (
     <>
+      <AccountRelatedData account={props.account} asset={Asset.native()} />
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
           <ReadOnlyTextfield
@@ -96,9 +166,6 @@ const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
       </Card>
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
-          <Typography className={classes.cardTitle} variant="h6">
-            Balance breakdown
-          </Typography>
           <SpendableBalanceBreakdown account={props.account} accountData={accountData} baseReserve={0.5} />
         </CardContent>
       </Card>
@@ -113,29 +180,11 @@ interface AssetDetailProps {
 }
 
 const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata }: AssetDetailProps) {
-  const accountData = useAccountData(account.publicKey, account.testnet)
-  const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
   const issuingAccountData = useAccountData(asset.issuer, account.testnet)
   const [stellarToml] = useStellarToml(issuingAccountData.home_domain)
 
-  const balance = accountData.balances.find(
-    bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
-  )
-  const openBuyOffers = accountOffers.offers.filter(
-    offer =>
-      offer.buying.asset_type !== "native" &&
-      offer.buying.asset_issuer === asset.issuer &&
-      offer.buying.asset_code === asset.code
-  )
-  const openSellOffers = accountOffers.offers.filter(
-    offer =>
-      offer.selling.asset_type !== "native" &&
-      offer.selling.asset_issuer === asset.issuer &&
-      offer.selling.asset_code === asset.code
-  )
-
-  const clipboard = useClipboard()
   const classes = useDetailContentStyles()
+  const clipboard = useClipboard()
 
   const copyIssuerToClipboard = React.useCallback(() => clipboard.copyToClipboard(asset.getIssuer()), [
     asset.getIssuer(),
@@ -144,6 +193,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
 
   return (
     <>
+      <AccountRelatedData account={account} asset={asset} />
       <ExpansionPanel
         classes={{
           root: classes.card,
@@ -195,10 +245,10 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             multiline
             value={capitalize(
               [
-                issuingAccountData.flags.auth_required ? "auth required" : "no auth required",
-                issuingAccountData.flags.auth_revocable ? "auth revocable" : "auth irrevocable",
-                issuingAccountData.flags.auth_immutable ? "immutable flags" : "mutable flags"
-              ].join(", ")
+                issuingAccountData.flags.auth_required ? "☑ Auth required" : "☐ No auth required",
+                issuingAccountData.flags.auth_revocable ? "☑ Auth revocable" : "☐ Auth not revocable",
+                issuingAccountData.flags.auth_immutable ? "☑ Immutable flags" : "☐ No immutable flags"
+              ].join("\n")
             )}
           />
           {metadata && metadata.conditions ? (
@@ -354,29 +404,6 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             ) : null}
           </ExpansionPanelDetails>
         </ExpansionPanel>
-      ) : null}
-      {balance ? (
-        <Card className={classes.card}>
-          <CardContent className={classes.cardContent}>
-            <Typography className={classes.cardTitle} variant="h6">
-              My Account
-            </Typography>
-            <ReadOnlyTextfield
-              disableUnderline
-              fullWidth
-              label="Current balance"
-              margin="dense"
-              value={`${balance.balance} ${asset.code}`}
-            />
-            <ReadOnlyTextfield
-              disableUnderline
-              fullWidth
-              label="Open trade offers"
-              margin="dense"
-              value={openBuyOffers.length + openSellOffers.length || "–"}
-            />
-          </CardContent>
-        </Card>
       ) : null}
     </>
   )
