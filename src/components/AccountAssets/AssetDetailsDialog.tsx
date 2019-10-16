@@ -191,9 +191,6 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
       {stellarToml && stellarToml.DOCUMENTATION ? (
         <Card className={classes.card}>
           <CardContent className={classes.cardContent}>
-            <Typography className={classes.cardTitle} variant="h6">
-              Issuer information
-            </Typography>
             {stellarToml.DOCUMENTATION.ORG_LOGO ? (
               <Avatar className={classes.cardLogo}>
                 <img
