@@ -1,6 +1,7 @@
 import React from "react"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
+import Dialog from "@material-ui/core/Dialog"
 import IconButton from "@material-ui/core/IconButton"
 import SettingsIcon from "@material-ui/icons/Settings"
 import AccountList from "../components/AccountList"
@@ -8,17 +9,21 @@ import DialogBody from "../components/Dialog/DialogBody"
 import { Box } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import MainTitle from "../components/MainTitle"
+import OnboardingDialog from "../components/Account/OnboardingDialog"
 import TermsAndConditions from "../components/TermsAndConditionsDialog"
 import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
 import * as routes from "../routes"
+import { CompactDialogTransition } from "../theme"
 
 function AllAccountsPage() {
   const { accounts, networkSwitch, toggleNetwork } = React.useContext(AccountsContext)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
   const testnetAccounts = React.useMemo(() => accounts.filter(account => account.testnet), [accounts])
+
+  const [onboardingClosed, setOnboardingClosed] = React.useState(false) // TODO move this to settings context or similar
 
   const isSmallScreen = useIsMobile()
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
@@ -70,6 +75,14 @@ function AllAccountsPage() {
           />
         </Box>
       </DialogBody>
+      <Dialog
+        fullWidth
+        maxWidth="md"
+        open={accounts.length === 0 && !onboardingClosed}
+        TransitionComponent={CompactDialogTransition}
+      >
+        <OnboardingDialog onClose={() => setOnboardingClosed(true)} />
+      </Dialog>
       <TermsAndConditions open={!settings.agreedToTermsAt} onConfirm={settings.confirmToC} />
     </Section>
   )
