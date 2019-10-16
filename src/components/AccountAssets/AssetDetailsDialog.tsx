@@ -1,8 +1,6 @@
-import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
-import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import ExpansionPanel from "@material-ui/core/ExpansionPanel"
@@ -13,18 +11,16 @@ import { makeStyles } from "@material-ui/core/styles"
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useStellarToml } from "../../hooks/stellar"
-import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
-import { useClipboard, useIsMobile, useRouter } from "../../hooks/userinterface"
+import { useClipboard, useIsMobile } from "../../hooks/userinterface"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
-import * as routes from "../../routes"
 import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
-import { formatBalance } from "../Account/AccountBalances"
+import { SingleBalance } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import { AccountName } from "../Fetchers"
 import { ReadOnlyTextfield } from "../Form/FormFields"
-import { VerticalLayout, HorizontalLayout } from "../Layout/Box"
+import { VerticalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import AssetDetailsActions from "./AssetDetailsActions"
 import AssetLogo from "./AssetLogo"
@@ -74,73 +70,6 @@ const useDetailContentStyles = makeStyles({
   }
 })
 
-interface AccountRelatedDataProps {
-  account: Account
-  asset: Asset
-}
-
-function AccountRelatedData({ account, asset }: AccountRelatedDataProps) {
-  const accountData = useAccountData(account.publicKey, account.testnet)
-  const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
-  const classes = useDetailContentStyles()
-
-  const balance = accountData.balances.find(
-    asset.isNative()
-      ? bal => bal.asset_type === "native"
-      : bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
-  )
-
-  const openBuyOffers = accountOffers.offers.filter(
-    offer =>
-      offer.buying.asset_type !== "native" &&
-      offer.buying.asset_issuer === asset.issuer &&
-      offer.buying.asset_code === asset.code
-  )
-  const openSellOffers = accountOffers.offers.filter(
-    offer =>
-      offer.selling.asset_type !== "native" &&
-      offer.selling.asset_issuer === asset.issuer &&
-      offer.selling.asset_code === asset.code
-  )
-  const allOpenOffers = [...openBuyOffers, ...openSellOffers]
-
-  return balance ? (
-    <Card className={classes.card}>
-      <CardContent className={classes.cardContent}>
-        <ReadOnlyTextfield
-          disableUnderline
-          fullWidth
-          label="Account balance"
-          margin="dense"
-          value={`${balance.balance} ${asset.code}`}
-        />
-        <ReadOnlyTextfield
-          disableUnderline
-          fullWidth
-          label="Open trade offers"
-          margin="dense"
-          value={
-            allOpenOffers.length > 0
-              ? allOpenOffers
-                  .map(offer =>
-                    [
-                      `${formatBalance(offer.amount)} ${
-                        offer.selling.asset_type === "native" ? "XLM" : offer.selling.asset_code
-                      }`,
-                      `${formatBalance(BigNumber(offer.amount).mul(offer.price))} ${
-                        offer.buying.asset_type === "native" ? "XLM" : offer.buying.asset_code
-                      }`
-                    ].join(" → ")
-                  )
-                  .join("\n")
-              : "–"
-          }
-        />
-      </CardContent>
-    </Card>
-  ) : null
-}
-
 interface LumenDetailProps {
   account: Account
 }
@@ -151,7 +80,6 @@ const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
 
   return (
     <>
-      <AccountRelatedData account={props.account} asset={Asset.native()} />
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
           <ReadOnlyTextfield
@@ -195,7 +123,6 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
 
   return (
     <>
-      <AccountRelatedData account={account} asset={asset} />
       <ExpansionPanel
         classes={{
           root: classes.card,
@@ -439,9 +366,6 @@ const useAssetDetailStyles = makeStyles({
     [breakpoints.down(600)]: {
       marginLeft: 39
     }
-  },
-  topAction: {
-    marginRight: 8
   }
 })
 
@@ -452,21 +376,19 @@ interface Props {
 }
 
 function AssetDetailsDialog(props: Props) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const asset = React.useMemo(() => parseAssetID(props.assetID), [props.assetID])
   const classes = useAssetDetailStyles()
   const isSmallScreen = useIsMobile()
-  const router = useRouter()
+
+  const balance = accountData.balances.find(
+    asset.isNative()
+      ? bal => bal.asset_type === "native"
+      : bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
+  )
 
   const metadataMap = useAssetMetadata([asset], props.account.testnet)
   const [metadata] = metadataMap.get(asset) || [undefined, false]
-
-  const navigateTo = React.useMemo(
-    () => ({
-      manageAssets: () => router.history.push(routes.balanceDetails(props.account.id)),
-      trading: () => router.history.push(routes.tradeAsset(props.account.id))
-    }),
-    []
-  )
 
   const dialogActions = React.useMemo(
     () => (asset.isNative() ? null : <AssetDetailsActions account={props.account} asset={asset} />),
@@ -490,12 +412,14 @@ function AssetDetailsDialog(props: Props) {
                 : asset.getCode()
             }
             titleStyle={{
-              maxWidth: "calc(100% - 100px)",
+              maxWidth: isSmallScreen ? "calc(100% - 75px)" : "calc(100% - 100px)",
               textShadow: "0 0 5px white, 0 0 5px white, 0 0 5px white"
             }}
           />
           <Typography className={classes.domain} variant="subtitle1">
-            {asset.isNative() ? (
+            {balance ? (
+              <SingleBalance assetCode={asset.getCode()} balance={balance.balance} />
+            ) : asset.isNative() ? (
               "stellar.org"
             ) : (
               <AccountName publicKey={asset.getIssuer()} testnet={props.account.testnet} />
@@ -509,14 +433,6 @@ function AssetDetailsDialog(props: Props) {
       fitToShrink
     >
       <VerticalLayout margin="0 4px" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
-        <HorizontalLayout margin="0 -8px 4px">
-          <Button className={classes.topAction} color="primary" onClick={navigateTo.trading} variant="text">
-            Trade
-          </Button>
-          <Button className={classes.topAction} onClick={navigateTo.manageAssets} variant="text">
-            All assets
-          </Button>
-        </HorizontalLayout>
         {asset.isNative() ? (
           <LumenDetails account={props.account} />
         ) : (

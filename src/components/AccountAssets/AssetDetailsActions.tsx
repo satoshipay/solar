@@ -2,10 +2,13 @@ import React from "react"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import ClearIcon from "@material-ui/icons/Clear"
+import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
+import { useRouter } from "../../hooks/userinterface"
 import { createTransaction } from "../../lib/transaction"
+import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
@@ -26,6 +29,7 @@ function AssetDetailsActions(props: Props) {
   const { account, asset } = props
   const [removalDialogOpen, setRemovalDialogOpen] = React.useState(false)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const router = useRouter()
 
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
 
@@ -59,13 +63,22 @@ function AssetDetailsActions(props: Props) {
   const closeRemovalDialog = React.useCallback(() => setRemovalDialogOpen(false), [])
   const removeThisAsset = React.useCallback(() => setRemovalDialogOpen(true), [])
 
+  const tradeThisAsset = React.useCallback(() => router.history.push(routes.tradeAsset(props.account.id)), [
+    router.history
+  ])
+
   return (
     <>
       <DialogActionsBox desktopStyle={dialogActionsBoxStyle} smallDialog>
         {balance ? (
-          <ActionButton icon={<ClearIcon />} onClick={removeThisAsset} type="primary">
-            Remove asset
-          </ActionButton>
+          <>
+            <ActionButton icon={<ClearIcon />} onClick={removeThisAsset} type="secondary">
+              Remove
+            </ActionButton>
+            <ActionButton icon={<SwapHorizIcon />} onClick={tradeThisAsset} type="primary">
+              Trade
+            </ActionButton>
+          </>
         ) : (
           <ActionButton loading={txCreationPending} onClick={addThisAsset} type="primary">
             Add asset to account

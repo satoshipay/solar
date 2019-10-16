@@ -72,9 +72,6 @@ const theme = createMuiTheme({
           backgroundColor: "#02b2f2"
         }
       },
-      text: {
-        boxShadow: "none"
-      },
       textPrimary: {
         color: brandColor.dark
       },
