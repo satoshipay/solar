@@ -213,9 +213,13 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             multiline
             value={capitalize(
               [
-                issuingAccountData.flags.auth_required ? "☑ Auth required" : "☐ No auth required",
-                issuingAccountData.flags.auth_revocable ? "☑ Auth revocable" : "☐ Auth not revocable",
-                issuingAccountData.flags.auth_immutable ? "☑ Immutable flags" : "☐ No immutable flags"
+                issuingAccountData.flags.auth_required
+                  ? "• Authorization by issuer required"
+                  : "• No authorization required",
+                issuingAccountData.flags.auth_revocable ? "• Authorization revocable" : "• Authorization not revocable",
+                issuingAccountData.flags.auth_immutable
+                  ? "• These flags are immutable"
+                  : "• Issuer can change these flags"
               ].join("\n")
             )}
           />
