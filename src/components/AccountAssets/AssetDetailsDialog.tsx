@@ -1,4 +1,3 @@
-import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
@@ -8,12 +7,12 @@ import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useStellarToml } from "../../hooks/stellar"
-import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { useClipboard, useIsMobile } from "../../hooks/userinterface"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
 import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
+import { SingleBalance } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import { AccountName } from "../Fetchers"
 import { ReadOnlyTextfield } from "../Form/FormFields"
@@ -22,7 +21,6 @@ import MainTitle from "../MainTitle"
 import AssetDetailsActions from "./AssetDetailsActions"
 import AssetLogo from "./AssetLogo"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
-import { formatBalance } from "../Account/AccountBalances"
 
 const capitalize = (text: string) => text[0].toUpperCase() + text.substr(1)
 
@@ -57,73 +55,6 @@ const useDetailContentStyles = makeStyles({
   }
 })
 
-interface AccountRelatedDataProps {
-  account: Account
-  asset: Asset
-}
-
-function AccountRelatedData({ account, asset }: AccountRelatedDataProps) {
-  const accountData = useAccountData(account.publicKey, account.testnet)
-  const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
-  const classes = useDetailContentStyles()
-
-  const balance = accountData.balances.find(
-    asset.isNative()
-      ? bal => bal.asset_type === "native"
-      : bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
-  )
-
-  const openBuyOffers = accountOffers.offers.filter(
-    offer =>
-      offer.buying.asset_type !== "native" &&
-      offer.buying.asset_issuer === asset.issuer &&
-      offer.buying.asset_code === asset.code
-  )
-  const openSellOffers = accountOffers.offers.filter(
-    offer =>
-      offer.selling.asset_type !== "native" &&
-      offer.selling.asset_issuer === asset.issuer &&
-      offer.selling.asset_code === asset.code
-  )
-  const allOpenOffers = [...openBuyOffers, ...openSellOffers]
-
-  return balance ? (
-    <Card className={classes.card}>
-      <CardContent className={classes.cardContent}>
-        <ReadOnlyTextfield
-          disableUnderline
-          fullWidth
-          label="Account balance"
-          margin="dense"
-          value={`${balance.balance} ${asset.code}`}
-        />
-        <ReadOnlyTextfield
-          disableUnderline
-          fullWidth
-          label="Open trade offers"
-          margin="dense"
-          value={
-            allOpenOffers.length > 0
-              ? allOpenOffers
-                  .map(offer =>
-                    [
-                      `${formatBalance(offer.amount)} ${
-                        offer.selling.asset_type === "native" ? "XLM" : offer.selling.asset_code
-                      }`,
-                      `${formatBalance(BigNumber(offer.amount).mul(offer.price))} ${
-                        offer.buying.asset_type === "native" ? "XLM" : offer.buying.asset_code
-                      }`
-                    ].join(" → ")
-                  )
-                  .join("\n")
-              : "–"
-          }
-        />
-      </CardContent>
-    </Card>
-  ) : null
-}
-
 interface LumenDetailProps {
   account: Account
 }
@@ -134,7 +65,6 @@ const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
 
   return (
     <>
-      <AccountRelatedData account={props.account} asset={Asset.native()} />
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
           <ReadOnlyTextfield
@@ -178,7 +108,6 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
 
   return (
     <>
-      <AccountRelatedData account={account} asset={asset} />
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
           {metadata && metadata.desc ? (
@@ -398,9 +327,16 @@ interface Props {
 }
 
 function AssetDetailsDialog(props: Props) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const asset = React.useMemo(() => parseAssetID(props.assetID), [props.assetID])
   const classes = useAssetDetailStyles()
   const isSmallScreen = useIsMobile()
+
+  const balance = accountData.balances.find(
+    asset.isNative()
+      ? bal => bal.asset_type === "native"
+      : bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
+  )
 
   const metadataMap = useAssetMetadata([asset], props.account.testnet)
   const [metadata] = metadataMap.get(asset) || [undefined, false]
@@ -427,12 +363,14 @@ function AssetDetailsDialog(props: Props) {
                 : asset.getCode()
             }
             titleStyle={{
-              maxWidth: "calc(100% - 100px)",
+              maxWidth: isSmallScreen ? "calc(100% - 75px)" : "calc(100% - 100px)",
               textShadow: "0 0 5px white, 0 0 5px white, 0 0 5px white"
             }}
           />
           <Typography className={classes.domain} variant="subtitle1">
-            {asset.isNative() ? (
+            {balance ? (
+              <SingleBalance assetCode={asset.getCode()} balance={balance.balance} />
+            ) : asset.isNative() ? (
               "stellar.org"
             ) : (
               <AccountName publicKey={asset.getIssuer()} testnet={props.account.testnet} />
@@ -445,7 +383,7 @@ function AssetDetailsDialog(props: Props) {
       actionsPosition="bottom"
       fitToShrink
     >
-      <VerticalLayout margin="16px 4px 0" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
+      <VerticalLayout margin="0 4px" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
         {asset.isNative() ? (
           <LumenDetails account={props.account} />
         ) : (
