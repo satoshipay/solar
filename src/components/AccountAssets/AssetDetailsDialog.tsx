@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
+import Button from "@material-ui/core/Button"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
@@ -9,20 +10,21 @@ import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useStellarToml } from "../../hooks/stellar"
 import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
-import { useClipboard, useIsMobile } from "../../hooks/userinterface"
+import { useClipboard, useIsMobile, useRouter } from "../../hooks/userinterface"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
+import * as routes from "../../routes"
 import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
+import { formatBalance } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import { AccountName } from "../Fetchers"
 import { ReadOnlyTextfield } from "../Form/FormFields"
-import { VerticalLayout } from "../Layout/Box"
+import { VerticalLayout, HorizontalLayout } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import AssetDetailsActions from "./AssetDetailsActions"
 import AssetLogo from "./AssetLogo"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
-import { formatBalance } from "../Account/AccountBalances"
 
 const capitalize = (text: string) => text[0].toUpperCase() + text.substr(1)
 
@@ -388,6 +390,9 @@ const useAssetDetailStyles = makeStyles({
     [breakpoints.down(600)]: {
       marginLeft: 39
     }
+  },
+  topAction: {
+    marginRight: 8
   }
 })
 
@@ -401,9 +406,18 @@ function AssetDetailsDialog(props: Props) {
   const asset = React.useMemo(() => parseAssetID(props.assetID), [props.assetID])
   const classes = useAssetDetailStyles()
   const isSmallScreen = useIsMobile()
+  const router = useRouter()
 
   const metadataMap = useAssetMetadata([asset], props.account.testnet)
   const [metadata] = metadataMap.get(asset) || [undefined, false]
+
+  const navigateTo = React.useMemo(
+    () => ({
+      manageAssets: () => router.history.push(routes.balanceDetails(props.account.id)),
+      trading: () => router.history.push(routes.tradeAsset(props.account.id))
+    }),
+    []
+  )
 
   const dialogActions = React.useMemo(
     () => (asset.isNative() ? null : <AssetDetailsActions account={props.account} asset={asset} />),
@@ -445,7 +459,15 @@ function AssetDetailsDialog(props: Props) {
       actionsPosition="bottom"
       fitToShrink
     >
-      <VerticalLayout margin="16px 4px 0" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
+      <VerticalLayout margin="0 4px" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
+        <HorizontalLayout margin="0 -8px 4px">
+          <Button className={classes.topAction} color="primary" onClick={navigateTo.trading} variant="text">
+            Trade
+          </Button>
+          <Button className={classes.topAction} onClick={navigateTo.manageAssets} variant="text">
+            All assets
+          </Button>
+        </HorizontalLayout>
         {asset.isNative() ? (
           <LumenDetails account={props.account} />
         ) : (
