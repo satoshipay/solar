@@ -3,8 +3,12 @@ import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
+import ExpansionPanel from "@material-ui/core/ExpansionPanel"
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useStellarToml } from "../../hooks/stellar"
 import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
@@ -28,17 +32,28 @@ const useDetailContentStyles = makeStyles({
   card: {
     backgroundColor: "#fbfbfb",
     borderRadius: 8,
-    margin: "12px -8px",
+    margin: "12px -8px !important",
     overflowY: "auto"
   },
+  cardExpanded: {},
   cardContent: {
-    position: "relative",
-    padding: "8px 16px !important"
+    display: "flex",
+    flexDirection: "column",
+    position: "relative"
   },
+  cardSummary: {
+    minHeight: "48px !important"
+  },
+  cardSummaryContent: {
+    "&$cardSummaryExpanded": {
+      marginTop: 12,
+      marginBottom: 4
+    }
+  },
+  cardSummaryExpanded: {},
   cardTitle: {
     fontSize: 20,
-    fontWeight: 400,
-    marginBottom: 8
+    fontWeight: 400
   },
   cardLogo: {
     position: "absolute",
@@ -129,8 +144,25 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
 
   return (
     <>
-      <Card className={classes.card}>
-        <CardContent className={classes.cardContent}>
+      <ExpansionPanel
+        classes={{
+          root: classes.card,
+          expanded: classes.cardExpanded
+        }}
+      >
+        <ExpansionPanelSummary
+          classes={{
+            content: classes.cardSummaryContent,
+            expanded: classes.cardSummaryExpanded,
+            root: classes.cardSummary
+          }}
+          expandIcon={<ExpandMoreIcon />}
+        >
+          <Typography className={classes.cardTitle} variant="h6">
+            Asset details
+          </Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails className={classes.cardContent}>
           {metadata && metadata.desc ? (
             <ReadOnlyTextfield
               disableUnderline
@@ -203,14 +235,28 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               value={metadata.redemption_instructions}
             />
           ) : null}
-        </CardContent>
-      </Card>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
       {stellarToml && stellarToml.DOCUMENTATION ? (
-        <Card className={classes.card}>
-          <CardContent className={classes.cardContent}>
+        <ExpansionPanel
+          classes={{
+            root: classes.card,
+            expanded: classes.cardExpanded
+          }}
+        >
+          <ExpansionPanelSummary
+            classes={{
+              content: classes.cardSummaryContent,
+              expanded: classes.cardSummaryExpanded,
+              root: classes.cardSummary
+            }}
+            expandIcon={<ExpandMoreIcon />}
+          >
             <Typography className={classes.cardTitle} variant="h6">
-              Issuer information
+              Issuer details
             </Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails className={classes.cardContent}>
             {stellarToml.DOCUMENTATION.ORG_LOGO ? (
               <Avatar className={classes.cardLogo}>
                 <img
@@ -306,8 +352,8 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
                 value={stellarToml.DOCUMENTATION.ORG_PHONE_NUMBER}
               />
             ) : null}
-          </CardContent>
-        </Card>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
       ) : null}
       {balance ? (
         <Card className={classes.card}>
