@@ -235,7 +235,7 @@ function Offramp(props: Props) {
       <Box margin="32px 0 0" textAlign="center">
         <Typography>This account holds no withdrawable assets.</Typography>
         <Portal target={props.actionsRef.element}>
-          <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
+          <DialogActionsBox>
             <ActionButton
               autoFocus
               onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}

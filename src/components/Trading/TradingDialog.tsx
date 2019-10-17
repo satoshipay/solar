@@ -135,7 +135,7 @@ function TradingDialog(props: TradingDialogProps) {
       <Box margin="32px 0 0" textAlign="center">
         <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
         <ActionsContainer>
-          <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
+          <DialogActionsBox>
             <ActionButton
               autoFocus
               onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
