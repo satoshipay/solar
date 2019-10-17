@@ -162,7 +162,6 @@ interface DialogActionsBoxProps {
   hidden?: boolean
   preventMobileActionsBox?: boolean
   smallDialog?: boolean
-  spacing?: "normal" | "large"
 }
 
 // tslint:disable-next-line no-shadowed-variable

@@ -297,7 +297,7 @@ function PaymentCreationForm(props: Props) {
         />
       </HorizontalLayout>
       <Portal target={props.actionsRef.element}>
-        <DialogActionsBox spacing="large" desktopStyle={{ marginTop: 64 }}>
+        <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
           <ActionButton
             disabled={isDisabled}
             form={formID}

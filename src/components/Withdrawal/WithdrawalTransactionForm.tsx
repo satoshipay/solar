@@ -100,7 +100,7 @@ function WithdrawalTransactionForm(props: Props) {
         )}
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
         <Portal target={props.actionsRef.element}>
-          <DialogActionsBox spacing="large">
+          <DialogActionsBox>
             <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton
               disabled={isDisabled}
