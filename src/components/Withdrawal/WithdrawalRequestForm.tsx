@@ -253,7 +253,7 @@ function AnchorWithdrawalInitForm(props: Props) {
           ) : null}
         </HorizontalLayout>
         <Portal target={props.actionsRef.element}>
-          <DialogActionsBox desktopStyle={{ marginTop: 0 }} spacing="large">
+          <DialogActionsBox desktopStyle={{ marginTop: 0 }}>
             <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton
               disabled={isDisabled}
