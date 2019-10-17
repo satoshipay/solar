@@ -150,7 +150,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         <ToggleSection
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
-          style={{ marginTop: 24 }}
+          style={{ marginTop: 24, flexShrink: 0 }}
           title="Password Protect"
         >
           <HorizontalLayout
@@ -206,9 +206,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               disabled={Boolean(formValues.createNewKey)}
               error={Boolean(errors.privateKey)}
               helperText={
-                errors.privateKey
-                  ? "A Stellar secret key is 56 alphanumeric characters long and starts with an S"
-                  : " "
+                errors.privateKey ? "A Stellar secret key is 56 alphanumeric characters long and starts with an S" : " "
               }
               label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Secret key"}
               placeholder="SABCDEFGH…"
