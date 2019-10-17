@@ -9,6 +9,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks/userinterface"
 import { breakpoints, CompactDialogTransition } from "../../theme"
+import { setupRerenderListener } from "../../platform/rerender-listener"
 import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
@@ -168,6 +169,13 @@ interface DialogActionsBoxProps {
 export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
   const classes = useActionButtonStyles()
   const isSmallScreen = useIsMobile()
+
+  React.useEffect(() => {
+    const elements = document.querySelectorAll(".dialog-body")
+    const unsubscribe = setupRerenderListener(elements)
+
+    return unsubscribe
+  }, [])
 
   if (isSmallScreen && !props.preventMobileActionsBox) {
     return (
