@@ -119,11 +119,23 @@ interface ScrollableBalancesProps {
 function ScrollableBalances(props: ScrollableBalancesProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const balanceItemsRef = React.useRef<Map<number, HTMLElement | null>>(new Map())
+  const classes = useScrollableBalancesStyles({})
   const latestStepRef = React.useRef(0)
   const mouseState = React.useRef({ currentlyDragging: false, latestMouseMoveEndTime: 0 })
   const swipeableContainerRef = React.useRef<HTMLDivElement | null>(null)
   const [currentStep, setCurrentStep] = React.useState(0)
   const [spring, setSpring] = useSpring(() => ({ x: 0 }))
+
+  const nativeBalance: Horizon.BalanceLineNative = accountData.balances.find(
+    (balance): balance is Horizon.BalanceLineNative => balance.asset_type === "native"
+  ) || {
+    asset_type: "native",
+    balance: "0",
+    buying_liabilities: "0",
+    selling_liabilities: "0"
+  }
+
+  const isAccountActivated = Number.parseFloat(nativeBalance.balance) > 0
 
   const trustedAssets = sortBalances(accountData.balances)
     .filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native")
@@ -182,17 +194,6 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     }
   }, [props.onClick])
 
-  const classes = useScrollableBalancesStyles({})
-
-  const nativeBalance: Horizon.BalanceLineNative = accountData.balances.find(
-    (balance): balance is Horizon.BalanceLineNative => balance.asset_type === "native"
-  ) || {
-    asset_type: "native",
-    balance: "0",
-    buying_liabilities: "0",
-    selling_liabilities: "0"
-  }
-
   const canScrollLeft = currentStep > 0
   const canScrollRight = currentStep < stepCount - 1
 
@@ -219,7 +220,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
             assetMetadata={metadata}
             balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
             compact={props.compact}
-            onClick={props.onClick ? handleClick : undefined}
+            onClick={props.onClick && isAccountActivated ? handleClick : undefined}
           />
         )
       }),
@@ -230,7 +231,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         }
         balance={nativeBalance}
         compact={props.compact}
-        onClick={handleClick}
+        onClick={isAccountActivated ? handleClick : undefined}
       />
     ],
     [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets]
