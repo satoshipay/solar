@@ -40,15 +40,15 @@
     }
   },
   "dependencies": {
-    "electron-context-menu": "^0.10.1",
-    "electron-debug": "^2.2.0",
-    "electron-is-dev": "^0.3.0",
-    "electron-store": "^2.0.0",
+    "electron-context-menu": "^0.15.0",
+    "electron-debug": "^3.0.1",
+    "electron-is-dev": "^1.1.0",
+    "electron-store": "^5.0.0",
     "history": "^4.10.1",
     "isomorphic-fetch": "^2.2.1",
     "key-store": "^1.1.0",
     "nanoid": "^2.1.1",
-    "opn": "^5.5.0",
+    "open": "^7.0.0",
     "stellar-sdk": "^2.3.0"
   },
   "devDependencies": {
