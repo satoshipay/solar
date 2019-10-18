@@ -10,7 +10,7 @@
   },
   "homepage": "https://solarwallet.io/",
   "repository": "github:satoshipay/solar",
-  "main": "./electron/lib/app.js",
+  "main": "./electron/lib/index.prod.js",
   "scripts": {
     "precommit": "lint-staged",
     "lint:fix": "tslint --fix '{src,stories}/**/*.{ts,tsx}'",
