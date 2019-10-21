@@ -3,6 +3,7 @@ import React from "react"
 import { Asset, Horizon, Transaction, Operation } from "stellar-sdk"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -59,6 +60,7 @@ function TradingForm(props: Props) {
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
+  const isSmallHeightScreen = useMediaQuery("(max-height: 600px)")
 
   const price =
     manualPrice.value && isValidAmount(manualPrice.value)
@@ -177,6 +179,13 @@ function TradingForm(props: Props) {
         maxWidth={isSmallScreen ? "100%" : 600}
         padding="0 8px"
       >
+        <Typography
+          color="textPrimary"
+          style={{ margin: `${isSmallHeightScreen ? "0" : "48px"} 8px 8px` }}
+          variant="h6"
+        >
+          {props.primaryAction === "buy" ? "Buying" : "Selling"}
+        </Typography>
         <HorizontalLayout margin="0 8px">
           <AssetSelector
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
@@ -198,8 +207,11 @@ function TradingForm(props: Props) {
             value={primaryAmountString}
           />
         </HorizontalLayout>
+        <Typography color="textPrimary" style={{ margin: "48px 8px 8px" }} variant="h6">
+          {props.primaryAction === "buy" ? "Costs" : "Gain"}
+        </Typography>
         <VerticalLayout
-          margin="48px -8px 0"
+          margin="8px -8px 0"
           padding="16px"
           style={{
             background: theme.palette.grey["100"],
