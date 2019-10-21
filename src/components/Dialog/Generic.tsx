@@ -9,7 +9,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks/userinterface"
 import { breakpoints, CompactDialogTransition } from "../../theme"
-import { setupRerenderListener } from "../../platform/rerender-listener"
+import { setupRerenderListener } from "../../platform/keyboard-hack"
 import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
