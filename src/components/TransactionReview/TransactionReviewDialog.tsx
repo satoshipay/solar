@@ -34,7 +34,7 @@ function getTitle(transaction: Transaction | null): string {
   } else if (transaction.operations.every(isPaymentOperation)) {
     return "Payment"
   } else if (transaction.operations.every(isOfferDeletionOperation)) {
-    return "Delete Offers"
+    return "Delete Trading Orders"
   } else if (isStellarWebAuthTransaction(transaction)) {
     return "Web Authentication"
   } else {

@@ -43,12 +43,12 @@ export function getOperationTitle(operation: Operation) {
     const amount = BigNumber(operation.buyAmount)
     const offerId = operation.offerId
 
-    return offerId === "0" ? "Create buy offer" : amount.eq(0) ? "Delete buy offer" : "Update buy offer"
+    return offerId === "0" ? "Create buy order" : amount.eq(0) ? "Delete buy order" : "Update buy order"
   } else if (operation.type === "manageSellOffer") {
     const amount = BigNumber(operation.amount)
     const offerId = operation.offerId
 
-    return offerId === "0" ? "Create trade offer" : amount.eq(0) ? "Delete trade offer" : "Update trade offer"
+    return offerId === "0" ? "Create sell order" : amount.eq(0) ? "Delete sell order" : "Update sell order"
   } else if (operation.type === "accountMerge") {
     return "Merge account"
   } else if (operation.type === "changeTrust") {
