@@ -38,9 +38,9 @@ const useActionButtonStyles = makeStyles(theme => ({
   mobileDialogActionsBox: {
     display: "flex",
     position: "fixed",
-    left: 0,
+    left: 8,
+    right: 8,
     bottom: 0,
-    width: "100%",
     backgroundColor: "#fcfcfc",
     justifyContent: "flex-end"
   },

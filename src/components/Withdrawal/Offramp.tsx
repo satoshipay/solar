@@ -29,6 +29,7 @@ import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
 import AnchorWithdrawalInitForm from "./WithdrawalRequestForm"
 import WithdrawalTransactionForm from "./WithdrawalTransactionForm"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
+import Portal from "../Portal"
 
 const kycPollIntervalMs = 6000
 
@@ -233,15 +234,17 @@ function Offramp(props: Props) {
     return (
       <Box margin="32px 0 0" textAlign="center">
         <Typography>This account holds no withdrawable assets.</Typography>
-        <DialogActionsBox desktopStyle={{ display: "block", alignSelf: "center" }}>
-          <ActionButton
-            autoFocus
-            onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
-            type="primary"
-          >
-            Add asset
-          </ActionButton>
-        </DialogActionsBox>
+        <Portal target={props.actionsRef.element}>
+          <DialogActionsBox>
+            <ActionButton
+              autoFocus
+              onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+              type="primary"
+            >
+              Add asset
+            </ActionButton>
+          </DialogActionsBox>
+        </Portal>
       </Box>
     )
   }
