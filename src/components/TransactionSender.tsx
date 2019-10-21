@@ -37,7 +37,7 @@ function ConditionalSubmissionProgress(props: {
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    background: "white"
+    background: "#fcfcfc"
   }
   const innerStyle: React.CSSProperties = {
     display: "flex",
