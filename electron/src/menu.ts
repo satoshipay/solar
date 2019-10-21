@@ -1,12 +1,12 @@
-const { app, Menu } = require("electron")
+import { app, Menu, MenuItemConstructorOptions } from "electron"
 
-function createAppMenu() {
+export function createAppMenu() {
   if (process.platform !== "darwin") {
     // We only want to add this menu on OSX (will be at the top of the window on Windows & most Linux)
     return null
   }
 
-  const macAppMenuItem = {
+  const macAppMenuItem: MenuItemConstructorOptions = {
     label: app.getName(),
     submenu: [{ label: "About", role: "about" }, { type: "separator" }, { label: "Quit", role: "quit" }]
   }
@@ -29,8 +29,4 @@ function createAppMenu() {
   ])
 
   return appMenu
-}
-
-module.exports = {
-  createAppMenu
 }

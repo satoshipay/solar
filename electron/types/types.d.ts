@@ -14,10 +14,8 @@ interface ElectronContext {
   removeKey(keyID: string): Promise<void>
 
   readIgnoredSignatureRequestHashes(): string[]
-  readKeys(): any
   readSettings(): SettingsData
   updateIgnoredSignatureRequestHashes(updatedHashes: string[]): void
-  updateKeys(keyData: any): void
   updateSettings(updatedSettings: Partial<SettingsData>): void
   subscribeToIPCMain(channel: string, subscribeCallback: (event: Event, ...args: any[]) => void): () => void
 }
@@ -25,4 +23,19 @@ interface ElectronContext {
 interface Window {
   // Will only be defined when in an electron build
   electron?: ElectronContext
+}
+
+declare module NodeJS {
+  interface Global {
+    // Will only be defined when in an electron build
+    electron?: ElectronContext
+    process: NodeJS.Process
+  }
+}
+
+declare module "electron-reload" {
+  export default function autoReload(
+    paths: string,
+    options?: { electron?: string; argv?: string[]; hardResetMethod?: "exit"; forceHardReset?: boolean }
+  ): void
 }

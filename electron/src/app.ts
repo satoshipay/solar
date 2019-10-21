@@ -1,21 +1,20 @@
-const { app, Menu } = require("electron")
-const { createAppMenu } = require("./menu")
-const { createMainWindow, getOpenWindows, trackWindow } = require("./window")
-
-// Needs to match the value in electron-build.yml
-app.setAppUserModelId("io.solarwallet.app")
-
-require("./storage")
-require("./updater")
+import { app, Menu } from "electron"
+import contextMenu from "electron-context-menu"
+import "./bootstrap" // should be first of all local imports
+import { createAppMenu } from "./menu"
+import { createMainWindow, getOpenWindows, trackWindow } from "./window"
+import "./storage"
+import "./updater"
 
 // Enable opening dev tools in production using keyboard shortcut
+// tslint:disable-next-line: no-var-requires
 require("electron-debug")({
-  enabled: true,
+  isEnabled: true,
   showDevTools: process.env.NODE_ENV === "development"
 })
 
 // Add context menu
-require("electron-context-menu")()
+contextMenu()
 
 const appReady = new Promise(resolve => app.on("ready", resolve))
 

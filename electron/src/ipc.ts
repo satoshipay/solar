@@ -1,4 +1,4 @@
-const commands = {
+export const commands = {
   getKeyIDsCommand: "keystore:getKeyIDs",
   getPublicKeyDataCommand: "keystore:getPublicKeyData",
   getPrivateKeyDataCommand: "keystore:getPrivateKeyData",
@@ -13,7 +13,7 @@ const commands = {
   storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store"
 }
 
-const events = {
+export const events = {
   getKeyIDsEvent: "keystore:keyIDs",
   getPublicKeyDataEvent: "keystore:publicKeyData",
   getPrivateKeyDataEvent: "keystore:privateKeyData",
@@ -23,8 +23,13 @@ const events = {
   removeKeyEvent: "keystore:removedKey"
 }
 
-function expose(ipc, commandType, eventType, handler) {
-  ipc.on(commandType, async (event, payload) => {
+export function expose(
+  ipc: Electron.IpcMain,
+  commandType: string,
+  eventType: string,
+  handler: (...args: any[]) => any
+) {
+  ipc.on(commandType, async (event: Electron.Event, payload: any) => {
     const { args, messageID } = payload
     try {
       const result = await handler(...args)
@@ -36,10 +41,4 @@ function expose(ipc, commandType, eventType, handler) {
       })
     }
   })
-}
-
-module.exports = {
-  commands,
-  events,
-  expose
 }

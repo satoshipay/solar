@@ -1,14 +1,15 @@
+// tslint:disable-next-line: no-var-requires
 const { ipcRenderer } = require("electron")
 const electronProcess = process
 
 let nextCommandID = 1
 
-function createCommand(commandType, eventType) {
-  return (...args) => {
+function createCommand<T>(commandType: string, eventType: string): () => Promise<T> {
+  return (...args: any[]) => {
     const messageID = nextCommandID++
 
-    const responsePromise = new Promise((resolve, reject) => {
-      const listener = (event, data) => {
+    const responsePromise = new Promise<T>((resolve, reject) => {
+      const listener = (event: Electron.Event, data: any) => {
         if (data.messageID === messageID) {
           ipcRenderer.removeListener(eventType, listener)
 
@@ -33,28 +34,32 @@ function createCommand(commandType, eventType) {
   }
 }
 
-const getKeyIDs = createCommand("keystore:getKeyIDs", "keystore:keyIDs")
-const getPublicKeyData = createCommand("keystore:getPublicKeyData", "keystore:publicKeyData")
-const getPrivateKeyData = createCommand("keystore:getPrivateKeyData", "keystore:privateKeyData")
-const saveKey = createCommand("keystore:saveKey", "keystore:savedKey")
-const savePublicKeyData = createCommand("keystore:savePublicKeyData", "keystore:savedPublicKeyData")
-const signTransaction = createCommand("keystore:signTransaction", "keystore:signedTransaction")
-const removeKey = createCommand("keystore:removeKey", "keystore:removedKey")
+const getKeyIDs = createCommand<string[]>("keystore:getKeyIDs", "keystore:keyIDs")
+const getPublicKeyData = createCommand<PublicKeyData>("keystore:getPublicKeyData", "keystore:publicKeyData")
+const getPrivateKeyData = createCommand<PrivateKeyData>("keystore:getPrivateKeyData", "keystore:privateKeyData")
+const saveKey = createCommand<void>("keystore:saveKey", "keystore:savedKey")
+const savePublicKeyData = createCommand<void>("keystore:savePublicKeyData", "keystore:savedPublicKeyData")
+const signTransaction = createCommand<string>("keystore:signTransaction", "keystore:signedTransaction")
+const removeKey = createCommand<void>("keystore:removeKey", "keystore:removedKey")
 
 const readSettings = () => ipcRenderer.sendSync("storage:settings:readSync")
-const updateSettings = updatedSettings => ipcRenderer.sendSync("storage:settings:storeSync", updatedSettings)
+const updateSettings = (updatedSettings: Partial<SettingsData>) =>
+  ipcRenderer.sendSync("storage:settings:storeSync", updatedSettings)
 
 const readIgnoredSignatureRequestHashes = () => ipcRenderer.sendSync("storage:ignoredSignatureRequests:readSync")
-const updateIgnoredSignatureRequestHashes = updatedSignatureRequestHashes =>
-  ipcRenderer.sendSync("storage:ignoredSignatureRequests:storeSync", updatedSignatureRequestHashes)
+const updateIgnoredSignatureRequestHashes = (updatedHashes: string[]) =>
+  ipcRenderer.sendSync("storage:ignoredSignatureRequests:storeSync", updatedHashes)
 
-const subscribeToIPCMain = (channel, subscribeCallback) => {
+const subscribeToIPCMain = (
+  channel: string,
+  subscribeCallback: (event: Event, ...args: any[]) => void
+): (() => void) => {
   ipcRenderer.on(channel, subscribeCallback)
   const unsubscribe = () => ipcRenderer.removeListener(channel, subscribeCallback)
   return unsubscribe
 }
 
-const electron = {
+const electron: ElectronContext = {
   getKeyIDs,
   getPublicKeyData,
   getPrivateKeyData,
@@ -73,9 +78,11 @@ const electron = {
 global.electron = window.electron = electron
 
 process.once("loaded", () => {
-  global.process = window.process = {
+  const newProcess = {
     env: electronProcess.env,
     pid: electronProcess.pid,
     platform: electronProcess.platform
   }
+
+  global.process = window.process = newProcess as NodeJS.Process
 })

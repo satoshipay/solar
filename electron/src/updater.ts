@@ -1,14 +1,16 @@
-const { app, autoUpdater, dialog, Notification } = require("electron")
-const isDev = require("electron-is-dev")
-const fetch = require("isomorphic-fetch")
-const os = require("os")
-const { readInstallationID } = require("./storage")
-const { URL } = require("url")
+import { app, autoUpdater, dialog, Notification } from "electron"
+import isDev from "electron-is-dev"
+import fetch from "isomorphic-fetch"
+import os from "os"
+import { readInstallationID } from "./storage"
+import { URL } from "url"
 
-const showMessageBox = options => new Promise(resolve => dialog.showMessageBox(options, resolve))
+const showMessageBox = (options: Electron.MessageBoxOptions) =>
+  new Promise(resolve => dialog.showMessageBox(options, resolve))
 
 const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
 
+// tslint:disable-next-line: no-console
 checkForUpdates().catch(console.error)
 
 async function checkForUpdates() {
@@ -29,6 +31,7 @@ async function checkForUpdates() {
   const updateAvailable = response.status === 200 // will see status 204 if local version is latest
   const updateInfo = response.status === 200 ? await response.json() : undefined
 
+  // tslint:disable-next-line: no-console
   console.debug(updateAvailable ? `Update available: ${updateInfo.name}` : `No update available`)
 
   if (!updateAvailable || !Notification.isSupported()) return
@@ -36,17 +39,14 @@ async function checkForUpdates() {
   const userAction = await showUpdateNotification(updateInfo.name)
 
   if (userAction === "click") {
-    autoUpdater.setFeedURL(feedURL)
-    autoUpdater.requestHeaders = {
-      ...autoUpdater.requestHeaders,
-      ...headers
-    }
+    const feedURLOptions: Electron.FeedURLOptions = { url: feedURL, headers }
+    autoUpdater.setFeedURL(feedURLOptions)
 
     await startUpdating(updateInfo.name)
   }
 }
 
-async function startUpdating(version) {
+async function startUpdating(version: string) {
   const progressNotification = showProgressNotification(version)
   autoUpdater.checkForUpdates()
 
@@ -70,9 +70,10 @@ async function startUpdating(version) {
   }
 }
 
-function showUpdateNotification(version) {
+function showUpdateNotification(version: string) {
   const notification = new Notification({
     title: `New version ${version} of Solar available`,
+    body: "",
     subtitle: `Click to update.`
   })
 
@@ -86,10 +87,11 @@ function showUpdateNotification(version) {
   })
 }
 
-function showProgressNotification(version) {
+function showProgressNotification(version: string) {
   const notification = new Notification({
     title: `Updating Solar…`,
     subtitle: `Download of ${version} in progress.`,
+    body: "",
     silent: true
   })
 

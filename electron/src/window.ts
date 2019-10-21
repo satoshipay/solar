@@ -1,20 +1,14 @@
-const { BrowserWindow } = require("electron")
-const open = require("opn")
-const path = require("path")
-const url = require("url")
+import { BrowserWindow } from "electron"
+import open from "open"
+import path from "path"
+import URL from "url"
 
-let openWindows = []
-
-module.exports = {
-  createMainWindow,
-  getOpenWindows,
-  trackWindow
-}
+let openWindows: BrowserWindow[] = []
 
 // start protocol handler
-const protocolHandler = require("./protocol-handler")
+import * as protocolHandler from "./protocol-handler"
 
-function createMainWindow() {
+export function createMainWindow() {
   const window = new BrowserWindow({
     width: 800,
     height: 600,
@@ -40,7 +34,7 @@ function createMainWindow() {
       ? path.join(__dirname, "../../dist/index.dev.html")
       : path.join(__dirname, "../../dist/index.prod.html")
 
-  const webappURL = url.format({
+  const webappURL = URL.format({
     pathname,
     protocol: "file:",
     slashes: true
@@ -78,13 +72,13 @@ function createMainWindow() {
   return window
 }
 
-function getOpenWindows() {
+export function getOpenWindows() {
   return openWindows
 }
 
 // Keep a global reference of the window object. If you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-function trackWindow(window) {
+export function trackWindow(window: BrowserWindow) {
   openWindows.push(window)
 
   window.on("closed", () => {

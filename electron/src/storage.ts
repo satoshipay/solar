@@ -1,10 +1,10 @@
-const { ipcMain } = require("electron")
-const isDev = require("electron-is-dev")
-const Store = require("electron-store")
-const { createStore } = require("key-store")
-const generateID = require("nanoid/generate")
-const { Network, Keypair, Transaction } = require("stellar-sdk")
-const { commands, events, expose } = require("./ipc")
+import { ipcMain } from "electron"
+import isDev from "electron-is-dev"
+import Store from "electron-store"
+import { createStore } from "key-store"
+import generateID from "nanoid/generate"
+import { Keypair, Transaction } from "stellar-sdk"
+import { commands, events, expose } from "./ipc"
 
 // Use different key stores for development and production
 const mainStore = new Store({
@@ -15,14 +15,13 @@ const readKeys = () => {
   return mainStore.has("keys") ? mainStore.get("keys") : {}
 }
 
-const updateKeys = arg => {
+const updateKeys = (arg: any) => {
   mainStore.set("keys", arg)
-  return true
 }
 
-const keystore = createStore(updateKeys, readKeys())
+const keystore = createStore<PrivateKeyData, PublicKeyData>(updateKeys, readKeys())
 
-exports.readInstallationID = function readInstallationID() {
+export function readInstallationID() {
   if (!mainStore.has("installation-id")) {
     mainStore.set("installation-id", generateID("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 8))
   }
@@ -86,24 +85,24 @@ expose(ipcMain, commands.signTransactionCommand, events.signTransactionEvent, fu
 /////////////
 // Settings:
 
-ipcMain.on("storage:settings:readSync", event => {
+ipcMain.on("storage:settings:readSync", (event: Electron.Event) => {
   event.returnValue = mainStore.has("settings") ? mainStore.get("settings") : {}
 })
 
-ipcMain.on("storage:settings:storeSync", (event, newSettings) => {
+ipcMain.on("storage:settings:storeSync", (event: Electron.Event, updatedSettings: Partial<SettingsData>) => {
   const prevSettings = mainStore.has("settings") ? mainStore.get("settings") : {}
-  mainStore.set("settings", { ...prevSettings, ...newSettings })
+  mainStore.set("settings", { ...prevSettings, ...updatedSettings })
   event.returnValue = true
 })
 
 //////////////////
 // Dismissed txs:
 
-ipcMain.on("storage:ignoredSignatureRequests:readSync", event => {
+ipcMain.on("storage:ignoredSignatureRequests:readSync", (event: Electron.Event) => {
   event.returnValue = mainStore.has("ignoredSignatureRequests") ? mainStore.get("ignoredSignatureRequests") : []
 })
 
-ipcMain.on("storage:ignoredSignatureRequests:storeSync", (event, updatedIgnoredHashes) => {
-  mainStore.set("ignoredSignatureRequests", updatedIgnoredHashes)
+ipcMain.on("storage:ignoredSignatureRequests:storeSync", (event: Electron.Event, updatedHashes: string[]) => {
+  mainStore.set("ignoredSignatureRequests", updatedHashes)
   event.returnValue = true
 })

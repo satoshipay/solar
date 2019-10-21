@@ -1,29 +1,21 @@
-const { app } = require("electron")
-const { createMainWindow, getOpenWindows, trackWindow } = require("./window")
-const events = require("events")
-
-module.exports = {
-  subscribe,
-  windowReady,
-  windowDestroyed
-}
-
-app.setAsDefaultProtocolClient("web+stellar")
+import { app } from "electron"
+import events from "events"
+import { createMainWindow, getOpenWindows, trackWindow } from "./window"
 
 const urlEventEmitter = new events.EventEmitter()
 const urlEventChannel = "deeplink:url"
 
-let urlEventQueue = []
+let urlEventQueue: string[] = []
 let isWindowReady = false
 
-function subscribe(subscribeCallback) {
+export function subscribe(subscribeCallback: (...args: any[]) => void) {
   urlEventEmitter.on(urlEventChannel, subscribeCallback)
   const unsubscribe = () => urlEventEmitter.removeListener(urlEventChannel, subscribeCallback)
   return unsubscribe
 }
 
 // called when the application is ready to process the deeplink urls
-function windowReady() {
+export function windowReady() {
   isWindowReady = true
   // emit items that were produced before app was ready
   urlEventQueue.forEach(item => urlEventEmitter.emit(urlEventChannel, item))
@@ -31,11 +23,11 @@ function windowReady() {
 }
 
 // called to make emitURL queue url events
-function windowDestroyed() {
+export function windowDestroyed() {
   isWindowReady = false
 }
 
-function emitURL(url) {
+function emitURL(url: string) {
   if (isWindowReady) {
     urlEventEmitter.emit(urlEventChannel, url)
   } else {
@@ -59,7 +51,7 @@ const appReady = new Promise(resolve =>
 
 app.on("will-finish-launching", () => {
   // only called on macOS
-  app.on("open-url", function(event, url) {
+  app.on("open-url", (event, url) => {
     event.preventDefault()
     emitURL(url)
 
@@ -86,7 +78,7 @@ if (!gotSingleInstanceLock) {
     }
 
     if (process.platform === "win32" || process.platform === "linux") {
-      deeplinkURL = commandLine.slice(1)[0]
+      const deeplinkURL = commandLine.slice(1)[0]
       if (deeplinkURL != null && deeplinkURL !== "") {
         emitURL(deeplinkURL)
       }
