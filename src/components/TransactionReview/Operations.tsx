@@ -3,6 +3,7 @@ import React from "react"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
 import { useLiveAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useIsSmallMobile } from "../../hooks/userinterface"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { CopyableAddress } from "../PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
@@ -197,35 +198,68 @@ function ManageDataOperation(props: ManageDataOperationProps) {
 interface ManageOfferOperationProps {
   accountData: ObservedAccountData
   hideHeading?: boolean
-  operation: Operation.ManageSellOffer
+  operation: Operation.ManageBuyOffer | Operation.ManageSellOffer
   style?: React.CSSProperties
   testnet: boolean
 }
 
 function ManageOfferOperation(props: ManageOfferOperationProps) {
   const { buying, offerId, selling } = props.operation
-  const amount = BigNumber(props.operation.amount)
-  const price = BigNumber(props.operation.price)
+  const isTinyScreen = useIsSmallMobile()
+
+  // props.operation.price is for both operations denoted in 1 unit of selling in terms of buying
+
+  const buyAmount =
+    props.operation.type === "manageBuyOffer"
+      ? BigNumber(props.operation.buyAmount)
+      : BigNumber(props.operation.amount).mul(props.operation.price)
+  const sellAmount =
+    props.operation.type === "manageBuyOffer"
+      ? BigNumber(props.operation.buyAmount).mul(props.operation.price)
+      : BigNumber(props.operation.amount)
+
   const offers = useLiveAccountOffers(props.accountData.id, props.testnet)
 
   if (offerId === "0") {
     // Offer creation
-    return (
-      <SummaryItem heading={props.hideHeading ? undefined : "Create trade offer"}>
+    return props.operation.type === "manageBuyOffer" ? (
+      <SummaryItem heading={props.hideHeading ? undefined : "Create buy offer"}>
         <SummaryDetailsField
-          label="Sell"
-          value={<SingleBalance assetCode={selling.code} balance={String(amount)} untrimmed />}
+          fullWidth={isTinyScreen}
+          label="Buy"
+          value={<SingleBalance assetCode={buying.code} balance={String(buyAmount)} untrimmed />}
         />
         <SummaryDetailsField
+          fullWidth={isTinyScreen}
+          label="Sell"
+          value={<SingleBalance assetCode={selling.code} balance={String(sellAmount)} untrimmed />}
+        />
+      </SummaryItem>
+    ) : (
+      <SummaryItem heading={props.hideHeading ? undefined : "Create sell offer"}>
+        <SummaryDetailsField
+          fullWidth={isTinyScreen}
+          label="Sell"
+          value={<SingleBalance assetCode={selling.code} balance={String(sellAmount)} untrimmed />}
+        />
+        <SummaryDetailsField
+          fullWidth={isTinyScreen}
           label="Buy"
-          value={<SingleBalance assetCode={buying.code} balance={String(amount.mul(price))} untrimmed />}
+          value={<SingleBalance assetCode={buying.code} balance={String(buyAmount)} untrimmed />}
         />
       </SummaryItem>
     )
   } else {
     // Offer edit
-    const heading = amount.eq(0) ? "Delete trade offer" : "Update trade offer"
     const offer = offers.offers.find(someOffer => String(someOffer.id) === String(offerId))
+    const heading =
+      props.operation.type === "manageBuyOffer"
+        ? buyAmount.eq(0)
+          ? "Delete buy offer"
+          : "Update buy offer"
+        : buyAmount.eq(0)
+        ? "Delete sell offer"
+        : "Update sell offer"
 
     return offer ? (
       <SummaryItem heading={props.hideHeading ? undefined : heading}>
@@ -245,10 +279,13 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
       </SummaryItem>
     ) : (
       <SummaryItem heading={props.hideHeading ? undefined : heading}>
-        <SummaryDetailsField label="Sell" value={<SingleBalance assetCode={selling.code} balance={String(amount)} />} />
+        <SummaryDetailsField
+          label="Sell"
+          value={<SingleBalance assetCode={selling.code} balance={String(sellAmount)} />}
+        />
         <SummaryDetailsField
           label="Buy"
-          value={<SingleBalance assetCode={buying.code} balance={String(amount.mul(price))} />}
+          value={<SingleBalance assetCode={buying.code} balance={String(buyAmount)} />}
         />
       </SummaryItem>
     )
@@ -392,7 +429,7 @@ function OperationListItem(props: Props) {
         transaction={props.transaction}
       />
     )
-  } else if (props.operation.type === "manageSellOffer") {
+  } else if (props.operation.type === "manageBuyOffer" || props.operation.type === "manageSellOffer") {
     return (
       <ManageOfferOperation
         accountData={props.accountData}
