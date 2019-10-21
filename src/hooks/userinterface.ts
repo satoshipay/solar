@@ -32,10 +32,15 @@ export interface RefStateObject {
 
 export function useDialogActions(): RefStateObject {
   const [dialogActions, setDialogActions] = React.useState<HTMLElement | null>(null)
-  return {
-    element: dialogActions,
-    update: setDialogActions
-  }
+  const actionsRef = React.useMemo(
+    () => ({
+      element: dialogActions,
+      update: setDialogActions
+    }),
+    [dialogActions]
+  )
+
+  return actionsRef
 }
 
 // TODO: Get rid of this hook once react-router is shipped with a hook out-of-the-box

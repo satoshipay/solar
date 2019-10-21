@@ -11,13 +11,14 @@ import { HorizontalLayout } from "../Layout/Box"
 
 const useTradingPriceStyles = makeStyles({
   root: {
-    border: `1px solid ${theme.palette.action.disabled}`,
+    border: `1px solid ${theme.palette.grey["A100"]}`,
     borderRadius: theme.shape.borderRadius,
     boxSizing: "content-box !important" as any,
     color: theme.palette.primary.dark,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     height: 24,
+    justifyContent: "center",
     padding: "8px 24px",
     whiteSpace: "nowrap",
 
@@ -119,7 +120,7 @@ function DisplayPrice(props: DisplayPriceProps) {
 }
 
 interface TradingPriceProps {
-  buying: Asset
+  buying: Asset | undefined
   inputError?: Error
   inputRef?: React.RefObject<HTMLElement>
   manualPrice?: string
@@ -128,17 +129,20 @@ interface TradingPriceProps {
   onEditClick: () => void
   onSwitchPriceAssets: () => void
   price: BigNumber
-  selling: Asset
+  selling: Asset | undefined
+  style?: React.CSSProperties
   variant: "fixed-buying" | "fixed-selling"
 }
 
 function TradingPrice(props: TradingPriceProps) {
   const classes = useTradingPriceStyles({})
+  const isDisabled = !props.buying || !props.selling
 
   const actionsLeft = (
     <IconButton
       className={classes.action}
       color="primary"
+      disabled={isDisabled}
       onClick={props.onSwitchPriceAssets}
       size="small"
       style={{ marginRight: 8 }}
@@ -150,6 +154,7 @@ function TradingPrice(props: TradingPriceProps) {
     <IconButton
       className={classes.action}
       color="primary"
+      disabled={isDisabled}
       onClick={props.onEditClick}
       size="small"
       style={{ marginLeft: 8 }}
@@ -159,9 +164,17 @@ function TradingPrice(props: TradingPriceProps) {
   )
 
   return (
-    <HorizontalLayout alignItems="center" className={classes.root}>
+    <HorizontalLayout alignItems="center" className={classes.root} style={props.style}>
       {actionsLeft}
-      <DisplayPrice {...props} onClick={props.onEditClick} value={props.manualPrice} />
+      {props.buying && props.selling ? (
+        <DisplayPrice
+          {...props}
+          buying={props.buying}
+          onClick={props.onEditClick}
+          selling={props.selling}
+          value={props.manualPrice}
+        />
+      ) : null}
       {actionsRight}
     </HorizontalLayout>
   )

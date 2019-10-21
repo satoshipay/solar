@@ -11,20 +11,26 @@ const useAssetSelectorStyles = makeStyles({
     whiteSpace: "nowrap"
   },
   input: {
-    alignSelf: "flex-start"
+    alignSelf: "flex-start",
+    minWidth: 72
   },
   select: {
     fontSize: 18,
     fontWeight: 400
+  },
+  unselected: {
+    opacity: 0.5
   }
 })
 
 interface AssetSelectorProps {
+  autoFocus?: TextFieldProps["autoFocus"]
   helperText?: TextFieldProps["helperText"]
   label?: TextFieldProps["label"]
   onChange: (asset: Asset) => void
+  style?: React.CSSProperties
   trustlines: Horizon.BalanceLine[]
-  value: Asset
+  value?: Asset
 }
 
 function AssetSelector(props: AssetSelectorProps) {
@@ -50,10 +56,14 @@ function AssetSelector(props: AssetSelectorProps) {
 
   return (
     <TextField
+      autoFocus={props.autoFocus}
       helperText={props.helperText}
       label={props.label}
       onChange={onChange}
+      placeholder="Select an asset"
       select
+      style={{ flexGrow: 0, flexShrink: 0, ...props.style }}
+      value={props.value ? stringifyAsset(props.value) : ""}
       FormHelperTextProps={{
         className: classes.helperText
       }}
@@ -64,13 +74,18 @@ function AssetSelector(props: AssetSelectorProps) {
       }}
       SelectProps={{
         classes: {
+          root: props.value ? undefined : classes.unselected,
           select: classes.select
         },
-        disableUnderline: true
+        displayEmpty: props.value === undefined,
+        renderValue: () => (props.value ? props.value.getCode() : "Select")
       }}
-      style={{ flexGrow: 0, flexShrink: 0 }}
-      value={stringifyAsset(props.value)}
     >
+      {props.value ? null : (
+        <MenuItem disabled value="">
+          Select an asset
+        </MenuItem>
+      )}
       <MenuItem value={stringifyAsset(Asset.native())}>XLM</MenuItem>
       {props.trustlines.map(trustline => (
         <MenuItem key={stringifyAsset(trustline)} value={stringifyAsset(trustline)}>

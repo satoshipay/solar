@@ -3,33 +3,23 @@ import React from "react"
 import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
 import Typography from "@material-ui/core/Typography"
-import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks/stellar"
 import { useLiveAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
-import { useDialogActions, useIsMobile, useRouter } from "../../hooks/userinterface"
+import { useDialogActions, useRouter } from "../../hooks/userinterface"
+import { matchesRoute } from "../../lib/routes"
 import { balancelineToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import ScrollableBalances from "../AccountAssets/ScrollableBalances"
-import { VerticalMargin } from "../Layout/Spacing"
 import MainTitle from "../MainTitle"
 import TradingForm from "./TradingForm"
 import TransactionSender from "../TransactionSender"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import Portal from "../Portal"
 import { HorizontalLayout } from "../Layout/Box"
-
-function findMatchingBalance(balances: ObservedAccountData["balances"], asset: Asset) {
-  return balances.find(balance => balancelineToAsset(balance).equals(asset))
-}
-
-interface Assets {
-  buying: Asset | null
-  selling: Asset | null
-}
+import MainActionSelection from "./MainActionSelection"
 
 interface TradingDialogProps {
   account: Account
@@ -42,7 +32,6 @@ function TradingDialog(props: TradingDialogProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const dialogActionsRef = useDialogActions()
   const horizon = useHorizon(props.account.testnet)
-  const isSmallScreen = useIsMobile()
   const router = useRouter()
 
   const trustlines = React.useMemo(
@@ -51,14 +40,25 @@ function TradingDialog(props: TradingDialogProps) {
     [accountData.balances]
   )
 
-  const [assets, setAssets] = React.useState<Assets>({ buying: null, selling: null })
+  const primaryAction: "buy" | "sell" | undefined = matchesRoute(
+    router.location.pathname,
+    routes.tradeAsset("*", "buy")
+  )
+    ? "buy"
+    : matchesRoute(router.location.pathname, routes.tradeAsset("*", "sell"))
+    ? "sell"
+    : undefined
 
-  // Cannot set fallback value in React.useState(), since `trustlines` will become available asynchronously
-  const buyingAsset = assets.buying || (trustlines.length > 0 ? balancelineToAsset(trustlines[0]) : Asset.native())
-  const sellingAsset = assets.selling || Asset.native()
+  const clearPrimaryAction = React.useCallback(() => {
+    router.history.push(routes.tradeAsset(props.account.id))
+  }, [props.account, router.history])
 
-  const buyingBalance = findMatchingBalance(accountData.balances, buyingAsset)
-  const sellingBalance = findMatchingBalance(accountData.balances, sellingAsset)
+  const selectPrimaryAction = React.useCallback(
+    (mainAction: "buy" | "sell") => {
+      router.history.push(routes.tradeAsset(props.account.id, mainAction))
+    },
+    [props.account, router.history]
+  )
 
   const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: BigNumber, price: BigNumber) => {
     const tx = createTransaction(
@@ -88,46 +88,49 @@ function TradingDialog(props: TradingDialogProps) {
     }
   }
 
-  const ActionsContainer = (subProps: { children: React.ReactNode; style?: React.CSSProperties }) =>
-    isSmallScreen ? (
-      <Portal target={dialogActionsRef.element}>{subProps.children}</Portal>
-    ) : (
-      <HorizontalLayout justifyContent="flex-end" shrink={0} style={subProps.style}>
-        {subProps.children}
-      </HorizontalLayout>
-    )
+  const mainContentStageStyle: React.CSSProperties = {
+    flexBasis: "100%",
+    minWidth: "100%",
+    width: "100%"
+  }
 
-  const MainContent = (
-    <>
-      <VerticalMargin size={24} />
-      {buyingBalance && sellingBalance ? (
-        <TradingForm
-          buying={buyingAsset}
-          buyingBalance={buyingBalance.balance}
-          onSelectAssets={setAssets}
-          selling={sellingAsset}
-          sellingBalance={sellingBalance.balance}
-          testnet={props.account.testnet}
-          trustlines={trustlines}
-          DialogActions={({ amount, disabled, price, style }) => (
-            <ActionsContainer style={style}>
-              <DialogActionsBox>
-                <ActionButton
-                  disabled={disabled}
-                  icon={<GavelIcon />}
-                  onClick={() =>
-                    awaitThenSendTransaction(createOfferCreationTransaction(sellingAsset, buyingAsset, amount, price))
-                  }
-                  type="primary"
-                >
-                  Place order
-                </ActionButton>
-              </DialogActionsBox>
-            </ActionsContainer>
-          )}
+  const MainContent = React.useMemo(
+    () => (
+      <HorizontalLayout overflowX="hidden" width="100%">
+        <div
+          style={{
+            flexBasis: "0",
+            flexGrow: 0,
+            marginLeft: primaryAction ? "-100%" : "0",
+            transition: "margin-left .3s"
+          }}
         />
-      ) : null}
-    </>
+        <MainActionSelection
+          onSelectBuy={() => selectPrimaryAction("buy")}
+          onSelectSell={() => selectPrimaryAction("sell")}
+          style={{
+            ...mainContentStageStyle,
+            alignItems: "flex-start",
+            margin: "48px 0 24px"
+          }}
+        />
+        {primaryAction ? (
+          <TradingForm
+            account={props.account}
+            accountData={accountData}
+            dialogActionsRef={dialogActionsRef}
+            onBack={clearPrimaryAction}
+            primaryAction={primaryAction}
+            sendTransaction={props.sendTransaction}
+            style={mainContentStageStyle}
+            trustlines={trustlines}
+          />
+        ) : (
+          <div style={mainContentStageStyle} />
+        )}
+      </HorizontalLayout>
+    ),
+    [dialogActionsRef, primaryAction, selectPrimaryAction, trustlines]
   )
 
   const LinkToManageAssets = React.useMemo(
