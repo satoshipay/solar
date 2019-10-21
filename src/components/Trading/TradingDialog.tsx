@@ -1,16 +1,11 @@
-import BigNumber from "big.js"
 import React from "react"
-import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import { Horizon, Server, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
-import { trackError } from "../../context/notifications"
-import { useHorizon } from "../../hooks/stellar"
-import { useLiveAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
-import { balancelineToAsset } from "../../lib/stellar"
-import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import MainTitle from "../MainTitle"
@@ -31,7 +26,6 @@ interface TradingDialogProps {
 function TradingDialog(props: TradingDialogProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const dialogActionsRef = useDialogActions()
-  const horizon = useHorizon(props.account.testnet)
   const router = useRouter()
 
   const trustlines = React.useMemo(
@@ -59,34 +53,6 @@ function TradingDialog(props: TradingDialogProps) {
     },
     [props.account, router.history]
   )
-
-  const createOfferCreationTransaction = (selling: Asset, buying: Asset, amount: BigNumber, price: BigNumber) => {
-    const tx = createTransaction(
-      [
-        Operation.manageSellOffer({
-          amount: amount.toFixed(7),
-          buying,
-          offerId: 0,
-          price: price.toFixed(7),
-          selling
-        })
-      ],
-      {
-        accountData,
-        horizon,
-        walletAccount: props.account
-      }
-    )
-    return tx
-  }
-
-  const awaitThenSendTransaction = async (txPromise: Promise<Transaction>) => {
-    try {
-      props.sendTransaction(await txPromise)
-    } catch (error) {
-      trackError(error)
-    }
-  }
 
   const mainContentStageStyle: React.CSSProperties = {
     flexBasis: "100%",
