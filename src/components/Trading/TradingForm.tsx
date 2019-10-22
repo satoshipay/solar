@@ -122,6 +122,15 @@ function TradingForm(props: Props) {
     balance: "0"
   }
 
+  const maxPrimaryAmount =
+    props.primaryAction === "buy"
+      ? secondaryBalance && effectivePrice.gt(0)
+        ? BigNumber(secondaryBalance.balance).mul(effectivePrice)
+        : BigNumber(0)
+      : primaryBalance
+      ? BigNumber(primaryBalance.balance)
+      : BigNumber(0)
+
   const isDisabled =
     !primaryAsset || primaryAmount.lte(0) || sellingAmount.gt(sellingBalance.balance) || effectivePrice.lte(0)
 
@@ -200,7 +209,7 @@ function TradingForm(props: Props) {
               style: { height: 27, textAlign: "right" }
             }}
             onChange={event => setPrimaryAmountString(event.target.value)}
-            placeholder={`Max. ${primaryBalance ? primaryBalance.balance : "0"}`}
+            placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
             required
             style={{ flexGrow: 1, flexShrink: 1, marginLeft: "auto", maxWidth: 200 }}
             type="number"
