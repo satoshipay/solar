@@ -53,6 +53,7 @@ function DialogBody(props: Props) {
     () =>
       props.actions ? (
         <Box
+          basis={isSmallScreen ? 80 : undefined}
           grow={0}
           position="relative"
           ref={isRefStateObject(props.actions) ? props.actions.update : undefined}
