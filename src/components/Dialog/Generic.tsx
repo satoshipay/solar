@@ -7,7 +7,7 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
-import { useIsMobile } from "../../hooks/userinterface"
+import { useDialogActionsPosition, useIsMobile } from "../../hooks/userinterface"
 import { breakpoints, CompactDialogTransition } from "../../theme"
 import { setupRerenderListener } from "../../platform/keyboard-hack"
 import ButtonIconLabel from "../ButtonIconLabel"
@@ -44,6 +44,11 @@ const useActionButtonStyles = makeStyles(theme => ({
     bottom: 0,
     backgroundColor: "#fcfcfc",
     justifyContent: "flex-end"
+  },
+  // For iOS keyboard: Viewport shrinks when keyboard opens. Make actions non-sticky then,
+  // so they don't take too much screen space; making it consistent with other iOS apps.
+  inlineMobileDialogActionsBox: {
+    position: "static !important" as any
   },
   common: {
     flexShrink: 0,
@@ -132,12 +137,12 @@ interface MobileDialogActionsBoxProps {
   smallDialog?: boolean
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps) {
   const classes = useActionButtonStyles()
+  const dialogActionsPosition = useDialogActionsPosition()
   return (
     <>
-      {props.smallDialog ? null : (
+      {dialogActionsPosition === "fixed-bottom" ? null : (
         // Placeholder to prevent other dialog content from being hidden below the actions box
         // Make sure its height matches the height of the actions box
         <div
@@ -146,9 +151,13 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
         />
       )}
       <div
-        className={`iphone-notch-bottom-spacing ${classes.common} ${classes.mobileDialogActionsBox} ${
+        className={[
+          "iphone-notch-bottom-spacing",
+          classes.common,
+          classes.mobileDialogActionsBox,
+          dialogActionsPosition !== "fixed-bottom" ? classes.inlineMobileDialogActionsBox : "",
           props.hidden ? classes.hidden : ""
-        }`}
+        ].join(" ")}
       >
         {props.children}
       </div>

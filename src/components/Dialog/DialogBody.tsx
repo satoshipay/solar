@@ -1,5 +1,5 @@
 import React from "react"
-import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
+import { useDialogActionsPosition, useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import ErrorBoundary from "../ErrorBoundary"
 import { Box, VerticalLayout } from "../Layout/Box"
 
@@ -44,7 +44,9 @@ interface Props {
 
 function DialogBody(props: Props) {
   const isSmallScreen = useIsMobile()
-  const actionsPosition = isSmallScreen ? "bottom" : props.actionsPosition || "after-content"
+  const dialogActionsPosition = useDialogActionsPosition()
+
+  const actionsPosition = dialogActionsPosition === "fixed-bottom" ? "bottom" : props.actionsPosition || "after-content"
   const excessWidth = props.excessWidth || 0
 
   const topContent = React.useMemo(() => (props.top ? <Box style={topStyle}>{props.top}</Box> : null), [props.top])
