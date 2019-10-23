@@ -4,8 +4,6 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { NotificationsContext } from "../context/notifications"
 import * as Clipboard from "../platform/clipboard"
 
-export const iOSKeyboardOpenClassName = "ios-keyboard-open"
-
 export const useIsMobile = () => useMediaQuery("(max-width:600px)")
 export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
 

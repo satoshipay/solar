@@ -181,12 +181,13 @@ interface DialogActionsBoxProps {
   smallDialog?: boolean
 }
 
-// tslint:disable-next-line no-shadowed-variable
 export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
   const classes = useActionButtonStyles()
   const isSmallScreen = useIsMobile()
 
   React.useEffect(() => {
+    // Little hack to force re-rendering the dialog when the keyboard closes
+    // to prevent broken UI to be shown
     const elements = document.querySelectorAll(".dialog-body")
     const unsubscribe = setupRerenderListener(elements)
 
