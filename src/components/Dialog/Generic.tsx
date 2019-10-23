@@ -7,8 +7,8 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
-import { useDialogActionsPosition, useIsMobile } from "../../hooks/userinterface"
-import { breakpoints, CompactDialogTransition } from "../../theme"
+import { useIsMobile } from "../../hooks/userinterface"
+import { breakpoints, iOSKeyboardHackSelector, CompactDialogTransition } from "../../theme"
 import { setupRerenderListener } from "../../platform/keyboard-hack"
 import ButtonIconLabel from "../ButtonIconLabel"
 
@@ -43,12 +43,21 @@ const useActionButtonStyles = makeStyles(theme => ({
     right: 8,
     bottom: 0,
     backgroundColor: "#fcfcfc",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
+
+    [iOSKeyboardHackSelector()]: {
+      // For iOS keyboard: Viewport shrinks when keyboard opens. Make actions non-sticky then,
+      // so they don't take too much screen space; making it consistent with other iOS apps.
+      position: "static !important" as any
+    }
   },
-  // For iOS keyboard: Viewport shrinks when keyboard opens. Make actions non-sticky then,
-  // so they don't take too much screen space; making it consistent with other iOS apps.
-  inlineMobileDialogActionsBox: {
-    position: "static !important" as any
+  mobileInlineSpacePlaceholder: {
+    width: "100% !important",
+    height: "88px !important",
+
+    [iOSKeyboardHackSelector()]: {
+      display: "none"
+    }
   },
   common: {
     flexShrink: 0,
@@ -139,15 +148,14 @@ interface MobileDialogActionsBoxProps {
 
 const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps) {
   const classes = useActionButtonStyles()
-  const dialogActionsPosition = useDialogActionsPosition()
+  const isSmallScreen = useIsMobile()
   return (
     <>
-      {dialogActionsPosition === "fixed-bottom" ? null : (
+      {!isSmallScreen ? null : (
         // Placeholder to prevent other dialog content from being hidden below the actions box
         // Make sure its height matches the height of the actions box
         <div
-          className={`${classes.common} ${props.hidden ? classes.hidden : ""}`}
-          style={{ width: "100%", height: 88 }}
+          className={`${classes.common} ${classes.mobileInlineSpacePlaceholder} ${props.hidden ? classes.hidden : ""}`}
         />
       )}
       <div
@@ -155,7 +163,6 @@ const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props:
           "iphone-notch-bottom-spacing",
           classes.common,
           classes.mobileDialogActionsBox,
-          dialogActionsPosition !== "fixed-bottom" ? classes.inlineMobileDialogActionsBox : "",
           props.hidden ? classes.hidden : ""
         ].join(" ")}
       >

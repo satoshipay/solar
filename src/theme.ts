@@ -283,3 +283,9 @@ const theme = createMuiTheme({
 })
 
 export default theme
+
+const initialScreenHeight = window.screen.height
+
+// CSS media query selector to detect an open keyboard on iOS
+export const iOSKeyboardHackSelector =
+  process.env.PLATFORM === "ios" ? () => `@media (max-height: ${initialScreenHeight - 100}px)` : () => `&`

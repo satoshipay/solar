@@ -1,9 +1,10 @@
-import throttle from "lodash.throttle"
 import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { NotificationsContext } from "../context/notifications"
 import * as Clipboard from "../platform/clipboard"
+
+export const iOSKeyboardOpenClassName = "ios-keyboard-open"
 
 export const useIsMobile = () => useMediaQuery("(max-width:600px)")
 export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
@@ -56,38 +57,4 @@ export function useRouter<Params = {}>() {
   }, [routerContext])
 
   return routerContext
-}
-
-function useResizeListener(listener: (event: UIEvent) => void) {
-  const throttledListener = throttle(listener, 100)
-
-  React.useEffect(() => {
-    window.addEventListener("resize", throttledListener)
-    return () => window.removeEventListener("resize", throttledListener)
-  }, [])
-}
-
-const initialScreenHeight = window.screen.height
-
-// Use together with src/platform/keyboard-hack.ts
-function useIphoneKeyboardStatus(): "open" | "closed" | undefined {
-  if (process.env.PLATFORM !== "ios") {
-    return undefined
-  }
-
-  const [, setRerenderCounter] = React.useState(0)
-
-  useResizeListener(() => {
-    // force re-render
-    setRerenderCounter(counter => counter + 1)
-  })
-
-  return window.innerHeight < initialScreenHeight - 100 ? "open" : "closed"
-}
-
-export function useDialogActionsPosition(): "fixed-bottom" | "inline" {
-  const isSmallScreen = useIsMobile()
-  const iphoneKeyboardStatus = useIphoneKeyboardStatus()
-
-  return isSmallScreen && iphoneKeyboardStatus !== "open" ? "fixed-bottom" : "inline"
 }
