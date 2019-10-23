@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "./dist/",
     "sourceMap": true,
     "strict": true,
     "module": "es2015",
     "moduleResolution": "node",
+    "paths": {
+      "*": ["types/*"]
+    },
     "esModuleInterop": true,
     "target": "es2017",
     "lib": ["es6", "dom"],
