@@ -1,5 +1,7 @@
 import React from "react"
+import { makeStyles } from "@material-ui/core/styles"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
+import { iOSKeyboardHackSelector } from "../../theme"
 import ErrorBoundary from "../ErrorBoundary"
 import { Box, VerticalLayout } from "../Layout/Box"
 
@@ -24,6 +26,14 @@ function Background(props: { children: React.ReactNode; opacity?: number }) {
   )
 }
 
+const useDialogBodyStyles = makeStyles({
+  actions: {
+    [iOSKeyboardHackSelector()]: {
+      display: "none !important"
+    }
+  }
+})
+
 const topStyle: React.CSSProperties = {
   flexGrow: 0,
   flexShrink: 0,
@@ -43,7 +53,9 @@ interface Props {
 }
 
 function DialogBody(props: Props) {
+  const classes = useDialogBodyStyles()
   const isSmallScreen = useIsMobile()
+
   const actionsPosition = isSmallScreen ? "bottom" : props.actionsPosition || "after-content"
   const excessWidth = props.excessWidth || 0
 
@@ -53,6 +65,8 @@ function DialogBody(props: Props) {
     () =>
       props.actions ? (
         <Box
+          basis={isSmallScreen ? 80 : undefined}
+          className={classes.actions}
           grow={0}
           position="relative"
           ref={isRefStateObject(props.actions) ? props.actions.update : undefined}
@@ -73,6 +87,7 @@ function DialogBody(props: Props) {
   return (
     <ErrorBoundary>
       <VerticalLayout
+        className="dialog-body"
         width="100%"
         height="100%"
         maxWidth={900}

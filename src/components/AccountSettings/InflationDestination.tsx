@@ -155,6 +155,7 @@ function InflationDestinationDialog(props: InflationDestinationDialogProps) {
           onKeyDown={handleKeyDown}
           placeholder="GABCDEFGHIJK... or pool*example.org"
           value={value}
+          style={{ flexShrink: 0 }}
         />
         <InflationExplanation style={{ marginTop: 32 }} />
       </VerticalLayout>

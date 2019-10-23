@@ -2,7 +2,11 @@ interface BarcodeScanner {
   scan(success: (result: BarcodeScanResult) => void, error: (error: any) => void, properties: Object): any
 }
 
-declare class Keyboard {}
+interface Keyboard {
+  shrinkView(value: boolean): void
+}
+
+declare const Keyboard: Keyboard
 
 interface BarcodeScanResult {
   text: string

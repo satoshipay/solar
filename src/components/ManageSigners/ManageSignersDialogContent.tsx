@@ -7,13 +7,14 @@ import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import InfoIcon from "@material-ui/icons/Info"
 import { trackError } from "../../context/notifications"
-import { useIsMobile } from "../../hooks/userinterface"
+import { useDialogActions, useIsMobile } from "../../hooks/userinterface"
 import { renderFormFieldError } from "../../lib/errors"
 import { ObservedAccountData } from "../../subscriptions"
+import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import Portal from "../Portal"
 import SignersEditor from "./SignersEditor"
-import DialogBody from "../Dialog/DialogBody"
 
 const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
 const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
@@ -97,11 +98,13 @@ interface Props {
 function ManageSignersDialogContent(props: Props) {
   const { accountData } = props
 
+  const actionsRef = useDialogActions()
+  const isSmallScreen = useIsMobile()
+
   const [signersToAdd, setSignersToAdd] = React.useState<Horizon.AccountSigner[]>([])
   const [signersToRemove, setSignersToRemove] = React.useState<Horizon.AccountSigner[]>([])
   const [weightThresholdError, setWeightThresholdError] = React.useState<Error | undefined>(undefined)
   const [weightThreshold, setWeightThreshold] = React.useState(getEffectiveWeightThreshold(accountData).toString())
-  const isSmallScreen = useIsMobile()
 
   const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
@@ -149,16 +152,19 @@ function ManageSignersDialogContent(props: Props) {
     ? `Every transaction needs to be signed by ${sanitizedKeyWeight} signers`
     : `Every transaction needs to be signed by signers with a combined key weight of ${sanitizedKeyWeight} `
 
+  const DialogActionsPortal = isSmallScreen
+    ? (subprops: { children: React.ReactNode }) => <Portal target={actionsRef.element}>{subprops.children}</Portal>
+    : (subprops: { children: React.ReactNode }) => <>{subprops.children}</>
+
   const actionsContent = (
     <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0" wrap="wrap">
       <TextField
         error={!!weightThresholdError}
         label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
         onChange={event => setWeightThreshold(event.target.value)}
+        type="number"
         value={weightThreshold}
         variant="outlined"
-        style={isSmallScreen ? { width: "100%" } : {}}
-        type="number"
         InputProps={{
           endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
         }}
@@ -170,20 +176,22 @@ function ManageSignersDialogContent(props: Props) {
         style={{ marginLeft: "auto" }}
         width={isSmallScreen ? "100%" : "auto"}
       >
-        <DialogActionsBox desktopStyle={{ margin: 0 }}>
-          <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
-            Cancel
-          </ActionButton>
-          <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
-            {isSmallScreen ? "Apply" : "Apply changes"}
-          </ActionButton>
-        </DialogActionsBox>
+        <DialogActionsPortal>
+          <DialogActionsBox desktopStyle={{ margin: 0 }}>
+            <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
+              Cancel
+            </ActionButton>
+            <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
+              {isSmallScreen ? "Apply" : "Apply changes"}
+            </ActionButton>
+          </DialogActionsBox>
+        </DialogActionsPortal>
       </HorizontalLayout>
     </HorizontalLayout>
   )
 
   return (
-    <DialogBody top={props.title} actions={actionsContent}>
+    <DialogBody top={props.title} actions={isSmallScreen ? actionsRef : undefined}>
       <VerticalLayout
         justifyContent="space-between"
         margin="8px 0 0"
@@ -200,6 +208,7 @@ function ManageSignersDialogContent(props: Props) {
           showKeyWeights={!allDefaultKeyweights}
         />
       </VerticalLayout>
+      {actionsContent}
     </DialogBody>
   )
 }

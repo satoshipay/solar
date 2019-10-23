@@ -8,7 +8,8 @@ import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks/userinterface"
-import { breakpoints, CompactDialogTransition } from "../../theme"
+import { breakpoints, iOSKeyboardHackSelector, CompactDialogTransition } from "../../theme"
+import { setupRerenderListener } from "../../platform/keyboard-hack"
 import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
@@ -42,7 +43,21 @@ const useActionButtonStyles = makeStyles(theme => ({
     right: 8,
     bottom: 0,
     backgroundColor: "#fcfcfc",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
+
+    [iOSKeyboardHackSelector()]: {
+      // For iOS keyboard: Viewport shrinks when keyboard opens. Make actions non-sticky then,
+      // so they don't take too much screen space; making it consistent with other iOS apps.
+      position: "static !important" as any
+    }
+  },
+  mobileInlineSpacePlaceholder: {
+    width: "100% !important",
+    height: "88px !important",
+
+    [iOSKeyboardHackSelector()]: {
+      display: "none"
+    }
   },
   common: {
     flexShrink: 0,
@@ -131,23 +146,25 @@ interface MobileDialogActionsBoxProps {
   smallDialog?: boolean
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps) {
   const classes = useActionButtonStyles()
+  const isSmallScreen = useIsMobile()
   return (
     <>
-      {props.smallDialog ? null : (
+      {!isSmallScreen ? null : (
         // Placeholder to prevent other dialog content from being hidden below the actions box
         // Make sure its height matches the height of the actions box
         <div
-          className={`${classes.common} ${props.hidden ? classes.hidden : ""}`}
-          style={{ width: "100%", height: 88 }}
+          className={`${classes.common} ${classes.mobileInlineSpacePlaceholder} ${props.hidden ? classes.hidden : ""}`}
         />
       )}
       <div
-        className={`iphone-notch-bottom-spacing ${classes.common} ${classes.mobileDialogActionsBox} ${
+        className={[
+          "iphone-notch-bottom-spacing",
+          classes.common,
+          classes.mobileDialogActionsBox,
           props.hidden ? classes.hidden : ""
-        }`}
+        ].join(" ")}
       >
         {props.children}
       </div>
@@ -164,10 +181,18 @@ interface DialogActionsBoxProps {
   smallDialog?: boolean
 }
 
-// tslint:disable-next-line no-shadowed-variable
 export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
   const classes = useActionButtonStyles()
   const isSmallScreen = useIsMobile()
+
+  React.useEffect(() => {
+    // Little hack to force re-rendering the dialog when the keyboard closes
+    // to prevent broken UI to be shown
+    const elements = document.querySelectorAll(".dialog-body")
+    const unsubscribe = setupRerenderListener(elements)
+
+    return unsubscribe
+  }, [])
 
   if (isSmallScreen && !props.preventMobileActionsBox) {
     return (

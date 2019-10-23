@@ -49,13 +49,10 @@ export function useRouter<Params = {}>() {
     throw new Error("useRouter() hook can only be used within a react-router provider.")
   }
 
-  React.useEffect(
-    () => {
-      const unsubscribe = routerContext.history.listen(() => forceUpdate())
-      return unsubscribe
-    },
-    [routerContext]
-  )
+  React.useEffect(() => {
+    const unsubscribe = routerContext.history.listen(() => forceUpdate())
+    return unsubscribe
+  }, [routerContext])
 
   return routerContext
 }

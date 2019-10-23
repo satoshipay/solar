@@ -90,7 +90,8 @@ function TradingForm(props: Props) {
   )
 
   return (
-    <VerticalLayout alignItems="stretch" alignSelf="center" grow={1} shrink={1} width="100%">
+    // set minHeight to prevent wrapping of layout when keyboard is shown
+    <VerticalLayout alignItems="stretch" alignSelf="center" grow={1} shrink={1} width="100%" minHeight="300px">
       <TradePropertiesForm
         buying={props.buying}
         buyingAmount={amounts.buying}
