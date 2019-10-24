@@ -1,18 +1,26 @@
 import React from "react"
+import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import DoneAllIcon from "@material-ui/icons/DoneAll"
+import CreditCardIcon from "@material-ui/icons/CreditCard"
+import Divider from "@material-ui/core/Divider"
 import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
-import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
 import { hasSigned } from "../../lib/transaction"
+import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
+import { useRouter } from "../../hooks/userinterface"
+import { useHorizon } from "../../hooks/stellar"
+import * as routes from "../../routes"
+import QRCodeIcon from "../Icon/QRCode"
 import { MinimumAccountBalance } from "../Fetchers"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
-import LumenDepositOptions from "./LumenDepositOptions"
 import TransactionList from "./TransactionList"
 import TransactionListPlaceholder from "./TransactionListPlaceholder"
+import { VerticalLayout } from "../Layout/Box"
+import FriendbotButton from "./FriendbotButton"
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
@@ -56,8 +64,20 @@ function PendingMultisigTransactions(props: { account: Account }) {
 
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
+  const horizon = useHorizon(account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
+  const router = useRouter()
   const settings = React.useContext(SettingsContext)
+
+  const navigateToDeposit = React.useCallback(() => router.history.push(routes.depositAsset(account.id)), [
+    account,
+    router
+  ])
+
+  const navigateToReceiveView = React.useCallback(() => router.history.push(routes.receivePayment(account.id)), [
+    account,
+    router
+  ])
 
   return (
     <>
@@ -83,7 +103,28 @@ function AccountTransactions(props: { account: Account }) {
             Fund it with at least <MinimumAccountBalance testnet={props.account.testnet} />
             &nbsp;XLM.
           </Typography>
-          <LumenDepositOptions account={account} />
+          <Divider style={{ marginTop: 30, marginBottom: 0 }} />
+          <VerticalLayout alignItems="stretch" margin="24px auto" style={{ paddingBottom: 30, width: "fit-content" }}>
+            {account.testnet ? (
+              <FriendbotButton horizon={horizon} publicKey={account.publicKey} variant="outlined" />
+            ) : null}
+            <Button
+              startIcon={<CreditCardIcon />}
+              onClick={navigateToDeposit}
+              style={{ background: "white", marginTop: 16 }}
+              variant="outlined"
+            >
+              Fund your account
+            </Button>
+            <Button
+              onClick={navigateToReceiveView}
+              startIcon={<QRCodeIcon />}
+              style={{ background: "white", marginTop: 16 }}
+              variant="outlined"
+            >
+              Show public key
+            </Button>
+          </VerticalLayout>
         </>
       )}
     </>
