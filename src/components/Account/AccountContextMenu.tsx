@@ -5,6 +5,7 @@ import ListItemText from "@material-ui/core/ListItemText"
 import Menu from "@material-ui/core/Menu"
 import MenuItem from "@material-ui/core/MenuItem"
 import CallMadeIcon from "@material-ui/icons/CallMade"
+import CallReceivedIcon from "@material-ui/icons/CallReceived"
 import MoneyIcon from "@material-ui/icons/AttachMoney"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
@@ -44,6 +45,7 @@ interface MenuProps {
   activated: boolean
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
   onAccountSettings: () => void
+  onDeposit: () => void
   onManageAssets: () => void
   onTrade: () => void
   onWithdraw: () => void
@@ -75,6 +77,7 @@ function AccountContextMenu(props: MenuProps) {
             label="Withdraw"
             onClick={closeAndCall(props.onWithdraw)}
           />
+          <AccountContextMenuItem icon={<CallReceivedIcon />} label="Deposit" onClick={closeAndCall(props.onDeposit)} />
           <Divider />
           <AccountContextMenuItem
             disabled={!props.activated}

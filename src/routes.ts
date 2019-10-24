@@ -9,6 +9,7 @@ export const changeAccountPassword = (accountID: string) => `/account/${accountI
 export const createAccount = (testnet: boolean) => `/account/create/${testnet ? "testnet" : "mainnet"}`
 export const createPayment = (accountID: string) => `/account/${accountID}/send`
 export const deleteAccount = (accountID: string) => `/account/${accountID}/settings/delete`
+export const depositAsset = (accountID: string) => `/account/${accountID}/deposit`
 export const exportSecretKey = (accountID: string) => `/account/${accountID}/settings/export`
 export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/balances/manage`

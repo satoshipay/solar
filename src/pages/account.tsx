@@ -22,6 +22,7 @@ import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
 import { FullscreenDialogTransition } from "../theme"
+import DepositDialog from "../components/Deposit/DepositDialog"
 
 const useButtonStyles = makeStyles(theme => ({
   desktop: {
@@ -106,6 +107,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const showAssetTrading = matchesRoute(router.location.pathname, routes.tradeAsset("*"))
   const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
+  const showDeposit = matchesRoute(router.location.pathname, routes.depositAsset("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
 
@@ -115,6 +117,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
     () => ({
       accountSettings: () => router.history.push(routes.accountSettings(props.account.id)),
       addAssets: () => router.history.push(routes.manageAccountAssets(props.account.id)),
+      deposit: () => router.history.push(routes.depositAsset(props.account.id)),
       balanceDetails: () => router.history.push(routes.balanceDetails(props.account.id)),
       createPayment: () => router.history.push(routes.createPayment(props.account.id)),
       receivePayment: () => router.history.push(routes.receivePayment(props.account.id)),
@@ -138,6 +141,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         editableAccountName={showAccountSettings}
         onAccountSettings={navigateTo.accountSettings}
         onClose={navigateTo.transactions}
+        onDeposit={navigateTo.deposit}
         onManageAssets={navigateTo.balanceDetails}
         onTrade={navigateTo.tradeAssets}
         onWithdraw={navigateTo.withdraw}
@@ -239,6 +243,14 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         TransitionComponent={FullscreenDialogTransition}
       >
         <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
+      </Dialog>
+      <Dialog
+        open={showDeposit}
+        fullScreen
+        onClose={navigateTo.deposit}
+        TransitionComponent={FullscreenDialogTransition}
+      >
+        <DepositDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
     </VerticalLayout>
   )
