@@ -34,11 +34,11 @@ function TradingPrice(props: TradingPriceProps) {
         style={{ fontWeight: 400 }}
         value={props.priceDenotedIn}
       >
-        <MenuItem selected={props.priceDenotedIn === "primary"} value="primary">
-          {props.primaryAsset ? props.primaryAsset.getCode() : ""}
-        </MenuItem>
         <MenuItem selected={props.priceDenotedIn === "secondary"} value="secondary">
           {props.secondaryAsset ? props.secondaryAsset.getCode() : ""}
+        </MenuItem>
+        <MenuItem selected={props.priceDenotedIn === "primary"} value="primary">
+          {props.primaryAsset ? props.primaryAsset.getCode() : ""}
         </MenuItem>
       </Select>
     </InputAdornment>

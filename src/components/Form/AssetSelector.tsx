@@ -11,7 +11,6 @@ const useAssetSelectorStyles = makeStyles({
     whiteSpace: "nowrap"
   },
   input: {
-    alignSelf: "flex-start",
     minWidth: 72
   },
   select: {
@@ -63,7 +62,7 @@ function AssetSelector(props: AssetSelectorProps) {
       onChange={onChange}
       placeholder="Select an asset"
       select
-      style={{ flexGrow: 0, flexShrink: 0, ...props.style }}
+      style={{ flexShrink: 0, ...props.style }}
       value={props.value ? stringifyAsset(props.value) : ""}
       FormHelperTextProps={{
         className: classes.helperText

@@ -3,8 +3,8 @@ import ButtonBase from "@material-ui/core/ButtonBase"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
-import CallMadeIcon from "@material-ui/icons/CallMade"
-import CallReceivedIcon from "@material-ui/icons/CallReceived"
+import AddIcon from "@material-ui/icons/Add"
+import RemoveIcon from "@material-ui/icons/Remove"
 import { HorizontalLayout } from "../Layout/Box"
 import theme from "../../theme"
 
@@ -97,14 +97,14 @@ const MainActionSelection = React.forwardRef(function MainActionSelection(
         description={"Buy some amount of an asset on the distributed exchange"}
         onClick={props.onSelectBuy}
         style={{ marginBottom: 16 }}
-        Icon={CallReceivedIcon}
+        Icon={AddIcon}
       />
       <MainActionButton
         label="Sell asset"
         description={"Trade some amount of an asset for another one"}
         onClick={props.onSelectSell}
         style={{ marginBottom: 16 }}
-        Icon={CallMadeIcon}
+        Icon={RemoveIcon}
       />
     </HorizontalLayout>
   )

@@ -1,9 +1,10 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, Horizon, Transaction, Operation } from "stellar-sdk"
+import Button from "@material-ui/core/Button"
+import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
-import useMediaQuery from "@material-ui/core/useMediaQuery"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -56,15 +57,17 @@ function TradingForm(props: Props) {
   const [primaryAmountString, setPrimaryAmountString] = React.useState("")
   const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
   const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
-  const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("primary")
+  const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
 
   const price =
     manualPrice.value && isValidAmount(manualPrice.value)
-      ? priceMode === "primary"
+      ? priceMode === "secondary"
         ? BigNumber(manualPrice.value)
+        : BigNumber(manualPrice.value).eq(0) // prevent division by zero
+        ? BigNumber(0)
         : BigNumber(1).div(manualPrice.value)
       : BigNumber(0)
 
@@ -90,7 +93,7 @@ function TradingForm(props: Props) {
   }, [])
 
   const { worstPriceOfBestMatches } = useConversionOffers(
-    tradePair.bids,
+    props.primaryAction === "buy" ? tradePair.asks : tradePair.bids,
     primaryAmount.gt(0) ? primaryAmount : BigNumber(0.01)
   )
 
@@ -101,7 +104,7 @@ function TradingForm(props: Props) {
 
   // prevent division by zero
   const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
-  const defaultPrice = bigNumberToInputValue(priceMode === "primary" ? effectivePrice : inversePrice)
+  const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
 
   const sellingAmount = props.primaryAction === "sell" ? primaryAmount : secondaryAmount
   const sellingBalance: { balance: string } = (props.primaryAction === "sell" ? primaryBalance : secondaryBalance) || {
@@ -111,7 +114,7 @@ function TradingForm(props: Props) {
   const maxPrimaryAmount =
     props.primaryAction === "buy"
       ? secondaryBalance && effectivePrice.gt(0)
-        ? BigNumber(secondaryBalance.balance).mul(effectivePrice)
+        ? BigNumber(secondaryBalance.balance).div(effectivePrice)
         : BigNumber(0)
       : primaryBalance
       ? BigNumber(primaryBalance.balance)
@@ -119,6 +122,10 @@ function TradingForm(props: Props) {
 
   const isDisabled =
     !primaryAsset || primaryAmount.lte(0) || sellingAmount.gt(sellingBalance.balance) || effectivePrice.lte(0)
+
+  const setPrimaryAmountToMax = () => {
+    setPrimaryAmountString(maxPrimaryAmount.toFixed(7))
+  }
 
   const submitForm = React.useCallback(async () => {
     try {
@@ -174,8 +181,9 @@ function TradingForm(props: Props) {
         alignItems="stretch"
         alignSelf={isSmallScreen ? "stretch" : "center"}
         minWidth={isSmallScreen ? "75%" : 450}
-        maxWidth={isSmallScreen ? "100%" : 600}
+        maxWidth={isSmallScreen ? "100%" : 500}
         padding="0 2px"
+        width="100%"
       >
         <HorizontalLayout>
           <AssetSelector
@@ -183,7 +191,7 @@ function TradingForm(props: Props) {
             label={props.primaryAction === "buy" ? "You buy" : "You sell"}
             onChange={setPrimaryAsset}
             minWidth={75}
-            style={{ marginRight: 24 }}
+            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150 }}
             trustlines={props.trustlines}
             value={primaryAsset}
           />
@@ -192,45 +200,56 @@ function TradingForm(props: Props) {
             error={
               primaryAmount.lt(0) ||
               (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
-              (primaryBalance && primaryAmount.gt(primaryBalance.balance))
+              (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(primaryBalance.balance)) ||
+              (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
             }
             inputProps={{
               min: "0.0000001",
               max: maxPrimaryAmount.toFixed(7),
               style: { height: 27 }
             }}
+            InputProps={{
+              endAdornment:
+                props.primaryAction === "buy" ? (
+                  undefined
+                ) : (
+                  <InputAdornment position="end">
+                    <Button disabled={!primaryAsset || !primaryBalance} onClick={setPrimaryAmountToMax}>
+                      Max
+                    </Button>
+                  </InputAdornment>
+                )
+            }}
             label={props.primaryAction === "buy" ? "Amount to buy" : "Amount to sell"}
             onChange={event => setPrimaryAmountString(event.target.value)}
             placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
             required
-            style={{ flexGrow: 1, flexShrink: 1, maxWidth: 280 }}
+            style={{ flexGrow: 1, flexShrink: 1 }}
             type="number"
             value={primaryAmountString}
           />
         </HorizontalLayout>
-        <TradingPrice
-          inputError={manualPrice.error}
-          manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
-          onBlur={validatePrice}
-          onChange={updatePrice}
-          onSetPriceDenotedIn={setPriceMode}
-          price={effectivePrice}
-          priceDenotedIn={priceMode}
-          primaryAsset={primaryAsset}
-          secondaryAsset={secondaryAsset}
-          style={{
-            marginTop: 24,
-            marginLeft: 100,
-            marginBottom: 24,
-            maxWidth: 280
-          }}
-        />
+        <HorizontalLayout margin="24px 0">
+          <div style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "40%" }} />
+          <TradingPrice
+            inputError={manualPrice.error}
+            manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
+            onBlur={validatePrice}
+            onChange={updatePrice}
+            onSetPriceDenotedIn={setPriceMode}
+            price={effectivePrice}
+            priceDenotedIn={priceMode}
+            primaryAsset={primaryAsset}
+            secondaryAsset={secondaryAsset}
+            style={{ flexGrow: 1 }}
+          />
+        </HorizontalLayout>
         <HorizontalLayout>
           <AssetSelector
             label="Spend"
             minWidth={75}
             onChange={setSecondaryAsset}
-            style={{ marginRight: 24 }}
+            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150 }}
             trustlines={props.trustlines}
             value={secondaryAsset}
           />
@@ -242,7 +261,7 @@ function TradingForm(props: Props) {
             label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
             placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
             required
-            style={{ flexGrow: 1, flexShrink: 1, maxWidth: 280 }}
+            style={{ flexGrow: 1, flexShrink: 1 }}
             type="number"
             value={bigNumberToInputValue(secondaryAmount)}
           />
@@ -260,7 +279,7 @@ function TradingForm(props: Props) {
           <Box padding="8px 12px" style={{ background: warningColor }}>
             <b>Warning</b>
             <br />
-            Large spread ({(relativeSpread * 100).toFixed(1)}%) between buying and selling price. Prices are not ideal.
+            The spread between buying and selling price is about {(relativeSpread * 100).toFixed(1)}%.
           </Box>
         ) : null}
         <Portal target={props.dialogActionsRef.element}>
