@@ -27,6 +27,7 @@ interface AssetSelectorProps {
   autoFocus?: TextFieldProps["autoFocus"]
   helperText?: TextFieldProps["helperText"]
   label?: TextFieldProps["label"]
+  minWidth?: number | string
   onChange: (asset: Asset) => void
   style?: React.CSSProperties
   trustlines: Horizon.BalanceLine[]
@@ -70,6 +71,9 @@ function AssetSelector(props: AssetSelectorProps) {
       InputProps={{
         classes: {
           root: classes.input
+        },
+        style: {
+          minWidth: props.minWidth
         }
       }}
       SelectProps={{

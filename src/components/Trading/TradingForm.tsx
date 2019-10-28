@@ -17,7 +17,7 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import AssetSelector from "../Form/AssetSelector"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import theme, { warningColor } from "../../theme"
+import { warningColor } from "../../theme"
 import { useConversionOffers } from "./hooks"
 import Portal from "../Portal"
 import TradingPrice from "./TradingPrice"
@@ -25,6 +25,7 @@ import { createTransaction } from "../../lib/transaction"
 
 const bigNumberToInputValue = (bignum: BigNumber) =>
   formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9 })
+
 const isValidAmount = (amount: string) => /^[0-9]+([\.,][0-9]+)?$/.test(amount)
 
 function findMatchingBalance(balances: ObservedAccountData["balances"], asset: Asset) {
@@ -51,20 +52,18 @@ interface Props {
 
 function TradingForm(props: Props) {
   const isSmallScreen = useIsMobile()
-  const priceInputRef = React.useRef<HTMLElement>(null)
   const [primaryAsset, setPrimaryAsset] = React.useState<Asset | undefined>(props.initialPrimaryAsset)
   const [primaryAmountString, setPrimaryAmountString] = React.useState("")
   const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
   const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
-  const [priceMode, setPriceMode] = React.useState<"fixed-buying" | "fixed-selling">("fixed-selling")
+  const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("primary")
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
-  const isSmallHeightScreen = useMediaQuery("(max-height: 600px)")
 
   const price =
     manualPrice.value && isValidAmount(manualPrice.value)
-      ? priceMode === "fixed-selling"
+      ? priceMode === "primary"
         ? BigNumber(manualPrice.value)
         : BigNumber(1).div(manualPrice.value)
       : BigNumber(0)
@@ -75,19 +74,6 @@ function TradingForm(props: Props) {
   const primaryBalance = primaryAsset ? findMatchingBalance(props.accountData.balances, primaryAsset) : undefined
 
   const secondaryBalance = secondaryAsset ? findMatchingBalance(props.accountData.balances, secondaryAsset) : undefined
-
-  const startEditingPrice = React.useCallback(() => {
-    if (priceInputRef.current) {
-      priceInputRef.current.focus()
-    }
-  }, [])
-
-  const togglePriceMode = React.useCallback(() => {
-    setPriceMode(prev => (prev === "fixed-buying" ? "fixed-selling" : "fixed-buying"))
-    setManualPrice(prev => ({
-      value: prev.value && isValidAmount(prev.value) ? bigNumberToInputValue(BigNumber(1).div(prev.value)) : prev.value
-    }))
-  }, [])
 
   const updatePrice = (newPriceAmount: string) => {
     setManualPrice(prev => ({
@@ -115,7 +101,7 @@ function TradingForm(props: Props) {
 
   // prevent division by zero
   const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
-  const defaultPrice = bigNumberToInputValue(priceMode === "fixed-buying" ? inversePrice : effectivePrice)
+  const defaultPrice = bigNumberToInputValue(priceMode === "primary" ? effectivePrice : inversePrice)
 
   const sellingAmount = props.primaryAction === "sell" ? primaryAmount : secondaryAmount
   const sellingBalance: { balance: string } = (props.primaryAction === "sell" ? primaryBalance : secondaryBalance) || {
@@ -177,95 +163,91 @@ function TradingForm(props: Props) {
       alignSelf="center"
       grow={1}
       justifyContent={isSmallScreen ? undefined : "center"}
+      minHeight={300}
       maxHeight="100%"
+      margin={isSmallScreen ? undefined : "32px 0 0"}
       padding="16px 0"
       shrink={1}
       width="100%"
     >
       <VerticalLayout
         alignItems="stretch"
-        alignSelf="center"
-        minHeight={350}
-        minWidth={isSmallScreen ? undefined : 450}
+        alignSelf={isSmallScreen ? "stretch" : "center"}
+        minWidth={isSmallScreen ? "75%" : 450}
         maxWidth={isSmallScreen ? "100%" : 600}
-        padding="0 8px"
+        padding="0 2px"
       >
-        <Typography
-          color="textPrimary"
-          style={{ margin: `${isSmallHeightScreen ? "0" : "48px"} 8px 8px` }}
-          variant="h6"
-        >
-          {props.primaryAction === "buy" ? "Buying" : "Selling"}
-        </Typography>
-        <HorizontalLayout margin="0 8px">
+        <HorizontalLayout>
           <AssetSelector
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
+            label={props.primaryAction === "buy" ? "You buy" : "You sell"}
             onChange={setPrimaryAsset}
-            style={{ marginRight: 16 }}
+            minWidth={75}
+            style={{ marginRight: 24 }}
             trustlines={props.trustlines}
             value={primaryAsset}
           />
           <TextField
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
+            error={
+              primaryAmount.lt(0) ||
+              (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
+              (primaryBalance && primaryAmount.gt(primaryBalance.balance))
+            }
             inputProps={{
-              style: { height: 27, textAlign: "right" }
+              min: "0.0000001",
+              max: maxPrimaryAmount.toFixed(7),
+              style: { height: 27 }
             }}
+            label={props.primaryAction === "buy" ? "Amount to buy" : "Amount to sell"}
             onChange={event => setPrimaryAmountString(event.target.value)}
             placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
             required
-            style={{ flexGrow: 1, flexShrink: 1, marginLeft: "auto", maxWidth: 200 }}
+            style={{ flexGrow: 1, flexShrink: 1, maxWidth: 280 }}
             type="number"
             value={primaryAmountString}
           />
         </HorizontalLayout>
-        <Typography color="textPrimary" style={{ margin: "48px 8px 8px" }} variant="h6">
-          {props.primaryAction === "buy" ? "Costs" : "Gain"}
-        </Typography>
-        <VerticalLayout
-          margin="8px -8px 0"
-          padding="16px"
+        <TradingPrice
+          inputError={manualPrice.error}
+          manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
+          onBlur={validatePrice}
+          onChange={updatePrice}
+          onSetPriceDenotedIn={setPriceMode}
+          price={effectivePrice}
+          priceDenotedIn={priceMode}
+          primaryAsset={primaryAsset}
+          secondaryAsset={secondaryAsset}
           style={{
-            background: theme.palette.grey["100"],
-            border: `1px solid ${theme.palette.grey["A100"]}`,
-            borderRadius: theme.shape.borderRadius
+            marginTop: 24,
+            marginLeft: 100,
+            marginBottom: 24,
+            maxWidth: 280
           }}
-        >
-          <TradingPrice
-            buying={props.primaryAction === "buy" ? primaryAsset : secondaryAsset}
-            inputError={manualPrice.error}
-            inputRef={priceInputRef}
-            manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
-            onBlur={validatePrice}
-            onChange={updatePrice}
-            onEditClick={startEditingPrice}
-            onSwitchPriceAssets={togglePriceMode}
-            price={effectivePrice}
-            selling={props.primaryAction === "sell" ? primaryAsset : secondaryAsset}
-            style={{
-              alignSelf: "center",
-              background: theme.palette.grey["100"],
-              marginBottom: -16,
-              marginTop: -16,
-              transform: "translateY(-50%)"
-            }}
-            variant={priceMode}
+        />
+        <HorizontalLayout>
+          <AssetSelector
+            label="Spend"
+            minWidth={75}
+            onChange={setSecondaryAsset}
+            style={{ marginRight: 24 }}
+            trustlines={props.trustlines}
+            value={secondaryAsset}
           />
-          <HorizontalLayout>
-            <AssetSelector onChange={setSecondaryAsset} trustlines={props.trustlines} value={secondaryAsset} />
-            <ReadOnlyTextfield
-              disableUnderline
-              inputProps={{
-                style: { height: 27, textAlign: "right" }
-              }}
-              placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
-              required
-              style={{ flexGrow: 1, flexShrink: 1, marginLeft: "auto", maxWidth: 200 }}
-              type="number"
-              value={bigNumberToInputValue(secondaryAmount)}
-            />
-          </HorizontalLayout>
-        </VerticalLayout>
-        <HorizontalLayout justifyContent="center" margin="40px 0 0" textAlign="center">
+          <ReadOnlyTextfield
+            disableUnderline
+            inputProps={{
+              style: { height: 27 }
+            }}
+            label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
+            placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
+            required
+            style={{ flexGrow: 1, flexShrink: 1, maxWidth: 280 }}
+            type="number"
+            value={bigNumberToInputValue(secondaryAmount)}
+          />
+        </HorizontalLayout>
+        <HorizontalLayout justifyContent="center" margin="32px 0" textAlign="center">
           <Typography color="textSecondary" variant="body1">
             {props.primaryAction === "buy"
               ? `«Buy ${bigNumberToInputValue(primaryAmount)} ${primaryAsset ? primaryAsset.getCode() : "-"} ` +
@@ -275,14 +257,14 @@ function TradingForm(props: Props) {
           </Typography>
         </HorizontalLayout>
         {relativeSpread >= 0.015 ? (
-          <Box margin="24px 0 0" padding="8px 12px" style={{ background: warningColor }}>
+          <Box padding="8px 12px" style={{ background: warningColor }}>
             <b>Warning</b>
             <br />
             Large spread ({(relativeSpread * 100).toFixed(1)}%) between buying and selling price. Prices are not ideal.
           </Box>
         ) : null}
         <Portal target={props.dialogActionsRef.element}>
-          <DialogActionsBox>
+          <DialogActionsBox desktopStyle={{ marginTop: 0 }}>
             <ActionButton onClick={props.onBack} type="secondary">
               Back
             </ActionButton>
