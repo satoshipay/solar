@@ -29,6 +29,7 @@ const theme = createMuiTheme({
       // disableSpacing: true
     },
     MuiInputLabel: {
+      required: false,
       shrink: true
     },
     MuiSelect: {
