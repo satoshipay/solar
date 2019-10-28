@@ -175,15 +175,17 @@ function TradingForm(props: Props) {
     <VerticalLayout
       alignItems="stretch"
       alignSelf="center"
-      justifyContent="center"
       grow={1}
-      minHeight={350}
+      justifyContent={isSmallScreen ? undefined : "center"}
+      maxHeight="100%"
+      padding="16px 0"
       shrink={1}
       width="100%"
     >
       <VerticalLayout
         alignItems="stretch"
         alignSelf="center"
+        minHeight={350}
         minWidth={isSmallScreen ? undefined : 450}
         maxWidth={isSmallScreen ? "100%" : 600}
         padding="0 8px"

@@ -103,20 +103,18 @@ function TradingDialog(props: TradingDialogProps) {
     () => (
       <Box margin="32px 0 0" textAlign="center">
         <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
-        <ActionsContainer>
-          <DialogActionsBox>
-            <ActionButton
-              autoFocus
-              onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
-              type="primary"
-            >
-              Add asset
-            </ActionButton>
-          </DialogActionsBox>
-        </ActionsContainer>
+        <DialogActionsBox>
+          <ActionButton
+            autoFocus
+            onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+            type="primary"
+          >
+            Add asset
+          </ActionButton>
+        </DialogActionsBox>
       </Box>
     ),
-    [props.account, router, ActionsContainer]
+    [props.account, router]
   )
 
   return (
