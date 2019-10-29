@@ -86,7 +86,7 @@ function MainTitle(props: Props) {
         </Typography>
         {props.badges}
       </HorizontalLayout>
-      <Box grow style={{ textAlign: "right" }}>
+      <Box grow={Boolean(props.actions)} style={{ textAlign: "right" }}>
         {props.actions}
       </Box>
     </HorizontalLayout>

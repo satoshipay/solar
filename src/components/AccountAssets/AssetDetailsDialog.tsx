@@ -7,12 +7,12 @@ import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "../../context/accounts"
 import { useAccountData, useAssetMetadata, useStellarToml } from "../../hooks/stellar"
-import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { useClipboard, useIsMobile } from "../../hooks/userinterface"
 import { parseAssetID } from "../../lib/stellar"
 import { openLink } from "../../platform/links"
 import { breakpoints } from "../../theme"
 import { StellarTomlCurrency } from "../../types/stellar-toml"
+import { SingleBalance } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import { AccountName } from "../Fetchers"
 import { ReadOnlyTextfield } from "../Form/FormFields"
@@ -81,9 +81,6 @@ const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
       </Card>
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
-          <Typography className={classes.cardTitle} variant="h6">
-            Balance breakdown
-          </Typography>
           <SpendableBalanceBreakdown account={props.account} accountData={accountData} baseReserve={0.5} />
         </CardContent>
       </Card>
@@ -98,29 +95,11 @@ interface AssetDetailProps {
 }
 
 const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata }: AssetDetailProps) {
-  const accountData = useAccountData(account.publicKey, account.testnet)
-  const accountOffers = useLiveAccountOffers(account.publicKey, account.testnet)
   const issuingAccountData = useAccountData(asset.issuer, account.testnet)
   const [stellarToml] = useStellarToml(issuingAccountData.home_domain)
 
-  const balance = accountData.balances.find(
-    bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
-  )
-  const openBuyOffers = accountOffers.offers.filter(
-    offer =>
-      offer.buying.asset_type !== "native" &&
-      offer.buying.asset_issuer === asset.issuer &&
-      offer.buying.asset_code === asset.code
-  )
-  const openSellOffers = accountOffers.offers.filter(
-    offer =>
-      offer.selling.asset_type !== "native" &&
-      offer.selling.asset_issuer === asset.issuer &&
-      offer.selling.asset_code === asset.code
-  )
-
-  const clipboard = useClipboard()
   const classes = useDetailContentStyles()
+  const clipboard = useClipboard()
 
   const copyIssuerToClipboard = React.useCallback(() => clipboard.copyToClipboard(asset.getIssuer()), [
     asset.getIssuer(),
@@ -163,10 +142,14 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             multiline
             value={capitalize(
               [
-                issuingAccountData.flags.auth_required ? "auth required" : "no auth required",
-                issuingAccountData.flags.auth_revocable ? "auth revocable" : "auth irrevocable",
-                issuingAccountData.flags.auth_immutable ? "immutable flags" : "mutable flags"
-              ].join(", ")
+                issuingAccountData.flags.auth_required
+                  ? "• Authorization by issuer required"
+                  : "• No authorization required",
+                issuingAccountData.flags.auth_revocable ? "• Authorization revocable" : "• Authorization not revocable",
+                issuingAccountData.flags.auth_immutable
+                  ? "• These flags are immutable"
+                  : "• Issuer can change these flags"
+              ].join("\n")
             )}
           />
           {metadata && metadata.conditions ? (
@@ -208,9 +191,6 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
       {stellarToml && stellarToml.DOCUMENTATION ? (
         <Card className={classes.card}>
           <CardContent className={classes.cardContent}>
-            <Typography className={classes.cardTitle} variant="h6">
-              Issuer information
-            </Typography>
             {stellarToml.DOCUMENTATION.ORG_LOGO ? (
               <Avatar className={classes.cardLogo}>
                 <img
@@ -309,29 +289,6 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
           </CardContent>
         </Card>
       ) : null}
-      {balance ? (
-        <Card className={classes.card}>
-          <CardContent className={classes.cardContent}>
-            <Typography className={classes.cardTitle} variant="h6">
-              My Account
-            </Typography>
-            <ReadOnlyTextfield
-              disableUnderline
-              fullWidth
-              label="Current balance"
-              margin="dense"
-              value={`${balance.balance} ${asset.code}`}
-            />
-            <ReadOnlyTextfield
-              disableUnderline
-              fullWidth
-              label="Open trade offers"
-              margin="dense"
-              value={openBuyOffers.length + openSellOffers.length || "–"}
-            />
-          </CardContent>
-        </Card>
-      ) : null}
     </>
   )
 })
@@ -370,9 +327,16 @@ interface Props {
 }
 
 function AssetDetailsDialog(props: Props) {
+  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
   const asset = React.useMemo(() => parseAssetID(props.assetID), [props.assetID])
   const classes = useAssetDetailStyles()
   const isSmallScreen = useIsMobile()
+
+  const balance = accountData.balances.find(
+    asset.isNative()
+      ? bal => bal.asset_type === "native"
+      : bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
+  )
 
   const metadataMap = useAssetMetadata([asset], props.account.testnet)
   const [metadata] = metadataMap.get(asset) || [undefined, false]
@@ -399,12 +363,14 @@ function AssetDetailsDialog(props: Props) {
                 : asset.getCode()
             }
             titleStyle={{
-              maxWidth: "calc(100% - 100px)",
+              maxWidth: isSmallScreen ? "calc(100% - 75px)" : "calc(100% - 100px)",
               textShadow: "0 0 5px white, 0 0 5px white, 0 0 5px white"
             }}
           />
           <Typography className={classes.domain} variant="subtitle1">
-            {asset.isNative() ? (
+            {balance ? (
+              <SingleBalance assetCode={asset.getCode()} balance={balance.balance} />
+            ) : asset.isNative() ? (
               "stellar.org"
             ) : (
               <AccountName publicKey={asset.getIssuer()} testnet={props.account.testnet} />
@@ -417,7 +383,7 @@ function AssetDetailsDialog(props: Props) {
       actionsPosition="bottom"
       fitToShrink
     >
-      <VerticalLayout margin="16px 4px 0" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
+      <VerticalLayout margin="0 4px" padding={`0 0 ${isSmallScreen ? 68 : 0}px`} shrink={0}>
         {asset.isNative() ? (
           <LumenDetails account={props.account} />
         ) : (
