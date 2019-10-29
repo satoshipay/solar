@@ -1,13 +1,10 @@
 import BigNumber from "big.js"
 import React from "react"
-import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 import { Asset } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
 import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
-import { fade, makeStyles } from "@material-ui/core/styles"
-import theme, { breakpoints } from "../../theme"
 
 interface TradingPriceProps {
   inputError?: Error
