@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, Horizon } from "stellar-sdk"
+import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
@@ -9,6 +9,7 @@ import { Account } from "../../context/accounts"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { useAssetMetadata } from "../../hooks/stellar"
 import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
+import { AccountData } from "../../lib/account"
 import { matchesRoute } from "../../lib/routes"
 import { stringifyAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import * as routes from "../../routes"
@@ -27,6 +28,100 @@ function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boo
     return balance.asset_code === asset.getCode() && balance.asset_issuer === asset.getIssuer()
   }
 }
+
+interface TrustedAssetsProps {
+  account: Account
+  accountData: AccountData
+  assets: Asset[]
+  hmargin: string | number
+  hpadding: string | number
+  onOpenAssetDetails: (asset: Asset) => void
+  openOffers: ServerApi.OfferRecord[]
+}
+
+const TrustedAssets = React.memo(function TrustedAssets(props: TrustedAssetsProps) {
+  const assetMetadata = useAssetMetadata(props.assets, props.account.testnet)
+  return (
+    <>
+      {props.assets.map(asset => {
+        const [metadata] = assetMetadata.get(asset) || [undefined, false]
+        const balance = props.accountData.balances.find(bal => isAssetMatchingBalance(asset, bal))
+        const openOffers = props.openOffers.filter(
+          offer =>
+            (offer.buying.asset_code === asset.code && offer.buying.asset_issuer === asset.issuer) ||
+            (offer.selling.asset_code === asset.code && offer.selling.asset_issuer === asset.issuer)
+        )
+        return (
+          <BalanceDetailsListItem
+            key={stringifyAsset(asset)}
+            assetMetadata={metadata}
+            badgeCount={openOffers.length}
+            balance={balance!}
+            onClick={() => props.onOpenAssetDetails(asset)}
+            style={{
+              paddingLeft: props.hpadding,
+              paddingRight: props.hpadding,
+              marginLeft: props.hmargin,
+              marginRight: props.hmargin
+            }}
+            testnet={props.account.testnet}
+          />
+        )
+      })}
+    </>
+  )
+})
+
+interface NativeBalanceItemsProps {
+  account: Account
+  accountData: AccountData
+  balance: Horizon.BalanceLineNative
+  hmargin: string | number
+  hpadding: string | number
+  onOpenAssetDetails: (asset: Asset) => void
+  openOffers: ServerApi.OfferRecord[]
+}
+
+const NativeBalanceItems = React.memo(function NativeBalanceItems(props: NativeBalanceItemsProps) {
+  return (
+    <>
+      <BalanceDetailsListItem
+        key="XLM"
+        balance={props.balance}
+        onClick={() => props.onOpenAssetDetails(Asset.native())}
+        style={{
+          paddingLeft: props.hpadding,
+          paddingRight: props.hpadding,
+          marginLeft: props.hmargin,
+          marginRight: props.hmargin
+        }}
+        testnet={props.account.testnet}
+      />
+      <BalanceDetailsListItem
+        key="XLM:spendable"
+        balance={{
+          ...props.balance,
+          balance: BigNumber(props.balance.balance).eq(0)
+            ? "0"
+            : BigNumber(props.balance.balance)
+                .minus(getAccountMinimumBalance(props.accountData, props.openOffers.length))
+                .toString()
+        }}
+        hideLogo
+        onClick={() => props.onOpenAssetDetails(Asset.native())}
+        spendableBalance
+        style={{
+          marginTop: -8,
+          paddingLeft: props.hpadding,
+          paddingRight: props.hpadding,
+          marginLeft: props.hmargin,
+          marginRight: props.hmargin
+        }}
+        testnet={props.account.testnet}
+      />
+    </>
+  )
+})
 
 interface BalanceDetailsProps {
   account: Account
@@ -63,7 +158,6 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
     (balance): balance is Horizon.BalanceLineNative => balance.asset_type === "native"
   )
 
-  const assetMetadata = useAssetMetadata(trustedAssets, props.account.testnet)
   const hpadding = isSmallScreen ? 0 : 8
   const itemHPadding = 16
   const itemHMargin = 0
@@ -83,71 +177,28 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           <AddIcon />
           &nbsp;&nbsp;Add Asset To Your Account
         </ButtonListItem>
-        {trustedAssets.map(asset => {
-          const [metadata] = assetMetadata.get(asset) || [undefined, false]
-          const balance = accountData.balances.find(bal => isAssetMatchingBalance(asset, bal))
-          const openOffers = accountOffers.offers.filter(
-            offer =>
-              (offer.buying.asset_code === asset.code && offer.buying.asset_issuer === asset.issuer) ||
-              (offer.selling.asset_code === asset.code && offer.selling.asset_issuer === asset.issuer)
-          )
-          return (
-            <BalanceDetailsListItem
-              key={stringifyAsset(asset)}
-              assetMetadata={metadata}
-              badgeCount={openOffers.length}
-              balance={balance!}
-              onClick={() => openAssetDetails(asset)}
-              style={{
-                paddingLeft: itemHPadding,
-                paddingRight: itemHPadding,
-                marginLeft: itemHMargin,
-                marginRight: itemHMargin
-              }}
-              testnet={props.account.testnet}
-            />
-          )
-        })}
+        <TrustedAssets
+          account={props.account}
+          accountData={accountData}
+          assets={trustedAssets}
+          hmargin={itemHMargin}
+          hpadding={itemHPadding}
+          onOpenAssetDetails={openAssetDetails}
+          openOffers={accountOffers.offers}
+        />
       </List>
       <Divider style={{ margin: "16px 0" }} />
       <List style={{ paddingLeft: hpadding, paddingRight: hpadding, margin: "0 -8px 8px" }}>
         {nativeBalance ? (
-          <>
-            <BalanceDetailsListItem
-              key="XLM"
-              balance={nativeBalance}
-              onClick={() => openAssetDetails(Asset.native())}
-              style={{
-                paddingLeft: itemHPadding,
-                paddingRight: itemHPadding,
-                marginLeft: itemHMargin,
-                marginRight: itemHMargin
-              }}
-              testnet={props.account.testnet}
-            />
-            <BalanceDetailsListItem
-              key="XLM:spendable"
-              balance={{
-                ...nativeBalance,
-                balance: BigNumber(nativeBalance.balance).eq(0)
-                  ? "0"
-                  : BigNumber(nativeBalance.balance)
-                      .minus(getAccountMinimumBalance(accountData, accountOffers.offers.length))
-                      .toString()
-              }}
-              hideLogo
-              onClick={() => openAssetDetails(Asset.native())}
-              spendableBalance
-              style={{
-                marginTop: -8,
-                paddingLeft: itemHPadding,
-                paddingRight: itemHPadding,
-                marginLeft: itemHMargin,
-                marginRight: itemHMargin
-              }}
-              testnet={props.account.testnet}
-            />
-          </>
+          <NativeBalanceItems
+            account={props.account}
+            accountData={accountData}
+            balance={nativeBalance}
+            hmargin={itemHMargin}
+            hpadding={itemHPadding}
+            onOpenAssetDetails={openAssetDetails}
+            openOffers={accountOffers.offers}
+          />
         ) : null}
       </List>
       <Dialog

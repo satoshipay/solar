@@ -463,6 +463,30 @@ function TransactionList(props: TransactionListProps) {
     }, 0)
   }, [])
 
+  const transactionListItems = React.useMemo(
+    () => (
+      <>
+        {(props.transactions as TransactionWithUndocumentedProps[]).map(transaction => (
+          <EntryAnimation
+            key={createCheapTxID(transaction)}
+            // Animate only if it's a new tx, not if we just haven't rendered it before
+            animate={Date.now() - new Date(transaction.created_at).getTime() < 10_000}
+          >
+            <TransactionListItem
+              key={createCheapTxID(transaction)}
+              accountPublicKey={props.account.publicKey}
+              className={classes.listItem}
+              createdAt={transaction.created_at}
+              transaction={transaction}
+              onOpenTransaction={props.onOpenTransaction}
+            />
+          </EntryAnimation>
+        ))}
+      </>
+    ),
+    [props.account, props.transactions, openTransaction]
+  )
+
   if (props.transactions.length === 0) {
     return null
   }
@@ -472,22 +496,7 @@ function TransactionList(props: TransactionListProps) {
       <ListSubheader className={classes.listItem} disableSticky style={{ background: props.background }}>
         {props.title}
       </ListSubheader>
-      {(props.transactions as TransactionWithUndocumentedProps[]).map(transaction => (
-        <EntryAnimation
-          key={createCheapTxID(transaction)}
-          // Animate only if it's a new tx, not if we just haven't rendered it before
-          animate={Date.now() - new Date(transaction.created_at).getTime() < 10_000}
-        >
-          <TransactionListItem
-            key={createCheapTxID(transaction)}
-            accountPublicKey={props.account.publicKey}
-            className={classes.listItem}
-            createdAt={transaction.created_at}
-            transaction={transaction}
-            onOpenTransaction={openTransaction}
-          />
-        </EntryAnimation>
-      ))}
+      {transactionListItems}
       <TransactionReviewDialog
         open={openedTransaction !== null}
         account={props.account}
