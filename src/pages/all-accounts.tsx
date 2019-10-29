@@ -21,10 +21,9 @@ import getUpdater from "../platform/updater"
 
 const useStyles = makeStyles({
   "@keyframes glowing": {
-    "0%": { boxShadow: "0 0 -30px 3px #ffffff, inset 0 0 3px #ffffff" },
-    "40%": { boxShadow: "0 0 30px 3px #ffffff, inset 0 0 3px #ffffff" },
-    "60%": { boxShadow: "0 0 30px 3px #ffffff, inset 0 0 3px #ffffff" },
-    "100%": { boxShadow: "0 0 -30px 3px #ffffff, inset 0 0 3px #ffffff" }
+    "0%": { filter: "drop-shadow(0 0 30px #ffffff)" },
+    "50%": { filter: "drop-shadow(0 0 0px #ffffff)" },
+    "100%": { filter: "drop-shadow(0 0 30px #ffffff)" }
   },
 
   icon: {
