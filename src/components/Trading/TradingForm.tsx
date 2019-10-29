@@ -167,7 +167,7 @@ function TradingForm(props: Props) {
     // set minHeight to prevent wrapping of layout when keyboard is shown
     <VerticalLayout
       alignItems="stretch"
-      alignSelf="center"
+      alignSelf={isSmallScreen ? undefined : "center"}
       grow={1}
       justifyContent={isSmallScreen ? undefined : "center"}
       minHeight={300}
@@ -183,6 +183,7 @@ function TradingForm(props: Props) {
         minWidth={isSmallScreen ? "75%" : 450}
         maxWidth={isSmallScreen ? "100%" : 500}
         padding="0 2px"
+        shrink={0}
         width="100%"
       >
         <HorizontalLayout>
@@ -191,7 +192,7 @@ function TradingForm(props: Props) {
             label={props.primaryAction === "buy" ? "You buy" : "You sell"}
             onChange={setPrimaryAsset}
             minWidth={75}
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150 }}
+            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
             trustlines={props.trustlines}
             value={primaryAsset}
           />
@@ -214,7 +215,11 @@ function TradingForm(props: Props) {
                   undefined
                 ) : (
                   <InputAdornment position="end">
-                    <Button disabled={!primaryAsset || !primaryBalance} onClick={setPrimaryAmountToMax}>
+                    <Button
+                      disabled={!primaryAsset || !primaryBalance}
+                      onClick={setPrimaryAmountToMax}
+                      style={{ boxShadow: "none", fontWeight: 400 }}
+                    >
                       Max
                     </Button>
                   </InputAdornment>
@@ -224,13 +229,13 @@ function TradingForm(props: Props) {
             onChange={event => setPrimaryAmountString(event.target.value)}
             placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
             required
-            style={{ flexGrow: 1, flexShrink: 1 }}
+            style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
             type="number"
             value={primaryAmountString}
           />
         </HorizontalLayout>
         <HorizontalLayout margin="24px 0">
-          <div style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "40%" }} />
+          <div style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }} />
           <TradingPrice
             inputError={manualPrice.error}
             manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
@@ -241,15 +246,15 @@ function TradingForm(props: Props) {
             priceDenotedIn={priceMode}
             primaryAsset={primaryAsset}
             secondaryAsset={secondaryAsset}
-            style={{ flexGrow: 1 }}
+            style={{ flexGrow: 1, width: "55%" }}
           />
         </HorizontalLayout>
         <HorizontalLayout>
           <AssetSelector
-            label="Spend"
+            label={props.primaryAction === "buy" ? "Spend" : "Receive"}
             minWidth={75}
             onChange={setSecondaryAsset}
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150 }}
+            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
             trustlines={props.trustlines}
             value={secondaryAsset}
           />
@@ -261,12 +266,12 @@ function TradingForm(props: Props) {
             label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
             placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
             required
-            style={{ flexGrow: 1, flexShrink: 1 }}
+            style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
             type="number"
             value={bigNumberToInputValue(secondaryAmount)}
           />
         </HorizontalLayout>
-        <HorizontalLayout justifyContent="center" margin="32px 0" textAlign="center">
+        <HorizontalLayout justifyContent="center" margin="32px 0 0" textAlign="center">
           <Typography color="textSecondary" variant="body1">
             {props.primaryAction === "buy"
               ? `«Buy ${bigNumberToInputValue(primaryAmount)} ${primaryAsset ? primaryAsset.getCode() : "-"} ` +
@@ -276,14 +281,14 @@ function TradingForm(props: Props) {
           </Typography>
         </HorizontalLayout>
         {relativeSpread >= 0.015 ? (
-          <Box padding="8px 12px" style={{ background: warningColor }}>
+          <Box margin="32px 0 0" padding="8px 12px" style={{ background: warningColor }}>
             <b>Warning</b>
             <br />
             The spread between buying and selling price is about {(relativeSpread * 100).toFixed(1)}%.
           </Box>
         ) : null}
         <Portal target={props.dialogActionsRef.element}>
-          <DialogActionsBox desktopStyle={{ marginTop: 0 }}>
+          <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
             <ActionButton onClick={props.onBack} type="secondary">
               Back
             </ActionButton>
