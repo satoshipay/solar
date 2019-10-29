@@ -25,6 +25,7 @@ export function createAccountDataSubscription(
     activated: false,
     loading: true
   })
+
   const setPollingInterval = () => {
     // Bullet-proofing the important account data updates
     return setInterval(async () => {
@@ -43,12 +44,14 @@ export function createAccountDataSubscription(
           return
         }
 
-        dedupeMessage(accountData, () => {
-          latestPagingToken = accountData.paging_token
-          propagateUpdate({
-            ...subscriptionTarget.getLatest(),
-            ...(accountData as any)
-          })
+        latestPagingToken = accountData.paging_token
+        const updatedAccountData = {
+          ...subscriptionTarget.getLatest(),
+          ...(accountData as any)
+        }
+
+        dedupeMessage(updatedAccountData, () => {
+          propagateUpdate(updatedAccountData)
         })
       } catch (error) {
         // tslint:disable-next-line no-console
@@ -70,12 +73,14 @@ export function createAccountDataSubscription(
         .stream({
           reconnectTimeout: 8000,
           onmessage(accountData: ServerApi.AccountRecord) {
-            dedupeMessage(accountData, () => {
-              latestPagingToken = accountData.paging_token
-              propagateUpdate({
-                ...subscriptionTarget.getLatest(),
-                ...(accountData as any)
-              })
+            latestPagingToken = accountData.paging_token
+            const updatedAccountData = {
+              ...subscriptionTarget.getLatest(),
+              ...(accountData as any)
+            }
+
+            dedupeMessage(updatedAccountData, () => {
+              propagateUpdate(updatedAccountData)
             })
           },
           onerror() {
