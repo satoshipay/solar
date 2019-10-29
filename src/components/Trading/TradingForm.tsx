@@ -94,7 +94,8 @@ function TradingForm(props: Props) {
 
   const { worstPriceOfBestMatches } = useConversionOffers(
     props.primaryAction === "buy" ? tradePair.asks : tradePair.bids,
-    primaryAmount.gt(0) ? primaryAmount : BigNumber(0.01)
+    primaryAmount.gt(0) ? primaryAmount : BigNumber(0.01),
+    props.primaryAction === "sell"
   )
 
   const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
