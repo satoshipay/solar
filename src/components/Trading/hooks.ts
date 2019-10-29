@@ -4,25 +4,40 @@ import { FixedOrderbookOffer } from "../../lib/orderbook"
 
 const sum = (numbers: BigNumber[]) => numbers.reduce((total, no) => total.add(no), BigNumber(0))
 
-export function useConversionOffers(offers: FixedOrderbookOffer[], amount: BigNumber, tolerance: number = 0) {
+export function useConversionOffers(
+  offers: FixedOrderbookOffer[],
+  amount: BigNumber,
+  invertOfferAmounts: boolean = false
+) {
   // Best offers always returned first by horizon
-  const bestOffers = offers
-  const priceMultiplier = 1 + tolerance
+  const bestOffers = invertOfferAmounts
+    ? offers.map(offer => ({
+        ...offer,
+        amount: BigNumber(offer.amount)
+          .div(offer.price)
+          .toFixed(7)
+      }))
+    : offers
 
-  const bestMatches = React.useMemo(
-    () =>
-      bestOffers.reduce<{ offers: FixedOrderbookOffer[]; volume: BigNumber }>(
-        (aggregate, matchingOffer) =>
-          aggregate.volume.gte(amount) || BigNumber(matchingOffer.price).eq(0)
-            ? aggregate
-            : {
-                offers: [...aggregate.offers, matchingOffer],
-                volume: aggregate.volume.add(matchingOffer.amount)
-              },
-        { offers: [], volume: BigNumber(0) }
-      ),
-    [bestOffers, amount]
-  )
+  const bestMatches = React.useMemo(() => {
+    const offersToCover: FixedOrderbookOffer[] = []
+    let volume = BigNumber(0)
+
+    for (const matchingOffer of bestOffers) {
+      if (volume.gte(amount)) {
+        break
+      }
+      if (!BigNumber(matchingOffer.price).eq(0)) {
+        offersToCover.push(matchingOffer)
+        volume = volume.add(matchingOffer.amount)
+      }
+    }
+
+    return {
+      offers: offersToCover,
+      volume
+    }
+  }, [bestOffers, amount])
 
   const bestPrices = bestMatches.offers.map(offer => BigNumber(offer.price))
   const worstPriceOfBestMatches = bestPrices.length > 0 ? bestPrices[bestPrices.length - 1] : undefined
@@ -31,15 +46,9 @@ export function useConversionOffers(offers: FixedOrderbookOffer[], amount: BigNu
   const lastBestOffer = bestMatches.offers[bestMatches.offers.length - 1]
 
   const estimatedReturn = sum([
-    ...firstBestOffers.slice(0, -1).map(offer =>
-      BigNumber(offer.amount)
-        .mul(offer.price)
-        .mul(priceMultiplier)
-    ),
+    ...firstBestOffers.slice(0, -1).map(offer => BigNumber(offer.amount).mul(offer.price)),
     lastBestOffer
-      ? BigNumber(lastBestOffer.price)
-          .mul(priceMultiplier)
-          .mul(BigNumber(lastBestOffer.amount).sub(bestMatches.volume.sub(amount)))
+      ? BigNumber(lastBestOffer.price).mul(BigNumber(lastBestOffer.amount).sub(bestMatches.volume.sub(amount)))
       : BigNumber(0)
   ])
 

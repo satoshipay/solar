@@ -55,6 +55,7 @@ function OfferDescription(props: {
   offerId: string
   price: BigNumber
   selling: Asset
+  type: Operation.ManageBuyOffer["type"] | Operation.ManageSellOffer["type"]
 }) {
   const { amount, buying, offerId, price, selling } = props
   let prefix: string
@@ -68,18 +69,23 @@ function OfferDescription(props: {
   }
 
   if (offerId === "0") {
-    prefix = "Create offer: "
+    prefix = "Create order: "
   } else if (amount.eq(0)) {
-    prefix = "Delete offer: "
+    prefix = "Delete order: "
   } else {
-    prefix = "Update offer: "
+    prefix = "Update order: "
   }
 
   return (
     <>
       {prefix}
-      Sell {formatBalance(amount.toString())} {selling.code} for {formatBalance(amount.mul(price).toString())}{" "}
-      {buying.code}
+      {props.type === "manageBuyOffer"
+        ? `Buy ${formatBalance(amount.toString())} ${buying.code} for ${formatBalance(amount.div(price).toString())} ${
+            selling.code
+          }`
+        : `Sell ${formatBalance(amount.toString())} ${selling.code} for ${formatBalance(
+            amount.mul(price).toString()
+          )} ${buying.code}`}
     </>
   )
 }
@@ -240,8 +246,12 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
         style={props.style}
       />
     )
-  } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageSellOffer") {
-    const operation = props.transaction.operations[0] as Operation.ManageSellOffer
+  } else if (
+    props.transaction.operations.length === 1 &&
+    ["manageBuyOffer", "manageSellOffer"].includes(props.transaction.operations[0].type)
+  ) {
+    const operation = props.transaction.operations[0] as Operation.ManageBuyOffer | Operation.ManageSellOffer
+    const amount = BigNumber(operation.type === "manageBuyOffer" ? operation.buyAmount : operation.amount)
 
     if (String(operation.offerId) === "0") {
       // Create offer
@@ -249,11 +259,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
         <ListItemText
           primary={
             <span>
-              <OfferDescription
-                {...operation}
-                amount={BigNumber(operation.amount)}
-                price={BigNumber(operation.price)}
-              />
+              <OfferDescription {...operation} amount={amount} price={BigNumber(operation.price)} />
               {props.alwaysShowSource ? (
                 <>
                   {" "}
@@ -267,7 +273,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
           style={props.style}
         />
       )
-    } else if (BigNumber(operation.amount).eq(0)) {
+    } else if (amount.eq(0)) {
       // Delete offer
       return (
         <ListItemText
@@ -293,11 +299,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
         <ListItemText
           primary={
             <span>
-              <OfferDescription
-                {...operation}
-                amount={BigNumber(operation.amount)}
-                price={BigNumber(operation.price)}
-              />
+              <OfferDescription {...operation} amount={amount} price={BigNumber(operation.price)} />
               {props.alwaysShowSource ? (
                 <>
                   {" "}

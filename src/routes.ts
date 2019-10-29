@@ -15,10 +15,13 @@ export const manageAccountAssets = (accountID: string) => `/account/${accountID}
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
 export const setInflationDestination = (accountID: string) => `/account/${accountID}/settings/inflation`
 export const settings = () => "/settings"
-export const tradeAsset = (accountID: string) => `/account/${accountID}/trade`
 export const withdrawAsset = (accountID: string) => `/account/${accountID}/withdraw`
 export const showTransaction = (accountID: string, transactionHash: string) =>
   `/account/${accountID}/tx/${transactionHash}`
+
+export const tradeAsset = (accountID: string, method?: "buy" | "sell") => {
+  return method ? `/account/${accountID}/trade/${method}` : `/account/${accountID}/trade`
+}
 
 export function routeUp(currentPath: string) {
   const match = currentPath.match(/^\/account\/([^\/]+)\/.+/)

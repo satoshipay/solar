@@ -5,6 +5,7 @@
     "interface-name": [true, "never-prefix"],
     "member-access": [true, "no-public"],
     "no-duplicate-imports": false,
+    "no-implicit-dependencies": [true, "dev"],
     "no-shadowed-variable": [
       true,
       {
@@ -12,7 +13,7 @@
       }
     ],
     "no-submodule-imports": false,
-    "no-implicit-dependencies": [true, "dev"],
+    "no-string-literal": false,
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "semicolon": false

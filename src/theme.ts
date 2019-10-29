@@ -29,6 +29,7 @@ const theme = createMuiTheme({
       // disableSpacing: true
     },
     MuiInputLabel: {
+      required: false,
       shrink: true
     },
     MuiSelect: {
@@ -266,6 +267,11 @@ const theme = createMuiTheme({
     MuiTabs: {
       indicator: {
         backgroundColor: "rgba(255, 255, 255, 0)"
+      }
+    },
+    MuiTypography: {
+      h6: {
+        fontWeight: 400
       }
     }
   },
