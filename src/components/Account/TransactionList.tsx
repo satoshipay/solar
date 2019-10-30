@@ -428,7 +428,6 @@ interface TransactionListProps {
   background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
-  onOpenTransaction?: (transaction: Transaction) => void
   transactions: Transaction[]
 }
 
@@ -478,7 +477,7 @@ function TransactionList(props: TransactionListProps) {
               className={classes.listItem}
               createdAt={transaction.created_at}
               transaction={transaction}
-              onOpenTransaction={props.onOpenTransaction}
+              onOpenTransaction={openTransaction}
             />
           </EntryAnimation>
         ))}
