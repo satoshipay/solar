@@ -17,7 +17,7 @@ import {
 import { useDebouncedState } from "./util"
 import { useHorizon } from "./stellar"
 
-export { ObservedAccountData, ObservedRecentTxs, ObservedTradingPair }
+export { ObservedAccountData, ObservedAccountOffers, ObservedRecentTxs, ObservedTradingPair }
 
 // TODO: Better to separate fetch() & subscribeToUpdates(), have two useEffects()
 
