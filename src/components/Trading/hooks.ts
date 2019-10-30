@@ -13,9 +13,11 @@ export function useConversionOffers(
   const bestOffers = invertOfferAmounts
     ? offers.map(offer => ({
         ...offer,
-        amount: BigNumber(offer.amount)
-          .div(offer.price)
-          .toFixed(7)
+        amount: BigNumber(offer.price).eq(0)
+          ? BigNumber(0).toFixed(7)
+          : BigNumber(offer.amount)
+              .div(offer.price)
+              .toFixed(7)
       }))
     : offers
 
