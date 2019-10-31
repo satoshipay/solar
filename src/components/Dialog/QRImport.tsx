@@ -1,10 +1,8 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
-import getQRReader from "./../../platform/qr-reader"
+import { QRReader, isFullscreenQRPreview } from "./../../platform/components"
 import { ActionButton, DialogActionsBox } from "./Generic"
-
-const { isFullscreenQRPreview, QRReader } = getQRReader()
 
 interface Props {
   open: boolean
