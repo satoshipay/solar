@@ -1,6 +1,8 @@
 import React from "react"
 import Snackbar, { SnackbarOrigin } from "@material-ui/core/Snackbar"
+import Dialog from "@material-ui/core/Dialog"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
+import Typography from "@material-ui/core/Typography"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import CheckIcon from "@material-ui/icons/CheckCircle"
 import ErrorIcon from "@material-ui/icons/Error"
@@ -11,7 +13,11 @@ import green from "@material-ui/core/colors/green"
 import grey from "@material-ui/core/colors/grey"
 import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
 import { useOnlineStatus } from "../hooks/util"
-import theme from "../theme"
+import theme, { FullscreenDialogTransition } from "../theme"
+import DialogBody from "./Dialog/DialogBody"
+import { DialogActionsBox, ActionButton } from "./Dialog/Generic"
+import { Box } from "./Layout/Box"
+import MainTitle from "./MainTitle"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   connection: OfflineBoltIcon,
@@ -127,6 +133,7 @@ function NotificationsContainer() {
   const { notifications } = React.useContext(NotificationsContext)
   const { isOnline } = useOnlineStatus()
   const [lastClosedNotificationID, setLastClosedNotificationID] = React.useState(0)
+  const [dialogOpen, setDialogOpen] = React.useState(false)
   const lastShownNotification = React.useRef<Notification | null>(null)
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
@@ -142,19 +149,49 @@ function NotificationsContainer() {
     lastShownNotification.current = latestNotificationItem
   }
 
-  return (
+  const showDialog = React.useCallback(() => {
+    setDialogOpen(true)
+  }, [setDialogOpen])
+
+  const closeDialog = React.useCallback(() => {
+    closeNotification()
+    setDialogOpen(false)
+  }, [setDialogOpen, closeNotification])
+
+  const dialog = (
+    <Dialog fullScreen open={dialogOpen} onClose={closeDialog} TransitionComponent={FullscreenDialogTransition}>
+      <DialogBody
+        top={<MainTitle onBack={closeDialog} title={"Error"} />}
+        actions={
+          <DialogActionsBox>
+            <ActionButton autoFocus icon={<CheckIcon />} onClick={closeDialog} type="primary">
+              {"Dismiss"}
+            </ActionButton>
+          </DialogActionsBox>
+        }
+      >
+        <Box alignSelf="center" margin="24px auto 0" maxWidth={400} width="100%">
+          <Typography>{notification ? notification.message : ""}</Typography>
+        </Box>
+      </DialogBody>
+    </Dialog>
+  )
+
+  const notificationJSX = (
     <>
       <Notification
         autoHideDuration={5000}
         message={notification ? notification.message : ""}
         type={notification ? notification.type : "error"}
         open={open}
-        onClick={notification ? notification.onClick : undefined}
+        onClick={notification && notification.onClick ? notification.onClick : showDialog}
         onClose={closeNotification}
       />
       <OfflineNotification message="Offline" open={!isOnline} />
     </>
   )
+
+  return dialogOpen ? dialog : notificationJSX
 }
 
 export default NotificationsContainer
