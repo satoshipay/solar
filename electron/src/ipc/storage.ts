@@ -4,6 +4,7 @@ import { createStore } from "key-store"
 import generateID from "nanoid/generate"
 import { Keypair, Networks, Transaction } from "stellar-sdk"
 import { expose } from "./_ipc"
+import { Messages } from "../shared/ipc"
 
 // Use different key stores for development and production
 const mainStore = new Store({
@@ -30,31 +31,31 @@ export function readInstallationID() {
 /////////////
 // Keystore:
 
-expose(IPC.Messages.GetKeyIDs, function getKeyIDs() {
+expose(Messages.GetKeyIDs, function getKeyIDs() {
   return keystore.getKeyIDs()
 })
 
-expose(IPC.Messages.GetPublicKeyData, function getPublicKeyData(keyID) {
+expose(Messages.GetPublicKeyData, function getPublicKeyData(keyID) {
   return keystore.getPublicKeyData(keyID)
 })
 
-expose(IPC.Messages.GetPrivateKeyData, function getPrivateKeyData(keyID, password) {
+expose(Messages.GetPrivateKeyData, function getPrivateKeyData(keyID, password) {
   return keystore.getPrivateKeyData(keyID, password)
 })
 
-expose(IPC.Messages.SaveKey, function saveKey(keyID, password, privateData, publicData?) {
+expose(Messages.SaveKey, function saveKey(keyID, password, privateData, publicData?) {
   return keystore.saveKey(keyID, password, privateData, publicData)
 })
 
-expose(IPC.Messages.SavePublicKeyData, function saveKey(keyID, publicData) {
+expose(Messages.SavePublicKeyData, function saveKey(keyID, publicData) {
   return keystore.savePublicKeyData(keyID, publicData)
 })
 
-expose(IPC.Messages.RemoveKey, function removeKey(keyID) {
+expose(Messages.RemoveKey, function removeKey(keyID) {
   return keystore.removeKey(keyID)
 })
 
-expose(IPC.Messages.SignTransaction, function signTransaction(internalAccountID, transactionXDR, password) {
+expose(Messages.SignTransaction, function signTransaction(internalAccountID, transactionXDR, password) {
   try {
     const account = keystore.getPublicKeyData(internalAccountID)
     const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
@@ -76,11 +77,11 @@ expose(IPC.Messages.SignTransaction, function signTransaction(internalAccountID,
 /////////////
 // Settings:
 
-expose(IPC.Messages.ReadSettings, function readSettings() {
+expose(Messages.ReadSettings, function readSettings() {
   return mainStore.has("settings") ? mainStore.get("settings") : {}
 })
 
-expose(IPC.Messages.StoreSettings, function storeSettings(updatedSettings: Partial<Platform.SettingsData>) {
+expose(Messages.StoreSettings, function storeSettings(updatedSettings: Partial<Platform.SettingsData>) {
   const prevSettings = mainStore.has("settings") ? mainStore.get("settings") : {}
   mainStore.set("settings", { ...prevSettings, ...updatedSettings })
   return true
@@ -89,11 +90,11 @@ expose(IPC.Messages.StoreSettings, function storeSettings(updatedSettings: Parti
 //////////////////
 // Dismissed txs:
 
-expose(IPC.Messages.ReadIgnoredSignatureRequestHashes, function readIgnoredSignatureRequestHashes() {
+expose(Messages.ReadIgnoredSignatureRequestHashes, function readIgnoredSignatureRequestHashes() {
   return mainStore.has("ignoredSignatureRequests") ? mainStore.get("ignoredSignatureRequests") : []
 })
 
-expose(IPC.Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatureRequestHashes(
+expose(Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatureRequestHashes(
   updatedHashes: string[]
 ) {
   mainStore.set("ignoredSignatureRequests", updatedHashes)

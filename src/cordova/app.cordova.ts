@@ -3,6 +3,7 @@
  * Wire-up cordova plugins with window.postMessage()-based IPC here.
  */
 
+import { Messages } from "../shared/ipc"
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, sendSuccessResponse, sendErrorResponse } from "./ipc"
 import initializeQRReader from "./qr-reader"
@@ -119,11 +120,11 @@ function authenticate(contentWindow: Window) {
 }
 
 function showHtmlSplashScreen(contentWindow: Window) {
-  contentWindow.postMessage(IPC.Messages.ShowSplashScreen, "*")
+  contentWindow.postMessage(Messages.ShowSplashScreen, "*")
 }
 
 function hideHtmlSplashScreen(contentWindow: Window) {
-  contentWindow.postMessage(IPC.Messages.HideSplashScreen, "*")
+  contentWindow.postMessage(Messages.HideSplashScreen, "*")
 }
 
 function onPause(contentWindow: Window) {
@@ -144,7 +145,7 @@ function onResume(contentWindow: Window) {
 }
 
 function initializeClipboard(cordova: Cordova) {
-  registerCommandHandler(IPC.Messages.CopyToClipboard, event => {
+  registerCommandHandler(Messages.CopyToClipboard, event => {
     return new Promise((resolve, reject) => {
       cordova.plugins.clipboard.copy(event.data.text, resolve, reject)
     })
@@ -201,7 +202,7 @@ function initializeIPhoneNotchFix() {
 }
 
 function setupLinkListener(contentWindow: Window) {
-  registerCommandHandler(IPC.Messages.OpenLink, event => {
+  registerCommandHandler(Messages.OpenLink, event => {
     return new Promise(() => {
       const url: string = event.data.url
       openUrl(contentWindow, url)
@@ -222,7 +223,7 @@ function setupBioAuthTestHandler() {
     }
   }
 
-  registerCommandHandler(IPC.Messages.TestBioAuth, messageHandler)
+  registerCommandHandler(Messages.TestBioAuth, messageHandler)
 }
 
 function setupBioAuthAvailableHandler() {
@@ -241,7 +242,7 @@ function setupBioAuthAvailableHandler() {
     }
   }
 
-  registerCommandHandler(IPC.Messages.BioAuthAvailable, messageHandler)
+  registerCommandHandler(Messages.BioAuthAvailable, messageHandler)
 }
 
 function openUrl(contentWindow: Window, url: string) {

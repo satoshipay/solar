@@ -1,6 +1,7 @@
 import { trackError } from "./error"
 import { registerCommandHandler, sendSuccessResponse } from "./ipc"
 import { refreshLastNativeInteractionTime } from "./app.cordova"
+import { Messages } from "../shared/ipc"
 
 async function startQRReader(event: MessageEvent, contentWindow: Window) {
   refreshLastNativeInteractionTime()
@@ -30,5 +31,5 @@ async function startQRReader(event: MessageEvent, contentWindow: Window) {
 }
 
 export default function initialize() {
-  registerCommandHandler(IPC.Messages.ScanQRCode, startQRReader)
+  registerCommandHandler(Messages.ScanQRCode, startQRReader)
 }

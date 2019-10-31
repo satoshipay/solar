@@ -1,4 +1,5 @@
 import { call } from "./ipc"
+import { Messages } from "../shared/ipc"
 
 interface SettingsStore {
   biometricLockAvailable(): Promise<boolean>
@@ -9,12 +10,12 @@ interface SettingsStore {
 }
 
 const implementation: SettingsStore = {
-  biometricLockAvailable: () => call(IPC.Messages.BioAuthAvailable),
-  loadIgnoredSignatureRequestHashes: () => call(IPC.Messages.ReadIgnoredSignatureRequestHashes),
+  biometricLockAvailable: () => call(Messages.BioAuthAvailable),
+  loadIgnoredSignatureRequestHashes: () => call(Messages.ReadIgnoredSignatureRequestHashes),
   saveIgnoredSignatureRequestHashes: updatedSignatureRequestHashes =>
-    call(IPC.Messages.StoreIgnoredSignatureRequestHashes, updatedSignatureRequestHashes),
-  loadSettings: () => call(IPC.Messages.ReadSettings),
-  saveSettings: settingsUpdate => call(IPC.Messages.StoreSettings, settingsUpdate)
+    call(Messages.StoreIgnoredSignatureRequestHashes, updatedSignatureRequestHashes),
+  loadSettings: () => call(Messages.ReadSettings),
+  saveSettings: settingsUpdate => call(Messages.StoreSettings, settingsUpdate)
 }
 
 export const biometricLockAvailable = implementation.biometricLockAvailable

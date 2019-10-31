@@ -1,5 +1,6 @@
 import { createStore, KeysData } from "key-store"
 import { Networks, Keypair, Transaction } from "stellar-sdk"
+import { Messages } from "../shared/ipc"
 
 type CallHandler = (...args: any) => any
 
@@ -12,8 +13,8 @@ const callHandlers: CallHandlers = {}
 initKeyStore()
 initSettings()
 
-callHandlers[IPC.Messages.CopyToClipboard] = (text: string) => (navigator as any).clipboard.writeText(text)
-callHandlers[IPC.Messages.OpenLink] = (href: string) => window.open(href, "_blank")
+callHandlers[Messages.CopyToClipboard] = (text: string) => (navigator as any).clipboard.writeText(text)
+callHandlers[Messages.OpenLink] = (href: string) => window.open(href, "_blank")
 
 const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {
@@ -69,12 +70,12 @@ function initKeyStore() {
   }
   const keyStore = createStore<PrivateKeyData, PublicKeyData>(saveKeys, initialKeys)
 
-  callHandlers[IPC.Messages.GetKeyIDs] = keyStore.getKeyIDs
-  callHandlers[IPC.Messages.GetPublicKeyData] = keyStore.getPublicKeyData
-  callHandlers[IPC.Messages.GetPrivateKeyData] = keyStore.getPrivateKeyData
-  callHandlers[IPC.Messages.RemoveKey] = keyStore.removeKey
-  callHandlers[IPC.Messages.SaveKey] = keyStore.saveKey
-  callHandlers[IPC.Messages.SavePublicKeyData] = keyStore.savePublicKeyData
+  callHandlers[Messages.GetKeyIDs] = keyStore.getKeyIDs
+  callHandlers[Messages.GetPublicKeyData] = keyStore.getPublicKeyData
+  callHandlers[Messages.GetPrivateKeyData] = keyStore.getPrivateKeyData
+  callHandlers[Messages.RemoveKey] = keyStore.removeKey
+  callHandlers[Messages.SaveKey] = keyStore.saveKey
+  callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData
 
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
@@ -95,7 +96,7 @@ function initKeyStore() {
     }
   }
 
-  callHandlers[IPC.Messages.SignTransaction] = signTransaction
+  callHandlers[Messages.SignTransaction] = signTransaction
 }
 
 function initSettings() {
@@ -107,22 +108,22 @@ function initSettings() {
     hideMemos: false
   }
 
-  callHandlers[IPC.Messages.BioAuthAvailable] = () => false
+  callHandlers[Messages.BioAuthAvailable] = () => false
 
-  callHandlers[IPC.Messages.ReadSettings] = () => settings
-  callHandlers[IPC.Messages.StoreSettings] = (updatedSettings: Partial<Platform.SettingsData>) => {
+  callHandlers[Messages.ReadSettings] = () => settings
+  callHandlers[Messages.StoreSettings] = (updatedSettings: Partial<Platform.SettingsData>) => {
     settings = {
       ...settings,
       ...updatedSettings
     }
   }
 
-  callHandlers[IPC.Messages.ReadIgnoredSignatureRequestHashes] = () => {
+  callHandlers[Messages.ReadIgnoredSignatureRequestHashes] = () => {
     const data = window.localStorage.getItem("wallet:storage:ignoredSignatureRequests")
     return data ? JSON.parse(data) : []
   }
 
-  callHandlers[IPC.Messages.StoreIgnoredSignatureRequestHashes] = (updatedSignatureRequestHashes: string[]) => {
+  callHandlers[Messages.StoreIgnoredSignatureRequestHashes] = (updatedSignatureRequestHashes: string[]) => {
     window.localStorage.setItem(
       "wallet:storage:ignoredSignatureRequests",
       JSON.stringify(updatedSignatureRequestHashes)
@@ -147,7 +148,7 @@ function subscribeToDeepLinkURLs(callback: (url: string) => void) {
   return () => undefined
 }
 
-export function call<Message extends IPC.Messages>(
+export function call<Message extends keyof IPC.MessageType>(
   messageType: Message,
   ...args: IPC.MessageArgs<Message>
 ): Promise<IPC.MessageReturnType<Message>> {
@@ -168,12 +169,12 @@ export function call<Message extends IPC.Messages>(
 
 type UnsubscribeFn = () => void
 
-export function subscribeToMessages<Message extends IPC.Messages>(
+export function subscribeToMessages<Message extends keyof IPC.MessageType>(
   messageType: Message,
   callback: (message: any) => void
 ): UnsubscribeFn {
   // subscribing to deep link urls is the only use case right now
-  if (messageType === IPC.Messages.DeepLinkURL) {
+  if (messageType === Messages.DeepLinkURL) {
     return subscribeToDeepLinkURLs(callback)
   } else {
     return () => undefined

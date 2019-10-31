@@ -1,15 +1,16 @@
 import { KeyStore } from "key-store"
 import { Transaction, Keypair } from "stellar-sdk"
+import { Messages } from "../shared/ipc"
 import { CommandHandlers, registerCommandHandler, sendSuccessResponse, sendErrorResponse } from "./ipc"
 
 export const commandHandlers: CommandHandlers = {
-  [IPC.Messages.GetKeyIDs]: respondWithKeyIDs,
-  [IPC.Messages.GetPublicKeyData]: respondWithPublicKeyData,
-  [IPC.Messages.GetPrivateKeyData]: respondWithPrivateKeyData,
-  [IPC.Messages.SaveKey]: saveKey,
-  [IPC.Messages.SavePublicKeyData]: savePublicKeyData,
-  [IPC.Messages.SignTransaction]: respondWithSignedTransaction,
-  [IPC.Messages.RemoveKey]: removeKey
+  [Messages.GetKeyIDs]: respondWithKeyIDs,
+  [Messages.GetPublicKeyData]: respondWithPublicKeyData,
+  [Messages.GetPrivateKeyData]: respondWithPrivateKeyData,
+  [Messages.SaveKey]: saveKey,
+  [Messages.SavePublicKeyData]: savePublicKeyData,
+  [Messages.SignTransaction]: respondWithSignedTransaction,
+  [Messages.RemoveKey]: removeKey
 }
 
 export function registerKeyStoreCommandHandlers() {

@@ -1,6 +1,6 @@
 import { ipcMain } from "electron"
 
-export function expose<Message extends IPC.Messages>(
+export function expose<Message extends keyof IPC.MessageType>(
   messageType: Message,
   handler: (
     ...args: IPC.MessageArgs<Message>

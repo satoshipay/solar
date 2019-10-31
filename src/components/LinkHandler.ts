@@ -1,4 +1,5 @@
 import React from "react"
+import { Messages } from "../../shared/ipc"
 import { call } from "../platform/ipc"
 
 function LinkHandler() {
@@ -9,7 +10,7 @@ function LinkHandler() {
         const href = link.getAttribute("href") as string
         event.preventDefault()
 
-        call(IPC.Messages.OpenLink, href)
+        call(Messages.OpenLink, href)
       }
     }
 

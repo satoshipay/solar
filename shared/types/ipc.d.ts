@@ -6,34 +6,36 @@ declare namespace IPC {
    * reference the call itself (each call is assigned a numeric call ID).
    */
 
-  export const enum Messages {
-    CopyToClipboard = "CopyToClipboard",
+  const Messages: {
+    CopyToClipboard: "CopyToClipboard"
 
-    ScanQRCode = "ScanQRCode",
+    ScanQRCode: "ScanQRCode"
 
-    ShowSplashScreen = "ShowSplashScreen",
-    HideSplashScreen = "HideSplashScreen",
+    ShowSplashScreen: "ShowSplashScreen"
+    HideSplashScreen: "HideSplashScreen"
 
-    BioAuthAvailable = "BioAuthAvailable",
-    TestBioAuth = "TestBioAuth",
+    BioAuthAvailable: "BioAuthAvailable"
+    TestBioAuth: "TestBioAuth"
 
-    OpenLink = "OpenLink",
+    OpenLink: "OpenLink"
 
-    DeepLinkURL = "DeepLinkURL",
+    DeepLinkURL: "DeepLinkURL"
 
-    ReadSettings = "ReadSettings",
-    StoreSettings = "StoreSettings",
-    ReadIgnoredSignatureRequestHashes = "ReadIgnoredSignatureRequestHashes",
-    StoreIgnoredSignatureRequestHashes = "StoreIgnoredSignatureRequestHashes",
+    ReadSettings: "ReadSettings"
+    StoreSettings: "StoreSettings"
+    ReadIgnoredSignatureRequestHashes: "ReadIgnoredSignatureRequestHashes"
+    StoreIgnoredSignatureRequestHashes: "StoreIgnoredSignatureRequestHashes"
 
-    GetKeyIDs = "GetKeyIDs",
-    GetPublicKeyData = "GetPublicKeyData",
-    GetPrivateKeyData = "GetPrivateKeyData",
-    SaveKey = "SaveKey",
-    SavePublicKeyData = "SavePublicKeyData",
-    SignTransaction = "SignTransaction",
-    RemoveKey = "RemoveKey"
+    GetKeyIDs: "GetKeyIDs"
+    GetPublicKeyData: "GetPublicKeyData"
+    GetPrivateKeyData: "GetPrivateKeyData"
+    SaveKey: "SaveKey"
+    SavePublicKeyData: "SavePublicKeyData"
+    SignTransaction: "SignTransaction"
+    RemoveKey: "RemoveKey"
   }
+
+  export type MessageType = typeof Messages
 
   export interface MessageSignatures {
     [Messages.CopyToClipboard]: (text: string) => void
@@ -69,7 +71,7 @@ declare namespace IPC {
     [Messages.RemoveKey]: (keyID: string) => void
   }
 
-  export type MessageArgs<Message extends Messages> = MessageSignatures[Message] extends () => any
+  export type MessageArgs<Message extends keyof MessageType> = MessageSignatures[Message] extends () => any
     ? []
     : MessageSignatures[Message] extends (arg0: infer Arg0) => any
     ? [Arg0]
@@ -81,5 +83,5 @@ declare namespace IPC {
     ? [Arg0, Arg1, Arg2, Arg3]
     : never
 
-  export type MessageReturnType<Message extends Messages> = ReturnType<MessageSignatures[Message]>
+  export type MessageReturnType<Message extends keyof MessageType> = ReturnType<MessageSignatures[Message]>
 }

@@ -1,6 +1,6 @@
 let nextCallID = 1
 
-export function call<Message extends IPC.Messages>(
+export function call<Message extends keyof IPC.MessageType>(
   messageType: Message,
   ...args: IPC.MessageArgs<Message>
 ): Promise<IPC.MessageReturnType<Message>> {
@@ -29,7 +29,7 @@ export function call<Message extends IPC.Messages>(
 
 type UnsubscribeFn = () => void
 
-export function subscribeToMessages<Message extends IPC.Messages>(
+export function subscribeToMessages<Message extends keyof IPC.MessageType>(
   messageType: Message,
   callback: (message: any) => void
 ): UnsubscribeFn {

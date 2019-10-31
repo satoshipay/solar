@@ -1,4 +1,4 @@
-interface ElectronIPCCallMessage<Message extends IPC.Messages> {
+interface ElectronIPCCallMessage<Message extends keyof IPC.MessageType> {
   args: IPC.MessageArgs<Message>
   callID: number
 }
@@ -16,11 +16,11 @@ interface ElectronIPCCallResultMessage {
 type ElectronIPCCallResponseMessage = ElectronIPCCallErrorMessage | ElectronIPCCallResultMessage
 
 interface ElectronContext {
-  sendIPCMessage<Message extends IPC.Messages>(
+  sendIPCMessage<Message extends keyof IPC.MessageType>(
     messageType: Message,
     message: ElectronIPCCallMessage<Message>
   ): Promise<any>
-  subscribeToIPCMessages<Message extends IPC.Messages>(
+  subscribeToIPCMessages<Message extends keyof IPC.MessageType>(
     messageType: Message,
     subscribeCallback: (event: Event, result: IPC.MessageReturnType<Message>) => void
   ): () => void

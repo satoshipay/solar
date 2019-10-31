@@ -2,7 +2,7 @@
 const { ipcRenderer } = require("electron")
 const electronProcess = process
 
-function sendMessage<Message extends IPC.Messages>(
+function sendMessage<Message extends keyof IPC.MessageType>(
   messageType: Message,
   callID: number,
   ...args: IPC.MessageArgs<Message>
@@ -32,7 +32,7 @@ function sendMessage<Message extends IPC.Messages>(
   return responsePromise
 }
 
-async function sendIPCMessage<Message extends IPC.Messages>(
+async function sendIPCMessage<Message extends keyof IPC.MessageType>(
   messageType: Message,
   message: ElectronIPCCallMessage<Message>
 ) {
@@ -41,7 +41,7 @@ async function sendIPCMessage<Message extends IPC.Messages>(
   return sendMessage(messageType, callID, ...args)
 }
 
-function subscribeToIPCMessages<Message extends IPC.Messages>(
+function subscribeToIPCMessages<Message extends keyof IPC.MessageType>(
   messageType: Message,
   subscribeCallback: (event: Event, result: IPC.MessageReturnType<Message>) => void
 ) {

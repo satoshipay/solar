@@ -3,8 +3,9 @@
  */
 
 import nanoid from "nanoid"
-import { registerCommandHandler, sendSuccessResponse } from "./ipc"
 import { createStore, KeysData } from "key-store"
+import { Messages } from "../shared/ipc"
+import { registerCommandHandler, sendSuccessResponse } from "./ipc"
 import { registerKeyStoreCommandHandlers } from "./keystore"
 
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
@@ -17,10 +18,10 @@ export const storeKeys = {
   clientSecret: "clientsecret"
 }
 
-registerCommandHandler(IPC.Messages.ReadSettings, respondWithSettings)
-registerCommandHandler(IPC.Messages.StoreSettings, updateSettings)
-registerCommandHandler(IPC.Messages.ReadIgnoredSignatureRequestHashes, respondWithIgnoredSignatureRequests)
-registerCommandHandler(IPC.Messages.StoreIgnoredSignatureRequestHashes, updateIgnoredSignatureRequests)
+registerCommandHandler(Messages.ReadSettings, respondWithSettings)
+registerCommandHandler(Messages.StoreSettings, updateSettings)
+registerCommandHandler(Messages.ReadIgnoredSignatureRequestHashes, respondWithIgnoredSignatureRequests)
+registerCommandHandler(Messages.StoreIgnoredSignatureRequestHashes, updateIgnoredSignatureRequests)
 
 let currentSettings: Platform.SettingsData | undefined
 
