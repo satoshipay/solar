@@ -3,7 +3,7 @@ import contextMenu from "electron-context-menu"
 import "./bootstrap" // should be first of all local imports
 import { createAppMenu } from "./menu"
 import { createMainWindow, getOpenWindows, trackWindow } from "./window"
-import "./storage"
+import "./ipc/index"
 import "./updater"
 
 // Enable opening dev tools in production using keyboard shortcut

@@ -3,8 +3,8 @@ import isDev from "electron-is-dev"
 import fetch from "isomorphic-fetch"
 import os from "os"
 import { URL } from "url"
-import { commands, events, expose } from "./ipc"
-import { readInstallationID } from "./storage"
+import { expose } from "./ipc/_ipc"
+import { readInstallationID } from "./ipc/storage"
 
 interface UpdateInfo {
   name: string

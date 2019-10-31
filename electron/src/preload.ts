@@ -2,83 +2,57 @@
 const { ipcRenderer } = require("electron")
 const electronProcess = process
 
-let nextCommandID = 1
+function sendMessage<Message extends IPC.Messages>(
+  messageType: Message,
+  callID: number,
+  ...args: IPC.MessageArgs<Message>
+): Promise<IPC.MessageReturnType<Message>> {
+  const responsePromise = new Promise<IPC.MessageReturnType<Message>>((resolve, reject) => {
+    const listener = (event: Electron.Event, data: any) => {
+      if (data.messageID === callID) {
+        ipcRenderer.removeListener(messageType, listener)
 
-function createCommand<T>(commandType: string, eventType: string): () => Promise<T> {
-  return (...args: any[]) => {
-    const messageID = nextCommandID++
-
-    const responsePromise = new Promise<T>((resolve, reject) => {
-      const listener = (event: Electron.Event, data: any) => {
-        if (data.messageID === messageID) {
-          ipcRenderer.removeListener(eventType, listener)
-
-          if (data.error) {
-            const error = Object.assign(Error(data.error.message), {
-              name: data.error.name || "Error",
-              stack: data.error.stack
-            })
-            reject(error)
-          } else if (data.result) {
-            resolve(data.result)
-          } else {
-            resolve()
-          }
+        if (data.error) {
+          const error = Object.assign(Error(data.error.message), {
+            name: data.error.name || "Error",
+            stack: data.error.stack
+          })
+          reject(error)
+        } else if (data.result) {
+          resolve(data.result)
+        } else {
+          resolve()
         }
       }
-      ipcRenderer.on(eventType, listener)
-    })
+    }
+    ipcRenderer.on(messageType, listener)
+  })
 
-    ipcRenderer.send(commandType, { messageID, args })
-    return responsePromise
-  }
+  ipcRenderer.send(messageType, { callID, args })
+  return responsePromise
 }
 
-const getKeyIDs = createCommand<string[]>("keystore:getKeyIDs", "keystore:keyIDs")
-const getPublicKeyData = createCommand<PublicKeyData>("keystore:getPublicKeyData", "keystore:publicKeyData")
-const getPrivateKeyData = createCommand<PrivateKeyData>("keystore:getPrivateKeyData", "keystore:privateKeyData")
-const saveKey = createCommand<void>("keystore:saveKey", "keystore:savedKey")
-const savePublicKeyData = createCommand<void>("keystore:savePublicKeyData", "keystore:savedPublicKeyData")
-const signTransaction = createCommand<string>("keystore:signTransaction", "keystore:signedTransaction")
-const removeKey = createCommand<void>("keystore:removeKey", "keystore:removedKey")
+async function sendIPCMessage<Message extends IPC.Messages>(
+  messageType: Message,
+  message: ElectronIPCCallMessage<Message>
+) {
+  const { args, callID } = message
 
-const readSettings = () => ipcRenderer.sendSync("storage:settings:readSync")
-const updateSettings = (updatedSettings: Partial<SettingsData>) =>
-  ipcRenderer.sendSync("storage:settings:storeSync", updatedSettings)
+  return sendMessage(messageType, callID, ...args)
+}
 
-const readIgnoredSignatureRequestHashes = () => ipcRenderer.sendSync("storage:ignoredSignatureRequests:readSync")
-const updateIgnoredSignatureRequestHashes = (updatedHashes: string[]) =>
-  ipcRenderer.sendSync("storage:ignoredSignatureRequests:storeSync", updatedHashes)
-
-const isUpdateAvailable = createCommand<boolean>("app-update:get-availability", "app-update:availability")
-const startUpdate = createCommand<void>("app-update:start", "app-update:started")
-
-const subscribeToIPCMain = (
-  channel: string,
-  subscribeCallback: (event: Event, ...args: any[]) => void
-): (() => void) => {
-  ipcRenderer.on(channel, subscribeCallback)
-  const unsubscribe = () => ipcRenderer.removeListener(channel, subscribeCallback)
+function subscribeToIPCMessages<Message extends IPC.Messages>(
+  messageType: Message,
+  subscribeCallback: (event: Event, result: IPC.MessageReturnType<Message>) => void
+) {
+  ipcRenderer.on(messageType, subscribeCallback)
+  const unsubscribe = () => ipcRenderer.removeListener(messageType, subscribeCallback)
   return unsubscribe
 }
 
 const electron: ElectronContext = {
-  getKeyIDs,
-  getPublicKeyData,
-  getPrivateKeyData,
-  saveKey,
-  savePublicKeyData,
-  signTransaction,
-  removeKey,
-
-  readIgnoredSignatureRequestHashes,
-  readSettings,
-  updateIgnoredSignatureRequestHashes,
-  updateSettings,
-  subscribeToIPCMain,
-
-  isUpdateAvailable,
-  startUpdate
+  sendIPCMessage,
+  subscribeToIPCMessages
 }
 
 global.electron = window.electron = electron
