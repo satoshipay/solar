@@ -29,7 +29,7 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
 
   return (
     <List style={{ margin: "16px auto", maxWidth: 600 }}>
-      <ListSubheader style={{ background: "none" }}>Funding options</ListSubheader>
+      <ListSubheader style={{ background: "none" }}>Lumen funding options</ListSubheader>
       <ListItem button onClick={navigateToMoonPay}>
         <ListItemText
           primary="MoonPay"
