@@ -1,5 +1,5 @@
 import React from "react"
-import { testBiometricAuth, isBiometricAuthAvailable } from "../platform/cordova/bio-auth"
+import { testBiometricAuth, isBiometricAuthAvailable } from "../platform/bio-auth"
 import {
   loadIgnoredSignatureRequestHashes,
   loadSettings,
