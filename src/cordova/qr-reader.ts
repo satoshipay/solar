@@ -1,5 +1,5 @@
 import { trackError } from "./error"
-import { events, commands, registerCommandHandler } from "./ipc"
+import { registerCommandHandler, sendSuccessResponse } from "./ipc"
 import { refreshLastNativeInteractionTime } from "./app.cordova"
 
 async function startQRReader(event: MessageEvent, contentWindow: Window) {
@@ -7,7 +7,7 @@ async function startQRReader(event: MessageEvent, contentWindow: Window) {
   cordova.plugins.barcodeScanner.scan(
     result => {
       refreshLastNativeInteractionTime()
-      contentWindow.postMessage({ eventType: events.qrcodeResultEvent, id: event.data.id, qrdata: result.text }, "*")
+      sendSuccessResponse(contentWindow, event, result.text)
     },
     error => {
       refreshLastNativeInteractionTime()
@@ -30,5 +30,5 @@ async function startQRReader(event: MessageEvent, contentWindow: Window) {
 }
 
 export default function initialize() {
-  registerCommandHandler(commands.scanQRCodeCommand, startQRReader)
+  registerCommandHandler(IPC.Messages.ScanQRCode, startQRReader)
 }

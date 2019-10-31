@@ -1,6 +1,5 @@
 import { KeyStore } from "key-store"
 import { trackError } from "./error"
-import * as keyStoreIPC from "./keystore"
 
 type CommandHandler = (
   event: MessageEvent,
@@ -11,46 +10,6 @@ type CommandHandler = (
 
 export interface CommandHandlers {
   [eventName: string]: CommandHandler
-}
-
-// commands
-export const commands = {
-  keyStore: keyStoreIPC.commands,
-
-  readSettingsCommand: "storage:settings:read",
-  storeSettingsCommand: "storage:settings:store",
-  readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
-  storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
-
-  testBioAuthCommand: "test:auth",
-  bioAuthAvailableCommand: "test:auth:available",
-
-  openLink: "link:open",
-
-  copyToClipboard: "clipboard:write",
-  scanQRCodeCommand: "qr-code:scan",
-
-  showSplashScreen: "splash:show",
-  hideSplashScreen: "splash:hide"
-}
-
-// event types
-export const events = {
-  keyStore: keyStoreIPC.events,
-
-  keyResponseEvent: "storage:keys",
-  keysStoredEvent: "storage:keys:stored",
-  settingsResponseEvent: "storage:settings",
-  settingsStoredEvent: "storage:settings:stored",
-  ignoredSignatureRequestsResponseEvent: "storage:ignoredSignatureRequests",
-  storedIgnoredSignatureRequestsEvent: "storage:ignoredSignatureRequests:stored",
-
-  testBioAuthResponseEvent: "test:auth:result",
-  bioAuthAvailableResponseEvent: "test:auth:available:result",
-
-  qrcodeResultEvent: "qr-code:result",
-
-  deeplinkURLEvent: "deeplink:url"
 }
 
 let commandHandlers: CommandHandlers = {}
@@ -82,4 +41,12 @@ export function registerCommandHandler(commandName: string, handler: CommandHand
     ...commandHandlers,
     [commandName]: handler
   }
+}
+
+export function sendSuccessResponse(contentWindow: Window, event: MessageEvent, result?: any) {
+  contentWindow.postMessage({ messageType: event.data.messageType, callID: event.data.callID, result }, "*")
+}
+
+export function sendErrorResponse(contentWindow: Window, event: MessageEvent, error: any) {
+  contentWindow.postMessage({ messageType: event.data.messageType, callID: event.data.callID, error }, "*")
 }
