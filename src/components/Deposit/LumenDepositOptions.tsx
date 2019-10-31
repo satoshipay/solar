@@ -10,7 +10,7 @@ import { useRouter } from "../../hooks/userinterface"
 import { openLink } from "../../platform/links"
 
 function createMoonPayURLForAccount(account: Account) {
-  const baseURL = "https://buy-staging.moonpay.io/"
+  const baseURL = "https://buy.moonpay.io/"
   const apiKEY = account.testnet ? "pk_test_RPUOOEJ7ZiAWlLFG6lbohDF9d2SqICX" : "pk_live_Xly1jO3hHE46AyMJO50lwoAk2VUCon"
   const currencyCode = "XLM"
   const colorCode = "1c8fea"
