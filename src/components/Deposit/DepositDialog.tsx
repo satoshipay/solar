@@ -26,7 +26,7 @@ function DepositDialog(props: Props) {
       actions={dialogActionsRef}
     >
       <Box margin="24px 0 0">{null}</Box>
-      <LumenDepositOptions account={props.account} />
+      <LumenDepositOptions account={props.account} onCloseDialog={props.onClose} />
     </DialogBody>
   )
 }

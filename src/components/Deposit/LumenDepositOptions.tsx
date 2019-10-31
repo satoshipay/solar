@@ -19,17 +19,21 @@ function createMoonPayURLForAccount(account: Account) {
 
 interface LumenDepositOptionsProps {
   account: Account
+  onCloseDialog: () => void
 }
 
 function LumenDepositOptions(props: LumenDepositOptionsProps) {
   const { account } = props
   const router = useRouter()
 
-  const navigateToMoonPay = React.useCallback(() => openLink(createMoonPayURLForAccount(account)), [account, router])
+  const navigateToMoonPay = React.useCallback(() => {
+    openLink(createMoonPayURLForAccount(account))
+    props.onCloseDialog()
+  }, [account, router, props.onCloseDialog])
 
   return (
     <List style={{ margin: "16px auto", maxWidth: 600 }}>
-      <ListSubheader style={{ background: "none" }}>Lumen funding options</ListSubheader>
+      <ListSubheader style={{ background: "none" }}>Funding options</ListSubheader>
       <ListItem button onClick={navigateToMoonPay}>
         <ListItemText
           primary="MoonPay"
