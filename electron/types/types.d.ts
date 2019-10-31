@@ -1,26 +1,29 @@
-interface SettingsData {
-  agreedToTermsAt?: string
-  multisignature: boolean
-  testnet: boolean
+interface ElectronIPCCallMessage<Message extends IPC.Messages> {
+  args: IPC.MessageArgs<Message>
+  callID: number
 }
 
+interface ElectronIPCCallErrorMessage {
+  callID: number
+  error: Error
+}
+
+interface ElectronIPCCallResultMessage {
+  callID: number
+  result: any
+}
+
+type ElectronIPCCallResponseMessage = ElectronIPCCallErrorMessage | ElectronIPCCallResultMessage
+
 interface ElectronContext {
-  getKeyIDs(): Promise<string[]>
-  getPublicKeyData(keyID: string): Promise<PublicKeyData>
-  getPrivateKeyData(keyID: string, password: string): Promise<PrivateKeyData>
-  saveKey(keyID: string, password: string, privateData: PrivateKeyData, publicData?: PublicKeyData): Promise<void>
-  savePublicKeyData(keyID: string, publicData: PublicKeyData): Promise<void>
-  signTransaction(txEnvelopeXdr: string, keyID: string, networkPassphrase: string, password: string): Promise<string>
-  removeKey(keyID: string): Promise<void>
-
-  readIgnoredSignatureRequestHashes(): string[]
-  readSettings(): SettingsData
-  updateIgnoredSignatureRequestHashes(updatedHashes: string[]): void
-  updateSettings(updatedSettings: Partial<SettingsData>): void
-  subscribeToIPCMain(channel: string, subscribeCallback: (event: Event, ...args: any[]) => void): () => void
-
-  isUpdateAvailable(): Promise<boolean>
-  startUpdate(): Promise<void>
+  sendIPCMessage<Message extends IPC.Messages>(
+    messageType: Message,
+    message: ElectronIPCCallMessage<Message>
+  ): Promise<any>
+  subscribeToIPCMessages<Message extends IPC.Messages>(
+    messageType: Message,
+    subscribeCallback: (event: Event, result: IPC.MessageReturnType<Message>) => void
+  ): () => void
 }
 
 interface Window {
