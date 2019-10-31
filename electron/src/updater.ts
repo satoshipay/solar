@@ -6,6 +6,13 @@ import { URL } from "url"
 import { commands, events, expose } from "./ipc"
 import { readInstallationID } from "./storage"
 
+interface UpdateInfo {
+  name: string
+  notes: string
+  pub_date: string
+  url: string
+}
+
 const showMessageBox = (options: Electron.MessageBoxOptions) =>
   new Promise(resolve => dialog.showMessageBox(options, resolve))
 
@@ -14,57 +21,50 @@ const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.U
 // tslint:disable-next-line: no-console
 checkForUpdates().catch(console.error)
 
-expose(ipcMain, commands.getUpdateAvailability, events.getUpdateAvailabilityEvent, function updateAvailable() {
-  return isUpdateAvailable()
+expose(ipcMain, commands.getUpdateAvailability, events.getUpdateAvailabilityEvent, async function updateAvailable() {
+  const updateInfo = await fetchUpdateInfo()
+  return Boolean(updateInfo)
 })
 
 expose(ipcMain, commands.startUpdate, events.updateStartedEvent, function startUpdate() {
   return startUpdatingWithoutInfo()
 })
 
-async function isUpdateAvailable() {
-  if (!updateEndpoint) {
-    return
-  }
-
+function getUpdaterOptions() {
   const installationID = readInstallationID()
-  const feedURL = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
+  const url = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
 
   const headers = {
     "user-agent": `SatoshiPaySolar/${app.getVersion()} ${os.platform()}/${os.release()}`,
     "x-user-staging-id": installationID
   }
 
-  const response = await fetch(feedURL, { headers })
-
-  const updateAvailable = response.status === 200
-  return updateAvailable
+  return { headers, url }
 }
 
-async function checkForUpdates() {
+async function fetchUpdateInfo(): Promise<UpdateInfo | undefined> {
   if (!updateEndpoint) {
-    return
+    return undefined
   }
 
-  const installationID = readInstallationID()
-  const feedURL = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
-
-  const headers = {
-    "user-agent": `SatoshiPaySolar/${app.getVersion()} ${os.platform()}/${os.release()}`,
-    "x-user-staging-id": installationID
-  }
-
-  const response = await fetch(feedURL, { headers })
+  const { headers, url } = getUpdaterOptions()
+  const response = await fetch(url, { headers })
 
   // will see status 204 if local version is latest
   const updateInfo = response.status === 200 ? await response.json() : undefined
 
+  return updateInfo && updateInfo.name.replace(/^v/, "") >= app.getVersion() ? updateInfo : undefined
+}
+
+async function checkForUpdates() {
+  const updateInfo = await fetchUpdateInfo()
+
   // tslint:disable-next-line: no-console
   console.debug(updateInfo ? `Update available: ${updateInfo.name}` : `No update available`)
 
-  if (!updateInfo || updateInfo.name.replace(/^v/, "") < app.getVersion() || !Notification.isSupported()) return
+  if (!updateInfo || !Notification.isSupported()) return
 
-  autoUpdater.setFeedURL({ url: feedURL, headers })
+  autoUpdater.setFeedURL(getUpdaterOptions())
 
   const userAction = await showUpdateNotification(updateInfo.name)
 

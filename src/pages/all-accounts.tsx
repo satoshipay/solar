@@ -51,7 +51,7 @@ function AllAccountsPage() {
 
   React.useEffect(() => {
     updater.isUpdateAvailable().then(value => {
-      setUpdateAvailable(true)
+      setUpdateAvailable(value)
     })
   }, [])
 
@@ -71,7 +71,7 @@ function AllAccountsPage() {
   }, [updater, isUpdateAvailable])
 
   const updateButton = (
-    <Tooltip title={"Update available"}>
+    <Tooltip title="Update available">
       <IconButton
         onClick={startUpdate}
         color="secondary"
