@@ -28,13 +28,13 @@ async function checkForUpdates() {
 
   const response = await fetch(feedURL, { headers })
 
-  const updateAvailable = response.status === 200 // will see status 204 if local version is latest
+  // will see status 204 if local version is latest
   const updateInfo = response.status === 200 ? await response.json() : undefined
 
   // tslint:disable-next-line: no-console
-  console.debug(updateAvailable ? `Update available: ${updateInfo.name}` : `No update available`)
+  console.debug(updateInfo ? `Update available: ${updateInfo.name}` : `No update available`)
 
-  if (!updateAvailable || !Notification.isSupported()) return
+  if (!updateInfo || updateInfo.name.replace(/^v/, "") < app.getVersion() || !Notification.isSupported()) return
 
   const userAction = await showUpdateNotification(updateInfo.name)
 
