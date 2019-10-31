@@ -42,9 +42,12 @@ const useNotificationStyles = makeStyles({
     marginRight: theme.spacing(1)
   },
   message: {
-    display: "flex",
     alignItems: "center",
-    whiteSpace: "pre"
+    display: "block",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    width: "90vw",
+    whiteSpace: "nowrap"
   }
 })
 
