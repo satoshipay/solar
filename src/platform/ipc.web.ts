@@ -10,6 +10,39 @@ interface CallHandlers {
 
 const callHandlers: CallHandlers = {}
 
+export function call<Message extends keyof IPC.MessageType>(
+  messageType: Message,
+  ...args: IPC.MessageArgs<Message>
+): Promise<IPC.MessageReturnType<Message>> {
+  return new Promise<IPC.MessageReturnType<Message>>((resolve, reject) => {
+    try {
+      const handler = callHandlers[messageType]
+      if (handler) {
+        const result = handler(...args)
+        resolve(result)
+      } else {
+        reject(`No handler for ${messageType} found.`)
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+type UnsubscribeFn = () => void
+
+export function subscribeToMessages<Message extends keyof IPC.MessageType>(
+  messageType: Message,
+  callback: (message: any) => void
+): UnsubscribeFn {
+  // subscribing to deep link urls is the only use case right now
+  if (messageType === Messages.DeepLinkURL) {
+    return subscribeToDeepLinkURLs(callback)
+  } else {
+    return () => undefined
+  }
+}
+
 initKeyStore()
 initSettings()
 
@@ -146,37 +179,4 @@ function subscribeToDeepLinkURLs(callback: (url: string) => void) {
 
   // no way to unsubscribe
   return () => undefined
-}
-
-export function call<Message extends keyof IPC.MessageType>(
-  messageType: Message,
-  ...args: IPC.MessageArgs<Message>
-): Promise<IPC.MessageReturnType<Message>> {
-  return new Promise<IPC.MessageReturnType<Message>>((resolve, reject) => {
-    try {
-      const handler = callHandlers[messageType]
-      if (handler) {
-        const result = handler(args)
-        resolve(result)
-      } else {
-        reject(`No handler for ${messageType} found.`)
-      }
-    } catch (error) {
-      reject(error)
-    }
-  })
-}
-
-type UnsubscribeFn = () => void
-
-export function subscribeToMessages<Message extends keyof IPC.MessageType>(
-  messageType: Message,
-  callback: (message: any) => void
-): UnsubscribeFn {
-  // subscribing to deep link urls is the only use case right now
-  if (messageType === Messages.DeepLinkURL) {
-    return subscribeToDeepLinkURLs(callback)
-  } else {
-    return () => undefined
-  }
 }
