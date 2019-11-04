@@ -3,9 +3,9 @@
  */
 
 import nanoid from "nanoid"
-import { createStore, KeysData } from "key-store"
+import { createStore, KeysData, KeyStore } from "key-store"
 import { Messages } from "../shared/ipc"
-import { registerCommandHandler, sendSuccessResponse } from "./ipc"
+import { expose } from "./ipc"
 import { registerKeyStoreCommandHandlers } from "./keystore"
 
 // CHANGING THIS IDENTIFIER WILL BREAK BACKWARDS-COMPATIBILITY!
@@ -18,55 +18,49 @@ export const storeKeys = {
   clientSecret: "clientsecret"
 }
 
-registerCommandHandler(Messages.ReadSettings, respondWithSettings)
-registerCommandHandler(Messages.StoreSettings, updateSettings)
-registerCommandHandler(Messages.ReadIgnoredSignatureRequestHashes, respondWithIgnoredSignatureRequests)
-registerCommandHandler(Messages.StoreIgnoredSignatureRequestHashes, updateIgnoredSignatureRequests)
+expose(Messages.ReadSettings, respondWithSettings)
+expose(Messages.StoreSettings, updateSettings)
+expose(Messages.ReadIgnoredSignatureRequestHashes, respondWithIgnoredSignatureRequests)
+expose(Messages.StoreIgnoredSignatureRequestHashes, updateIgnoredSignatureRequests)
 
 let currentSettings: Platform.SettingsData | undefined
 
 export const getCurrentSettings = () => currentSettings
 
-async function respondWithSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
+async function respondWithSettings(secureStorage: CordovaSecureStorage) {
   const settings = await getValueFromStorage(secureStorage, storeKeys.settings)
-  sendSuccessResponse(contentWindow, event, settings)
+  return settings
 }
 
-async function updateSettings(event: MessageEvent, contentWindow: Window, secureStorage: CordovaSecureStorage) {
-  const settings = event.data.settings
-
+async function updateSettings(
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  settings: Partial<Platform.SettingsData>
+) {
   if (!settings || typeof settings !== "object") {
     throw new Error(`Invalid settings passed: ${settings}`)
   }
 
   await saveValueIntoStorage(secureStorage, storeKeys.settings, settings)
-  sendSuccessResponse(contentWindow, event)
-
-  currentSettings = settings
+  return true
 }
 
-async function respondWithIgnoredSignatureRequests(
-  event: MessageEvent,
-  contentWindow: Window,
-  secureStorage: CordovaSecureStorage
-) {
+async function respondWithIgnoredSignatureRequests(secureStorage: CordovaSecureStorage) {
   const ignoredSignatureRequests = await getValueFromStorage(secureStorage, storeKeys.ignoredSignatureRequests)
-  sendSuccessResponse(contentWindow, event, ignoredSignatureRequests)
+  return ignoredSignatureRequests
 }
 
 async function updateIgnoredSignatureRequests(
-  event: MessageEvent,
-  contentWindow: Window,
-  secureStorage: CordovaSecureStorage
+  secureStorage: CordovaSecureStorage,
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  ignoredSignatureRequests: string[]
 ) {
-  const ignoredSignatureRequests = event.data.ignoredSignatureRequests
-
   if (!Array.isArray(ignoredSignatureRequests)) {
     throw new Error(`Expected signature requests to be an array: ${ignoredSignatureRequests}`)
   }
 
   await saveValueIntoStorage(secureStorage, storeKeys.ignoredSignatureRequests, ignoredSignatureRequests)
-  sendSuccessResponse(contentWindow, event)
+  return true
 }
 
 async function getValueFromStorage<T = any>(storage: CordovaSecureStorage, keyName: string) {

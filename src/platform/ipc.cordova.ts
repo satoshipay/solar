@@ -36,7 +36,7 @@ export function subscribeToMessages<Message extends keyof IPC.MessageType>(
   const eventListener = (event: Event) => {
     if (event instanceof MessageEvent && event.source === window.parent) {
       if (event.data.messageType === messageType) {
-        callback(event.data.url)
+        callback(event.data)
       }
     }
   }
