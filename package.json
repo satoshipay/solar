@@ -53,8 +53,10 @@
     "isomorphic-fetch": "^2.2.1",
     "key-store": "^1.1.0",
     "nanoid": "^2.1.1",
+    "node": "^12.13.0",
     "open": "^7.0.0",
-    "stellar-sdk": "^2.3.0"
+    "stellar-sdk": "^2.3.0",
+    "threads": "^1.0.0-beta.6"
   },
   "devDependencies": {
     "@material-ui/core": "^4.5.1",
