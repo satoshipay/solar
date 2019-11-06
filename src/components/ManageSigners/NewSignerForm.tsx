@@ -44,7 +44,7 @@ function NewSignerForm(props: Props) {
             error={!!props.errors.publicKey}
             label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key or Stellar Address"}
             placeholder={isSmallScreen ? "GABC… or address" : "GABCDEFGHIJK… or alice*example.org"}
-            onChange={event => props.onUpdate({ publicKey: event.target.value })}
+            onChange={event => props.onUpdate({ publicKey: event.target.value.trim() })}
             style={{ flexGrow: 1 }}
             InputProps={isTinyScreen ? { style: { fontSize: "0.8rem" } } : undefined}
             value={props.values.publicKey}

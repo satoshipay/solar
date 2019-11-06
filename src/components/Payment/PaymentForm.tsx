@@ -177,7 +177,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         autoFocus={process.env.PLATFORM !== "ios"}
         margin="normal"
         value={formValues.destination}
-        onChange={event => setFormValue("destination", event.target.value)}
+        onChange={event => setFormValue("destination", event.target.value.trim())}
         inputProps={{
           style: { textOverflow: "ellipsis" }
         }}
