@@ -7,6 +7,7 @@ let openWindows: BrowserWindow[] = []
 
 // start protocol handler
 import * as protocolHandler from "./protocol-handler"
+import { Messages } from "./shared/ipc"
 
 export function createMainWindow() {
   const window = new BrowserWindow({
@@ -49,7 +50,7 @@ export function createMainWindow() {
 
   // subscribe this window to deeplink urls
   const unsubscribe = protocolHandler.subscribe(url => {
-    window.webContents.send("deeplink:url", url)
+    window.webContents.send(Messages.DeepLinkURL, url)
     if (process.platform === "linux") {
       // needed for minimized windows to come to the foreground
       window.minimize()

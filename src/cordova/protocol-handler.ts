@@ -6,6 +6,6 @@ export function registerURLHandler(contentWindow: Window, iframeReady: Promise<v
 
 const handleOpenURL = (contentWindow: Window, iframeReady: Promise<void>) => (url: string) => {
   iframeReady.then(() => {
-    contentWindow.postMessage({ messageType: Messages.DeepLinkURL, url }, "*")
+    contentWindow.postMessage({ messageType: Messages.DeepLinkURL, result: url }, "*")
   })
 }
