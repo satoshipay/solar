@@ -1,3 +1,4 @@
 import "./bio-auth"
-import "./storage"
 import "./clipboard"
+import "./storage"
+import "./updater"

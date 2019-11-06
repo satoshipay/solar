@@ -4,7 +4,7 @@ import "./bootstrap" // should be first of all local imports
 import { createAppMenu } from "./menu"
 import { createMainWindow, getOpenWindows, trackWindow } from "./window"
 import "./ipc/index"
-import "./updater"
+import "./ipc/updater"
 
 // Enable opening dev tools in production using keyboard shortcut
 // tslint:disable-next-line: no-var-requires

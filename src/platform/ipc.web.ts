@@ -49,6 +49,9 @@ initSettings()
 callHandlers[Messages.CopyToClipboard] = (text: string) => (navigator as any).clipboard.writeText(text)
 callHandlers[Messages.OpenLink] = (href: string) => window.open(href, "_blank")
 
+callHandlers[Messages.CheckUpdateAvailability] = () => false
+callHandlers[Messages.StartUpdate] = () => undefined
+
 const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {
     metadata: {

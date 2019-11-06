@@ -13,6 +13,9 @@ export const Messages: IPC.MessageType = {
 
   DeepLinkURL: "DeepLinkURL",
 
+  CheckUpdateAvailability: "CheckUpdateAvailability",
+  StartUpdate: "StartUpdate",
+
   ReadSettings: "ReadSettings",
   StoreSettings: "StoreSettings",
   ReadIgnoredSignatureRequestHashes: "ReadIgnoredSignatureRequestHashes",

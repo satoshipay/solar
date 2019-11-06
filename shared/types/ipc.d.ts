@@ -21,6 +21,9 @@ declare namespace IPC {
 
     DeepLinkURL: "DeepLinkURL"
 
+    CheckUpdateAvailability: "CheckUpdateAvailability"
+    StartUpdate: "StartUpdate"
+
     ReadSettings: "ReadSettings"
     StoreSettings: "StoreSettings"
     ReadIgnoredSignatureRequestHashes: "ReadIgnoredSignatureRequestHashes"
@@ -51,6 +54,9 @@ declare namespace IPC {
     [Messages.OpenLink]: (href: string) => void
 
     [Messages.DeepLinkURL]: () => string
+
+    [Messages.CheckUpdateAvailability]: () => boolean
+    [Messages.StartUpdate]: () => void
 
     [Messages.ReadSettings]: () => Partial<Platform.SettingsData>
     [Messages.StoreSettings]: (updatedSettings: Partial<Platform.SettingsData>) => boolean

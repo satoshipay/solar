@@ -1,10 +1,11 @@
-import { app, autoUpdater, dialog, ipcMain, Notification } from "electron"
+import { app, autoUpdater, dialog, Notification } from "electron"
 import isDev from "electron-is-dev"
 import fetch from "isomorphic-fetch"
 import os from "os"
 import { URL } from "url"
-import { expose } from "./ipc/_ipc"
-import { readInstallationID } from "./ipc/storage"
+import { expose } from "./_ipc"
+import { readInstallationID } from "./storage"
+import { Messages } from "../shared/ipc"
 
 interface UpdateInfo {
   name: string
@@ -21,12 +22,12 @@ const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.U
 // tslint:disable-next-line: no-console
 checkForUpdates().catch(console.error)
 
-expose(ipcMain, commands.getUpdateAvailability, events.getUpdateAvailabilityEvent, async function updateAvailable() {
+expose(Messages.CheckUpdateAvailability, async function updateAvailable() {
   const updateInfo = await fetchUpdateInfo()
   return Boolean(updateInfo)
 })
 
-expose(ipcMain, commands.startUpdate, events.updateStartedEvent, function startUpdate() {
+expose(Messages.StartUpdate, function startUpdate() {
   return startUpdatingWithoutInfo()
 })
 
