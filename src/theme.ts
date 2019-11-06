@@ -292,6 +292,8 @@ export default theme
 
 const initialScreenHeight = window.screen.height
 
-// CSS media query selector to detect an open keyboard on iOS
-export const iOSKeyboardHackSelector =
-  process.env.PLATFORM === "ios" ? () => `@media (max-height: ${initialScreenHeight - 100}px)` : () => `:not(*)`
+// CSS media query selector to detect an open keyboard on iOS + android
+export const MobileOnScreenKeyboardHackSelector =
+  process.env.PLATFORM === "ios" || process.env.PLATFORM === "android"
+    ? () => `@media (max-height: ${initialScreenHeight - 100}px)`
+    : () => `:not(*)`

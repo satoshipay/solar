@@ -1,7 +1,7 @@
 import React from "react"
 import { makeStyles } from "@material-ui/core/styles"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
-import { iOSKeyboardHackSelector } from "../../theme"
+import { MobileOnScreenKeyboardHackSelector } from "../../theme"
 import ErrorBoundary from "../ErrorBoundary"
 import { Box, VerticalLayout } from "../Layout/Box"
 
@@ -28,7 +28,7 @@ function Background(props: { children: React.ReactNode; opacity?: number }) {
 
 const useDialogBodyStyles = makeStyles({
   actions: {
-    [iOSKeyboardHackSelector()]: {
+    [MobileOnScreenKeyboardHackSelector()]: {
       display: "none !important"
     }
   }
