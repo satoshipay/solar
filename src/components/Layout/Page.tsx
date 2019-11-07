@@ -41,6 +41,7 @@ function PageInset(props: { children: React.ReactNode }) {
 }
 
 interface SectionProps extends BoxProps {
+  inheritBackground?: boolean
   backgroundColor?: React.CSSProperties["backgroundColor"]
   bottom?: boolean
   brandColored?: boolean
@@ -52,7 +53,11 @@ interface SectionProps extends BoxProps {
 }
 
 const Section = React.memo(function Section(props: SectionProps) {
-  const background = props.brandColored ? primaryBackground : props.backgroundColor || "#fcfcfc"
+  const background = props.brandColored
+    ? primaryBackground
+    : props.inheritBackground
+    ? undefined
+    : props.backgroundColor || "#fcfcfc"
   const isSmallScreen = useIsMobile()
 
   const className = [
