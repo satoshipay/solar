@@ -60,14 +60,6 @@ const Section = React.memo(function Section(props: SectionProps) {
     : props.backgroundColor || "#fcfcfc"
   const isSmallScreen = useIsMobile()
 
-  const className = [
-    platform === "ios" && props.top ? "iphone-notch-top-spacing" : "",
-    platform === "android" && props.top ? "android-top-spacing" : "",
-    platform === "ios" ? "iphone-notch-left-spacing" : "",
-    platform === "ios" ? "iphone-notch-right-spacing" : "",
-    platform === "ios" && props.bottom ? "iphone-notch-bottom-spacing" : ""
-  ].join(" ")
-
   const padding: React.CSSProperties["padding"] = props.noPadding ? 0 : props.padding !== undefined ? props.padding : 16
 
   const style: React.CSSProperties = {
@@ -85,7 +77,7 @@ const Section = React.memo(function Section(props: SectionProps) {
   const MaybeInset = props.pageInset ? PageInset : React.Fragment
 
   return (
-    <Box {...props} className={className} component="section" padding={padding} style={style}>
+    <Box {...props} component="section" padding={padding} style={style}>
       {props.top ? <TopOfTopSection background={background} /> : null}
       {/* Add a little padding to the top if window is frameless */}
       {props.top && !isSmallScreen ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
