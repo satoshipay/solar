@@ -80,6 +80,12 @@ Now run `npm run build:*:signed` to create a signed application build. You will 
 
 To check the Mac DMG signature, run `codesign -dv --verbose=4 ./electron/dist/<file>`. To verify the Windows installer signature, you can upload the file to `virustotal.com`.
 
+Newer versions of Mac OS require apps to be notarized. The `build:mac:signed` script will notarize the app. For this to succeed, you also need to add your Apple ID to your `signing-mac.env` file:
+
+```
+APPLE_ID=me@crypto.rocks
+```
+
 Note: Application signing has only been tested on a Mac OS development machine so far.
 
 #### Android/iOS
