@@ -1,3 +1,6 @@
+import { spawn, Worker, Thread } from "threads"
+import { Fetcher } from "../workers/fetch-worker"
+
 export interface AccountRecord {
   address: string
   paging_token: string
@@ -11,9 +14,6 @@ export interface AccountRecord {
 
 export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
   const cacheKey = testnet ? "known-accounts:testnet" : "known-accounts:mainnet"
-  const requestURL = testnet
-    ? "https://api.stellar.expert/api/explorer/testnet/directory"
-    : "https://api.stellar.expert/api/explorer/public/directory"
 
   const cachedAccountsString = localStorage.getItem(cacheKey)
   const timestamp = localStorage.getItem("known-accounts:timestamp")
@@ -22,14 +22,10 @@ export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountR
     // use cached accounts if they are not older than 24h
     return JSON.parse(cachedAccountsString)
   } else {
-    const response = await fetch(requestURL)
+    const fetcher = await spawn<Fetcher>(new Worker("../workers/fetch-worker.ts"))
+    const knownAccounts = await fetcher.fetchWellknownAccounts(testnet)
+    await Thread.terminate(fetcher)
 
-    if (response.status >= 400) {
-      throw Error(`Bad response (${response.status}) from stellar.expert server`)
-    }
-
-    const json = await response.json()
-    const knownAccounts = json._embedded.records as AccountRecord[]
     localStorage.setItem(cacheKey, JSON.stringify(knownAccounts))
     localStorage.setItem("known-accounts:timestamp", Date.now().toString())
     return knownAccounts
