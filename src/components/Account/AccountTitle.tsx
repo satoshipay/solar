@@ -113,7 +113,7 @@ function TitleTextField(props: TitleTextFieldProps) {
         size: Math.max(props.value.length + 1, 4),
         style: {
           cursor: props.mode === "editing" ? "text" : "default",
-          height: 40,
+          height: 48,
           padding: 0,
           textOverflow: "ellipsis"
         }
@@ -130,7 +130,7 @@ function TitleTextField(props: TitleTextFieldProps) {
         style: {
           color: "inherit",
           font: "inherit",
-          height: 40, // Will otherwise jump when edit icon button appears
+          height: 48, // Will otherwise jump when edit icon button appears
           pointerEvents: props.preventClicks ? "none" : undefined
         }
       }}
@@ -189,38 +189,29 @@ function AccountTitle(props: AccountTitleProps) {
     [props.account, name]
   )
 
-  const applyRenaming = React.useCallback(
-    () => {
-      renameAccount(props.account.id, name).catch(trackError)
-      setMode("readonly")
-      clearTextSelection()
-    },
-    [props.account, name]
-  )
-  const cancelRenaming = React.useCallback(
-    () => {
-      setName(props.account.name)
-      setMode("readonly")
-      clearTextSelection()
-    },
-    [props.account]
-  )
+  const applyRenaming = React.useCallback(() => {
+    renameAccount(props.account.id, name).catch(trackError)
+    setMode("readonly")
+    clearTextSelection()
+  }, [props.account, name])
+  const cancelRenaming = React.useCallback(() => {
+    setName(props.account.name)
+    setMode("readonly")
+    clearTextSelection()
+  }, [props.account])
   const switchToEditMode = React.useCallback(() => {
     if (props.editable) {
       setMode("editing")
     }
   }, [])
-  const toggleMode = React.useCallback(
-    () => {
-      setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
-      // Doesn't work on iOS, even leads to weird broken behavior
-      if (inputRef.current && process.env.PLATFORM !== "ios") {
-        inputRef.current.select()
-        inputRef.current.focus()
-      }
-    },
-    [inputRef]
-  )
+  const toggleMode = React.useCallback(() => {
+    setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
+    // Doesn't work on iOS, even leads to weird broken behavior
+    if (inputRef.current && process.env.PLATFORM !== "ios") {
+      inputRef.current.select()
+      inputRef.current.focus()
+    }
+  }, [inputRef])
 
   const editActions = React.useMemo(
     () => (
