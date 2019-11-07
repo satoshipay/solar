@@ -8,7 +8,7 @@ import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks/userinterface"
-import { breakpoints, iOSKeyboardHackSelector, CompactDialogTransition } from "../../theme"
+import { breakpoints, MobileKeyboardOpenedSelector, CompactDialogTransition } from "../../theme"
 import { setupRerenderListener } from "../../platform/keyboard-hack"
 import ButtonIconLabel from "../ButtonIconLabel"
 
@@ -45,7 +45,7 @@ const useActionButtonStyles = makeStyles(theme => ({
     backgroundColor: "#fcfcfc",
     justifyContent: "flex-end",
 
-    [iOSKeyboardHackSelector()]: {
+    [MobileKeyboardOpenedSelector()]: {
       // For iOS keyboard: Viewport shrinks when keyboard opens. Make actions non-sticky then,
       // so they don't take too much screen space; making it consistent with other iOS apps.
       position: "static !important" as any
@@ -55,7 +55,7 @@ const useActionButtonStyles = makeStyles(theme => ({
     width: "100% !important",
     height: "88px !important",
 
-    [iOSKeyboardHackSelector()]: {
+    [MobileKeyboardOpenedSelector()]: {
       display: "none"
     }
   },
