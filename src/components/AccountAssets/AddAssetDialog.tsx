@@ -147,10 +147,7 @@ function createSearchResultRow(
             <ListItemText
               primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
               secondary={
-                (assetsByIssuer[item.issuer][0]
-                  ? assetsByIssuer[item.issuer][0].issuer_detail.url ||
-                    assetsByIssuer[item.issuer][0].issuer_detail.name
-                  : undefined) || assetsByIssuer[item.issuer].length
+                assetsByIssuer[item.issuer].length === 1
                   ? `One matching asset`
                   : `${assetsByIssuer[item.issuer].length} matching assets`
               }
