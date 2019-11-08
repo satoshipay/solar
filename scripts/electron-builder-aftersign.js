@@ -27,19 +27,14 @@ module.exports = async function(params) {
     throw new Error(`Cannot find application at: ${appPath}`)
   }
 
-  console.log(`Application ${appId} found at ${appPath}`)
-  console.log(`Starting notarization...`)
+  console.log(`Starting notarization of ${appId} at ${appPath}...`)
 
-  try {
-    await notarize.notarize({
-      appBundleId: appId,
-      appPath: appPath,
-      appleId: process.env.APPLE_ID || fail("APPLE_ID has not been set."),
-      appleIdPassword: process.env.APPLE_ID_PASSWORD || fail("APPLE_ID_PASSWORD has not been set.")
-    })
-  } catch (error) {
-    console.error(error)
-  }
+  await notarize.notarize({
+    appBundleId: appId,
+    appPath: appPath,
+    appleId: process.env.APPLE_ID || fail("APPLE_ID has not been set."),
+    appleIdPassword: process.env.APPLE_ID_PASSWORD || fail("APPLE_ID_PASSWORD has not been set.")
+  })
 
   console.log(`Done notarizing ${appId}`)
 }
