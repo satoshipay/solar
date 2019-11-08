@@ -13,7 +13,7 @@ import { useLiveOrderbook, ObservedAccountData } from "../../hooks/stellar-subsc
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { calculateSpread } from "../../lib/orderbook"
 import { balancelineToAsset } from "../../lib/stellar"
-import { formatBalance } from "../Account/AccountBalances"
+import { formatBalance, BalanceFormattingOptions } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import AssetSelector from "../Form/AssetSelector"
 import { ReadOnlyTextfield } from "../Form/FormFields"
@@ -24,8 +24,8 @@ import Portal from "../Portal"
 import TradingPrice from "./TradingPrice"
 import { createTransaction } from "../../lib/transaction"
 
-const bigNumberToInputValue = (bignum: BigNumber) =>
-  formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9 })
+const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
+  formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, ...overrides })
 
 const isValidAmount = (amount: string) => /^[0-9]+([\.,][0-9]+)?$/.test(amount)
 
@@ -266,10 +266,12 @@ function TradingForm(props: Props) {
             }}
             label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
             placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
-            required
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
             type="number"
-            value={bigNumberToInputValue(secondaryAmount)}
+            value={
+              // Format amount without thousands grouping, since it may lead to illegal number input values (#831)
+              bigNumberToInputValue(secondaryAmount, { groupThousands: false })
+            }
           />
         </HorizontalLayout>
         <HorizontalLayout justifyContent="center" margin="32px 0 0" textAlign="center">

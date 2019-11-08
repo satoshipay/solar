@@ -26,7 +26,7 @@ function trimBalance(balance: BigNumber): string {
   }
 }
 
-interface BalanceFormattingOptions {
+export interface BalanceFormattingOptions {
   groupThousands?: boolean
   maximumDecimals?: number
   maximumSignificants?: number
