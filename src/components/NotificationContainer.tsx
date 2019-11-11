@@ -57,6 +57,34 @@ const useNotificationStyles = makeStyles({
   }
 })
 
+interface NotificationDetailsDialogProps {
+  open: boolean
+  notification: Notification | null
+  onClose: () => void
+}
+
+const NotificationDetailsDialog = React.memo(function NotificationDetailsDialog(props: NotificationDetailsDialogProps) {
+  const { open, onClose, notification } = props
+  return (
+    <Dialog fullScreen open={open} onClose={onClose} TransitionComponent={FullscreenDialogTransition}>
+      <DialogBody
+        top={<MainTitle onBack={onClose} title={"Error"} />}
+        actions={
+          <DialogActionsBox>
+            <ActionButton autoFocus onClick={onClose} type="primary">
+              Dismiss
+            </ActionButton>
+          </DialogActionsBox>
+        }
+      >
+        <Box alignSelf="center" margin="24px auto 0" maxWidth={400} width="100%">
+          <Typography>{notification ? notification.message : ""}</Typography>
+        </Box>
+      </DialogBody>
+    </Dialog>
+  )
+})
+
 interface NotificationProps {
   anchorOrigin?: SnackbarOrigin
   autoHideDuration?: number
@@ -149,49 +177,31 @@ function NotificationsContainer() {
     lastShownNotification.current = latestNotificationItem
   }
 
-  const showDialog = React.useCallback(() => {
-    setDialogOpen(true)
-  }, [setDialogOpen])
+  const showNotificationDetails = React.useCallback(() => setDialogOpen(true), [])
 
-  const closeDialog = React.useCallback(() => {
+  const closeNotificationDetails = React.useCallback(() => {
     closeNotification()
     setDialogOpen(false)
-  }, [setDialogOpen, closeNotification])
+  }, [closeNotification])
 
-  const dialog = (
-    <Dialog fullScreen open={dialogOpen} onClose={closeDialog} TransitionComponent={FullscreenDialogTransition}>
-      <DialogBody
-        top={<MainTitle onBack={closeDialog} title={"Error"} />}
-        actions={
-          <DialogActionsBox>
-            <ActionButton autoFocus icon={<CheckIcon />} onClick={closeDialog} type="primary">
-              {"Dismiss"}
-            </ActionButton>
-          </DialogActionsBox>
-        }
-      >
-        <Box alignSelf="center" margin="24px auto 0" maxWidth={400} width="100%">
-          <Typography>{notification ? notification.message : ""}</Typography>
-        </Box>
-      </DialogBody>
-    </Dialog>
-  )
-
-  const notificationJSX = (
+  return (
     <>
       <Notification
         autoHideDuration={5000}
         message={notification ? notification.message : ""}
         type={notification ? notification.type : "error"}
-        open={open}
-        onClick={notification && notification.onClick ? notification.onClick : showDialog}
+        open={open && !dialogOpen}
+        onClick={notification && notification.onClick ? notification.onClick : showNotificationDetails}
         onClose={closeNotification}
       />
       <OfflineNotification message="Offline" open={!isOnline} />
+      <NotificationDetailsDialog
+        open={dialogOpen}
+        onClose={closeNotificationDetails}
+        notification={latestNotificationItem}
+      />
     </>
   )
-
-  return dialogOpen ? dialog : notificationJSX
 }
 
 export default NotificationsContainer
