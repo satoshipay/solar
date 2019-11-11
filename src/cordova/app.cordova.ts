@@ -205,8 +205,6 @@ function initializeIPhoneNotchFix() {
   const viewportElement = document.getElementsByName("viewport")[0]
   const defaultContent = viewportElement.getAttribute("content")
 
-  Keyboard.shrinkView(true)
-
   setCover()
 
   function setCover() {
