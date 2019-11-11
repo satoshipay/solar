@@ -68,7 +68,7 @@ function AccountTransactions(props: { account: Account }) {
       ) : recentTxs.activated ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
-          <OfferList account={account} title="Open offers" />
+          <OfferList account={account} title="Open orders" />
           <TransactionList
             account={account}
             background="transparent"
