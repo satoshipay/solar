@@ -68,7 +68,7 @@ const NotificationDetailsDialog = React.memo(function NotificationDetailsDialog(
   return (
     <Dialog fullScreen open={open} onClose={onClose} TransitionComponent={FullscreenDialogTransition}>
       <DialogBody
-        top={<MainTitle onBack={onClose} title={"Error"} />}
+        top={<MainTitle onBack={onClose} title="Error" />}
         actions={
           <DialogActionsBox>
             <ActionButton autoFocus onClick={onClose} type="primary">
@@ -97,7 +97,6 @@ interface NotificationProps {
   style?: React.CSSProperties
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const Notification = React.memo(function Notification(props: NotificationProps) {
   const { open = true } = props
   const classes = useNotificationStyles()
@@ -184,6 +183,14 @@ function NotificationsContainer() {
     setDialogOpen(false)
   }, [closeNotification])
 
+  const onNotificationClick = React.useCallback(() => {
+    if (notification && notification.onClick) {
+      notification.onClick()
+    } else if (notification && notification.type === "error") {
+      showNotificationDetails()
+    }
+  }, [notification, showNotificationDetails])
+
   return (
     <>
       <Notification
@@ -191,7 +198,7 @@ function NotificationsContainer() {
         message={notification ? notification.message : ""}
         type={notification ? notification.type : "error"}
         open={open && !dialogOpen}
-        onClick={notification && notification.onClick ? notification.onClick : showNotificationDetails}
+        onClick={onNotificationClick}
         onClose={closeNotification}
       />
       <OfflineNotification message="Offline" open={!isOnline} />
