@@ -159,6 +159,8 @@ function TradingForm(props: Props) {
     ? BigNumber(secondaryBalance.balance).sub(secondaryBalance.asset_type === "native" ? minAccountBalance : 0)
     : BigNumber(0)
 
+  const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
+
   const maxPrimaryAmount =
     props.primaryAction === "buy"
       ? spendableSecondaryBalance.gt(0) && effectivePrice.gt(0)
@@ -235,13 +237,14 @@ function TradingForm(props: Props) {
       >
         <HorizontalLayout margin="8px 0">
           <AssetSelector
+            assets={assets}
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
             label={props.primaryAction === "buy" ? "You buy" : "You sell"}
             onChange={setPrimaryAsset}
             minWidth={75}
+            showXLM
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
             testnet={props.account.testnet}
-            trustlines={props.trustlines}
             value={primaryAsset}
           />
           <TextField
@@ -286,12 +289,13 @@ function TradingForm(props: Props) {
         </HorizontalLayout>
         <HorizontalLayout margin="8px 0 32px">
           <AssetSelector
+            assets={assets}
             label={props.primaryAction === "buy" ? "Spend" : "Receive"}
             minWidth={75}
             onChange={setSecondaryAsset}
+            showXLM
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
             testnet={props.account.testnet}
-            trustlines={props.trustlines}
             value={secondaryAsset}
           />
           <ReadOnlyTextfield

@@ -27,6 +27,7 @@ const useAssetItemStyles = makeStyles(theme => ({
 
 interface AssetItemProps {
   asset: Asset
+  disabled?: boolean
   testnet: boolean
   // key + value props are expected here from React/Material-ui validation mechanisms
   key: string
@@ -68,24 +69,32 @@ const useAssetSelectorStyles = makeStyles({
 
 interface AssetSelectorProps {
   autoFocus?: TextFieldProps["autoFocus"]
+  assets: Array<Asset | Horizon.BalanceLine>
+  children?: React.ReactNode
+  className?: string
+  disabledAssets?: Asset[]
   disableUnderline?: boolean
   helperText?: TextFieldProps["helperText"]
   label?: TextFieldProps["label"]
+  margin?: TextFieldProps["margin"]
   minWidth?: number | string
   onChange: (asset: Asset) => void
+  showXLM?: boolean
   style?: React.CSSProperties
   testnet: boolean
-  trustlines: Horizon.BalanceLine[]
   value?: Asset
 }
 
 function AssetSelector(props: AssetSelectorProps) {
   const classes = useAssetSelectorStyles()
 
+  const assets = React.useMemo(() => [
+    Asset.native(),
+    ...props.assets.map(asset => "code" in asset && "issuer" in asset ? asset as Asset : balancelineToAsset(asset))
+  ], [props.assets])
+
   const onChange = React.useCallback(
     (event: React.ChangeEvent<{ name?: any; value: any }>, child: React.ComponentElement<AssetItemProps, any>) => {
-      const assets = [Asset.native(), ...props.trustlines.map(balancelineToAsset)]
-
       const matchingAsset = assets.find(asset => asset.equals(child.props.asset))
 
       if (matchingAsset) {
@@ -97,12 +106,13 @@ function AssetSelector(props: AssetSelectorProps) {
         )
       }
     },
-    [props.onChange, props.trustlines]
+    [props.assets, props.onChange]
   )
 
   return (
     <TextField
       autoFocus={props.autoFocus}
+      className={props.className}
       helperText={props.helperText}
       label={props.label}
       onChange={onChange as any}
@@ -126,8 +136,8 @@ function AssetSelector(props: AssetSelectorProps) {
           root: props.value ? undefined : classes.unselected,
           select: classes.select
         },
+        displayEmpty: !props.value,
         disableUnderline: props.disableUnderline,
-        displayEmpty: props.value === undefined,
         renderValue: () => (props.value ? props.value.getCode() : "Select")
       }}
     >
@@ -136,18 +146,27 @@ function AssetSelector(props: AssetSelectorProps) {
           Select an asset
         </MenuItem>
       )}
-      <AssetItem
-        asset={Asset.native()}
-        key={stringifyAsset(Asset.native())}
-        testnet={props.testnet}
-        value={Asset.native().getCode()}
-      />
-      {props.trustlines
-        .filter(trustline => trustline.asset_type !== "native")
-        .map(trustline => {
-          const asset = balancelineToAsset(trustline)
-          return <AssetItem asset={asset} key={stringifyAsset(asset)} testnet={props.testnet} value={asset.getCode()} />
-        })}
+      {props.showXLM ? (
+        <AssetItem
+          asset={Asset.native()}
+          disabled={props.disabledAssets && props.disabledAssets.some(someAsset => someAsset.isNative())}
+          key={stringifyAsset(Asset.native())}
+          testnet={props.testnet}
+          value={Asset.native().getCode()}
+        />
+      ) : null}
+      {assets
+        .filter(asset => !asset.isNative())
+        .map(asset => (
+          <AssetItem
+            asset={asset}
+            disabled={props.disabledAssets && props.disabledAssets.some(someAsset => someAsset.equals(asset))}
+            key={stringifyAsset(asset)}
+            testnet={props.testnet}
+            value={asset.getCode()}
+          />
+        ))
+      }
     </TextField>
   )
 }

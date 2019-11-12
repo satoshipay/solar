@@ -7,12 +7,13 @@ import { AssetTransferInfo, EmptyAssetTransferInfo, TransferServer } from "@sato
 import { useIsMobile, useIsSmallMobile, RefStateObject } from "../../hooks/userinterface"
 import theme from "../../theme"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import AssetSelector from "../Form/AssetSelector"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import Portal from "../Portal"
 import { formatDescriptionText, formatIdentifier } from "./formatters"
 import { useAssetTransferServerInfos } from "./transferservice"
 import FormBuilder, { FormBuilderField } from "./FormBuilder"
-import Portal from "../Portal"
 
 type FormValueTransform<Value = string> = (input: Value) => Value
 
@@ -44,8 +45,9 @@ interface Props {
   initialMethod?: string
   onCancel: () => void
   onSubmit: (transferServer: TransferServer, asset: Asset, method: string, formValues: FormValues) => void
-  testnet: boolean
   pendingAnchorCommunication?: boolean
+  testnet: boolean
+  withdrawableAssets: Asset[]
 }
 
 function WithdrawalRequestForm(props: Props) {
@@ -54,22 +56,25 @@ function WithdrawalRequestForm(props: Props) {
   const isTinyScreen = useIsSmallMobile()
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
-  const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(someAssetCode => {
-    const deposit = transferInfos.data[someAssetCode].transferInfo.deposit
-    return deposit && deposit.enabled
-  })
+  const withdrawableAssets = props.withdrawableAssets
 
-  const initialAssetCode = props.initialAsset ? props.initialAsset.getCode() : withdrawableAssetCodes[0]
-  const [assetCode, setAssetCode] = React.useState<string | null>(initialAssetCode || null)
+  const nonwithdrawableAssets = props.assets.filter(
+    asset => !props.withdrawableAssets.some(withdrawable => withdrawable.equals(asset))
+  )
+
+  const [selectedAsset, setSelectedAsset] = React.useState<Asset | null>(
+    props.initialAsset || withdrawableAssets[0] || null
+  )
   const [methodID, setMethodID] = React.useState<string | null>(props.initialMethod || null)
 
   const [formValues, setFormValues] = React.useState<FormValues>(props.initialFormValues || {})
   const setFormValue = (fieldName: string, newValue: string) =>
     setFormValues(prevFormValues => ({ ...prevFormValues, [fieldName]: newValue }))
 
-  const withdrawalMetadata: AssetTransferInfo | EmptyAssetTransferInfo | undefined = transferInfos.data[assetCode || ""]
-    ? transferInfos.data[assetCode || ""].transferInfo
-    : undefined
+  const withdrawalMetadata: AssetTransferInfo | EmptyAssetTransferInfo | undefined =
+    selectedAsset && transferInfos.data.has(selectedAsset)
+      ? transferInfos.data.get(selectedAsset)!.transferInfo
+      : undefined
 
   const methodNames =
     withdrawalMetadata && withdrawalMetadata.withdraw && withdrawalMetadata.withdraw.types
@@ -99,14 +104,13 @@ function WithdrawalRequestForm(props: Props) {
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
 
-    const asset = props.assets.find(someAsset => someAsset.getCode() === assetCode)
-    if (!asset) {
+    if (!selectedAsset) {
       throw new Error("No asset selected.")
     }
 
-    const transferServer = transferInfos.data[asset.getCode()].transferServer
+    const transferServer = transferInfos.data.get(selectedAsset)!.transferServer
     if (!transferServer) {
-      throw new Error(`No transfer server found for asset ${asset.getCode()}`)
+      throw new Error(`No transfer server found for asset ${selectedAsset.getCode()}`)
     }
     if (!methodID) {
       throw new Error("No withdrawal method selected.")
@@ -114,7 +118,7 @@ function WithdrawalRequestForm(props: Props) {
     if (methodID === "bank_account") {
       formValues.dest = postprocessFormValue("dest", [maybeIBAN])
     }
-    props.onSubmit(transferServer, asset, methodID, formValues)
+    props.onSubmit(transferServer, selectedAsset, methodID, formValues)
   }
 
   const automaticallySetValues = ["account", "asset_code", "type"]
@@ -135,14 +139,13 @@ function WithdrawalRequestForm(props: Props) {
     (emailOptional || isFormValueSet(formValues.email) || isFormValueSet(formValues.email_address)) &&
     /^([^@]+@[^@]+\.[^@]+)?$/.test(formValues.email || formValues.email_address || "")
 
-  const isDisabled = !assetCode || !methodID || hasEmptyMandatoryFields || !validAmount || !validEmail
+  const isDisabled = !selectedAsset || !methodID || hasEmptyMandatoryFields || !validAmount || !validEmail
   const leftInputsWidth = isSmallScreen ? 200 : 240
 
-  const onAssetSelection = React.useCallback(event => {
-    const selectedAssetCode = event.target.value || null
-    const withdraw = selectedAssetCode && transferInfos.data[selectedAssetCode].transferInfo.withdraw
+  const onAssetSelection = React.useCallback((asset: Asset) => {
+    const withdraw = transferInfos.data.has(asset) && transferInfos.data.get(asset)!.transferInfo.withdraw
 
-    setAssetCode(selectedAssetCode)
+    setSelectedAsset(asset)
     if (withdraw && withdraw.types && Object.keys(withdraw.types).length === 1) {
       setMethodID(Object.keys(withdraw.types)[0])
     }
@@ -152,28 +155,21 @@ function WithdrawalRequestForm(props: Props) {
     <form id={formID} noValidate onSubmit={handleSubmit}>
       <VerticalLayout>
         <HorizontalLayout justifyContent="space-between" margin="0 0 -8px">
-          <TextField
+          <AssetSelector
+            assets={props.assets}
+            disabledAssets={nonwithdrawableAssets}
             label={isTinyScreen ? "Asset" : "Asset to withdraw"}
             margin="normal"
             onChange={onAssetSelection}
-            select
+            selected={selectedAsset || undefined}
             style={{ flexBasis: leftInputsWidth, marginRight: 24 }}
-            value={assetCode || ""}
           >
-            {Object.keys(transferInfos.data).map(thisAssetCode => {
-              const deposit = transferInfos.data[thisAssetCode].transferInfo.deposit
-              return deposit ? (
-                <MenuItem key={thisAssetCode} disabled={!deposit.enabled} value={thisAssetCode}>
-                  {thisAssetCode}
-                </MenuItem>
-              ) : null
-            })}
-            {withdrawableAssetCodes.length === 0 ? (
+            {withdrawableAssets.length === 0 ? (
               <MenuItem disabled value="">
                 No withdrawable assets
               </MenuItem>
             ) : null}
-          </TextField>
+          </AssetSelector>
           <TextField
             label="Type of withdrawal"
             margin="normal"
@@ -183,7 +179,7 @@ function WithdrawalRequestForm(props: Props) {
             value={methodID || ""}
           >
             <MenuItem disabled value="">
-              {assetCode ? "Please select a type" : "Select an asset first"}
+              {selectedAsset ? "Please select a type" : "Select an asset first"}
             </MenuItem>
             {methodNames.map(methodName => (
               <MenuItem key={methodName} value={methodName}>
@@ -242,7 +238,7 @@ function WithdrawalRequestForm(props: Props) {
               value={
                 [
                   typeof withdrawalMetadata.withdraw.fee_fixed === "number"
-                    ? `${withdrawalMetadata.withdraw.fee_fixed} ${assetCode}`
+                    ? `${withdrawalMetadata.withdraw.fee_fixed} ${selectedAsset && selectedAsset.getCode()}`
                     : "",
                   typeof withdrawalMetadata.withdraw.fee_percent === "number"
                     ? `${withdrawalMetadata.withdraw.fee_percent}%`

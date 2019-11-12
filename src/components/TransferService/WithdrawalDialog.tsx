@@ -15,7 +15,7 @@ import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import ViewLoading from "../ViewLoading"
 
-const WithdrawalDialogForm = withFallback(React.lazy(() => import("../Withdrawal/WithdrawalDialogForm")), <ViewLoading />)
+const WithdrawalDialogForm = withFallback(React.lazy(() => import("./WithdrawalDialogForm")), <ViewLoading />)
 
 interface Props {
   account: Account

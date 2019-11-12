@@ -209,11 +209,11 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const assetSelector = React.useMemo(
     () => (
       <AssetSelector
+        assets={props.accountData.balances}
         disableUnderline
         onChange={asset => setFormValue("asset", asset)}
         style={{ alignSelf: "center" }}
         testnet={props.testnet}
-        trustlines={props.accountData.balances}
         value={formValues.asset}
       />
     ),
