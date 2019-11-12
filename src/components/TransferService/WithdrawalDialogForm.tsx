@@ -14,7 +14,7 @@ import { Box } from "../Layout/Box"
 import Portal from "../Portal"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
 import WithdrawalKYCRedirect from "./WithdrawalKYCRedirect"
-import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
+import TransferTransactionStatus from "./TransferTransactionStatus"
 import WithdrawalRequestForm from "./WithdrawalRequestForm"
 import WithdrawalTransactionForm from "./WithdrawalTransactionForm"
 import { useAssetTransferServerInfos } from "./transferservice"
@@ -104,7 +104,7 @@ function WithdrawalDialogForm(props: Props) {
   } else if (state.step === "before-interactive-kyc") {
     return <WithdrawalKYCRedirect meta={state.kyc} onCancel={actions.startOver} />
   } else if (state.step === "pending-kyc") {
-    return <WithdrawalKYCStatus meta={state.kycStatus} onCancel={actions.startOver} />
+    return <TransferTransactionStatus onCancel={actions.startOver} transaction={state.transaction} />
   } else if (state.step === "initial" || state.step === "before-webauth" || state.step === "after-webauth") {
     const webauth = state.step === "before-webauth" && state.webauth ? state.webauth : undefined
     return (

@@ -1,11 +1,11 @@
 import React from "react"
 import { Asset } from "stellar-sdk"
-import { WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
+import { TransferStatus, WithdrawalSuccessResponse, WithdrawalTransaction } from "@satoshipay/stellar-sep-6"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import WithdrawalTransactionForm from "../src/components/TransferService/WithdrawalTransactionForm"
 import WithdrawalKYCRedirect from "../src/components/TransferService/WithdrawalKYCRedirect"
-import WithdrawalKYCStatus from "../src/components/TransferService/WithdrawalKYCStatus"
+import TransferTransactionStatus from "../src/components/TransferService/TransferTransactionStatus"
 import WithdrawalRequestForm from "../src/components/TransferService/WithdrawalRequestForm"
 import { Account } from "../src/context/accounts"
 import { RefStateObject } from "../src/hooks/userinterface"
@@ -31,6 +31,23 @@ const actionsRef: RefStateObject = {
   update: () => undefined
 }
 
+const demoTransaction = {
+  amount_fee: "0.0",
+  amount_in: "0.0",
+  amount_out: "0.0",
+  completed_at: null,
+  id: "123",
+  kind: "withdrawal" as const,
+  from: "",
+  refunded: false,
+  started_at: new Date().toISOString(),
+  stellar_transaction_id: "",
+  to: "",
+  withdraw_anchor_account: "",
+  withdraw_memo: "",
+  withdraw_memo_type: "none"
+}
+
 const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
   account_id: "",
   eta: 24 * 60 * 60,
@@ -49,6 +66,7 @@ storiesOf("Withdrawal", module)
       onCancel={action("Clicked cancel")}
       onSubmit={action("Clicked submit")}
       testnet={false}
+      withdrawableAssets={[eurt]}
     />
   ))
   .add("Finish", () => (
@@ -64,7 +82,7 @@ storiesOf("Withdrawal", module)
   .add("Interactive KYC", () => (
     <WithdrawalKYCRedirect
       meta={{
-        interactive_deposit: false,
+        id: "1234",
         type: "interactive_customer_info_needed",
         url: "https://google.com/"
       }}
@@ -72,22 +90,23 @@ storiesOf("Withdrawal", module)
     />
   ))
   .add("KYC pending", () => (
-    <WithdrawalKYCStatus
-      meta={{
-        eta: 36 * 60 * 60,
+    <TransferTransactionStatus
+      transaction={{
+        ...demoTransaction,
         more_info_url: "https://google.com/",
-        status: "pending",
-        type: "customer_info_status"
+        status: TransferStatus.incomplete,
+        status_eta: 36 * 60 * 60
       }}
       onCancel={action("clicked cancel")}
     />
   ))
   .add("KYC denied", () => (
-    <WithdrawalKYCStatus
-      meta={{
+    <TransferTransactionStatus
+      transaction={{
+        ...demoTransaction,
+        message: "We could not verify your identity.",
         more_info_url: "https://google.com/",
-        status: "denied",
-        type: "customer_info_status"
+        status: TransferStatus.error
       }}
       onCancel={action("clicked cancel")}
     />

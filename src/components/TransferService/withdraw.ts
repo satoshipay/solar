@@ -3,7 +3,7 @@ import { Asset, Transaction } from "stellar-sdk"
 import {
   withdraw,
   TransferServer,
-  KYCStatusResponse,
+  TransferStatus,
   WithdrawalRequestKYC,
   WithdrawalRequestSuccess
 } from "@satoshipay/stellar-sep-6"
@@ -40,21 +40,14 @@ export function useWithdrawalState(account: Account) {
   const [withdrawalRequestPending, setWithdrawalRequestPending] = React.useState(false)
   const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
 
-  const handleWithdrawalRequest = (response: WithdrawalRequestSuccess | WithdrawalRequestKYC) => {
+  const handleWithdrawalInitResponse = (response: WithdrawalRequestSuccess | WithdrawalRequestKYC) => {
     if (response.type === "success") {
       dispatch(Action.successfulKYC(response.data))
       stopKYCPolling()
+    } else if (response.data.type === "interactive_customer_info_needed") {
+      dispatch(Action.startInteractiveKYC(response.data))
     } else {
-      if (response.data.type === "interactive_customer_info_needed") {
-        dispatch(Action.startInteractiveKYC(response.data))
-      } else if (response.data.type === "customer_info_status" && response.data.status === "pending") {
-        dispatch(Action.pendingKYC(response.data as KYCStatusResponse<"pending">))
-      } else if (response.data.type === "customer_info_status" && response.data.status === "denied") {
-        dispatch(Action.failedKYC(response.data as KYCStatusResponse<"denied">))
-        stopKYCPolling()
-      } else {
-        throw Error(`Unexpected response type: ${response.type} / ${response.data.type}`)
-      }
+      throw Error(`Unexpected response type: ${response.type} / ${response.data.type}`)
     }
   }
 
@@ -126,8 +119,14 @@ export function useWithdrawalState(account: Account) {
   const requestWithdrawal = async (withdrawalRequest: WithdrawalRequestData, authToken?: string) => {
     try {
       setWithdrawalResponsePending(true)
-      handleWithdrawalRequest(await sendWithdrawalRequest(withdrawalRequest, authToken))
-      startKYCPolling(() => pollKYCStatus(withdrawalRequest, authToken))
+      const initResponse = await sendWithdrawalRequest(withdrawalRequest, authToken)
+      handleWithdrawalInitResponse(initResponse)
+
+      if (initResponse.type === "kyc") {
+        // sandbox.anchorusd.com seems to use `identifier` instead of `id`
+        const transactionID = (initResponse.data as any).id || (initResponse.data as any).identifier
+        startKYCPolling(() => pollKYCStatus(withdrawalRequest, transactionID, authToken))
+      }
     } catch (error) {
       trackError(error)
     } finally {
@@ -135,10 +134,22 @@ export function useWithdrawalState(account: Account) {
     }
   }
 
-  const pollKYCStatus = async (request: WithdrawalRequestData, authToken?: string) => {
+  const pollKYCStatus = async (request: WithdrawalRequestData, transferTxId: string, authToken?: string) => {
     if (window.navigator.onLine !== false) {
+      try {
+        const { transaction } = await request.transferServer.fetchTransaction(transferTxId)
+
+        if (transaction.status === TransferStatus.incomplete) {
+          // Transfer transaction is still incomplete. Waiting for KYC to finish…
+          return
+        }
+      } catch (error) {
+        // tslint:disable-next-line no-console
+        console.warn(error)
+        return
+      }
       const response = await sendWithdrawalRequest(request, authToken)
-      handleWithdrawalRequest(response)
+      handleWithdrawalInitResponse(response)
     }
   }
 

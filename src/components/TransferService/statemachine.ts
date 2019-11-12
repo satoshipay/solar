@@ -1,10 +1,11 @@
 // tslint:disable no-object-literal-type-assertion
 import {
   DepositSuccessResponse,
+  DepositTransaction,
   KYCInteractiveResponse,
-  KYCStatusResponse,
+  TransferServer,
   WithdrawalSuccessResponse,
-  TransferServer
+  WithdrawalTransaction
 } from "@satoshipay/stellar-sep-6"
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import { Asset, Transaction } from "stellar-sdk"
@@ -44,13 +45,12 @@ export interface BeforeKYCState {
 export interface PendingKYCState {
   step: "pending-kyc"
   details: TransferDetails
-  kycStatus: KYCStatusResponse<"pending">
+  transaction?: DepositTransaction | WithdrawalTransaction
 }
 
 export interface AfterDeniedKYCState {
   step: "after-denied-kyc"
   details: TransferDetails
-  rejection: KYCStatusResponse<"denied">
 }
 
 export interface AfterSuccessfulKYC<SuccessResponse extends DepositSuccessResponse | WithdrawalSuccessResponse> {
@@ -107,16 +107,15 @@ const startInteractiveKYC = (response: KYCInteractiveResponse) =>
     response
   } as const)
 
-const pendingKYC = (response: KYCStatusResponse<"pending">) =>
+const pendingKYC = (transaction: DepositTransaction | WithdrawalTransaction | undefined) =>
   ({
     type: "kyc-pending",
-    response
+    transaction
   } as const)
 
-const failedKYC = (response: KYCStatusResponse<"denied">) =>
+const failedKYC = () =>
   ({
-    type: "kyc-denied",
-    response
+    type: "kyc-denied"
   } as const)
 
 const successfulKYC = (response: WithdrawalSuccessResponse) =>
@@ -211,7 +210,7 @@ export function stateMachine(state: TransferState<any>, action: TransferAction):
       return {
         step: "pending-kyc",
         details: state.details,
-        kycStatus: action.response
+        transaction: action.transaction
       }
     case "kyc-denied":
       if (!("details" in state) || state.step === "initial") {
@@ -219,8 +218,7 @@ export function stateMachine(state: TransferState<any>, action: TransferAction):
       }
       return {
         step: "after-denied-kyc",
-        details: state.details,
-        rejection: action.response
+        details: state.details
       }
     case "kyc-successful":
       if (!("details" in state) || state.step === "initial") {

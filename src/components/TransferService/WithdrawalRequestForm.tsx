@@ -65,7 +65,6 @@ function WithdrawalRequestForm(props: Props) {
   const [selectedAsset, setSelectedAsset] = React.useState<Asset | null>(
     props.initialAsset || withdrawableAssets[0] || null
   )
-  const [methodID, setMethodID] = React.useState<string | null>(props.initialMethod || null)
 
   const [formValues, setFormValues] = React.useState<FormValues>(props.initialFormValues || {})
   const setFormValue = (fieldName: string, newValue: string) =>
@@ -80,6 +79,11 @@ function WithdrawalRequestForm(props: Props) {
     withdrawalMetadata && withdrawalMetadata.withdraw && withdrawalMetadata.withdraw.types
       ? Object.keys(withdrawalMetadata.withdraw.types)
       : []
+
+  const [methodID, setMethodID] = React.useState<string | null>(
+    props.initialMethod || methodNames.length === 1 ? methodNames[0] : null
+  )
+
   const methodMetadata =
     methodID && withdrawalMetadata && withdrawalMetadata.withdraw && withdrawalMetadata.withdraw.types
       ? withdrawalMetadata.withdraw.types[methodID]

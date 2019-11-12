@@ -43,7 +43,11 @@ export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): 
 
   const fetchData = async () => {
     // FIXME: Move to net-worker
-    const updatedTransferServers = await fetchTransferServers(horizonURL, uncachedAssets)
+    const updatedTransferServers = await fetchTransferServers(horizonURL, uncachedAssets, {
+      walletName: "Solar",
+      walletURL: "https://solarwallet.io"
+    })
+
     const transferInfos = await fetchAssetTransferInfos(updatedTransferServers)
 
     for (const [asset, transferInfo] of Array.from(transferInfos.entries())) {

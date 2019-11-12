@@ -55,4 +55,4 @@ function WithdrawalKYCRedirect(props: KYCRedirectProps) {
   )
 }
 
-export default WithdrawalKYCRedirect
+export default React.memo(WithdrawalKYCRedirect)

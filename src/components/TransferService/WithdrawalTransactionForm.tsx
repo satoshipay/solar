@@ -95,7 +95,7 @@ function WithdrawalTransactionForm(props: Props) {
           <ReadOnlyTextfield label="Information" value={data.extra_info} />
         ) : (
           Object.keys(data.extra_info || {}).map(extraKey => (
-            <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info[extraKey]} />
+            <ReadOnlyTextfield label={formatDescriptionText(extraKey)} value={data.extra_info![extraKey]} />
           ))
         )}
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
