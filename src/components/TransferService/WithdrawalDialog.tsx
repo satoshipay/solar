@@ -25,7 +25,7 @@ interface Props {
   sendTransaction: (transaction: Transaction) => Promise<any>
 }
 
-function WithdrawalDialog(props: Props) {
+const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
   const dialogActionsRef = useDialogActions()
 
   const handleSubmit = React.useCallback(
@@ -71,14 +71,15 @@ function WithdrawalDialog(props: Props) {
       />
     </DialogBody>
   )
-}
+})
 
 function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose">) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const closeAfterTimeout = () => {
+  const closeAfterTimeout = React.useCallback(() => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
-  }
+  }, [props.onClose])
+
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (

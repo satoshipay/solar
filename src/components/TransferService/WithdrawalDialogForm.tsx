@@ -28,7 +28,7 @@ import { Action, initialState, stateMachine, BeforeWebauthState } from "./statem
 import { useAssetTransferServerInfos } from "./transferservice"
 import WithdrawalKYCRedirect from "./WithdrawalKYCRedirect"
 import WithdrawalKYCStatus from "./WithdrawalKYCStatus"
-import AnchorWithdrawalInitForm from "./WithdrawalRequestForm"
+import WithdrawalRequestForm from "./WithdrawalRequestForm"
 import WithdrawalTransactionForm from "./WithdrawalTransactionForm"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
 import Portal from "../Portal"
@@ -279,7 +279,7 @@ function WithdrawalDialogForm(props: Props) {
     const webauth = currentState.step === "before-webauth" && currentState.webauth ? currentState.webauth : undefined
     return (
       <>
-        <AnchorWithdrawalInitForm
+        <WithdrawalRequestForm
           assets={props.assets}
           actionsRef={props.actionsRef}
           initialAsset={currentState.details && currentState.details.asset}

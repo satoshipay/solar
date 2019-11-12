@@ -4,9 +4,9 @@ import { WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import WithdrawalTransactionForm from "../src/components/TransferService/WithdrawalTransactionForm"
-import AnchorWithdrawalInitForm from "../src/components/TransferService/WithdrawalRequestForm"
 import WithdrawalKYCRedirect from "../src/components/TransferService/WithdrawalKYCRedirect"
 import WithdrawalKYCStatus from "../src/components/TransferService/WithdrawalKYCStatus"
+import WithdrawalRequestForm from "../src/components/TransferService/WithdrawalRequestForm"
 import { Account } from "../src/context/accounts"
 import { RefStateObject } from "../src/hooks/userinterface"
 
@@ -43,7 +43,7 @@ const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
 storiesOf("Withdrawal", module)
   .addDecorator(render => <div style={{ minWidth: "70vw", margin: "20px" }}>{render()}</div>)
   .add("Request", () => (
-    <AnchorWithdrawalInitForm
+    <WithdrawalRequestForm
       actionsRef={actionsRef}
       assets={[eurt]}
       onCancel={action("Clicked cancel")}

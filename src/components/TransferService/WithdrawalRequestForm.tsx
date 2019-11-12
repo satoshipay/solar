@@ -48,7 +48,7 @@ interface Props {
   pendingAnchorCommunication?: boolean
 }
 
-function AnchorWithdrawalInitForm(props: Props) {
+function WithdrawalRequestForm(props: Props) {
   const formID = React.useMemo(() => nanoid(), [])
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
@@ -271,4 +271,4 @@ function AnchorWithdrawalInitForm(props: Props) {
   )
 }
 
-export default React.memo(AnchorWithdrawalInitForm)
+export default React.memo(WithdrawalRequestForm)
