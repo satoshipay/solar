@@ -52,17 +52,20 @@ function createEffectHandlers(router: ReturnType<typeof useRouter>, mainnetHoriz
         return
       }
 
-      const body = OfferDetailsString({
-        amount: BigNumber(effect.sold_amount),
-        price: BigNumber(effect.bought_amount).div(effect.sold_amount),
-        buying,
-        selling
-      })
+      // There are no web notifications on iOS
+      if (typeof Notification !== "undefined") {
+        const body = OfferDetailsString({
+          amount: BigNumber(effect.sold_amount),
+          price: BigNumber(effect.bought_amount).div(effect.sold_amount),
+          buying,
+          selling
+        })
 
-      const title = `Trade completed | ${account.name}`
-      const notification = new Notification(title, { body })
+        const title = `Trade completed | ${account.name}`
+        const notification = new Notification(title, { body })
 
-      notification.addEventListener("click", () => router.history.push(routes.account(account.id)))
+        notification.addEventListener("click", () => router.history.push(routes.account(account.id)))
+      }
     }
   }
 }
