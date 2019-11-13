@@ -45,6 +45,7 @@
     }
   },
   "dependencies": {
+    "@andywer/observable-fns": "^0.1.0",
     "electron-context-menu": "^0.15.0",
     "electron-debug": "^3.0.1",
     "electron-is-dev": "^1.1.0",
@@ -90,6 +91,7 @@
     "@types/stellar-base": "^0.10.2",
     "@types/storybook__addon-actions": "^3.4.3",
     "@types/storybook__react": "^3.0.9",
+    "@types/zen-observable": "^0.8.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",
     "big.js": "^5.2.2",
