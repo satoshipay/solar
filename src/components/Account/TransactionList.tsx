@@ -10,8 +10,10 @@ import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import Tooltip from "@material-ui/core/Tooltip"
 import { makeStyles } from "@material-ui/core/styles"
+import AddIcon from "@material-ui/icons/Add"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
+import RemoveIcon from "@material-ui/icons/Remove"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
@@ -69,9 +71,9 @@ function OfferDescription(props: {
   }
 
   if (offerId === "0") {
-    prefix = "Create order: "
+    prefix = "Order: "
   } else if (amount.eq(0)) {
-    prefix = "Delete order: "
+    prefix = "Cancel order: "
   } else {
     prefix = "Update order: "
   }
@@ -123,8 +125,13 @@ function Time(props: { time: string }) {
 }
 
 function TransactionIcon(props: { paymentSummary: PaymentSummary; transaction: Transaction }) {
-  if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "manageSellOffer") {
+  if (
+    props.transaction.operations.length === 1 &&
+    ["manageBuyOffer", "manageSellOffer"].includes(props.transaction.operations[0].type)
+  ) {
     return <SwapHorizIcon />
+  } else if (props.transaction.operations.length === 1 && props.transaction.operations[0].type === "changeTrust") {
+    return BigNumber(props.transaction.operations[0].limit).eq(0) ? <RemoveIcon /> : <AddIcon />
   } else if (props.transaction.operations.every(operation => operation.type === "accountMerge")) {
     return <CallReceivedIcon />
   } else if (props.paymentSummary.length === 0) {
