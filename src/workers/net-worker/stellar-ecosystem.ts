@@ -1,17 +1,8 @@
-import { expose } from "threads"
-import { AccountRecord } from "../lib/stellar-expert"
-import { AssetRecord } from "../lib/stellar-ticker"
+import { StellarTomlResolver } from "stellar-sdk"
+import { AccountRecord } from "../../lib/stellar-expert"
+import { AssetRecord } from "../../lib/stellar-ticker"
 
-const fetcher = {
-  fetchWellknownAccounts,
-  fetchAllAssets
-}
-
-export type Fetcher = typeof fetcher
-
-expose(fetcher)
-
-async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
+export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
   const requestURL = testnet
     ? "https://api.stellar.expert/api/explorer/testnet/directory"
     : "https://api.stellar.expert/api/explorer/public/directory"
@@ -47,7 +38,7 @@ function trimAccountRecord(record: AssetRecord) {
   }
 }
 
-async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
+export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
   const requestURL = testnet
     ? "https://ticker-testnet.stellar.org/assets.json"
     : "https://ticker.stellar.org/assets.json"
@@ -62,4 +53,8 @@ async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
   const allAssets = json.assets as AssetRecord[]
   const abbreviatedAssets = allAssets.sort(byAccountCountSorter).map(record => trimAccountRecord(record))
   return abbreviatedAssets
+}
+
+export function fetchStellarToml(domain: string): Promise<any> {
+  return StellarTomlResolver.resolve(domain)
 }

@@ -1,5 +1,5 @@
 import { spawn, Worker, Thread } from "threads"
-import { Fetcher } from "../workers/fetch-worker"
+import { NetWorker } from "../workers/net-worker/worker"
 
 export interface AccountRecord {
   address: string
@@ -22,9 +22,9 @@ export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountR
     // use cached accounts if they are not older than 24h
     return JSON.parse(cachedAccountsString)
   } else {
-    const fetcher = await spawn<Fetcher>(new Worker("../workers/fetch-worker.ts"))
-    const knownAccounts = await fetcher.fetchWellknownAccounts(testnet)
-    await Thread.terminate(fetcher)
+    const netWorker = await spawn<NetWorker>(new Worker("../workers/net-worker/worker.ts"))
+    const knownAccounts = await netWorker.fetchWellknownAccounts(testnet)
+    await Thread.terminate(netWorker)
 
     localStorage.setItem(cacheKey, JSON.stringify(knownAccounts))
     localStorage.setItem("known-accounts:timestamp", Date.now().toString())
