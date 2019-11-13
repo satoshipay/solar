@@ -1,5 +1,5 @@
 import { spawn, Thread } from "threads"
-import { Fetcher } from "../workers/fetch-worker"
+import { NetWorker } from "../workers/net-worker/worker"
 
 export interface AssetRecord {
   code: string
@@ -25,9 +25,9 @@ export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
     // use cached assets if they are not older than 24h
     return JSON.parse(cachedAssetsString)
   } else {
-    const fetcher = await spawn<Fetcher>(new Worker("../workers/fetch-worker.ts"))
-    const allAssets = await fetcher.fetchAllAssets(testnet)
-    await Thread.terminate(fetcher)
+    const netWorker = await spawn<NetWorker>(new Worker("../workers/net-worker/worker.ts"))
+    const allAssets = await netWorker.fetchAllAssets(testnet)
+    await Thread.terminate(netWorker)
 
     localStorage.setItem(storageKey, JSON.stringify(allAssets))
     localStorage.setItem("known-assets:timestamp", Date.now().toString())
