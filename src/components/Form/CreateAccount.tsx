@@ -150,7 +150,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         <ToggleSection
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
-          style={{ marginTop: 24, flexShrink: 0 }}
+          style={{ marginTop: 24, paddingLeft: 12, flexShrink: 0 }}
           title="Password Protect"
         >
           <HorizontalLayout
@@ -199,6 +199,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         <ToggleSection
           checked={!formValues.createNewKey}
           onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
+          style={{ paddingLeft: 12 }}
           title="Import Existing"
         >
           <HorizontalLayout alignItems="center">
