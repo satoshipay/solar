@@ -160,6 +160,10 @@ function ManageSignersDialogContent(props: Props) {
     <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0" wrap="wrap">
       <TextField
         error={!!weightThresholdError}
+        inputProps={{
+          pattern: "[0-9]*",
+          inputMode: "decimal"
+        }}
         label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
         onChange={event => setWeightThreshold(event.target.value)}
         type="number"

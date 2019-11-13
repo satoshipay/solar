@@ -44,6 +44,8 @@ function TradingPrice(props: TradingPriceProps) {
   return (
     <TextField
       inputProps={{
+        pattern: "[0-9]*",
+        inputMode: "decimal",
         min: "0.0000001"
       }}
       InputProps={{ endAdornment }}
