@@ -4,6 +4,7 @@ import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
 import { SettingsContext, SettingsContextType } from "../context/settings"
 import { useHorizon } from "../hooks/stellar"
+import { useIsMobile } from "../hooks/userinterface"
 import { isWrongPasswordError } from "../lib/errors"
 import { explainSubmissionError } from "../lib/horizonErrors"
 import {
@@ -28,6 +29,8 @@ function ConditionalSubmissionProgress(props: {
   promise: Promise<any> | null
   type: SubmissionType
 }) {
+  const isSmallScreen = useIsMobile()
+
   const outerStyle: React.CSSProperties = {
     position: "absolute",
     display: props.promise ? "flex" : "none",
@@ -37,7 +40,7 @@ function ConditionalSubmissionProgress(props: {
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    background: "#fcfcfc"
+    background: isSmallScreen ? "#fcfcfc" : "white"
   }
   const innerStyle: React.CSSProperties = {
     display: "flex",
