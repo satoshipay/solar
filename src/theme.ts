@@ -1,5 +1,6 @@
 import { createMuiTheme } from "@material-ui/core/styles"
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
+import Fade from "@material-ui/core/Fade"
 import ArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
@@ -31,6 +32,21 @@ const theme = createMuiTheme({
     MuiInputLabel: {
       required: false,
       shrink: true
+    },
+    MuiMenu: {
+      anchorOrigin: {
+        horizontal: "center",
+        vertical: "center"
+      },
+      BackdropProps: {
+        open: true
+      },
+      TransitionComponent: Fade,
+      transitionDuration: 300,
+      transformOrigin: {
+        horizontal: "center",
+        vertical: "center"
+      }
     },
     MuiSelect: {
       IconComponent: ArrowDownIcon
@@ -232,13 +248,31 @@ const theme = createMuiTheme({
       }
     },
     MuiMenu: {
+      paper: {
+        [breakpoints.down(600)]: {
+          // hide a small div that is shown above the anchor component
+          visibility: "hidden"
+        }
+      },
       list: {
-        padding: 0
+        padding: 0,
+        [breakpoints.down(600)]: {
+          backgroundColor: "white",
+          bottom: 0,
+          left: 0,
+          position: "fixed",
+          transitionDuration: 0,
+          // explicitly set to visible because it would be hidden by the visibility change in MuiMenu-paper
+          visibility: "visible"
+        }
       }
     } as any,
     MuiMenuItem: {
       root: {
-        borderBottom: "none"
+        borderBottom: "none",
+        [breakpoints.down(600)]: {
+          fontSize: 20
+        }
       }
     },
     MuiPaper: {

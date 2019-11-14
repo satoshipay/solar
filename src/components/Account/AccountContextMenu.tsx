@@ -68,11 +68,17 @@ interface MenuProps {
 
 function AccountContextMenu(props: MenuProps) {
   const isSmallScreen = useIsMobile()
+
   return (
     <ContextMenu
       anchor={props.children}
       menu={({ anchorEl, open, onClose, closeAndCall }) => (
-        <Menu anchorEl={anchorEl || undefined} disableAutoFocusItem={isSmallScreen} open={open} onClose={onClose}>
+        <Menu
+          anchorEl={isSmallScreen ? document.body : anchorEl || undefined}
+          disableAutoFocusItem={isSmallScreen}
+          onClose={onClose}
+          open={open}
+        >
           <AccountContextMenuItem
             disabled={!props.activated}
             icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
