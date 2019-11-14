@@ -1,10 +1,10 @@
 {
   "ios": {
     "debug": {
-      "buildFlag": ["-allowProvisioningUpdates", "-UseModernBuildSystem=0"]
+      "buildFlag": ["-allowProvisioningUpdates"]
     },
     "release": {
-      "buildFlag": ["-allowProvisioningUpdates", "-UseModernBuildSystem=0"],
+      "buildFlag": ["-allowProvisioningUpdates"],
       "developmentTeam": "YP676N38BS"
     }
   }
