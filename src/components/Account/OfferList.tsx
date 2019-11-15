@@ -10,8 +10,9 @@ import BarChartIcon from "@material-ui/icons/BarChart"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks/stellar"
-import { useLiveAccountData, useLiveAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { offerAssetToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
@@ -22,7 +23,7 @@ import { SingleBalance } from "./AccountBalances"
 function createDismissalTransaction(
   horizon: Server,
   account: Account,
-  accountData: ObservedAccountData,
+  accountData: AccountData,
   offer: ServerApi.OfferRecord
 ): Promise<Transaction> {
   return createTransaction(
@@ -102,7 +103,7 @@ interface Props {
 }
 
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const offers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
 
@@ -115,7 +116,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
     }
   }
 
-  if (offers.loading || offers.offers.length === 0) {
+  if (offers.length === 0) {
     return null
   } else {
     return (
@@ -123,7 +124,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
         <ListSubheader disableSticky style={{ background: "transparent" }}>
           {props.title}
         </ListSubheader>
-        {offers.offers.map(offer => (
+        {offers.map(offer => (
           <OfferListItem
             key={offer.id}
             accountPublicKey={props.account.publicKey}

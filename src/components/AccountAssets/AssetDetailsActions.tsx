@@ -31,7 +31,7 @@ function AssetDetailsActions(props: Props) {
   const [txCreationPending, setTxCreationPending] = React.useState(false)
   const router = useRouter()
 
-  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const [accountData] = useLiveAccountData(account.publicKey, account.testnet)
 
   const balance = accountData.balances.find(
     bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code

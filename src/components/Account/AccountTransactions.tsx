@@ -6,7 +6,7 @@ import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { useHorizon } from "../../hooks/stellar"
-import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
+import { useLiveRecentTransactions, useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { hasSigned } from "../../lib/transaction"
 import { MinimumAccountBalance } from "../Fetchers"
 import FriendbotButton from "./FriendbotButton"
@@ -58,14 +58,15 @@ function PendingMultisigTransactions(props: { account: Account }) {
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const horizon = useHorizon(account.testnet)
+  const [accountData, accountWasLoaded] = useLiveAccountData(account.publicKey, account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const settings = React.useContext(SettingsContext)
 
   return (
     <>
-      {recentTxs.loading ? (
+      {!accountWasLoaded ? (
         <TransactionListPlaceholder />
-      ) : recentTxs.activated ? (
+      ) : accountData.balances.length > 0 ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
           <OfferList account={account} title="Open offers" />
@@ -74,7 +75,7 @@ function AccountTransactions(props: { account: Account }) {
             background="transparent"
             title="Recent transactions"
             testnet={account.testnet}
-            transactions={recentTxs.transactions}
+            transactions={recentTxs}
           />
         </>
       ) : (

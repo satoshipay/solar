@@ -26,6 +26,7 @@ export function manageStreamConnection(
 ): UnsubscribeFn {
   let unsubscribeFromCurrent: UnsubscribeFn
 
+  const scriptContext = typeof window !== "undefined" ? window : self
   const errorHandler = (error: Error) => trackStreamError(service, error)
 
   const messageHandler = (event: MessageEvent) => {
@@ -39,11 +40,11 @@ export function manageStreamConnection(
   }
 
   unsubscribeFromCurrent = connectStream(errorHandler)
-  window.addEventListener("message", messageHandler)
+  scriptContext.addEventListener("message", messageHandler)
 
   const unsubscribeCompletely = () => {
     unsubscribeFromCurrent()
-    window.removeEventListener("message", messageHandler)
+    scriptContext.removeEventListener("message", messageHandler)
   }
   return unsubscribeCompletely
 }
@@ -72,7 +73,7 @@ export function trackStreamError(service: ServiceType, error: Error) {
     return
   }
 
-  if (window.navigator.onLine === false || lastAppPauseTime > lastAppResumeTime) {
+  if (navigator.onLine === false || lastAppPauseTime > lastAppResumeTime) {
     // ignore the error if we are offline; the online/offline status is handled separately
     // tslint:disable-next-line no-console
     console.debug("Not showing streaming error, since we just went offline:", error)
@@ -107,7 +108,7 @@ export function trackStreamError(service: ServiceType, error: Error) {
       return
     }
 
-    if (window.navigator.onLine !== false) {
+    if (navigator.onLine !== false) {
       lastErrorNotificationTimeByService[service] = Date.now()
       trackConnectionError(ServiceMessages[service] || error.message)
 
@@ -118,14 +119,14 @@ export function trackStreamError(service: ServiceType, error: Error) {
 }
 
 export function whenBackOnline(callback: () => void) {
-  if (window.navigator.onLine === false) {
+  if (navigator.onLine === false) {
     window.addEventListener("online", callback, { once: true, passive: true })
     return
   }
 
   // Wait a little bit, then check again (in case the offline status isn't updated in time)
   setTimeout(() => {
-    if (window.navigator.onLine === false) {
+    if (navigator.onLine === false) {
       window.addEventListener("online", callback, { once: true, passive: true })
       return
     } else {

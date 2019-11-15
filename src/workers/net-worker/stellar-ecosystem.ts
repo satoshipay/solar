@@ -1,3 +1,5 @@
+// tslint:disable:no-shadowed-variable
+
 import { StellarTomlResolver } from "stellar-sdk"
 import { AccountRecord } from "../../lib/stellar-expert"
 import { AssetRecord } from "../../lib/stellar-ticker"

@@ -117,7 +117,7 @@ interface ScrollableBalancesProps {
 }
 
 function ScrollableBalances(props: ScrollableBalancesProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const balanceItemsRef = React.useRef<Map<number, HTMLElement | null>>(new Map())
   const classes = useScrollableBalancesStyles({})
   const latestStepRef = React.useRef(0)

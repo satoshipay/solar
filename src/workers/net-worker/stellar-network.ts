@@ -1,43 +1,62 @@
-// -> subscribe to account (watch effects) + unsubscribe
-// -> fetch account data
-// -> fetch past txs
-
-// Outbound API:
-//   Live data:
-//     -> subscribe to account data
-//     -> subscribe to past txs
-//     -> subscribe to open orders
-//     -> subscribe to DEX orderbook
-//   Static data:
-//     -> fetch account data
-//     -> fetch ledger data
-
+import "eventsource"
 import throttle from "lodash.throttle"
-import { Server, ServerApi, Asset } from "stellar-sdk"
+import PromiseQueue from "p-queue"
+import qs from "qs"
+import { Horizon, ServerApi, Asset } from "stellar-sdk"
 import { Observable, multicast } from "@andywer/observable-fns"
-import { waitForAccountData } from "../../lib/account"
-import { stringifyAsset } from "../../lib/stellar"
+import pkg from "../../../package.json"
+import { Cancellation } from "../../lib/errors"
+import { parseAssetID } from "../../lib/stellar"
+import { max } from "../../lib/strings"
+import { parseJSONResponse } from "../_util/rest"
 
-type AccountRecord = Omit<ServerApi.AccountRecord, "_links">
+export interface CollectionPage<T> {
+  _embedded: {
+    records: T[]
+  }
+  _links: {
+    self: {
+      href: string
+    }
+    next: {
+      href: string
+    }
+    prev: {
+      href: string
+    }
+  }
+}
 
-const accountSubscriptionCache = new Map<string, Observable<AccountRecord>>()
+const accountSubscriptionCache = new Map<string, Observable<Horizon.AccountResponse>>()
 const effectsSubscriptionCache = new Map<string, Observable<ServerApi.EffectRecord>>()
 const orderbookSubscriptionCache = new Map<string, Observable<ServerApi.OrderbookRecord>>()
-const ordersSubscriptionCache = new Map<string, Observable<ServerApi.OfferRecord>>()
-const transactionsSubscriptionCache = new Map<string, Observable<ServerApi.TransactionRecord>>()
+const ordersSubscriptionCache = new Map<string, Observable<CollectionPage<ServerApi.OfferRecord>>>()
+const transactionsSubscriptionCache = new Map<string, Observable<Horizon.TransactionResponse>>()
 
-const accountDataCache = new Map<string, AccountRecord>()
+const accountDataCache = new Map<string, Horizon.AccountResponse | null>()
+
+// Limit the number of concurrent fetches
+const fetchQueue = new PromiseQueue({ concurrency: 8 })
+
+const identification = {
+  "X-Client-Name": "Solar",
+  "X-Client-Version": pkg.version
+}
 
 const createAccountCacheKey = (horizonURL: string, accountID: string) => `${horizonURL}:${accountID}`
-const createOrderbookCacheKey = (horizonURL: string, selling: Asset, buying: Asset) =>
-  `${horizonURL}:${stringifyAsset(selling)}:${stringifyAsset(buying)}`
+const createOrderbookCacheKey = (horizonURL: string, sellingAsset: string, buyingAsset: string) =>
+  `${horizonURL}:${sellingAsset}:${buyingAsset}`
 const doNothing = () => undefined as void
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 function cachify<T, Args extends any[]>(
   cache: Map<string, Observable<T>>,
   subscribe: (...args: Args) => Observable<T>,
   createCacheKey: (...args: Args) => string
-) {
+): (...args: Args) => Observable<T> {
   return (...args: Args) => {
     const cacheKey = createCacheKey(...args)
     const cached = cache.get(cacheKey)
@@ -85,61 +104,116 @@ function createReconnectDelay(options: { delay: number }): () => Promise<void> {
   }
 }
 
+async function waitForAccountData(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
+  let accountData = null
+  let initialFetchFailed = false
+
+  while (true) {
+    if (shouldCancel && shouldCancel()) {
+      throw Cancellation("Stopping to wait for account to become present in network.")
+    }
+
+    const url = new URL(`/accounts/${accountID}`, horizonURL)
+    const response = await fetch(String(url) + "?" + qs.stringify(identification))
+
+    if (response.status === 200) {
+      accountData = await parseJSONResponse<Horizon.AccountResponse>(response)
+      break
+    } else if (response.status === 404) {
+      initialFetchFailed = true
+      await delay(2500)
+    } else {
+      throw Error(`Request to ${response.url} failed with status ${response.status}`)
+    }
+  }
+
+  return {
+    accountData,
+    initialFetchFailed
+  }
+}
+
 function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string) {
   const cacheKey = createAccountCacheKey(horizonURL, accountID)
-  const horizon = new Server(horizonURL)
 
   return multicast(
     new Observable<ServerApi.EffectRecord>(observer => {
       let cancelled = false
       let latestCursor: string | undefined
+      let latestMessageTime = 0
 
-      let unsubscribe = () => {
+      let eventSource: EventSource | undefined
+      let watchdogTimeout: any
+
+      const unsubscribe = () => {
         cancelled = true
+
+        clearTimeout(watchdogTimeout)
+        if (eventSource) {
+          eventSource.close()
+        }
       }
 
       const setup = async () => {
-        const { accountData: initialAccountData } = await waitForAccountData(horizon, accountID)
+        // TODO: Would make more sense to fetch the last effect
+
+        const { accountData: initialAccountData } = await fetchQueue.add(() =>
+          waitForAccountData(horizonURL, accountID)
+        )
         accountDataCache.set(cacheKey, initialAccountData)
 
         if (cancelled) {
           return
         }
 
+        const url = new URL(`/accounts/${accountID}/effects`, horizonURL)
+
+        const resetWatchdog = () => {
+          watchdogTimeout = setTimeout(() => {
+            if (Date.now() - latestMessageTime > 15_000) {
+              unsubscribe()
+              subscribe()
+            } else {
+              resetWatchdog()
+            }
+          }, 15_000)
+        }
+
         const subscribe = () => {
-          return horizon
-            .effects()
-            .forAccount(accountID)
-            .cursor(latestCursor || "now")
-            .stream({
-              onerror(error) {
-                unsubscribe()
-                // tslint:disable-next-line no-console
-                console.warn("Account effects stream saw an error:", error)
+          eventSource = new EventSource(
+            String(url) +
+              "?" +
+              qs.stringify({
+                ...identification,
+                cursor: latestCursor || "now"
+              })
+          )
 
-                // TODO: Propagate errors, but take care to be not too noisy
+          eventSource.onmessage = message => {
+            const effect: ServerApi.EffectRecord = JSON.parse(message.data)
+            latestCursor = effect.paging_token
+            latestMessageTime = Date.now()
+            observer.next(effect)
+          }
+          eventSource.onerror = errorMessage => {
+            unsubscribe()
 
-                delayReconnect().then(
-                  () => {
-                    unsubscribe = subscribe()
-                  },
-                  unexpectedError => {
-                    observer.error(unexpectedError)
-                  }
-                )
-              },
-              onmessage: ((effect: ServerApi.EffectRecord) => {
-                latestCursor = effect.paging_token
-                observer.next(effect)
+            // tslint:disable-next-line no-console
+            console.warn("Account effects stream saw an error:", errorMessage)
 
-                // TODO: If effect is deletion of the watched account, then unsubscribe & remove cache item
-              }) as any // FIXME: Update stellar-sdk to version with fixed types
-            })
+            // TODO: Propagate errors, but take care to be not too noisy
+
+            delayReconnect().then(
+              () => subscribe(),
+              unexpectedError => {
+                observer.error(unexpectedError)
+              }
+            )
+          }
         }
 
         const delayReconnect = createReconnectDelay({ delay: 1000 })
-
-        unsubscribe = subscribe()
+        subscribe()
       }
 
       setup().catch(error => observer.error(error))
@@ -156,12 +230,11 @@ export const subscribeToAccountEffects = cachify(
   createAccountCacheKey
 )
 
-export function subscribeToAccountUncached(horizonURL: string, accountID: string) {
+function subscribeToAccountUncached(horizonURL: string, accountID: string) {
   const cacheKey = createAccountCacheKey(horizonURL, accountID)
-  const horizon = new Server(horizonURL)
 
   return multicast(
-    new Observable<AccountRecord>(observer => {
+    new Observable<Horizon.AccountResponse | null>(observer => {
       let cancelled = false
       let latestKnownSnapshot = ""
 
@@ -171,7 +244,7 @@ export function subscribeToAccountUncached(horizonURL: string, accountID: string
 
       const update = throttle(
         async () => {
-          const accountData = await horizon.loadAccount(accountID)
+          const accountData = await fetchQueue.add(() => fetchAccountData(horizonURL, accountID))
           const snapshot = JSON.stringify(accountData)
 
           if (snapshot !== latestKnownSnapshot) {
@@ -189,10 +262,12 @@ export function subscribeToAccountUncached(horizonURL: string, accountID: string
 
         if (lastKnownAccountData) {
           observer.next(lastKnownAccountData)
+          latestKnownSnapshot = JSON.stringify(lastKnownAccountData)
         } else {
           // This is basically handled by subscribeToAccountEffects() already, BUT this way we get an up-to-date dataset immediately
-          const { accountData: initialAccountData } = await waitForAccountData(horizon, accountID)
+          const { accountData: initialAccountData } = await waitForAccountData(horizonURL, accountID)
           observer.next(initialAccountData)
+          latestKnownSnapshot = JSON.stringify(initialAccountData)
         }
 
         if (cancelled) {
@@ -221,25 +296,20 @@ export function subscribeToAccountUncached(horizonURL: string, accountID: string
 
 export const subscribeToAccount = cachify(accountSubscriptionCache, subscribeToAccountUncached, createAccountCacheKey)
 
-export function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: string, cursor: string) {
-  const horizon = new Server(horizonURL)
-
+function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: string, cursor: string) {
   return multicast(
-    new Observable<ServerApi.TransactionRecord>(observer => {
+    new Observable<Horizon.TransactionResponse>(observer => {
       let latestCursor = cursor
 
       let unsubscribe = doNothing
 
       const update = async () => {
-        const page = await horizon
-          .transactions()
-          .forAccount(accountID)
-          .cursor(latestCursor)
-          .call()
+        const page = await fetchAccountTransactions(horizonURL, accountID, { cursor: latestCursor, limit: 15 })
+        const { records } = page._embedded
 
-        if (page.records.length > 0) {
-          latestCursor = page.records[page.records.length - 1].paging_token
-          page.records.forEach(tx => observer.next(tx))
+        if (records.length > 0) {
+          latestCursor = records[records.length - 1].paging_token
+          records.forEach(tx => observer.next(tx))
         }
       }
 
@@ -270,25 +340,16 @@ export const subscribeToAccountTransactions = cachify(
   createAccountCacheKey
 )
 
-export function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string, cursor: string) {
-  const horizon = new Server(horizonURL)
-
+function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string, cursor: string) {
   return multicast(
-    new Observable<ServerApi.OfferRecord>(observer => {
+    new Observable<CollectionPage<ServerApi.OfferRecord>>(observer => {
       let latestCursor = cursor
-
       let unsubscribe = doNothing
 
       const update = async () => {
-        const page = await horizon
-          .offers("accounts", accountID)
-          .cursor(latestCursor)
-          .call()
-
-        if (page.records.length > 0) {
-          latestCursor = page.records[page.records.length - 1].paging_token
-          page.records.forEach(order => observer.next(order))
-        }
+        const page = await fetchAccountOpenOrders(horizonURL, accountID, { cursor: latestCursor })
+        latestCursor = max(page._embedded.records.map(record => record.paging_token)) || latestCursor
+        observer.next(page)
       }
 
       const setup = async () => {
@@ -318,13 +379,45 @@ export const subscribeToOpenOrders = cachify(
   createAccountCacheKey
 )
 
-export function subscribeToOrderbookUncached(horizonURL: string, selling: Asset, buying: Asset) {
-  const horizon = new Server(horizonURL)
+function createOrderbookQuery(selling: Asset, buying: Asset) {
+  const query: any = { limit: 100 }
+
+  query.buying_asset_type = buying.getAssetType()
+  query.selling_asset_type = selling.getAssetType()
+
+  if (!buying.isNative()) {
+    query.buying_asset_code = buying.getCode()
+    query.buying_asset_issuer = buying.getIssuer()
+  }
+  if (!selling.isNative()) {
+    query.selling_asset_code = selling.getCode()
+    query.selling_asset_issuer = selling.getIssuer()
+  }
+
+  return query
+}
+
+function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, buyingAsset: string) {
+  const buying = parseAssetID(buyingAsset)
+  const selling = parseAssetID(sellingAsset)
 
   return multicast(
     new Observable<ServerApi.OrderbookRecord>(observer => {
-      let unsubscribe = doNothing
       let latestKnownSnapshot = ""
+      let latestMessageTime = 0
+
+      let eventSource: EventSource | undefined
+      let watchdogTimeout: any
+
+      const query = createOrderbookQuery(selling, buying)
+      const url = new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL)
+
+      const unsubscribe = () => {
+        clearTimeout(watchdogTimeout)
+        if (eventSource) {
+          eventSource.close()
+        }
+      }
 
       const setup = async () => {
         const handleUpdate = (record: ServerApi.OrderbookRecord) => {
@@ -334,6 +427,8 @@ export function subscribeToOrderbookUncached(horizonURL: string, selling: Asset,
             observer.next(record)
             latestKnownSnapshot = snapshot
           }
+
+          latestMessageTime = Date.now()
         }
         const handleError = (error: any) => {
           unsubscribe()
@@ -343,36 +438,34 @@ export function subscribeToOrderbookUncached(horizonURL: string, selling: Asset,
           // TODO: Propagate errors, but take care to be not too noisy
 
           delayReconnect().then(
-            () => {
-              unsubscribe = subscribe()
-            },
+            () => subscribe(),
             unexpectedError => {
               observer.error(unexpectedError)
             }
           )
         }
+        const resetWatchdog = () => {
+          watchdogTimeout = setTimeout(() => {
+            if (Date.now() - latestMessageTime > 15_000) {
+              unsubscribe()
+              subscribe()
+            } else {
+              resetWatchdog()
+            }
+          }, 15_000)
+        }
         const subscribe = () => {
-          horizon
-            .orderbook(selling, buying)
-            .call()
-            .then(handleUpdate, handleError)
+          eventSource = new EventSource(`${url}?${qs.stringify(query)}`)
 
-          return horizon
-            .orderbook(selling, buying)
-            .cursor("now")
-            .stream({
-              onerror(error) {
-                handleError(error)
-              },
-              onmessage: (record: ServerApi.OrderbookRecord) => {
-                observer.next(record)
-              }
-            })
+          eventSource.onmessage = message => {
+            const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
+            handleUpdate(record)
+          }
+          eventSource.onerror = handleError
         }
 
         const delayReconnect = createReconnectDelay({ delay: 1000 })
-
-        unsubscribe = subscribe()
+        subscribe()
       }
 
       setup().catch(error => observer.error(error))
@@ -395,16 +488,35 @@ export interface PaginationOptions {
   order?: "asc" | "desc"
 }
 
-export function fetchAccountTransactions(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
-  const horizon = new Server(horizonURL)
-  let call = horizon.transactions().forAccount(accountID)
+export async function fetchAccountData(horizonURL: string, accountID: string) {
+  const url = new URL(`/accounts/${accountID}`, horizonURL)
+  const response = await fetch(String(url) + "?" + qs.stringify(identification))
 
-  if (options.cursor) {
-    call = call.cursor(options.cursor)
+  if (response.status === 404) {
+    return null
   }
 
-  return call
-    .limit(options.limit || 20)
-    .order(options.order || "asc")
-    .call()
+  return parseJSONResponse<Horizon.AccountResponse>(response)
+}
+
+export async function fetchAccountTransactions(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
+  const url = new URL(`/accounts/${accountID}/transactions`, horizonURL)
+  const response = await fetch(String(url) + "?" + qs.stringify({ ...identification, ...options }))
+
+  return parseJSONResponse<CollectionPage<Horizon.TransactionResponse>>(response)
+}
+
+export async function fetchAccountOpenOrders(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
+  const url = new URL(`/accounts/${accountID}/offers`, horizonURL)
+  const response = await fetch(String(url) + "?" + qs.stringify({ ...identification, ...options }))
+
+  return parseJSONResponse<CollectionPage<ServerApi.OfferRecord>>(response)
+}
+
+export async function fetchOrderbookRecord(horizonURL: string, sellingAsset: string, buyingAsset: string) {
+  const query = createOrderbookQuery(parseAssetID(sellingAsset), parseAssetID(buyingAsset))
+  const url = new URL(`/order_book}`, horizonURL)
+  const response = await fetch(String(url) + "?" + qs.stringify({ ...identification, ...query }))
+
+  return parseJSONResponse<ServerApi.OrderbookRecord>(response)
 }

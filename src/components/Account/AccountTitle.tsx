@@ -11,9 +11,9 @@ import GroupIcon from "@material-ui/icons/Group"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
+import { AccountData } from "../../lib/account"
 import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
 import { primaryBackgroundColor } from "../../theme"
 import StellarGuardIcon from "../Icon/StellarGuard"
@@ -53,7 +53,7 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
 }
 
 // tslint:disable-next-line no-shadowed-variable
-const Badges = React.memo(function Badges(props: { account: Account; accountData: ObservedAccountData }) {
+const Badges = React.memo(function Badges(props: { account: Account; accountData: AccountData }) {
   const multiSigIcon = containsStellarGuardAsSigner(props.accountData.signers) ? (
     <Tooltip title="StellarGuard Protection">
       <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
@@ -147,7 +147,7 @@ function TitleTextField(props: TitleTextFieldProps) {
 
 interface AccountTitleProps {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   actions: React.ReactNode
   editable?: boolean
 }
@@ -189,38 +189,29 @@ function AccountTitle(props: AccountTitleProps) {
     [props.account, name]
   )
 
-  const applyRenaming = React.useCallback(
-    () => {
-      renameAccount(props.account.id, name).catch(trackError)
-      setMode("readonly")
-      clearTextSelection()
-    },
-    [props.account, name]
-  )
-  const cancelRenaming = React.useCallback(
-    () => {
-      setName(props.account.name)
-      setMode("readonly")
-      clearTextSelection()
-    },
-    [props.account]
-  )
+  const applyRenaming = React.useCallback(() => {
+    renameAccount(props.account.id, name).catch(trackError)
+    setMode("readonly")
+    clearTextSelection()
+  }, [props.account, name])
+  const cancelRenaming = React.useCallback(() => {
+    setName(props.account.name)
+    setMode("readonly")
+    clearTextSelection()
+  }, [props.account])
   const switchToEditMode = React.useCallback(() => {
     if (props.editable) {
       setMode("editing")
     }
   }, [])
-  const toggleMode = React.useCallback(
-    () => {
-      setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
-      // Doesn't work on iOS, even leads to weird broken behavior
-      if (inputRef.current && process.env.PLATFORM !== "ios") {
-        inputRef.current.select()
-        inputRef.current.focus()
-      }
-    },
-    [inputRef]
-  )
+  const toggleMode = React.useCallback(() => {
+    setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
+    // Doesn't work on iOS, even leads to weird broken behavior
+    if (inputRef.current && process.env.PLATFORM !== "ios") {
+      inputRef.current.select()
+      inputRef.current.focus()
+    }
+  }, [inputRef])
 
   const editActions = React.useMemo(
     () => (

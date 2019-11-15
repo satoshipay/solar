@@ -20,7 +20,7 @@ const account: Account = {
 }
 
 function SampleTransactions(props: { children: (transactions: Transaction[]) => React.ReactElement<any> }) {
-  const { transactions } = useLiveRecentTransactions(account.publicKey, account.testnet)
+  const transactions = useLiveRecentTransactions(account.publicKey, account.testnet)
   return props.children(transactions)
 }
 

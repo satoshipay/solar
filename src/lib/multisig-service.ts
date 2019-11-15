@@ -46,8 +46,6 @@ export interface TxParameters {
   signature?: string
 }
 
-const dedupe = <T>(array: T[]) => Array.from(new Set(array))
-
 function parseRequestURI(requestURI: string) {
   if (!requestURI.startsWith("web+stellar:")) {
     throw new Error("Expected request to start with 'web+stellar:'")
@@ -161,17 +159,6 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
   }
 
   return response
-}
-
-export async function fetchSignatureRequests(serviceURL: string, accountIDs: string[]) {
-  const url = joinURL(serviceURL, `/requests/${dedupe(accountIDs).join(",")}`)
-  const response = await fetch(url)
-
-  if (!response.ok) {
-    throw new Error(`Fetching signature requests failed: ${await response.text()}\nService: ${serviceURL}`)
-  }
-
-  return ((await response.json()) as any[]).map(deserializeSignatureRequest)
 }
 
 export function isSignedByOneOf(transaction: Transaction, localPublicKeys: string[]) {

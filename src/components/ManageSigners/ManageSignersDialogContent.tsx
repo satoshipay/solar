@@ -8,8 +8,8 @@ import CloseIcon from "@material-ui/icons/Close"
 import InfoIcon from "@material-ui/icons/Info"
 import { trackError } from "../../context/notifications"
 import { useDialogActions, useIsMobile } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { renderFormFieldError } from "../../lib/errors"
-import { ObservedAccountData } from "../../subscriptions"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
@@ -25,7 +25,7 @@ export interface SignerUpdate {
   weightThreshold: number
 }
 
-function getEffectiveWeightThreshold(accountData: ObservedAccountData) {
+function getEffectiveWeightThreshold(accountData: AccountData) {
   const weightThresholdOnLedger = max([
     accountData.thresholds.low_threshold,
     accountData.thresholds.med_threshold,
@@ -38,7 +38,7 @@ function getEffectiveWeightThreshold(accountData: ObservedAccountData) {
 }
 
 function getUpdatedSigners(
-  accountData: ObservedAccountData,
+  accountData: AccountData,
   signersToAdd: Horizon.AccountSigner[],
   signersToRemove: Horizon.AccountSigner[]
 ) {
@@ -86,7 +86,7 @@ function KeyWeightThresholdInfoAdornment(props: { text: string }) {
 }
 
 interface Props {
-  accountData: ObservedAccountData
+  accountData: AccountData
   isEditingNewSigner: boolean
   setIsEditingNewSigner: (isEditingNewSigner: boolean) => void
   onCancel: () => void

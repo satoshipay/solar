@@ -1,6 +1,9 @@
 import React from "react"
 
-export function useDebouncedState<T>(initial: T, delay: number = 50): [T, (update: T | ((prev: T) => T)) => void] {
+export function useDebouncedState<T>(
+  initial: T | (() => T),
+  delay: number = 50
+): [T, (update: T | ((prev: T) => T)) => void] {
   const currentCallGroupTimeoutRef = React.useRef<any>(undefined)
   const updateQueueRef = React.useRef<Array<T | ((prev: T) => T)> | undefined>(undefined)
   const [state, setState] = React.useState(initial)

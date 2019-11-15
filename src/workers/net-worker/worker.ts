@@ -1,12 +1,22 @@
 import { expose } from "threads"
-import { fetchAllAssets, fetchStellarToml, fetchWellknownAccounts } from "./stellar-ecosystem"
+import * as multisig from "./multisig"
+import * as ecosystem from "./stellar-ecosystem"
+import * as network from "./stellar-network"
+
+// TODO: closeAccountSubscriptions()
+// TODO: resetAllSubscriptions() (or move the logic that triggers it here, too)
+// TODO: Federation lookup
+// TODO: SEP-10 web auth
 
 const netWorker = {
-  fetchAllAssets,
-  fetchStellarToml,
-  fetchWellknownAccounts
+  ...ecosystem,
+  ...multisig,
+  ...network
 }
 
 export type NetWorker = typeof netWorker
 
-expose(netWorker)
+setTimeout(() => {
+  // We had some issues with what appeared to be a race condition at worker spawn time
+  expose(netWorker)
+}, 50)
