@@ -3,7 +3,7 @@
 import * as JWT from "jsonwebtoken"
 import PromiseQueue from "p-queue"
 import React from "react"
-import { Asset, Server, StellarTomlResolver, Transaction } from "stellar-sdk"
+import { Asset, Server, Transaction } from "stellar-sdk"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 import {
   SigningKeyCacheContext,
@@ -18,13 +18,15 @@ import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FetchState } from "../lib/async"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
+import { workers } from "../worker-controller"
+import { accountDataCache } from "./_caches"
+
+const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
   return testnet ? stellar.horizonTestnet : stellar.horizonLivenet
 }
-
-const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
 export function useFederationLookup() {
   const lookup = React.useContext(StellarAddressCacheContext)
@@ -49,6 +51,8 @@ export function useWebAuth() {
 
   return {
     fetchChallenge: WebAuth.fetchChallenge,
+
+    // TODO: Move to web worker
 
     async fetchWebAuthData(horizon: Server, issuerAccountID: string) {
       const metadata = await WebAuth.fetchWebAuthData(horizon, issuerAccountID)
@@ -93,7 +97,8 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml
 
       stellarTomls.store(domain, FetchState.pending())
 
-      StellarTomlResolver.resolve(domain)
+      workers
+        .then(({ netWorker }) => netWorker.fetchStellarToml(domain))
         .then(stellarTomlData => {
           stellarTomls.store(domain, FetchState.resolved(stellarTomlData))
           localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
@@ -135,7 +140,9 @@ function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[]
   const issuerAccounts = accountIDs.map(
     (accountID: string): AccountData => {
       const cacheItem = loadingStates.cache.get(accountID)
-      return cacheItem && cacheItem.state === "resolved" ? cacheItem.data : createEmptyAccountData(accountID)
+      return cacheItem && cacheItem.state === "resolved"
+        ? cacheItem.data
+        : accountDataCache.get(horizon, accountID) || createEmptyAccountData(accountID)
     }
   )
 
@@ -145,9 +152,16 @@ function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[]
         loadingStates.store(accountID, FetchState.pending())
 
         accountFetchQueue.add(async () => {
+          const { netWorker } = await workers
+
           try {
-            const account = await horizon.loadAccount(accountID)
+            const accountOrNull = await netWorker.fetchAccountData(String(horizon.serverURL), accountID)
+            const account = accountOrNull
+              ? { ...accountOrNull, data_attr: accountOrNull.data }
+              : createEmptyAccountData(accountID)
+
             loadingStates.store(accountID, FetchState.resolved(account))
+            accountDataCache.set(horizon, accountID, account)
           } catch (error) {
             loadingStates.store(accountID, FetchState.rejected(error))
           }

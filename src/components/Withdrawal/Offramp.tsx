@@ -91,7 +91,7 @@ function Offramp(props: Props) {
   const router = useRouter()
   const WebAuth = useWebAuth()
 
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
 
   const withdrawableAssetCodes = Object.keys(transferInfos.data).filter(assetCode => {

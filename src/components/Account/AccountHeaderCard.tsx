@@ -47,7 +47,7 @@ interface Props {
 }
 
 function AccountHeaderCard(props: Props) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useAccountHeaderStyles()
   const isSmallScreen = useIsMobile()
   const settings = React.useContext(SettingsContext)
@@ -62,7 +62,7 @@ function AccountHeaderCard(props: Props) {
         ) : (
           <AccountContextMenu
             account={props.account}
-            activated={accountData.activated}
+            activated={accountData.balances.length > 0}
             onAccountSettings={props.onAccountSettings}
             onDeposit={props.onDeposit}
             onManageAssets={props.onManageAssets}
@@ -81,7 +81,7 @@ function AccountHeaderCard(props: Props) {
     ),
     [
       props.account,
-      accountData.activated,
+      accountData.balances,
       props.onAccountSettings,
       props.onTrade,
       props.onWithdraw,

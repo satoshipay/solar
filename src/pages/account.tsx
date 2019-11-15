@@ -69,7 +69,7 @@ interface AccountActionsProps {
 
 // tslint:disable-next-line no-shadowed-variable
 const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
   const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
   return (
@@ -84,7 +84,7 @@ const AccountActions = React.memo(function AccountActions(props: AccountActionsP
       </ActionButton>
       <ActionButton
         className={classes.button}
-        disabled={!accountData.activated}
+        disabled={accountData.balances.length === 0}
         icon={<SendIcon style={{ fontSize: "110%" }} />}
         onClick={props.onCreatePayment}
         type="primary"

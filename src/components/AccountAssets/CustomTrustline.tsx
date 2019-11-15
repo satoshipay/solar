@@ -4,14 +4,14 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "../../context/accounts"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { AccountData } from "../../lib/account"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import MainTitle from "../MainTitle"
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   createAddAssetTransaction: (asset: Asset, options: { limit?: string }) => any
   horizon: Server
   onClose: () => void

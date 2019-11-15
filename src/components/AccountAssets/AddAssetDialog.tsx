@@ -10,8 +10,8 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useAssetMetadata } from "../../hooks/stellar"
 import { useStellarAssets, useWellKnownAccounts, AssetRecord } from "../../hooks/stellar-ecosystem"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import * as popularAssets from "../../lib/popularAssets"
 import { assetRecordToAsset, stringifyAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
@@ -199,7 +199,7 @@ const useAddAssetStyles = makeStyles({
 
 interface AddAssetDialogProps {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   horizon: Server
   hpadding: number
   itemHPadding: number

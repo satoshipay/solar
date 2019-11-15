@@ -129,8 +129,8 @@ interface BalanceDetailsProps {
 }
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const accountOffers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
@@ -184,7 +184,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           hmargin={itemHMargin}
           hpadding={itemHPadding}
           onOpenAssetDetails={openAssetDetails}
-          openOffers={accountOffers.offers}
+          openOffers={openOrders}
         />
       </List>
       <Divider style={{ margin: "16px 0" }} />
@@ -197,7 +197,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
             hmargin={itemHMargin}
             hpadding={itemHPadding}
             onOpenAssetDetails={openAssetDetails}
-            openOffers={accountOffers.offers}
+            openOffers={openOrders}
           />
         ) : null}
       </List>

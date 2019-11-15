@@ -7,8 +7,8 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { createTransaction } from "../../lib/transaction"
-import { ObservedAccountData } from "../../subscriptions"
 import TransactionSender from "../TransactionSender"
 import ButtonIconLabel from "../ButtonIconLabel"
 import MainTitle from "../MainTitle"
@@ -18,7 +18,7 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   horizon: Server
   onClose: () => void
   sendTransaction: (tx: Transaction) => void
@@ -112,7 +112,7 @@ function ManageSignersDialog(props: Props) {
 }
 
 function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   return (
     <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (

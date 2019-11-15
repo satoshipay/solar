@@ -1,6 +1,6 @@
 import React from "react"
-import { fetchSignatureRequests, SignatureRequest } from "../lib/multisig-service"
-import { subscribeToSignatureRequests } from "../subscriptions/multisig"
+import { SignatureRequest, deserializeSignatureRequest } from "../lib/multisig-service"
+import { workers } from "../worker-controller"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
 import { SettingsContext } from "./settings"
@@ -28,32 +28,56 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
   const subscribersRef = React.useRef<SubscribersState>({ newRequestSubscribers: [] })
   const [pendingSignatureRequests, setPendingSignatureRequests] = React.useState<SignatureRequest[]>([])
 
-  React.useEffect(
-    () => {
-      if (accounts.length === 0) {
-        // The GET request will otherwise fail if there are no accounts to be queried
-        return () => undefined
-      }
+  React.useEffect(() => {
+    if (accounts.length === 0) {
+      // The GET request will otherwise fail if there are no accounts to be queried
+      return () => undefined
+    }
 
-      fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
-        .then(requests => setPendingSignatureRequests(requests.reverse()))
+    let cancelled = false
+    let unsubscribe = () => {
+      cancelled = true
+    }
+
+    const setup = async () => {
+      const { netWorker } = await workers
+
+      netWorker
+        .fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
+        .then(requests => setPendingSignatureRequests(requests.reverse().map(deserializeSignatureRequest)))
         .catch(trackError)
 
-      const unsubscribe = subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs, {
-        onNewSignatureRequest: signatureRequest => {
-          setPendingSignatureRequests(prevPending => [signatureRequest, ...prevPending])
-          subscribersRef.current.newRequestSubscribers.forEach(subscriber => subscriber(signatureRequest))
-        },
-        onSignatureRequestSubmitted: signatureRequest => {
+      if (cancelled) {
+        return
+      }
+
+      const signatureRequests = netWorker.subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs)
+
+      const subscription = signatureRequests.subscribe(event => {
+        if (event.type === "NewSignatureRequest") {
+          setPendingSignatureRequests(prevPending => [
+            deserializeSignatureRequest(event.signatureRequest),
+            ...prevPending
+          ])
+          subscribersRef.current.newRequestSubscribers.forEach(subscriber =>
+            subscriber(deserializeSignatureRequest(event.signatureRequest))
+          )
+        }
+        if (event.type === "SignatureRequestSubmitted") {
           setPendingSignatureRequests(prevPending =>
-            prevPending.filter(request => request.hash !== signatureRequest.hash)
+            prevPending.filter(request => request.hash !== event.signatureRequest.hash)
           )
         }
       })
-      return unsubscribe
-    },
-    [accountIDs.join(",")]
-  )
+
+      unsubscribe = () => subscription.unsubscribe()
+    }
+
+    setup().catch(trackError)
+
+    // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
+    return () => unsubscribe()
+  }, [accountIDs.join(",")])
 
   const subscribeToNewSignatureRequests = (callback: SignatureRequestCallback) => {
     subscribersRef.current.newRequestSubscribers.push(callback)

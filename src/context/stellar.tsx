@@ -2,7 +2,6 @@ import fetch from "isomorphic-fetch"
 import React from "react"
 import { Server } from "stellar-sdk"
 import { trackError } from "./notifications"
-import { resetAllSubscriptions } from "../subscriptions"
 
 async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
   try {
@@ -63,7 +62,7 @@ export function StellarProvider(props: Props) {
           horizonLivenetURL !== String(initialValues.horizonLivenet.serverURL) ||
           horizonTestnetURL !== String(initialValues.horizonTestnet.serverURL)
         ) {
-          resetAllSubscriptions()
+          // FIXME: resetAllSubscriptions()
         }
 
         // tslint:disable-next-line no-console

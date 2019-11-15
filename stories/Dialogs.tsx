@@ -15,7 +15,7 @@ interface DialogContainerProps {
 function DialogContainer(props: DialogContainerProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [transaction, setTransaction] = React.useState<Transaction | null>(null)
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
 
   React.useEffect(() => {
     const createDemoTx = async () => {

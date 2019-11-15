@@ -184,10 +184,10 @@ function AccountBalances(props: {
   publicKey: string
   testnet: boolean
 }) {
-  const accountData = useLiveAccountData(props.publicKey, props.testnet)
-  return accountData.loading ? (
+  const [accountData, accountWasLoaded] = useLiveAccountData(props.publicKey, props.testnet)
+  return !accountWasLoaded ? (
     <InlineLoader />
-  ) : accountData.activated ? (
+  ) : accountData.balances.length > 0 ? (
     <MultipleBalances balances={accountData.balances} component={props.component} onClick={props.onClick} />
   ) : (
     <MultipleBalances balances={[zeroXLMBalance] as any} component={props.component} onClick={props.onClick} />

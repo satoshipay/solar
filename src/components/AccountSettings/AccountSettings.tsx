@@ -82,7 +82,7 @@ interface Props {
 }
 
 function AccountSettings(props: Props) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
@@ -120,7 +120,7 @@ function AccountSettings(props: Props) {
         </AccountSettingsItem>
         {settings.multiSignature ? (
           <AccountSettingsItem
-            disabled={!accountData.activated}
+            disabled={accountData.balances.length === 0}
             icon={<GroupIcon style={{ fontSize: "100%" }} />}
             onClick={navigateTo.manageSigners}
           >

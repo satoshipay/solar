@@ -2,8 +2,9 @@ import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useLiveAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import DialogBody from "../Dialog/DialogBody"
@@ -15,7 +16,7 @@ import PaymentForm from "./PaymentForm"
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   horizon: Server
   onClose: () => void
   sendTransaction: (transaction: Transaction) => Promise<any>
@@ -73,7 +74,7 @@ function PaymentDialog(props: Props) {
 }
 
 function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)

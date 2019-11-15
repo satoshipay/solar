@@ -11,9 +11,9 @@ import GroupIcon from "@material-ui/icons/Group"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
+import { AccountData } from "../../lib/account"
 import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
 import { primaryBackgroundColor } from "../../theme"
 import StellarGuardIcon from "../Icon/StellarGuard"
@@ -53,7 +53,7 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
 }
 
 // tslint:disable-next-line no-shadowed-variable
-const Badges = React.memo(function Badges(props: { account: Account; accountData: ObservedAccountData }) {
+const Badges = React.memo(function Badges(props: { account: Account; accountData: AccountData }) {
   const multiSigIcon = containsStellarGuardAsSigner(props.accountData.signers) ? (
     <Tooltip title="StellarGuard Protection">
       <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
@@ -147,7 +147,7 @@ function TitleTextField(props: TitleTextFieldProps) {
 
 interface AccountTitleProps {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   actions: React.ReactNode
   editable?: boolean
 }
