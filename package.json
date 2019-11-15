@@ -57,7 +57,7 @@
     "node": "^12.13.0",
     "open": "^7.0.0",
     "stellar-sdk": "^2.3.0",
-    "threads": "^1.0.0-beta.6"
+    "threads": "^1.0.0-beta.7"
   },
   "devDependencies": {
     "@material-ui/core": "^4.5.1",
@@ -101,6 +101,7 @@
     "electron-builder": "^21.2.0",
     "electron-notarize": "^0.2.0",
     "electron-reload": "^1.5.0",
+    "eventsource": "^1.0.7",
     "husky": "^0.14.3",
     "jsonwebtoken": "^8.5.1",
     "lint-staged": "^7.3.0",
