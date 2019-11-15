@@ -45,7 +45,6 @@
     }
   },
   "dependencies": {
-    "@andywer/observable-fns": "^0.1.0",
     "electron-context-menu": "^0.15.0",
     "electron-debug": "^3.0.1",
     "electron-is-dev": "^1.1.0",
@@ -60,6 +59,7 @@
     "threads": "^1.0.0-beta.7"
   },
   "devDependencies": {
+    "@andywer/observable-fns": "^0.1.1",
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "@satoshipay/stellar-sep-10": "^0.1.0",
