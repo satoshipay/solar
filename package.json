@@ -56,7 +56,7 @@
     "node": "^12.13.0",
     "open": "^7.0.0",
     "stellar-sdk": "^2.3.0",
-    "threads": "^1.0.0-beta.7"
+    "threads": "^1.0.0-beta.8"
   },
   "devDependencies": {
     "@andywer/observable-fns": "^0.1.1",
