@@ -1,6 +1,6 @@
 import { Observable } from "@andywer/observable-fns"
 import { ServerSentEvent, SignatureRequest } from "../../lib/multisig-service"
-import { manageStreamConnection, whenBackOnline, ServiceType } from "../../lib/stream"
+import { manageStreamConnection, whenBackOnline } from "../../lib/stream"
 import { joinURL } from "../../lib/url"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
@@ -47,7 +47,7 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
     let unsubscribe: () => void
 
     const init = () => {
-      unsubscribe = manageStreamConnection(ServiceType.MultiSigCoordinator, () => {
+      unsubscribe = manageStreamConnection(() => {
         eventSource = new EventSource(url)
         return () => eventSource.close()
       })
