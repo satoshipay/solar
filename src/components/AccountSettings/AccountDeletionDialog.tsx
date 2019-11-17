@@ -28,7 +28,7 @@ interface AccountDeletionDialogProps {
 }
 
 function AccountDeletionDialog(props: AccountDeletionDialogProps) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const horizon = props.horizon
 
   const { accounts, deleteAccount } = React.useContext(AccountsContext)

@@ -47,7 +47,7 @@ interface Props {
 }
 
 function AccountHeaderCard(props: Props) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useAccountHeaderStyles()
   const isSmallScreen = useIsMobile()
   const settings = React.useContext(SettingsContext)

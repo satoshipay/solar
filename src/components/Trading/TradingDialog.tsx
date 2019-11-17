@@ -25,7 +25,7 @@ interface TradingDialogProps {
 }
 
 function TradingDialog(props: TradingDialogProps) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const dialogActionsRef = useDialogActions()
   const router = useRouter()
 

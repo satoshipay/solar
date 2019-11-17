@@ -1,6 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
@@ -129,7 +130,7 @@ interface BalanceDetailsProps {
 }
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
@@ -207,13 +208,15 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
         onClose={closeAddAssetDialog}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <AddAssetDialog
-          account={props.account}
-          accountData={accountData}
-          hpadding={hpadding}
-          itemHPadding={itemHPadding}
-          onClose={closeAddAssetDialog}
-        />
+        <React.Suspense fallback={<CircularProgress />}>
+          <AddAssetDialog
+            account={props.account}
+            accountData={accountData}
+            hpadding={hpadding}
+            itemHPadding={itemHPadding}
+            onClose={closeAddAssetDialog}
+          />
+        </React.Suspense>
       </Dialog>
     </DialogBody>
   )

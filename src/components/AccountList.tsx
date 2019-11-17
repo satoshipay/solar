@@ -18,6 +18,7 @@ import { SignatureRequest } from "../lib/multisig-service"
 import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 import StellarGuardIcon from "./Icon/StellarGuard"
+import InlineLoader from "./InlineLoader"
 import { Box, HorizontalLayout, VerticalLayout } from "./Layout/Box"
 
 const useCardStyles = makeStyles({
@@ -72,7 +73,7 @@ function AccountCard(props: {
   pendingSignatureRequests: SignatureRequest[]
   style?: React.CSSProperties
 }) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const router = useRouter()
 
   const onClick = () => router.history.push(routes.account(props.account.id))
@@ -104,7 +105,9 @@ function AccountCard(props: {
             <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
           </HorizontalLayout>
           <Box fontSize="120%">
-            <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+            <React.Suspense fallback={<InlineLoader />}>
+              <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+            </React.Suspense>
           </Box>
         </VerticalLayout>
       </StyledBadge>

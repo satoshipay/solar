@@ -12,11 +12,10 @@ import { useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
 import MainSelectionButton from "../Form/MainSelectionButton"
 import { VerticalLayout } from "../Layout/Box"
+import FriendbotButton from "./FriendbotButton"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import TransactionList from "./TransactionList"
-import TransactionListPlaceholder from "./TransactionListPlaceholder"
-import FriendbotButton from "./FriendbotButton"
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
@@ -61,7 +60,7 @@ function PendingMultisigTransactions(props: { account: Account }) {
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const horizon = useHorizon(account.testnet)
-  const [accountData, accountWasLoaded] = useLiveAccountData(account.publicKey, account.testnet)
+  const accountData = useLiveAccountData(account.publicKey, account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
@@ -73,9 +72,7 @@ function AccountTransactions(props: { account: Account }) {
 
   return (
     <>
-      {!accountWasLoaded ? (
-        <TransactionListPlaceholder />
-      ) : accountData.balances.length > 0 ? (
+      {accountData.balances.length > 0 ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
           <OfferList account={account} title="Open orders" />
@@ -110,4 +107,4 @@ function AccountTransactions(props: { account: Account }) {
   )
 }
 
-export default AccountTransactions
+export default React.memo(AccountTransactions)

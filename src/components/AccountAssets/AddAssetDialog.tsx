@@ -1,5 +1,6 @@
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -329,15 +330,17 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
         onClose={closeCustomTrustlineDialog}
         TransitionComponent={CompactDialogTransition}
       >
-        <CustomTrustlineDialog
-          account={props.account}
-          accountData={props.accountData}
-          createAddAssetTransaction={createAddAssetTransaction}
-          horizon={props.horizon}
-          onClose={closeCustomTrustlineDialog}
-          sendTransaction={sendTransaction}
-          txCreationPending={txCreationPending}
-        />
+        <React.Suspense fallback={<CircularProgress />}>
+          <CustomTrustlineDialog
+            account={props.account}
+            accountData={props.accountData}
+            createAddAssetTransaction={createAddAssetTransaction}
+            horizon={props.horizon}
+            onClose={closeCustomTrustlineDialog}
+            sendTransaction={sendTransaction}
+            txCreationPending={txCreationPending}
+          />
+        </React.Suspense>
       </Dialog>
     </DialogBody>
   )

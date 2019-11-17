@@ -64,7 +64,7 @@ interface DefaultTransactionSummaryProps {
 function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
-  const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet).map(([accountData]) => accountData)
+  const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
   const isSmallScreen = useIsMobile()
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
@@ -211,7 +211,7 @@ interface TransactionSummaryProps {
 function TransactionSummary(props: TransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
-  const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet).map(([account]) => account)
+  const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
 
   const accountData = accountDataSet.find(someAccountData => someAccountData.id === props.transaction.source)
   const showSigners = accountDataSet.some(someAccountData => someAccountData.signers.length > 1)

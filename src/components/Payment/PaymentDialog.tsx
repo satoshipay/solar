@@ -74,7 +74,7 @@ function PaymentDialog(props: Props) {
 }
 
 function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)

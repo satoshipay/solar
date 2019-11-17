@@ -142,7 +142,7 @@ function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[]
       const cacheItem = loadingStates.cache.get(accountID)
       return cacheItem && cacheItem.state === "resolved"
         ? cacheItem.data
-        : accountDataCache.get(horizon, accountID) || createEmptyAccountData(accountID)
+        : accountDataCache.get([horizon, accountID]) || createEmptyAccountData(accountID)
     }
   )
 
@@ -161,7 +161,7 @@ function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[]
               : createEmptyAccountData(accountID)
 
             loadingStates.store(accountID, FetchState.resolved(account))
-            accountDataCache.set(horizon, accountID, account)
+            accountDataCache.set([horizon, accountID], account)
           } catch (error) {
             loadingStates.store(accountID, FetchState.rejected(error))
           }
