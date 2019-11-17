@@ -1,9 +1,11 @@
 import React from "react"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import { makeStyles } from "@material-ui/core/styles"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import AccountTransactions from "../components/Account/AccountTransactions"
+import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
 import AssetDetailsDialog from "../components/AccountAssets/AssetDetailsDialog"
 import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
 import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
@@ -66,9 +68,8 @@ interface AccountActionsProps {
   onReceivePayment: () => void
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
   const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
   return (
@@ -160,7 +161,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   return (
     <VerticalLayout height="100%">
       <Section top brandColored grow={0}>
-        {headerCard}
+        <React.Suspense fallback={<CircularProgress style={{ color: "white", margin: "0px auto" }} />}>
+          {headerCard}
+        </React.Suspense>
       </Section>
       <Section
         bottom={!isSmallScreen}
@@ -172,20 +175,24 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
           overflowY: "auto"
         }}
       >
-        {showAccountSettings ? (
-          <AccountSettings account={props.account} />
-        ) : (
-          <AccountTransactions account={props.account} />
-        )}
+        <React.Suspense fallback={<TransactionListPlaceholder />}>
+          {showAccountSettings ? (
+            <AccountSettings account={props.account} />
+          ) : (
+            <AccountTransactions account={props.account} />
+          )}
+        </React.Suspense>
       </Section>
       {isSmallScreen ? (
-        <AccountActions
-          account={props.account}
-          bottomOfScreen
-          hidden={!showSendReceiveButtons}
-          onCreatePayment={navigateTo.createPayment}
-          onReceivePayment={navigateTo.receivePayment}
-        />
+        <React.Suspense fallback={<CircularProgress />}>
+          <AccountActions
+            account={props.account}
+            bottomOfScreen
+            hidden={!showSendReceiveButtons}
+            onCreatePayment={navigateTo.createPayment}
+            onReceivePayment={navigateTo.receivePayment}
+          />
+        </React.Suspense>
       ) : null}
 
       <Dialog
@@ -194,7 +201,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<CircularProgress />}>
+          <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showAssetDetails}
@@ -202,11 +211,13 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.balanceDetails}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <AssetDetailsDialog
-          account={props.account}
-          assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
-          onClose={closeAssetDetails}
-        />
+        <React.Suspense fallback={<CircularProgress />}>
+          <AssetDetailsDialog
+            account={props.account}
+            assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
+            onClose={closeAssetDetails}
+          />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showCreatePayment}
@@ -214,7 +225,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <CreatePaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<CircularProgress />}>
+          <CreatePaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showReceivePayment}
@@ -222,7 +235,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <ReceivePaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<CircularProgress />}>
+          <ReceivePaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showAssetTrading}
@@ -230,7 +245,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <TradeAssetDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<CircularProgress />}>
+          <TradeAssetDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showWithdrawal}
@@ -238,7 +255,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<CircularProgress />}>
+          <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
     </VerticalLayout>
   )

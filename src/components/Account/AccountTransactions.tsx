@@ -13,7 +13,6 @@ import FriendbotButton from "./FriendbotButton"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import TransactionList from "./TransactionList"
-import TransactionListPlaceholder from "./TransactionListPlaceholder"
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
@@ -58,15 +57,13 @@ function PendingMultisigTransactions(props: { account: Account }) {
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const horizon = useHorizon(account.testnet)
-  const [accountData, accountWasLoaded] = useLiveAccountData(account.publicKey, account.testnet)
+  const accountData = useLiveAccountData(account.publicKey, account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const settings = React.useContext(SettingsContext)
 
   return (
     <>
-      {!accountWasLoaded ? (
-        <TransactionListPlaceholder />
-      ) : accountData.balances.length > 0 ? (
+      {accountData.balances.length > 0 ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
           <OfferList account={account} title="Open offers" />
@@ -95,4 +92,4 @@ function AccountTransactions(props: { account: Account }) {
   )
 }
 
-export default AccountTransactions
+export default React.memo(AccountTransactions)

@@ -4,6 +4,7 @@ import { NetWorker } from "./workers/net-worker/worker"
 
 async function spawnWorkers() {
   const netWorker = await spawn<NetWorker>(new Worker("./workers/net-worker/worker.ts"))
+
   return {
     netWorker
   }

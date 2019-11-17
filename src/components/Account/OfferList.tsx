@@ -103,7 +103,7 @@ interface Props {
 }
 
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
-  const [accountData] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const offers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
 

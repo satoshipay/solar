@@ -26,7 +26,7 @@ interface Props {
 
 function WithdrawalTransactionForm(props: Props) {
   const formID = React.useMemo(() => nanoid(), [])
-  const [accountData, accountWasLoaded] = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const [amountString, setAmountString] = React.useState("")
 
   const balanceLine = findMatchingBalanceLine(accountData.balances, props.asset)
@@ -68,7 +68,7 @@ function WithdrawalTransactionForm(props: Props) {
             label="Amount to withdraw"
             margin="normal"
             onChange={event => setAmountString(event.target.value)}
-            placeholder={accountWasLoaded ? formatBalanceRange(balance, minAmount, maxAmount) : ""}
+            placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
             style={{ flexGrow: 2, marginRight: 24 }}
             value={amountString}
           />

@@ -4,11 +4,10 @@ import React from "react"
 import { Asset, Horizon, ServerApi, Transaction } from "stellar-sdk"
 import { Observable } from "@andywer/observable-fns"
 import { Account } from "../context/accounts"
-import { trackError } from "../context/notifications"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
-import { accountDataCache, accountTransactionsCache } from "./_caches"
+import { accountDataCache, accountOpenOrdersCache, accountTransactionsCache, orderbookCache } from "./_caches"
 import {
   deserializeTx,
   fetchAccountData,
@@ -25,93 +24,81 @@ import {
 import { useHorizon } from "./stellar"
 import { useDebouncedState } from "./util"
 
-function createEmptyOrderbookRecord(selling: Asset, buying: Asset): FixedOrderbookRecord {
-  return {
-    asks: [],
-    base: selling,
-    bids: [],
-    counter: buying
-  }
-}
-
 function useDataSubscriptions<DataT, UpdateT>(
   reducer: (prev: DataT, update: UpdateT) => DataT,
-  items: Array<{ fetch: Promise<DataT>; initial: DataT; observable: Observable<UpdateT> }>
+  items: Array<{ get(): DataT; set(value: DataT): void; observe(): Observable<UpdateT> }>
 ): DataT[] {
-  const [currentDataSets, setCurrentDataSets] = useDebouncedState<DataT[]>(() => items.map(item => item.initial), 100)
+  const unfinishedFetches: Array<Promise<DataT>> = []
+  const [, setRefreshCounter] = useDebouncedState(0, 100)
 
-  const updateDataSet = (index: number, updater: (prev: DataT) => DataT) => {
-    setCurrentDataSets(allPrev => {
-      const result = allPrev.map((prev, idx) => (idx === index ? updater(prev) : prev))
-      return result
-    })
+  const currentDataSets = items.map(item => {
+    try {
+      return item.get()
+    } catch (thrown) {
+      if (thrown instanceof Promise) {
+        unfinishedFetches.push(thrown)
+      } else {
+        throw thrown
+      }
+    }
+  })
+
+  if (unfinishedFetches.length > 0) {
+    throw unfinishedFetches.length === 1 ? unfinishedFetches[0] : Promise.all(unfinishedFetches)
   }
 
   React.useEffect(() => {
-    let cancelled = false
-
-    const subscriptions = items.map((item, index) => {
-      const fetchInitialData = async () => {
-        const fetched = await item.fetch
-        if (!cancelled) {
-          updateDataSet(index, () => fetched)
-        }
-      }
-
-      fetchInitialData().catch(trackError)
-
-      return item.observable.subscribe(update => {
-        updateDataSet(index, prev => reducer(prev, update))
+    const subscriptions = items.map(item => {
+      return item.observe().subscribe(update => {
+        item.set(reducer(item.get(), update))
+        setRefreshCounter(counter => counter + 1)
       })
     })
 
-    return () => {
-      cancelled = true
-      subscriptions.forEach(subscription => subscription.unsubscribe())
-    }
+    return () => subscriptions.forEach(subscription => subscription.unsubscribe())
   }, [reducer, items])
 
-  return currentDataSets
+  return currentDataSets as DataT[]
 }
 
 function useDataSubscription<DataT, UpdateT>(
   reducer: (prev: DataT, update: UpdateT) => DataT,
-  initial: DataT,
-  fetch: Promise<DataT>,
-  observable: Observable<UpdateT>
+  get: () => DataT,
+  set: (value: DataT) => void,
+  observe: () => Observable<UpdateT>
 ): DataT {
-  const items = React.useMemo(() => [{ fetch, initial, observable }], [fetch, initial, observable])
+  const items = React.useMemo(() => [{ get, set, observe }], [get, set, observe])
   return useDataSubscriptions(reducer, items)[0]
 }
 
-function applyAccountDataUpdate(prev: [AccountData, boolean], next: [AccountData, boolean]): [AccountData, boolean] {
-  const [prevData] = prev
-  const [nextData, nextHasLoaded] = next
-  return nextHasLoaded && nextData.paging_token > prevData.paging_token ? next : prev
+function applyAccountDataUpdate(prev: AccountData, next: AccountData): AccountData {
+  return next.paging_token > prev.paging_token ? next : prev
 }
 
-export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): Array<[AccountData, boolean]> {
+export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): AccountData[] {
   const horizon = useHorizon(testnet)
 
   const items = React.useMemo(
     () =>
       accountIDs.map(accountID => {
-        const turnIntoResultTuple = (accountOrNull: Horizon.AccountResponse | null): [AccountData, boolean] => {
-          const account = accountOrNull
-            ? { ...accountOrNull, data_attr: accountOrNull.data }
-            : createEmptyAccountData(accountID)
-          return [account, true]
+        const selector = [horizon, accountID] as const
+        const prepare = (account: Horizon.AccountResponse | null) => {
+          return account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
         }
 
-        const cached = accountDataCache.get(horizon, accountID)
-        const initial: [AccountData, boolean] = cached ? [cached, true] : [createEmptyAccountData(accountID), false]
-        const fetch = fetchAccountData(horizon, accountID).then(turnIntoResultTuple)
-        const observable = subscribeToAccount(horizon, accountID).map(turnIntoResultTuple)
-
         return {
-          initial,
-          fetch,
-          observable
+          get() {
+            return (
+              accountDataCache.get(selector) ||
+              accountDataCache.suspend(selector, () => fetchAccountData(horizon, accountID).then(prepare))
+            )
+          },
+          set(updated: AccountData) {
+            accountDataCache.set(selector, updated)
+          },
+          observe() {
+            return accountDataCache.observe(selector, () => subscribeToAccount(horizon, accountID).map(prepare))
+          }
         }
       }),
     [accountIDs.join(","), horizon]
@@ -120,7 +107,7 @@ export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): A
   return useDataSubscriptions(applyAccountDataUpdate, items)
 }
 
-export function useLiveAccountData(accountID: string, testnet: boolean): [AccountData, boolean] {
+export function useLiveAccountData(accountID: string, testnet: boolean): AccountData {
   return useLiveAccountDataSet([accountID], testnet)[0]
 }
 
@@ -132,20 +119,25 @@ function applyAccountOffersUpdate(prev: OrdersPage, next: OrdersPage): OrdersPag
 export function useLiveAccountOffers(accountID: string, testnet: boolean): ServerApi.OfferRecord[] {
   const horizon = useHorizon(testnet)
 
-  const { initial, fetch, subscription } = React.useMemo(() => {
-    // TODO: Cache?
-    const initial: OrdersPage = { _embedded: { records: [] } }
-    const fetch = fetchAccountOpenOrders(horizon, accountID)
-    const subscription = subscribeToOpenOrders(horizon, accountID, "now")
-
+  const { get, set, observe } = React.useMemo(() => {
+    const selector = [horizon, accountID] as const
     return {
-      initial,
-      fetch,
-      subscription
+      get() {
+        return (
+          accountOpenOrdersCache.get(selector) ||
+          accountOpenOrdersCache.suspend(selector, () => fetchAccountOpenOrders(horizon, accountID))
+        )
+      },
+      set(updated: OrdersPage) {
+        accountOpenOrdersCache.set(selector, updated)
+      },
+      observe() {
+        return subscribeToOpenOrders(horizon, accountID, "now")
+      }
     }
   }, [accountID, horizon])
 
-  const page = useDataSubscription(applyAccountOffersUpdate, initial, fetch, subscription)
+  const page = useDataSubscription(applyAccountOffersUpdate, get, set, observe)
   return page._embedded.records
 }
 
@@ -175,20 +167,25 @@ function applyOrderbookUpdate(prev: FixedOrderbookRecord, next: FixedOrderbookRe
 export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean): FixedOrderbookRecord {
   const horizon = useHorizon(testnet)
 
-  const { initial, fetch, subscription } = React.useMemo(() => {
-    // TODO: Cache?
-    const initial = createEmptyOrderbookRecord(selling, buying)
-    const fetch = fetchOrderbookRecord(horizon, selling, buying)
-    const subscription = subscribeToOrderbook(horizon, selling, buying)
-
+  const { get, set, observe } = React.useMemo(() => {
+    const selector = [horizon, selling, buying] as const
     return {
-      initial,
-      fetch,
-      subscription
+      get() {
+        return (
+          orderbookCache.get(selector) ||
+          orderbookCache.suspend(selector, () => fetchOrderbookRecord(horizon, selling, buying))
+        )
+      },
+      set(updated: FixedOrderbookRecord) {
+        orderbookCache.set(selector, updated)
+      },
+      observe() {
+        return subscribeToOrderbook(horizon, selling, buying)
+      }
     }
   }, [horizon, stringifyAsset(selling), stringifyAsset(buying)])
 
-  return useDataSubscription(applyOrderbookUpdate, initial, fetch, subscription)
+  return useDataSubscription(applyOrderbookUpdate, get, set, observe)
 }
 
 const createAccountTransactionsUpdateReducer = (testnet: boolean) => (
@@ -207,19 +204,27 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
 
   const applyAccountTransactionsUpdate = React.useMemo(() => createAccountTransactionsUpdateReducer(testnet), [testnet])
 
-  const { initial, fetch, subscription } = React.useMemo(() => {
-    const initial = accountTransactionsCache.get(horizon, accountID) || []
-    const fetch = fetchAccountTransactions(horizon, accountID, { order: "desc", limit: 15 }).then(page =>
-      page._embedded.records.map(txRecord => deserializeTx(txRecord, testnet))
-    )
-    const subscription = subscribeToAccountTransactions(horizon, accountID, "now")
-
+  const { get, set, observe } = React.useMemo(() => {
+    const selector = [horizon, accountID] as const
     return {
-      initial,
-      fetch,
-      subscription
+      get() {
+        return (
+          accountTransactionsCache.get(selector) ||
+          accountTransactionsCache.suspend(selector, async () => {
+            const page = await fetchAccountTransactions(horizon, accountID, { limit: 15 })
+            const txs = page._embedded.records.map(record => deserializeTx(record, testnet))
+            return txs
+          })
+        )
+      },
+      set(updated: Transaction[]) {
+        accountTransactionsCache.set(selector, updated)
+      },
+      observe() {
+        return subscribeToAccountTransactions(horizon, accountID, "now")
+      }
     }
   }, [accountID, horizon])
 
-  return useDataSubscription(applyAccountTransactionsUpdate, initial, fetch, subscription)
+  return useDataSubscription(applyAccountTransactionsUpdate, get, set, observe)
 }

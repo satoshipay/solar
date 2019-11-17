@@ -7,6 +7,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles"
 import Radio from "@material-ui/core/Radio"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
+import InlineLoader from "../InlineLoader"
 import AccountBalances from "./AccountBalances"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
@@ -86,7 +87,11 @@ const AccountSelectionListItem = React.memo(
         </ListItemIcon>
         <ListItemText
           primary={props.account.name}
-          secondary={<AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />}
+          secondary={
+            <React.Suspense fallback={<InlineLoader />}>
+              <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+            </React.Suspense>
+          }
         />
       </ListItem>
     )

@@ -1,4 +1,5 @@
 import React from "react"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import { makeStyles } from "@material-ui/core/styles"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { iOSKeyboardHackSelector } from "../../theme"
@@ -96,22 +97,24 @@ function DialogBody(props: Props) {
         padding={isSmallScreen ? "12px 24px" : " 24px 32px"}
         margin="0 auto"
       >
-        {topContent}
-        {background}
-        <VerticalLayout
-          grow={props.fitToShrink ? 0 : 1}
-          margin={`0 -${excessWidth}px`}
-          maxHeight="100%"
-          overflowX="hidden"
-          overflowY="auto"
-          padding={`0 ${excessWidth}px`}
-          position="relative"
-          shrink
-        >
-          {props.children}
-          {actionsPosition === "after-content" ? actionsContent : null}
-        </VerticalLayout>
-        {actionsPosition === "bottom" ? actionsContent : null}
+        <React.Suspense fallback={<CircularProgress style={{ alignSelf: "center", justifySelf: "center" }} />}>
+          {topContent}
+          {background}
+          <VerticalLayout
+            grow={props.fitToShrink ? 0 : 1}
+            margin={`0 -${excessWidth}px`}
+            maxHeight="100%"
+            overflowX="hidden"
+            overflowY="auto"
+            padding={`0 ${excessWidth}px`}
+            position="relative"
+            shrink
+          >
+            {props.children}
+            {actionsPosition === "after-content" ? actionsContent : null}
+          </VerticalLayout>
+          {actionsPosition === "bottom" ? actionsContent : null}
+        </React.Suspense>
       </VerticalLayout>
     </ErrorBoundary>
   )
