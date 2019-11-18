@@ -236,7 +236,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
   return multicast(
     new Observable<Horizon.AccountResponse | null>(observer => {
       let cancelled = false
-      let latestKnownSnapshot = ""
+      let latestCursor: string | undefined
 
       let unsubscribe = () => {
         cancelled = true
@@ -245,12 +245,11 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
       const update = throttle(
         async () => {
           const accountData = await fetchQueue.add(() => fetchAccountData(horizonURL, accountID))
-          const snapshot = JSON.stringify(accountData)
 
-          if (snapshot !== latestKnownSnapshot) {
+          if (accountData && (!latestCursor || accountData.paging_token > latestCursor)) {
             accountDataCache.set(cacheKey, accountData)
             observer.next(accountData)
-            latestKnownSnapshot = snapshot
+            latestCursor = accountData.paging_token
           }
         },
         250,
@@ -262,12 +261,12 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
 
         if (lastKnownAccountData) {
           observer.next(lastKnownAccountData)
-          latestKnownSnapshot = JSON.stringify(lastKnownAccountData)
+          latestCursor = lastKnownAccountData.paging_token
         } else {
           // This is basically handled by subscribeToAccountEffects() already, BUT this way we get an up-to-date dataset immediately
           const { accountData: initialAccountData } = await waitForAccountData(horizonURL, accountID)
           observer.next(initialAccountData)
-          latestKnownSnapshot = JSON.stringify(initialAccountData)
+          latestCursor = initialAccountData.paging_token
         }
 
         if (cancelled) {
