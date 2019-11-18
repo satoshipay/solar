@@ -2,11 +2,21 @@ import "threads/register"
 import { spawn } from "threads"
 import { NetWorker } from "./workers/net-worker/worker"
 
-async function spawnWorkers() {
-  const netWorker = await spawn<NetWorker>(new Worker("./workers/net-worker/worker.ts"))
+function spawnNetWorker() {
+  const worker = new Worker("./workers/net-worker/worker.ts")
 
+  window.addEventListener("message", event => {
+    if (event.data && ["app:pause", "app:resume"].indexOf(event.data) > -1) {
+      worker.postMessage(event.data)
+    }
+  })
+
+  return spawn<NetWorker>(worker)
+}
+
+async function spawnWorkers() {
   return {
-    netWorker
+    netWorker: await spawnNetWorker()
   }
 }
 
