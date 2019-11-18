@@ -455,7 +455,7 @@ function TransactionList(props: TransactionListProps) {
     (transaction: Transaction) => {
       router.history.push(routes.showTransaction(props.account.id, transaction.hash().toString("hex")))
     },
-    [props.account, router]
+    [props.account, router.history.push]
   )
 
   const closeTransaction = React.useCallback(() => {

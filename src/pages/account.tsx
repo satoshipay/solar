@@ -12,7 +12,7 @@ import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
 import QRCodeIcon from "../components/Icon/QRCode"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
-import CreatePaymentDialog from "../components/Payment/CreatePaymentDialog"
+import PaymentDialog from "../components/Payment/PaymentDialog"
 import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
 import TradeAssetDialog from "../components/Trading/TradingDialog"
 import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
@@ -214,7 +214,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <CreatePaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        <PaymentDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
       <Dialog
         open={showReceivePayment}

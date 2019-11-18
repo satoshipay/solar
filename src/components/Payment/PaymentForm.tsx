@@ -23,7 +23,17 @@ import { PriceInput, QRReader } from "../Form/FormFields"
 import { HorizontalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 
-function createMemo(formValues: PaymentCreationValues) {
+export interface PaymentFormValues {
+  amount: string
+  asset: Asset
+  destination: string
+  memoType: "id" | "none" | "text"
+  memoValue: string
+}
+
+type PaymentFormErrors = { [fieldName in keyof PaymentFormValues]?: Error | null }
+
+function createMemo(formValues: PaymentFormValues) {
   switch (formValues.memoType) {
     case "id":
       return Memo.id(formValues.memoValue)
@@ -45,22 +55,12 @@ function getSpendableBalance(accountMinimumBalance: BigNumber, balanceLine?: Hor
   }
 }
 
-export interface PaymentCreationValues {
-  amount: string
-  asset: Asset
-  destination: string
-  memoType: "id" | "none" | "text"
-  memoValue: string
-}
-
-type PaymentCreationErrors = { [fieldName in keyof PaymentCreationValues]?: Error | null }
-
 function validateFormValues(
-  formValues: PaymentCreationValues,
+  formValues: PaymentFormValues,
   spendableBalance: BigNumber,
   knownAccount: AccountRecord | undefined
 ) {
-  const errors: PaymentCreationErrors = {}
+  const errors: PaymentFormErrors = {}
 
   if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
     errors.destination = new Error("Expected a public key or stellar address.")
@@ -117,24 +117,24 @@ function AssetSelector(props: AssetSelectorProps) {
   )
 }
 
-interface Props {
+interface PaymentFormProps {
   accountData: ObservedAccountData
   actionsRef: RefStateObject
+  errors: PaymentFormErrors
+  onSubmit: (formValues: PaymentFormValues, spendableBalance: BigNumber, wellknownAccount?: AccountRecord) => void
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  onCancel: () => void
-  onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
 }
 
-function PaymentCreationForm(props: Props) {
+const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
+  const { errors } = props
+
   const isSmallScreen = useIsMobile()
-  const { lookupFederationRecord } = useFederationLookup()
+  const formID = React.useMemo(() => nanoid(), [])
   const wellknownAccounts = useWellKnownAccounts(props.testnet)
 
-  const formID = React.useMemo(() => nanoid(), [])
-  const [errors, setErrors] = React.useState<PaymentCreationErrors>({})
-  const [formValues, setFormValues] = React.useState<PaymentCreationValues>({
+  const [formValues, setFormValues] = React.useState<PaymentFormValues>({
     amount: "",
     asset: Asset.native(),
     destination: "",
@@ -144,8 +144,25 @@ function PaymentCreationForm(props: Props) {
 
   const [memoPlaceholder, setMemoPlaceholder] = React.useState("Description (optional)")
   const [memoLabel, setMemoLabel] = React.useState("Memo")
+  const [matchingWellknownAccount, setMatchingWellknownAccount] = React.useState<AccountRecord | undefined>(undefined)
+
+  // FIXME: Pass no. of open offers to getAccountMinimumBalance()
+  const spendableBalance = getSpendableBalance(
+    getAccountMinimumBalance(props.accountData),
+    findMatchingBalanceLine(props.accountData.balances, formValues.asset)
+  )
+
   React.useEffect(() => {
+    if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
+      if (matchingWellknownAccount) {
+        setMatchingWellknownAccount(undefined)
+      }
+      return
+    }
+
     const knownAccount = wellknownAccounts.lookup(formValues.destination)
+    setMatchingWellknownAccount(knownAccount)
+
     if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
       const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
       setFormValue("memoType", acceptedMemoType === "MEMO_ID" ? "id" : "text")
@@ -159,13 +176,7 @@ function PaymentCreationForm(props: Props) {
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
 
-  // FIXME: Pass no. of open offers to getAccountMinimumBalance()
-  const spendableBalance = getSpendableBalance(
-    getAccountMinimumBalance(props.accountData),
-    findMatchingBalanceLine(props.accountData.balances, formValues.asset)
-  )
-
-  const setFormValue = (fieldName: keyof PaymentCreationValues, value: unknown | null) => {
+  const setFormValue = (fieldName: keyof PaymentFormValues, value: unknown | null) => {
     const updatedFormValues = {
       ...formValues,
       [fieldName]: value
@@ -173,58 +184,9 @@ function PaymentCreationForm(props: Props) {
     setFormValues(updatedFormValues)
   }
 
-  const createPaymentTx = async (horizon: Server, account: Account) => {
-    const asset = props.trustedAssets.find(trustedAsset => trustedAsset.equals(formValues.asset))
-    const federationRecord =
-      formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
-    const destination = federationRecord ? federationRecord.account_id : formValues.destination
-
-    const userMemo = createMemo(formValues)
-    const federationMemo =
-      federationRecord && federationRecord.memo && federationRecord.memo_type
-        ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
-        : Memo.none()
-
-    if (userMemo.type !== "none" && federationMemo.type !== "none") {
-      throw new Error(
-        `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
-      )
-    }
-
-    const isMultisigTx = props.accountData.signers.length > 1
-
-    const payment = await createPaymentOperation({
-      asset: asset || Asset.native(),
-      amount: formValues.amount,
-      destination,
-      horizon
-    })
-    const tx = await createTransaction([payment], {
-      accountData: props.accountData,
-      memo: federationMemo.type !== "none" ? federationMemo : userMemo,
-      minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
-      horizon,
-      walletAccount: account
-    })
-    return tx
-  }
-
-  const submitTransaction = () => {
-    const validation = validateFormValues(
-      formValues,
-      spendableBalance,
-      wellknownAccounts.lookup(formValues.destination)
-    )
-    setErrors(validation.errors)
-
-    if (validation.success) {
-      props.onSubmit(createPaymentTx)
-    }
-  }
-
   const handleFormSubmission = (event: React.SyntheticEvent) => {
     event.preventDefault()
-    submitTransaction()
+    props.onSubmit(formValues, spendableBalance, matchingWellknownAccount)
   }
 
   return (
@@ -312,6 +274,69 @@ function PaymentCreationForm(props: Props) {
       </Portal>
     </form>
   )
+})
+
+interface Props {
+  accountData: ObservedAccountData
+  actionsRef: RefStateObject
+  testnet: boolean
+  trustedAssets: Asset[]
+  txCreationPending?: boolean
+  onCancel: () => void
+  onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
 }
 
-export default React.memo(PaymentCreationForm)
+function PaymentFormContainer(props: Props) {
+  const { lookupFederationRecord } = useFederationLookup()
+
+  const [errors, setErrors] = React.useState<PaymentFormErrors>({})
+
+  const createPaymentTx = async (horizon: Server, account: Account, formValues: PaymentFormValues) => {
+    const asset = props.trustedAssets.find(trustedAsset => trustedAsset.equals(formValues.asset))
+    const federationRecord =
+      formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
+    const destination = federationRecord ? federationRecord.account_id : formValues.destination
+
+    const userMemo = createMemo(formValues)
+    const federationMemo =
+      federationRecord && federationRecord.memo && federationRecord.memo_type
+        ? new Memo(federationRecord.memo_type as MemoType, federationRecord.memo)
+        : Memo.none()
+
+    if (userMemo.type !== "none" && federationMemo.type !== "none") {
+      throw new Error(
+        `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
+      )
+    }
+
+    const isMultisigTx = props.accountData.signers.length > 1
+
+    const payment = await createPaymentOperation({
+      asset: asset || Asset.native(),
+      amount: formValues.amount,
+      destination,
+      horizon
+    })
+    const tx = await createTransaction([payment], {
+      accountData: props.accountData,
+      memo: federationMemo.type !== "none" ? federationMemo : userMemo,
+      minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
+      horizon,
+      walletAccount: account
+    })
+    return tx
+  }
+
+  const submitForm = (formValues: PaymentFormValues, spendableBalance: BigNumber, wellknownAccount?: AccountRecord) => {
+    const validation = validateFormValues(formValues, spendableBalance, wellknownAccount)
+    setErrors(validation.errors)
+
+    if (validation.success) {
+      props.onSubmit((horizon, account) => createPaymentTx(horizon, account, formValues))
+    }
+  }
+
+  return <PaymentForm {...props} errors={errors} onSubmit={submitForm} />
+}
+
+export default React.memo(PaymentFormContainer)
