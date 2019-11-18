@@ -51,6 +51,10 @@ function CustomTrustlineDialog(props: Props) {
           onChange={event => setIssuerPublicKey(event.target.value)}
         />
         <TextField
+          inputProps={{
+            pattern: "[0-9]*",
+            inputMode: "decimal"
+          }}
           fullWidth
           label="Limit (optional)"
           placeholder="Limit trust in this asset / maximum balance to hold"

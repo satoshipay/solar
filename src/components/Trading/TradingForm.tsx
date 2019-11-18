@@ -206,6 +206,8 @@ function TradingForm(props: Props) {
               (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
             }
             inputProps={{
+              pattern: "[0-9]*",
+              inputMode: "decimal",
               min: "0.0000001",
               max: maxPrimaryAmount.toFixed(7),
               style: { height: 27 }
@@ -267,6 +269,7 @@ function TradingForm(props: Props) {
             label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
             placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
+            inputMode="decimal"
             type="number"
             value={
               // Format amount without thousands grouping, since it may lead to illegal number input values (#831)
