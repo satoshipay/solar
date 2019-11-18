@@ -211,7 +211,7 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
         return (
           accountTransactionsCache.get(selector) ||
           accountTransactionsCache.suspend(selector, async () => {
-            const page = await fetchAccountTransactions(horizon, accountID, { limit: 15 })
+            const page = await fetchAccountTransactions(horizon, accountID, { limit: 15, order: "desc" })
             const txs = page._embedded.records.map(record => deserializeTx(record, testnet))
             return txs
           })

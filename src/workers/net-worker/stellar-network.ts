@@ -303,7 +303,11 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
       let unsubscribe = doNothing
 
       const update = async () => {
-        const page = await fetchAccountTransactions(horizonURL, accountID, { cursor: latestCursor, limit: 15 })
+        const page = await fetchAccountTransactions(horizonURL, accountID, {
+          cursor: latestCursor,
+          limit: 15,
+          order: "desc"
+        })
         const { records } = page._embedded
 
         if (records.length > 0) {
