@@ -2,6 +2,7 @@ import { createMuiTheme } from "@material-ui/core/styles"
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
 import Fade from "@material-ui/core/Fade"
 import ArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
+import { MenuProps } from "@material-ui/core/Menu"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 import { SlideLeftTransition, SlideUpTransition } from "./components/Dialog/Transitions"
@@ -24,20 +25,10 @@ export const breakpoints = createBreakpoints({})
 export const FullscreenDialogTransition = SlideLeftTransition
 export const CompactDialogTransition = SlideUpTransition
 
-const theme = createMuiTheme({
-  props: {
-    MuiDialogActions: {
-      // disableSpacing: true
-    },
-    MuiInputLabel: {
-      required: false,
-      shrink: true
-    },
-    MuiMenu: {
-      anchorOrigin: {
-        horizontal: "center",
-        vertical: "center"
-      },
+const isSmallScreen = window.innerWidth <= 600
+
+const MuiMenuProps: Partial<MenuProps> | undefined = isSmallScreen
+  ? {
       BackdropProps: {
         open: true
       },
@@ -47,7 +38,19 @@ const theme = createMuiTheme({
         horizontal: "center",
         vertical: "center"
       }
+    }
+  : undefined
+
+const theme = createMuiTheme({
+  props: {
+    MuiDialogActions: {
+      // disableSpacing: true
     },
+    MuiInputLabel: {
+      required: false,
+      shrink: true
+    },
+    MuiMenu: MuiMenuProps,
     MuiSelect: {
       IconComponent: ArrowDownIcon
     }
