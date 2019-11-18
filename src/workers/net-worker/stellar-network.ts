@@ -35,6 +35,7 @@ const ordersSubscriptionCache = new Map<string, Observable<CollectionPage<Server
 const transactionsSubscriptionCache = new Map<string, Observable<Horizon.TransactionResponse>>()
 
 const accountDataCache = new Map<string, Horizon.AccountResponse | null>()
+const accountDataWaitingCache = new Map<string, ReturnType<typeof waitForAccountDataUncached>>()
 
 // Limit the number of concurrent fetches
 const fetchQueue = new PromiseQueue({ concurrency: 8 })
@@ -72,8 +73,9 @@ function cachify<T, Args extends any[]>(
   }
 }
 
-async function waitForAccountData(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
+async function waitForAccountDataUncached(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
   let accountData = null
+  let interval = 2500
   let initialFetchFailed = false
 
   while (true) {
@@ -89,15 +91,33 @@ async function waitForAccountData(horizonURL: string, accountID: string, shouldC
       break
     } else if (response.status === 404) {
       initialFetchFailed = true
-      await delay(2500)
+      await delay(interval)
     } else {
       throw Error(`Request to ${response.url} failed with status ${response.status}`)
     }
+
+    // Slowly increase polling interval up to some not-too-high maximum
+    interval = Math.min(interval * 1.05, 7000)
   }
 
   return {
     accountData,
     initialFetchFailed
+  }
+}
+
+async function waitForAccountData(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
+  // Cache promise to make sure we don't poll the same account twice simultaneously
+  const cacheKey = createAccountCacheKey(horizonURL, accountID)
+  const pending = accountDataWaitingCache.get(cacheKey)
+
+  if (pending) {
+    return pending
+  } else {
+    const justStarted = waitForAccountDataUncached(horizonURL, accountID, shouldCancel)
+    accountDataWaitingCache.set(cacheKey, justStarted)
+    justStarted.then(() => accountDataWaitingCache.delete(cacheKey), () => accountDataWaitingCache.delete(cacheKey))
+    return justStarted
   }
 }
 
