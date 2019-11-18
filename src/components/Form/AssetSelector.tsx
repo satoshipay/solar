@@ -24,6 +24,7 @@ const useAssetSelectorStyles = makeStyles({
 
 interface AssetSelectorProps {
   autoFocus?: TextFieldProps["autoFocus"]
+  disableUnderline?: boolean
   helperText?: TextFieldProps["helperText"]
   label?: TextFieldProps["label"]
   minWidth?: number | string
@@ -80,6 +81,7 @@ function AssetSelector(props: AssetSelectorProps) {
           root: props.value ? undefined : classes.unselected,
           select: classes.select
         },
+        disableUnderline: props.disableUnderline,
         displayEmpty: props.value === undefined,
         renderValue: () => (props.value ? props.value.getCode() : "Select")
       }}
@@ -90,11 +92,13 @@ function AssetSelector(props: AssetSelectorProps) {
         </MenuItem>
       )}
       <MenuItem value={stringifyAsset(Asset.native())}>XLM</MenuItem>
-      {props.trustlines.map(trustline => (
-        <MenuItem key={stringifyAsset(trustline)} value={stringifyAsset(trustline)}>
-          {trustline.asset_type === "native" ? "XLM" : trustline.asset_code}
-        </MenuItem>
-      ))}
+      {props.trustlines
+        .filter(trustline => trustline.asset_type !== "native")
+        .map(trustline => (
+          <MenuItem key={stringifyAsset(trustline)} value={stringifyAsset(trustline)}>
+            {trustline.asset_type === "native" ? "XLM" : trustline.asset_code}
+          </MenuItem>
+        ))}
     </TextField>
   )
 }

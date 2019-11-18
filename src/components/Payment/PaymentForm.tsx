@@ -2,10 +2,7 @@ import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
-import FormControl from "@material-ui/core/FormControl"
 import InputAdornment from "@material-ui/core/InputAdornment"
-import MenuItem from "@material-ui/core/MenuItem"
-import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
@@ -14,11 +11,12 @@ import { useFederationLookup } from "../../hooks/stellar"
 import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { renderFormFieldError } from "../../lib/errors"
-import { findMatchingBalanceLine, getAccountMinimumBalance, stringifyAsset } from "../../lib/stellar"
+import { findMatchingBalanceLine, getAccountMinimumBalance } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "../../lib/transaction"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import AssetSelector from "../Form/AssetSelector"
 import { PriceInput, QRReader } from "../Form/FormFields"
 import { HorizontalLayout } from "../Layout/Box"
 import Portal from "../Portal"
@@ -83,40 +81,6 @@ function validateFormValues(
   return { errors, success }
 }
 
-interface AssetSelectorProps {
-  assets: Asset[]
-  onSelect: (asset: Asset) => void
-  selected: Asset
-  style: React.CSSProperties
-}
-
-function AssetSelector(props: AssetSelectorProps) {
-  const handleSelection = React.useCallback(
-    (event: React.ChangeEvent<{ value: any }>) => {
-      const selectedAssetKey = event.target.value
-      const matchingAsset = props.assets.find(asset => stringifyAsset(asset) === selectedAssetKey)
-
-      if (matchingAsset) {
-        props.onSelect(matchingAsset)
-      } else {
-        throw Error(`Could not find selected asset in provided assets: ${event.target.value}`)
-      }
-    },
-    [props.assets, props.onSelect]
-  )
-  return (
-    <FormControl>
-      <Select disableUnderline onChange={handleSelection} style={props.style} value={stringifyAsset(props.selected)}>
-        {props.assets.map(asset => (
-          <MenuItem key={stringifyAsset(asset)} value={stringifyAsset(asset)}>
-            {asset.getCode()}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  )
-}
-
 interface PaymentFormProps {
   accountData: ObservedAccountData
   actionsRef: RefStateObject
@@ -142,8 +106,10 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     memoValue: ""
   })
 
-  const [memoPlaceholder, setMemoPlaceholder] = React.useState("Description (optional)")
-  const [memoLabel, setMemoLabel] = React.useState("Memo")
+  const [memoMetadata, setMemoMetadata] = React.useState({
+    label: "Memo",
+    placeholder: "Description (optional)"
+  })
   const [matchingWellknownAccount, setMatchingWellknownAccount] = React.useState<AccountRecord | undefined>(undefined)
 
   // FIXME: Pass no. of open offers to getAccountMinimumBalance()
@@ -166,22 +132,25 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
       const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
       setFormValue("memoType", acceptedMemoType === "MEMO_ID" ? "id" : "text")
-      setMemoPlaceholder("Description (mandatory)")
-      setMemoLabel(`Memo ${acceptedMemoType === "MEMO_ID" ? "(ID)" : "(Text)"}`)
+      setMemoMetadata({
+        label: `Memo ${acceptedMemoType === "MEMO_ID" ? "(ID)" : "(Text)"}`,
+        placeholder: "Description (mandatory)"
+      })
     } else {
-      setMemoPlaceholder("Description (optional)")
-      setMemoLabel("Memo")
+      setMemoMetadata({
+        label: "Memo",
+        placeholder: "Description (optional)"
+      })
     }
   }, [formValues.destination, formValues.memoType])
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
 
   const setFormValue = (fieldName: keyof PaymentFormValues, value: unknown | null) => {
-    const updatedFormValues = {
-      ...formValues,
+    setFormValues(prevValues => ({
+      ...prevValues,
       [fieldName]: value
-    }
-    setFormValues(updatedFormValues)
+    }))
   }
 
   const handleFormSubmission = (event: React.SyntheticEvent) => {
@@ -189,8 +158,17 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     props.onSubmit(formValues, spendableBalance, matchingWellknownAccount)
   }
 
-  return (
-    <form id={formID} noValidate onSubmit={handleFormSubmission}>
+  const qrReaderAdornment = React.useMemo(
+    () => (
+      <InputAdornment disableTypography position="end">
+        <QRReader iconStyle={{ fontSize: 20 }} onScan={key => setFormValue("destination", key)} />
+      </InputAdornment>
+    ),
+    []
+  )
+
+  const destinationInput = React.useMemo(
+    () => (
       <TextField
         error={Boolean(errors.destination)}
         label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
@@ -204,74 +182,109 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           style: { textOverflow: "ellipsis" }
         }}
         InputProps={{
-          endAdornment: (
-            <InputAdornment disableTypography position="end">
-              <QRReader iconStyle={{ fontSize: 20 }} onScan={key => setFormValue("destination", key)} />
-            </InputAdornment>
-          )
+          endAdornment: qrReaderAdornment
         }}
       />
+    ),
+    [errors.destination, formValues.destination]
+  )
+
+  const assetSelector = React.useMemo(
+    () => (
+      <AssetSelector
+        disableUnderline
+        onChange={asset => setFormValue("asset", asset)}
+        style={{ alignSelf: "center" }}
+        trustlines={props.accountData.balances}
+        value={formValues.asset}
+      />
+    ),
+    [formValues.asset, props.trustedAssets]
+  )
+
+  const priceInput = React.useMemo(
+    () => (
+      <PriceInput
+        assetCode={assetSelector}
+        error={Boolean(errors.amount)}
+        label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
+        margin="normal"
+        placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
+        value={formValues.amount}
+        onChange={event => setFormValue("amount", event.target.value)}
+        style={{
+          flexGrow: isSmallScreen ? 1 : undefined,
+          marginLeft: 24,
+          marginRight: 24,
+          minWidth: 230,
+          maxWidth: isSmallScreen ? undefined : "60%"
+        }}
+      />
+    ),
+    [assetSelector, errors.amount, formValues.amount, isSmallScreen, spendableBalance.toString(), props.trustedAssets]
+  )
+
+  const memoInput = React.useMemo(
+    () => (
+      <TextField
+        inputProps={{ maxLength: 28 }}
+        error={Boolean(errors.memoValue)}
+        label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoMetadata.label}
+        placeholder={memoMetadata.placeholder}
+        margin="normal"
+        onChange={event => {
+          setFormValues(prevValues => ({
+            ...prevValues,
+            memoValue: event.target.value,
+            memoType:
+              event.target.value.length === 0 ? "none" : formValues.memoType === "none" ? "text" : formValues.memoType
+          }))
+        }}
+        value={formValues.memoValue}
+        style={{
+          flexGrow: 1,
+          marginLeft: 24,
+          marginRight: 24,
+          minWidth: 230
+        }}
+      />
+    ),
+    [
+      errors.memoType,
+      errors.memoValue,
+      formValues.memoType,
+      formValues.memoValue,
+      memoMetadata.label,
+      memoMetadata.placeholder
+    ]
+  )
+
+  const dialogActions = React.useMemo(
+    () => (
+      <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
+        <ActionButton
+          disabled={isDisabled}
+          form={formID}
+          icon={<SendIcon style={{ fontSize: 16 }} />}
+          loading={props.txCreationPending}
+          onClick={() => undefined}
+          type="submit"
+        >
+          Send now
+        </ActionButton>
+      </DialogActionsBox>
+    ),
+    [formID, isDisabled, props.txCreationPending]
+  )
+
+  return (
+    <form id={formID} noValidate onSubmit={handleFormSubmission}>
+      {destinationInput}
       <HorizontalLayout justifyContent="space-between" alignItems="center" margin="0 -24px" wrap="wrap">
-        <PriceInput
-          assetCode={
-            <AssetSelector
-              assets={props.trustedAssets}
-              onSelect={code => setFormValue("asset", code)}
-              selected={formValues.asset}
-              style={{ alignSelf: "center" }}
-            />
-          }
-          error={Boolean(errors.amount)}
-          label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
-          margin="dense"
-          placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
-          value={formValues.amount}
-          onChange={event => setFormValue("amount", event.target.value)}
-          style={{
-            flexGrow: isSmallScreen ? 1 : undefined,
-            marginLeft: 24,
-            marginRight: 24,
-            minWidth: 230,
-            maxWidth: isSmallScreen ? undefined : "60%"
-          }}
-        />
-        <TextField
-          inputProps={{ maxLength: 28 }}
-          error={Boolean(errors.memoValue)}
-          label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoLabel}
-          placeholder={memoPlaceholder}
-          margin="normal"
-          onChange={event => {
-            setFormValues({
-              ...formValues,
-              memoValue: event.target.value,
-              memoType:
-                event.target.value.length === 0 ? "none" : formValues.memoType === "none" ? "text" : formValues.memoType
-            })
-          }}
-          value={formValues.memoValue}
-          style={{
-            flexGrow: 1,
-            marginLeft: 24,
-            marginRight: 24,
-            minWidth: 230
-          }}
-        />
+        {priceInput}
+        {memoInput}
       </HorizontalLayout>
-      <Portal target={props.actionsRef.element}>
-        <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
-          <ActionButton
-            disabled={isDisabled}
-            form={formID}
-            icon={<SendIcon style={{ fontSize: 16 }} />}
-            loading={props.txCreationPending}
-            onClick={() => undefined}
-            type="submit"
-          >
-            Send now
-          </ActionButton>
-        </DialogActionsBox>
-      </Portal>
+      <Portal target={props.actionsRef.element}>{dialogActions}</Portal>
     </form>
   )
 })
