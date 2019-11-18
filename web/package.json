@@ -9,11 +9,13 @@
   },
   "scripts": {
     "prebuild": "rm -rf dist/",
-    "build": "NODE_ENV=production ../node_modules/.bin/parcel build ../src/index.prod.njk --public-url=./ --detailed-report",
-    "dev": "NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 3000"
+    "build": "NODE_ENV=production ../node_modules/.bin/parcel build ../src/index.prod.html --public-url=./ --detailed-report",
+    "dev": "NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.html -p 3000"
   },
   "browser": {
     "fs": false,
     "../src/platform/electron/key-store": false
-  }
+  },
+  "dependencies": {},
+  "devDependencies": {}
 }

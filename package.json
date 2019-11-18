@@ -19,7 +19,7 @@
     "test": "tslint --project .",
     "clean:dist": "rimraf dist/*",
     "clean:electron:ts": "rimraf electron/lib/*",
-    "prebuild:electron:bundle": "NODE_ENV=production parcel build ./src/index.prod.njk --detailed-report --no-cache --no-source-maps --public-url=./",
+    "prebuild:electron:bundle": "NODE_ENV=production parcel build ./src/index.prod.html --detailed-report --no-cache --no-source-maps --public-url=./",
     "prebuild:electron:ts": "npm run clean:electron:ts && cd electron && tsc",
     "prebuild:electron:ts:watch": "npm run clean:electron:ts && cd electron && tsc -w",
     "prebuild:electron": "run-s prebuild:electron:ts clean:dist prebuild:electron:bundle",
@@ -31,7 +31,7 @@
     "dev": "run-p prebuild:electron:ts:watch dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development run-electron -r ./electron/lib/index.dev .",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
-    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./"
+    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.html --hmr-hostname localhost --public-url=./"
   },
   "lint-staged": {
     "ignore": [
@@ -62,6 +62,7 @@
     "@andywer/observable-fns": "^0.1.1",
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
+    "@parcel/transformer-typescript-tsc": "^2.0.0-alpha.2",
     "@satoshipay/stellar-sep-10": "^0.1.0",
     "@satoshipay/stellar-sep-6": "^0.1.0",
     "@storybook/addon-actions": "^5.2.0",
@@ -108,10 +109,8 @@
     "lodash.throttle": "^4.1.1",
     "lru-cache": "^5.1.1",
     "npm-run-all": "^4.1.5",
-    "nunjucks": "^3.2.0",
     "p-queue": "^6.2.0",
-    "parcel-bundler": "^1.12.4",
-    "parcel-plugin-nunjucks": "^1.1.0",
+    "parcel": "^2.0.0-alpha.2.1",
     "prettier": "~1.18.2",
     "qrcode.react": "^0.9.3",
     "qs": "^6.8.0",
