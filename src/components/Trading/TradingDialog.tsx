@@ -14,6 +14,7 @@ import TransactionSender from "../TransactionSender"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout } from "../Layout/Box"
+import Portal from "../Portal"
 import MainActionSelection from "./MainActionSelection"
 
 interface TradingDialogProps {
@@ -103,18 +104,20 @@ function TradingDialog(props: TradingDialogProps) {
     () => (
       <Box margin="32px 0 0" textAlign="center">
         <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
-        <DialogActionsBox>
-          <ActionButton
-            autoFocus
-            onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
-            type="primary"
-          >
-            Add asset
-          </ActionButton>
-        </DialogActionsBox>
+        <Portal target={dialogActionsRef.element}>
+          <DialogActionsBox>
+            <ActionButton
+              autoFocus
+              onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+              type="primary"
+            >
+              Add asset
+            </ActionButton>
+          </DialogActionsBox>
+        </Portal>
       </Box>
     ),
-    [props.account, router]
+    [dialogActionsRef, props.account, router]
   )
 
   return (
