@@ -8,6 +8,7 @@ import pkg from "../../../package.json"
 import { Cancellation } from "../../lib/errors"
 import { parseAssetID } from "../../lib/stellar"
 import { max } from "../../lib/strings"
+import { createReconnectingSSE } from "../_util/event-source"
 import { parseJSONResponse } from "../_util/rest"
 
 export interface CollectionPage<T> {
@@ -71,39 +72,6 @@ function cachify<T, Args extends any[]>(
   }
 }
 
-function createReconnectDelay(options: { delay: number }): () => Promise<void> {
-  let lastConnectionAttemptTime = 0
-
-  const networkBackOnline = () => {
-    if (navigator.onLine === false) {
-      return new Promise(resolve => {
-        window.addEventListener("online", resolve, { once: true, passive: true })
-      })
-    } else {
-      return Promise.resolve()
-    }
-  }
-
-  const timeReached = (waitUntil: number) => {
-    const timeToWait = waitUntil - Date.now()
-    return timeToWait > 0 ? new Promise(resolve => setTimeout(resolve, timeToWait)) : Promise.resolve()
-  }
-
-  return async function delayReconnect() {
-    const justConnectedBefore = Date.now() - lastConnectionAttemptTime < options.delay
-    const waitUntil = Date.now() + options.delay
-
-    await networkBackOnline()
-
-    if (justConnectedBefore) {
-      // Reconnect immediately (skip await) if last reconnection is long ago
-      await timeReached(waitUntil)
-    }
-
-    lastConnectionAttemptTime = Date.now()
-  }
-}
-
 async function waitForAccountData(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
   let accountData = null
   let initialFetchFailed = false
@@ -140,18 +108,9 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
     new Observable<ServerApi.EffectRecord>(observer => {
       let cancelled = false
       let latestCursor: string | undefined
-      let latestMessageTime = 0
 
-      let eventSource: EventSource | undefined
-      let watchdogTimeout: any
-
-      const unsubscribe = () => {
+      let unsubscribe = () => {
         cancelled = true
-
-        clearTimeout(watchdogTimeout)
-        if (eventSource) {
-          eventSource.close()
-        }
       }
 
       const setup = async () => {
@@ -166,54 +125,20 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
           return
         }
 
-        const url = new URL(`/accounts/${accountID}/effects`, horizonURL)
+        const createURL = () =>
+          String(new URL(`/accounts/${accountID}/effects?cursor=${latestCursor || "now"}`, horizonURL))
 
-        const resetWatchdog = () => {
-          watchdogTimeout = setTimeout(() => {
-            if (Date.now() - latestMessageTime > 15_000) {
-              unsubscribe()
-              subscribe()
-            } else {
-              resetWatchdog()
-            }
-          }, 15_000)
-        }
-
-        const subscribe = () => {
-          eventSource = new EventSource(
-            String(url) +
-              "?" +
-              qs.stringify({
-                ...identification,
-                cursor: latestCursor || "now"
-              })
-          )
-
-          eventSource.onmessage = message => {
+        unsubscribe = createReconnectingSSE(createURL, {
+          onMessage(message) {
             const effect: ServerApi.EffectRecord = JSON.parse(message.data)
             latestCursor = effect.paging_token
-            latestMessageTime = Date.now()
             observer.next(effect)
-          }
-          eventSource.onerror = errorMessage => {
+          },
+          onUnexpectedError(error) {
+            observer.error(error)
             unsubscribe()
-
-            // tslint:disable-next-line no-console
-            console.warn("Account effects stream saw an error:", errorMessage)
-
-            // TODO: Propagate errors, but take care to be not too noisy
-
-            delayReconnect().then(
-              () => subscribe(),
-              unexpectedError => {
-                observer.error(unexpectedError)
-              }
-            )
           }
-        }
-
-        const delayReconnect = createReconnectDelay({ delay: 1000 })
-        subscribe()
+        })
       }
 
       setup().catch(error => observer.error(error))
@@ -407,74 +332,27 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
   return multicast(
     new Observable<ServerApi.OrderbookRecord>(observer => {
       let latestKnownSnapshot = ""
-      let latestMessageTime = 0
-
-      let eventSource: EventSource | undefined
-      let watchdogTimeout: any
 
       const query = createOrderbookQuery(selling, buying)
-      const url = new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL)
+      const createURL = () => String(new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL))
 
-      const unsubscribe = () => {
-        clearTimeout(watchdogTimeout)
-        if (eventSource) {
-          eventSource.close()
-        }
-      }
-
-      const setup = async () => {
-        const handleUpdate = (record: ServerApi.OrderbookRecord) => {
-          const snapshot = JSON.stringify(record)
+      const unsubscribe = createReconnectingSSE(createURL, {
+        onMessage(message) {
+          const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
+          const snapshot = message.data
 
           if (snapshot !== latestKnownSnapshot) {
             observer.next(record)
             latestKnownSnapshot = snapshot
           }
-
-          latestMessageTime = Date.now()
-        }
-        const handleError = (error: any) => {
+        },
+        onUnexpectedError(error) {
+          observer.error(error)
           unsubscribe()
-          // tslint:disable-next-line no-console
-          console.warn(`Orderbook record stream ${selling.getCode()}->${buying.getCode()} saw an error:`, error)
-
-          // TODO: Propagate errors, but take care to be not too noisy
-
-          delayReconnect().then(
-            () => subscribe(),
-            unexpectedError => {
-              observer.error(unexpectedError)
-            }
-          )
         }
-        const resetWatchdog = () => {
-          watchdogTimeout = setTimeout(() => {
-            if (Date.now() - latestMessageTime > 15_000) {
-              unsubscribe()
-              subscribe()
-            } else {
-              resetWatchdog()
-            }
-          }, 15_000)
-        }
-        const subscribe = () => {
-          eventSource = new EventSource(`${url}?${qs.stringify(query)}`)
+      })
 
-          eventSource.onmessage = message => {
-            const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
-            handleUpdate(record)
-          }
-          eventSource.onerror = handleError
-        }
-
-        const delayReconnect = createReconnectDelay({ delay: 1000 })
-        subscribe()
-      }
-
-      setup().catch(error => observer.error(error))
-
-      // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
-      return () => unsubscribe()
+      return unsubscribe
     })
   )
 }
