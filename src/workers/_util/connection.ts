@@ -1,3 +1,22 @@
+export function createIntervalRunner(action: () => void, intervalTime: number) {
+  let interval: any
+
+  const reset = () => {
+    clearInterval(interval)
+    interval = setInterval(action, intervalTime)
+  }
+  const stop = () => {
+    clearInterval(interval)
+  }
+
+  reset()
+
+  return {
+    reset,
+    stop
+  }
+}
+
 interface ConnectionStateHandlers {
   onOffline?(): void
   onOnline?(): void

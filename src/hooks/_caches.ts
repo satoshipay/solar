@@ -70,8 +70,8 @@ function createAssetPairCacheKey([horizon, selling, buying]: readonly [Server, A
 }
 
 function areTransactionsNewer(prev: Transaction[], next: Transaction[]) {
-  const prevMaxTimestamp = (prev ? max(prev.map(tx => getTxCreatedAt(tx))) : undefined) || ""
-  const nextMaxTimestamp = max(next.map(tx => getTxCreatedAt(tx))) || ""
+  const prevMaxTimestamp = (prev ? max(prev.map(tx => getTxCreatedAt(tx)), "0") : undefined) || ""
+  const nextMaxTimestamp = max(next.map(tx => getTxCreatedAt(tx)), "0") || ""
 
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }

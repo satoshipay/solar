@@ -8,6 +8,7 @@ import pkg from "../../../package.json"
 import { Cancellation } from "../../lib/errors"
 import { parseAssetID } from "../../lib/stellar"
 import { max } from "../../lib/strings"
+import { createIntervalRunner } from "../_util/connection"
 import { createReconnectingSSE } from "../_util/event-source"
 import { parseJSONResponse } from "../_util/rest"
 
@@ -201,6 +202,12 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
         { leading: true, trailing: true }
       )
 
+      const interval = createIntervalRunner(() => {
+        if (navigator.onLine !== false) {
+          update()
+        }
+      }, 60_000)
+
       const setup = async () => {
         const lastKnownAccountData = accountDataCache.get(cacheKey)
 
@@ -222,12 +229,16 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
           () => {
             // tslint:disable-next-line no-console
             update().catch(error => console.error(`Account data update of ${accountID} failed:`, error))
+            interval.reset()
           },
           error => observer.error(error),
           () => observer.complete()
         )
 
-        unsubscribe = () => subscription.unsubscribe()
+        unsubscribe = () => {
+          interval.stop()
+          subscription.unsubscribe()
+        }
       }
 
       setup().catch(error => observer.error(error))
@@ -244,34 +255,61 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
   return multicast(
     new Observable<Horizon.TransactionResponse>(observer => {
       let latestCursor = cursor
-
       let unsubscribe = doNothing
 
-      const update = async () => {
-        const page = await fetchAccountTransactions(horizonURL, accountID, {
+      const applyUpdate = (page: CollectionPage<Horizon.TransactionResponse>) => {
+        const { records } = page._embedded
+
+        if (records.length > 0) {
+          latestCursor = records[0].paging_token
+          records.forEach(tx => observer.next(tx))
+        }
+      }
+
+      const fetchUpdate = () => {
+        return fetchAccountTransactions(horizonURL, accountID, {
           cursor: latestCursor,
           limit: 15,
           order: "desc"
         })
-        const { records } = page._embedded
+      }
 
-        if (records.length > 0) {
-          latestCursor = records[records.length - 1].paging_token
-          records.forEach(tx => observer.next(tx))
+      const update = async (delayed?: boolean) => {
+        const cursorBeforeUpdate = latestCursor
+        applyUpdate(await fetchUpdate())
+
+        if (delayed && (latestCursor === cursorBeforeUpdate || cursorBeforeUpdate === "now")) {
+          await delay(1000)
+          applyUpdate(await fetchUpdate())
+
+          if (latestCursor === cursorBeforeUpdate) {
+            await delay(2000)
+            applyUpdate(await fetchUpdate())
+          }
         }
       }
+
+      const interval = createIntervalRunner(() => {
+        if (navigator.onLine !== false) {
+          update()
+        }
+      }, 60_000)
 
       const setup = async () => {
         const subscription = subscribeToAccountEffects(horizonURL, accountID).subscribe(
           () => {
             // tslint:disable-next-line no-console
-            update().catch(error => console.error(`Account transactions update of ${accountID} failed:`, error))
+            update(true).catch(error => console.error(`Account transactions update of ${accountID} failed:`, error))
+            interval.reset()
           },
           error => observer.error(error),
           () => observer.complete()
         )
 
-        unsubscribe = () => subscription.unsubscribe()
+        unsubscribe = () => {
+          interval.stop()
+          subscription.unsubscribe()
+        }
       }
 
       setup().catch(error => observer.error(error))
@@ -292,19 +330,52 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string, cu
   return multicast(
     new Observable<CollectionPage<ServerApi.OfferRecord>>(observer => {
       let latestCursor = cursor
+      let latestSetEmpty = false
       let unsubscribe = doNothing
 
-      const update = async () => {
-        const page = await fetchAccountOpenOrders(horizonURL, accountID, { cursor: latestCursor })
-        latestCursor = max(page._embedded.records.map(record => record.paging_token)) || latestCursor
-        observer.next(page)
+      const applyUpdate = (page: CollectionPage<ServerApi.OfferRecord>) => {
+        const updatedCursor = max(page._embedded.records.map(record => record.paging_token), "0")
+        const emptySet = !updatedCursor
+
+        if (emptySet !== latestSetEmpty || (!emptySet && updatedCursor !== latestCursor)) {
+          observer.next(page)
+        }
+
+        latestCursor = updatedCursor || latestCursor
+        latestSetEmpty = emptySet
       }
+
+      const fetchUpdate = () => {
+        return fetchAccountOpenOrders(horizonURL, accountID, { cursor: latestCursor })
+      }
+
+      const update = async (delayed?: boolean) => {
+        const cursorBeforeUpdate = latestCursor
+        applyUpdate(await fetchUpdate())
+
+        if (delayed && (latestCursor === cursorBeforeUpdate || cursorBeforeUpdate === "now")) {
+          await delay(1000)
+          applyUpdate(await fetchUpdate())
+
+          if (latestCursor === cursorBeforeUpdate) {
+            await delay(2000)
+            applyUpdate(await fetchUpdate())
+          }
+        }
+      }
+
+      const interval = createIntervalRunner(() => {
+        if (navigator.onLine !== false) {
+          update()
+        }
+      }, 60_000)
 
       const setup = async () => {
         const subscription = subscribeToAccountEffects(horizonURL, accountID).subscribe(
           () => {
             // tslint:disable-next-line no-console
-            update().catch(error => console.error(`Account open orders update of ${accountID} failed:`, error))
+            update(true).catch(error => console.error(`Account open orders update of ${accountID} failed:`, error))
+            interval.reset()
           },
           error => observer.error(error),
           () => observer.complete()
@@ -316,7 +387,10 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string, cu
       setup().catch(error => observer.error(error))
 
       // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
-      return () => unsubscribe()
+      return () => {
+        interval.stop()
+        unsubscribe()
+      }
     })
   )
 }
@@ -356,6 +430,12 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
       const query = createOrderbookQuery(selling, buying)
       const createURL = () => String(new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL))
 
+      const interval = createIntervalRunner(async () => {
+        if (navigator.onLine !== false) {
+          observer.next(await fetchOrderbookRecord(horizonURL, sellingAsset, buyingAsset))
+        }
+      }, 60_000)
+
       const unsubscribe = createReconnectingSSE(createURL, {
         onMessage(message) {
           const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
@@ -363,6 +443,7 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
 
           if (snapshot !== latestKnownSnapshot) {
             observer.next(record)
+            interval.reset()
             latestKnownSnapshot = snapshot
           }
         },
@@ -372,7 +453,10 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
         }
       })
 
-      return unsubscribe
+      return () => {
+        interval.stop()
+        unsubscribe()
+      }
     })
   )
 }
