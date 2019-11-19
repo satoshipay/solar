@@ -51,7 +51,7 @@ interface ButtonListItemProps {
 }
 
 function ButtonListItem(props: ButtonListItemProps) {
-  const classes = useButtonListItemStyles(props)
+  const classes = useButtonListItemStyles()
   return (
     <ListItem
       button

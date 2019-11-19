@@ -65,7 +65,7 @@ interface MainActionButtonProps {
 }
 
 function MainActionButton(props: MainActionButtonProps) {
-  const classes = useMainActionButtonStyles(props)
+  const classes = useMainActionButtonStyles()
   const Icon = props.Icon || ArrowRightIcon
   return (
     <ButtonBase className={`${classes.root} ${props.className}`} onClick={props.onClick} style={props.style}>

@@ -11,7 +11,7 @@ import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import CreatePaymentForm from "./CreatePaymentForm"
+import PaymentForm from "./PaymentForm"
 
 interface Props {
   account: Account
@@ -21,7 +21,7 @@ interface Props {
   sendTransaction: (transaction: Transaction) => Promise<any>
 }
 
-function CreatePaymentDialog(props: Props) {
+function PaymentDialog(props: Props) {
   const dialogActionsRef = useDialogActions()
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
@@ -59,7 +59,7 @@ function CreatePaymentDialog(props: Props) {
       actions={dialogActionsRef}
     >
       <Box margin="24px 0 0">{null}</Box>
-      <CreatePaymentForm
+      <PaymentForm
         accountData={props.accountData}
         actionsRef={dialogActionsRef}
         onCancel={props.onClose}
@@ -72,7 +72,7 @@ function CreatePaymentDialog(props: Props) {
   )
 }
 
-function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "onClose">) {
+function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
@@ -81,10 +81,10 @@ function ConnectedCreatePaymentDialog(props: Pick<Props, "account" | "onClose">)
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <CreatePaymentDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
+        <PaymentDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
       )}
     </TransactionSender>
   )
 }
 
-export default ConnectedCreatePaymentDialog
+export default ConnectedPaymentDialog

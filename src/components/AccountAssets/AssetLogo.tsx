@@ -12,9 +12,7 @@ const useAssetLogoStyles = makeStyles({
     backgroundColor: "white"
   },
   textAvatar: {
-    background: `linear-gradient(145deg, ${brandColor.main} 0%, ${brandColor.dark} 35%, ${brandColor.dark} 75%, ${
-      brandColor.main
-    } 100%)`,
+    background: `linear-gradient(145deg, ${brandColor.main} 0%, ${brandColor.dark} 35%, ${brandColor.dark} 75%, ${brandColor.main} 100%)`,
     border: "1px solid rgba(255, 255, 255, 0.66)",
     color: "rgba(255, 255, 255, 1)",
     fontSize: 12,
@@ -55,7 +53,7 @@ interface Props {
 
 function AssetLogo(props: Props) {
   const className = props.className || ""
-  const classes = useAssetLogoStyles({})
+  const classes = useAssetLogoStyles()
 
   if (props.asset.isNative()) {
     return (

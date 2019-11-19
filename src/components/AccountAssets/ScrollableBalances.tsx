@@ -119,7 +119,7 @@ interface ScrollableBalancesProps {
 function ScrollableBalances(props: ScrollableBalancesProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const balanceItemsRef = React.useRef<Map<number, HTMLElement | null>>(new Map())
-  const classes = useScrollableBalancesStyles({})
+  const classes = useScrollableBalancesStyles()
   const latestStepRef = React.useRef(0)
   const mouseState = React.useRef({ currentlyDragging: false, latestMouseMoveEndTime: 0 })
   const swipeableContainerRef = React.useRef<HTMLDivElement | null>(null)
@@ -234,7 +234,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         onClick={isAccountActivated ? handleClick : undefined}
       />
     ],
-    [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets]
+    [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets.map(stringifyAsset).join(",")]
   )
 
   return (
