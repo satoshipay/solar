@@ -439,7 +439,7 @@ interface TransactionListProps {
 }
 
 function TransactionList(props: TransactionListProps) {
-  const classes = useTransactionListStyles(props)
+  const classes = useTransactionListStyles()
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 

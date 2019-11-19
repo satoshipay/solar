@@ -115,8 +115,7 @@ interface BalanceItemProps {
 }
 
 function BalanceItem(props: BalanceItemProps, ref: React.Ref<any>) {
-  const classes = useBalanceItemStyles(props)
-
+  const classes = useBalanceItemStyles()
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
 
   return (
@@ -140,4 +139,4 @@ function BalanceItem(props: BalanceItemProps, ref: React.Ref<any>) {
   )
 }
 
-export default React.forwardRef(BalanceItem)
+export default React.memo(React.forwardRef(BalanceItem))
