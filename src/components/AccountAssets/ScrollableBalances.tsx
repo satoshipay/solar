@@ -194,6 +194,9 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     }
   }, [props.onClick])
 
+  // Hack. In fact useAssetMetadata() & useStellarToml() should return memoized values if nothing changed
+  const assetMetadataFingerprint = JSON.stringify(trustedAssets.map(asset => assetMetadata.get(asset)))
+
   const canScrollLeft = currentStep > 0
   const canScrollRight = currentStep < stepCount - 1
 
@@ -234,7 +237,14 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         onClick={isAccountActivated ? handleClick : undefined}
       />
     ],
-    [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets.map(stringifyAsset).join(",")]
+    [
+      accountData.balances,
+      assetMetadataFingerprint,
+      handleClick,
+      nativeBalance,
+      props.onClick,
+      trustedAssets.map(stringifyAsset).join(",")
+    ]
   )
 
   return (
