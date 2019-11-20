@@ -3,6 +3,7 @@ import * as multisig from "./multisig"
 import * as ecosystem from "./stellar-ecosystem"
 import * as network from "./stellar-network"
 
+// TODO: checkHorizonOrFailover()
 // TODO: closeAccountSubscriptions()
 // TODO: resetAllSubscriptions() (or move the logic that triggers it here, too)
 // TODO: Federation lookup

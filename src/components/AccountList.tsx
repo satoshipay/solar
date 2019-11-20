@@ -2,6 +2,7 @@ import React from "react"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
@@ -68,12 +69,27 @@ const StyledBadge = (props: BadgeProps) => {
   )
 }
 
-function AccountCard(props: {
+function Badges(props: { account: Account }) {
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
+    <Tooltip title="StellarGuard Protection">
+      <StellarGuardIcon style={{ marginTop: 6 }} />
+    </Tooltip>
+  ) : (
+    <Tooltip title="Multi-Signature Account">
+      <GroupIcon style={{ marginTop: 6 }} />
+    </Tooltip>
+  )
+  return <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
+}
+
+interface AccountCardProps {
   account: Account
   pendingSignatureRequests: SignatureRequest[]
   style?: React.CSSProperties
-}) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+}
+
+function AccountCard(props: AccountCardProps) {
   const router = useRouter()
 
   const onClick = () => router.history.push(routes.account(props.account.id))
@@ -84,16 +100,6 @@ function AccountCard(props: {
   )
   const badgeContent = pendingSignatureRequests.length > 0 ? pendingSignatureRequests.length : null
 
-  const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
-    <Tooltip title="StellarGuard Protection">
-      <StellarGuardIcon style={{ marginTop: 6 }} />
-    </Tooltip>
-  ) : (
-    <Tooltip title="Multi-Signature Account">
-      <GroupIcon style={{ marginTop: 6 }} />
-    </Tooltip>
-  )
-
   return (
     <StyledCard elevation={5} onClick={onClick} style={{ background: "white", color: "black" }}>
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
@@ -102,7 +108,9 @@ function AccountCard(props: {
             <Typography variant="h5" style={{ flexGrow: 1, fontSize: 20 }}>
               {props.account.name}
             </Typography>
-            <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
+            <React.Suspense fallback={<CircularProgress />}>
+              <Badges account={props.account} />
+            </React.Suspense>
           </HorizontalLayout>
           <Box fontSize="120%">
             <React.Suspense fallback={<InlineLoader />}>
