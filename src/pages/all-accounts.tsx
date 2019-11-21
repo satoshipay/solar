@@ -127,7 +127,11 @@ function AllAccountsPage() {
           />
         </Box>
       </DialogBody>
-      <TermsAndConditions open={!settings.agreedToTermsAt} onConfirm={settings.confirmToC} />
+      <TermsAndConditions
+        // Do not render T&Cs while loading settings; 99.9% chance we will unmount it immediately
+        open={settings.initialized && !settings.agreedToTermsAt}
+        onConfirm={settings.confirmToC}
+      />
     </Section>
   )
 }
