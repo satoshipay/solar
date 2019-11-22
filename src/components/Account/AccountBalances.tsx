@@ -99,7 +99,7 @@ interface SingleBalanceProps {
   style?: React.CSSProperties
 }
 
-export function SingleBalance(props: SingleBalanceProps) {
+export const SingleBalance = React.memo(function SingleBalance(props: SingleBalanceProps) {
   const balance = BigNumber(props.balance).abs()
 
   const formattingOptions: BalanceFormattingOptions = props.untrimmed
@@ -139,7 +139,7 @@ export function SingleBalance(props: SingleBalanceProps) {
       ) : null}
     </span>
   )
-}
+})
 
 interface MultipleBalancesProps {
   balances: Horizon.BalanceLine[]
