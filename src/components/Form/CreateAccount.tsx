@@ -213,7 +213,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               fullWidth
               margin="normal"
               value={formValues.privateKey}
-              onChange={event => setFormValue("privateKey", event.target.value)}
+              onChange={event => setFormValue("privateKey", event.target.value.trim())}
               inputProps={{
                 style: { textOverflow: "ellipsis" }
               }}
