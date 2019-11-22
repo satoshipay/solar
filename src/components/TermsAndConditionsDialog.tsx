@@ -10,10 +10,11 @@ import Typography from "@material-ui/core/Typography"
 import { VerticalLayout } from "./Layout/Box"
 import { Section } from "./Layout/Page"
 
-const CheckboxLabel = (props: { children: React.ReactNode }) => (
-  <span style={{ color: "white", fontSize: "120%" }}>{props.children}</span>
-)
 const Transition = React.forwardRef((props: TransitionProps, ref) => <Fade ref={ref} {...props} appear={false} />)
+
+function CheckboxLabel(props: { children: React.ReactNode }) {
+  return <span style={{ color: "white", fontSize: "120%" }}>{props.children}</span>
+}
 
 function ExternalLink(props: { children: React.ReactNode; href: string }) {
   return (
@@ -38,6 +39,63 @@ function TermsAndConditions(props: Props) {
     setCheckedNotes(updatedNoteChecks)
   }
 
+  return (
+    <Section brandColored top bottom style={{ display: "flex", flexDirection: "column" }}>
+      <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
+        <Typography color="inherit" variant="h4">
+          Welcome to Solar
+        </Typography>
+        <FormGroup style={{ margin: "3em 0" }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={checkedNotes[0]}
+                onChange={() => toggleNoteChecked(0)}
+                style={{ alignSelf: "flex-start", color: "inherit", marginTop: -7 }}
+              />
+            }
+            label={
+              <CheckboxLabel>
+                I understand that I am responsible for the safety of my funds and that Solar is not able to recover my
+                funds in case of data loss or if I lose my credentials.
+              </CheckboxLabel>
+            }
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={checkedNotes[1]}
+                onChange={() => toggleNoteChecked(1)}
+                style={{ alignSelf: "flex-start", color: "inherit", marginTop: -7 }}
+              />
+            }
+            label={
+              <CheckboxLabel>
+                I have read, understood and agree to the{" "}
+                <ExternalLink href="https://solarwallet.io/terms.html">Terms and Conditions</ExternalLink> &amp;{" "}
+                <ExternalLink href="https://solarwallet.io/privacy.html">Privacy policy</ExternalLink> of Solar.
+              </CheckboxLabel>
+            }
+            style={{
+              marginTop: 16
+            }}
+          />
+        </FormGroup>
+        <Button
+          disabled={!allConfirmed}
+          onClick={props.onConfirm}
+          size="large"
+          style={{ alignSelf: "center" }}
+          variant="contained"
+        >
+          Confirm
+        </Button>
+      </VerticalLayout>
+    </Section>
+  )
+}
+
+function TermsAndConditionsDialog(props: Props) {
   // Super important to make sure that the Dialog unmounts on exit, so it won't act as an invisible click blocker!
   return (
     <Dialog
@@ -50,60 +108,9 @@ function TermsAndConditions(props: Props) {
       TransitionComponent={Transition}
       TransitionProps={{ unmountOnExit: true }}
     >
-      <Section brandColored top bottom style={{ display: "flex", flexDirection: "column" }}>
-        <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
-          <Typography color="inherit" variant="h4">
-            Welcome to Solar
-          </Typography>
-          <FormGroup style={{ margin: "3em 0" }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checkedNotes[0]}
-                  onChange={() => toggleNoteChecked(0)}
-                  style={{ alignSelf: "flex-start", color: "inherit", marginTop: -7 }}
-                />
-              }
-              label={
-                <CheckboxLabel>
-                  I understand that I am responsible for the safety of my funds and that Solar is not able to recover my
-                  funds in case of data loss or if I lose my credentials.
-                </CheckboxLabel>
-              }
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checkedNotes[1]}
-                  onChange={() => toggleNoteChecked(1)}
-                  style={{ alignSelf: "flex-start", color: "inherit", marginTop: -7 }}
-                />
-              }
-              label={
-                <CheckboxLabel>
-                  I have read, understood and agree to the{" "}
-                  <ExternalLink href="https://solarwallet.io/terms.html">Terms and Conditions</ExternalLink> &amp;{" "}
-                  <ExternalLink href="https://solarwallet.io/privacy.html">Privacy policy</ExternalLink> of Solar.
-                </CheckboxLabel>
-              }
-              style={{
-                marginTop: 16
-              }}
-            />
-          </FormGroup>
-          <Button
-            disabled={!allConfirmed}
-            onClick={props.onConfirm}
-            size="large"
-            style={{ alignSelf: "center" }}
-            variant="contained"
-          >
-            Confirm
-          </Button>
-        </VerticalLayout>
-      </Section>
+      <TermsAndConditions {...props} />
     </Dialog>
   )
 }
 
-export default React.memo(TermsAndConditions)
+export default React.memo(TermsAndConditionsDialog)

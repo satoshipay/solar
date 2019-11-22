@@ -20,6 +20,7 @@ interface ContextType {
   confirmToC: () => void
   ignoreSignatureRequest: (signatureRequestHash: string) => void
   ignoredSignatureRequests: string[]
+  initialized: boolean
   multiSignature: boolean
   multiSignatureServiceURL: string
   showTestnet: boolean
@@ -30,9 +31,14 @@ interface ContextType {
   toggleHideMemos: () => void
 }
 
-const initialSettings: SettingsData = {
+interface SettingsState extends SettingsData {
+  initialized: boolean
+}
+
+const initialSettings: SettingsState = {
   agreedToTermsAt: undefined,
   biometricLock: false,
+  initialized: false,
   multisignature: false,
   testnet: false,
   hideMemos: false
@@ -49,6 +55,7 @@ const SettingsContext = React.createContext<ContextType>({
   confirmToC: () => undefined,
   ignoreSignatureRequest: () => undefined,
   ignoredSignatureRequests: initialIgnoredSignatureRequests,
+  initialized: false,
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
   showTestnet: initialSettings.testnet,
@@ -61,14 +68,14 @@ const SettingsContext = React.createContext<ContextType>({
 
 export function SettingsProvider(props: Props) {
   const [ignoredSignatureRequests, setIgnoredSignatureRequests] = React.useState(initialIgnoredSignatureRequests)
-  const [settings, setSettings] = React.useState(initialSettings)
+  const [settings, setSettings] = React.useState<SettingsState>(initialSettings)
   const [biometricLockUsable, setBiometricLockUsable] = React.useState(false)
 
   React.useEffect(() => {
     Promise.all([loadIgnoredSignatureRequestHashes(), loadSettings()])
       .then(([loadedSignatureReqHashes, loadedSettings]) => {
         setIgnoredSignatureRequests(loadedSignatureReqHashes)
-        setSettings({ ...settings, ...loadedSettings })
+        setSettings({ ...settings, ...loadedSettings, initialized: true })
       })
       .catch(trackError)
 
@@ -124,6 +131,7 @@ export function SettingsProvider(props: Props) {
     confirmToC,
     ignoreSignatureRequest,
     ignoredSignatureRequests,
+    initialized: settings.initialized,
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
     showTestnet: settings.testnet,
