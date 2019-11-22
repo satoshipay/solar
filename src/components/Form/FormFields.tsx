@@ -4,18 +4,21 @@ import { InputProps } from "@material-ui/core/Input"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { OutlinedTextFieldProps, TextFieldProps } from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import SearchIcon from "@material-ui/icons/Search"
 import { trackError } from "../../context/notifications"
 import QRImportDialog from "../Dialog/QRImport"
 import QRReaderIcon from "../Icon/QRReader"
 
+const desktopQRIconStyle: React.CSSProperties = { fontSize: 20 }
+const mobileQRIconStyle: React.CSSProperties = {}
+
 interface Props {
-  iconStyle?: React.CSSProperties
   onScan: (data: string) => void
 }
 
-// tslint:disable-next-line no-shadowed-variable
 export const QRReader = React.memo(function QRReader(props: Props) {
+  const isTouchScreen = useMediaQuery("(hover: none)")
   const [isQRReaderOpen, setQRReaderOpen] = React.useState(false)
   const closeQRReader = React.useCallback(() => setQRReaderOpen(false), [])
   const openQRReader = React.useCallback(() => setQRReaderOpen(true), [])
@@ -33,7 +36,7 @@ export const QRReader = React.memo(function QRReader(props: Props) {
   return (
     <>
       <IconButton onClick={openQRReader} tabIndex={99}>
-        <QRReaderIcon style={props.iconStyle} />
+        <QRReaderIcon style={isTouchScreen ? mobileQRIconStyle : desktopQRIconStyle} />
       </IconButton>
       <QRImportDialog open={isQRReaderOpen} onClose={closeQRReader} onError={trackError} onScan={handleQRScan} />
     </>
