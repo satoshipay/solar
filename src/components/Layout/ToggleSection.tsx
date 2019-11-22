@@ -9,6 +9,7 @@ const useToggleSectionStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     marginTop: 24,
+    paddingLeft: 4,
 
     "&:first-child": {
       marginTop: 0
