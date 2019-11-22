@@ -161,7 +161,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const qrReaderAdornment = React.useMemo(
     () => (
       <InputAdornment disableTypography position="end">
-        <QRReader iconStyle={{ fontSize: 20 }} onScan={key => setFormValue("destination", key)} />
+        <QRReader onScan={key => setFormValue("destination", key)} />
       </InputAdornment>
     ),
     []
