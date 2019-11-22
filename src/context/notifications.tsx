@@ -53,9 +53,6 @@ export function NotificationsProvider(props: Props) {
     const id = nextIDRef.current++
 
     setNotifications(prevNotifications => prevNotifications.concat({ ...options, id, message, type }))
-
-    // just to prevent memory leaks; the NotificationContainer component determines when to hide
-    setTimeout(() => removeNotificationByID(id), 10000)
   }
 
   const showConnectionError = (error: any) => {
@@ -70,10 +67,6 @@ export function NotificationsProvider(props: Props) {
 
     // tslint:disable-next-line:no-console
     console.error(error)
-  }
-
-  const removeNotificationByID = (notificationID: number) => {
-    setNotifications(prevNotifications => prevNotifications.filter(notification => notification.id !== notificationID))
   }
 
   trackConnectionErrorImplementation = showConnectionError

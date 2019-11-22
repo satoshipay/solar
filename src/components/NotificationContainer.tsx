@@ -26,6 +26,44 @@ const icons: { [key in NotificationType]: React.ComponentType<any> } = {
   success: CheckIcon
 }
 
+interface NotificationDetailsProps {
+  notification: Notification | null
+  onClose: () => void
+  showSupportEmail?: boolean
+}
+
+const NotificationDetails = React.memo(function NotificationDetails(props: NotificationDetailsProps) {
+  const { message = "" } = props.notification || {}
+  return (
+    <DialogBody
+      top={<MainTitle onBack={props.onClose} title="Error" />}
+      actions={
+        <DialogActionsBox>
+          <ActionButton autoFocus onClick={props.onClose} type="primary">
+            Dismiss
+          </ActionButton>
+        </DialogActionsBox>
+      }
+    >
+      <Box alignSelf="center" margin="24px auto 0" width="100%">
+        <Typography>{message}</Typography>
+      </Box>
+      {props.showSupportEmail ? (
+        <Box alignSelf="center" margin="36px auto 0" width="100%">
+          <Typography align="center" color="textSecondary">
+            Having an issue with the app?
+            <br />
+            Contact us via{" "}
+            <a href="mailto:hello@solarwallet.io" style={{ color: "inherit" }} target="_blank">
+              hello@solarwallet.io
+            </a>
+          </Typography>
+        </Box>
+      ) : null}
+    </DialogBody>
+  )
+})
+
 const useNotificationStyles = makeStyles({
   clickable: {
     cursor: "pointer"
@@ -49,40 +87,15 @@ const useNotificationStyles = makeStyles({
   },
   message: {
     alignItems: "center",
-    display: "block",
+    display: "flex",
     overflow: "hidden",
+    width: "90vw"
+  },
+  messageText: {
     textOverflow: "ellipsis",
-    width: "90vw",
+    overflow: "hidden",
     whiteSpace: "nowrap"
   }
-})
-
-interface NotificationDetailsDialogProps {
-  open: boolean
-  notification: Notification | null
-  onClose: () => void
-}
-
-const NotificationDetailsDialog = React.memo(function NotificationDetailsDialog(props: NotificationDetailsDialogProps) {
-  const { open, onClose, notification } = props
-  return (
-    <Dialog fullScreen open={open} onClose={onClose} TransitionComponent={FullscreenDialogTransition}>
-      <DialogBody
-        top={<MainTitle onBack={onClose} title="Error" />}
-        actions={
-          <DialogActionsBox>
-            <ActionButton autoFocus onClick={onClose} type="primary">
-              Dismiss
-            </ActionButton>
-          </DialogActionsBox>
-        }
-      >
-        <Box alignSelf="center" margin="24px auto 0" maxWidth={400} width="100%">
-          <Typography>{notification ? notification.message : ""}</Typography>
-        </Box>
-      </DialogBody>
-    </Dialog>
-  )
 })
 
 interface NotificationProps {
@@ -120,12 +133,15 @@ const Notification = React.memo(function Notification(props: NotificationProps) 
       style={props.style}
     >
       <SnackbarContent
-        className={contentClassnames[props.type]}
+        classes={{
+          root: contentClassnames[props.type],
+          message: classes.message
+        }}
         message={
-          <span className={classes.message}>
+          <>
             <Icon className={classes.icon} />
-            {props.message}
-          </span>
+            <span className={classes.messageText}>{props.message}</span>
+          </>
         }
         style={props.contentStyle}
       />
@@ -135,7 +151,6 @@ const Notification = React.memo(function Notification(props: NotificationProps) 
 
 type OfflineNotificationProps = Pick<NotificationProps, "message" | "open">
 
-// tslint:disable-next-line no-shadowed-variable
 const OfflineNotification = React.memo(function OfflineNotification(props: OfflineNotificationProps) {
   const anchorOrigin = React.useMemo(
     () =>
@@ -160,7 +175,7 @@ function NotificationsContainer() {
   const { notifications } = React.useContext(NotificationsContext)
   const { isOnline } = useOnlineStatus()
   const [lastClosedNotificationID, setLastClosedNotificationID] = React.useState(0)
-  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [notificationInDialog, setNotificationInDialog] = React.useState<Notification | undefined>()
   const lastShownNotification = React.useRef<Notification | null>(null)
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
@@ -168,45 +183,57 @@ function NotificationsContainer() {
 
   // Fall back to the values of a just-removed notification if necessary
   // Reason: Notification might still be visible / in closing transition when it suddenly gets removed
-  const notification = latestNotificationItem || lastShownNotification.current
+  const visibleNotification = latestNotificationItem || lastShownNotification.current
 
-  const closeNotification = React.useCallback(() => setLastClosedNotificationID(notification.id), [notification])
+  const closeNotification = React.useCallback(() => setLastClosedNotificationID(visibleNotification.id), [
+    visibleNotification
+  ])
 
   if (latestNotificationItem && latestNotificationItem !== lastShownNotification.current) {
     lastShownNotification.current = latestNotificationItem
   }
 
-  const showNotificationDetails = React.useCallback(() => setDialogOpen(true), [])
+  const showNotificationDetails = React.useCallback(
+    (notification: Notification) => setNotificationInDialog(notification),
+    []
+  )
 
   const closeNotificationDetails = React.useCallback(() => {
     closeNotification()
-    setDialogOpen(false)
+    setNotificationInDialog(undefined)
   }, [closeNotification])
 
   const onNotificationClick = React.useCallback(() => {
-    if (notification && notification.onClick) {
-      notification.onClick()
-    } else if (notification && notification.type === "error") {
-      showNotificationDetails()
+    if (visibleNotification && visibleNotification.onClick) {
+      visibleNotification.onClick()
+    } else if (visibleNotification && visibleNotification.type === "error") {
+      showNotificationDetails(visibleNotification)
     }
-  }, [notification, showNotificationDetails])
+  }, [visibleNotification, showNotificationDetails])
 
   return (
     <>
       <Notification
         autoHideDuration={5000}
-        message={notification ? notification.message : ""}
-        type={notification ? notification.type : "error"}
-        open={open && !dialogOpen}
+        message={visibleNotification ? visibleNotification.message : ""}
+        type={visibleNotification ? visibleNotification.type : "error"}
+        open={open && (!notificationInDialog || notificationInDialog !== visibleNotification)}
         onClick={onNotificationClick}
         onClose={closeNotification}
       />
       <OfflineNotification message="Offline" open={!isOnline} />
-      <NotificationDetailsDialog
-        open={dialogOpen}
+      <Dialog
+        fullScreen
+        open={Boolean(notificationInDialog)}
         onClose={closeNotificationDetails}
-        notification={latestNotificationItem}
-      />
+        TransitionComponent={FullscreenDialogTransition}
+      >
+        <NotificationDetails
+          notification={latestNotificationItem}
+          onClose={closeNotificationDetails}
+          showSupportEmail
+        />
+      </Dialog>
     </>
   )
 }
