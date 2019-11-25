@@ -1,10 +1,9 @@
-import { Asset, Horizon, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Server, ServerApi, Transaction } from "stellar-sdk"
 import { multicast, Observable } from "@andywer/observable-fns"
 import { AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { max } from "../lib/strings"
-import { OrdersPage } from "./_horizon"
 
 const getTxCreatedAt = (tx: Transaction) => (tx as any).created_at as string
 
@@ -81,9 +80,11 @@ export const accountDataCache = createCache<readonly [Server, string], AccountDa
   (prev, next) => next.paging_token > prev.paging_token
 )
 
-export const accountOpenOrdersCache = createCache<readonly [Server, string], OrdersPage, OrdersPage>(
-  createAccountCacheKey
-)
+export const accountOpenOrdersCache = createCache<
+  readonly [Server, string],
+  ServerApi.OfferRecord[],
+  ServerApi.OfferRecord[]
+>(createAccountCacheKey)
 
 export const accountTransactionsCache = createCache<
   readonly [Server, string],

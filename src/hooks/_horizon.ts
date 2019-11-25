@@ -104,23 +104,23 @@ export function subscribeToAccountEffects(horizon: Server, accountID: string) {
   )
 }
 
-export function subscribeToOpenOrders(horizon: Server, accountID: string, cursor: string) {
+export function subscribeToOpenOrders(horizon: Server, accountID: string) {
   return proxyAsyncObservable(
     (async () => {
       const { netWorker } = await workers
       return (toPlainObservable(
-        netWorker.subscribeToOpenOrders(String(horizon.serverURL), accountID, cursor)
-      ) as any) as ObservableLike<OrdersPage>
+        netWorker.subscribeToOpenOrders(String(horizon.serverURL), accountID)
+      ) as any) as ObservableLike<ServerApi.OfferRecord[]>
     })()
   )
 }
 
-export function subscribeToAccountTransactions(horizon: Server, accountID: string, cursor: string) {
+export function subscribeToAccountTransactions(horizon: Server, accountID: string) {
   return proxyAsyncObservable(
     (async () => {
       const { netWorker } = await workers
       return (toPlainObservable(
-        netWorker.subscribeToAccountTransactions(String(horizon.serverURL), accountID, cursor)
+        netWorker.subscribeToAccountTransactions(String(horizon.serverURL), accountID)
       ) as any) as ObservableLike<Horizon.TransactionResponse>
     })()
   )

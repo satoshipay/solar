@@ -18,8 +18,7 @@ import {
   subscribeToAccountEffects,
   subscribeToAccountTransactions,
   subscribeToOpenOrders,
-  subscribeToOrderbook,
-  OrdersPage
+  subscribeToOrderbook
 } from "./_horizon"
 import { useHorizon } from "./stellar"
 import { useDebouncedState } from "./util"
@@ -111,7 +110,10 @@ export function useLiveAccountData(accountID: string, testnet: boolean): Account
   return useLiveAccountDataSet([accountID], testnet)[0]
 }
 
-function applyAccountOffersUpdate(prev: OrdersPage, next: OrdersPage): OrdersPage {
+function applyAccountOffersUpdate(
+  prev: ServerApi.OfferRecord[],
+  next: ServerApi.OfferRecord[]
+): ServerApi.OfferRecord[] {
   // We ignore `prev` here
   return next
 }
@@ -125,20 +127,22 @@ export function useLiveAccountOffers(accountID: string, testnet: boolean): Serve
       get() {
         return (
           accountOpenOrdersCache.get(selector) ||
-          accountOpenOrdersCache.suspend(selector, () => fetchAccountOpenOrders(horizon, accountID))
+          accountOpenOrdersCache.suspend(selector, async () => {
+            const page = await fetchAccountOpenOrders(horizon, accountID)
+            return page._embedded.records
+          })
         )
       },
-      set(updated: OrdersPage) {
+      set(updated: ServerApi.OfferRecord[]) {
         accountOpenOrdersCache.set(selector, updated)
       },
       observe() {
-        return subscribeToOpenOrders(horizon, accountID, "now")
+        return subscribeToOpenOrders(horizon, accountID)
       }
     }
   }, [accountID, horizon])
 
-  const page = useDataSubscription(applyAccountOffersUpdate, get, set, observe)
-  return page._embedded.records
+  return useDataSubscription(applyAccountOffersUpdate, get, set, observe)
 }
 
 type EffectHandler = (account: Account, effect: ServerApi.EffectRecord) => void
@@ -221,7 +225,7 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
         accountTransactionsCache.set(selector, updated)
       },
       observe() {
-        return subscribeToAccountTransactions(horizon, accountID, "now")
+        return subscribeToAccountTransactions(horizon, accountID)
       }
     }
   }, [accountID, horizon])
