@@ -31,7 +31,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
   }
 
   reload = () => {
-    this.setState({ error: null })
+    window.location.reload()
   }
 
   render() {
