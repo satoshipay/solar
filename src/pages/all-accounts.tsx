@@ -118,7 +118,7 @@ function AllAccountsPage() {
 
   return (
     <Section top bottom brandColored noPadding style={{ height: "100vh" }}>
-      <DialogBody inheritBackground top={headerContent}>
+      <DialogBody backgroundColor="unset" top={headerContent}>
         <VerticalLayout justifyContent="space-between" grow margin="16px 0 0">
           <AccountList
             accounts={accounts}

@@ -49,8 +49,8 @@ interface Props {
   actionsPosition?: "after-content" | "bottom"
   brandColored?: boolean
   background?: React.ReactNode
+  backgroundColor?: React.CSSProperties["backgroundColor"]
   children: React.ReactNode
-  inheritBackground?: boolean
   excessWidth?: number
   fitToShrink?: boolean
   preventActionsPlaceholder?: boolean
@@ -93,7 +93,7 @@ function DialogBody(props: Props) {
     <ErrorBoundary>
       <Section
         brandColored={props.brandColored}
-        inheritBackground={props.inheritBackground}
+        backgroundColor={props.backgroundColor}
         width="100%"
         height="100%"
         maxWidth={900}
