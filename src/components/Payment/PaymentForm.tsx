@@ -233,11 +233,11 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         placeholder={memoMetadata.placeholder}
         margin="normal"
         onChange={event => {
+          const { value } = event.target
           setFormValues(prevValues => ({
             ...prevValues,
-            memoValue: event.target.value,
-            memoType:
-              event.target.value.length === 0 ? "none" : formValues.memoType === "none" ? "text" : formValues.memoType
+            memoValue: value,
+            memoType: value.length === 0 ? "none" : formValues.memoType === "none" ? "text" : formValues.memoType
           }))
         }}
         value={formValues.memoValue}
