@@ -74,10 +74,9 @@ function cachify<T, Args extends any[]>(
 
 async function waitForAccountDataUncached(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
   let accountData = null
-  let interval = 2500
   let initialFetchFailed = false
 
-  while (true) {
+  for (let interval = 2500; ; interval = Math.min(interval * 1.05, 8000)) {
     if (shouldCancel && shouldCancel()) {
       throw Cancellation("Stopping to wait for account to become present in network.")
     }
@@ -94,9 +93,6 @@ async function waitForAccountDataUncached(horizonURL: string, accountID: string,
     } else {
       throw Error(`Request to ${response.url} failed with status ${response.status}`)
     }
-
-    // Slowly increase polling interval up to some not-too-high maximum
-    interval = Math.min(interval * 1.05, 7000)
   }
 
   return {
@@ -140,7 +136,12 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
         }
       },
       async init() {
-        const effect = await fetchLatestAccountEffect(horizonURL, accountID)
+        let effect = await fetchLatestAccountEffect(horizonURL, accountID)
+
+        if (!effect) {
+          await waitForAccountData(horizonURL, accountID)
+          effect = await fetchLatestAccountEffect(horizonURL, accountID)
+        }
 
         latestCursor = effect ? effect.paging_token : latestCursor
         latestEffectCreatedAt = effect ? effect.created_at : latestEffectCreatedAt
@@ -153,8 +154,13 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
         )
       },
       subscribeToUpdates() {
-        const createURL = () =>
-          String(new URL(`/accounts/${accountID}/effects?cursor=${latestCursor || "now"}`, horizonURL))
+        const createURL = () => {
+          const query = {
+            ...identification,
+            cursor: latestCursor || "now"
+          }
+          return String(new URL(`/accounts/${accountID}/effects?${qs.stringify(query)}`, horizonURL))
+        }
 
         return new Observable<ServerApi.EffectRecord>(observer => {
           return createReconnectingSSE(createURL, {
@@ -183,15 +189,17 @@ export const subscribeToAccountEffects = cachify(
 )
 
 function subscribeToAccountUncached(horizonURL: string, accountID: string) {
-  let latestSequenceNo: string | undefined
+  let latestSnapshot: string | undefined
 
   const cacheKey = createAccountCacheKey(horizonURL, accountID)
+  const createSnapshot = (accountData: Horizon.AccountResponse) =>
+    JSON.stringify([accountData.sequence, accountData.balances])
 
   return subscribeToUpdatesAndPoll<Horizon.AccountResponse | null>({
     async applyUpdate(update) {
       if (update) {
         accountDataCache.set(cacheKey, update)
-        latestSequenceNo = update.sequence
+        latestSnapshot = createSnapshot(update)
       }
       return update
     },
@@ -203,19 +211,19 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
       const lastKnownAccountData = accountDataCache.get(cacheKey)
 
       if (lastKnownAccountData) {
-        latestSequenceNo = lastKnownAccountData.sequence
+        latestSnapshot = createSnapshot(lastKnownAccountData)
         return lastKnownAccountData
       } else {
         const { accountData: initialAccountData } = await waitForAccountData(horizonURL, accountID)
 
         accountDataCache.set(cacheKey, initialAccountData)
-        latestSequenceNo = initialAccountData.sequence
+        latestSnapshot = createSnapshot(initialAccountData)
 
         return initialAccountData
       }
     },
     shouldApplyUpdate(update) {
-      return Boolean(update && (!latestSequenceNo || update.sequence > latestSequenceNo))
+      return Boolean(update && (!latestSnapshot || createSnapshot(update) !== latestSnapshot))
     },
     subscribeToUpdates() {
       return map(subscribeToAccountEffects(horizonURL, accountID), () => fetchAccountData(horizonURL, accountID))

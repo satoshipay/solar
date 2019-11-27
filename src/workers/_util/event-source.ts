@@ -8,7 +8,7 @@ function createReconnectDelay(options: { delay: number }): () => Promise<void> {
   const networkBackOnline = () => {
     if (navigator.onLine === false) {
       return new Promise(resolve => {
-        window.addEventListener("online", resolve, { once: true, passive: true })
+        self.addEventListener("online", resolve, { once: true, passive: true })
       })
     } else {
       return Promise.resolve()

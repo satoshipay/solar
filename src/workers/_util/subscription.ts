@@ -50,6 +50,7 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
               const applied = await implementation.applyUpdate(update)
               observer.next(applied)
             } else if (retryFetchOnNoUpdate && retry < 5) {
+              // tslint:disable-next-line no-bitwise
               await delay(500 * (1 << retry))
               return fetchAndApplyUpdate(streamedUpdate, retry + 1)
             }

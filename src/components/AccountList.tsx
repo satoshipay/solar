@@ -16,7 +16,6 @@ import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useRouter } from "../hooks/userinterface"
 import { containsStellarGuardAsSigner } from "../lib/stellar-guard"
 import { SignatureRequest } from "../lib/multisig-service"
-import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 import StellarGuardIcon from "./Icon/StellarGuard"
 import InlineLoader from "./InlineLoader"
@@ -96,7 +95,7 @@ function AccountCard(props: AccountCardProps) {
   const pendingSignatureRequests = props.pendingSignatureRequests.filter(
     req =>
       req._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-      !hasSigned(req.meta.transaction, props.account.publicKey)
+      !req._embedded.signers.find(signer => signer.account_id === props.account.publicKey)!.has_signed
   )
   const badgeContent = pendingSignatureRequests.length > 0 ? pendingSignatureRequests.length : null
 

@@ -71,7 +71,8 @@ function useDataSubscription<DataT, UpdateT>(
 }
 
 function applyAccountDataUpdate(prev: AccountData, next: AccountData): AccountData {
-  return next.paging_token > prev.paging_token ? next : prev
+  // We ignore `prev` here
+  return next
 }
 
 export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): AccountData[] {

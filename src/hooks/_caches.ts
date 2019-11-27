@@ -20,10 +20,11 @@ function createCache<SelectorT, DataT, UpdateT>(
       return values.get(createCacheKey(selector))
     },
     set(selector: SelectorT, value: DataT) {
-      const cached = cache.get(selector)
+      const cacheKey = createCacheKey(selector)
+      const cached = values.get(cacheKey)
 
       if (!cached || isDataNewer(cached, value)) {
-        values.set(createCacheKey(selector), value)
+        values.set(cacheKey, value)
       }
     },
     suspend(selector: SelectorT, fetcher: () => Promise<DataT>): never {
@@ -75,10 +76,7 @@ function areTransactionsNewer(prev: Transaction[], next: Transaction[]) {
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
 
-export const accountDataCache = createCache<readonly [Server, string], AccountData, AccountData>(
-  createAccountCacheKey,
-  (prev, next) => next.paging_token > prev.paging_token
-)
+export const accountDataCache = createCache<readonly [Server, string], AccountData, AccountData>(createAccountCacheKey)
 
 export const accountOpenOrdersCache = createCache<
   readonly [Server, string],
