@@ -2,7 +2,6 @@ import { createMuiTheme } from "@material-ui/core/styles"
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
 import Fade from "@material-ui/core/Fade"
 import ArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
-import { MenuProps } from "@material-ui/core/Menu"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
 import { SlideLeftTransition, SlideUpTransition } from "./components/Dialog/Transitions"
@@ -27,20 +26,6 @@ export const CompactDialogTransition = SlideUpTransition
 
 const isSmallScreen = window.innerWidth <= 600
 
-const MuiMenuProps: Partial<MenuProps> | undefined = isSmallScreen
-  ? {
-      BackdropProps: {
-        open: true
-      },
-      TransitionComponent: Fade,
-      transitionDuration: 300,
-      transformOrigin: {
-        horizontal: "center",
-        vertical: "center"
-      }
-    }
-  : undefined
-
 const theme = createMuiTheme({
   props: {
     MuiDialogActions: {
@@ -50,7 +35,22 @@ const theme = createMuiTheme({
       required: false,
       shrink: true
     },
-    MuiMenu: MuiMenuProps,
+    MuiList: {
+      className: "iphone-notch-bottom-spacing"
+    },
+    MuiMenu: isSmallScreen
+      ? {
+          BackdropProps: {
+            open: true
+          },
+          TransitionComponent: Fade,
+          transitionDuration: 300,
+          transformOrigin: {
+            horizontal: "center",
+            vertical: "center"
+          }
+        }
+      : undefined,
     MuiSelect: {
       IconComponent: ArrowDownIcon
     }
@@ -253,28 +253,27 @@ const theme = createMuiTheme({
     MuiMenu: {
       paper: {
         [breakpoints.down(600)]: {
-          // hide a small div that is shown above the anchor component
-          visibility: "hidden"
+          backgroundColor: "white",
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          bottom: "0 !important",
+          left: "0 !important",
+          right: "0 !important",
+          top: "initial !important",
+          maxWidth: "100vw",
+          position: "fixed"
         }
       },
       list: {
-        padding: 0,
-        [breakpoints.down(600)]: {
-          backgroundColor: "white",
-          bottom: 0,
-          left: 0,
-          position: "fixed",
-          transitionDuration: 0,
-          // explicitly set to visible because it would be hidden by the visibility change in MuiMenu-paper
-          visibility: "visible"
-        }
+        padding: 0
       }
     } as any,
     MuiMenuItem: {
       root: {
         borderBottom: "none",
         [breakpoints.down(600)]: {
-          fontSize: 20
+          fontSize: 20,
+          padding: 16
         }
       }
     },
