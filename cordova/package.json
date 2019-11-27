@@ -41,7 +41,7 @@
     "cordova-plugin-customurlscheme": "git+https://github.com/bytelabsco/Custom-URL-scheme.git",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
-    "cordova-plugin-fingerprint-aio": "git+https://github.com/satoshipay/cordova-plugin-fingerprint-aio.git",
+    "cordova-plugin-fingerprint-aio": "^3.0.0",
     "cordova-plugin-ionic-keyboard": "^2.2.0",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-safariviewcontroller": "^1.6.0",

@@ -72,10 +72,12 @@ interface Device {
 declare var device: Device
 
 interface FingerprintOptions {
-  clientId: string
-  clientSecret?: string
-  localizedFallbackTitle?: string
-  localizedReason?: string
+  title?: string
+  subtitle?: string
+  description?: string
+  fallbackButtonTitle?: string
+  disableBackup?: boolean
+  cancelButtonTitle?: string
 }
 
 interface Fingerprint {

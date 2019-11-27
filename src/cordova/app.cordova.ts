@@ -6,16 +6,14 @@
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands, events } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { getCurrentSettings, initSecureStorage, storeKeys, initKeyStore } from "./storage"
+import { getCurrentSettings, initSecureStorage, initKeyStore } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 import { registerURLHandler } from "./protocol-handler"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
-const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.splashscreen.show() : undefined)
 
 let bioAuthInProgress: Promise<void> | undefined
 let bioAuthAvailablePromise: Promise<boolean>
-let clientSecretPromise: Promise<string>
 let isBioAuthAvailable = false
 
 let lastNativeInteractionTime: number = 0
@@ -72,7 +70,6 @@ function onDeviceReady() {
   // getCurrentSettings() won't be reliable
   initializeStorage(contentWindow)
     .then(async () => {
-      clientSecretPromise = getClientSecret(contentWindow)
       isBioAuthAvailable = await bioAuthAvailablePromise
 
       if (isBioAuthEnabled()) {
@@ -86,12 +83,6 @@ function onDeviceReady() {
     .catch(trackError)
 }
 
-function getClientSecret(contentWindow: Window) {
-  return new Promise<string>((resolve, reject) => {
-    initializeStorage(contentWindow).then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
-  })
-}
-
 function authenticate(contentWindow: Window) {
   if (bioAuthInProgress) {
     // Make sure we don't call bioAuthenticate() twice in a row
@@ -103,13 +94,11 @@ function authenticate(contentWindow: Window) {
 
   // Trigger show and instantly hide. There will be a fade-out.
   // We show the native splashscreen, because it can be made visible synchronously
-  showSplashScreenOnIOS()
   iframeReady.then(() => navigator.splashscreen.hide())
 
   const performAuth = async (): Promise<void> => {
-    const clientSecret = await clientSecretPromise
     try {
-      await bioAuthenticate(clientSecret)
+      await bioAuthenticate()
       refreshLastNativeInteractionTime()
     } catch (error) {
       // tslint:disable-next-line no-console
@@ -141,7 +130,6 @@ function onPause(contentWindow: Window) {
   contentWindow.postMessage("app:pause", "*")
 
   if (isBioAuthEnabled() && Date.now() - lastNativeInteractionTime > 750) {
-    showSplashScreenOnIOS()
     showHtmlSplashScreen(contentWindow)
   }
 }
@@ -223,9 +211,10 @@ function setupLinkListener(contentWindow: Window) {
 
 function setupBioAuthTestHandler() {
   const messageHandler = async (event: MessageEvent, contentWindow: Window) => {
-    const clientSecret = await clientSecretPromise
     try {
-      await bioAuthenticate(clientSecret)
+      // refresh before and afterwards to prevent splashscreen issues
+      refreshLastNativeInteractionTime()
+      await bioAuthenticate()
       refreshLastNativeInteractionTime()
       contentWindow.postMessage({ eventType: events.testBioAuthResponseEvent, id: event.data.id }, "*")
     } catch (error) {
