@@ -6,12 +6,11 @@
 import { trackError } from "./error"
 import { handleMessageEvent, registerCommandHandler, commands, events } from "./ipc"
 import initializeQRReader from "./qr-reader"
-import { getCurrentSettings, initSecureStorage, storeKeys, initKeyStore } from "./storage"
+import { getCurrentSettings, initSecureStorage, initKeyStore } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 import { registerURLHandler } from "./protocol-handler"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
-const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.splashscreen.show() : undefined)
 
 let bioAuthInProgress: Promise<void> | undefined
 let bioAuthAvailablePromise: Promise<boolean>
@@ -95,7 +94,6 @@ function authenticate(contentWindow: Window) {
 
   // Trigger show and instantly hide. There will be a fade-out.
   // We show the native splashscreen, because it can be made visible synchronously
-  showSplashScreenOnIOS()
   iframeReady.then(() => navigator.splashscreen.hide())
 
   const performAuth = async (): Promise<void> => {
@@ -132,7 +130,6 @@ function onPause(contentWindow: Window) {
   contentWindow.postMessage("app:pause", "*")
 
   if (isBioAuthEnabled() && Date.now() - lastNativeInteractionTime > 750) {
-    showSplashScreenOnIOS()
     showHtmlSplashScreen(contentWindow)
   }
 }
