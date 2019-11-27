@@ -15,7 +15,6 @@ const showSplashScreenOnIOS = () => (process.env.PLATFORM === "ios" ? navigator.
 
 let bioAuthInProgress: Promise<void> | undefined
 let bioAuthAvailablePromise: Promise<boolean>
-let clientSecretPromise: Promise<string>
 let isBioAuthAvailable = false
 
 let lastNativeInteractionTime: number = 0
@@ -72,7 +71,6 @@ function onDeviceReady() {
   // getCurrentSettings() won't be reliable
   initializeStorage(contentWindow)
     .then(async () => {
-      clientSecretPromise = getClientSecret(contentWindow)
       isBioAuthAvailable = await bioAuthAvailablePromise
 
       if (isBioAuthEnabled()) {
@@ -84,12 +82,6 @@ function onDeviceReady() {
       }
     })
     .catch(trackError)
-}
-
-function getClientSecret(contentWindow: Window) {
-  return new Promise<string>((resolve, reject) => {
-    initializeStorage(contentWindow).then(secureStorage => secureStorage.get(resolve, reject, storeKeys.clientSecret))
-  })
 }
 
 function authenticate(contentWindow: Window) {
@@ -107,9 +99,8 @@ function authenticate(contentWindow: Window) {
   iframeReady.then(() => navigator.splashscreen.hide())
 
   const performAuth = async (): Promise<void> => {
-    const clientSecret = await clientSecretPromise
     try {
-      await bioAuthenticate(clientSecret)
+      await bioAuthenticate()
       refreshLastNativeInteractionTime()
     } catch (error) {
       // tslint:disable-next-line no-console
@@ -223,9 +214,10 @@ function setupLinkListener(contentWindow: Window) {
 
 function setupBioAuthTestHandler() {
   const messageHandler = async (event: MessageEvent, contentWindow: Window) => {
-    const clientSecret = await clientSecretPromise
     try {
-      await bioAuthenticate(clientSecret)
+      // refresh before and afterwards to prevent splashscreen issues
+      refreshLastNativeInteractionTime()
+      await bioAuthenticate()
       refreshLastNativeInteractionTime()
       contentWindow.postMessage({ eventType: events.testBioAuthResponseEvent, id: event.data.id }, "*")
     } catch (error) {

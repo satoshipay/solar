@@ -4,14 +4,12 @@ export async function isBiometricAuthAvailable() {
   })
 }
 
-export async function bioAuthenticate(clientSecret: string) {
+export async function bioAuthenticate() {
   return new Promise((resolve, reject) => {
     Fingerprint.show(
       {
-        clientId: "Solar",
-        clientSecret,
-        localizedFallbackTitle: "Enter Passcode",
-        localizedReason: "Unlock your Solar wallet"
+        title: "Unlock Solar",
+        description: device && device.platform === "iOS" ? "Unlock your Solar wallet" : undefined
       },
       resolve,
       reject
