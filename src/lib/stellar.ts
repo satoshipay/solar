@@ -108,8 +108,8 @@ export async function selectSmartTransactionFee(horizon: Server, preset: SmartFe
   return Math.min(smartFee, preset.maxFee)
 }
 
-export async function friendbotTopup(horizon: Server, publicKey: string) {
-  const horizonMetadata = await (await fetch(getHorizonURL(horizon))).json()
+export async function friendbotTopup(horizonURL: string, publicKey: string) {
+  const horizonMetadata = await (await fetch(horizonURL)).json()
   const friendBotHref = horizonMetadata._links.friendbot.href.replace(/\{\?.*/, "")
 
   const response = await fetch(friendBotHref + `?addr=${publicKey}`)

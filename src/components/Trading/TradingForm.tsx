@@ -5,6 +5,7 @@ import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -54,6 +55,9 @@ interface Props {
 
 function TradingForm(props: Props) {
   const isSmallScreen = useIsMobile()
+  const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
+  const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
+
   const [primaryAsset, setPrimaryAsset] = React.useState<Asset | undefined>(props.initialPrimaryAsset)
   const [primaryAmountString, setPrimaryAmountString] = React.useState("")
   const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
@@ -169,9 +173,9 @@ function TradingForm(props: Props) {
     // set minHeight to prevent wrapping of layout when keyboard is shown
     <VerticalLayout
       alignItems="stretch"
-      alignSelf={isSmallScreen ? undefined : "center"}
+      alignSelf={isSmallScreenXY ? undefined : "center"}
       grow={1}
-      justifyContent={isSmallScreen ? undefined : "center"}
+      justifyContent={isSmallScreenXY ? undefined : "center"}
       minHeight={300}
       maxHeight="100%"
       margin={isSmallScreen ? undefined : "32px 0 0"}

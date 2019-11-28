@@ -1,13 +1,11 @@
 /* tslint:disable:no-string-literal */
 
 import * as JWT from "jsonwebtoken"
-import PromiseQueue from "p-queue"
 import React from "react"
-import { Asset, Server, Transaction } from "stellar-sdk"
+import { Asset, Server, Transaction, Horizon } from "stellar-sdk"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 import {
   SigningKeyCacheContext,
-  StellarAccountDataCacheContext,
   StellarAddressCacheContext,
   StellarAddressReverseCacheContext,
   StellarTomlCacheContext,
@@ -20,12 +18,19 @@ import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
 import { workers } from "../worker-controller"
 import { accountDataCache } from "./_caches"
+import { useNetWorker } from "./workers"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
+/** @deprecated */
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
   return testnet ? stellar.horizonTestnet : stellar.horizonLivenet
+}
+
+export function useHorizonURL(testnet: boolean = false) {
+  const stellar = React.useContext(StellarContext)
+  return testnet ? String(stellar.horizonTestnet.serverURL) : String(stellar.horizonLivenet.serverURL)
 }
 
 export function useFederationLookup() {
@@ -131,57 +136,45 @@ export function useStellarToml(domain: string | null | undefined): [StellarToml 
   return domain ? tomlFiles.get(domain)! : [undefined, false]
 }
 
-// Limit the number of concurrent fetches
-const accountFetchQueue = new PromiseQueue({ concurrency: 8 })
-
-function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[] {
-  const loadingStates = React.useContext(StellarAccountDataCacheContext)
+function useAccountDataSet(horizonURL: string, accountIDs: string[]): AccountData[] {
+  const netWorker = useNetWorker()
+  const pendingFetches: Array<Promise<any>> = []
 
   const issuerAccounts = accountIDs.map(
     (accountID: string): AccountData => {
-      const cacheItem = loadingStates.cache.get(accountID)
-      return cacheItem && cacheItem.state === "resolved"
-        ? cacheItem.data
-        : accountDataCache.get([horizon, accountID]) || createEmptyAccountData(accountID)
+      const selector = [horizonURL, accountID] as const
+      const cached = accountDataCache.get(selector)
+
+      const prepare = (account: Horizon.AccountResponse | null): AccountData =>
+        account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
+
+      if (!cached) {
+        try {
+          accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURL, accountID).then(prepare))
+        } catch (promise) {
+          pendingFetches.push(promise)
+        }
+      }
+      return cached || createEmptyAccountData(accountID)
     }
   )
 
-  React.useEffect(() => {
-    for (const accountID of accountIDs) {
-      if (!loadingStates.cache.has(accountID)) {
-        loadingStates.store(accountID, FetchState.pending())
-
-        accountFetchQueue.add(async () => {
-          const { netWorker } = await workers
-
-          try {
-            const accountOrNull = await netWorker.fetchAccountData(String(horizon.serverURL), accountID)
-            const account = accountOrNull
-              ? { ...accountOrNull, data_attr: accountOrNull.data }
-              : createEmptyAccountData(accountID)
-
-            loadingStates.store(accountID, FetchState.resolved(account))
-            accountDataCache.set([horizon, accountID], account)
-          } catch (error) {
-            loadingStates.store(accountID, FetchState.rejected(error))
-          }
-        })
-      }
-    }
-  }, [accountIDs.join(",")])
+  if (pendingFetches.length > 0) {
+    throw pendingFetches.length === 1 ? pendingFetches[0] : Promise.all(pendingFetches)
+  }
 
   return issuerAccounts
 }
 
 export function useAccountData(publicKey: string, testnet: boolean) {
-  const horizon = useHorizon(testnet)
-  return useAccountDataSet(horizon, [publicKey])[0]
+  const horizonURL = useHorizonURL(testnet)
+  return useAccountDataSet(horizonURL, [publicKey])[0]
 }
 
 export function useAssetMetadata(assets: Asset[], testnet: boolean) {
-  const horizon = useHorizon(testnet)
+  const horizonURL = useHorizonURL(testnet)
   const issuerAccountIDs = dedupe(assets.filter(asset => !asset.isNative()).map(asset => asset.getIssuer()))
-  const accountDataSet = useAccountDataSet(horizon, issuerAccountIDs)
+  const accountDataSet = useAccountDataSet(horizonURL, issuerAccountIDs)
 
   const domains = accountDataSet
     .map(accountData => accountData.home_domain)

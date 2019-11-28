@@ -59,7 +59,7 @@
     "threads": "^1.0.0-beta.8"
   },
   "devDependencies": {
-    "@andywer/observable-fns": "^0.1.1",
+    "@andywer/observable-fns": "^0.2.0",
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "@satoshipay/stellar-sep-10": "^0.1.0",

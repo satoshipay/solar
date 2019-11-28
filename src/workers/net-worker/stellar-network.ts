@@ -340,10 +340,28 @@ function createOrderbookQuery(selling: Asset, buying: Asset) {
   return query
 }
 
+function createEmptyOrderbookRecord(base: Asset, counter: Asset): ServerApi.OrderbookRecord {
+  return {
+    _links: {
+      self: {
+        href: ""
+      }
+    },
+    asks: [],
+    bids: [],
+    base,
+    counter
+  }
+}
+
 function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, buyingAsset: string) {
   const buying = parseAssetID(buyingAsset)
   const selling = parseAssetID(sellingAsset)
   const query = createOrderbookQuery(selling, buying)
+
+  if (selling.equals(buying)) {
+    return Observable.from<ServerApi.OrderbookRecord>([createEmptyOrderbookRecord(buying, buying)])
+  }
 
   const createURL = () => String(new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL))
   const fetchUpdate = () => fetchOrderbookRecord(horizonURL, sellingAsset, buyingAsset)
@@ -396,7 +414,7 @@ export interface PaginationOptions {
 }
 
 export async function fetchAccountData(horizonURL: string, accountID: string) {
-  const url = new URL(`/accounts/${accountID}`, horizonURL)
+  const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 0 })
 
   if (response.status === 404) {
@@ -407,7 +425,7 @@ export async function fetchAccountData(horizonURL: string, accountID: string) {
 }
 
 export async function fetchLatestAccountEffect(horizonURL: string, accountID: string) {
-  const url = new URL(`/accounts/${accountID}/effects`, horizonURL)
+  const url = new URL(`/accounts/${accountID}/effects?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(
     () =>
       fetch(
@@ -430,7 +448,7 @@ export async function fetchLatestAccountEffect(horizonURL: string, accountID: st
 }
 
 export async function fetchAccountTransactions(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
-  const url = new URL(`/accounts/${accountID}/transactions`, horizonURL)
+  const url = new URL(`/accounts/${accountID}/transactions?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(
     () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...options })),
     { priority: 1 }
@@ -440,7 +458,7 @@ export async function fetchAccountTransactions(horizonURL: string, accountID: st
 }
 
 export async function fetchAccountOpenOrders(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
-  const url = new URL(`/accounts/${accountID}/offers`, horizonURL)
+  const url = new URL(`/accounts/${accountID}/offers?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(
     () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...options })),
     { priority: 1 }
@@ -450,12 +468,12 @@ export async function fetchAccountOpenOrders(horizonURL: string, accountID: stri
 }
 
 export async function fetchOrderbookRecord(horizonURL: string, sellingAsset: string, buyingAsset: string) {
-  const query = createOrderbookQuery(parseAssetID(sellingAsset), parseAssetID(buyingAsset))
-  const url = new URL(`/order_book}`, horizonURL)
-  const response = await fetchQueue.add(
-    () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...query })),
-    { priority: 1 }
-  )
+  if (buyingAsset === sellingAsset) {
+    return createEmptyOrderbookRecord(parseAssetID(buyingAsset), parseAssetID(buyingAsset))
+  }
 
+  const query = createOrderbookQuery(parseAssetID(sellingAsset), parseAssetID(buyingAsset))
+  const url = new URL(`/order_book?${qs.stringify({ ...identification, ...query })}`, horizonURL)
+  const response = await fetchQueue.add(() => fetch(String(url)), { priority: 1 })
   return parseJSONResponse<ServerApi.OrderbookRecord>(response)
 }

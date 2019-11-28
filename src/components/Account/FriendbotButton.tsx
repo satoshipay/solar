@@ -1,5 +1,4 @@
 import React from "react"
-import { Server } from "stellar-sdk"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import ThumbUpIcon from "@material-ui/icons/ThumbUp"
 import { trackError } from "../../context/notifications"
@@ -8,7 +7,7 @@ import MainSelectionButton from "../Form/MainSelectionButton"
 
 interface Props {
   className?: string
-  horizon: Server
+  horizonURL: string
   publicKey: string
   style?: React.CSSProperties
 }
@@ -19,7 +18,7 @@ function FriendbotButton(props: Props) {
   const topup = async () => {
     try {
       setPending(true)
-      await friendbotTopup(props.horizon, props.publicKey)
+      await friendbotTopup(props.horizonURL, props.publicKey)
 
       // Give the account subscription a little bit of time to recognize the account activation
       await new Promise(resolve => setTimeout(resolve, 2000))

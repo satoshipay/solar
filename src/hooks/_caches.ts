@@ -1,5 +1,6 @@
-import { Asset, Horizon, Server, ServerApi, Transaction } from "stellar-sdk"
-import { multicast, Observable } from "@andywer/observable-fns"
+import { Asset, Horizon, ServerApi, Transaction } from "stellar-sdk"
+import { multicast, Observable, ObservableLike } from "@andywer/observable-fns"
+import { trackError } from "../context/notifications"
 import { AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
@@ -32,17 +33,23 @@ function createCache<SelectorT, DataT, UpdateT>(
       let loading = fetchs.get(cacheKey)
 
       if (!loading) {
-        loading = fetcher().then(value => {
-          cache.set(selector, value)
-          return value
-        })
+        loading = fetcher().then(
+          value => {
+            cache.set(selector, value)
+            return value
+          },
+          error => {
+            trackError(error)
+            throw error
+          }
+        )
         fetchs.set(cacheKey, loading)
       }
 
       // React Suspense: Throw the loading promise, so React knows we are waiting
       throw loading
     },
-    observe(selector: SelectorT, observe: () => Observable<UpdateT>) {
+    observe(selector: SelectorT, observe: () => ObservableLike<UpdateT>) {
       const cacheKey = createCacheKey(selector)
       const cached = observables.get(cacheKey)
 
@@ -61,12 +68,12 @@ function createCache<SelectorT, DataT, UpdateT>(
   return cache
 }
 
-function createAccountCacheKey([horizon, accountID]: readonly [Server, string]) {
-  return `${horizon.serverURL}:${accountID}`
+function createAccountCacheKey([horizonURL, accountID]: readonly [string, string]) {
+  return `${horizonURL}:${accountID}`
 }
 
-function createAssetPairCacheKey([horizon, selling, buying]: readonly [Server, Asset, Asset]) {
-  return `${horizon.serverURL}:${stringifyAsset(selling)}:${stringifyAsset(buying)}`
+function createAssetPairCacheKey([horizonURL, selling, buying]: readonly [string, Asset, Asset]) {
+  return `${horizonURL}:${stringifyAsset(selling)}:${stringifyAsset(buying)}`
 }
 
 function areTransactionsNewer(prev: Transaction[], next: Transaction[]) {
@@ -76,20 +83,20 @@ function areTransactionsNewer(prev: Transaction[], next: Transaction[]) {
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
 
-export const accountDataCache = createCache<readonly [Server, string], AccountData, AccountData>(createAccountCacheKey)
+export const accountDataCache = createCache<readonly [string, string], AccountData, AccountData>(createAccountCacheKey)
 
 export const accountOpenOrdersCache = createCache<
-  readonly [Server, string],
+  readonly [string, string],
   ServerApi.OfferRecord[],
   ServerApi.OfferRecord[]
 >(createAccountCacheKey)
 
 export const accountTransactionsCache = createCache<
-  readonly [Server, string],
+  readonly [string, string],
   Transaction[],
   Horizon.TransactionResponse
 >(createAccountCacheKey, areTransactionsNewer)
 
-export const orderbookCache = createCache<readonly [Server, Asset, Asset], FixedOrderbookRecord, FixedOrderbookRecord>(
+export const orderbookCache = createCache<readonly [string, Asset, Asset], FixedOrderbookRecord, FixedOrderbookRecord>(
   createAssetPairCacheKey
 )

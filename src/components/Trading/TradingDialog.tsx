@@ -1,6 +1,7 @@
 import React from "react"
 import { Horizon, Server, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
@@ -82,16 +83,18 @@ function TradingDialog(props: TradingDialogProps) {
           }}
         />
         {primaryAction ? (
-          <TradingForm
-            account={props.account}
-            accountData={accountData}
-            dialogActionsRef={dialogActionsRef}
-            onBack={clearPrimaryAction}
-            primaryAction={primaryAction}
-            sendTransaction={props.sendTransaction}
-            style={mainContentStageStyle}
-            trustlines={trustlines}
-          />
+          <React.Suspense fallback={<CircularProgress style={{ display: "block", margin: "50px auto" }} />}>
+            <TradingForm
+              account={props.account}
+              accountData={accountData}
+              dialogActionsRef={dialogActionsRef}
+              onBack={clearPrimaryAction}
+              primaryAction={primaryAction}
+              sendTransaction={props.sendTransaction}
+              style={mainContentStageStyle}
+              trustlines={trustlines}
+            />
+          </React.Suspense>
         ) : (
           <div style={mainContentStageStyle} />
         )}

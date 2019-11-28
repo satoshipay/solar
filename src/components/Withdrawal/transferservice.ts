@@ -8,7 +8,7 @@ import {
   TransferServer
 } from "@satoshipay/stellar-sep-6"
 import { trackError } from "../../context/notifications"
-import { useHorizon } from "../../hooks/stellar"
+import { useHorizonURL } from "../../hooks/stellar"
 
 interface ExtendedTransferInfo {
   transferInfo: AssetTransferInfo | EmptyAssetTransferInfo
@@ -39,12 +39,12 @@ export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): 
   // To force-update the component once an async fetch is completed
   const [completedFetches, setCompletedFetches] = React.useState(0)
 
-  const horizon = useHorizon(testnet)
+  const horizonURL = useHorizonURL(testnet)
   const loadingPromiseCacheKey = assets.map(asset => getAssetCacheKey(asset, testnet)).join(",")
   const uncachedAssets = assets.filter(asset => !transferInfosCache.has(getAssetCacheKey(asset, testnet)))
 
   const fetchData = async () => {
-    const updatedTransferServers = await fetchTransferServers(String(horizon.serverURL), uncachedAssets)
+    const updatedTransferServers = await fetchTransferServers(horizonURL, uncachedAssets)
     const transferInfos = await fetchAssetTransferInfos(updatedTransferServers)
 
     for (const [asset, transferInfo] of Array.from(transferInfos.entries())) {
@@ -55,18 +55,15 @@ export function useAssetTransferServerInfos(assets: Asset[], testnet: boolean): 
     setCompletedFetches(completedFetches + 1)
   }
 
-  React.useEffect(
-    () => {
-      if (uncachedAssets.length > 0 && !transferInfosLoading.has(loadingPromiseCacheKey)) {
-        const promise = fetchData()
-        transferInfosLoading.set(loadingPromiseCacheKey, promise)
-        promise.catch(trackError)
-      } else {
-        // Nothing to do
-      }
-    },
-    [loadingPromiseCacheKey]
-  )
+  React.useEffect(() => {
+    if (uncachedAssets.length > 0 && !transferInfosLoading.has(loadingPromiseCacheKey)) {
+      const promise = fetchData()
+      transferInfosLoading.set(loadingPromiseCacheKey, promise)
+      promise.catch(trackError)
+    } else {
+      // Nothing to do
+    }
+  }, [loadingPromiseCacheKey])
 
   const data = assets.reduce<AssetTransferInfos["data"]>((reduced, asset) => {
     const cacheItem = transferInfosCache.get(getAssetCacheKey(asset, testnet))

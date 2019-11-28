@@ -1,31 +1,27 @@
 // tslint:disable:no-shadowed-variable
 
 import React from "react"
-import { Asset, Horizon, ServerApi, Transaction } from "stellar-sdk"
-import { Observable } from "@andywer/observable-fns"
+import { Asset, Horizon, Networks, ServerApi, Transaction } from "stellar-sdk"
+import { unsubscribe, ObservableLike } from "@andywer/observable-fns"
 import { Account } from "../context/accounts"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { accountDataCache, accountOpenOrdersCache, accountTransactionsCache, orderbookCache } from "./_caches"
-import {
-  deserializeTx,
-  fetchAccountData,
-  fetchAccountOpenOrders,
-  fetchAccountTransactions,
-  fetchOrderbookRecord,
-  subscribeToAccount,
-  subscribeToAccountEffects,
-  subscribeToAccountTransactions,
-  subscribeToOpenOrders,
-  subscribeToOrderbook
-} from "./_horizon"
-import { useHorizon } from "./stellar"
+import { useHorizonURL } from "./stellar"
 import { useDebouncedState } from "./util"
+import { useNetWorker } from "./workers"
+
+function deserializeTx(txResponse: Horizon.TransactionResponse, testnet: boolean) {
+  const networkPassphrase = testnet ? Networks.TESTNET : Networks.PUBLIC
+  return Object.assign(new Transaction(txResponse.envelope_xdr, networkPassphrase), {
+    created_at: txResponse.created_at
+  })
+}
 
 function useDataSubscriptions<DataT, UpdateT>(
   reducer: (prev: DataT, update: UpdateT) => DataT,
-  items: Array<{ get(): DataT; set(value: DataT): void; observe(): Observable<UpdateT> }>
+  items: Array<{ get(): DataT; set(value: DataT): void; observe(): ObservableLike<UpdateT> }>
 ): DataT[] {
   const unfinishedFetches: Array<Promise<DataT>> = []
   const [, setRefreshCounter] = useDebouncedState(0, 100)
@@ -48,13 +44,15 @@ function useDataSubscriptions<DataT, UpdateT>(
 
   React.useEffect(() => {
     const subscriptions = items.map(item => {
-      return item.observe().subscribe(update => {
-        item.set(reducer(item.get(), update))
-        setRefreshCounter(counter => counter + 1)
+      return item.observe().subscribe({
+        next(update) {
+          item.set(reducer(item.get(), update))
+          setRefreshCounter(counter => counter + 1)
+        }
       })
     })
 
-    return () => subscriptions.forEach(subscription => subscription.unsubscribe())
+    return () => subscriptions.forEach(subscription => unsubscribe(subscription))
   }, [reducer, items])
 
   return currentDataSets as DataT[]
@@ -64,7 +62,7 @@ function useDataSubscription<DataT, UpdateT>(
   reducer: (prev: DataT, update: UpdateT) => DataT,
   get: () => DataT,
   set: (value: DataT) => void,
-  observe: () => Observable<UpdateT>
+  observe: () => ObservableLike<UpdateT>
 ): DataT {
   const items = React.useMemo(() => [{ get, set, observe }], [get, set, observe])
   return useDataSubscriptions(reducer, items)[0]
@@ -76,12 +74,13 @@ function applyAccountDataUpdate(prev: AccountData, next: AccountData): AccountDa
 }
 
 export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): AccountData[] {
-  const horizon = useHorizon(testnet)
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
 
   const items = React.useMemo(
     () =>
       accountIDs.map(accountID => {
-        const selector = [horizon, accountID] as const
+        const selector = [horizonURL, accountID] as const
         const prepare = (account: Horizon.AccountResponse | null) => {
           return account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
         }
@@ -90,18 +89,20 @@ export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): A
           get() {
             return (
               accountDataCache.get(selector) ||
-              accountDataCache.suspend(selector, () => fetchAccountData(horizon, accountID).then(prepare))
+              accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURL, accountID).then(prepare))
             )
           },
           set(updated: AccountData) {
             accountDataCache.set(selector, updated)
           },
           observe() {
-            return accountDataCache.observe(selector, () => subscribeToAccount(horizon, accountID).map(prepare))
+            return accountDataCache.observe(selector, () =>
+              netWorker.subscribeToAccount(horizonURL, accountID).map(prepare)
+            )
           }
         }
       }),
-    [accountIDs.join(","), horizon]
+    [accountIDs.join(","), horizonURL]
   )
 
   return useDataSubscriptions(applyAccountDataUpdate, items)
@@ -120,16 +121,17 @@ function applyAccountOffersUpdate(
 }
 
 export function useLiveAccountOffers(accountID: string, testnet: boolean): ServerApi.OfferRecord[] {
-  const horizon = useHorizon(testnet)
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
 
   const { get, set, observe } = React.useMemo(() => {
-    const selector = [horizon, accountID] as const
+    const selector = [horizonURL, accountID] as const
     return {
       get() {
         return (
           accountOpenOrdersCache.get(selector) ||
           accountOpenOrdersCache.suspend(selector, async () => {
-            const page = await fetchAccountOpenOrders(horizon, accountID)
+            const page = await netWorker.fetchAccountOpenOrders(horizonURL, accountID)
             return page._embedded.records
           })
         )
@@ -138,10 +140,10 @@ export function useLiveAccountOffers(accountID: string, testnet: boolean): Serve
         accountOpenOrdersCache.set(selector, updated)
       },
       observe() {
-        return subscribeToOpenOrders(horizon, accountID)
+        return netWorker.subscribeToOpenOrders(horizonURL, accountID)
       }
     }
-  }, [accountID, horizon])
+  }, [accountID, horizonURL])
 
   return useDataSubscription(applyAccountOffersUpdate, get, set, observe)
 }
@@ -149,19 +151,20 @@ export function useLiveAccountOffers(accountID: string, testnet: boolean): Serve
 type EffectHandler = (account: Account, effect: ServerApi.EffectRecord) => void
 
 export function useLiveAccountEffects(accounts: Account[], handler: EffectHandler) {
-  const mainnetHorizon = useHorizon(false)
-  const testnetHorizon = useHorizon(true)
+  const netWorker = useNetWorker()
+  const mainnetHorizonURL = useHorizonURL(false)
+  const testnetHorizonURL = useHorizonURL(true)
 
   React.useEffect(() => {
     const subscriptions = accounts.map(account => {
-      const horizon = account.testnet ? testnetHorizon : mainnetHorizon
-      const observable = subscribeToAccountEffects(horizon, account.publicKey)
+      const horizonURL = account.testnet ? testnetHorizonURL : mainnetHorizonURL
+      const observable = netWorker.subscribeToAccountEffects(horizonURL, account.publicKey)
       const subscription = observable.subscribe(effect => effect && handler(account, effect))
       return subscription
     })
 
     return () => subscriptions.forEach(subscription => subscription.unsubscribe())
-  }, [accounts, mainnetHorizon, testnetHorizon])
+  }, [accounts, mainnetHorizonURL, testnetHorizonURL])
 }
 
 function applyOrderbookUpdate(prev: FixedOrderbookRecord, next: FixedOrderbookRecord) {
@@ -170,25 +173,28 @@ function applyOrderbookUpdate(prev: FixedOrderbookRecord, next: FixedOrderbookRe
 }
 
 export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean): FixedOrderbookRecord {
-  const horizon = useHorizon(testnet)
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
 
   const { get, set, observe } = React.useMemo(() => {
-    const selector = [horizon, selling, buying] as const
+    const selector = [horizonURL, selling, buying] as const
     return {
       get() {
         return (
           orderbookCache.get(selector) ||
-          orderbookCache.suspend(selector, () => fetchOrderbookRecord(horizon, selling, buying))
+          orderbookCache.suspend(selector, () =>
+            netWorker.fetchOrderbookRecord(horizonURL, stringifyAsset(selling), stringifyAsset(buying))
+          )
         )
       },
       set(updated: FixedOrderbookRecord) {
         orderbookCache.set(selector, updated)
       },
       observe() {
-        return subscribeToOrderbook(horizon, selling, buying)
+        return netWorker.subscribeToOrderbook(horizonURL, stringifyAsset(selling), stringifyAsset(buying))
       }
     }
-  }, [horizon, stringifyAsset(selling), stringifyAsset(buying)])
+  }, [horizonURL, stringifyAsset(selling), stringifyAsset(buying)])
 
   return useDataSubscription(applyOrderbookUpdate, get, set, observe)
 }
@@ -205,18 +211,19 @@ const createAccountTransactionsUpdateReducer = (testnet: boolean) => (
 }
 
 export function useLiveRecentTransactions(accountID: string, testnet: boolean): Transaction[] {
-  const horizon = useHorizon(testnet)
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
 
   const applyAccountTransactionsUpdate = React.useMemo(() => createAccountTransactionsUpdateReducer(testnet), [testnet])
 
   const { get, set, observe } = React.useMemo(() => {
-    const selector = [horizon, accountID] as const
+    const selector = [horizonURL, accountID] as const
     return {
       get() {
         return (
           accountTransactionsCache.get(selector) ||
           accountTransactionsCache.suspend(selector, async () => {
-            const page = await fetchAccountTransactions(horizon, accountID, { limit: 15, order: "desc" })
+            const page = await netWorker.fetchAccountTransactions(horizonURL, accountID, { limit: 15, order: "desc" })
             const txs = page._embedded.records.map(record => deserializeTx(record, testnet))
             return txs
           })
@@ -226,10 +233,10 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
         accountTransactionsCache.set(selector, updated)
       },
       observe() {
-        return subscribeToAccountTransactions(horizon, accountID)
+        return netWorker.subscribeToAccountTransactions(horizonURL, accountID)
       }
     }
-  }, [accountID, horizon])
+  }, [accountID, horizonURL])
 
   return useDataSubscription(applyAccountTransactionsUpdate, get, set, observe)
 }

@@ -149,9 +149,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onWithdraw={navigateTo.withdraw}
         showCloseButton={showAccountSettings}
       >
-        <React.Suspense fallback={<InlineLoader />}>
-          <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
-        </React.Suspense>
+        <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
         {isSmallScreen ? null : (
           <React.Suspense fallback={<InlineLoader />}>
             <AccountActions

@@ -67,7 +67,6 @@ const emptyContextValue: CacheContextType<any, any> = {
 }
 
 export const SigningKeyCacheContext = React.createContext<SigningKeyContextType>(emptyContextValue)
-export const StellarAccountDataCacheContext = React.createContext<StellarAccountDataContextType>(emptyContextValue)
 export const StellarAddressCacheContext = React.createContext<StellarAddressContextType>(emptyContextValue)
 export const StellarAddressReverseCacheContext = React.createContext<StellarAddressReverseContextType>(
   emptyContextValue
@@ -98,22 +97,6 @@ export function SigningKeyCachingProvider(props: Props) {
   )
   const contextValue = useCachingContext(cache)
   return <SigningKeyCacheContext.Provider value={contextValue}>{props.children}</SigningKeyCacheContext.Provider>
-}
-
-export function StellarAccountDataCachingProvider(props: Props) {
-  const cache = useSingleton(
-    () =>
-      new LRUCache<PublicKey, FetchState<AccountData>>({
-        max: 1000,
-        maxAge: 10 * 60 * 1000 // 10 mins
-      })
-  )
-  const contextValue = useCachingContext(cache)
-  return (
-    <StellarAccountDataCacheContext.Provider value={contextValue}>
-      {props.children}
-    </StellarAccountDataCacheContext.Provider>
-  )
 }
 
 export function StellarAddressesCachingProvider(props: Props) {
@@ -273,11 +256,9 @@ export function CachingProviders(props: Props) {
         <WellknownAccountsCachingProvider>
           <StellarAddressesCachingProvider>
             <StellarAddressesReverseCachingProvider>
-              <StellarAccountDataCachingProvider>
-                <StellarTomlCachingProvider>
-                  <WebAuthCachingProvider>{props.children}</WebAuthCachingProvider>
-                </StellarTomlCachingProvider>
-              </StellarAccountDataCachingProvider>
+              <StellarTomlCachingProvider>
+                <WebAuthCachingProvider>{props.children}</WebAuthCachingProvider>
+              </StellarTomlCachingProvider>
             </StellarAddressesReverseCachingProvider>
           </StellarAddressesCachingProvider>
         </WellknownAccountsCachingProvider>

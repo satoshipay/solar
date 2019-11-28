@@ -6,7 +6,7 @@ import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { hasSigned } from "../../lib/transaction"
-import { useHorizon } from "../../hooks/stellar"
+import { useHorizonURL } from "../../hooks/stellar"
 import { useLiveRecentTransactions, useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
@@ -59,7 +59,7 @@ function PendingMultisigTransactions(props: { account: Account }) {
 
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
-  const horizon = useHorizon(account.testnet)
+  const horizonURL = useHorizonURL(account.testnet)
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const router = useRouter()
@@ -92,7 +92,7 @@ function AccountTransactions(props: { account: Account }) {
             style={{ padding: "0 28px 30px", width: "fit-content" }}
           >
             {account.testnet ? (
-              <FriendbotButton horizon={horizon} publicKey={account.publicKey} style={{ marginBottom: 24 }} />
+              <FriendbotButton horizonURL={horizonURL} publicKey={account.publicKey} />
             ) : null}
             <MainSelectionButton
               Icon={CreditCardIcon}
