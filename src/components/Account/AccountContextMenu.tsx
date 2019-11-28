@@ -12,6 +12,7 @@ import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
 import { Account } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
 import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
 
@@ -56,7 +57,6 @@ const AccountContextMenuItem = React.memo(
 
 interface MenuProps {
   account: Account
-  activated: boolean
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
   onAccountSettings: () => void
   onDeposit: () => void
@@ -67,8 +67,9 @@ interface MenuProps {
 }
 
 function AccountContextMenu(props: MenuProps) {
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
-
+  const activated = accountData.balances.length > 0
   return (
     <ContextMenu
       anchor={props.children}
@@ -80,21 +81,21 @@ function AccountContextMenu(props: MenuProps) {
           open={open}
         >
           <AccountContextMenuItem
-            disabled={!props.activated}
+            disabled={!activated}
             icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
             label="Trade"
             onClick={closeAndCall(props.onTrade)}
           />
           <AccountContextMenuItem icon={<CallReceivedIcon />} label="Deposit" onClick={closeAndCall(props.onDeposit)} />
           <AccountContextMenuItem
-            disabled={!props.activated}
+            disabled={!activated}
             icon={<CallMadeIcon />}
             label="Withdraw"
             onClick={closeAndCall(props.onWithdraw)}
           />
           <Divider />
           <AccountContextMenuItem
-            disabled={!props.activated}
+            disabled={!activated}
             icon={<MoneyIcon />}
             label="Assets & Balances"
             onClick={closeAndCall(props.onManageAssets)}

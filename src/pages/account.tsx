@@ -12,6 +12,7 @@ import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
 import AccountSettings from "../components/AccountSettings/AccountSettings"
 import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
 import QRCodeIcon from "../components/Icon/QRCode"
+import InlineLoader from "../components/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import PaymentDialog from "../components/Payment/PaymentDialog"
@@ -148,14 +149,18 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onWithdraw={navigateTo.withdraw}
         showCloseButton={showAccountSettings}
       >
-        <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
+        <React.Suspense fallback={<InlineLoader />}>
+          <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
+        </React.Suspense>
         {isSmallScreen ? null : (
-          <AccountActions
-            account={props.account}
-            hidden={!showSendReceiveButtons}
-            onCreatePayment={navigateTo.createPayment}
-            onReceivePayment={navigateTo.receivePayment}
-          />
+          <React.Suspense fallback={<InlineLoader />}>
+            <AccountActions
+              account={props.account}
+              hidden={!showSendReceiveButtons}
+              onCreatePayment={navigateTo.createPayment}
+              onReceivePayment={navigateTo.receivePayment}
+            />
+          </React.Suspense>
         )}
       </AccountHeaderCard>
     ),
