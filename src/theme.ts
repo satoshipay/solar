@@ -35,9 +35,6 @@ const theme = createMuiTheme({
       required: false,
       shrink: true
     },
-    MuiList: {
-      className: "iphone-notch-bottom-spacing"
-    },
     MuiMenu: isSmallScreen
       ? {
           BackdropProps: {
@@ -261,7 +258,15 @@ const theme = createMuiTheme({
           right: "0 !important",
           top: "initial !important",
           maxWidth: "100vw",
-          position: "fixed"
+          position: "fixed",
+
+          // declaring these here because passing a className into MuiMenu-props does not work as the styles of that class are overridden several times
+          "&": {
+            // iOS 11
+            paddingBottom: "constant(safe-area-inset-bottom)"
+          },
+          // iOS 12
+          paddingBottom: "env(safe-area-inset-bottom)"
         }
       },
       list: {
