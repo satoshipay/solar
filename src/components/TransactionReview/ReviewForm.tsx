@@ -44,6 +44,7 @@ function TxConfirmationForm(props: Props) {
   const [dismissalConfirmationPending, setDismissalConfirmationPending] = React.useState(false)
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
+  const [loading, setLoading] = React.useState<boolean>(false)
 
   const passwordError = props.passwordError || errors.password
 
@@ -131,7 +132,13 @@ function TxConfirmationForm(props: Props) {
             </ActionButton>
           ) : null}
           {props.disabled ? null : (
-            <ActionButton icon={<CheckIcon />} form={formID} onClick={() => undefined} type="submit">
+            <ActionButton
+              icon={<CheckIcon />}
+              form={formID}
+              loading={loading}
+              onClick={() => setLoading(true)}
+              type="submit"
+            >
               Confirm
             </ActionButton>
           )}
