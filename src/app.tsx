@@ -67,9 +67,11 @@ const App = () => (
           </ErrorBoundary>
         </VerticalLayout>
       </VerticalLayout>
-      {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
-      <DesktopNotifications />
       <NotificationContainer />
+      <React.Suspense fallback={null}>
+        {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
+        <DesktopNotifications />
+      </React.Suspense>
       {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
       {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
     </>
