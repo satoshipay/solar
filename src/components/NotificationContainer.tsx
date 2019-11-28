@@ -46,7 +46,7 @@ const NotificationDetails = React.memo(function NotificationDetails(props: Notif
       }
     >
       <Box alignSelf="center" margin="24px auto 0" width="100%">
-        <Typography>{message}</Typography>
+        <Typography style={{ whiteSpace: "pre-wrap" }}>{message}</Typography>
       </Box>
       {props.showSupportEmail ? (
         <Box alignSelf="center" margin="36px auto 0" width="100%">
