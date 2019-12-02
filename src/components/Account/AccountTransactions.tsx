@@ -1,9 +1,6 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
-import Typography from "@material-ui/core/Typography"
 import DoneAllIcon from "@material-ui/icons/DoneAll"
 import CreditCardIcon from "@material-ui/icons/CreditCard"
-import Divider from "@material-ui/core/Divider"
 import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
@@ -13,13 +10,12 @@ import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
 import { useHorizon } from "../../hooks/stellar"
 import * as routes from "../../routes"
-import QRCodeIcon from "../Icon/QRCode"
-import { MinimumAccountBalance } from "../Fetchers"
+import MainSelectionButton from "../Form/MainSelectionButton"
+import { VerticalLayout } from "../Layout/Box"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import TransactionList from "./TransactionList"
 import TransactionListPlaceholder from "./TransactionListPlaceholder"
-import { VerticalLayout } from "../Layout/Box"
 import FriendbotButton from "./FriendbotButton"
 
 function PendingMultisigTransactions(props: { account: Account }) {
@@ -74,11 +70,6 @@ function AccountTransactions(props: { account: Account }) {
     router
   ])
 
-  const navigateToReceiveView = React.useCallback(() => router.history.push(routes.receivePayment(account.id)), [
-    account,
-    router
-  ])
-
   return (
     <>
       {recentTxs.loading ? (
@@ -97,33 +88,20 @@ function AccountTransactions(props: { account: Account }) {
         </>
       ) : (
         <>
-          <Typography align="center" color="textSecondary" style={{ margin: "30px auto", padding: "0 16px" }}>
-            Account not found on the network.
-            <br />
-            Fund it with at least <MinimumAccountBalance testnet={props.account.testnet} />
-            &nbsp;XLM.
-          </Typography>
-          <Divider style={{ marginTop: 30, marginBottom: 0 }} />
-          <VerticalLayout alignItems="stretch" margin="24px auto" style={{ paddingBottom: 30, width: "fit-content" }}>
+          <VerticalLayout
+            alignItems="stretch"
+            margin="32px auto"
+            style={{ padding: "0 28px 30px", width: "fit-content" }}
+          >
             {account.testnet ? (
-              <FriendbotButton horizon={horizon} publicKey={account.publicKey} variant="outlined" />
+              <FriendbotButton horizon={horizon} publicKey={account.publicKey} style={{ marginBottom: 24 }} />
             ) : null}
-            <Button
-              startIcon={<CreditCardIcon />}
+            <MainSelectionButton
+              Icon={CreditCardIcon}
+              description="Via credit card, bank transfer, etc."
+              label="Deposit funds"
               onClick={navigateToDeposit}
-              style={{ background: "white", marginTop: 16 }}
-              variant="outlined"
-            >
-              Fund your account
-            </Button>
-            <Button
-              onClick={navigateToReceiveView}
-              startIcon={<QRCodeIcon />}
-              style={{ background: "white", marginTop: 16 }}
-              variant="outlined"
-            >
-              Show public key
-            </Button>
+            />
           </VerticalLayout>
         </>
       )}

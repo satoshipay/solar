@@ -1,15 +1,16 @@
 import React from "react"
 import { Server } from "stellar-sdk"
-import Button, { ButtonProps } from "@material-ui/core/Button"
-import ButtonIconLabel from "../ButtonIconLabel"
+import CircularProgress from "@material-ui/core/CircularProgress"
+import ThumbUpIcon from "@material-ui/icons/ThumbUp"
 import { trackError } from "../../context/notifications"
 import { friendbotTopup } from "../../lib/stellar"
+import MainSelectionButton from "../Form/MainSelectionButton"
 
 interface Props {
-  color?: ButtonProps["color"]
+  className?: string
   horizon: Server
   publicKey: string
-  variant?: ButtonProps["variant"]
+  style?: React.CSSProperties
 }
 
 function FriendbotButton(props: Props) {
@@ -31,9 +32,14 @@ function FriendbotButton(props: Props) {
 
   return (
     // Extra padding especially for mobile
-    <Button color={props.color} onClick={topup} variant={props.variant}>
-      <ButtonIconLabel label="Ask the friendbot" loading={isPending} loaderColor="inherit" />
-    </Button>
+    <MainSelectionButton
+      Icon={isPending ? CircularProgress : ThumbUpIcon}
+      className={props.className}
+      description="Get some free testnet lumens"
+      label="Ask the friendbot"
+      onClick={topup}
+      style={props.style}
+    />
   )
 }
 
