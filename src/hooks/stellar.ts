@@ -14,6 +14,7 @@ import {
 import { StellarContext } from "../context/stellar"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FetchState } from "../lib/async"
+import { stringifyAsset } from "../lib/stellar"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
 import { workers } from "../worker-controller"
@@ -87,10 +88,10 @@ export function useWebAuth() {
 }
 
 const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
+const createFetchStateCacheKey = (state: FetchState<any> | undefined) => (state ? state.state : "-")
 
 export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml, boolean]> {
   const stellarTomls = React.useContext(StellarTomlCacheContext)
-  const resultMap = new Map<string, [StellarToml, boolean]>()
 
   React.useEffect(() => {
     for (const domain of domains) {
@@ -114,21 +115,25 @@ export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml
     }
   }, [domains.join(","), stellarTomls])
 
-  for (const domain of domains) {
-    const cached = stellarTomls.cache.get(domain)
+  return React.useMemo(() => {
+    const resultMap = new Map<string, [StellarToml, boolean]>()
 
-    if (cached && cached.state === "resolved") {
-      resultMap.set(domain, [cached.data, false])
-    } else if (cached && cached.state === "rejected") {
-      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, false])
-    } else {
-      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, true])
+    for (const domain of domains) {
+      const cached = stellarTomls.cache.get(domain)
+
+      if (cached && cached.state === "resolved") {
+        resultMap.set(domain, [cached.data, false])
+      } else if (cached && cached.state === "rejected") {
+        const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+        resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, false])
+      } else {
+        const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+        resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, true])
+      }
     }
-  }
 
-  return resultMap
+    return resultMap
+  }, [domains.join(","), domains.map(domain => createFetchStateCacheKey(stellarTomls.cache.get(domain))).join(",")])
 }
 
 export function useStellarToml(domain: string | null | undefined): [StellarToml | undefined, boolean] {
@@ -180,27 +185,30 @@ export function useAssetMetadata(assets: Asset[], testnet: boolean) {
     .map(accountData => accountData.home_domain)
     .filter((domain): domain is string => Boolean(domain))
 
-  const resultMap = new WeakMap<Asset, [StellarTomlCurrency | undefined, boolean]>()
   const stellarTomlFiles = useStellarTomlFiles(domains)
 
-  for (const asset of assets) {
-    const assetCode = asset.isNative() ? undefined : asset.getCode()
-    const issuerAccountID = asset.isNative() ? undefined : asset.getIssuer()
-    const accountData = issuerAccountID
-      ? accountDataSet.find(someAccountData => someAccountData.account_id === issuerAccountID)
-      : undefined
-    const domain = accountData ? accountData.home_domain : undefined
-    const [stellarTomlData, loading] = domain ? stellarTomlFiles.get(domain)! : [undefined, false]
+  return React.useMemo(() => {
+    const resultMap = new WeakMap<Asset, [StellarTomlCurrency | undefined, boolean]>()
 
-    const assetMetadata =
-      stellarTomlData && stellarTomlData["CURRENCIES"] && Array.isArray(stellarTomlData["CURRENCIES"])
-        ? stellarTomlData["CURRENCIES"].find(
-            (currency: any) => currency.code === assetCode && currency.issuer === issuerAccountID
-          )
+    for (const asset of assets) {
+      const assetCode = asset.isNative() ? undefined : asset.getCode()
+      const issuerAccountID = asset.isNative() ? undefined : asset.getIssuer()
+      const accountData = issuerAccountID
+        ? accountDataSet.find(someAccountData => someAccountData.account_id === issuerAccountID)
         : undefined
+      const domain = accountData ? accountData.home_domain : undefined
+      const [stellarTomlData, loading] = domain ? stellarTomlFiles.get(domain)! : [undefined, false]
 
-    resultMap.set(asset, [assetMetadata, loading])
-  }
+      const assetMetadata =
+        stellarTomlData && stellarTomlData["CURRENCIES"] && Array.isArray(stellarTomlData["CURRENCIES"])
+          ? stellarTomlData["CURRENCIES"].find(
+              (currency: any) => currency.code === assetCode && currency.issuer === issuerAccountID
+            )
+          : undefined
 
-  return resultMap
+      resultMap.set(asset, [assetMetadata, loading])
+    }
+
+    return resultMap
+  }, [assets.map(stringifyAsset).join(","), stellarTomlFiles])
 }
