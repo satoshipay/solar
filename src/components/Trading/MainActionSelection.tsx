@@ -1,5 +1,5 @@
 import React from "react"
-import ButtonBase from "@material-ui/core/ButtonBase"
+import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
@@ -10,22 +10,16 @@ import theme from "../../theme"
 
 const useMainActionButtonStyles = makeStyles({
   root: {
-    alignItems: "flex-start",
-    backgroundColor: theme.palette.background.paper,
-    border: `1px solid ${theme.palette.grey["200"]}`,
-    borderRadius: theme.shape.borderRadius,
-    boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    flexDirection: "column",
     maxWidth: 380,
     padding: "16px 24px",
     position: "relative",
-    textAlign: "left",
-    transition: `background-color ${theme.transitions.duration.short}ms`,
-
-    "&:hover": {
-      backgroundColor: theme.palette.action.hover
-    }
+    textAlign: "left"
+  },
+  buttonLabel: {
+    alignItems: "flex-start",
+    display: "flex",
+    flexDirection: "column",
+    textTransform: "initial"
   },
   description: {
     fontSize: 16,
@@ -68,7 +62,12 @@ function MainActionButton(props: MainActionButtonProps) {
   const classes = useMainActionButtonStyles()
   const Icon = props.Icon || ArrowRightIcon
   return (
-    <ButtonBase className={`${classes.root} ${props.className}`} onClick={props.onClick} style={props.style}>
+    <Button
+      classes={{ root: `${classes.root} ${props.className}`, label: classes.buttonLabel }}
+      onClick={props.onClick}
+      style={props.style}
+      variant="outlined"
+    >
       <Typography className={classes.heading} variant="h6">
         {props.label}
       </Typography>
@@ -76,7 +75,7 @@ function MainActionButton(props: MainActionButtonProps) {
         {props.description}
       </Typography>
       <Icon className={classes.icon} />
-    </ButtonBase>
+    </Button>
   )
 }
 
