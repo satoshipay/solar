@@ -92,16 +92,18 @@ function DialogBody(props: Props) {
   return (
     <ErrorBoundary>
       <Section
+        alignItems="stretch"
         brandColored={props.brandColored}
         backgroundColor={props.backgroundColor}
-        width="100%"
+        display="flex"
         height="100%"
+        margin="0 auto"
         maxWidth={900}
-        alignItems="stretch"
         overflowX="hidden"
         padding={isSmallScreen ? "12px 24px" : "24px 32px"}
-        margin="0 auto"
+        style={{ flexDirection: "column" }}
         top
+        width="100%"
       >
         <React.Suspense fallback={<CircularProgress style={{ alignSelf: "center", justifySelf: "center" }} />}>
           {topContent}
