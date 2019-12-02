@@ -5,16 +5,16 @@ import Typography from "@material-ui/core/Typography"
 import { CloseButton, DialogActionsBox } from "./Dialog/Generic"
 import ErrorIcon from "./Icon/Error"
 import SuccessIcon from "./Icon/Success"
-import { AspectRatioBox, VerticalLayout } from "./Layout/Box"
+import { Box, VerticalLayout } from "./Layout/Box"
 import { explainSubmissionError } from "../lib/horizonErrors"
 
 function Container(props: { children: React.ReactNode }) {
   return (
-    <AspectRatioBox width="250px" maxWidth="40vw" ratio="3:2">
+    <Box width="250px" maxWidth="40vw" height="100%">
       <VerticalLayout padding={10} height="100%" alignItems="center" justifyContent="center">
         {props.children}
       </VerticalLayout>
-    </AspectRatioBox>
+    </Box>
   )
 }
 
@@ -50,7 +50,7 @@ function SubmissionProgress(props: SubmissionProgressProps) {
       promise={props.promise}
       pending={
         <Container>
-          <CircularProgress size={70} style={{ marginTop: 10, marginBottom: 20 }} />
+          <CircularProgress size={70} />
           <Heading>Submitting to network...</Heading>
         </Container>
       }
