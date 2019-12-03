@@ -1,7 +1,7 @@
 import "eventsource"
 import PromiseQueue from "p-queue"
 import qs from "qs"
-import { Asset, Horizon, ServerApi } from "stellar-sdk"
+import { Asset, FederationServer, Horizon, ServerApi } from "stellar-sdk"
 import { map, Observable } from "@andywer/observable-fns"
 import pkg from "../../../package.json"
 import { Cancellation } from "../../lib/errors"
@@ -85,6 +85,10 @@ export async function checkHorizonOrFailover(primaryHorizonURL: string, secondar
 
   const secondaryResponse = await fetch(secondaryHorizonURL)
   return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
+}
+
+export function resolveStellarAddress(address: string, options?: FederationServer.Options) {
+  return FederationServer.resolve(address, options)
 }
 
 async function waitForAccountDataUncached(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
