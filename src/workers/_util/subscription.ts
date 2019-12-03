@@ -89,7 +89,7 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
             unsubscribe()
 
             // Re-initialize stream
-            setup().catch(error => observer.error(error))
+            setup().catch(reinitError => observer.error(reinitError))
           },
           () => {
             observer.complete()
