@@ -1,6 +1,6 @@
 // tslint:disable:no-shadowed-variable
 
-import { StellarTomlResolver } from "stellar-sdk"
+import { FederationServer, StellarTomlResolver } from "stellar-sdk"
 import { AccountRecord } from "../../lib/stellar-expert"
 import { AssetRecord } from "../../lib/stellar-ticker"
 
@@ -59,4 +59,8 @@ export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
 
 export function fetchStellarToml(domain: string): Promise<any> {
   return StellarTomlResolver.resolve(domain)
+}
+
+export function resolveStellarAddress(address: string, options?: FederationServer.Options) {
+  return FederationServer.resolve(address, options)
 }

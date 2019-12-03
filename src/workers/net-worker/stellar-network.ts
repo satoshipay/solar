@@ -1,7 +1,7 @@
 import "eventsource"
 import PromiseQueue from "p-queue"
 import qs from "qs"
-import { Asset, FederationServer, Horizon, ServerApi } from "stellar-sdk"
+import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { map, Observable } from "@andywer/observable-fns"
 import pkg from "../../../package.json"
 import { Cancellation } from "../../lib/errors"
@@ -87,8 +87,17 @@ export async function checkHorizonOrFailover(primaryHorizonURL: string, secondar
   return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
 }
 
-export function resolveStellarAddress(address: string, options?: FederationServer.Options) {
-  return FederationServer.resolve(address, options)
+export async function submitTransaction(horizonURL: string, txEnvelopeXdr: string) {
+  const url = new URL(`/transactions`, horizonURL)
+
+  const response = await fetch(String(url) + "?" + qs.stringify({ tx: txEnvelopeXdr }), {
+    method: "POST"
+  })
+
+  return {
+    status: response.status,
+    data: await response.json()
+  }
 }
 
 async function waitForAccountDataUncached(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
