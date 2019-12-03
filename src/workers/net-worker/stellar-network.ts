@@ -466,12 +466,38 @@ export async function fetchLatestAccountEffect(horizonURL: string, accountID: st
   return parseJSONResponse<ServerApi.EffectRecord>(response)
 }
 
-export async function fetchAccountTransactions(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
+export interface FetchTransactionsOptions extends PaginationOptions {
+  emptyOn404?: boolean
+}
+
+export async function fetchAccountTransactions(
+  horizonURL: string,
+  accountID: string,
+  options: FetchTransactionsOptions = {}
+): Promise<CollectionPage<Horizon.TransactionResponse>> {
   const url = new URL(`/accounts/${accountID}/transactions?${qs.stringify(identification)}`, horizonURL)
+  const pagination = {
+    cursor: options.cursor,
+    limit: options.limit,
+    order: options.order
+  }
   const response = await fetchQueue.add(
-    () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...options })),
+    () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...pagination })),
     { priority: 1 }
   )
+
+  if (response.status === 404 && options.emptyOn404) {
+    return {
+      _links: {
+        next: { href: String(url) },
+        prev: { href: String(url) },
+        self: { href: String(url) }
+      },
+      _embedded: {
+        records: []
+      }
+    }
+  }
 
   return parseJSONResponse<CollectionPage<Horizon.TransactionResponse>>(response)
 }
