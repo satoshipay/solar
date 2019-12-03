@@ -43,7 +43,6 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
   const onDelete = () => {
     deleteAccount(props.account.id)
-    // FIXME: closeAccountSubscriptions(props.horizon, props.account.publicKey)
     props.onClose()
     props.onDeleted()
   }

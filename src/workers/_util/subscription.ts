@@ -81,12 +81,22 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
 
         const subscription = implementation.subscribeToUpdates().subscribe(
           update => {
-            // tslint:disable-next-line no-console
             fetchAndApplyUpdate(update).catch(handleUnexpectedError)
             interval.reset()
           },
-          error => observer.error(error),
-          () => observer.complete()
+          error => {
+            observer.error(error)
+            unsubscribe()
+
+            // Re-initialize stream
+            setup().catch(error => observer.error(error))
+          },
+          () => {
+            observer.complete()
+            unsubscribe()
+
+            // We assume the source entity we subscribed to does not exist anymore
+          }
         )
 
         unsubscribe = () => {

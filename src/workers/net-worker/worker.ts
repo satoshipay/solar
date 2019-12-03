@@ -3,7 +3,6 @@ import * as multisig from "./multisig"
 import * as ecosystem from "./stellar-ecosystem"
 import * as network from "./stellar-network"
 
-// TODO: closeAccountSubscriptions()
 // TODO: resetAllSubscriptions() (or move the logic that triggers it here, too)
 // TODO: SEP-10 web auth
 

@@ -187,6 +187,10 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
               const effect: ServerApi.EffectRecord = JSON.parse(message.data)
               latestCursor = effect.paging_token
               observer.next(effect)
+
+              if (effect.type === "account_removed" && effect.account === accountID) {
+                observer.complete()
+              }
             },
             onUnexpectedError(error) {
               observer.error(error)
