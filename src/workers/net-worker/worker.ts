@@ -4,6 +4,8 @@ import * as ecosystem from "./stellar-ecosystem"
 import * as network from "./stellar-network"
 
 // TODO: resetAllSubscriptions() (or move the logic that triggers it here, too)
+// TODO: selectTransactionFeeWithFallback(), horizon.fetchTimebounds() (see createTransaction())
+// TODO: submitTransaction()
 // TODO: SEP-10 web auth
 
 const netWorker = {
