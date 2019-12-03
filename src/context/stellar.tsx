@@ -1,22 +1,7 @@
-import fetch from "isomorphic-fetch"
 import React from "react"
 import { Server } from "stellar-sdk"
+import { workers } from "../worker-controller"
 import { trackError } from "./notifications"
-
-async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
-  try {
-    const primaryResponse = await fetch(primaryHorizonURL)
-    if (primaryResponse.ok) {
-      return primaryHorizonURL
-    }
-  } catch (error) {
-    // tslint:disable-next-line
-    console.error(error)
-  }
-
-  const secondaryResponse = await fetch(secondaryHorizonURL)
-  return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
-}
 
 interface Props {
   children: React.ReactNode
@@ -41,9 +26,14 @@ export function StellarProvider(props: Props) {
     let cancelled = false
 
     const init = async () => {
+      const { netWorker } = await workers
+
       const [horizonLivenetURL, horizonTestnetURL] = await Promise.all([
-        checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
-        checkHorizonOrFailover("https://stellar-horizon-testnet.satoshipay.io/", "https://horizon-testnet.stellar.org")
+        netWorker.checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
+        netWorker.checkHorizonOrFailover(
+          "https://stellar-horizon-testnet.satoshipay.io/",
+          "https://horizon-testnet.stellar.org"
+        )
       ])
 
       if (!cancelled) {

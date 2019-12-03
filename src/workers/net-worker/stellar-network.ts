@@ -72,6 +72,21 @@ function cachify<T, Args extends any[]>(
   }
 }
 
+export async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
+  try {
+    const primaryResponse = await fetch(primaryHorizonURL)
+    if (primaryResponse.ok) {
+      return primaryHorizonURL
+    }
+  } catch (error) {
+    // tslint:disable-next-line no-console
+    console.error(error)
+  }
+
+  const secondaryResponse = await fetch(secondaryHorizonURL)
+  return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
+}
+
 async function waitForAccountDataUncached(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
   let accountData = null
   let initialFetchFailed = false
