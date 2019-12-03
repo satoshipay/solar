@@ -7,6 +7,7 @@ import { Account } from "../context/accounts"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
+import { mapSuspendables } from "../lib/suspense"
 import { accountDataCache, accountOpenOrdersCache, accountTransactionsCache, orderbookCache } from "./_caches"
 import { useHorizonURL } from "./stellar"
 import { useDebouncedState } from "./util"
@@ -26,17 +27,7 @@ function useDataSubscriptions<DataT, UpdateT>(
   const unfinishedFetches: Array<Promise<DataT>> = []
   const [, setRefreshCounter] = useDebouncedState(0, 100)
 
-  const currentDataSets = items.map(item => {
-    try {
-      return item.get()
-    } catch (thrown) {
-      if (thrown instanceof Promise) {
-        unfinishedFetches.push(thrown)
-      } else {
-        throw thrown
-      }
-    }
-  })
+  const currentDataSets = mapSuspendables(items, item => item.get())
 
   if (unfinishedFetches.length > 0) {
     throw unfinishedFetches.length === 1 ? unfinishedFetches[0] : Promise.all(unfinishedFetches)

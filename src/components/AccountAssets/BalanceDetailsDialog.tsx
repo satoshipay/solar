@@ -8,7 +8,6 @@ import List from "@material-ui/core/List"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
-import { useAssetMetadata } from "../../hooks/stellar"
 import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { AccountData } from "../../lib/account"
 import { matchesRoute } from "../../lib/routes"
@@ -41,11 +40,9 @@ interface TrustedAssetsProps {
 }
 
 const TrustedAssets = React.memo(function TrustedAssets(props: TrustedAssetsProps) {
-  const assetMetadata = useAssetMetadata(props.assets, props.account.testnet)
   return (
     <>
       {props.assets.map(asset => {
-        const [metadata] = assetMetadata.get(asset) || [undefined, false]
         const balance = props.accountData.balances.find(bal => isAssetMatchingBalance(asset, bal))
         const openOffers = props.openOffers.filter(
           offer =>
@@ -55,7 +52,6 @@ const TrustedAssets = React.memo(function TrustedAssets(props: TrustedAssetsProp
         return (
           <BalanceDetailsListItem
             key={stringifyAsset(asset)}
-            assetMetadata={metadata}
             badgeCount={openOffers.length}
             balance={balance!}
             onClick={() => props.onOpenAssetDetails(asset)}

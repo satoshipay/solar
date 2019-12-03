@@ -14,14 +14,11 @@ import {
 import { StellarContext } from "../context/stellar"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FetchState } from "../lib/async"
-import { stringifyAsset } from "../lib/stellar"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
 import { workers } from "../worker-controller"
-import { accountDataCache } from "./_caches"
+import { accountDataCache, accountHomeDomainCache } from "./_caches"
 import { useNetWorker } from "./workers"
-
-const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
 /** @deprecated */
 export function useHorizon(testnet: boolean = false) {
@@ -88,127 +85,113 @@ export function useWebAuth() {
 }
 
 const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
-const createFetchStateCacheKey = (state: FetchState<any> | undefined) => (state ? state.state : "-")
 
-export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml, boolean]> {
+export function useStellarToml(domain: string | undefined): StellarToml | undefined {
   const stellarTomls = React.useContext(StellarTomlCacheContext)
 
   React.useEffect(() => {
-    for (const domain of domains) {
-      // This is semantically different from `.filter()`-ing the domains before the loop,
-      // since this will prevent double-fetching from domains that were part of this iteration
-      if (stellarTomls.cache.has(domain)) {
-        continue
-      }
-
-      stellarTomls.store(domain, FetchState.pending())
-
-      workers
-        .then(({ netWorker }) => netWorker.fetchStellarToml(domain))
-        .then(stellarTomlData => {
-          stellarTomls.store(domain, FetchState.resolved(stellarTomlData))
-          localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
-        })
-        .catch(error => {
-          stellarTomls.store(domain, FetchState.rejected(error))
-        })
-    }
-  }, [domains.join(","), stellarTomls])
-
-  return React.useMemo(() => {
-    const resultMap = new Map<string, [StellarToml, boolean]>()
-
-    for (const domain of domains) {
-      const cached = stellarTomls.cache.get(domain)
-
-      if (cached && cached.state === "resolved") {
-        resultMap.set(domain, [cached.data, false])
-      } else if (cached && cached.state === "rejected") {
-        const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-        resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, false])
-      } else {
-        const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-        resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, true])
-      }
+    // This is semantically different from `.filter()`-ing the domains before the loop,
+    // since this will prevent double-fetching from domains that were part of this iteration
+    if (!domain || stellarTomls.cache.has(domain)) {
+      return
     }
 
-    return resultMap
-  }, [domains.join(","), domains.map(domain => createFetchStateCacheKey(stellarTomls.cache.get(domain))).join(",")])
-}
+    stellarTomls.store(domain, FetchState.pending())
 
-export function useStellarToml(domain: string | null | undefined): [StellarToml | undefined, boolean] {
-  const tomlFiles = useStellarTomlFiles(domain ? [domain] : [])
-  return domain ? tomlFiles.get(domain)! : [undefined, false]
-}
+    workers
+      .then(({ netWorker }) => netWorker.fetchStellarToml(domain))
+      .then(stellarTomlData => {
+        stellarTomls.store(domain, FetchState.resolved(stellarTomlData))
+        localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
+      })
+      .catch(error => {
+        stellarTomls.store(domain, FetchState.rejected(error))
+      })
+  }, [domain, stellarTomls])
 
-function useAccountDataSet(horizonURL: string, accountIDs: string[]): AccountData[] {
-  const netWorker = useNetWorker()
-  const pendingFetches: Array<Promise<any>> = []
-
-  const issuerAccounts = accountIDs.map(
-    (accountID: string): AccountData => {
-      const selector = [horizonURL, accountID] as const
-      const cached = accountDataCache.get(selector)
-
-      const prepare = (account: Horizon.AccountResponse | null): AccountData =>
-        account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
-
-      if (!cached) {
-        try {
-          accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURL, accountID).then(prepare))
-        } catch (promise) {
-          pendingFetches.push(promise)
-        }
-      }
-      return cached || createEmptyAccountData(accountID)
-    }
-  )
-
-  if (pendingFetches.length > 0) {
-    throw pendingFetches.length === 1 ? pendingFetches[0] : Promise.all(pendingFetches)
+  if (!domain) {
+    return undefined
   }
 
-  return issuerAccounts
+  const cached = stellarTomls.cache.get(domain)
+
+  if (cached && cached.state === "resolved") {
+    return cached.data
+  } else if (cached && cached.state === "rejected") {
+    const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+    return persistentlyCached ? JSON.parse(persistentlyCached) : undefined
+  } else {
+    const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+    return persistentlyCached ? JSON.parse(persistentlyCached) : undefined
+  }
 }
 
-export function useAccountData(publicKey: string, testnet: boolean) {
+export function useAccountData(accountID: string, testnet: boolean) {
   const horizonURL = useHorizonURL(testnet)
-  return useAccountDataSet(horizonURL, [publicKey])[0]
+  const netWorker = useNetWorker()
+
+  const selector = [horizonURL, accountID] as const
+  const cached = accountDataCache.get(selector)
+
+  const prepare = (account: Horizon.AccountResponse | null): AccountData =>
+    account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
+
+  if (!cached) {
+    accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURL, accountID).then(prepare))
+  }
+  return cached || createEmptyAccountData(accountID)
 }
 
-export function useAssetMetadata(assets: Asset[], testnet: boolean) {
+function useAccountHomeDomain(accountID: string | undefined, testnet: boolean, allowIncompleteResult?: boolean) {
   const horizonURL = useHorizonURL(testnet)
-  const issuerAccountIDs = dedupe(assets.filter(asset => !asset.isNative()).map(asset => asset.getIssuer()))
-  const accountDataSet = useAccountDataSet(horizonURL, issuerAccountIDs)
+  const netWorker = useNetWorker()
+  const [, setRerenderCounter] = React.useState(0)
 
-  const domains = accountDataSet
-    .map(accountData => accountData.home_domain)
-    .filter((domain): domain is string => Boolean(domain))
+  const forceRerender = () => setRerenderCounter(counter => counter + 1)
+  const selector = accountID ? ([horizonURL, accountID] as const) : undefined
 
-  const stellarTomlFiles = useStellarTomlFiles(domains)
-
-  return React.useMemo(() => {
-    const resultMap = new WeakMap<Asset, [StellarTomlCurrency | undefined, boolean]>()
-
-    for (const asset of assets) {
-      const assetCode = asset.isNative() ? undefined : asset.getCode()
-      const issuerAccountID = asset.isNative() ? undefined : asset.getIssuer()
-      const accountData = issuerAccountID
-        ? accountDataSet.find(someAccountData => someAccountData.account_id === issuerAccountID)
-        : undefined
-      const domain = accountData ? accountData.home_domain : undefined
-      const [stellarTomlData, loading] = domain ? stellarTomlFiles.get(domain)! : [undefined, false]
-
-      const assetMetadata =
-        stellarTomlData && stellarTomlData["CURRENCIES"] && Array.isArray(stellarTomlData["CURRENCIES"])
-          ? stellarTomlData["CURRENCIES"].find(
-              (currency: any) => currency.code === assetCode && currency.issuer === issuerAccountID
-            )
-          : undefined
-
-      resultMap.set(asset, [assetMetadata, loading])
+  if (!accountID || !selector) {
+    return undefined
+  } else if (accountHomeDomainCache.has(selector)) {
+    return accountHomeDomainCache.get(selector)
+  } else {
+    try {
+      accountHomeDomainCache.suspend([horizonURL, accountID], async () => {
+        const accountData = await netWorker.fetchAccountData(horizonURL, accountID)
+        const homeDomain = accountData ? (accountData as any).home_domain : undefined
+        if (homeDomain) {
+          localStorage.setItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`, homeDomain)
+        }
+        if (allowIncompleteResult) {
+          forceRerender()
+        }
+        return homeDomain
+      })
+    } catch (thrown) {
+      if (allowIncompleteResult && thrown && typeof thrown.then === "function") {
+        const persistentlyCached = localStorage.getItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`)
+        if (persistentlyCached) {
+          return persistentlyCached
+        }
+      }
+      throw thrown
     }
+    return undefined
+  }
+}
 
-    return resultMap
-  }, [assets.map(stringifyAsset).join(","), stellarTomlFiles])
+export function useAssetMetadata(asset: Asset | undefined, testnet: boolean): StellarTomlCurrency | undefined {
+  const assetCode = !asset || asset.isNative() ? undefined : asset.getCode()
+  const issuerAccountID = !asset || asset.isNative() ? undefined : asset.getIssuer()
+  const homeDomain = useAccountHomeDomain(issuerAccountID, testnet, true)
+  const stellarTomlData = useStellarToml(homeDomain)
+
+  if (stellarTomlData && stellarTomlData["CURRENCIES"] && Array.isArray(stellarTomlData["CURRENCIES"])) {
+    const assetMetadata = stellarTomlData["CURRENCIES"].find(
+      (currency: any) => currency.code === assetCode && currency.issuer === issuerAccountID
+    )
+    return assetMetadata
+  } else {
+    return undefined
+  }
 }

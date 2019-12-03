@@ -20,6 +20,9 @@ function createCache<SelectorT, DataT, UpdateT>(
     get(selector: SelectorT) {
       return values.get(createCacheKey(selector))
     },
+    has(selector: SelectorT) {
+      return values.has(createCacheKey(selector))
+    },
     set(selector: SelectorT, value: DataT) {
       const cacheKey = createCacheKey(selector)
       const cached = values.get(cacheKey)
@@ -84,6 +87,12 @@ function areTransactionsNewer(prev: Transaction[], next: Transaction[]) {
 }
 
 export const accountDataCache = createCache<readonly [string, string], AccountData, AccountData>(createAccountCacheKey)
+
+export const accountHomeDomainCache = createCache<
+  readonly [string, string],
+  AccountData["home_domain"],
+  AccountData["home_domain"]
+>(createAccountCacheKey)
 
 export const accountOpenOrdersCache = createCache<
   readonly [string, string],

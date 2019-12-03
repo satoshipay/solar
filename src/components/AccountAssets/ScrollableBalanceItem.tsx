@@ -1,9 +1,9 @@
 import { Horizon } from "stellar-sdk"
 import React from "react"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import { breakpoints } from "../../theme"
+import { useAssetMetadata } from "../../hooks/stellar"
 import { balancelineToAsset } from "../../lib/stellar"
-import { StellarTomlCurrency } from "../../types/stellar-toml"
+import { breakpoints } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 import AssetLogo from "./AssetLogo"
 
@@ -108,15 +108,16 @@ const useBalanceItemStyles = makeStyles({
 })
 
 interface BalanceItemProps {
-  assetMetadata?: StellarTomlCurrency
   balance: Horizon.BalanceLine
   compact?: boolean
   onClick?: () => void
+  testnet: boolean
 }
 
 function BalanceItem(props: BalanceItemProps, ref: React.Ref<any>) {
   const classes = useBalanceItemStyles()
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
+  const assetMetadata = useAssetMetadata(asset, props.testnet)
 
   return (
     <div
@@ -124,11 +125,7 @@ function BalanceItem(props: BalanceItemProps, ref: React.Ref<any>) {
       onClick={props.onClick}
       ref={ref}
     >
-      <AssetLogo
-        asset={asset}
-        className={classes.logo}
-        imageURL={props.assetMetadata ? props.assetMetadata.image : undefined}
-      />
+      <AssetLogo asset={asset} className={classes.logo} imageURL={assetMetadata ? assetMetadata.image : undefined} />
       <div className={classes.balance}>
         <span className={classes.assetCode}>
           {props.balance.asset_type === "native" ? "XLM" : props.balance.asset_code}

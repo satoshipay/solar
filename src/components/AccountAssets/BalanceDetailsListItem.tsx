@@ -5,9 +5,9 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
+import { useAssetMetadata } from "../../hooks/stellar"
 import { balancelineToAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
-import { StellarTomlCurrency } from "../../types/stellar-toml"
 import { SingleBalance } from "../Account/AccountBalances"
 import { AccountName } from "../Fetchers"
 import AssetLogo from "./AssetLogo"
@@ -82,7 +82,6 @@ const useBalanceItemStyles = makeStyles({
 })
 
 interface BalanceListItemProps {
-  assetMetadata?: StellarTomlCurrency
   badgeCount?: number
   balance: Horizon.BalanceLine
   className?: string
@@ -99,6 +98,7 @@ function BalanceListItem(props: BalanceListItemProps) {
   const className = `${props.className || ""} ${props.onClick ? classes.clickable : ""}`
 
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
+  const assetMetadata = useAssetMetadata(asset, props.testnet)
 
   const balance = React.useMemo(
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
@@ -136,7 +136,7 @@ function BalanceListItem(props: BalanceListItemProps) {
     )
   }
 
-  const assetName = (props.assetMetadata && props.assetMetadata.name) || props.balance.asset_code
+  const assetName = (assetMetadata && assetMetadata.name) || props.balance.asset_code
   const title =
     assetName !== props.balance.asset_code ? `${assetName} (${props.balance.asset_code})` : props.balance.asset_code
 
@@ -148,7 +148,7 @@ function BalanceListItem(props: BalanceListItemProps) {
             asset={asset}
             className={`${classes.logo} ${props.hideLogo ? classes.logoHidden : ""}`}
             dark
-            imageURL={props.assetMetadata && props.assetMetadata.image}
+            imageURL={assetMetadata && assetMetadata.image}
           />
         </Badge>
       </ListItemIcon>

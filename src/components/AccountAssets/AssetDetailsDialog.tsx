@@ -96,7 +96,7 @@ interface AssetDetailProps {
 
 const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata }: AssetDetailProps) {
   const issuingAccountData = useAccountData(asset.issuer, account.testnet)
-  const [stellarToml] = useStellarToml(issuingAccountData.home_domain)
+  const stellarToml = useStellarToml(issuingAccountData.home_domain)
 
   const classes = useDetailContentStyles()
   const clipboard = useClipboard()
@@ -338,8 +338,7 @@ function AssetDetailsDialog(props: Props) {
       : bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code
   )
 
-  const metadataMap = useAssetMetadata([asset], props.account.testnet)
-  const [metadata] = metadataMap.get(asset) || [undefined, false]
+  const metadata = useAssetMetadata(asset, props.account.testnet)
 
   const dialogActions = React.useMemo(
     () => (asset.isNative() ? null : <AssetDetailsActions account={props.account} asset={asset} />),

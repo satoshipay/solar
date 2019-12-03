@@ -7,7 +7,6 @@ import makeStyles from "@material-ui/core/styles/makeStyles"
 import LeftIcon from "@material-ui/icons/ArrowLeft"
 import RightIcon from "@material-ui/icons/ArrowRight"
 import { Account } from "../../context/accounts"
-import { useAssetMetadata } from "../../hooks/stellar"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { stringifyAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
@@ -142,7 +141,6 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     .filter((balance): balance is Horizon.BalanceLineAsset => balance.asset_type !== "native")
     .map(balance => new Asset(balance.asset_code, balance.asset_issuer))
 
-  const assetMetadata = useAssetMetadata(trustedAssets, props.account.testnet)
   const balancesPerStep = Math.max(Math.floor((window.innerWidth - 32 - 32) / getBalanceItemMinMaxWidth()[1]), 2)
   const stepCount = Math.ceil(accountData.balances.length / balancesPerStep)
 
@@ -195,9 +193,6 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     }
   }, [props.onClick])
 
-  // Hack. In fact useAssetMetadata() & useStellarToml() should return memoized values if nothing changed
-  const assetMetadataFingerprint = JSON.stringify(trustedAssets.map(asset => assetMetadata.get(asset)))
-
   const canScrollLeft = currentStep > 0
   const canScrollRight = currentStep < stepCount - 1
 
@@ -215,19 +210,16 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
 
   const balanceItems = React.useMemo(
     () => [
-      ...trustedAssets.map((asset, index) => {
-        const [metadata] = assetMetadata.get(asset) || [undefined, false]
-        return (
-          <ScrollableBalanceItem
-            key={stringifyAsset(asset)}
-            ref={domElement => (domElement ? balanceItemsRef.current.set(index, domElement) : undefined)}
-            assetMetadata={metadata}
-            balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
-            compact={props.compact}
-            onClick={props.onClick && isAccountActivated ? handleClick : undefined}
-          />
-        )
-      }),
+      ...trustedAssets.map((asset, index) => (
+        <ScrollableBalanceItem
+          key={stringifyAsset(asset)}
+          ref={domElement => (domElement ? balanceItemsRef.current.set(index, domElement) : undefined)}
+          balance={accountData.balances.find(balance => isAssetMatchingBalance(asset, balance))!}
+          compact={props.compact}
+          onClick={props.onClick && isAccountActivated ? handleClick : undefined}
+          testnet={props.account.testnet}
+        />
+      )),
       <ScrollableBalanceItem
         key={stringifyAsset(Asset.native())}
         ref={domElement =>
@@ -236,16 +228,10 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         balance={nativeBalance}
         compact={props.compact}
         onClick={props.onClick && isAccountActivated ? handleClick : undefined}
+        testnet={props.account.testnet}
       />
     ],
-    [
-      accountData.balances,
-      assetMetadataFingerprint,
-      handleClick,
-      nativeBalance,
-      props.onClick,
-      trustedAssets.map(stringifyAsset).join(",")
-    ]
+    [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets.map(stringifyAsset).join(",")]
   )
 
   return (

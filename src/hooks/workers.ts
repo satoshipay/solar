@@ -7,8 +7,8 @@ export function useNetWorker() {
     return netWorker
   } else {
     // Suspend React component
-    throw workers.then(workers => {
-      netWorker = workers.netWorker
+    throw workers.then(initializedWorkers => {
+      netWorker = initializedWorkers.netWorker
     })
   }
 }
