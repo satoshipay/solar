@@ -12,6 +12,8 @@ import Typography from "@material-ui/core/Typography"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import GavelIcon from "@material-ui/icons/Gavel"
+import nanoid from "nanoid"
+import { useFormik, FormikErrors } from "formik"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks/stellar"
@@ -26,10 +28,10 @@ import AssetSelector from "../Form/AssetSelector"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
-import { useConversionOffers } from "./hooks"
 import Portal from "../Portal"
-import TradingPrice from "./TradingPrice"
 import { createTransaction } from "../../lib/transaction"
+import { useConversionOffers } from "./hooks"
+import TradingPrice from "./TradingPrice"
 
 const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
   formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, ...overrides })
@@ -67,9 +69,12 @@ const useStyles = makeStyles({
   }
 })
 
-interface ManualPrice {
-  error?: Error
-  value?: string
+interface TradingFormValues {
+  primaryAsset: Asset | undefined
+  primaryAmountString: string
+  secondaryAsset: Asset
+  manualPrice: string | undefined
+  priceMode: "primary" | "secondary"
 }
 
 interface Props {
@@ -90,23 +95,89 @@ function TradingForm(props: Props) {
   const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
   const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
 
-  const [primaryAsset, setPrimaryAsset] = React.useState<Asset | undefined>(props.initialPrimaryAsset)
-  const [primaryAmountString, setPrimaryAmountString] = React.useState("")
-  const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
-  const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
-  const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
   const [expanded, setExpanded] = React.useState(false)
+
+  const formik = useFormik<TradingFormValues>({
+    initialValues: {
+      primaryAsset: props.initialPrimaryAsset,
+      primaryAmountString: "",
+      secondaryAsset: Asset.native(),
+      manualPrice: undefined,
+      priceMode: "secondary"
+    },
+    validate(values) {
+      const errors: FormikErrors<TradingFormValues> = {}
+
+      if (!values.primaryAsset) {
+        errors.primaryAsset = "No asset selected."
+      }
+
+      if (!values.primaryAmountString) {
+        errors.primaryAmountString = "No amount specified!"
+      } else if (
+        primaryAmount.lt(0) ||
+        (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
+        (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(primaryBalance.balance)) ||
+        (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
+      ) {
+        errors.primaryAmountString = "Invalid amount specified!"
+      }
+
+      if (
+        (values.manualPrice && (!isValidAmount(values.manualPrice) || BigNumber(values.manualPrice).eq(0))) ||
+        BigNumber(defaultPrice).eq(0)
+      ) {
+        errors.manualPrice = "Invalid Price."
+      }
+
+      return errors
+    },
+    async onSubmit() {
+      try {
+        const tx = await createTransaction(
+          [
+            props.primaryAction === "buy"
+              ? Operation.manageBuyOffer({
+                  buyAmount: primaryAmount.toFixed(7),
+                  buying: primaryAsset!,
+                  offerId: 0,
+                  price: effectivePrice.toFixed(7),
+                  selling: secondaryAsset
+                })
+              : Operation.manageSellOffer({
+                  amount: primaryAmount.toFixed(7),
+                  buying: secondaryAsset,
+                  offerId: 0,
+                  price: effectivePrice.toFixed(7),
+                  selling: primaryAsset!
+                })
+          ],
+          {
+            accountData: props.accountData,
+            horizon,
+            walletAccount: props.account
+          }
+        )
+        props.sendTransaction(tx)
+      } catch (error) {
+        trackError(error)
+      }
+    }
+  })
+
+  const { primaryAsset, primaryAmountString, secondaryAsset, priceMode, manualPrice } = formik.values
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
+  const formID = React.useMemo(() => nanoid(), [])
 
   const price =
-    manualPrice.value && isValidAmount(manualPrice.value)
+    manualPrice && isValidAmount(manualPrice)
       ? priceMode === "secondary"
-        ? BigNumber(manualPrice.value)
-        : BigNumber(manualPrice.value).eq(0) // prevent division by zero
+        ? BigNumber(manualPrice)
+        : BigNumber(manualPrice).eq(0) // prevent division by zero
         ? BigNumber(0)
-        : BigNumber(1).div(manualPrice.value)
+        : BigNumber(1).div(manualPrice)
       : BigNumber(0)
 
   const primaryAmount =
@@ -114,20 +185,6 @@ function TradingForm(props: Props) {
 
   const primaryBalance = primaryAsset ? findMatchingBalance(props.accountData.balances, primaryAsset) : undefined
   const secondaryBalance = secondaryAsset ? findMatchingBalance(props.accountData.balances, secondaryAsset) : undefined
-
-  const updatePrice = (newPriceAmount: string) => {
-    setManualPrice(prev => ({
-      error: isValidAmount(newPriceAmount) ? undefined : prev.error,
-      value: newPriceAmount
-    }))
-  }
-
-  const validatePrice = React.useCallback(() => {
-    setManualPrice(prev => ({
-      error: prev.value && !isValidAmount(prev.value) ? Error("Invalid price") : undefined,
-      value: prev.value
-    }))
-  }, [])
 
   const { worstPriceOfBestMatches } = useConversionOffers(
     props.primaryAction === "buy" ? tradePair.asks : tradePair.bids,
@@ -143,11 +200,6 @@ function TradingForm(props: Props) {
   // prevent division by zero
   const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
   const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
-
-  const sellingAmount = props.primaryAction === "sell" ? primaryAmount : secondaryAmount
-  const sellingBalance: { balance: string } = (props.primaryAction === "sell" ? primaryBalance : secondaryBalance) || {
-    balance: "0"
-  }
 
   const minAccountBalance = getAccountMinimumBalance(props.accountData)
 
@@ -168,48 +220,18 @@ function TradingForm(props: Props) {
       ? BigNumber(spendablePrimaryBalance)
       : BigNumber(0)
 
-  const isDisabled =
-    !primaryAsset || primaryAmount.lte(0) || sellingAmount.gt(sellingBalance.balance) || effectivePrice.lte(0)
+  const setPrimaryAmountToMax = React.useCallback(() => {
+    formik.setFieldValue("primaryAmountString", maxPrimaryAmount.toFixed(7))
+  }, [])
 
-  const setPrimaryAmountToMax = () => {
-    setPrimaryAmountString(maxPrimaryAmount.toFixed(7))
-  }
-
-  const submitForm = React.useCallback(async () => {
-    try {
-      if (!primaryAsset) {
-        throw Error("Invariant violation: Should not be able to submit form without having selected the primary asset.")
-      }
-
-      const tx = await createTransaction(
-        [
-          props.primaryAction === "buy"
-            ? Operation.manageBuyOffer({
-                buyAmount: primaryAmount.toFixed(7),
-                buying: primaryAsset,
-                offerId: 0,
-                price: effectivePrice.toFixed(7),
-                selling: secondaryAsset
-              })
-            : Operation.manageSellOffer({
-                amount: primaryAmount.toFixed(7),
-                buying: secondaryAsset,
-                offerId: 0,
-                price: effectivePrice.toFixed(7),
-                selling: primaryAsset
-              })
-        ],
-        {
-          accountData: props.accountData,
-          horizon,
-          walletAccount: props.account
-        }
-      )
-      props.sendTransaction(tx)
-    } catch (error) {
-      trackError(error)
-    }
-  }, [props.accountData, props.sendTransaction, effectivePrice, primaryAmount, primaryAsset, secondaryAsset])
+  const handlePrimaryAssetChange = React.useCallback(asset => formik.setFieldValue("primaryAsset", asset), [])
+  const handlePrimaryAmountStringChange = React.useCallback(
+    event => formik.setFieldValue("primaryAmountString", event.target.value, false),
+    []
+  )
+  const handleSecondaryAssetChange = React.useCallback(asset => formik.setFieldValue("secondaryAsset", asset), [])
+  const handleManualPriceChange = React.useCallback(asset => formik.setFieldValue("manualPrice", asset), [])
+  const handlePriceModeChange = React.useCallback(denotedIn => formik.setFieldValue("priceMode", denotedIn), [])
 
   return (
     // set minHeight to prevent wrapping of layout when keyboard is shown
@@ -233,126 +255,137 @@ function TradingForm(props: Props) {
         shrink={0}
         width="100%"
       >
-        <HorizontalLayout margin="8px 0">
-          <AssetSelector
-            autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
-            label={props.primaryAction === "buy" ? "You buy" : "You sell"}
-            onChange={setPrimaryAsset}
-            minWidth={75}
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-            testnet={props.account.testnet}
-            trustlines={props.trustlines}
-            value={primaryAsset}
-          />
-          <TextField
-            autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
-            error={
-              primaryAmount.lt(0) ||
-              (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
-              (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(spendablePrimaryBalance)) ||
-              (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(spendableSecondaryBalance))
-            }
-            inputProps={{
-              pattern: "[0-9]*",
-              inputMode: "decimal",
-              min: "0.0000001",
-              max: maxPrimaryAmount.toFixed(7),
-              style: { height: 27 }
-            }}
-            InputProps={{
-              endAdornment:
-                props.primaryAction === "buy" ? (
-                  undefined
-                ) : (
-                  <InputAdornment position="end">
-                    <Button
-                      disabled={!primaryAsset || !primaryBalance}
-                      onClick={setPrimaryAmountToMax}
-                      style={{ boxShadow: "none", fontWeight: 400 }}
-                    >
-                      Max
-                    </Button>
-                  </InputAdornment>
-                )
-            }}
-            label={props.primaryAction === "buy" ? "Amount to buy" : "Amount to sell"}
-            onChange={event => setPrimaryAmountString(event.target.value)}
-            placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
-            required
-            style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
-            type="number"
-            value={primaryAmountString}
-          />
-        </HorizontalLayout>
-        <HorizontalLayout margin="8px 0 32px">
-          <AssetSelector
-            label={props.primaryAction === "buy" ? "Spend" : "Receive"}
-            minWidth={75}
-            onChange={setSecondaryAsset}
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-            testnet={props.account.testnet}
-            trustlines={props.trustlines}
-            value={secondaryAsset}
-          />
-          <ReadOnlyTextfield
-            disableUnderline
-            inputProps={{
-              style: { height: 27 }
-            }}
-            label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
-            placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
-            style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
-            inputMode="decimal"
-            type="number"
-            value={
-              // Format amount without thousands grouping, since it may lead to illegal number input values (#831)
-              bigNumberToInputValue(secondaryAmount, { groupThousands: false })
-            }
-          />
-        </HorizontalLayout>
-        <ExpansionPanel
-          className={classes.expansionPanel}
-          elevation={0}
-          expanded={expanded}
-          onChange={() => setExpanded(!expanded)}
-        >
-          <ExpansionPanelSummary
-            classes={{ root: classes.expansionPanelSummary, content: classes.expansionPanelSummaryContent }}
-            expandIcon={<ExpandMoreIcon />}
-          >
-            <Typography align="center" style={{ flexGrow: 1 }}>
-              Advanced
-            </Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails className={classes.expansionPanelDetails}>
-            <TradingPrice
-              inputError={manualPrice.error}
-              manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
-              onBlur={validatePrice}
-              onChange={updatePrice}
-              onSetPriceDenotedIn={setPriceMode}
-              price={effectivePrice}
-              priceDenotedIn={priceMode}
-              primaryAsset={primaryAsset}
-              secondaryAsset={secondaryAsset}
-              style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
+        <form noValidate id={formID} onSubmit={formik.handleSubmit}>
+          <HorizontalLayout>
+            <AssetSelector
+              autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
+              inputError={
+                formik.errors.primaryAsset && formik.touched.primaryAsset ? formik.errors.primaryAsset : undefined
+              }
+              label={props.primaryAction === "buy" ? "You buy" : "You sell"}
+              minWidth={75}
+              onBlur={formik.handleBlur}
+              onChange={handlePrimaryAssetChange}
+              style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+              testnet={props.account.testnet}
+              trustlines={props.trustlines}
+              value={primaryAsset}
             />
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        {relativeSpread >= 0.015 ? (
-          <Box margin="32px 0 0" padding="8px 12px" style={{ background: warningColor }}>
-            <b>Warning</b>
-            <br />
-            The spread between buying and selling price is about {(relativeSpread * 100).toFixed(1)}%.
-          </Box>
-        ) : null}
-        <Portal target={props.dialogActionsRef.element}>
-          <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
-            <ActionButton disabled={isDisabled} icon={<GavelIcon />} onClick={submitForm} type="primary">
-              Place order
-            </ActionButton>
-          </DialogActionsBox>
-        </Portal>
+            <TextField
+              autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
+              error={Boolean(formik.errors.primaryAmountString && formik.touched.primaryAmountString)}
+              name="primaryAmountString"
+              inputProps={{
+                pattern: "[0-9]*",
+                inputMode: "decimal",
+                min: "0.0000001",
+                max: maxPrimaryAmount.toFixed(7),
+                style: { height: 27 }
+              }}
+              InputProps={{
+                endAdornment:
+                  props.primaryAction === "buy" ? (
+                    undefined
+                  ) : (
+                    <InputAdornment position="end">
+                      <Button
+                        disabled={!primaryAsset || !primaryBalance}
+                        onClick={setPrimaryAmountToMax}
+                        style={{ boxShadow: "none", fontWeight: 400 }}
+                      >
+                        Max
+                      </Button>
+                    </InputAdornment>
+                  )
+              }}
+              label={
+                formik.errors.primaryAmountString && formik.touched.primaryAmountString
+                  ? formik.errors.primaryAmountString
+                  : props.primaryAction === "buy"
+                  ? "Amount to buy"
+                  : "Amount to sell"
+              }
+              onBlur={formik.handleBlur}
+              onChange={handlePrimaryAmountStringChange}
+              placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
+              required
+              style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
+              type="number"
+              value={primaryAmountString}
+            />
+          </HorizontalLayout>
+          <HorizontalLayout>
+            <AssetSelector
+              label={props.primaryAction === "buy" ? "Spend" : "Receive"}
+              minWidth={75}
+              onBlur={formik.handleBlur}
+              onChange={handleSecondaryAssetChange}
+              style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+              testnet={props.account.testnet}
+              trustlines={props.trustlines}
+              value={secondaryAsset}
+            />
+            <ReadOnlyTextfield
+              disableUnderline
+              inputProps={{
+                style: { height: 27 }
+              }}
+              label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
+              placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
+              style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
+              inputMode="decimal"
+              type="number"
+              value={
+                // Format amount without thousands grouping, since it may lead to illegal number input values (#831)
+                bigNumberToInputValue(secondaryAmount, { groupThousands: false })
+              }
+            />
+          </HorizontalLayout>
+          <ExpansionPanel
+            className={classes.expansionPanel}
+            elevation={0}
+            expanded={expanded}
+            onChange={() => setExpanded(!expanded)}
+          >
+            <ExpansionPanelSummary
+              classes={{ root: classes.expansionPanelSummary, content: classes.expansionPanelSummaryContent }}
+              expandIcon={<ExpandMoreIcon />}
+            >
+              <Typography align="center" style={{ flexGrow: 1 }}>
+                Advanced
+              </Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails className={classes.expansionPanelDetails}>
+              <TradingPrice
+                inputError={
+                  formik.errors.manualPrice && formik.touched.manualPrice ? formik.errors.manualPrice : undefined
+                }
+                manualPrice={manualPrice !== undefined ? manualPrice : defaultPrice}
+                onChange={handleManualPriceChange}
+                onSetPriceDenotedIn={handlePriceModeChange}
+                price={effectivePrice}
+                priceDenotedIn={priceMode}
+                primaryAsset={primaryAsset}
+                secondaryAsset={secondaryAsset}
+                style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
+              />
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+          {relativeSpread >= 0.015 ? (
+            <Box margin="32px 0 0" padding="8px 12px" style={{ background: warningColor }}>
+              <b>Warning</b>
+              <br />
+              The spread between buying and selling price is about {(relativeSpread * 100).toFixed(1)}%.
+            </Box>
+          ) : null}
+          <Portal target={props.dialogActionsRef.element}>
+            <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
+              <ActionButton icon={<GavelIcon />} form={formID} type="submit">
+                Place order
+              </ActionButton>
+            </DialogActionsBox>
+          </Portal>
+        </form>
       </VerticalLayout>
     </VerticalLayout>
   )
