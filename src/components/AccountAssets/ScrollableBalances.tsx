@@ -234,7 +234,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         }
         balance={nativeBalance}
         compact={props.compact}
-        onClick={isAccountActivated ? handleClick : undefined}
+        onClick={props.onClick && isAccountActivated ? handleClick : undefined}
       />
     ],
     [
