@@ -62,7 +62,7 @@ function sendWithdrawalRequest(request: WithdrawalRequestData, authToken?: strin
     account,
     wallet_name: "Solar wallet",
     ...withdrawalFormValues
-  } // previously `as any`, but shouldn't be necessary anymore with latest changes
+  } as any // FIXME
   return transferServer.withdraw(method, asset.getCode(), authToken, options)
 }
 
