@@ -7,7 +7,7 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 
 interface TradingPriceProps {
-  inputError?: Error
+  inputError?: string
   manualPrice?: string
   onBlur?: () => void
   onChange: (priceString: string) => void
@@ -50,7 +50,7 @@ function TradingPrice(props: TradingPriceProps) {
       }}
       InputProps={{ endAdornment }}
       error={Boolean(props.inputError)}
-      label={props.inputError ? props.inputError.message : "Limit price"}
+      label={props.inputError ? props.inputError : "Limit price"}
       onBlur={props.onBlur}
       onChange={event => props.onChange(event.target.value)}
       style={props.style}
