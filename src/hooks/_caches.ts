@@ -1,12 +1,10 @@
-import { Asset, Horizon, ServerApi, Transaction } from "stellar-sdk"
+import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { multicast, Observable, ObservableLike } from "@andywer/observable-fns"
 import { trackError } from "../context/notifications"
 import { AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { max } from "../lib/strings"
-
-const getTxCreatedAt = (tx: Transaction) => (tx as any).created_at as string
 
 function createCache<SelectorT, DataT, UpdateT>(
   createCacheKey: (selector: SelectorT) => string,
@@ -79,9 +77,9 @@ function createAssetPairCacheKey([horizonURL, selling, buying]: readonly [string
   return `${horizonURL}:${stringifyAsset(selling)}:${stringifyAsset(buying)}`
 }
 
-function areTransactionsNewer(prev: Transaction[], next: Transaction[]) {
-  const prevMaxTimestamp = (prev ? max(prev.map(tx => getTxCreatedAt(tx)), "0") : undefined) || ""
-  const nextMaxTimestamp = max(next.map(tx => getTxCreatedAt(tx)), "0") || ""
+function areTransactionsNewer(prev: Horizon.TransactionResponse[], next: Horizon.TransactionResponse[]) {
+  const prevMaxTimestamp = (prev ? max(prev.map(tx => tx.created_at), "0") : undefined) || ""
+  const nextMaxTimestamp = max(next.map(tx => tx.created_at), "0") || ""
 
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
@@ -102,7 +100,7 @@ export const accountOpenOrdersCache = createCache<
 
 export const accountTransactionsCache = createCache<
   readonly [string, string],
-  Transaction[],
+  Horizon.TransactionResponse[],
   Horizon.TransactionResponse
 >(createAccountCacheKey, areTransactionsNewer)
 

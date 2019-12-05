@@ -1,7 +1,7 @@
 // tslint:disable:no-shadowed-variable
 
 import React from "react"
-import { Asset, Horizon, Networks, ServerApi, Transaction } from "stellar-sdk"
+import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { unsubscribe, ObservableLike } from "@andywer/observable-fns"
 import { Account } from "../context/accounts"
 import { createEmptyAccountData, AccountData } from "../lib/account"
@@ -12,13 +12,6 @@ import { accountDataCache, accountOpenOrdersCache, accountTransactionsCache, ord
 import { useHorizonURL } from "./stellar"
 import { useDebouncedState } from "./util"
 import { useNetWorker } from "./workers"
-
-function deserializeTx(txResponse: Horizon.TransactionResponse, testnet: boolean) {
-  const networkPassphrase = testnet ? Networks.TESTNET : Networks.PUBLIC
-  return Object.assign(new Transaction(txResponse.envelope_xdr, networkPassphrase), {
-    created_at: txResponse.created_at
-  })
-}
 
 function useDataSubscriptions<DataT, UpdateT>(
   reducer: (prev: DataT, update: UpdateT) => DataT,
@@ -190,22 +183,21 @@ export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean
   return useDataSubscription(applyOrderbookUpdate, get, set, observe)
 }
 
-const createAccountTransactionsUpdateReducer = (testnet: boolean) => (
-  prev: Transaction[],
-  update: Horizon.TransactionResponse
-) => {
-  if (prev.some(tx => `${tx.source}:${tx.sequence}` === `${update.source_account}:${update.source_account_sequence}`)) {
+function applyAccountTransactionsUpdate(prev: Horizon.TransactionResponse[], update: Horizon.TransactionResponse) {
+  if (
+    prev.some(
+      tx => tx.source_account === update.source_account && tx.source_account_sequence === update.source_account_sequence
+    )
+  ) {
     return prev
   } else {
-    return [deserializeTx(update, testnet), ...prev]
+    return [update, ...prev]
   }
 }
 
-export function useLiveRecentTransactions(accountID: string, testnet: boolean): Transaction[] {
+export function useLiveRecentTransactions(accountID: string, testnet: boolean): Horizon.TransactionResponse[] {
   const horizonURL = useHorizonURL(testnet)
   const netWorker = useNetWorker()
-
-  const applyAccountTransactionsUpdate = React.useMemo(() => createAccountTransactionsUpdateReducer(testnet), [testnet])
 
   const { get, set, observe } = React.useMemo(() => {
     const selector = [horizonURL, accountID] as const
@@ -219,12 +211,12 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
               limit: 15,
               order: "desc"
             })
-            const txs = page._embedded.records.map(record => deserializeTx(record, testnet))
+            const txs = page._embedded.records
             return txs
           })
         )
       },
-      set(updated: Transaction[]) {
+      set(updated: Horizon.TransactionResponse[]) {
         accountTransactionsCache.set(selector, updated)
       },
       observe() {

@@ -1,5 +1,5 @@
 import React from "react"
-import { Transaction } from "stellar-sdk"
+import { Horizon } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import { Account } from "../src/context/accounts"
 import TransactionList from "../src/components/Account/TransactionList"
@@ -19,7 +19,9 @@ const account: Account = {
   }
 }
 
-function SampleTransactions(props: { children: (transactions: Transaction[]) => React.ReactElement<any> }) {
+function SampleTransactions(props: {
+  children: (transactions: Horizon.TransactionResponse[]) => React.ReactElement<any>
+}) {
   const transactions = useLiveRecentTransactions(account.publicKey, account.testnet)
   return props.children(transactions)
 }
