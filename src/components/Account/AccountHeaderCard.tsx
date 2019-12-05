@@ -38,6 +38,7 @@ interface Props {
   editableAccountName?: boolean
   onAccountSettings: () => void
   onClose: () => void
+  onDeposit: () => void
   onManageAssets: () => void
   onTrade: () => void
   onWithdraw: () => void
@@ -63,6 +64,7 @@ function AccountHeaderCard(props: Props) {
             account={props.account}
             activated={accountData.activated}
             onAccountSettings={props.onAccountSettings}
+            onDeposit={props.onDeposit}
             onManageAssets={props.onManageAssets}
             onTrade={props.onTrade}
             onWithdraw={props.onWithdraw}

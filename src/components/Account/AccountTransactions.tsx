@@ -1,19 +1,22 @@
 import React from "react"
-import Typography from "@material-ui/core/Typography"
 import DoneAllIcon from "@material-ui/icons/DoneAll"
+import CreditCardIcon from "@material-ui/icons/CreditCard"
 import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
-import { useHorizon } from "../../hooks/stellar"
-import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
 import { hasSigned } from "../../lib/transaction"
-import { MinimumAccountBalance } from "../Fetchers"
-import FriendbotButton from "./FriendbotButton"
+import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
+import { useRouter } from "../../hooks/userinterface"
+import { useHorizon } from "../../hooks/stellar"
+import * as routes from "../../routes"
+import MainSelectionButton from "../Form/MainSelectionButton"
+import { VerticalLayout } from "../Layout/Box"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import TransactionList from "./TransactionList"
 import TransactionListPlaceholder from "./TransactionListPlaceholder"
+import FriendbotButton from "./FriendbotButton"
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
@@ -59,7 +62,13 @@ function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const horizon = useHorizon(account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
+  const router = useRouter()
   const settings = React.useContext(SettingsContext)
+
+  const navigateToDeposit = React.useCallback(() => router.history.push(routes.depositAsset(account.id)), [
+    account,
+    router
+  ])
 
   return (
     <>
@@ -79,15 +88,21 @@ function AccountTransactions(props: { account: Account }) {
         </>
       ) : (
         <>
-          <Typography align="center" color="textSecondary" style={{ margin: "30px auto", padding: "0 16px" }}>
-            Account does not yet exist on the network. Send at least <MinimumAccountBalance testnet={account.testnet} />
-            &nbsp;XLM to activate the account.
-          </Typography>
-          {account.testnet ? (
-            <Typography align="center" style={{ paddingBottom: 30 }}>
-              <FriendbotButton horizon={horizon} publicKey={account.publicKey} />
-            </Typography>
-          ) : null}
+          <VerticalLayout
+            alignItems="stretch"
+            margin="32px auto"
+            style={{ padding: "0 28px 30px", width: "fit-content" }}
+          >
+            {account.testnet ? (
+              <FriendbotButton horizon={horizon} publicKey={account.publicKey} style={{ marginBottom: 24 }} />
+            ) : null}
+            <MainSelectionButton
+              Icon={CreditCardIcon}
+              description="Via credit card, bank transfer, etc."
+              label="Deposit funds"
+              onClick={navigateToDeposit}
+            />
+          </VerticalLayout>
         </>
       )}
     </>

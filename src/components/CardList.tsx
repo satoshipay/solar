@@ -14,7 +14,7 @@ const useCardStyles = makeStyles({
   }
 })
 
-export const CardListCard = (props: CardProps) => {
+export function CardListCard(props: CardProps) {
   const classes = useCardStyles()
   return <Card classes={classes} {...props}></Card>
 }
@@ -22,11 +22,14 @@ export const CardListCard = (props: CardProps) => {
 interface CardListProps {
   addInvisibleCard?: boolean
   children: React.ReactNode
+  margin?: string
+  width?: string
 }
 
-export const CardList = (props: CardListProps) => {
+export function CardList(props: CardListProps) {
+  const { margin = "0 -1%", width = "102%" } = props
   return (
-    <HorizontalLayout justifyContent="space-evenly" wrap="wrap" margin="0 -1%" width="102%">
+    <HorizontalLayout justifyContent="space-evenly" wrap="wrap" margin={margin} width={width}>
       {props.children}
       {props.addInvisibleCard ? <CardListCard style={{ visibility: "hidden" }} /> : null}
     </HorizontalLayout>

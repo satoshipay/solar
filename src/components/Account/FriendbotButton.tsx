@@ -1,13 +1,16 @@
 import React from "react"
 import { Server } from "stellar-sdk"
-import Button from "@material-ui/core/Button"
-import ButtonIconLabel from "../ButtonIconLabel"
+import CircularProgress from "@material-ui/core/CircularProgress"
+import ThumbUpIcon from "@material-ui/icons/ThumbUp"
 import { trackError } from "../../context/notifications"
 import { friendbotTopup } from "../../lib/stellar"
+import MainSelectionButton from "../Form/MainSelectionButton"
 
 interface Props {
+  className?: string
   horizon: Server
   publicKey: string
+  style?: React.CSSProperties
 }
 
 function FriendbotButton(props: Props) {
@@ -20,6 +23,8 @@ function FriendbotButton(props: Props) {
 
       // Give the account subscription a little bit of time to recognize the account activation
       await new Promise(resolve => setTimeout(resolve, 2000))
+    } catch (error) {
+      trackError(error)
     } finally {
       setPending(false)
     }
@@ -27,9 +32,14 @@ function FriendbotButton(props: Props) {
 
   return (
     // Extra padding especially for mobile
-    <Button variant="outlined" onClick={() => topup().catch(trackError)} style={{ padding: "10px 20px" }}>
-      <ButtonIconLabel label="Request top-up from friendbot" loading={isPending} loaderColor="inherit" />
-    </Button>
+    <MainSelectionButton
+      Icon={isPending ? CircularProgress : ThumbUpIcon}
+      className={props.className}
+      description="Get some free testnet lumens"
+      label="Ask the friendbot"
+      onClick={topup}
+      style={props.style}
+    />
   )
 }
 

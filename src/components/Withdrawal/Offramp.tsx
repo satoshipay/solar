@@ -8,7 +8,8 @@ import {
   WithdrawalKYCStatusResponse,
   WithdrawalRequestKYC,
   WithdrawalRequestSuccess,
-  WithdrawalSuccessResponse
+  WithdrawalSuccessResponse,
+  WithdrawalOptions
 } from "@satoshipay/stellar-sep-6"
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import { Account } from "../../context/accounts"
@@ -57,7 +58,12 @@ function createMemo(withdrawalResponse: WithdrawalSuccessResponse): Memo | null 
 
 function sendWithdrawalRequest(request: WithdrawalRequestData, authToken?: string) {
   const { account, asset, withdrawalFormValues, method, transferServer } = request
-  return transferServer.withdraw(method, asset.getCode(), authToken, { account, ...withdrawalFormValues } as any)
+  const options: WithdrawalOptions = {
+    account,
+    wallet_name: "Solar wallet",
+    ...withdrawalFormValues
+  } // previously `as any`, but shouldn't be necessary anymore with latest changes
+  return transferServer.withdraw(method, asset.getCode(), authToken, options)
 }
 
 interface WithdrawalRequestData {
