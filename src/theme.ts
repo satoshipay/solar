@@ -1,5 +1,6 @@
 import { createMuiTheme } from "@material-ui/core/styles"
 import createBreakpoints from "@material-ui/core/styles/createBreakpoints"
+import Fade from "@material-ui/core/Fade"
 import ArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
@@ -23,6 +24,8 @@ export const breakpoints = createBreakpoints({})
 export const FullscreenDialogTransition = SlideLeftTransition
 export const CompactDialogTransition = SlideUpTransition
 
+const isSmallScreen = window.innerWidth <= 600
+
 const theme = createMuiTheme({
   props: {
     MuiDialogActions: {
@@ -32,6 +35,19 @@ const theme = createMuiTheme({
       required: false,
       shrink: true
     },
+    MuiMenu: isSmallScreen
+      ? {
+          BackdropProps: {
+            open: true
+          },
+          TransitionComponent: Fade,
+          transitionDuration: 300,
+          transformOrigin: {
+            horizontal: "center",
+            vertical: "center"
+          }
+        }
+      : undefined,
     MuiSelect: {
       IconComponent: ArrowDownIcon
     }
@@ -232,13 +248,38 @@ const theme = createMuiTheme({
       }
     },
     MuiMenu: {
+      paper: {
+        [breakpoints.down(600)]: {
+          backgroundColor: "white",
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          bottom: "0 !important",
+          left: "0 !important",
+          right: "0 !important",
+          top: "initial !important",
+          maxWidth: "100vw",
+          position: "fixed",
+
+          // declaring these here because passing a className into MuiMenu-props does not work as the styles of that class are overridden several times
+          "&": {
+            // iOS 11
+            paddingBottom: "constant(safe-area-inset-bottom)"
+          },
+          // iOS 12
+          paddingBottom: "env(safe-area-inset-bottom)"
+        }
+      },
       list: {
         padding: 0
       }
     } as any,
     MuiMenuItem: {
       root: {
-        borderBottom: "none"
+        borderBottom: "none",
+        [breakpoints.down(600)]: {
+          fontSize: 20,
+          padding: 16
+        }
       }
     },
     MuiPaper: {
