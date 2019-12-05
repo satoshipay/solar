@@ -23,12 +23,12 @@ import { useNetWorker } from "./workers"
 /** @deprecated */
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
-  return testnet ? stellar.horizonTestnet : stellar.horizonLivenet
+  return testnet ? new Server(stellar.horizonTestnetURL) : new Server(stellar.horizonLivenetURL)
 }
 
 export function useHorizonURL(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
-  return testnet ? String(stellar.horizonTestnet.serverURL) : String(stellar.horizonLivenet.serverURL)
+  return testnet ? stellar.horizonTestnetURL : stellar.horizonLivenetURL
 }
 
 export function useFederationLookup() {

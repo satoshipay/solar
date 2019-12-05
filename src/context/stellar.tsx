@@ -1,5 +1,4 @@
 import React from "react"
-import { Server } from "stellar-sdk"
 import { workers } from "../worker-controller"
 import { trackError } from "./notifications"
 
@@ -8,13 +7,13 @@ interface Props {
 }
 
 interface ContextType {
-  horizonLivenet: Server
-  horizonTestnet: Server
+  horizonLivenetURL: string
+  horizonTestnetURL: string
 }
 
 const initialValues: ContextType = {
-  horizonLivenet: new Server("https://stellar-horizon.satoshipay.io/"),
-  horizonTestnet: new Server("https://stellar-horizon-testnet.satoshipay.io/")
+  horizonLivenetURL: "https://stellar-horizon.satoshipay.io/",
+  horizonTestnetURL: "https://stellar-horizon-testnet.satoshipay.io/"
 }
 
 const StellarContext = React.createContext<ContextType>(initialValues)
@@ -38,19 +37,15 @@ export function StellarProvider(props: Props) {
 
       if (!cancelled) {
         setContextValue(prevValues => ({
-          horizonLivenet:
-            horizonLivenetURL !== String(prevValues.horizonLivenet.serverURL)
-              ? new Server(horizonLivenetURL)
-              : prevValues.horizonLivenet,
-          horizonTestnet:
-            horizonTestnetURL !== String(prevValues.horizonTestnet.serverURL)
-              ? new Server(horizonTestnetURL)
-              : prevValues.horizonTestnet
+          horizonLivenetURL:
+            horizonLivenetURL !== prevValues.horizonLivenetURL ? horizonLivenetURL : prevValues.horizonLivenetURL,
+          horizonTestnetURL:
+            horizonTestnetURL !== prevValues.horizonTestnetURL ? horizonTestnetURL : prevValues.horizonTestnetURL
         }))
 
         if (
-          horizonLivenetURL !== String(initialValues.horizonLivenet.serverURL) ||
-          horizonTestnetURL !== String(initialValues.horizonTestnet.serverURL)
+          horizonLivenetURL !== initialValues.horizonLivenetURL ||
+          horizonTestnetURL !== initialValues.horizonTestnetURL
         ) {
           // FIXME: resetAllSubscriptions()
         }
