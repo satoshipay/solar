@@ -69,9 +69,11 @@ const useAssetSelectorStyles = makeStyles({
 interface AssetSelectorProps {
   autoFocus?: TextFieldProps["autoFocus"]
   disableUnderline?: boolean
+  inputError?: string
   helperText?: TextFieldProps["helperText"]
   label?: TextFieldProps["label"]
   minWidth?: number | string
+  onBlur?: (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   onChange: (asset: Asset) => void
   style?: React.CSSProperties
   testnet: boolean
@@ -103,8 +105,10 @@ function AssetSelector(props: AssetSelectorProps) {
   return (
     <TextField
       autoFocus={props.autoFocus}
+      error={Boolean(props.inputError)}
       helperText={props.helperText}
-      label={props.label}
+      label={props.inputError ? props.inputError : props.label}
+      onBlur={props.onBlur}
       onChange={onChange as any}
       placeholder="Select an asset"
       select
