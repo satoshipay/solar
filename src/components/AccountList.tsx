@@ -2,7 +2,6 @@ import React from "react"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import Tooltip from "@material-ui/core/Tooltip"
 import Typography from "@material-ui/core/Typography"
@@ -107,7 +106,7 @@ function AccountCard(props: AccountCardProps) {
             <Typography variant="h5" style={{ flexGrow: 1, fontSize: 20 }}>
               {props.account.name}
             </Typography>
-            <React.Suspense fallback={<CircularProgress />}>
+            <React.Suspense fallback={null}>
               <Badges account={props.account} />
             </React.Suspense>
           </HorizontalLayout>
