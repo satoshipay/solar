@@ -8,6 +8,7 @@ import ListSubheader from "@material-ui/core/ListSubheader"
 import { Account } from "../../context/accounts"
 import { useRouter } from "../../hooks/userinterface"
 import { openLink } from "../../platform/links"
+import LegalConfirmation from "./LegalConfirmation"
 
 function createMoonPayURLForAccount(account: Account) {
   const baseURL = "https://buy.moonpay.io/"
@@ -24,7 +25,11 @@ interface LumenDepositOptionsProps {
 
 function LumenDepositOptions(props: LumenDepositOptionsProps) {
   const { account } = props
+  const [isLegalNoteOpen, setIsLegalNoteOpen] = React.useState(false)
   const router = useRouter()
+
+  const closeLegalNote = React.useCallback(() => setIsLegalNoteOpen(false), [])
+  const openLegalNote = React.useCallback(() => setIsLegalNoteOpen(true), [])
 
   const navigateToMoonPay = React.useCallback(() => {
     openLink(createMoonPayURLForAccount(account))
@@ -34,15 +39,29 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
   return (
     <List style={{ margin: "16px auto", maxWidth: 600 }}>
       <ListSubheader style={{ background: "none" }}>Funding options</ListSubheader>
-      <ListItem button onClick={navigateToMoonPay}>
+      <ListItem button onClick={openLegalNote}>
         <ListItemText
           primary="MoonPay"
           secondary="Buy Stellar Lumens instantly using your debit/credit card or Apple Pay"
         />
-        <ListItemIcon style={{ minWidth: 40, marginLeft: 8 }}>
+        <ListItemIcon style={{ minWidth: 24, marginLeft: 12 }}>
           <OpenInNewIcon />
         </ListItemIcon>
       </ListItem>
+      <LegalConfirmation
+        message={
+          <>
+            You will be redirected to moonpay.io, a third-party service. The depositing process is operated by Moon Pay
+            Ltd, not by Solar or SatoshiPay Ltd.
+            <br />
+            <br />
+            Please contact the moonpay.io support for inquiries related to your deposit.
+          </>
+        }
+        onClose={closeLegalNote}
+        open={isLegalNoteOpen}
+        onConfirm={navigateToMoonPay}
+      />
     </List>
   )
 }

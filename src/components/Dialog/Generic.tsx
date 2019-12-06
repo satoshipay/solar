@@ -71,6 +71,9 @@ const useActionButtonStyles = makeStyles(theme => ({
     paddingTop: 0,
     paddingBottom: 0
   },
+  transparent: {
+    background: "transparent"
+  },
   actionButton: {
     "$inlineDialogActionsBox &": {
       boxShadow: "none",
@@ -142,35 +145,43 @@ export function CloseButton(props: { form?: string; onClick?: (event: React.Synt
 
 interface MobileDialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
+  className?: string
   hidden?: boolean
   smallDialog?: boolean
+  transparent?: boolean
 }
 
-const MobileDialogActionsBox = React.memo(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps) {
-  const classes = useActionButtonStyles()
-  const isSmallScreen = useIsMobile()
-  return (
-    <>
-      {!isSmallScreen ? null : (
-        // Placeholder to prevent other dialog content from being hidden below the actions box
-        // Make sure its height matches the height of the actions box
+const MobileDialogActionsBox = React.memo(
+  React.forwardRef(function MobileDialogActionsBox(props: MobileDialogActionsBoxProps, ref: React.Ref<HTMLDivElement>) {
+    const classes = useActionButtonStyles()
+    return (
+      <>
+        {props.smallDialog ? null : (
+          // Placeholder to prevent other dialog content from being hidden below the actions box
+          // Make sure its height matches the height of the actions box
+          <div
+            className={`${classes.common} ${classes.mobileInlineSpacePlaceholder} ${
+              props.hidden ? classes.hidden : ""
+            }`}
+          />
+        )}
         <div
-          className={`${classes.common} ${classes.mobileInlineSpacePlaceholder} ${props.hidden ? classes.hidden : ""}`}
-        />
-      )}
-      <div
-        className={[
-          "iphone-notch-bottom-spacing",
-          classes.common,
-          classes.mobileDialogActionsBox,
-          props.hidden ? classes.hidden : ""
-        ].join(" ")}
-      >
-        {props.children}
-      </div>
-    </>
-  )
-})
+          className={[
+            "iphone-notch-bottom-spacing",
+            classes.common,
+            classes.mobileDialogActionsBox,
+            props.className || "",
+            props.hidden ? classes.hidden : "",
+            props.transparent ? classes.transparent : ""
+          ].join(" ")}
+          ref={ref}
+        >
+          {props.children}
+        </div>
+      </>
+    )
+  })
+)
 
 interface DialogActionsBoxProps {
   children: React.ReactNode | React.ReactNode[]
@@ -179,40 +190,50 @@ interface DialogActionsBoxProps {
   hidden?: boolean
   preventMobileActionsBox?: boolean
   smallDialog?: boolean
+  transparent?: boolean
 }
 
-export const DialogActionsBox = React.memo(function DialogActionsBox(props: DialogActionsBoxProps) {
-  const classes = useActionButtonStyles()
-  const isSmallScreen = useIsMobile()
+export const DialogActionsBox = React.memo(
+  React.forwardRef(function DialogActionsBox(props: DialogActionsBoxProps, ref: React.Ref<HTMLDivElement>) {
+    const classes = useActionButtonStyles()
+    const isSmallScreen = useIsMobile()
 
-  React.useEffect(() => {
-    // Little hack to force re-rendering the dialog when the keyboard closes
-    // to prevent broken UI to be shown
-    const elements = document.querySelectorAll(".dialog-body")
-    const unsubscribe = setupRerenderListener(elements)
+    React.useEffect(() => {
+      // Little hack to force re-rendering the dialog when the keyboard closes
+      // to prevent broken UI to be shown
+      const elements = document.querySelectorAll(".dialog-body")
+      const unsubscribe = setupRerenderListener(elements)
 
-    return unsubscribe
-  }, [])
+      return unsubscribe
+    }, [])
 
-  if (isSmallScreen && !props.preventMobileActionsBox) {
+    if (isSmallScreen && !props.preventMobileActionsBox) {
+      return (
+        <MobileDialogActionsBox
+          className={props.className}
+          hidden={props.hidden}
+          ref={ref}
+          smallDialog={props.smallDialog}
+          transparent={props.transparent}
+        >
+          {props.children}
+        </MobileDialogActionsBox>
+      )
+    }
+
     return (
-      <MobileDialogActionsBox hidden={props.hidden} smallDialog={props.smallDialog}>
+      <DialogActions
+        className={`${classes.common} ${classes.inlineDialogActionsBox} ${
+          props.hidden ? classes.hidden : ""
+        } ${props.className || ""}`}
+        ref={ref}
+        style={props.desktopStyle}
+      >
         {props.children}
-      </MobileDialogActionsBox>
+      </DialogActions>
     )
-  }
-
-  return (
-    <DialogActions
-      className={`${classes.common} ${classes.inlineDialogActionsBox} ${
-        props.hidden ? classes.hidden : ""
-      } ${props.className || ""}`}
-      style={props.desktopStyle}
-    >
-      {props.children}
-    </DialogActions>
-  )
-})
+  })
+)
 
 interface ConfirmDialogProps {
   children: React.ReactNode

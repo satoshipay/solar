@@ -49,6 +49,7 @@ interface Props {
   children: React.ReactNode
   excessWidth?: number
   fitToShrink?: boolean
+  preventActionsPlaceholder?: boolean
   top?: React.ReactNode
 }
 
@@ -65,7 +66,7 @@ function DialogBody(props: Props) {
     () =>
       props.actions ? (
         <Box
-          basis={isSmallScreen ? 80 : undefined}
+          basis={isSmallScreen && !props.preventActionsPlaceholder ? 80 : undefined}
           className={classes.actions}
           grow={0}
           position="relative"
