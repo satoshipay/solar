@@ -1,6 +1,5 @@
 import React from "react"
 import { Account } from "../../context/accounts"
-import { useDialogActions } from "../../hooks/userinterface"
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
@@ -13,8 +12,6 @@ interface Props {
 }
 
 function DepositDialog(props: Props) {
-  const dialogActionsRef = useDialogActions()
-
   return (
     <DialogBody
       top={
@@ -23,7 +20,6 @@ function DepositDialog(props: Props) {
           onBack={props.onClose}
         />
       }
-      actions={dialogActionsRef}
     >
       <Box margin="24px 0 0">{null}</Box>
       <LumenDepositOptions account={props.account} onCloseDialog={props.onClose} />
