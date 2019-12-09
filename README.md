@@ -1,4 +1,24 @@
-# Solar Wallet
+<h1 align="center">Solar Wallet</h1>
+
+<p align="center">
+  <a href="https://github.com/satoshipay/solar/releases/latest">
+    <img alt="Latest stable release" src="https://badgen.net/github/release/satoshipay/solar/stable" />
+  </a>
+  <a href="https://github.com/satoshipay/solar/releases/latest">
+    <img alt="MacOS" src="https://badgen.net/badge/icon/MacOS?icon=apple&label&color=cyan" />
+  </a>
+  <a href="https://github.com/satoshipay/solar/releases/latest">
+    <img alt="Windows" src="https://badgen.net/badge/icon/Windows?icon=windows&label&color=cyan" />
+  </a>
+  <a href="https://github.com/satoshipay/solar/releases/latest">
+    <img alt="Android" src="https://badgen.net/badge/icon/Android?icon=googleplay&label&color=cyan" />
+  </a>
+  <a href="https://github.com/satoshipay/solar/releases/latest">
+    <img alt="iOS" src="https://badgen.net/badge/icon/iOS?icon=apple&label&color=cyan" />
+  </a>
+</p>
+
+<br />
 
 User-friendly Stellar wallet, featuring multi-signature, custom assets management and more.
 
