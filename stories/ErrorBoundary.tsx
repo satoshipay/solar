@@ -20,7 +20,9 @@ function Failing() {
 }
 
 storiesOf("ErrorBoundary", module).add("ErrorBoundary", () => (
-  <ErrorBoundary>
-    <Failing />
-  </ErrorBoundary>
+  <VerticalLayout height="400px" justifyContent="center">
+    <ErrorBoundary>
+      <Failing />
+    </ErrorBoundary>
+  </VerticalLayout>
 ))

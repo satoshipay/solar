@@ -6,7 +6,7 @@ import { Box, VerticalLayout } from "./Layout/Box"
 // tslint:disable-next-line
 const pkg = require("../../package.json")
 
-const buttonLabels = ["Aha", "Drats!", "Nevermind", "Ok then", "Well well"]
+const buttonLabels = ["Oh no", "Drats!", "Nevermind", "Let's try this again", "Not my day"]
 
 interface Props {
   children: React.ReactNode
@@ -31,7 +31,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
   }
 
   reload = () => {
-    this.setState({ error: null })
+    window.location.reload()
   }
 
   render() {
@@ -39,7 +39,14 @@ export default class ErrorBoundary extends React.Component<Props, State> {
 
     if (error) {
       return (
-        <VerticalLayout alignItems="center" height="100%" justifyContent="center" padding="40px" position="relative">
+        <VerticalLayout
+          alignItems="center"
+          grow
+          height="100%"
+          justifyContent="center"
+          padding="40px"
+          position="relative"
+        >
           <Box textAlign="center">
             <Typography variant="h5">Oops, something went wrong...</Typography>
             <Typography style={{ margin: "8px 0 24px" }} variant="body2">
@@ -50,6 +57,12 @@ export default class ErrorBoundary extends React.Component<Props, State> {
             </Button>
           </Box>
           <Box style={{ position: "absolute", bottom: 8, left: 0, width: "100%", opacity: 0.5 }}>
+            <Typography align="center" color="textPrimary">
+              Contact us via{" "}
+              <a href="mailto:hello@solarwallet.io" style={{ color: "inherit" }} target="_blank">
+                hello@solarwallet.io
+              </a>
+            </Typography>
             <Typography align="center" color="textPrimary">
               v{pkg.version}
             </Typography>
