@@ -62,7 +62,6 @@ function PaymentDialog(props: Props) {
       <PaymentForm
         accountData={props.accountData}
         actionsRef={dialogActionsRef}
-        onCancel={props.onClose}
         onSubmit={handleSubmit}
         testnet={props.account.testnet}
         trustedAssets={trustedAssets}
