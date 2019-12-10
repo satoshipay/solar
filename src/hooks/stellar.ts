@@ -1,9 +1,7 @@
 /* tslint:disable:no-string-literal */
 
-import * as JWT from "jsonwebtoken"
 import React from "react"
-import { Asset, Server, Transaction, Horizon } from "stellar-sdk"
-import * as WebAuth from "@satoshipay/stellar-sep-10"
+import { Asset, Networks, Server, Transaction, Horizon } from "stellar-sdk"
 import {
   SigningKeyCacheContext,
   StellarAddressCacheContext,
@@ -53,12 +51,14 @@ export function useWebAuth() {
   )
 
   return {
-    fetchChallenge: WebAuth.fetchChallenge,
+    async fetchChallenge(endpointURL: string, serviceSigningKey: string, localPublicKey: string) {
+      const { netWorker } = await workers
+      return netWorker.fetchWebAuthChallenge(endpointURL, serviceSigningKey, localPublicKey)
+    },
 
-    // TODO: Move to web worker
-
-    async fetchWebAuthData(horizon: Server, issuerAccountID: string) {
-      const metadata = await WebAuth.fetchWebAuthData(horizon, issuerAccountID)
+    async fetchWebAuthData(horizonURL: string, issuerAccountID: string) {
+      const { netWorker } = await workers
+      const metadata = await netWorker.fetchWebAuthData(horizonURL, issuerAccountID)
       if (metadata) {
         signingKeys.store(metadata.signingKey, metadata.domain)
       }
@@ -69,13 +69,19 @@ export function useWebAuth() {
       return webauthTokens.cache.get(createCacheKey(endpointURL, localPublicKey))
     },
 
-    async postResponse(endpointURL: string, transaction: Transaction) {
+    async postResponse(endpointURL: string, transaction: Transaction, testnet: boolean) {
+      const { netWorker } = await workers
       const manageDataOperation = transaction.operations.find(operation => operation.type === "manageData")
       const localPublicKey = manageDataOperation ? manageDataOperation.source : undefined
-      const authToken = await WebAuth.postResponse(endpointURL, transaction)
+
+      const network = testnet ? Networks.TESTNET : Networks.PUBLIC
+      const txXdr = transaction
+        .toEnvelope()
+        .toXDR()
+        .toString("base64")
+      const { authToken, decoded } = await netWorker.postWebAuthResponse(endpointURL, txXdr, network)
 
       if (localPublicKey) {
-        const decoded = JWT.decode(authToken) as any
         const maxAge = decoded.exp ? Number.parseInt(decoded.exp, 10) * 1000 - Date.now() - 60_000 : undefined
         webauthTokens.store(createCacheKey(endpointURL, localPublicKey), authToken, maxAge)
       }

@@ -1,16 +1,18 @@
 import { expose } from "threads"
-import * as multisig from "./multisig"
-import * as ecosystem from "./stellar-ecosystem"
-import * as network from "./stellar-network"
+import * as Multisig from "./multisig"
+import * as SEP10 from "./sep-10"
+import * as Ecosystem from "./stellar-ecosystem"
+import * as Network from "./stellar-network"
 
+// Report serious connection issues
 // TODO: resetAllSubscriptions() (or move the logic that triggers it here, too)
 // TODO: selectTransactionFeeWithFallback(), horizon.fetchTimebounds() (see createTransaction())
-// TODO: SEP-10 web auth
 
 const netWorker = {
-  ...ecosystem,
-  ...multisig,
-  ...network
+  ...Ecosystem,
+  ...Multisig,
+  ...Network,
+  ...SEP10
 }
 
 export type NetWorker = typeof netWorker
