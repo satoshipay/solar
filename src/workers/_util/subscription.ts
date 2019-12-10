@@ -1,5 +1,5 @@
 import throttle from "lodash.throttle"
-import { multicast, Observable } from "@andywer/observable-fns"
+import { multicast, Observable } from "observable-fns"
 import { createIntervalRunner } from "./connection"
 
 function delay(ms: number) {

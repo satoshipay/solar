@@ -1,5 +1,5 @@
+import { multicast, Observable, ObservableLike } from "observable-fns"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
-import { multicast, Observable, ObservableLike } from "@andywer/observable-fns"
 import { trackError } from "../context/notifications"
 import { AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"

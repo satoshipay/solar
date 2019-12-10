@@ -59,7 +59,6 @@
     "threads": "^1.0.0-beta.8"
   },
   "devDependencies": {
-    "@andywer/observable-fns": "^0.2.0",
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "@satoshipay/stellar-sep-10": "^0.1.0",
@@ -110,8 +109,10 @@
     "lru-cache": "^5.1.1",
     "npm-run-all": "^4.1.5",
     "nunjucks": "^3.2.0",
+    "observable-fns": "^0.4.0",
     "p-queue": "^6.2.0",
     "parcel-bundler": "^1.12.4",
+    "parcel-plugin-bundle-visualiser": "^1.2.0",
     "parcel-plugin-nunjucks": "^1.1.0",
     "prettier": "~1.18.2",
     "qrcode.react": "^0.9.3",

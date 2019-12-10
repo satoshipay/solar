@@ -1,4 +1,4 @@
-import { Observable } from "@andywer/observable-fns"
+import { Observable } from "observable-fns"
 import { ServerSentEvent, SignatureRequest } from "../../lib/multisig-service"
 import { manageStreamConnection, whenBackOnline } from "../../lib/stream"
 import { joinURL } from "../../lib/url"

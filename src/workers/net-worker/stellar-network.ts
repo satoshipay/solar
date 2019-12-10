@@ -1,8 +1,8 @@
 import "eventsource"
+import { map, Observable } from "observable-fns"
 import PromiseQueue from "p-queue"
 import qs from "qs"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
-import { map, Observable } from "@andywer/observable-fns"
 import pkg from "../../../package.json"
 import { Cancellation } from "../../lib/errors"
 import { parseAssetID } from "../../lib/stellar"
@@ -258,7 +258,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
       return Boolean(update && (!latestSnapshot || createSnapshot(update) !== latestSnapshot))
     },
     subscribeToUpdates() {
-      return map(subscribeToAccountEffects(horizonURL, accountID), () => fetchAccountData(horizonURL, accountID))
+      return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID)))
     }
   })
 }
@@ -297,7 +297,7 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
       return update.length > 0 && (!latestCreatedAt || update[0].created_at > latestCreatedAt)
     },
     subscribeToUpdates() {
-      return map(subscribeToAccountEffects(horizonURL, accountID), () => fetchUpdate())
+      return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
     }
   }).flatMap((txs: Horizon.TransactionResponse[]) => Observable.from(txs))
 }
@@ -343,7 +343,7 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
       return emptySet !== latestSetEmpty || (!emptySet && latestUpdateCursor !== latestCursor)
     },
     subscribeToUpdates() {
-      return map(subscribeToAccountEffects(horizonURL, accountID), () => fetchUpdate())
+      return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
     }
   })
 }

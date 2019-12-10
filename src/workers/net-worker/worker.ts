@@ -5,7 +5,7 @@ import * as Ecosystem from "./stellar-ecosystem"
 import * as Network from "./stellar-network"
 
 // Report serious connection issues
-// TODO: resetAllSubscriptions() (or move the logic that triggers it here, too)
+// TODO: resetAllSubscriptions() if a different horizon server has been selected
 // TODO: selectTransactionFeeWithFallback(), horizon.fetchTimebounds() (see createTransaction())
 
 const netWorker = {
