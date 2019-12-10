@@ -6,13 +6,16 @@ import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { getAssetsFromBalances } from "../../lib/stellar"
-import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
+import ScrollableBalances from "../Lazy/ScrollableBalances"
+import withFallback from "../Lazy/withFallback"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
-import Offramp from "../Withdrawal/Offramp"
+import ViewLoading from "../ViewLoading"
+
+const Offramp = withFallback(React.lazy(() => import("../Withdrawal/Offramp")), <ViewLoading />)
 
 interface Props {
   account: Account

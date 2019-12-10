@@ -13,7 +13,7 @@ export default function getQRReader(): QRExports {
   if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {
     return require("./cordova/qr-reader")
   } else if (window.electron || process.browser) {
-    return require("./web/qr-reader")
+    return require("./web/qr-reader.tsx")
   } else {
     throw new Error("There is no implementation for your platform.")
   }

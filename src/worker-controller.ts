@@ -2,16 +2,17 @@ import "threads/register"
 import { spawn, ModuleThread } from "threads"
 import { NetWorker as NetWorkerInterface } from "./workers/net-worker/worker"
 
-function spawnNetWorker() {
-  const worker = new Worker("./workers/net-worker/worker.ts")
+// Load worker eagerly
+const netWorker = new Worker("./workers/net-worker/worker.ts")
 
+function spawnNetWorker() {
   window.addEventListener("message", event => {
     if (event.data && ["app:pause", "app:resume"].indexOf(event.data) > -1) {
-      worker.postMessage(event.data)
+      netWorker.postMessage(event.data)
     }
   })
 
-  return spawn<NetWorker>(worker)
+  return spawn<NetWorker>(netWorker)
 }
 
 async function spawnWorkers() {

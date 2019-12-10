@@ -8,11 +8,14 @@ import MenuIcon from "@material-ui/icons/Menu"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile } from "../../hooks/userinterface"
+import { breakpoints } from "../../theme"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
-import AccountContextMenu from "./AccountContextMenu"
+import withFallback from "../Lazy/withFallback"
+import ViewLoading from "../ViewLoading"
 import AccountTitle, { Badges } from "./AccountTitle"
-import { breakpoints } from "../../theme"
+
+const AccountContextMenu = withFallback(React.lazy(() => import("./AccountContextMenu")), <ViewLoading />)
 
 const useAccountHeaderStyles = makeStyles({
   button: {
@@ -43,7 +46,6 @@ interface Props {
   onTrade: () => void
   onWithdraw: () => void
   showCloseButton?: boolean
-  style?: React.CSSProperties
 }
 
 function AccountHeaderCard(props: Props) {
@@ -89,8 +91,7 @@ function AccountHeaderCard(props: Props) {
         position: "relative",
         background: "transparent",
         boxShadow: "none",
-        overflow: "visible",
-        ...props.style
+        overflow: "visible"
       }}
     >
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>

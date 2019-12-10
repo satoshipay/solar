@@ -1,22 +1,22 @@
 import React from "react"
 import { Horizon, Server, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
-import ScrollableBalances from "../AccountAssets/ScrollableBalances"
-import MainTitle from "../MainTitle"
-import TradingForm from "./TradingForm"
-import TransactionSender from "../TransactionSender"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout } from "../Layout/Box"
+import ScrollableBalances from "../Lazy/ScrollableBalances"
+import MainTitle from "../MainTitle"
 import Portal from "../Portal"
+import TransactionSender from "../TransactionSender"
+import ViewLoading from "../ViewLoading"
 import MainActionSelection from "./MainActionSelection"
+import TradingForm from "./TradingForm"
 
 interface TradingDialogProps {
   account: Account
@@ -83,7 +83,7 @@ function TradingDialog(props: TradingDialogProps) {
           }}
         />
         {primaryAction ? (
-          <React.Suspense fallback={<CircularProgress style={{ display: "block", margin: "50px auto" }} />}>
+          <React.Suspense fallback={<ViewLoading />}>
             <TradingForm
               account={props.account}
               accountData={accountData}

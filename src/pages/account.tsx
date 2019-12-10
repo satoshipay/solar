@@ -1,23 +1,20 @@
 import React from "react"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import { makeStyles } from "@material-ui/core/styles"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
-import AccountTransactions from "../components/Account/AccountTransactions"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
-import AssetDetailsDialog from "../components/AccountAssets/AssetDetailsDialog"
-import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
-import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
-import AccountSettings from "../components/AccountSettings/AccountSettings"
+import DepositDialog from "../components/Deposit/DepositDialog"
 import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
 import QRCodeIcon from "../components/Icon/QRCode"
 import InlineLoader from "../components/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
+import ScrollableBalances from "../components/Lazy/ScrollableBalances"
+import withFallback from "../components/Lazy/withFallback"
 import PaymentDialog from "../components/Payment/PaymentDialog"
 import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
-import TradeAssetDialog from "../components/Trading/TradingDialog"
+import ViewLoading from "../components/ViewLoading"
 import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
 import { Account, AccountsContext } from "../context/accounts"
 import { useLiveAccountData } from "../hooks/stellar-subscriptions"
@@ -25,7 +22,25 @@ import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
 import { FullscreenDialogTransition } from "../theme"
-import DepositDialog from "../components/Deposit/DepositDialog"
+
+const AccountSettings = withFallback(
+  React.lazy(() => import("../components/AccountSettings/AccountSettings")),
+  <TransactionListPlaceholder />
+)
+const AccountTransactions = withFallback(
+  React.lazy(() => import("../components/Account/AccountTransactions")),
+  <TransactionListPlaceholder />
+)
+
+const AssetDetailsDialog = withFallback(
+  React.lazy(() => import("../components/AccountAssets/AssetDetailsDialog")),
+  <ViewLoading />
+)
+const BalanceDetailsDialog = withFallback(
+  React.lazy(() => import("../components/AccountAssets/BalanceDetailsDialog")),
+  <ViewLoading />
+)
+const TradeAssetDialog = withFallback(React.lazy(() => import("../components/Trading/TradingDialog")), <ViewLoading />)
 
 const useButtonStyles = makeStyles(theme => ({
   desktop: {
@@ -97,7 +112,6 @@ const AccountActions = React.memo(function AccountActions(props: AccountActionsP
   )
 })
 
-// tslint:disable-next-line no-shadowed-variable
 const AccountPageContent = React.memo(function AccountPageContent(props: { account: Account }) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
@@ -114,6 +128,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
 
   const showSendReceiveButtons = !matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
+
+  const headerHeight = isSmallScreen ? 188 : showSendReceiveButtons ? 272 : 184
 
   const navigateTo = React.useMemo(
     () => ({
@@ -167,10 +183,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
 
   return (
     <VerticalLayout height="100%">
-      <Section top brandColored grow={0}>
-        <React.Suspense fallback={<CircularProgress style={{ color: "white", margin: "0px auto" }} />}>
-          {headerCard}
-        </React.Suspense>
+      <Section top brandColored grow={0} minHeight={headerHeight} shrink={0}>
+        <React.Suspense fallback={<ViewLoading />}>{headerCard}</React.Suspense>
       </Section>
       <Section
         bottom={!isSmallScreen}
@@ -191,7 +205,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         </React.Suspense>
       </Section>
       {isSmallScreen ? (
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <AccountActions
             account={props.account}
             bottomOfScreen
@@ -208,7 +222,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
         </React.Suspense>
       </Dialog>
@@ -218,7 +232,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.balanceDetails}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <AssetDetailsDialog
             account={props.account}
             assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
@@ -232,7 +246,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <PaymentDialog account={props.account} onClose={navigateTo.transactions} />
         </React.Suspense>
       </Dialog>
@@ -242,7 +256,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <ReceivePaymentDialog account={props.account} onClose={navigateTo.transactions} />
         </React.Suspense>
       </Dialog>
@@ -252,7 +266,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <TradeAssetDialog account={props.account} onClose={navigateTo.transactions} />
         </React.Suspense>
       </Dialog>
@@ -262,7 +276,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
         </React.Suspense>
       </Dialog>

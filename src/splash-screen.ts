@@ -13,8 +13,6 @@ function handleSplashScreen() {
     }
 
     window.addEventListener("message", listener, false)
-  } else {
-    hideSplashScreen()
   }
 }
 
@@ -29,7 +27,7 @@ function hideSplashScreen() {
         splash.style.display = "none"
       }, 1000)
     }
-  }, 1000)
+  }, 500)
 }
 
 function showSplashScreen() {
@@ -40,3 +38,11 @@ function showSplashScreen() {
 }
 
 export default handleSplashScreen
+
+export function appIsLoaded() {
+  if ((process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") && window.parent) {
+    window.parent.postMessage("app:ready", "*")
+  } else {
+    hideSplashScreen()
+  }
+}
