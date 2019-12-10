@@ -50,7 +50,7 @@ function SubmissionProgress(props: SubmissionProgressProps) {
       promise={props.promise}
       pending={
         <Container>
-          <CircularProgress size={70} />
+          <CircularProgress size={70} style={{ marginBottom: 24 }} />
           <Heading>Submitting to network...</Heading>
         </Container>
       }
