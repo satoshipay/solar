@@ -32,10 +32,8 @@ function ConditionalSubmissionProgress(props: {
   const isSmallScreen = useIsMobile()
 
   const outerStyle: React.CSSProperties = {
-    position: "absolute",
+    position: "relative",
     display: props.promise ? "flex" : "none",
-    top: 0,
-    left: 0,
     width: "100%",
     height: "100%",
     alignItems: "center",

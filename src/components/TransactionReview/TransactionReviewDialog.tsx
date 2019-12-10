@@ -77,7 +77,7 @@ export function TransactionReviewDialogBody(props: TransactionReviewDialogBodyPr
 
   return (
     <DialogBody top={titleContent} actions={props.showSubmissionProgress ? null : dialogActionsRef}>
-      {props.transaction ? (
+      {props.transaction && !props.showSubmissionProgress ? (
         <Box margin={`12px ${isSmallScreen ? "4px" : "0"} 0`} textAlign="center">
           <ReviewForm
             account={props.account}
