@@ -85,11 +85,41 @@ interface Fingerprint {
   show(options: FingerprintOptions, success: () => void, error: () => void): void
 }
 
+interface LocalNotification {
+  actions?: []
+  color?: string
+  icon?: string
+  id?: number
+  foreground?: boolean
+  led?: boolean
+  priority?: number
+  silent?: boolean
+  smallIcon?: string
+  sticky?: boolean
+  text: string
+  title: string
+  vibrate?: boolean
+  wakeup?: boolean
+}
+
+interface NotificationPlugin {
+  local: {
+    clear(ids: number[], callback: Function, scope: any): void
+    clearAll(callback: Function, scope: any): void
+    hasPermission(callback: (granted: boolean) => void, scope?: any): void
+    requestPermission(callback: (granted: boolean) => void, scope?: any): void
+    schedule(msgs: LocalNotification | LocalNotification[], callback?: Function, scope?: any, args?: any): void
+    on(event: string, callback: Function, scope?: any)
+    un(event: string, callback: Function, scope?: any)
+  }
+}
+
 declare var Fingerprint: Fingerprint
 
 interface CordovaPlugins {
   barcodeScanner: BarcodeScanner
   clipboard: CordovaClipboard
+  notification: NotificationPlugin
   SecureStorage: CordovaSecureStorage
 }
 
