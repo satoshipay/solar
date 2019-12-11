@@ -1,5 +1,4 @@
-import { BrowserWindow } from "electron"
-import open from "open"
+import { BrowserWindow, shell } from "electron"
 import path from "path"
 import URL from "url"
 
@@ -43,9 +42,10 @@ export function createMainWindow() {
 
   window.loadURL(webappURL)
 
+  // subscribes to window.open and <a target="_blank"></a> links and opens the url in the browser
   window.webContents.on("new-window", (event, url) => {
     event.preventDefault()
-    open(url)
+    shell.openExternal(url)
   })
 
   // subscribe this window to deeplink urls
