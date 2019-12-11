@@ -11,6 +11,7 @@ import { getCurrentSettings, initSecureStorage, initKeyStore } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 import { registerURLHandler } from "./protocol-handler"
 import { registerUpdateHandler } from "./updater"
+import { registerNotificationHandler } from "./notifications"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 
@@ -55,6 +56,7 @@ function onDeviceReady() {
 
   registerURLHandler(contentWindow, iframeReady)
   registerUpdateHandler()
+  registerNotificationHandler()
   initializeQRReader()
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
