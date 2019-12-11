@@ -38,6 +38,8 @@
         <resource-file src="res/icon/android/adaptiveicon/mipmap-xhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xhdpi/ic_launcher.png" />
         <resource-file src="res/icon/android/adaptiveicon/mipmap-xxhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xxhdpi/ic_launcher.png" />
         <resource-file src="res/icon/android/adaptiveicon/mipmap-xxxhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" />
+
+        <resource-file src="res/icon/android/notification/icon.png" target="app/src/main/res/mipmap-hdpi/notif_icon.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
