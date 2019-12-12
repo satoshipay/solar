@@ -10,6 +10,7 @@ import { useRouter } from "../../hooks/userinterface"
 import { createTransaction } from "../../lib/transaction"
 import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
+import { stringifyAsset } from "../../lib/stellar"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
 import RemoveTrustlineDialog from "./RemoveTrustline"
@@ -63,9 +64,10 @@ function AssetDetailsActions(props: Props) {
   const closeRemovalDialog = React.useCallback(() => setRemovalDialogOpen(false), [])
   const removeThisAsset = React.useCallback(() => setRemovalDialogOpen(true), [])
 
-  const tradeThisAsset = React.useCallback(() => router.history.push(routes.tradeAsset(props.account.id)), [
-    router.history
-  ])
+  const tradeThisAsset = React.useCallback(
+    () => router.history.push(routes.tradeAsset(props.account.id, undefined, stringifyAsset(asset))),
+    [asset, router.history]
+  )
 
   return (
     <>

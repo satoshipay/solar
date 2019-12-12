@@ -1,11 +1,12 @@
 import React from "react"
-import { Horizon, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Server, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
+import { parseAssetID, stringifyAsset } from "../../lib/stellar"
 import * as routes from "../../routes"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -25,10 +26,26 @@ interface TradingDialogProps {
   sendTransaction: (transaction: Transaction) => void
 }
 
+function getAssetFromPath(pathname: string) {
+  if (matchesRoute(pathname, routes.tradeAsset("*", undefined, "*"))) {
+    const lastArgument = pathname.replace(/^.*\/([^\/]+)/, "$1")
+    if (lastArgument !== "buy" && lastArgument !== "sell") {
+      return parseAssetID(lastArgument)
+    }
+  }
+  return undefined
+}
+
 function TradingDialog(props: TradingDialogProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const dialogActionsRef = useDialogActions()
   const router = useRouter()
+  const [preselectedAsset, setPreselectedAsset] = React.useState<Asset | undefined>()
+
+  React.useEffect(() => {
+    const asset = getAssetFromPath(router.location.pathname)
+    setPreselectedAsset(asset)
+  }, [router.location.pathname])
 
   const trustlines = React.useMemo(
     () =>
@@ -51,7 +68,9 @@ function TradingDialog(props: TradingDialogProps) {
 
   const selectPrimaryAction = React.useCallback(
     (mainAction: "buy" | "sell") => {
-      router.history.push(routes.tradeAsset(props.account.id, mainAction))
+      router.history.push(
+        routes.tradeAsset(props.account.id, mainAction, preselectedAsset ? stringifyAsset(preselectedAsset) : undefined)
+      )
     },
     [props.account, router.history]
   )
@@ -88,6 +107,7 @@ function TradingDialog(props: TradingDialogProps) {
               account={props.account}
               accountData={accountData}
               dialogActionsRef={dialogActionsRef}
+              initialPrimaryAsset={preselectedAsset}
               onBack={clearPrimaryAction}
               primaryAction={primaryAction}
               sendTransaction={props.sendTransaction}
