@@ -367,6 +367,7 @@ function TradingForm(props: Props) {
                 priceDenotedIn={priceMode}
                 primaryAsset={primaryAsset}
                 secondaryAsset={secondaryAsset}
+                selectOnFocus
                 style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
               />
             </ExpansionPanelDetails>

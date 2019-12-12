@@ -16,6 +16,7 @@ interface TradingPriceProps {
   priceDenotedIn: "primary" | "secondary"
   primaryAsset: Asset | undefined
   secondaryAsset: Asset | undefined
+  selectOnFocus?: boolean
   style?: React.CSSProperties
 }
 
@@ -53,6 +54,7 @@ function TradingPrice(props: TradingPriceProps) {
       label={props.inputError ? props.inputError : "Price (limit)"}
       onBlur={props.onBlur}
       onChange={event => props.onChange(event.target.value)}
+      onFocus={props.selectOnFocus ? event => event.target.select() : undefined}
       style={props.style}
       type="number"
       value={props.manualPrice}
