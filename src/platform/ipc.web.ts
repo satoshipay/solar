@@ -43,9 +43,6 @@ export function subscribeToMessages<Message extends keyof IPC.MessageType>(
   }
 }
 
-initKeyStore()
-initSettings()
-
 callHandlers[Messages.CopyToClipboard] = (text: string) => (navigator as any).clipboard.writeText(text)
 callHandlers[Messages.OpenLink] = (href: string) => window.open(href, "_blank")
 
@@ -97,10 +94,13 @@ const defaultTestingKeys: KeysData<PublicKeyData> = {
   }
 }
 
+initKeyStore()
+initSettings()
+
 function initKeyStore() {
   const keys = localStorage.getItem("solar:keys")
-
   const initialKeys = keys ? JSON.parse(keys) : defaultTestingKeys
+
   function saveKeys(keysData: KeysData<PublicKeyData>) {
     localStorage.setItem("solar:keys", JSON.stringify(keysData))
   }
