@@ -49,6 +49,19 @@ callHandlers[Messages.OpenLink] = (href: string) => window.open(href, "_blank")
 callHandlers[Messages.CheckUpdateAvailability] = () => false
 callHandlers[Messages.StartUpdate] = () => undefined
 
+callHandlers[Messages.NotificationPermission] = () => window.Notification.permission
+callHandlers[Messages.RequestNotificationPermission] = window.Notification.requestPermission
+callHandlers[Messages.ShowNotification] = (localNotification: LocalNotification) => {
+  return new Promise<void>(resolve => {
+    const notification = new Notification(localNotification.title, { body: localNotification.text })
+
+    notification.addEventListener("click", () => {
+      resolve()
+      notification.close()
+    })
+  })
+}
+
 const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {
     metadata: {
