@@ -19,8 +19,8 @@ export const withdrawAsset = (accountID: string) => `/account/${accountID}/withd
 export const showTransaction = (accountID: string, transactionHash: string) =>
   `/account/${accountID}/tx/${transactionHash}`
 
-export const tradeAsset = (accountID: string, method?: "buy" | "sell") => {
-  return method ? `/account/${accountID}/trade/${method}` : `/account/${accountID}/trade`
+export const tradeAsset = (accountID: string, method?: "buy" | "sell", preselectedAsset?: string) => {
+  return `/account/${accountID}/trade` + (method ? `/${method}` : "") + (preselectedAsset ? `/${preselectedAsset}` : "")
 }
 
 export function routeUp(currentPath: string) {
