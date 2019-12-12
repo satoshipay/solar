@@ -31,10 +31,6 @@ interface FeeStats {
   p99_accepted_fee: string
 }
 
-interface SignatureWithHint extends xdr.DecoratedSignature {
-  hint(): Buffer
-}
-
 const MAX_INT64 = "9223372036854775807"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
@@ -171,10 +167,9 @@ export function assetRecordToAsset(assetRecord: AssetRecord) {
 }
 
 export function signatureMatchesPublicKey(signature: xdr.DecoratedSignature, publicKey: string): boolean {
-  const hint = (signature as SignatureWithHint).hint()
   const keypair = Keypair.fromPublicKey(publicKey)
 
-  return hint.equals(keypair.signatureHint() as Buffer)
+  return signature.hint().equals(keypair.signatureHint())
 }
 
 export function trustlineLimitEqualsUnlimited(limit: string | number) {

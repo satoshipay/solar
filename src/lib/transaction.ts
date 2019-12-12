@@ -14,10 +14,6 @@ import { Account } from "../context/accounts"
 import { WrongPasswordError } from "../lib/errors"
 import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
 
-interface SignatureWithHint extends xdr.DecoratedSignature {
-  hint(): Buffer
-}
-
 // See <https://github.com/stellar/go/issues/926>
 const highFeePreset: SmartFeePreset = {
   capacityTrigger: 0.5,
@@ -42,7 +38,7 @@ export function createCheapTxID(transaction: Transaction | ServerApi.Transaction
 
 export function hasSigned(transaction: Transaction, publicKey: string) {
   return transaction.signatures.some(signature => {
-    const hint = (signature as SignatureWithHint).hint()
+    const hint = signature.hint()
     const keypair = Keypair.fromPublicKey(publicKey)
 
     return hint.equals(keypair.rawPublicKey().slice(-hint.byteLength))
