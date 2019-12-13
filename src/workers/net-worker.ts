@@ -1,8 +1,8 @@
 import { expose } from "threads"
-import * as Multisig from "./multisig"
-import * as SEP10 from "./sep-10"
-import * as Ecosystem from "./stellar-ecosystem"
-import * as Network from "./stellar-network"
+import * as Multisig from "./net-worker/multisig"
+import * as SEP10 from "./net-worker/sep-10"
+import * as Ecosystem from "./net-worker/stellar-ecosystem"
+import * as Network from "./net-worker/stellar-network"
 
 // Report serious connection issues
 // TODO: resetAllSubscriptions() if a different horizon server has been selected
