@@ -38,7 +38,7 @@ export function getOperationTitle(operation: Operation) {
   if (operation.type === "payment") {
     return "Payment"
   } else if (operation.type === "createAccount") {
-    return "Create account"
+    return "Fund new account"
   } else if (operation.type === "manageBuyOffer") {
     const amount = BigNumber(operation.buyAmount)
     const offerId = operation.offerId
