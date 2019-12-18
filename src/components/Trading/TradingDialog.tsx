@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions, useRouter } from "../../hooks/userinterface"
+import { getLastArgumentFromURL } from "../../lib/url"
 import { matchesRoute } from "../../lib/routes"
 import { parseAssetID, stringifyAsset } from "../../lib/stellar"
 import * as routes from "../../routes"
@@ -28,7 +29,7 @@ interface TradingDialogProps {
 
 function getAssetFromPath(pathname: string) {
   if (matchesRoute(pathname, routes.tradeAsset("*", undefined, "*"))) {
-    const lastArgument = pathname.replace(/^.*\/([^\/]+)/, "$1")
+    const lastArgument = getLastArgumentFromURL(pathname)
     if (lastArgument !== "buy" && lastArgument !== "sell") {
       return parseAssetID(lastArgument)
     }

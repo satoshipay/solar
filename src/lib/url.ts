@@ -11,3 +11,7 @@ export function joinURL(...fragments: string[]) {
     }
   }, "")
 }
+
+export function getLastArgumentFromURL(url: string) {
+  return url.replace(/^.*\/([^\/]+)/, "$1")
+}
