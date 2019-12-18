@@ -64,8 +64,10 @@ function TradingDialog(props: TradingDialogProps) {
     : undefined
 
   const clearPrimaryAction = React.useCallback(() => {
-    router.history.push(routes.tradeAsset(props.account.id))
-  }, [props.account, router.history])
+    router.history.push(
+      routes.tradeAsset(props.account.id, undefined, preselectedAsset ? stringifyAsset(preselectedAsset) : undefined)
+    )
+  }, [preselectedAsset, props.account, router.history])
 
   const selectPrimaryAction = React.useCallback(
     (mainAction: "buy" | "sell") => {
@@ -73,7 +75,7 @@ function TradingDialog(props: TradingDialogProps) {
         routes.tradeAsset(props.account.id, mainAction, preselectedAsset ? stringifyAsset(preselectedAsset) : undefined)
       )
     },
-    [props.account, router.history]
+    [preselectedAsset, props.account, router.history]
   )
 
   const mainContentStageStyle: React.CSSProperties = {
