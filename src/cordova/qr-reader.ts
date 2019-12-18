@@ -1,32 +1,62 @@
 import { trackError } from "./error"
 import { events, commands, registerCommandHandler } from "./ipc"
-import { refreshLastNativeInteractionTime } from "./app.cordova"
+
+const iframe = document.getElementById("walletframe") as HTMLIFrameElement
+const backButton = createBackButton()
+
+function createBackButton() {
+  const div = document.createElement("div")
+  div.style.position = "absolute"
+  div.style.left = "50%"
+  div.style.bottom = "10%"
+  div.style.width = "fit-content"
+  div.style.height = "auto"
+  div.style.zIndex = "99"
+  div.style.background = "rgba(255,255,255,0.5)"
+  div.style.textAlign = "center"
+  div.style.transform = "translate(-50%, -50%)"
+
+  div.textContent = "GO BACK"
+  div.addEventListener("click", () => {
+    cleanup()
+  })
+
+  return div
+}
 
 async function startQRReader(event: MessageEvent, contentWindow: Window) {
-  refreshLastNativeInteractionTime()
-  cordova.plugins.barcodeScanner.scan(
-    result => {
-      refreshLastNativeInteractionTime()
-      contentWindow.postMessage({ eventType: events.qrcodeResultEvent, id: event.data.id, qrdata: result.text }, "*")
-    },
-    error => {
-      refreshLastNativeInteractionTime()
+  QRScanner.scan((error, result) => {
+    if (error) {
       trackError(error)
-    },
-    {
-      preferFrontCamera: false, // iOS and Android
-      showFlipCameraButton: true, // iOS and Android
-      showTorchButton: true, // iOS and Android
-      torchOn: false, // Android, launch with the torch switched on (if available)
-      saveHistory: false, // Android, save scan history (default false)
-      prompt: "Place the QR-code inside the scan area", // Android
-      resultDisplayDuration: 0, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
-      formats: "QR_CODE,PDF_417", // default: all but PDF_417 and RSS_EXPANDED
-      orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
-      disableAnimations: false, // iOS
-      disableSuccessBeep: false // iOS and Android
+    } else {
+      contentWindow.postMessage({ eventType: events.qrcodeResultEvent, id: event.data.id, qrdata: result }, "*")
     }
-  )
+
+    cleanup()
+  })
+
+  showQRScanner()
+}
+
+function showQRScanner() {
+  iframe.setAttribute("style", "visibility: hidden; background-color: transparent;")
+
+  document.body.appendChild(backButton)
+
+  QRScanner.show(() => undefined) // somehow does not work without callback
+}
+
+function hideQRScanner() {
+  iframe.setAttribute("style", "")
+
+  QRScanner.hide()
+}
+
+function cleanup() {
+  document.body.removeChild(backButton)
+
+  hideQRScanner()
+  QRScanner.destroy()
 }
 
 export default function initialize() {
