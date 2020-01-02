@@ -1,13 +1,19 @@
+import { app } from "electron"
 import isDev from "electron-is-dev"
 import Store from "electron-store"
 import { createStore } from "key-store"
 import generateID from "nanoid/generate"
+import * as path from "path"
 import { Keypair, Networks, Transaction } from "stellar-sdk"
 import { expose } from "./_ipc"
 import { Messages } from "../shared/ipc"
 
+// Use legacy path to not break backwards-compatibility
+const storeDirectoryPath = path.join(app.getPath("appData"), "satoshipay-stellar-wallet")
+
 // Use different key stores for development and production
 const mainStore = new Store({
+  cwd: storeDirectoryPath,
   name: isDev ? "development" : "config"
 })
 
