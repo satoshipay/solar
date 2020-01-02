@@ -32,6 +32,10 @@ function useDataSubscriptions<DataT, UpdateT>(
         next(update) {
           item.set(reducer(item.get(), update))
           setRefreshCounter(counter => counter + 1)
+        },
+        error(error) {
+          // tslint:disable-next-line
+          console.error(error)
         }
       })
     })

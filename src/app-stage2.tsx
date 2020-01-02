@@ -5,7 +5,8 @@ import ErrorBoundary from "./components/ErrorBoundary"
 import LinkHandler from "./components/LinkHandler"
 import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
-import NotificationContainer from "./components/NotificationContainer"
+import ConnectionErrorListener from "./components/Toasts/ConnectionErrorListener"
+import NotificationContainer from "./components/Toasts/NotificationContainer"
 import AccountPage from "./pages/account"
 import AllAccountsPage from "./pages/all-accounts"
 import CreateAccountPage from "./pages/create-account"
@@ -39,7 +40,10 @@ function Stage2() {
           </ErrorBoundary>
         </VerticalLayout>
       </VerticalLayout>
-      <NotificationContainer />
+      <React.Suspense fallback={null}>
+        <NotificationContainer />
+        <ConnectionErrorListener />
+      </React.Suspense>
       <React.Suspense fallback={null}>
         {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
         <DesktopNotifications />

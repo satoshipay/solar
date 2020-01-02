@@ -2,6 +2,7 @@ import { Observable } from "observable-fns"
 import { ServerSentEvent, SignatureRequest } from "../../lib/multisig-service"
 import { manageStreamConnection, whenBackOnline } from "../../lib/stream"
 import { joinURL } from "../../lib/url"
+import { raiseConnectionError, ServiceID } from "./errors"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 const toArray = <T>(thing: T | T[]) => (Array.isArray(thing) ? thing : [thing])
@@ -99,6 +100,13 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
         if (Date.now() - lastErrorTime > 10000) {
           // tslint:disable-next-line no-console
           console.error(Error("Multisig service event stream crashed."))
+        }
+        if (navigator.onLine !== false && Date.now() - lastErrorTime < 3000) {
+          // double trouble
+          raiseConnectionError(
+            Error(`Multi-signature update event stream double-errored: ${url}`),
+            ServiceID.MultiSignature
+          )
         }
         lastErrorTime = Date.now()
 

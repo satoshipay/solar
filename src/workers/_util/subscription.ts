@@ -1,5 +1,7 @@
 import throttle from "lodash.throttle"
 import { multicast, Observable } from "observable-fns"
+import { whenBackOnline } from "../../lib/stream"
+import { raiseConnectionError, ServiceID } from "../net-worker/errors"
 import { createIntervalRunner } from "./connection"
 
 function delay(ms: number) {
@@ -17,9 +19,11 @@ export interface SubscriberImplementation<ValueT, UpdateT = ValueT> {
 
 export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
   implementation: SubscriberImplementation<ValueT, UpdateT>,
+  serviceID: ServiceID,
   options?: { retryFetchOnNoUpdate: boolean }
 ): Observable<ValueT> {
   const { retryFetchOnNoUpdate = true } = options || {}
+  let lastConnectionErrorTime = 0
 
   return multicast(
     new Observable<ValueT>(observer => {
@@ -27,6 +31,14 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
 
       let unsubscribe = () => {
         cancelled = true
+      }
+
+      const handleConnectionError = (error: Error) => {
+        if (navigator.onLine !== false && Date.now() - lastConnectionErrorTime < 3000) {
+          // double trouble
+          raiseConnectionError(error, serviceID)
+        }
+        lastConnectionErrorTime = Date.now()
       }
 
       const handleUnexpectedError = (error: Error) => {
@@ -41,10 +53,26 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
         }
       }
 
+      const handleSetupError = (error: Error) => {
+        handleConnectionError(error)
+
+        if (navigator.onLine === false) {
+          whenBackOnline(() => setup().catch(handleSetupError))
+        } else {
+          setTimeout(() => setup().catch(handleSetupError), Date.now() - lastConnectionErrorTime < 3000 ? 2000 : 500)
+        }
+      }
+
       const fetchAndApplyUpdate = throttle(
         async (streamedUpdate?: UpdateT, retry: number = 0): Promise<void> => {
           try {
-            const update = await implementation.fetchUpdate(streamedUpdate)
+            let update: UpdateT | undefined
+
+            try {
+              update = await implementation.fetchUpdate(streamedUpdate)
+            } catch (error) {
+              return handleConnectionError(error)
+            }
 
             if (update && implementation.shouldApplyUpdate(update)) {
               const applied = await implementation.applyUpdate(update)
@@ -85,11 +113,11 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
             interval.reset()
           },
           error => {
-            observer.error(error)
+            handleConnectionError(error)
             unsubscribe()
 
             // Re-initialize stream
-            setup().catch(reinitError => observer.error(reinitError))
+            setup().catch(handleSetupError)
           },
           () => {
             observer.complete()
@@ -105,7 +133,7 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
         }
       }
 
-      setup().catch(error => observer.error(error))
+      setup().catch(handleSetupError)
 
       // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
       return () => unsubscribe()

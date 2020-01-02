@@ -10,6 +10,7 @@ import { max } from "../../lib/strings"
 import { createReconnectingSSE } from "../_util/event-source"
 import { parseJSONResponse } from "../_util/rest"
 import { subscribeToUpdatesAndPoll } from "../_util/subscription"
+import { ServiceID } from "./errors"
 
 export interface CollectionPage<T> {
   _embedded: {
@@ -51,6 +52,10 @@ const createOrderbookCacheKey = (horizonURL: string, sellingAsset: string, buyin
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function getServiceID(horizonURL: string): ServiceID {
+  return /testnet/.test(horizonURL) ? ServiceID.HorizonTestnet : ServiceID.HorizonPublic
 }
 
 function cachify<T, Args extends any[]>(
@@ -145,6 +150,8 @@ async function waitForAccountData(horizonURL: string, accountID: string, shouldC
 }
 
 function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string) {
+  const serviceID = getServiceID(horizonURL)
+
   let latestCursor: string | undefined
   let latestEffectCreatedAt: string | undefined
 
@@ -208,6 +215,7 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
         })
       }
     },
+    serviceID,
     {
       retryFetchOnNoUpdate: false
     }
@@ -221,51 +229,57 @@ export const subscribeToAccountEffects = cachify(
 )
 
 function subscribeToAccountUncached(horizonURL: string, accountID: string) {
+  const serviceID = getServiceID(horizonURL)
   let latestSnapshot: string | undefined
 
   const cacheKey = createAccountCacheKey(horizonURL, accountID)
   const createSnapshot = (accountData: Horizon.AccountResponse) =>
     JSON.stringify([accountData.sequence, accountData.balances])
 
-  return subscribeToUpdatesAndPoll<Horizon.AccountResponse | null>({
-    async applyUpdate(update) {
-      if (update) {
-        accountDataCache.set(cacheKey, update)
-        latestSnapshot = createSnapshot(update)
+  return subscribeToUpdatesAndPoll<Horizon.AccountResponse | null>(
+    {
+      async applyUpdate(update) {
+        if (update) {
+          accountDataCache.set(cacheKey, update)
+          latestSnapshot = createSnapshot(update)
+        }
+        return update
+      },
+      async fetchUpdate() {
+        const accountData = await fetchAccountData(horizonURL, accountID)
+        return accountData || undefined
+      },
+      async init() {
+        const lastKnownAccountData = accountDataCache.get(cacheKey)
+
+        if (lastKnownAccountData) {
+          latestSnapshot = createSnapshot(lastKnownAccountData)
+          return lastKnownAccountData
+        } else {
+          const { accountData: initialAccountData } = await waitForAccountData(horizonURL, accountID)
+
+          accountDataCache.set(cacheKey, initialAccountData)
+          latestSnapshot = createSnapshot(initialAccountData)
+
+          return initialAccountData
+        }
+      },
+      shouldApplyUpdate(update) {
+        return Boolean(update && (!latestSnapshot || createSnapshot(update) !== latestSnapshot))
+      },
+      subscribeToUpdates() {
+        return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID)))
       }
-      return update
     },
-    async fetchUpdate() {
-      const accountData = await fetchAccountData(horizonURL, accountID)
-      return accountData || undefined
-    },
-    async init() {
-      const lastKnownAccountData = accountDataCache.get(cacheKey)
-
-      if (lastKnownAccountData) {
-        latestSnapshot = createSnapshot(lastKnownAccountData)
-        return lastKnownAccountData
-      } else {
-        const { accountData: initialAccountData } = await waitForAccountData(horizonURL, accountID)
-
-        accountDataCache.set(cacheKey, initialAccountData)
-        latestSnapshot = createSnapshot(initialAccountData)
-
-        return initialAccountData
-      }
-    },
-    shouldApplyUpdate(update) {
-      return Boolean(update && (!latestSnapshot || createSnapshot(update) !== latestSnapshot))
-    },
-    subscribeToUpdates() {
-      return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID)))
-    }
-  })
+    serviceID
+  )
 }
 
 export const subscribeToAccount = cachify(accountSubscriptionCache, subscribeToAccountUncached, createAccountCacheKey)
 
 function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: string) {
+  const serviceID = getServiceID(horizonURL)
+
   let latestCreatedAt: string | undefined
   let latestCursor: string | undefined
 
@@ -278,28 +292,31 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
     return page._embedded.records
   }
 
-  return subscribeToUpdatesAndPoll<Horizon.TransactionResponse[]>({
-    async applyUpdate(update) {
-      const prevLatestCreatedAt = latestCreatedAt
+  return subscribeToUpdatesAndPoll<Horizon.TransactionResponse[]>(
+    {
+      async applyUpdate(update) {
+        const prevLatestCreatedAt = latestCreatedAt
 
-      if (update.length > 0) {
-        latestCreatedAt = max(update.map(tx => tx.created_at), "0")
-        latestCursor = update.find(tx => tx.created_at === latestCreatedAt)!.paging_token
+        if (update.length > 0) {
+          latestCreatedAt = max(update.map(tx => tx.created_at), "0")
+          latestCursor = update.find(tx => tx.created_at === latestCreatedAt)!.paging_token
+        }
+        return update.filter(tx => !prevLatestCreatedAt || tx.created_at > prevLatestCreatedAt)
+      },
+      fetchUpdate,
+      async init() {
+        await waitForAccountData(horizonURL, accountID)
+        return fetchUpdate()
+      },
+      shouldApplyUpdate(update) {
+        return update.length > 0 && (!latestCreatedAt || update[0].created_at > latestCreatedAt)
+      },
+      subscribeToUpdates() {
+        return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
       }
-      return update.filter(tx => !prevLatestCreatedAt || tx.created_at > prevLatestCreatedAt)
     },
-    fetchUpdate,
-    async init() {
-      await waitForAccountData(horizonURL, accountID)
-      return fetchUpdate()
-    },
-    shouldApplyUpdate(update) {
-      return update.length > 0 && (!latestCreatedAt || update[0].created_at > latestCreatedAt)
-    },
-    subscribeToUpdates() {
-      return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
-    }
-  }).flatMap((txs: Horizon.TransactionResponse[]) => Observable.from(txs))
+    serviceID
+  ).flatMap((txs: Horizon.TransactionResponse[]) => Observable.from(txs))
 }
 
 export const subscribeToAccountTransactions = cachify(
@@ -309,6 +326,8 @@ export const subscribeToAccountTransactions = cachify(
 )
 
 function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
+  const serviceID = getServiceID(horizonURL)
+
   let latestCursor: string | undefined
   let latestSetEmpty = false
 
@@ -317,35 +336,38 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
     return page._embedded.records
   }
 
-  return subscribeToUpdatesAndPoll<ServerApi.OfferRecord[]>({
-    async applyUpdate(update) {
-      if (update.length > 0) {
-        const latestID = max(update.map(offer => String(offer.id)), "0")
-        latestCursor = update.find(offer => String(offer.id) === latestID)!.paging_token
+  return subscribeToUpdatesAndPoll<ServerApi.OfferRecord[]>(
+    {
+      async applyUpdate(update) {
+        if (update.length > 0) {
+          const latestID = max(update.map(offer => String(offer.id)), "0")
+          latestCursor = update.find(offer => String(offer.id) === latestID)!.paging_token
+        }
+
+        latestSetEmpty = update.length === 0
+        return update
+      },
+      fetchUpdate,
+      async init() {
+        const records = await fetchUpdate()
+
+        if (records.length > 0) {
+          latestCursor = records[0].paging_token
+        }
+
+        return records
+      },
+      shouldApplyUpdate(update) {
+        const latestUpdateCursor = max(update.map(record => record.paging_token), "0")
+        const emptySet = !latestUpdateCursor
+        return emptySet !== latestSetEmpty || (!emptySet && latestUpdateCursor !== latestCursor)
+      },
+      subscribeToUpdates() {
+        return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
       }
-
-      latestSetEmpty = update.length === 0
-      return update
     },
-    fetchUpdate,
-    async init() {
-      const records = await fetchUpdate()
-
-      if (records.length > 0) {
-        latestCursor = records[0].paging_token
-      }
-
-      return records
-    },
-    shouldApplyUpdate(update) {
-      const latestUpdateCursor = max(update.map(record => record.paging_token), "0")
-      const emptySet = !latestUpdateCursor
-      return emptySet !== latestSetEmpty || (!emptySet && latestUpdateCursor !== latestCursor)
-    },
-    subscribeToUpdates() {
-      return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
-    }
-  })
+    serviceID
+  )
 }
 
 export const subscribeToOpenOrders = cachify(
@@ -399,38 +421,42 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
   const fetchUpdate = () => fetchOrderbookRecord(horizonURL, sellingAsset, buyingAsset)
 
   let latestKnownSnapshot = ""
+  const serviceID = getServiceID(horizonURL)
 
   // TODO: Optimize - Make UpdateT = ValueT & { [$snapshot]: string }
 
-  return subscribeToUpdatesAndPoll({
-    async applyUpdate(update) {
-      latestKnownSnapshot = JSON.stringify(update)
-      return update
-    },
-    fetchUpdate,
-    async init() {
-      const record = await fetchUpdate()
-      latestKnownSnapshot = JSON.stringify(record)
-      return record
-    },
-    shouldApplyUpdate(update) {
-      const snapshot = JSON.stringify(update)
-      return snapshot !== latestKnownSnapshot
-    },
-    subscribeToUpdates() {
-      return new Observable<ServerApi.OrderbookRecord>(observer => {
-        return createReconnectingSSE(createURL, {
-          onMessage(message) {
-            const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
-            observer.next(record)
-          },
-          onUnexpectedError(error) {
-            observer.error(error)
-          }
+  return subscribeToUpdatesAndPoll(
+    {
+      async applyUpdate(update) {
+        latestKnownSnapshot = JSON.stringify(update)
+        return update
+      },
+      fetchUpdate,
+      async init() {
+        const record = await fetchUpdate()
+        latestKnownSnapshot = JSON.stringify(record)
+        return record
+      },
+      shouldApplyUpdate(update) {
+        const snapshot = JSON.stringify(update)
+        return snapshot !== latestKnownSnapshot
+      },
+      subscribeToUpdates() {
+        return new Observable<ServerApi.OrderbookRecord>(observer => {
+          return createReconnectingSSE(createURL, {
+            onMessage(message) {
+              const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
+              observer.next(record)
+            },
+            onUnexpectedError(error) {
+              observer.error(error)
+            }
+          })
         })
-      })
-    }
-  })
+      }
+    },
+    serviceID
+  )
 }
 
 export const subscribeToOrderbook = cachify(
