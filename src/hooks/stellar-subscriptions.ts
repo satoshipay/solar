@@ -8,7 +8,13 @@ import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { mapSuspendables } from "../lib/suspense"
-import { accountDataCache, accountOpenOrdersCache, accountTransactionsCache, orderbookCache } from "./_caches"
+import {
+  accountDataCache,
+  accountOpenOrdersCache,
+  accountTransactionsCache,
+  orderbookCache,
+  resetNetworkCaches
+} from "./_caches"
 import { useHorizonURL } from "./stellar"
 import { useDebouncedState } from "./util"
 import { useNetWorker } from "./workers"
@@ -230,4 +236,8 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
   }, [accountID, horizonURL])
 
   return useDataSubscription(applyAccountTransactionsUpdate, get, set, observe)
+}
+
+export function useNetworkCacheReset() {
+  return resetNetworkCaches
 }

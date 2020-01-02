@@ -1,4 +1,5 @@
 import React from "react"
+import { useNetworkCacheReset } from "../hooks/stellar-subscriptions"
 import { workers } from "../worker-controller"
 import { trackError } from "./notifications"
 
@@ -7,19 +8,24 @@ interface Props {
 }
 
 interface ContextType {
-  horizonLivenetURL: string
-  horizonTestnetURL: string
+  isSelectionPending: boolean
+  pendingSelection: Promise<any>
+  pubnetHorizonURL: string
+  testnetHorizonURL: string
 }
 
 const initialValues: ContextType = {
-  horizonLivenetURL: "https://stellar-horizon.satoshipay.io/",
-  horizonTestnetURL: "https://stellar-horizon-testnet.satoshipay.io/"
+  isSelectionPending: true,
+  pendingSelection: Promise.reject("Horizon selection has not yet started"),
+  pubnetHorizonURL: "https://stellar-horizon.satoshipay.io/",
+  testnetHorizonURL: "https://stellar-horizon-testnet.satoshipay.io/"
 }
 
 const StellarContext = React.createContext<ContextType>(initialValues)
 
 export function StellarProvider(props: Props) {
   const [contextValue, setContextValue] = React.useState<ContextType>(initialValues)
+  const resetNetworkCaches = useNetworkCacheReset()
 
   React.useEffect(() => {
     let cancelled = false
@@ -27,7 +33,7 @@ export function StellarProvider(props: Props) {
     const init = async () => {
       const { netWorker } = await workers
 
-      const [horizonLivenetURL, horizonTestnetURL] = await Promise.all([
+      const horizonSelection = Promise.all([
         netWorker.checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
         netWorker.checkHorizonOrFailover(
           "https://stellar-horizon-testnet.satoshipay.io/",
@@ -35,23 +41,29 @@ export function StellarProvider(props: Props) {
         )
       ])
 
+      setContextValue(prevState => ({ ...prevState, pendingSelection: horizonSelection }))
+      const [pubnetHorizonURL, testnetHorizonURL] = await horizonSelection
+
       if (!cancelled) {
-        setContextValue(prevValues => ({
-          horizonLivenetURL:
-            horizonLivenetURL !== prevValues.horizonLivenetURL ? horizonLivenetURL : prevValues.horizonLivenetURL,
-          horizonTestnetURL:
-            horizonTestnetURL !== prevValues.horizonTestnetURL ? horizonTestnetURL : prevValues.horizonTestnetURL
+        setContextValue(prevState => ({
+          isSelectionPending: false,
+          pendingSelection: prevState.pendingSelection,
+          pubnetHorizonURL:
+            pubnetHorizonURL !== prevState.pubnetHorizonURL ? pubnetHorizonURL : prevState.pubnetHorizonURL,
+          testnetHorizonURL:
+            testnetHorizonURL !== prevState.testnetHorizonURL ? testnetHorizonURL : prevState.testnetHorizonURL
         }))
 
         if (
-          horizonLivenetURL !== initialValues.horizonLivenetURL ||
-          horizonTestnetURL !== initialValues.horizonTestnetURL
+          pubnetHorizonURL !== initialValues.pubnetHorizonURL ||
+          testnetHorizonURL !== initialValues.testnetHorizonURL
         ) {
-          // FIXME: resetAllSubscriptions()
+          await netWorker.resetAllSubscriptions()
+          resetNetworkCaches()
         }
 
         // tslint:disable-next-line no-console
-        console.debug(`Selected horizon servers:`, { horizonLivenetURL, horizonTestnetURL })
+        console.debug(`Selected horizon servers:`, { pubnetHorizonURL, testnetHorizonURL })
       }
     }
 

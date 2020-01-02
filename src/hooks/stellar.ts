@@ -21,12 +21,16 @@ import { useNetWorker } from "./workers"
 /** @deprecated */
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
-  return testnet ? new Server(stellar.horizonTestnetURL) : new Server(stellar.horizonLivenetURL)
+  return testnet ? new Server(stellar.testnetHorizonURL) : new Server(stellar.pubnetHorizonURL)
 }
 
 export function useHorizonURL(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
-  return testnet ? stellar.horizonTestnetURL : stellar.horizonLivenetURL
+
+  if (stellar.isSelectionPending) {
+    throw stellar.pendingSelection
+  }
+  return testnet ? stellar.testnetHorizonURL : stellar.pubnetHorizonURL
 }
 
 export function useFederationLookup() {

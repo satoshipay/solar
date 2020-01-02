@@ -15,6 +15,9 @@ function createCache<SelectorT, DataT, UpdateT>(
   const observables = new Map<string, Observable<UpdateT>>()
 
   const cache = {
+    clear() {
+      values.clear()
+    },
     get(selector: SelectorT) {
       return values.get(createCacheKey(selector))
     },
@@ -107,3 +110,10 @@ export const accountTransactionsCache = createCache<
 export const orderbookCache = createCache<readonly [string, Asset, Asset], FixedOrderbookRecord, FixedOrderbookRecord>(
   createAssetPairCacheKey
 )
+
+export function resetNetworkCaches() {
+  accountDataCache.clear()
+  accountOpenOrdersCache.clear()
+  accountTransactionsCache.clear()
+  orderbookCache.clear()
+}

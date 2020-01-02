@@ -1,11 +1,19 @@
 import throttle from "lodash.throttle"
-import { multicast, Observable } from "observable-fns"
+import { multicast, Observable, Subject, Subscription } from "observable-fns"
 import { whenBackOnline } from "../../lib/stream"
 import { raiseConnectionError, ServiceID } from "../net-worker/errors"
 import { createIntervalRunner } from "./connection"
 
+const subscriptionReset = new Subject<void>()
+
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+export function resetSubscriptions() {
+  // tslint:disable-next-line no-console
+  console.debug("Resetting net-worker subscriptions…")
+  subscriptionReset.next()
 }
 
 export interface SubscriberImplementation<ValueT, UpdateT = ValueT> {
@@ -28,12 +36,18 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
   return multicast(
     new Observable<ValueT>(observer => {
       let cancelled = false
+      let resetSubscription: Subscription<void> = { unsubscribe: () => undefined } as any
 
       let unsubscribe = () => {
         cancelled = true
+        resetSubscription.unsubscribe()
       }
 
       const handleConnectionError = (error: Error) => {
+        if (cancelled) {
+          return
+        }
+
         if (navigator.onLine !== false && Date.now() - lastConnectionErrorTime < 3000) {
           // double trouble
           raiseConnectionError(error, serviceID)
@@ -54,6 +68,10 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
       }
 
       const handleSetupError = (error: Error) => {
+        if (cancelled) {
+          return
+        }
+
         handleConnectionError(error)
 
         if (navigator.onLine === false) {
@@ -128,12 +146,17 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
         )
 
         unsubscribe = () => {
+          cancelled = true
           interval.stop()
+          resetSubscription.unsubscribe()
           subscription.unsubscribe()
         }
       }
 
       setup().catch(handleSetupError)
+
+      // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
+      resetSubscription = subscriptionReset.subscribe(() => unsubscribe())
 
       // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
       return () => unsubscribe()

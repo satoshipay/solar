@@ -9,7 +9,7 @@ import { parseAssetID } from "../../lib/stellar"
 import { max } from "../../lib/strings"
 import { createReconnectingSSE } from "../_util/event-source"
 import { parseJSONResponse } from "../_util/rest"
-import { subscribeToUpdatesAndPoll } from "../_util/subscription"
+import { resetSubscriptions, subscribeToUpdatesAndPoll } from "../_util/subscription"
 import { ServiceID } from "./errors"
 
 export interface CollectionPage<T> {
@@ -90,6 +90,15 @@ export async function checkHorizonOrFailover(primaryHorizonURL: string, secondar
 
   const secondaryResponse = await fetch(secondaryHorizonURL)
   return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
+}
+
+export function resetAllSubscriptions() {
+  accountSubscriptionCache.clear()
+  effectsSubscriptionCache.clear()
+  orderbookSubscriptionCache.clear()
+  ordersSubscriptionCache.clear()
+  transactionsSubscriptionCache.clear()
+  resetSubscriptions()
 }
 
 export async function submitTransaction(horizonURL: string, txEnvelopeXdr: string) {
