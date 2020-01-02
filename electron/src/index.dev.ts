@@ -1,8 +1,11 @@
 import autoReload from "electron-reload"
 import path from "path"
 
-const webappDistDir = path.join(__dirname)
+const watch = path.join(__dirname, "..", "..", "dist", "*")
 
-autoReload(webappDistDir, {
+autoReload(watch, {
   electron: path.join(__dirname, "..", "..", "node_modules", ".bin", "electron")
 })
+
+// tslint:disable-next-line: no-var-requires
+require("./app")
