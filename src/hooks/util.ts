@@ -1,4 +1,5 @@
 import React from "react"
+import { trackError } from "../context/notifications"
 
 export function useDebouncedState<T>(
   initial: T | (() => T),
@@ -43,6 +44,12 @@ export function useDebouncedState<T>(
   }, [])
 
   return [state, debouncedSetState]
+}
+
+export function useForceRerender() {
+  const [, setCounter] = React.useState(0)
+  const forceRerender = () => setCounter(counter => counter++)
+  return forceRerender
 }
 
 export function useOnlineStatus() {

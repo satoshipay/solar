@@ -40,12 +40,9 @@ function trimAccountRecord(record: AssetRecord) {
   }
 }
 
-export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
-  const requestURL = testnet
-    ? "https://ticker-testnet.stellar.org/assets.json"
-    : "https://ticker.stellar.org/assets.json"
-
-  const response = await fetch(requestURL)
+export async function fetchAllAssets(tickerURL: string): Promise<AssetRecord[]> {
+  const requestURL = new URL("/assets.json", tickerURL)
+  const response = await fetch(String(requestURL))
 
   if (response.status >= 400) {
     throw Error(`Bad response (${response.status}) from stellar.expert server`)
@@ -57,8 +54,14 @@ export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
   return abbreviatedAssets
 }
 
-export function fetchStellarToml(domain: string): Promise<any> {
-  return StellarTomlResolver.resolve(domain)
+export async function fetchStellarToml(domain: string): Promise<any> {
+  try {
+    return await StellarTomlResolver.resolve(domain)
+  } catch (error) {
+    // tslint:disable-next-line no-console
+    console.warn(`Could not resolve stellar.toml data for domain ${domain}:`, error)
+    return undefined
+  }
 }
 
 export function resolveStellarAddress(address: string, options?: FederationServer.Options) {
