@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./lib/",
     "module": "commonjs",
-    "sourceMap": false
+    "sourceMap": false,
+    "rootDir": "src"
   },
-  "include": ["src/**/*", "types/**/*", "../types/**/*"]
+  "include": ["src/**/*", "types/**/*", "shared/types/**/*"]
 }

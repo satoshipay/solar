@@ -3,12 +3,14 @@
  * Wire-up cordova plugins with window.postMessage()-based IPC here.
  */
 
+import { Messages } from "../shared/ipc"
 import { trackError } from "./error"
-import { handleMessageEvent, registerCommandHandler, commands, events } from "./ipc"
+import { handleMessageEvent, expose } from "./ipc"
 import initializeQRReader from "./qr-reader"
 import { getCurrentSettings, initSecureStorage, initKeyStore } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 import { registerURLHandler } from "./protocol-handler"
+import { registerUpdateHandler } from "./updater"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 
@@ -52,6 +54,7 @@ function onDeviceReady() {
   }
 
   registerURLHandler(contentWindow, iframeReady)
+  registerUpdateHandler()
   initializeQRReader()
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
@@ -119,11 +122,11 @@ function authenticate(contentWindow: Window) {
 }
 
 function showHtmlSplashScreen(contentWindow: Window) {
-  contentWindow.postMessage(commands.showSplashScreen, "*")
+  contentWindow.postMessage(Messages.ShowSplashScreen, "*")
 }
 
 function hideHtmlSplashScreen(contentWindow: Window) {
-  contentWindow.postMessage(commands.hideSplashScreen, "*")
+  contentWindow.postMessage(Messages.HideSplashScreen, "*")
 }
 
 function onPause(contentWindow: Window) {
@@ -144,9 +147,9 @@ function onResume(contentWindow: Window) {
 }
 
 function initializeClipboard(cordova: Cordova) {
-  registerCommandHandler(commands.copyToClipboard, event => {
+  expose(Messages.CopyToClipboard, (secureStorage, keyStore, text) => {
     return new Promise((resolve, reject) => {
-      cordova.plugins.clipboard.copy(event.data.text, resolve, reject)
+      cordova.plugins.clipboard.copy(text, resolve, reject)
     })
   })
 }
@@ -175,7 +178,10 @@ function initializeStorage(contentWindow: Window) {
   // Add event listener synchronously (!), so it subscribes as early as possible, even before `initPromise` resolves
   window.addEventListener("message", async event => {
     const [secureStorage, keyStore] = await initPromise
-    handleMessageEvent(event, contentWindow, secureStorage, keyStore)
+
+    const { messageType } = event.data
+    const payload = { args: event.data.args, callID: event.data.callID }
+    handleMessageEvent(messageType, payload, contentWindow, secureStorage, keyStore)
   })
 
   storageInitialization = initPromise.then(([secureStorage]) => secureStorage)
@@ -201,50 +207,47 @@ function initializeIPhoneNotchFix() {
 }
 
 function setupLinkListener(contentWindow: Window) {
-  registerCommandHandler(commands.openLink, event => {
+  expose(Messages.OpenLink, (secureStorage, keyStore, url) => {
     return new Promise(() => {
-      const url: string = event.data.url
       openUrl(contentWindow, url)
     })
   })
 }
 
 function setupBioAuthTestHandler() {
-  const messageHandler = async (event: MessageEvent, contentWindow: Window) => {
+  const messageHandler = async () => {
     try {
       // refresh before and afterwards to prevent splashscreen issues
       refreshLastNativeInteractionTime()
       await bioAuthenticate()
       refreshLastNativeInteractionTime()
-      contentWindow.postMessage({ eventType: events.testBioAuthResponseEvent, id: event.data.id }, "*")
+      return undefined
     } catch (error) {
-      contentWindow.postMessage({ eventType: events.testBioAuthResponseEvent, id: event.data.id, error }, "*")
+      return error
     }
   }
 
-  registerCommandHandler(commands.testBioAuthCommand, messageHandler)
+  expose(Messages.TestBioAuth, messageHandler)
 }
 
 function setupBioAuthAvailableHandler() {
-  const messageHandler = async (event: MessageEvent, contentWindow: Window) => {
+  const messageHandler = async () => {
     const checkAuthAvailability = async () => {
       const authAvailable = await isBiometricAuthAvailable()
-      contentWindow.postMessage(
-        { eventType: events.bioAuthAvailableResponseEvent, id: event.data.id, available: authAvailable },
-        "*"
-      )
+      return authAvailable
+      // sendSuccessResponse(contentWindow, event, authAvailable)
     }
 
     if (bioAuthInProgress) {
       // wait for bio auth to finish because the plugin does not resolve both promises
       // if they have to be handled simultaneously
-      bioAuthInProgress.then(checkAuthAvailability)
+      return bioAuthInProgress.then(checkAuthAvailability)
     } else {
-      checkAuthAvailability()
+      return checkAuthAvailability()
     }
   }
 
-  registerCommandHandler(commands.bioAuthAvailableCommand, messageHandler)
+  expose(Messages.BioAuthAvailable, messageHandler)
 }
 
 function openUrl(contentWindow: Window, url: string) {

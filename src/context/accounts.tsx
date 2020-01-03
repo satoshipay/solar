@@ -1,8 +1,7 @@
 import React from "react"
 import { Keypair, Transaction } from "stellar-sdk"
 import { WrongPasswordError } from "../lib/errors"
-import getKeyStore from "../platform/key-store"
-import { KeyStoreAPI } from "../platform/types"
+import getKeyStore, { KeyStoreAPI } from "../platform/key-store"
 import { trackError } from "./notifications"
 
 export interface Account {
@@ -72,7 +71,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
         throw new Error(`Account ${keyID} is password-protected, but no password was passed.`)
       }
 
-      return keyStore.signTransaction(transaction, account, password || "")
+      return keyStore.signTransaction(account.id, transaction, password || "")
     }
   }
   return account
@@ -140,14 +139,20 @@ export function AccountsProvider(props: Props) {
   const [networkSwitch, setNetworkSwitch] = React.useState<NetworkID>("mainnet")
 
   React.useEffect(() => {
-    getKeyStore()
-      .then(async keyStore => {
-        const keyIDs = await keyStore.getKeyIDs()
-        const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
-        setAccounts(loadedAccounts)
-        setNetworkSwitch(getInitialNetwork(loadedAccounts))
-      })
-      .catch(trackError)
+    const keyStore = getKeyStore()
+
+    try {
+      keyStore
+        .getKeyIDs()
+        .then(async keyIDs => {
+          const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
+          setAccounts(loadedAccounts)
+          setNetworkSwitch(getInitialNetwork(loadedAccounts))
+        })
+        .catch(trackError)
+    } catch (error) {
+      trackError(error)
+    }
 
     const unsubscribe = () => undefined
     return unsubscribe

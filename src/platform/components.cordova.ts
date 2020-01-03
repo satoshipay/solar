@@ -1,7 +1,9 @@
+// Global IPC.* types are defined in types/ipc.d.ts
+
 import React from "react"
-import { sendCommand } from "./message-handler"
-import { trackError } from "../../context/notifications"
-import { commands } from "../../cordova/ipc"
+import { Messages } from "../shared/ipc"
+import { trackError } from "../context/notifications"
+import { call } from "./ipc"
 
 const isFullscreenQRPreview = true
 
@@ -16,10 +18,10 @@ function CordovaQRReader(props: Props): ReturnType<React.FunctionComponent<Props
     // send pause event to signal that streaming errors should not be shown temporarily
     window.postMessage("app:pause", "*")
 
-    sendCommand(commands.scanQRCodeCommand)
-      .then(event => {
+    call(Messages.ScanQRCode)
+      .then(text => {
         window.postMessage("app:resume", "*")
-        props.onScan(event.data.qrdata)
+        props.onScan(text)
       })
       .catch(error => {
         window.postMessage("app:resume", "*")

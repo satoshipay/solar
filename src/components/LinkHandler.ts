@@ -1,6 +1,6 @@
 import React from "react"
-import { sendCommand } from "../platform/cordova/message-handler"
-import { commands } from "../cordova/ipc"
+import { Messages } from "../../shared/ipc"
+import { call } from "../platform/ipc"
 
 function LinkHandler() {
   React.useEffect(() => {
@@ -10,7 +10,7 @@ function LinkHandler() {
         const href = link.getAttribute("href") as string
         event.preventDefault()
 
-        sendCommand(commands.openLink, { url: href })
+        call(Messages.OpenLink, href)
       }
     }
 
