@@ -5,10 +5,11 @@ import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
-import { useLiveAccountDataSet, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountDataSet } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SigningKeyCacheContext } from "../../context/caches"
+import { AccountData } from "../../lib/account"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction } from "../../lib/transaction"
@@ -49,7 +50,7 @@ const noHPaddingStyle = {
 
 interface DefaultTransactionSummaryProps {
   account: Account | null
-  accountData: ObservedAccountData
+  accountData: AccountData
   isDangerousSignatureRequest?: boolean
   onHashClick?: () => void
   showHash?: boolean

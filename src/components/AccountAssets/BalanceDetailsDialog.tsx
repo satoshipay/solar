@@ -1,13 +1,13 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
-import { useAssetMetadata } from "../../hooks/stellar"
 import { useLiveAccountData, useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { AccountData } from "../../lib/account"
 import { matchesRoute } from "../../lib/routes"
@@ -40,11 +40,9 @@ interface TrustedAssetsProps {
 }
 
 const TrustedAssets = React.memo(function TrustedAssets(props: TrustedAssetsProps) {
-  const assetMetadata = useAssetMetadata(props.assets, props.account.testnet)
   return (
     <>
       {props.assets.map(asset => {
-        const [metadata] = assetMetadata.get(asset) || [undefined, false]
         const balance = props.accountData.balances.find(bal => isAssetMatchingBalance(asset, bal))
         const openOffers = props.openOffers.filter(
           offer =>
@@ -54,7 +52,6 @@ const TrustedAssets = React.memo(function TrustedAssets(props: TrustedAssetsProp
         return (
           <BalanceDetailsListItem
             key={stringifyAsset(asset)}
-            assetMetadata={metadata}
             badgeCount={openOffers.length}
             balance={balance!}
             onClick={() => props.onOpenAssetDetails(asset)}
@@ -130,7 +127,7 @@ interface BalanceDetailsProps {
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const accountOffers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
 
@@ -184,7 +181,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           hmargin={itemHMargin}
           hpadding={itemHPadding}
           onOpenAssetDetails={openAssetDetails}
-          openOffers={accountOffers.offers}
+          openOffers={openOrders}
         />
       </List>
       <Divider style={{ margin: "16px 0" }} />
@@ -197,7 +194,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
             hmargin={itemHMargin}
             hpadding={itemHPadding}
             onOpenAssetDetails={openAssetDetails}
-            openOffers={accountOffers.offers}
+            openOffers={openOrders}
           />
         ) : null}
       </List>
@@ -207,13 +204,15 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
         onClose={closeAddAssetDialog}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <AddAssetDialog
-          account={props.account}
-          accountData={accountData}
-          hpadding={hpadding}
-          itemHPadding={itemHPadding}
-          onClose={closeAddAssetDialog}
-        />
+        <React.Suspense fallback={<CircularProgress />}>
+          <AddAssetDialog
+            account={props.account}
+            accountData={accountData}
+            hpadding={hpadding}
+            itemHPadding={itemHPadding}
+            onClose={closeAddAssetDialog}
+          />
+        </React.Suspense>
       </Dialog>
     </DialogBody>
   )

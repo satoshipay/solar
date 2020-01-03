@@ -6,7 +6,7 @@ import { CloseButton, DialogActionsBox } from "./Dialog/Generic"
 import ErrorIcon from "./Icon/Error"
 import SuccessIcon from "./Icon/Success"
 import { Box, VerticalLayout } from "./Layout/Box"
-import { explainSubmissionError } from "../lib/horizonErrors"
+import { explainSubmissionErrorResponse } from "../lib/horizonErrors"
 
 function Container(props: { children: React.ReactNode }) {
   return (
@@ -63,7 +63,7 @@ function SubmissionProgress(props: SubmissionProgressProps) {
       catch={error => (
         <Container>
           <ErrorIcon size={100} />
-          <Heading>{explainSubmissionError(error).message || JSON.stringify(error)}</Heading>
+          <Heading>{explainSubmissionErrorResponse(error.response).message || JSON.stringify(error)}</Heading>
           <DialogActionsBox>
             <CloseButton onClick={props.onClose} />
           </DialogActionsBox>

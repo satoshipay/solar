@@ -2,20 +2,21 @@ import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useLiveAccountData, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { getAssetsFromBalances } from "../../lib/stellar"
-import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
+import ScrollableBalances from "../Lazy/ScrollableBalances"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import PaymentForm from "./PaymentForm"
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   horizon: Server
   onClose: () => void
   sendTransaction: (transaction: Transaction) => Promise<any>

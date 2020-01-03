@@ -1,3 +1,5 @@
+import { workers } from "../worker-controller"
+
 export interface AssetRecord {
   code: string
   desc: string
@@ -12,31 +14,8 @@ export interface AssetRecord {
   type: string
 }
 
-function byAccountCountSorter(a: AssetRecord, b: AssetRecord) {
-  return b.num_accounts - a.num_accounts
-}
-
-function trimAccountRecord(record: AssetRecord) {
-  return {
-    code: record.code,
-    desc: record.desc,
-    issuer: record.issuer,
-    issuer_detail: {
-      name: record.issuer_detail.name,
-      url: record.issuer_detail.url
-    },
-    name: record.name,
-    num_accounts: record.num_accounts,
-    status: record.status,
-    type: record.type
-  }
-}
-
 export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
   const storageKey = testnet ? "known-assets:testnet" : "known-assets:mainnet"
-  const requestURL = testnet
-    ? "https://ticker-testnet.stellar.org/assets.json"
-    : "https://ticker.stellar.org/assets.json"
 
   const cachedAssetsString = localStorage.getItem(storageKey)
   const timestamp = localStorage.getItem("known-assets:timestamp")
@@ -45,19 +24,12 @@ export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
     // use cached assets if they are not older than 24h
     return JSON.parse(cachedAssetsString)
   } else {
-    const response = await fetch(requestURL)
+    const { netWorker } = await workers
+    const allAssets = await netWorker.fetchAllAssets(testnet)
 
-    if (response.status >= 400) {
-      throw Error(`Bad response (${response.status}) from stellar.expert server`)
-    }
-
-    const json = await response.json()
-    const allAssets = json.assets as AssetRecord[]
-    const abbreviatedAssets = allAssets.sort(byAccountCountSorter).map(record => trimAccountRecord(record))
-
-    localStorage.setItem(storageKey, JSON.stringify(abbreviatedAssets))
+    localStorage.setItem(storageKey, JSON.stringify(allAssets))
     localStorage.setItem("known-assets:timestamp", Date.now().toString())
 
-    return abbreviatedAssets
+    return allAssets
   }
 }

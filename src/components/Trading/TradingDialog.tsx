@@ -7,15 +7,16 @@ import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useDialogActions, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
-import ScrollableBalances from "../AccountAssets/ScrollableBalances"
-import MainTitle from "../MainTitle"
-import TradingForm from "./TradingForm"
-import TransactionSender from "../TransactionSender"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout } from "../Layout/Box"
+import ScrollableBalances from "../Lazy/ScrollableBalances"
+import MainTitle from "../MainTitle"
 import Portal from "../Portal"
+import TransactionSender from "../TransactionSender"
+import ViewLoading from "../ViewLoading"
 import MainActionSelection from "./MainActionSelection"
+import TradingForm from "./TradingForm"
 
 interface TradingDialogProps {
   account: Account
@@ -82,16 +83,18 @@ function TradingDialog(props: TradingDialogProps) {
           }}
         />
         {primaryAction ? (
-          <TradingForm
-            account={props.account}
-            accountData={accountData}
-            dialogActionsRef={dialogActionsRef}
-            onBack={clearPrimaryAction}
-            primaryAction={primaryAction}
-            sendTransaction={props.sendTransaction}
-            style={mainContentStageStyle}
-            trustlines={trustlines}
-          />
+          <React.Suspense fallback={<ViewLoading />}>
+            <TradingForm
+              account={props.account}
+              accountData={accountData}
+              dialogActionsRef={dialogActionsRef}
+              onBack={clearPrimaryAction}
+              primaryAction={primaryAction}
+              sendTransaction={props.sendTransaction}
+              style={mainContentStageStyle}
+              trustlines={trustlines}
+            />
+          </React.Suspense>
         ) : (
           <div style={mainContentStageStyle} />
         )}

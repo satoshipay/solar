@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Asset, Operation, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Networks, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import Collapse from "@material-ui/core/Collapse"
 import List from "@material-ui/core/List"
@@ -21,7 +21,6 @@ import { SettingsContext } from "../../context/settings"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
-import { createCheapTxID } from "../../lib/transaction"
 import { breakpoints } from "../../theme"
 import { PublicKey } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
@@ -29,10 +28,6 @@ import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialo
 import { getOperationTitle } from "../TransactionReview/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 import { matchesRoute } from "../../lib/routes"
-
-type TransactionWithUndocumentedProps = Transaction & {
-  created_at: string
-}
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 const doNothing = () => undefined
@@ -374,25 +369,26 @@ interface TransactionListItemProps {
   className?: string
   createdAt: string
   icon?: React.ReactElement<any>
-  onOpenTransaction?: (transaction: Transaction) => void
+  onOpenTransaction?: (transactionHash: string) => void
   style?: React.CSSProperties
-  transaction: Transaction
+  testnet: boolean
+  transactionEnvelopeXdr: string
 }
 
-// tslint:disable-next-line no-shadowed-variable
 export const TransactionListItem = React.memo(function TransactionListItem(props: TransactionListItemProps) {
   const { hideMemos } = React.useContext(SettingsContext)
-
   const isSmallScreen = useIsMobile()
-  const paymentSummary = getPaymentSummary(props.accountPublicKey, props.transaction)
 
-  const { onOpenTransaction, transaction } = props
-  const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction) : undefined
+  const { onOpenTransaction } = props
+  const transaction = new Transaction(props.transactionEnvelopeXdr, props.testnet ? Networks.TESTNET : Networks.PUBLIC)
+
+  const paymentSummary = getPaymentSummary(props.accountPublicKey, transaction)
+  const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction.hash().toString("hex")) : undefined
 
   return (
     <ListItem button={Boolean(onOpen) as any} className={props.className || ""} onClick={onOpen} style={props.style}>
       <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
-        {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={props.transaction} />}
+        {props.icon || <TransactionIcon paymentSummary={paymentSummary} transaction={transaction} />}
       </ListItemIcon>
       <TransactionItemText
         accountPublicKey={props.accountPublicKey}
@@ -407,13 +403,13 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
           paddingRight: 0,
           textOverflow: "ellipsis"
         }}
-        transaction={props.transaction}
+        transaction={transaction}
       />
       <TransactionListItemBalance
         accountPublicKey={props.accountPublicKey}
         paymentSummary={paymentSummary}
         style={{ paddingRight: 0 }}
-        transaction={props.transaction}
+        transaction={transaction}
       />
     </ListItem>
   )
@@ -435,7 +431,7 @@ interface TransactionListProps {
   background?: React.CSSProperties["background"]
   testnet: boolean
   title: React.ReactNode
-  transactions: Transaction[]
+  transactions: Horizon.TransactionResponse[]
 }
 
 function TransactionList(props: TransactionListProps) {
@@ -447,13 +443,19 @@ function TransactionList(props: TransactionListProps) {
     ? (router.match.params as { id: string; subaction: string }).subaction
     : null
 
-  const openedTransaction = openedTxHash
-    ? props.transactions.find(recentTx => recentTx.hash().toString("hex") === openedTxHash) || null
-    : null
+  const openedTransaction = React.useMemo(() => {
+    if (!openedTxHash) {
+      return null
+    }
+    const txResponse = props.transactions.find(recentTx => recentTx.hash === openedTxHash)
+    return txResponse
+      ? new Transaction(txResponse.envelope_xdr, props.account.testnet ? Networks.TESTNET : Networks.PUBLIC)
+      : null
+  }, [openedTxHash, props.transactions])
 
   const openTransaction = React.useCallback(
-    (transaction: Transaction) => {
-      router.history.push(routes.showTransaction(props.account.id, transaction.hash().toString("hex")))
+    (transactionHash: string) => {
+      router.history.push(routes.showTransaction(props.account.id, transactionHash))
     },
     [props.account, router.history.push]
   )
@@ -472,19 +474,20 @@ function TransactionList(props: TransactionListProps) {
   const transactionListItems = React.useMemo(
     () => (
       <>
-        {(props.transactions as TransactionWithUndocumentedProps[]).map(transaction => (
+        {props.transactions.map(transaction => (
           <EntryAnimation
-            key={createCheapTxID(transaction)}
+            key={transaction.hash}
             // Animate only if it's a new tx, not if we just haven't rendered it before
             animate={Date.now() - new Date(transaction.created_at).getTime() < 10_000}
           >
             <TransactionListItem
-              key={createCheapTxID(transaction)}
+              key={transaction.hash}
               accountPublicKey={props.account.publicKey}
               className={classes.listItem}
               createdAt={transaction.created_at}
-              transaction={transaction}
               onOpenTransaction={openTransaction}
+              testnet={props.account.testnet}
+              transactionEnvelopeXdr={transaction.envelope_xdr}
             />
           </EntryAnimation>
         ))}

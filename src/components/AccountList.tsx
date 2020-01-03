@@ -15,9 +15,9 @@ import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useRouter } from "../hooks/userinterface"
 import { containsStellarGuardAsSigner } from "../lib/stellar-guard"
 import { SignatureRequest } from "../lib/multisig-service"
-import { hasSigned } from "../lib/transaction"
 import * as routes from "../routes"
 import StellarGuardIcon from "./Icon/StellarGuard"
+import InlineLoader from "./InlineLoader"
 import { Box, HorizontalLayout, VerticalLayout } from "./Layout/Box"
 
 const useCardStyles = makeStyles({
@@ -67,22 +67,8 @@ const StyledBadge = (props: BadgeProps) => {
   )
 }
 
-function AccountCard(props: {
-  account: Account
-  pendingSignatureRequests: SignatureRequest[]
-  style?: React.CSSProperties
-}) {
+function Badges(props: { account: Account }) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const router = useRouter()
-
-  const onClick = () => router.history.push(routes.account(props.account.id))
-  const pendingSignatureRequests = props.pendingSignatureRequests.filter(
-    req =>
-      req._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-      !hasSigned(req.meta.transaction, props.account.publicKey)
-  )
-  const badgeContent = pendingSignatureRequests.length > 0 ? pendingSignatureRequests.length : null
-
   const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
     <Tooltip title="StellarGuard Protection">
       <StellarGuardIcon style={{ marginTop: 6 }} />
@@ -92,6 +78,25 @@ function AccountCard(props: {
       <GroupIcon style={{ marginTop: 6 }} />
     </Tooltip>
   )
+  return <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
+}
+
+interface AccountCardProps {
+  account: Account
+  pendingSignatureRequests: SignatureRequest[]
+  style?: React.CSSProperties
+}
+
+function AccountCard(props: AccountCardProps) {
+  const router = useRouter()
+
+  const onClick = () => router.history.push(routes.account(props.account.id))
+  const pendingSignatureRequests = props.pendingSignatureRequests.filter(
+    req =>
+      req._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
+      !req._embedded.signers.find(signer => signer.account_id === props.account.publicKey)!.has_signed
+  )
+  const badgeContent = pendingSignatureRequests.length > 0 ? pendingSignatureRequests.length : null
 
   return (
     <StyledCard elevation={5} onClick={onClick} style={{ background: "white", color: "black" }}>
@@ -101,10 +106,14 @@ function AccountCard(props: {
             <Typography variant="h5" style={{ flexGrow: 1, fontSize: 20 }}>
               {props.account.name}
             </Typography>
-            <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
+            <React.Suspense fallback={null}>
+              <Badges account={props.account} />
+            </React.Suspense>
           </HorizontalLayout>
           <Box fontSize="120%">
-            <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+            <React.Suspense fallback={<InlineLoader />}>
+              <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+            </React.Suspense>
           </Box>
         </VerticalLayout>
       </StyledBadge>

@@ -1,13 +1,9 @@
 /* tslint:disable:no-string-literal */
 
-import * as JWT from "jsonwebtoken"
-import PromiseQueue from "p-queue"
 import React from "react"
-import { Asset, Server, StellarTomlResolver, Transaction } from "stellar-sdk"
-import * as WebAuth from "@satoshipay/stellar-sep-10"
+import { Asset, Networks, Server, Transaction, Horizon } from "stellar-sdk"
 import {
   SigningKeyCacheContext,
-  StellarAccountDataCacheContext,
   StellarAddressCacheContext,
   StellarAddressReverseCacheContext,
   StellarTomlCacheContext,
@@ -18,13 +14,24 @@ import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FetchState } from "../lib/async"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
+import { workers } from "../worker-controller"
+import { accountDataCache, accountHomeDomainCache } from "./_caches"
+import { useNetWorker } from "./workers"
 
+/** @deprecated */
 export function useHorizon(testnet: boolean = false) {
   const stellar = React.useContext(StellarContext)
-  return testnet ? stellar.horizonTestnet : stellar.horizonLivenet
+  return testnet ? new Server(stellar.testnetHorizonURL) : new Server(stellar.pubnetHorizonURL)
 }
 
-const dedupe = <T>(array: T[]) => Array.from(new Set(array))
+export function useHorizonURL(testnet: boolean = false) {
+  const stellar = React.useContext(StellarContext)
+
+  if (stellar.isSelectionPending) {
+    throw stellar.pendingSelection
+  }
+  return testnet ? stellar.testnetHorizonURL : stellar.pubnetHorizonURL
+}
 
 export function useFederationLookup() {
   const lookup = React.useContext(StellarAddressCacheContext)
@@ -48,10 +55,14 @@ export function useWebAuth() {
   )
 
   return {
-    fetchChallenge: WebAuth.fetchChallenge,
+    async fetchChallenge(endpointURL: string, serviceSigningKey: string, localPublicKey: string) {
+      const { netWorker } = await workers
+      return netWorker.fetchWebAuthChallenge(endpointURL, serviceSigningKey, localPublicKey)
+    },
 
-    async fetchWebAuthData(horizon: Server, issuerAccountID: string) {
-      const metadata = await WebAuth.fetchWebAuthData(horizon, issuerAccountID)
+    async fetchWebAuthData(horizonURL: string, issuerAccountID: string) {
+      const { netWorker } = await workers
+      const metadata = await netWorker.fetchWebAuthData(horizonURL, issuerAccountID)
       if (metadata) {
         signingKeys.store(metadata.signingKey, metadata.domain)
       }
@@ -62,13 +73,19 @@ export function useWebAuth() {
       return webauthTokens.cache.get(createCacheKey(endpointURL, localPublicKey))
     },
 
-    async postResponse(endpointURL: string, transaction: Transaction) {
+    async postResponse(endpointURL: string, transaction: Transaction, testnet: boolean) {
+      const { netWorker } = await workers
       const manageDataOperation = transaction.operations.find(operation => operation.type === "manageData")
       const localPublicKey = manageDataOperation ? manageDataOperation.source : undefined
-      const authToken = await WebAuth.postResponse(endpointURL, transaction)
+
+      const network = testnet ? Networks.TESTNET : Networks.PUBLIC
+      const txXdr = transaction
+        .toEnvelope()
+        .toXDR()
+        .toString("base64")
+      const { authToken, decoded } = await netWorker.postWebAuthResponse(endpointURL, txXdr, network)
 
       if (localPublicKey) {
-        const decoded = JWT.decode(authToken) as any
         const maxAge = decoded.exp ? Number.parseInt(decoded.exp, 10) * 1000 - Date.now() - 60_000 : undefined
         webauthTokens.store(createCacheKey(endpointURL, localPublicKey), authToken, maxAge)
       }
@@ -79,121 +96,112 @@ export function useWebAuth() {
 
 const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
 
-export function useStellarTomlFiles(domains: string[]): Map<string, [StellarToml, boolean]> {
+export function useStellarToml(domain: string | undefined): StellarToml | undefined {
   const stellarTomls = React.useContext(StellarTomlCacheContext)
-  const resultMap = new Map<string, [StellarToml, boolean]>()
 
   React.useEffect(() => {
-    for (const domain of domains) {
-      // This is semantically different from `.filter()`-ing the domains before the loop,
-      // since this will prevent double-fetching from domains that were part of this iteration
-      if (stellarTomls.cache.has(domain)) {
-        continue
-      }
-
-      stellarTomls.store(domain, FetchState.pending())
-
-      StellarTomlResolver.resolve(domain)
-        .then(stellarTomlData => {
-          stellarTomls.store(domain, FetchState.resolved(stellarTomlData))
-          localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
-        })
-        .catch(error => {
-          stellarTomls.store(domain, FetchState.rejected(error))
-        })
+    // This is semantically different from `.filter()`-ing the domains before the loop,
+    // since this will prevent double-fetching from domains that were part of this iteration
+    if (!domain || stellarTomls.cache.has(domain)) {
+      return
     }
-  }, [domains.join(","), stellarTomls])
 
-  for (const domain of domains) {
-    const cached = stellarTomls.cache.get(domain)
+    stellarTomls.store(domain, FetchState.pending())
 
-    if (cached && cached.state === "resolved") {
-      resultMap.set(domain, [cached.data, false])
-    } else if (cached && cached.state === "rejected") {
-      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, false])
-    } else {
-      const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-      resultMap.set(domain, [persistentlyCached ? JSON.parse(persistentlyCached) : undefined, true])
-    }
+    workers
+      .then(({ netWorker }) => netWorker.fetchStellarToml(domain))
+      .then(stellarTomlData => {
+        stellarTomls.store(domain, FetchState.resolved(stellarTomlData))
+        localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
+      })
+      .catch(error => {
+        stellarTomls.store(domain, FetchState.rejected(error))
+      })
+  }, [domain, stellarTomls])
+
+  if (!domain) {
+    return undefined
   }
 
-  return resultMap
-}
+  const cached = stellarTomls.cache.get(domain)
 
-export function useStellarToml(domain: string | null | undefined): [StellarToml | undefined, boolean] {
-  const tomlFiles = useStellarTomlFiles(domain ? [domain] : [])
-  return domain ? tomlFiles.get(domain)! : [undefined, false]
-}
-
-// Limit the number of concurrent fetches
-const accountFetchQueue = new PromiseQueue({ concurrency: 8 })
-
-function useAccountDataSet(horizon: Server, accountIDs: string[]): AccountData[] {
-  const loadingStates = React.useContext(StellarAccountDataCacheContext)
-
-  const issuerAccounts = accountIDs.map(
-    (accountID: string): AccountData => {
-      const cacheItem = loadingStates.cache.get(accountID)
-      return cacheItem && cacheItem.state === "resolved" ? cacheItem.data : createEmptyAccountData(accountID)
-    }
-  )
-
-  React.useEffect(() => {
-    for (const accountID of accountIDs) {
-      if (!loadingStates.cache.has(accountID)) {
-        loadingStates.store(accountID, FetchState.pending())
-
-        accountFetchQueue.add(async () => {
-          try {
-            const account = await horizon.loadAccount(accountID)
-            loadingStates.store(accountID, FetchState.resolved(account))
-          } catch (error) {
-            loadingStates.store(accountID, FetchState.rejected(error))
-          }
-        })
-      }
-    }
-  }, [accountIDs.join(",")])
-
-  return issuerAccounts
-}
-
-export function useAccountData(publicKey: string, testnet: boolean) {
-  const horizon = useHorizon(testnet)
-  return useAccountDataSet(horizon, [publicKey])[0]
-}
-
-export function useAssetMetadata(assets: Asset[], testnet: boolean) {
-  const horizon = useHorizon(testnet)
-  const issuerAccountIDs = dedupe(assets.filter(asset => !asset.isNative()).map(asset => asset.getIssuer()))
-  const accountDataSet = useAccountDataSet(horizon, issuerAccountIDs)
-
-  const domains = accountDataSet
-    .map(accountData => accountData.home_domain)
-    .filter((domain): domain is string => Boolean(domain))
-
-  const resultMap = new WeakMap<Asset, [StellarTomlCurrency | undefined, boolean]>()
-  const stellarTomlFiles = useStellarTomlFiles(domains)
-
-  for (const asset of assets) {
-    const assetCode = asset.isNative() ? undefined : asset.getCode()
-    const issuerAccountID = asset.isNative() ? undefined : asset.getIssuer()
-    const accountData = issuerAccountID
-      ? accountDataSet.find(someAccountData => someAccountData.account_id === issuerAccountID)
-      : undefined
-    const domain = accountData ? accountData.home_domain : undefined
-    const [stellarTomlData, loading] = domain ? stellarTomlFiles.get(domain)! : [undefined, false]
-
-    const assetMetadata =
-      stellarTomlData && stellarTomlData["CURRENCIES"] && Array.isArray(stellarTomlData["CURRENCIES"])
-        ? stellarTomlData["CURRENCIES"].find(
-            (currency: any) => currency.code === assetCode && currency.issuer === issuerAccountID
-          )
-        : undefined
-
-    resultMap.set(asset, [assetMetadata, loading])
+  if (cached && cached.state === "resolved") {
+    return cached.data
+  } else if (cached && cached.state === "rejected") {
+    const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+    return persistentlyCached ? JSON.parse(persistentlyCached) : undefined
+  } else {
+    const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
+    return persistentlyCached ? JSON.parse(persistentlyCached) : undefined
   }
+}
 
-  return resultMap
+export function useAccountData(accountID: string, testnet: boolean) {
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
+
+  const selector = [horizonURL, accountID] as const
+  const cached = accountDataCache.get(selector)
+
+  const prepare = (account: Horizon.AccountResponse | null): AccountData =>
+    account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
+
+  if (!cached) {
+    accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURL, accountID).then(prepare))
+  }
+  return cached || createEmptyAccountData(accountID)
+}
+
+function useAccountHomeDomain(accountID: string | undefined, testnet: boolean, allowIncompleteResult?: boolean) {
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
+  const [, setRerenderCounter] = React.useState(0)
+
+  const forceRerender = () => setRerenderCounter(counter => counter + 1)
+  const selector = accountID ? ([horizonURL, accountID] as const) : undefined
+
+  if (!accountID || !selector) {
+    return undefined
+  } else if (accountHomeDomainCache.has(selector)) {
+    return accountHomeDomainCache.get(selector)
+  } else {
+    try {
+      accountHomeDomainCache.suspend([horizonURL, accountID], async () => {
+        const accountData = await netWorker.fetchAccountData(horizonURL, accountID)
+        const homeDomain = accountData ? (accountData as any).home_domain : undefined
+        if (homeDomain) {
+          localStorage.setItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`, homeDomain)
+        }
+        if (allowIncompleteResult) {
+          forceRerender()
+        }
+        return homeDomain
+      })
+    } catch (thrown) {
+      if (allowIncompleteResult && thrown && typeof thrown.then === "function") {
+        const persistentlyCached = localStorage.getItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`)
+        if (persistentlyCached) {
+          return persistentlyCached
+        }
+      }
+      throw thrown
+    }
+    return undefined
+  }
+}
+
+export function useAssetMetadata(asset: Asset | undefined, testnet: boolean): StellarTomlCurrency | undefined {
+  const assetCode = !asset || asset.isNative() ? undefined : asset.getCode()
+  const issuerAccountID = !asset || asset.isNative() ? undefined : asset.getIssuer()
+  const homeDomain = useAccountHomeDomain(issuerAccountID, testnet, true)
+  const stellarTomlData = useStellarToml(homeDomain)
+
+  if (stellarTomlData && stellarTomlData["CURRENCIES"] && Array.isArray(stellarTomlData["CURRENCIES"])) {
+    const assetMetadata = stellarTomlData["CURRENCIES"].find(
+      (currency: any) => currency.code === assetCode && currency.issuer === issuerAccountID
+    )
+    return assetMetadata
+  } else {
+    return undefined
+  }
 }

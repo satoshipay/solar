@@ -8,8 +8,8 @@ import SendIcon from "@material-ui/icons/Send"
 import { Account } from "../../context/accounts"
 import { AccountRecord, useWellKnownAccounts } from "../../hooks/stellar-ecosystem"
 import { useFederationLookup } from "../../hooks/stellar"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { renderFormFieldError } from "../../lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance } from "../../lib/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
@@ -82,7 +82,7 @@ function validateFormValues(
 }
 
 interface PaymentFormProps {
-  accountData: ObservedAccountData
+  accountData: AccountData
   actionsRef: RefStateObject
   errors: PaymentFormErrors
   onSubmit: (formValues: PaymentFormValues, spendableBalance: BigNumber, wellknownAccount?: AccountRecord) => void
@@ -290,7 +290,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
 })
 
 interface Props {
-  accountData: ObservedAccountData
+  accountData: AccountData
   actionsRef: RefStateObject
   testnet: boolean
   trustedAssets: Asset[]

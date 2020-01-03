@@ -9,8 +9,8 @@ import UpdateIcon from "@material-ui/icons/Update"
 import WarningIcon from "@material-ui/icons/Warning"
 import { useIsMobile } from "../../hooks/userinterface"
 import { Account } from "../../context/accounts"
+import { AccountData } from "../../lib/account"
 import { signatureMatchesPublicKey } from "../../lib/stellar"
-import { ObservedAccountData } from "../../subscriptions"
 import { warningColor } from "../../theme"
 import { Address } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
@@ -64,7 +64,7 @@ const Signer = React.memo(function Signer(props: {
 
 export function Signers(props: {
   accounts: Account[]
-  accountData: ObservedAccountData
+  accountData: AccountData
   transaction: Transaction
   style?: React.CSSProperties
 }) {

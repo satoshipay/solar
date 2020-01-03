@@ -6,7 +6,7 @@ import { SettingsContext, SettingsContextType } from "../context/settings"
 import { useHorizon } from "../hooks/stellar"
 import { useIsMobile } from "../hooks/userinterface"
 import { isWrongPasswordError } from "../lib/errors"
-import { explainSubmissionError } from "../lib/horizonErrors"
+import { explainSubmissionErrorResponse } from "../lib/horizonErrors"
 import {
   collateSignature,
   createSignatureRequestURI,
@@ -16,6 +16,7 @@ import {
 import { networkPassphrases } from "../lib/stellar"
 import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
 import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../lib/stellar-guard"
+import { workers } from "../worker-controller"
 import TransactionReviewDialog from "./TransactionReview/TransactionReviewDialog"
 import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
 
@@ -194,16 +195,22 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   submitTransactionToHorizon = async (signedTransaction: Transaction) => {
-    try {
-      const promise = this.props.horizon.submitTransaction(signedTransaction)
+    const { netWorker } = await workers
+    const txEnvelopeXdr = signedTransaction
+      .toEnvelope()
+      .toXDR()
+      .toString("base64")
+    const promise = netWorker.submitTransaction(String(this.props.horizon.serverURL), txEnvelopeXdr).then(response => {
+      if (response.status !== 200) {
+        throw explainSubmissionErrorResponse(response)
+      }
+      return response
+    })
 
-      this.setSubmissionPromise(promise)
-      this.setState({ submissionType: SubmissionType.default })
-      return await promise
-    } catch (error) {
-      // re-throw refined error
-      throw explainSubmissionError(error)
-    }
+    this.setSubmissionPromise(promise)
+    this.setState({ submissionType: SubmissionType.default })
+
+    return promise
   }
 
   submitTransactionToMultisigService = async (signedTransaction: Transaction) => {
@@ -225,7 +232,7 @@ class TransactionSender extends React.Component<Props, State> {
       return await promise
     } catch (error) {
       // re-throw refined error
-      throw explainSubmissionError(error)
+      throw explainSubmissionErrorResponse(error)
     }
   }
 
@@ -237,7 +244,7 @@ class TransactionSender extends React.Component<Props, State> {
       this.setState({ submissionType: SubmissionType.stellarguard })
       return await promise
     } catch (error) {
-      throw explainSubmissionError(error)
+      throw explainSubmissionErrorResponse(error)
     }
   }
 

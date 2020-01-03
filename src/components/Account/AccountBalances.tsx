@@ -3,7 +3,6 @@ import React from "react"
 import { Horizon } from "stellar-sdk"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { balancelineToAsset, stringifyAsset } from "../../lib/stellar"
-import InlineLoader from "../InlineLoader"
 
 function addThousandsSeparators(digits: string, thousandsSeparator: string) {
   const digitGroups: string[] = []
@@ -185,13 +184,11 @@ function AccountBalances(props: {
   testnet: boolean
 }) {
   const accountData = useLiveAccountData(props.publicKey, props.testnet)
-  return accountData.loading ? (
-    <InlineLoader />
-  ) : accountData.activated ? (
+  return accountData.balances.length > 0 ? (
     <MultipleBalances balances={accountData.balances} component={props.component} onClick={props.onClick} />
   ) : (
     <MultipleBalances balances={[zeroXLMBalance] as any} component={props.component} onClick={props.onClick} />
   )
 }
 
-export default AccountBalances
+export default React.memo(AccountBalances)

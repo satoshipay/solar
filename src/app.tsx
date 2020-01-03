@@ -1,33 +1,25 @@
 /// <reference types="parcel-env" />
 
+import "threads/register"
 import React from "react"
 import ReactDOM from "react-dom"
-import { HashRouter as Router, Route, Switch } from "react-router-dom"
+import { HashRouter as Router } from "react-router-dom"
 import SmoothScroll from "smoothscroll-polyfill"
 import { MuiThemeProvider } from "@material-ui/core/styles"
-import AndroidBackButton from "./components/AndroidBackButton"
-import ErrorBoundary from "./components/ErrorBoundary"
-import LinkHandler from "./components/LinkHandler"
-import { VerticalLayout } from "./components/Layout/Box"
-import DesktopNotifications from "./components/DesktopNotifications"
-import NotificationContainer from "./components/NotificationContainer"
+import ViewLoading from "./components/ViewLoading"
 import { AccountsProvider } from "./context/accounts"
 import { CachingProviders } from "./context/caches"
 import { NotificationsProvider } from "./context/notifications"
 import { SettingsProvider } from "./context/settings"
 import { SignatureDelegationProvider } from "./context/signatureDelegation"
 import { StellarProvider } from "./context/stellar"
-import AllAccountsPage from "./pages/all-accounts"
-import AccountPage from "./pages/account"
-import CreateAccountPage from "./pages/create-account"
-import SettingsPage from "./pages/settings"
 import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
+import "./worker-controller"
 
 SmoothScroll.polyfill()
 
-const CreateMainnetAccount = () => <CreateAccountPage testnet={false} />
-const CreateTestnetAccount = () => <CreateAccountPage testnet={true} />
+const Stage2 = React.lazy(() => import("./app-stage2"))
 
 const Providers = (props: { children: React.ReactNode }) => (
   <Router>
@@ -49,40 +41,13 @@ const Providers = (props: { children: React.ReactNode }) => (
 
 const App = () => (
   <Providers>
-    <>
-      <VerticalLayout height="100%" style={{ WebkitOverflowScrolling: "touch" }}>
-        <VerticalLayout height="100%" grow overflowY="hidden">
-          <ErrorBoundary>
-            <Switch>
-              <Route exact path="/" component={AllAccountsPage} />
-              <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
-              <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
-              <Route
-                path={["/account/:id/:action/:subaction", "/account/:id/:action", "/account/:id"]}
-                render={props => <AccountPage accountID={props.match.params.id} />}
-              />
-              <Route exact path="/settings" component={SettingsPage} />
-            </Switch>
-          </ErrorBoundary>
-        </VerticalLayout>
-      </VerticalLayout>
-      {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
-      <DesktopNotifications />
-      <NotificationContainer />
-      {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
-      {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}
-    </>
+    <React.Suspense fallback={<ViewLoading />}>
+      <Stage2 />
+    </React.Suspense>
   </Providers>
 )
 
-const onRendered = () => {
-  if (window.parent) {
-    // for Cordova
-    window.parent.postMessage("app:ready", "*")
-  }
-}
-
-ReactDOM.render(<App />, document.getElementById("app"), onRendered)
+ReactDOM.render(<App />, document.getElementById("app"))
 
 // Hot Module Replacement
 if (module.hot) {

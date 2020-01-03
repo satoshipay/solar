@@ -3,18 +3,18 @@ import Dialog from "@material-ui/core/Dialog"
 import { makeStyles } from "@material-ui/core/styles"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
-import AccountTransactions from "../components/Account/AccountTransactions"
-import AssetDetailsDialog from "../components/AccountAssets/AssetDetailsDialog"
-import BalanceDetailsDialog from "../components/AccountAssets/BalanceDetailsDialog"
-import ScrollableBalances from "../components/AccountAssets/ScrollableBalances"
-import AccountSettings from "../components/AccountSettings/AccountSettings"
+import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
+import DepositDialog from "../components/Deposit/DepositDialog"
 import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
 import QRCodeIcon from "../components/Icon/QRCode"
+import InlineLoader from "../components/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
+import ScrollableBalances from "../components/Lazy/ScrollableBalances"
+import withFallback from "../components/Lazy/withFallback"
 import PaymentDialog from "../components/Payment/PaymentDialog"
 import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
-import TradeAssetDialog from "../components/Trading/TradingDialog"
+import ViewLoading from "../components/ViewLoading"
 import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
 import { Account, AccountsContext } from "../context/accounts"
 import { useLiveAccountData } from "../hooks/stellar-subscriptions"
@@ -22,7 +22,25 @@ import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
 import { FullscreenDialogTransition } from "../theme"
-import DepositDialog from "../components/Deposit/DepositDialog"
+
+const AccountSettings = withFallback(
+  React.lazy(() => import("../components/AccountSettings/AccountSettings")),
+  <TransactionListPlaceholder />
+)
+const AccountTransactions = withFallback(
+  React.lazy(() => import("../components/Account/AccountTransactions")),
+  <TransactionListPlaceholder />
+)
+
+const AssetDetailsDialog = withFallback(
+  React.lazy(() => import("../components/AccountAssets/AssetDetailsDialog")),
+  <ViewLoading />
+)
+const BalanceDetailsDialog = withFallback(
+  React.lazy(() => import("../components/AccountAssets/BalanceDetailsDialog")),
+  <ViewLoading />
+)
+const TradeAssetDialog = withFallback(React.lazy(() => import("../components/Trading/TradingDialog")), <ViewLoading />)
 
 const useButtonStyles = makeStyles(theme => ({
   desktop: {
@@ -67,7 +85,6 @@ interface AccountActionsProps {
   onReceivePayment: () => void
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
@@ -84,7 +101,7 @@ const AccountActions = React.memo(function AccountActions(props: AccountActionsP
       </ActionButton>
       <ActionButton
         className={classes.button}
-        disabled={!accountData.activated}
+        disabled={accountData.balances.length === 0}
         icon={<SendIcon style={{ fontSize: "110%" }} />}
         onClick={props.onCreatePayment}
         type="primary"
@@ -95,7 +112,6 @@ const AccountActions = React.memo(function AccountActions(props: AccountActionsP
   )
 })
 
-// tslint:disable-next-line no-shadowed-variable
 const AccountPageContent = React.memo(function AccountPageContent(props: { account: Account }) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
@@ -112,6 +128,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
 
   const showSendReceiveButtons = !matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
+
+  const headerHeight = isSmallScreen ? 188 : showSendReceiveButtons ? 272 : 184
 
   const navigateTo = React.useMemo(
     () => ({
@@ -149,12 +167,14 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       >
         <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
         {isSmallScreen ? null : (
-          <AccountActions
-            account={props.account}
-            hidden={!showSendReceiveButtons}
-            onCreatePayment={navigateTo.createPayment}
-            onReceivePayment={navigateTo.receivePayment}
-          />
+          <React.Suspense fallback={<InlineLoader />}>
+            <AccountActions
+              account={props.account}
+              hidden={!showSendReceiveButtons}
+              onCreatePayment={navigateTo.createPayment}
+              onReceivePayment={navigateTo.receivePayment}
+            />
+          </React.Suspense>
         )}
       </AccountHeaderCard>
     ),
@@ -163,8 +183,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
 
   return (
     <VerticalLayout height="100%">
-      <Section top brandColored grow={0}>
-        {headerCard}
+      <Section top brandColored grow={0} minHeight={headerHeight} shrink={0}>
+        <React.Suspense fallback={<ViewLoading />}>{headerCard}</React.Suspense>
       </Section>
       <Section
         bottom={!isSmallScreen}
@@ -176,20 +196,24 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
           overflowY: "auto"
         }}
       >
-        {showAccountSettings ? (
-          <AccountSettings account={props.account} />
-        ) : (
-          <AccountTransactions account={props.account} />
-        )}
+        <React.Suspense fallback={<TransactionListPlaceholder />}>
+          {showAccountSettings ? (
+            <AccountSettings account={props.account} />
+          ) : (
+            <AccountTransactions account={props.account} />
+          )}
+        </React.Suspense>
       </Section>
       {isSmallScreen ? (
-        <AccountActions
-          account={props.account}
-          bottomOfScreen
-          hidden={!showSendReceiveButtons}
-          onCreatePayment={navigateTo.createPayment}
-          onReceivePayment={navigateTo.receivePayment}
-        />
+        <React.Suspense fallback={<ViewLoading />}>
+          <AccountActions
+            account={props.account}
+            bottomOfScreen
+            hidden={!showSendReceiveButtons}
+            onCreatePayment={navigateTo.createPayment}
+            onReceivePayment={navigateTo.receivePayment}
+          />
+        </React.Suspense>
       ) : null}
 
       <Dialog
@@ -198,7 +222,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<ViewLoading />}>
+          <BalanceDetailsDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showAssetDetails}
@@ -206,11 +232,13 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.balanceDetails}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <AssetDetailsDialog
-          account={props.account}
-          assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
-          onClose={closeAssetDetails}
-        />
+        <React.Suspense fallback={<ViewLoading />}>
+          <AssetDetailsDialog
+            account={props.account}
+            assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
+            onClose={closeAssetDetails}
+          />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showCreatePayment}
@@ -218,7 +246,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <PaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<ViewLoading />}>
+          <PaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showReceivePayment}
@@ -226,7 +256,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <ReceivePaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<ViewLoading />}>
+          <ReceivePaymentDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showAssetTrading}
@@ -234,7 +266,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <TradeAssetDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<ViewLoading />}>
+          <TradeAssetDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showWithdrawal}
@@ -242,7 +276,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
+        <React.Suspense fallback={<ViewLoading />}>
+          <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
+        </React.Suspense>
       </Dialog>
       <Dialog
         open={showDeposit}

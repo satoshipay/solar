@@ -1,5 +1,6 @@
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -8,10 +9,9 @@ import { makeStyles } from "@material-ui/core/styles"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useAssetMetadata } from "../../hooks/stellar"
 import { useStellarAssets, useWellKnownAccounts, AssetRecord } from "../../hooks/stellar-ecosystem"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import * as popularAssets from "../../lib/popularAssets"
 import { assetRecordToAsset, stringifyAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
@@ -70,23 +70,17 @@ interface PopularAssetsProps {
 }
 
 const PopularAssets = React.memo(function PopularAssets(props: PopularAssetsProps) {
-  const assetMetadata = useAssetMetadata(props.assets, props.testnet)
-
   return (
     <>
-      {props.assets.map(asset => {
-        const [metadata] = assetMetadata.get(asset) || [undefined, false]
-        return (
-          <BalanceDetailsListItem
-            key={stringifyAsset(asset)}
-            assetMetadata={metadata}
-            balance={assetToBalance(asset)}
-            hideBalance
-            onClick={() => props.onOpenAssetDetails(asset)}
-            testnet={props.testnet}
-          />
-        )
-      })}
+      {props.assets.map(asset => (
+        <BalanceDetailsListItem
+          key={stringifyAsset(asset)}
+          balance={assetToBalance(asset)}
+          hideBalance
+          onClick={() => props.onOpenAssetDetails(asset)}
+          testnet={props.testnet}
+        />
+      ))}
     </>
   )
 })
@@ -136,9 +130,6 @@ function createSearchResultRow(
   function SearchResultRow(props: { index: number; style: React.CSSProperties }) {
     const classes = useSearchResultStyles()
     const item = itemRenderMap[props.index]
-    const asset = item.type === "asset" ? new Asset(item.record.code, item.record.issuer) : undefined
-    const assetMetadataMap = useAssetMetadata(asset ? [asset] : [], account.testnet)
-    const [assetMetadata] = asset ? assetMetadataMap.get(asset) || [] : []
 
     return (
       <div style={props.style}>
@@ -159,7 +150,6 @@ function createSearchResultRow(
         ) : null}
         {item.type === "asset" ? (
           <BalanceDetailsListItem
-            assetMetadata={assetMetadata}
             balance={assetToBalance(assetRecordToAsset(item.record))}
             className={classes.assetItem}
             hideBalance
@@ -199,7 +189,7 @@ const useAddAssetStyles = makeStyles({
 
 interface AddAssetDialogProps {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   horizon: Server
   hpadding: number
   itemHPadding: number
@@ -329,15 +319,17 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
         onClose={closeCustomTrustlineDialog}
         TransitionComponent={CompactDialogTransition}
       >
-        <CustomTrustlineDialog
-          account={props.account}
-          accountData={props.accountData}
-          createAddAssetTransaction={createAddAssetTransaction}
-          horizon={props.horizon}
-          onClose={closeCustomTrustlineDialog}
-          sendTransaction={sendTransaction}
-          txCreationPending={txCreationPending}
-        />
+        <React.Suspense fallback={<CircularProgress />}>
+          <CustomTrustlineDialog
+            account={props.account}
+            accountData={props.accountData}
+            createAddAssetTransaction={createAddAssetTransaction}
+            horizon={props.horizon}
+            onClose={closeCustomTrustlineDialog}
+            sendTransaction={sendTransaction}
+            txCreationPending={txCreationPending}
+          />
+        </React.Suspense>
       </Dialog>
     </DialogBody>
   )

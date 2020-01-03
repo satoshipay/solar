@@ -1,5 +1,6 @@
 import LRUCache from "lru-cache"
 import { FederationServer } from "stellar-sdk"
+import { workers } from "../worker-controller"
 import { isNotFoundError } from "./stellar"
 
 export const isPublicKey = (str: string) => Boolean(str.match(/^G[A-Z0-9]{55}$/))
@@ -11,14 +12,16 @@ export async function lookupFederationRecord(
   lookupCache: LRUCache<string, FederationServer.Record>,
   reverseLookupCache: LRUCache<string, string>
 ) {
+  const { netWorker } = await workers
   const cached = lookupCache.get(stellarAddress)
+
   if (cached) {
     return cached
   }
 
   let resolved: FederationServer.Record
   try {
-    resolved = await FederationServer.resolve(stellarAddress)
+    resolved = await netWorker.resolveStellarAddress(stellarAddress)
   } catch (error) {
     if (error && error.request && !error.response) {
       throw new Error(`Request for resolving the stellar address failed: ${stellarAddress}`)

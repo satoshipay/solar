@@ -55,7 +55,7 @@ function SampleWebAuth(props: SampleWebAuthProps) {
     () =>
       (async () => {
         const account = await horizon.loadAccount(props.accountID)
-        const webauthMetadata = await WebAuth.fetchWebAuthData(horizon, props.issuerID)
+        const webauthMetadata = await WebAuth.fetchWebAuthData(String(horizon.serverURL), props.issuerID)
 
         const transaction = await WebAuth.fetchChallenge(
           webauthMetadata!.endpointURL,

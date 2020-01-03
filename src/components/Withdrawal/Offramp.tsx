@@ -154,7 +154,7 @@ function Offramp(props: Props) {
         transferServer
       }
       setWithdrawalRequestPending(true)
-      const webauthMetadata = await WebAuth.fetchWebAuthData(props.horizon, asset.getIssuer())
+      const webauthMetadata = await WebAuth.fetchWebAuthData(String(props.horizon.serverURL), asset.getIssuer())
 
       if (webauthMetadata) {
         const webauth = {
@@ -194,7 +194,7 @@ function Offramp(props: Props) {
         account: props.account.publicKey
       }
       const transaction = await signTransaction(webauthData.transaction, props.account, password)
-      const authToken = await WebAuth.postResponse(webauthData.endpointURL, transaction)
+      const authToken = await WebAuth.postResponse(webauthData.endpointURL, transaction, props.account.testnet)
       dispatch(Action.setAuthToken(authToken))
       await requestWithdrawal(withdrawalRequest, authToken)
     } catch (error) {

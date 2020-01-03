@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prebuild": "rm -rf dist/",
-    "build": "NODE_ENV=production ../node_modules/.bin/parcel build ../src/index.prod.njk --public-url=./ --detailed-report",
+    "build": "NODE_ENV=production ../node_modules/.bin/parcel build ../src/index.prod.njk --public-url=./ --detailed-report --no-source-maps",
     "dev": "NODE_ENV=development ../node_modules/.bin/parcel serve ../src/index.dev.njk -p 3000"
   },
   "browser": {

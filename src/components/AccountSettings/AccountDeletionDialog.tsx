@@ -10,12 +10,11 @@ import { Account, AccountsContext } from "../../context/accounts"
 import { createTransaction } from "../../lib/transaction"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useIsSmallMobile } from "../../hooks/userinterface"
-import { closeAccountSubscriptions } from "../../subscriptions"
 import AccountSelectionList from "../Account/AccountSelectionList"
-import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import DialogBody from "../Dialog/DialogBody"
 import MergeIcon from "../Icon/Merge"
 import { HorizontalLayout } from "../Layout/Box"
+import ScrollableBalances from "../Lazy/ScrollableBalances"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import { ActionButton, ConfirmDialog, DialogActionsBox } from "../Dialog/Generic"
@@ -44,7 +43,6 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
   const onDelete = () => {
     deleteAccount(props.account.id)
-    closeAccountSubscriptions(props.horizon, props.account.publicKey)
     props.onClose()
     props.onDeleted()
   }
@@ -77,7 +75,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
   const remainingFundsContent = React.useMemo(
     () =>
-      accountData.activated ? (
+      accountData.balances.length > 0 ? (
         <>
           <HorizontalLayout alignItems="center" style={{ marginTop: 24, marginLeft: -12, marginBottom: 8 }}>
             <Switch color="primary" checked={mergeAccountEnabled} onChange={toggleMergeAccount} />
@@ -148,7 +146,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           Are you sure you want to delete the account "{props.account.name}
           "?
         </DialogContentText>
-        <DialogContentText style={{ display: accountData.activated ? undefined : "none", marginTop: 16 }}>
+        <DialogContentText style={{ display: accountData.balances.length > 0 ? undefined : "none", marginTop: 16 }}>
           Make sure to backup your private key or merge the funds into another account of yours, since there are still
           funds left!
         </DialogContentText>

@@ -41,6 +41,7 @@ interface SectionProps {
   bottom?: boolean
   brandColored?: boolean
   grow?: number
+  minHeight?: React.CSSProperties["minHeight"]
   noPadding?: boolean
   shrink?: number
   pageInset?: boolean
@@ -48,7 +49,6 @@ interface SectionProps {
   style?: React.CSSProperties
 }
 
-// tslint:disable-next-line no-shadowed-variable
 const Section = React.memo(function Section(props: SectionProps) {
   const background = props.brandColored ? primaryBackground : props.backgroundColor || "#fcfcfc"
   const isSmallScreen = useIsMobile()
@@ -64,6 +64,8 @@ const Section = React.memo(function Section(props: SectionProps) {
     color: props.brandColored ? "white" : undefined,
     flexGrow: typeof props.grow === "number" ? props.grow : 1,
     flexShrink: typeof props.shrink === "number" ? props.shrink : undefined,
+    minHeight: props.minHeight,
+    overflowY: "hidden",
     position: "relative",
     zIndex: props.top ? undefined : 1,
     ...props.style

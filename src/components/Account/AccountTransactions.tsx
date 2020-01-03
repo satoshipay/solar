@@ -6,17 +6,16 @@ import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { hasSigned } from "../../lib/transaction"
-import { useLiveRecentTransactions } from "../../hooks/stellar-subscriptions"
+import { useHorizonURL } from "../../hooks/stellar"
+import { useLiveRecentTransactions, useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useRouter } from "../../hooks/userinterface"
-import { useHorizon } from "../../hooks/stellar"
 import * as routes from "../../routes"
 import MainSelectionButton from "../Form/MainSelectionButton"
 import { VerticalLayout } from "../Layout/Box"
+import FriendbotButton from "./FriendbotButton"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
 import TransactionList from "./TransactionList"
-import TransactionListPlaceholder from "./TransactionListPlaceholder"
-import FriendbotButton from "./FriendbotButton"
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
@@ -60,7 +59,8 @@ function PendingMultisigTransactions(props: { account: Account }) {
 
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
-  const horizon = useHorizon(account.testnet)
+  const horizonURL = useHorizonURL(account.testnet)
+  const accountData = useLiveAccountData(account.publicKey, account.testnet)
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
@@ -72,9 +72,7 @@ function AccountTransactions(props: { account: Account }) {
 
   return (
     <>
-      {recentTxs.loading ? (
-        <TransactionListPlaceholder />
-      ) : recentTxs.activated ? (
+      {accountData.balances.length > 0 ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
           <OfferList account={account} title="Open orders" />
@@ -83,7 +81,7 @@ function AccountTransactions(props: { account: Account }) {
             background="transparent"
             title="Recent transactions"
             testnet={account.testnet}
-            transactions={recentTxs.transactions}
+            transactions={recentTxs}
           />
         </>
       ) : (
@@ -94,7 +92,7 @@ function AccountTransactions(props: { account: Account }) {
             style={{ padding: "0 28px 30px", width: "fit-content" }}
           >
             {account.testnet ? (
-              <FriendbotButton horizon={horizon} publicKey={account.publicKey} style={{ marginBottom: 24 }} />
+              <FriendbotButton horizonURL={horizonURL} publicKey={account.publicKey} />
             ) : null}
             <MainSelectionButton
               Icon={CreditCardIcon}
@@ -109,4 +107,4 @@ function AccountTransactions(props: { account: Account }) {
   )
 }
 
-export default AccountTransactions
+export default React.memo(AccountTransactions)

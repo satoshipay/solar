@@ -1,19 +1,22 @@
 import React from "react"
 
-export function useDebouncedState<T>(initial: T, delay: number = 50): [T, (update: T | ((prev: T) => T)) => void] {
+export function useDebouncedState<T>(
+  initial: T | (() => T),
+  delay: number = 50
+): [T, (update: T | ((prev: T) => T)) => void] {
   const currentCallGroupTimeoutRef = React.useRef<any>(undefined)
   const updateQueueRef = React.useRef<Array<T | ((prev: T) => T)> | undefined>(undefined)
   const [state, setState] = React.useState(initial)
 
-  const applyUpdateQueue = (previous: T, queue: Array<T | ((prev: T) => T)>) => {
-    return queue.reduce<T>(
-      (intermediate, queuedUpdate) =>
-        typeof queuedUpdate === "function" ? (queuedUpdate as ((p: T) => T))(intermediate) : queuedUpdate,
-      previous
-    )
-  }
-
   const debouncedSetState = React.useCallback((update: T | ((prev: T) => T)) => {
+    const applyUpdateQueue = (previous: T, queue: Array<T | ((prev: T) => T)>) => {
+      return queue.reduce<T>(
+        (intermediate, queuedUpdate) =>
+          typeof queuedUpdate === "function" ? (queuedUpdate as ((p: T) => T))(intermediate) : queuedUpdate,
+        previous
+      )
+    }
+
     if (currentCallGroupTimeoutRef.current) {
       updateQueueRef.current!.push(update)
     } else {

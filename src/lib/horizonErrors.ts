@@ -1,118 +1,89 @@
-interface HorizonRequestConfig {
-  url: string
-  // (incomplete)
-}
-
-interface HorizonResponse {
-  config: HorizonRequestConfig
+interface TxSubmissionResponse {
   data: any
-  headers: { [headerName: string]: string }
-  request: XMLHttpRequest
   status: number
-  statusText: string
 }
 
-interface HorizonError extends Error {
-  config: HorizonRequestConfig
-  request: XMLHttpRequest
-  response: HorizonResponse
-}
+function explainSubmissionErrorByOpResultCodes(response: TxSubmissionResponse, resultCodes: string[]) {
+  // tslint:disable-next-line prefer-object-spread
+  const augment = (error: Error) => Object.assign(error, { response })
 
-function deriveError(originalError: HorizonError, newError: Error) {
-  // Copy debugging metadata to the new error for future inspection
-  // Use `Object.assign()` instead of object spread operator to preserve prototype
-  // tslint:disable-next-line
-  return Object.assign(newError, {
-    config: originalError.config,
-    request: originalError.request,
-    response: originalError.response
-  })
-}
-
-function explainSubmissionErrorByOpResultCodes(error: HorizonError, resultCodes: string[]) {
   // See <https://github.com/stellar/horizon/blob/master/src/github.com/stellar/horizon/codes/main.go>
   const errorCodes = resultCodes.filter(code => code !== "op_success")
 
   if (errorCodes.length === 1) {
     switch (errorCodes[0]) {
       case "op_cross_self":
-        return deriveError(error, new Error("The order would counter an open order of yours."))
+        return augment(Error("The order would counter an open order of yours."))
       case "op_has_sub_entries":
-        return deriveError(error, new Error("Account still has trustlines (assets) or open trading orders."))
+        return augment(Error("Account still has trustlines (assets) or open trading orders."))
       case "op_immutable_set":
-        return deriveError(error, new Error("Account is immutable (AUTH_IMMUTABLE flag set)."))
+        return augment(Error("Account is immutable (AUTH_IMMUTABLE flag set)."))
       case "op_line_full":
-        return deriveError(
-          error,
-          new Error("The destination account's balance would exceed the destination's trust in the asset.")
-        )
+        return augment(Error("The destination account's balance would exceed the destination's trust in the asset."))
       case "op_low_reserve":
-        return deriveError(
-          error,
-          new Error(
+        return augment(
+          Error(
             "Transaction rejected by the network. Source or destination account balance would be below minimum balance."
           )
         )
       case "op_no_account":
-        return deriveError(error, new Error("Destination account does not exist."))
+        return augment(Error("Destination account does not exist."))
       case "op_no_issuer":
-        return deriveError(error, new Error("Asset is invalid. Incorrect asset issuer."))
+        return augment(Error("Asset is invalid. Incorrect asset issuer."))
       case "op_no_trust":
-        return deriveError(error, new Error("Destination account does not trust the asset you are attempting to send."))
+        return augment(Error("Destination account does not trust the asset you are attempting to send."))
       case "op_underfunded":
-        return deriveError(error, new Error("Not enough funds to perform this operation."))
+        return augment(Error("Not enough funds to perform this operation."))
     }
   }
 
-  return deriveError(
-    error,
-    new Error(`Transaction rejected by the network. Operation error codes: ${errorCodes.join(", ")}`)
-  )
+  return augment(Error(`Transaction rejected by the network. Operation error codes: ${errorCodes.join(", ")}`))
 }
 
-function explainSubmissionErrorByTxResultCode(error: HorizonError, resultCode: string) {
+function explainSubmissionErrorByTxResultCode(response: TxSubmissionResponse, resultCode: string) {
+  // tslint:disable-next-line prefer-object-spread
+  const augment = (error: Error) => Object.assign(error, { response })
+
   // See <https://github.com/stellar/horizon/blob/master/src/github.com/stellar/horizon/codes/main.go>
   // See <https://www.stellar.org/developers/guides/concepts/transactions.html#possible-errors>
   switch (resultCode) {
     case "insufficient_fee":
-      return deriveError(error, new Error("Network demands higher fees than set in the transaction."))
+      return augment(Error("Network demands higher fees than set in the transaction."))
     case "internal_error":
-      return deriveError(error, new Error("An unknown error occured on the Stellar server."))
+      return augment(Error("An unknown error occured on the Stellar server."))
     case "no_account":
-      return deriveError(error, new Error("Source account not found."))
+      return augment(Error("Source account not found."))
     case "tx_bad_auth":
-      return deriveError(error, new Error("Too few valid signatures or wrong network."))
+      return augment(Error("Too few valid signatures or wrong network."))
     case "tx_bad_auth_extra":
-      return deriveError(error, new Error("Unused signatures attached to transaction."))
+      return augment(Error("Unused signatures attached to transaction."))
     case "tx_bad_seq":
-      return deriveError(error, new Error("Sequence number mismatch. Please re-create the transaction."))
+      return augment(Error("Sequence number mismatch. Please re-create the transaction."))
     case "tx_insufficient_balance":
-      return deriveError(error, new Error("Insufficient balance. Balance would fall below the minimum reserve."))
+      return augment(Error("Insufficient balance. Balance would fall below the minimum reserve."))
     case "tx_too_late":
-      return deriveError(error, new Error("Transaction draft has expired. Try again."))
+      return augment(Error("Transaction draft has expired. Try again."))
     default:
-      return deriveError(error, new Error(`Transaction rejected by the network. Result code: ${resultCode}`))
+      return augment(Error(`Transaction rejected by the network. Result code: ${resultCode}`))
   }
 }
 
-export function explainSubmissionError(error: any) {
-  if (!error.response || error.response.status !== 400) {
-    return error
+export function explainSubmissionErrorResponse(response: TxSubmissionResponse | undefined) {
+  if (!response || response.status !== 400) {
+    return Error("An unknown error occured.")
   }
-
-  const response: HorizonResponse = (error as HorizonError).response
 
   if (response.data && response.data.extras && response.data.extras.result_codes) {
     const resultCodes = response.data.extras.result_codes
 
     if (resultCodes.operations && resultCodes.operations.length > 0) {
-      return explainSubmissionErrorByOpResultCodes(error, resultCodes.operations)
+      return explainSubmissionErrorByOpResultCodes(response, resultCodes.operations)
     } else if (resultCodes.transaction) {
-      return explainSubmissionErrorByTxResultCode(error, resultCodes.transaction)
+      return explainSubmissionErrorByTxResultCode(response, resultCodes.transaction)
     }
 
     // TODO: Handle more result codes
   }
 
-  return error
+  return Error("An unknown error occured.")
 }

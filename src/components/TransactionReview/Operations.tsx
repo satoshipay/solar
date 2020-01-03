@@ -2,8 +2,9 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
-import { useLiveAccountOffers, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
 import { useIsSmallMobile } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
 import { CopyableAddress } from "../PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
@@ -196,7 +197,7 @@ function ManageDataOperation(props: ManageDataOperationProps) {
 }
 
 interface ManageOfferOperationProps {
-  accountData: ObservedAccountData
+  accountData: AccountData
   hideHeading?: boolean
   operation: Operation.ManageBuyOffer | Operation.ManageSellOffer
   style?: React.CSSProperties
@@ -251,7 +252,7 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
     )
   } else {
     // Offer edit
-    const offer = offers.offers.find(someOffer => String(someOffer.id) === String(offerId))
+    const offer = offers.find(someOffer => String(someOffer.id) === String(offerId))
     const heading =
       props.operation.type === "manageBuyOffer"
         ? buyAmount.eq(0)
@@ -403,7 +404,7 @@ function GenericOperation(props: { operation: Operation; style?: React.CSSProper
 }
 
 interface Props {
-  accountData: ObservedAccountData
+  accountData: AccountData
   operation: Operation
   style?: React.CSSProperties
   testnet: boolean

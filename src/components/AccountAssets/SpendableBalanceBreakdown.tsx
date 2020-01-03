@@ -141,7 +141,7 @@ function SpendableBalanceBreakdown(props: Props) {
   const trustedAssetBalances = props.accountData.balances.filter(balance => balance.asset_type !== "native")
 
   const dataReserve = props.baseReserve * Object.keys(props.accountData.data_attr).length
-  const openOrdersReserve = props.baseReserve * openOrders.offers.length
+  const openOrdersReserve = props.baseReserve * openOrders.length
   const signersReserve = props.baseReserve * props.accountData.signers.length
   const trustlinesReserve = props.baseReserve * trustedAssetBalances.length
   const sellingLiabilities = nativeBalance ? BigNumber(nativeBalance.selling_liabilities) : BigNumber(0)

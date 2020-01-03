@@ -4,7 +4,7 @@
     "outDir": "./dist/",
     "sourceMap": true,
     "strict": true,
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "paths": {
       "*": ["shared/types/*"]
@@ -14,6 +14,7 @@
     "lib": ["es6", "dom"],
     "jsx": "react",
     "noUnusedLocals": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true
   }
 }

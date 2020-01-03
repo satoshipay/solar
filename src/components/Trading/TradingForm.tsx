@@ -5,12 +5,14 @@ import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
+import useMediaQuery from "@material-ui/core/useMediaQuery"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useHorizon } from "../../hooks/stellar"
-import { useLiveOrderbook, ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveOrderbook } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
+import { AccountData } from "../../lib/account"
 import { calculateSpread } from "../../lib/orderbook"
 import { balancelineToAsset } from "../../lib/stellar"
 import { formatBalance, BalanceFormattingOptions } from "../Account/AccountBalances"
@@ -29,7 +31,7 @@ const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingO
 
 const isValidAmount = (amount: string) => /^[0-9]+([\.,][0-9]+)?$/.test(amount)
 
-function findMatchingBalance(balances: ObservedAccountData["balances"], asset: Asset) {
+function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
@@ -40,7 +42,7 @@ interface ManualPrice {
 
 interface Props {
   account: Account
-  accountData: ObservedAccountData
+  accountData: AccountData
   className?: string
   dialogActionsRef: RefStateObject
   initialPrimaryAsset?: Asset
@@ -53,6 +55,9 @@ interface Props {
 
 function TradingForm(props: Props) {
   const isSmallScreen = useIsMobile()
+  const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
+  const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
+
   const [primaryAsset, setPrimaryAsset] = React.useState<Asset | undefined>(props.initialPrimaryAsset)
   const [primaryAmountString, setPrimaryAmountString] = React.useState("")
   const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
@@ -168,9 +173,9 @@ function TradingForm(props: Props) {
     // set minHeight to prevent wrapping of layout when keyboard is shown
     <VerticalLayout
       alignItems="stretch"
-      alignSelf={isSmallScreen ? undefined : "center"}
+      alignSelf={isSmallScreenXY ? undefined : "center"}
       grow={1}
-      justifyContent={isSmallScreen ? undefined : "center"}
+      justifyContent={isSmallScreenXY ? undefined : "center"}
       minHeight={300}
       maxHeight="100%"
       margin={isSmallScreen ? undefined : "32px 0 0"}

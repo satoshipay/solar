@@ -120,7 +120,7 @@ function AccountSettings(props: Props) {
         </AccountSettingsItem>
         {settings.multiSignature ? (
           <AccountSettingsItem
-            disabled={!accountData.activated}
+            disabled={accountData.balances.length === 0}
             icon={<GroupIcon style={{ fontSize: "100%" }} />}
             onClick={navigateTo.manageSigners}
           >

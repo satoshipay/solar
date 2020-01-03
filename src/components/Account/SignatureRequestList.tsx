@@ -15,10 +15,20 @@ interface SignatureRequestListItemProps {
   onOpenTransaction?: (tx: Transaction, signatureRequest: SignatureRequest) => void
   signatureRequest: SignatureRequest
   style?: React.CSSProperties
+  testnet: boolean
 }
 
 function SignatureRequestListItem(props: SignatureRequestListItemProps) {
   const { onOpenTransaction, signatureRequest } = props
+
+  const envelopeXdr = React.useMemo(
+    () =>
+      signatureRequest.meta.transaction
+        .toEnvelope()
+        .toXDR()
+        .toString("base64"),
+    [signatureRequest.meta.transaction]
+  )
 
   const openTransaction = React.useCallback(
     onOpenTransaction ? () => onOpenTransaction(signatureRequest.meta.transaction, signatureRequest) : () => undefined,
@@ -33,7 +43,8 @@ function SignatureRequestListItem(props: SignatureRequestListItemProps) {
       icon={props.icon}
       onOpenTransaction={openTransaction}
       style={props.style}
-      transaction={signatureRequest.meta.transaction}
+      testnet={props.testnet}
+      transactionEnvelopeXdr={envelopeXdr}
     />
   )
 }
@@ -92,6 +103,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
             style={{
               minHeight: 72
             }}
+            testnet={props.account.testnet}
           />
         ))}
       </List>
@@ -109,12 +121,9 @@ export const InteractiveSignatureRequestList = React.memo(
     const router = useRouter()
     const forceClose = !matchesRoute(router.location.pathname, routes.showTransaction("*", "*"))
 
-    const onCloseDialog = React.useCallback(
-      () => {
-        router.history.push(routes.routeUp(router.location.pathname))
-      },
-      [router]
-    )
+    const onCloseDialog = React.useCallback(() => {
+      router.history.push(routes.routeUp(router.location.pathname))
+    }, [router])
 
     if (props.signatureRequests.length === 0) {
       return null

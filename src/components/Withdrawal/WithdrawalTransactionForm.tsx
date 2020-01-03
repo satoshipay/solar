@@ -68,7 +68,7 @@ function WithdrawalTransactionForm(props: Props) {
             label="Amount to withdraw"
             margin="normal"
             onChange={event => setAmountString(event.target.value)}
-            placeholder={accountData.loading ? "" : formatBalanceRange(balance, minAmount, maxAmount)}
+            placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
             style={{ flexGrow: 2, marginRight: 24 }}
             value={amountString}
           />

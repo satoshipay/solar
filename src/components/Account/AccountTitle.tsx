@@ -11,7 +11,7 @@ import GroupIcon from "@material-ui/icons/Group"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { ObservedAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
 import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
@@ -52,9 +52,14 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
   return <span style={style}>Testnet</span>
 }
 
-// tslint:disable-next-line no-shadowed-variable
-const Badges = React.memo(function Badges(props: { account: Account; accountData: ObservedAccountData }) {
-  const multiSigIcon = containsStellarGuardAsSigner(props.accountData.signers) ? (
+interface BadgesProps {
+  account: Account
+}
+
+export const Badges = React.memo(function Badges(props: BadgesProps) {
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+
+  const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
     <Tooltip title="StellarGuard Protection">
       <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
     </Tooltip>
@@ -67,7 +72,7 @@ const Badges = React.memo(function Badges(props: { account: Account; accountData
   return (
     <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
       {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
-      {props.accountData.signers.length > 1 ? multiSigIcon : null}
+      {accountData.signers.length > 1 ? multiSigIcon : null}
       <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
     </HorizontalLayout>
   )
@@ -147,8 +152,8 @@ function TitleTextField(props: TitleTextFieldProps) {
 
 interface AccountTitleProps {
   account: Account
-  accountData: ObservedAccountData
   actions: React.ReactNode
+  badges: React.ReactNode
   editable?: boolean
 }
 
@@ -239,7 +244,7 @@ function AccountTitle(props: AccountTitleProps) {
   return (
     <MainTitle
       actions={props.actions}
-      badges={props.editable ? null : <Badges account={props.account} accountData={props.accountData} />}
+      badges={props.editable ? null : props.badges}
       onBack={onNavigateBack}
       style={{ marginTop: -12, marginLeft: 0 }}
       title={

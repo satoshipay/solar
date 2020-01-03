@@ -1,33 +1,19 @@
 import React from "react"
-import Snackbar, { SnackbarOrigin } from "@material-ui/core/Snackbar"
 import Dialog from "@material-ui/core/Dialog"
-import SnackbarContent from "@material-ui/core/SnackbarContent"
 import Typography from "@material-ui/core/Typography"
-import makeStyles from "@material-ui/core/styles/makeStyles"
-import CheckIcon from "@material-ui/icons/CheckCircle"
-import ErrorIcon from "@material-ui/icons/Error"
-import InfoIcon from "@material-ui/icons/Info"
-import OfflineBoltIcon from "@material-ui/icons/OfflineBolt"
-import blue from "@material-ui/core/colors/blue"
-import green from "@material-ui/core/colors/green"
-import grey from "@material-ui/core/colors/grey"
-import { Notification, NotificationsContext, NotificationType } from "../context/notifications"
-import { useOnlineStatus } from "../hooks/util"
-import theme, { FullscreenDialogTransition } from "../theme"
-import DialogBody from "./Dialog/DialogBody"
-import { DialogActionsBox, ActionButton } from "./Dialog/Generic"
-import { Box } from "./Layout/Box"
-import MainTitle from "./MainTitle"
+import { Notification as NotificationType, NotificationsContext } from "../../context/notifications"
+import { useOnlineStatus } from "../../hooks/util"
+import { FullscreenDialogTransition } from "../../theme"
+import DialogBody from "../Dialog/DialogBody"
+import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
+import { Box } from "../Layout/Box"
+import MainTitle from "../MainTitle"
+import Notification from "./Notification"
 
-const icons: { [key in NotificationType]: React.ComponentType<any> } = {
-  connection: OfflineBoltIcon,
-  error: ErrorIcon,
-  info: InfoIcon,
-  success: CheckIcon
-}
+export const autoHideDuration = 5000
 
 interface NotificationDetailsProps {
-  notification: Notification | null
+  notification: NotificationType | null
   onClose: () => void
   showSupportEmail?: boolean
 }
@@ -46,7 +32,7 @@ const NotificationDetails = React.memo(function NotificationDetails(props: Notif
       }
     >
       <Box alignSelf="center" margin="24px auto 0" width="100%">
-        <Typography>{message}</Typography>
+        <Typography style={{ whiteSpace: "pre-wrap" }}>{message}</Typography>
       </Box>
       {props.showSupportEmail ? (
         <Box alignSelf="center" margin="36px auto 0" width="100%">
@@ -64,92 +50,10 @@ const NotificationDetails = React.memo(function NotificationDetails(props: Notif
   )
 })
 
-const useNotificationStyles = makeStyles({
-  clickable: {
-    cursor: "pointer"
-  },
-  connection: {
-    backgroundColor: grey["500"]
-  },
-  error: {
-    backgroundColor: theme.palette.error.dark
-  },
-  info: {
-    backgroundColor: blue["500"]
-  },
-  success: {
-    backgroundColor: green["500"]
-  },
-  icon: {
-    fontSize: 20,
-    opacity: 0.9,
-    marginRight: theme.spacing(1)
-  },
-  message: {
-    alignItems: "center",
-    display: "flex",
-    overflow: "hidden",
-    width: "90vw"
-  },
-  messageText: {
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-    whiteSpace: "nowrap"
-  }
-})
-
-interface NotificationProps {
-  anchorOrigin?: SnackbarOrigin
-  autoHideDuration?: number
-  contentStyle?: React.CSSProperties
+interface OfflineNotificationProps {
   message: string
-  type: NotificationType
-  open?: boolean
-  onClick?: () => void
-  onClose?: () => void
-  style?: React.CSSProperties
+  open: boolean
 }
-
-const Notification = React.memo(function Notification(props: NotificationProps) {
-  const { open = true } = props
-  const classes = useNotificationStyles()
-
-  const Icon = icons[props.type]
-  const contentClassnames: { [key in NotificationType]: string } = {
-    connection: classes.connection,
-    error: classes.error,
-    info: classes.info,
-    success: classes.success
-  }
-
-  return (
-    <Snackbar
-      anchorOrigin={props.anchorOrigin}
-      autoHideDuration={props.autoHideDuration}
-      className={props.onClick ? classes.clickable : undefined}
-      open={open}
-      onClick={props.onClick}
-      onClose={props.onClose}
-      style={props.style}
-    >
-      <SnackbarContent
-        classes={{
-          root: contentClassnames[props.type],
-          message: classes.message
-        }}
-        message={
-          <>
-            <Icon className={classes.icon} />
-            <span className={classes.messageText}>{props.message}</span>
-          </>
-        }
-        style={props.contentStyle}
-      />
-    </Snackbar>
-  )
-})
-
-type OfflineNotificationProps = Pick<NotificationProps, "message" | "open">
 
 const OfflineNotification = React.memo(function OfflineNotification(props: OfflineNotificationProps) {
   const anchorOrigin = React.useMemo(
@@ -175,8 +79,8 @@ function NotificationsContainer() {
   const { notifications } = React.useContext(NotificationsContext)
   const { isOnline } = useOnlineStatus()
   const [lastClosedNotificationID, setLastClosedNotificationID] = React.useState(0)
-  const [notificationInDialog, setNotificationInDialog] = React.useState<Notification | undefined>()
-  const lastShownNotification = React.useRef<Notification | null>(null)
+  const [notificationInDialog, setNotificationInDialog] = React.useState<NotificationType | undefined>()
+  const lastShownNotification = React.useRef<NotificationType | null>(null)
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
   const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID
@@ -194,7 +98,7 @@ function NotificationsContainer() {
   }
 
   const showNotificationDetails = React.useCallback(
-    (notification: Notification) => setNotificationInDialog(notification),
+    (notification: NotificationType) => setNotificationInDialog(notification),
     []
   )
 
@@ -214,7 +118,7 @@ function NotificationsContainer() {
   return (
     <>
       <Notification
-        autoHideDuration={5000}
+        autoHideDuration={autoHideDuration}
         message={visibleNotification ? visibleNotification.message : ""}
         type={visibleNotification ? visibleNotification.type : "error"}
         open={open && (!notificationInDialog || notificationInDialog !== visibleNotification)}
@@ -238,4 +142,4 @@ function NotificationsContainer() {
   )
 }
 
-export default NotificationsContainer
+export default React.memo(NotificationsContainer)

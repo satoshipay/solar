@@ -8,11 +8,14 @@ import MenuIcon from "@material-ui/icons/Menu"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile } from "../../hooks/userinterface"
-import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
-import { Box } from "../Layout/Box"
-import AccountContextMenu from "./AccountContextMenu"
-import AccountTitle from "./AccountTitle"
 import { breakpoints } from "../../theme"
+import InlineLoader from "../InlineLoader"
+import { Box } from "../Layout/Box"
+import withFallback from "../Lazy/withFallback"
+import ViewLoading from "../ViewLoading"
+import AccountTitle, { Badges } from "./AccountTitle"
+
+const AccountContextMenu = withFallback(React.lazy(() => import("./AccountContextMenu")), <ViewLoading />)
 
 const useAccountHeaderStyles = makeStyles({
   button: {
@@ -43,11 +46,9 @@ interface Props {
   onTrade: () => void
   onWithdraw: () => void
   showCloseButton?: boolean
-  style?: React.CSSProperties
 }
 
 function AccountHeaderCard(props: Props) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useAccountHeaderStyles()
   const isSmallScreen = useIsMobile()
   const settings = React.useContext(SettingsContext)
@@ -55,39 +56,32 @@ function AccountHeaderCard(props: Props) {
   const actions = React.useMemo(
     () => (
       <Box alignItems="center" display="flex" height={44} justifyContent="flex-end">
-        {props.showCloseButton ? (
-          <IconButton className={`${classes.button} ${classes.closeButton}`} color="inherit" onClick={props.onClose}>
-            <CloseIcon />
-          </IconButton>
-        ) : (
-          <AccountContextMenu
-            account={props.account}
-            activated={accountData.activated}
-            onAccountSettings={props.onAccountSettings}
-            onDeposit={props.onDeposit}
-            onManageAssets={props.onManageAssets}
-            onTrade={props.onTrade}
-            onWithdraw={props.onWithdraw}
-            settings={settings}
-          >
-            {({ onOpen }) => (
-              <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
-                <MenuIcon style={{ fontSize: "inherit" }} />
-              </IconButton>
-            )}
-          </AccountContextMenu>
-        )}
+        <React.Suspense fallback={null}>
+          {props.showCloseButton ? (
+            <IconButton className={`${classes.button} ${classes.closeButton}`} color="inherit" onClick={props.onClose}>
+              <CloseIcon />
+            </IconButton>
+          ) : (
+            <AccountContextMenu
+              account={props.account}
+              onAccountSettings={props.onAccountSettings}
+              onDeposit={props.onDeposit}
+              onManageAssets={props.onManageAssets}
+              onTrade={props.onTrade}
+              onWithdraw={props.onWithdraw}
+              settings={settings}
+            >
+              {({ onOpen }) => (
+                <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
+                  <MenuIcon style={{ fontSize: "inherit" }} />
+                </IconButton>
+              )}
+            </AccountContextMenu>
+          )}
+        </React.Suspense>
       </Box>
     ),
-    [
-      props.account,
-      accountData.activated,
-      props.onAccountSettings,
-      props.onTrade,
-      props.onWithdraw,
-      props.showCloseButton,
-      settings
-    ]
+    [props.account, props.onAccountSettings, props.onTrade, props.onWithdraw, props.showCloseButton, settings]
   )
 
   return (
@@ -97,17 +91,22 @@ function AccountHeaderCard(props: Props) {
         position: "relative",
         background: "transparent",
         boxShadow: "none",
-        overflow: "visible",
-        ...props.style
+        overflow: "visible"
       }}
     >
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
-        <AccountTitle
-          account={props.account}
-          accountData={accountData}
-          actions={actions}
-          editable={props.editableAccountName}
-        />
+        <React.Suspense fallback={<InlineLoader />}>
+          <AccountTitle
+            account={props.account}
+            actions={actions}
+            badges={
+              <React.Suspense fallback={null}>
+                <Badges account={props.account} />
+              </React.Suspense>
+            }
+            editable={props.editableAccountName}
+          />
+        </React.Suspense>
         {props.children}
       </CardContent>
     </Card>
