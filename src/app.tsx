@@ -7,12 +7,7 @@ import { HashRouter as Router } from "react-router-dom"
 import SmoothScroll from "smoothscroll-polyfill"
 import { MuiThemeProvider } from "@material-ui/core/styles"
 import ViewLoading from "./components/ViewLoading"
-import { AccountsProvider } from "./context/accounts"
-import { CachingProviders } from "./context/caches"
-import { NotificationsProvider } from "./context/notifications"
-import { SettingsProvider } from "./context/settings"
-import { SignatureDelegationProvider } from "./context/signatureDelegation"
-import { StellarProvider } from "./context/stellar"
+import { ContextProviders } from "./context"
 import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
 import "./worker-controller"
@@ -21,20 +16,10 @@ SmoothScroll.polyfill()
 
 const Stage2 = React.lazy(() => import("./app-stage2"))
 
-const Providers = (props: { children: React.ReactNode }) => (
+export const Providers = (props: { children: React.ReactNode }) => (
   <Router>
     <MuiThemeProvider theme={theme}>
-      <StellarProvider>
-        <AccountsProvider>
-          <SettingsProvider>
-            <CachingProviders>
-              <NotificationsProvider>
-                <SignatureDelegationProvider>{props.children}</SignatureDelegationProvider>
-              </NotificationsProvider>
-            </CachingProviders>
-          </SettingsProvider>
-        </AccountsProvider>
-      </StellarProvider>
+      <ContextProviders>{props.children}</ContextProviders>
     </MuiThemeProvider>
   </Router>
 )
