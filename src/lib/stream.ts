@@ -41,14 +41,14 @@ export function createMessageDeduplicator<MessageType>() {
 
 export function whenBackOnline(callback: () => void) {
   if (navigator.onLine === false) {
-    window.addEventListener("online", callback, { once: true, passive: true })
+    ;(window || self).addEventListener("online", callback, { once: true, passive: true })
     return
   }
 
   // Wait a little bit, then check again (in case the offline status isn't updated in time)
   setTimeout(() => {
     if (navigator.onLine === false) {
-      window.addEventListener("online", callback, { once: true, passive: true })
+      ;(window || self).addEventListener("online", callback, { once: true, passive: true })
       return
     } else {
       // Delay a little bit more, so we don't reconnect every few milliseconds
