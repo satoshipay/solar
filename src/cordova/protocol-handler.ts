@@ -1,4 +1,4 @@
-import { events } from "./ipc"
+import { Messages } from "../shared/ipc"
 
 export function registerURLHandler(contentWindow: Window, iframeReady: Promise<void>) {
   window.handleOpenURL = handleOpenURL(contentWindow, iframeReady)
@@ -6,6 +6,6 @@ export function registerURLHandler(contentWindow: Window, iframeReady: Promise<v
 
 const handleOpenURL = (contentWindow: Window, iframeReady: Promise<void>) => (url: string) => {
   iframeReady.then(() => {
-    contentWindow.postMessage({ eventType: events.deeplinkURLEvent, url }, "*")
+    contentWindow.postMessage({ messageType: Messages.DeepLinkURL, result: url }, "*")
   })
 }

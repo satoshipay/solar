@@ -1,85 +1,61 @@
 import { KeyStore } from "key-store"
-import { trackError } from "./error"
-import * as keyStoreIPC from "./keystore"
 
-type CommandHandler = (
-  event: MessageEvent,
-  contentWindow: Window,
+type CommandHandler<Message extends keyof IPC.MessageType> = (
   secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
-) => Promise<void>
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  ...args: any
+) => IPC.MessageReturnType<Message> | Promise<IPC.MessageReturnType<Message>>
 
-export interface CommandHandlers {
-  [eventName: string]: CommandHandler
-}
-
-// commands
-export const commands = {
-  keyStore: keyStoreIPC.commands,
-
-  readSettingsCommand: "storage:settings:read",
-  storeSettingsCommand: "storage:settings:store",
-  readIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:read",
-  storeIgnoredSignatureRequestsCommand: "storage:ignoredSignatureRequests:store",
-
-  testBioAuthCommand: "test:auth",
-  bioAuthAvailableCommand: "test:auth:available",
-
-  openLink: "link:open",
-
-  copyToClipboard: "clipboard:write",
-  scanQRCodeCommand: "qr-code:scan",
-
-  showSplashScreen: "splash:show",
-  hideSplashScreen: "splash:hide"
-}
-
-// event types
-export const events = {
-  keyStore: keyStoreIPC.events,
-
-  keyResponseEvent: "storage:keys",
-  keysStoredEvent: "storage:keys:stored",
-  settingsResponseEvent: "storage:settings",
-  settingsStoredEvent: "storage:settings:stored",
-  ignoredSignatureRequestsResponseEvent: "storage:ignoredSignatureRequests",
-  storedIgnoredSignatureRequestsEvent: "storage:ignoredSignatureRequests:stored",
-
-  testBioAuthResponseEvent: "test:auth:result",
-  bioAuthAvailableResponseEvent: "test:auth:available:result",
-
-  qrcodeResultEvent: "qr-code:result",
-
-  deeplinkURLEvent: "deeplink:url"
+export type CommandHandlers = {
+  [eventName in keyof IPC.MessageType]?: CommandHandler<keyof IPC.MessageType>
 }
 
 let commandHandlers: CommandHandlers = {}
 
-export function handleMessageEvent(
-  event: Event,
+export async function handleMessageEvent<Message extends keyof IPC.MessageType>(
+  messageType: Message,
+  payload: ElectronIPCCallMessage<Message>,
   contentWindow: Window,
   secureStorage: CordovaSecureStorage,
   keyStore: KeyStore<PrivateKeyData, PublicKeyData>
 ) {
-  if (!(event instanceof MessageEvent) || event.source !== contentWindow || typeof event.data !== "object") {
-    return
-  }
+  const { args, callID } = payload
 
-  const messageHandler = commandHandlers[event.data.commandType]
-
+  const messageHandler = commandHandlers[messageType]
   if (messageHandler) {
-    messageHandler(event, contentWindow, secureStorage, keyStore).catch(trackError)
+    try {
+      const result = await messageHandler(secureStorage, keyStore, ...args)
+      sendSuccessResponse(contentWindow, messageType, callID, result)
+    } catch (error) {
+      sendErrorResponse(contentWindow, messageType, callID, {
+        name: error.name || "Error",
+        message: error.message,
+        stack: error.stack
+      })
+    }
   } else {
-    throw Error(
-      `No message handler defined for event type "${event.data.commandType}".\n` +
-        `Event data: ${JSON.stringify(event.data)}`
-    )
+    throw Error(`No message handler defined for event type "${messageType}".\n`)
   }
 }
 
-export function registerCommandHandler(commandName: string, handler: CommandHandler) {
+export function expose<Message extends keyof IPC.MessageType>(
+  messageType: Message,
+  handler: (
+    secureStorage: CordovaSecureStorage,
+    keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+    ...args: IPC.MessageArgs<Message>
+  ) => IPC.MessageReturnType<Message> | Promise<IPC.MessageReturnType<Message>>
+) {
   commandHandlers = {
     ...commandHandlers,
-    [commandName]: handler
+    [messageType]: handler
   }
+}
+
+export function sendSuccessResponse(contentWindow: Window, messageType: string, callID: any, result?: any) {
+  contentWindow.postMessage({ messageType, callID, result }, "*")
+}
+
+export function sendErrorResponse(contentWindow: Window, messageType: string, callID: any, error: any) {
+  contentWindow.postMessage({ messageType, callID, error }, "*")
 }

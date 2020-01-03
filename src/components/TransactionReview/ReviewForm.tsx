@@ -44,6 +44,7 @@ function TxConfirmationForm(props: Props) {
   const [dismissalConfirmationPending, setDismissalConfirmationPending] = React.useState(false)
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
+  const [loading, setLoading] = React.useState<boolean>(false)
 
   const passwordError = props.passwordError || errors.password
 
@@ -60,6 +61,7 @@ function TxConfirmationForm(props: Props) {
       props.onClose()
     }
   }, [props.signatureRequest])
+
   const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
     setFormValues(prevValues => ({
       ...prevValues,
@@ -75,8 +77,10 @@ function TxConfirmationForm(props: Props) {
     )
   }, [createCheapTxID(props.transaction)])
 
+  const handleTextFieldChange = React.useCallback(event => setFormValue("password", event.target.value), [])
+
   const handleFormSubmission = React.useCallback(
-    (event: React.SyntheticEvent) => {
+    async (event: React.SyntheticEvent) => {
       event.preventDefault()
 
       if (props.disabled) {
@@ -85,6 +89,7 @@ function TxConfirmationForm(props: Props) {
       }
 
       if (props.account.requiresPassword && !formValues.password) {
+        setLoading(false)
         return setErrors({
           ...errors,
           password: new Error("Password required")
@@ -92,10 +97,24 @@ function TxConfirmationForm(props: Props) {
       }
 
       setErrors({})
-      onConfirm(formValues)
+      try {
+        await onConfirm(formValues)
+      } catch (error) {
+        // re-throw error
+        throw error
+      } finally {
+        setLoading(false)
+      }
     },
     [props.account, props.disabled, formValues, onConfirm]
   )
+
+  const DismissIcon = React.useMemo(() => <CloseIcon style={{ fontSize: "140%" }} />, [])
+  const ConfirmIcon = React.useMemo(() => <CheckIcon />, [])
+
+  const showLoadingIndicator = React.useCallback(() => {
+    setLoading(true)
+  }, [])
 
   return (
     <form id={formID} noValidate onSubmit={handleFormSubmission}>
@@ -118,7 +137,7 @@ function TxConfirmationForm(props: Props) {
             fullWidth
             margin="dense"
             value={formValues.password || ""}
-            onChange={event => setFormValue("password", event.target.value)}
+            onChange={handleTextFieldChange}
             style={{ marginTop: 16, marginBottom: 32 }}
           />
         ) : null}
@@ -126,12 +145,18 @@ function TxConfirmationForm(props: Props) {
       <Portal target={props.actionsRef.element}>
         <DialogActionsBox smallDialog={props.disabled && !props.signatureRequest}>
           {props.signatureRequest ? (
-            <ActionButton icon={<CloseIcon style={{ fontSize: "140%" }} />} onClick={requestDismissalConfirmation}>
+            <ActionButton icon={DismissIcon} onClick={requestDismissalConfirmation}>
               Dismiss
             </ActionButton>
           ) : null}
           {props.disabled ? null : (
-            <ActionButton icon={<CheckIcon />} form={formID} onClick={() => undefined} type="submit">
+            <ActionButton
+              icon={ConfirmIcon}
+              form={formID}
+              loading={loading}
+              onClick={showLoadingIndicator}
+              type="submit"
+            >
               Confirm
             </ActionButton>
           )}

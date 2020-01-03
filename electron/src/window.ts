@@ -1,5 +1,5 @@
-import { BrowserWindow } from "electron"
-import open from "open"
+import { BrowserWindow, shell } from "electron"
+import isDev from "electron-is-dev"
 import path from "path"
 import URL from "url"
 
@@ -7,6 +7,7 @@ let openWindows: BrowserWindow[] = []
 
 // start protocol handler
 import * as protocolHandler from "./protocol-handler"
+import { Messages } from "./shared/ipc"
 
 export function createMainWindow() {
   const window = new BrowserWindow({
@@ -21,7 +22,7 @@ export function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
-      preload: path.join(__dirname, "preload.js"),
+      preload: isDev ? path.join(__dirname, "..", "lib", "preload.js") : path.join(__dirname, "preload.js"),
       sandbox: true,
       webviewTag: false
     }
@@ -29,10 +30,9 @@ export function createMainWindow() {
 
   window.removeMenu()
 
-  const pathname =
-    process.env.NODE_ENV === "development"
-      ? path.join(__dirname, "../../dist/index.dev.html")
-      : path.join(__dirname, "../../dist/index.prod.html")
+  const pathname = isDev
+    ? path.join(__dirname, "../../dist/index.dev.html")
+    : path.join(__dirname, "../../dist/index.prod.html")
 
   const webappURL = URL.format({
     pathname,
@@ -42,14 +42,15 @@ export function createMainWindow() {
 
   window.loadURL(webappURL)
 
+  // subscribes to window.open and <a target="_blank"></a> links and opens the url in the browser
   window.webContents.on("new-window", (event, url) => {
     event.preventDefault()
-    open(url)
+    shell.openExternal(url)
   })
 
   // subscribe this window to deeplink urls
   const unsubscribe = protocolHandler.subscribe(url => {
-    window.webContents.send("deeplink:url", url)
+    window.webContents.send(Messages.DeepLinkURL, url)
     if (process.platform === "linux") {
       // needed for minimized windows to come to the foreground
       window.minimize()

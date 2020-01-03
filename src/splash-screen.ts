@@ -1,12 +1,12 @@
-import { commands } from "./cordova/ipc"
+import { Messages } from "./shared/ipc"
 
 function handleSplashScreen() {
   if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {
     const listener = (event: Event) => {
       if (event instanceof MessageEvent && event.source === window.parent) {
-        if (event.data === commands.hideSplashScreen) {
+        if (event.data === Messages.HideSplashScreen) {
           hideSplashScreen()
-        } else if (event.data === commands.showSplashScreen) {
+        } else if (event.data === Messages.ShowSplashScreen) {
           showSplashScreen()
         }
       }

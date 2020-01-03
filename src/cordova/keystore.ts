@@ -1,137 +1,104 @@
 import { KeyStore } from "key-store"
-import { Transaction, Keypair } from "stellar-sdk"
-import { CommandHandlers, registerCommandHandler } from "./ipc"
-
-export const commands = {
-  getKeyIDsCommand: "keystore:getKeyIDs",
-  getPublicKeyDataCommand: "keystore:getPublicKeyData",
-  getPrivateKeyDataCommand: "keystore:getPrivateKeyData",
-  saveKeyCommand: "keystore:saveKey",
-  savePublicKeyDataCommand: "keystore:savePublicKeyData",
-  signTransactionCommand: "keystore:signTransaction",
-  removeKeyCommand: "keystore:removeKey"
-}
-
-export const events = {
-  getKeyIDsEvent: "keystore:keyIDs",
-  getPublicKeyDataEvent: "keystore:publicKeyData",
-  getPrivateKeyDataEvent: "keystore:privateKeyData",
-  saveKeyEvent: "keystore:savedKey",
-  savePublicKeyDataEvent: "keystore:savedPublicKeyData",
-  signTransactionEvent: "keystore:signedTransaction",
-  removeKeyEvent: "keystore:removedKey"
-}
+import { Transaction, Keypair, Networks } from "stellar-sdk"
+import { Messages } from "../shared/ipc"
+import { CommandHandlers, expose } from "./ipc"
 
 export const commandHandlers: CommandHandlers = {
-  [commands.getKeyIDsCommand]: respondWithKeyIDs,
-  [commands.getPublicKeyDataCommand]: respondWithPublicKeyData,
-  [commands.getPrivateKeyDataCommand]: respondWithPrivateKeyData,
-  [commands.saveKeyCommand]: saveKey,
-  [commands.savePublicKeyDataCommand]: savePublicKeyData,
-  [commands.signTransactionCommand]: respondWithSignedTransaction,
-  [commands.removeKeyCommand]: removeKey
+  [Messages.GetKeyIDs]: respondWithKeyIDs,
+  [Messages.GetPublicKeyData]: respondWithPublicKeyData,
+  [Messages.GetPrivateKeyData]: respondWithPrivateKeyData,
+  [Messages.SaveKey]: saveKey,
+  [Messages.SavePublicKeyData]: savePublicKeyData,
+  [Messages.SignTransaction]: respondWithSignedTransaction,
+  [Messages.RemoveKey]: removeKey
 }
 
 export function registerKeyStoreCommandHandlers() {
   Object.keys(commandHandlers).forEach(key => {
-    registerCommandHandler(key, commandHandlers[key])
+    const messageType = key as keyof typeof IPC.Messages
+    const commandHandler = commandHandlers[messageType]
+    if (commandHandler) {
+      expose(messageType, commandHandler)
+    }
   })
 }
 
 async function respondWithKeyIDs(
-  event: MessageEvent,
-  contentWindow: Window,
   secureStorage: CordovaSecureStorage,
   keyStore: KeyStore<PrivateKeyData, PublicKeyData>
 ) {
   const keyIDs = keyStore.getKeyIDs()
-  contentWindow.postMessage({ eventType: events.getKeyIDsEvent, id: event.data.id, result: keyIDs }, "*")
+  return keyIDs
 }
 
 async function respondWithPublicKeyData(
-  event: MessageEvent,
-  contentWindow: Window,
   secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  keyID: string
 ) {
-  const { keyID } = event.data
-
   const publicKeyData = keyStore.getPublicKeyData(keyID)
-  contentWindow.postMessage({ eventType: events.getPublicKeyDataEvent, id: event.data.id, result: publicKeyData }, "*")
+  return publicKeyData
 }
 
 async function respondWithPrivateKeyData(
-  event: MessageEvent,
-  contentWindow: Window,
   secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  keyID: string,
+  password: string
 ) {
-  const { keyID, password } = event.data
   const privateKeyData = keyStore.getPrivateKeyData(keyID, password)
-  contentWindow.postMessage(
-    { eventType: events.getPrivateKeyDataEvent, id: event.data.id, result: privateKeyData },
-    "*"
-  )
+  return privateKeyData
 }
 
 async function saveKey(
-  event: MessageEvent,
-  contentWindow: Window,
   secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  keyID: string,
+  password: string,
+  privateData: PrivateKeyData,
+  publicData?: PublicKeyData
 ) {
-  const { keyID, password, privateData, publicData } = event.data
-
   keyStore.saveKey(keyID, password, privateData, publicData)
-  contentWindow.postMessage({ eventType: events.saveKeyEvent, id: event.data.id }, "*")
 }
 
 async function savePublicKeyData(
-  event: MessageEvent,
-  contentWindow: Window,
   secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  keyID: string,
+  publicData: PublicKeyData
 ) {
-  const { keyID, publicData } = event.data
-
   keyStore.savePublicKeyData(keyID, publicData)
-  contentWindow.postMessage({ eventType: events.savePublicKeyDataEvent, id: event.data.id }, "*")
 }
 
 async function removeKey(
-  event: MessageEvent,
-  contentWindow: Window,
   secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  keyID: string
 ) {
-  const { keyID } = event.data
-
   keyStore.removeKey(keyID)
-  contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id }, "*")
 }
 
 async function respondWithSignedTransaction(
-  event: MessageEvent,
-  contentWindow: Window,
   secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
+  internalAccountID: string,
+  transactionXDR: string,
+  password: string
 ) {
-  const { keyID, networkPassphrase, password, transactionEnvelope } = event.data
-
-  const transaction = new Transaction(transactionEnvelope, networkPassphrase)
-
-  let privateKey: string
   try {
-    privateKey = keyStore.getPrivateKeyData(keyID, password).privateKey
+    const account = keyStore.getPublicKeyData(internalAccountID)
+    const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
+    const transaction = new Transaction(transactionXDR, networkPassphrase)
+
+    const privateKey = keyStore.getPrivateKeyData(internalAccountID, password).privateKey
+
+    transaction.sign(Keypair.fromSecret(privateKey))
+
+    return transaction
+      .toEnvelope()
+      .toXDR()
+      .toString("base64")
   } catch (error) {
-    // tslint:disable-next-line:no-console
-    console.debug("Decrypting private key data failed. Assuming wrong password:", error)
-    contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id, error: "Wrong password" }, "*")
-    return
+    throw Object.assign(new Error("Wrong password."), { name: "WrongPasswordError" })
   }
-
-  transaction.sign(Keypair.fromSecret(privateKey))
-  const result = transaction.toEnvelope().toXDR("base64")
-
-  contentWindow.postMessage({ eventType: events.removeKeyEvent, id: event.data.id, result }, "*")
 }

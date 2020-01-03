@@ -1,27 +1,21 @@
-import { SettingsData } from "./types"
-
-export { SettingsData }
+import { call } from "./ipc"
+import { Messages } from "../shared/ipc"
 
 interface SettingsStore {
-  biometricLockAvailable: boolean
+  biometricLockAvailable(): Promise<boolean>
   loadIgnoredSignatureRequestHashes(): Promise<string[]>
-  loadSettings(): Promise<Partial<SettingsData>>
+  loadSettings(): Promise<Partial<Platform.SettingsData>>
   saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]): void
-  saveSettings(settingsUpdate: Partial<SettingsData>): void
+  saveSettings(settingsUpdate: Partial<Platform.SettingsData>): void
 }
 
-const implementation = getImplementation()
-
-function getImplementation(): SettingsStore {
-  if (window.electron) {
-    return require("./electron/settings")
-  } else if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {
-    return require("./cordova/settings")
-  } else if (process.browser) {
-    return require("./web/settings")
-  } else {
-    throw new Error("There is no implementation for your platform.")
-  }
+const implementation: SettingsStore = {
+  biometricLockAvailable: () => call(Messages.BioAuthAvailable),
+  loadIgnoredSignatureRequestHashes: () => call(Messages.ReadIgnoredSignatureRequestHashes),
+  saveIgnoredSignatureRequestHashes: updatedSignatureRequestHashes =>
+    call(Messages.StoreIgnoredSignatureRequestHashes, updatedSignatureRequestHashes),
+  loadSettings: () => call(Messages.ReadSettings),
+  saveSettings: settingsUpdate => call(Messages.StoreSettings, settingsUpdate)
 }
 
 export const biometricLockAvailable = implementation.biometricLockAvailable
