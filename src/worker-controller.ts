@@ -3,7 +3,7 @@ import { spawn, ModuleThread } from "threads"
 import { NetWorker as NetWorkerInterface } from "./workers/net-worker"
 
 // Load worker eagerly
-const netWorker = new Worker("./workers/net-worker.ts")
+const netWorker = new Worker("./workers/net-worker.ts", { name: "net-worker" })
 
 function spawnNetWorker() {
   window.addEventListener("message", event => {
