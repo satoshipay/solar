@@ -9,7 +9,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import AddIcon from "@material-ui/icons/Add"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
-import { useStellarAssets, useWellKnownAccounts, AssetRecord } from "../../hooks/stellar-ecosystem"
+import { useTickerAssets, useWellKnownAccounts, AssetRecord } from "../../hooks/stellar-ecosystem"
 import { useRouter } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import * as popularAssets from "../../lib/popularAssets"
@@ -201,7 +201,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const assets = props.account.testnet ? popularAssets.testnet : popularAssets.mainnet
   const classes = useAddAssetStyles()
   const containerRef = React.useRef<HTMLUListElement | null>(null)
-  const allAssets = useStellarAssets(props.account.testnet)
+  const allAssets = useTickerAssets(props.account.testnet)
   const router = useRouter()
   const wellKnownAccounts = useWellKnownAccounts(props.account.testnet)
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)

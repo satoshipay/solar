@@ -14,9 +14,23 @@ interface ContextType {
   testnetHorizonURL: string
 }
 
+const initialHorizonSelection = (async () => {
+  const { netWorker } = await workers
+
+  return Promise.all([
+    netWorker.checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
+    netWorker.checkHorizonOrFailover(
+      "https://stellar-horizon-testnet.satoshipay.io/",
+      "https://horizon-testnet.stellar.org"
+    )
+  ])
+})()
+
+initialHorizonSelection.catch(trackError)
+
 const initialValues: ContextType = {
   isSelectionPending: true,
-  pendingSelection: Promise.reject("Horizon selection has not yet started"),
+  pendingSelection: initialHorizonSelection,
   pubnetHorizonURL: "https://stellar-horizon.satoshipay.io/",
   testnetHorizonURL: "https://stellar-horizon-testnet.satoshipay.io/"
 }
@@ -33,16 +47,8 @@ export function StellarProvider(props: Props) {
     const init = async () => {
       const { netWorker } = await workers
 
-      const horizonSelection = Promise.all([
-        netWorker.checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
-        netWorker.checkHorizonOrFailover(
-          "https://stellar-horizon-testnet.satoshipay.io/",
-          "https://horizon-testnet.stellar.org"
-        )
-      ])
-
-      setContextValue(prevState => ({ ...prevState, pendingSelection: horizonSelection }))
-      const [pubnetHorizonURL, testnetHorizonURL] = await horizonSelection
+      setContextValue(prevState => ({ ...prevState, pendingSelection: initialHorizonSelection }))
+      const [pubnetHorizonURL, testnetHorizonURL] = await initialHorizonSelection
 
       if (!cancelled) {
         setContextValue(prevState => ({

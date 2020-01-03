@@ -17,6 +17,8 @@ export interface AssetRecord {
 export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
   const storageKey = testnet ? "known-assets:testnet" : "known-assets:mainnet"
 
+  const tickerURL = testnet ? "https://ticker-testnet.stellar.org" : "https://ticker.stellar.org"
+
   const cachedAssetsString = localStorage.getItem(storageKey)
   const timestamp = localStorage.getItem("known-assets:timestamp")
 
@@ -25,7 +27,7 @@ export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
     return JSON.parse(cachedAssetsString)
   } else {
     const { netWorker } = await workers
-    const allAssets = await netWorker.fetchAllAssets(testnet)
+    const allAssets = await netWorker.fetchAllAssets(tickerURL)
 
     localStorage.setItem(storageKey, JSON.stringify(allAssets))
     localStorage.setItem("known-assets:timestamp", Date.now().toString())

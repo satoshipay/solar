@@ -4,6 +4,8 @@ import { trackError } from "../context/notifications"
 import { AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
+import { AccountRecord } from "../lib/stellar-expert"
+import { AssetRecord } from "../lib/stellar-ticker"
 import { max } from "../lib/strings"
 
 function createCache<SelectorT, DataT, UpdateT>(
@@ -109,6 +111,14 @@ export const accountTransactionsCache = createCache<
 
 export const orderbookCache = createCache<readonly [string, Asset, Asset], FixedOrderbookRecord, FixedOrderbookRecord>(
   createAssetPairCacheKey
+)
+
+export const stellarTomlCache = createCache<string, [boolean, any], any>(domain => domain)
+export const tickerAssetsCache = createCache<boolean, AssetRecord[], AssetRecord[]>(testnet =>
+  testnet ? "testnet" : "pubnet"
+)
+export const wellKnownAccountsCache = createCache<boolean, AccountRecord[], AccountRecord[]>(testnet =>
+  testnet ? "testnet" : "pubnet"
 )
 
 export function resetNetworkCaches() {

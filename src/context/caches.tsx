@@ -3,10 +3,6 @@ import LRUCache from "lru-cache"
 import React from "react"
 import { FederationServer } from "stellar-sdk"
 import { useSingleton } from "../hooks/util"
-import { AccountData } from "../lib/account"
-import { FetchState } from "../lib/async"
-import { AccountRecord, fetchWellknownAccounts } from "../lib/stellar-expert"
-import { AssetRecord, fetchAllAssets } from "../lib/stellar-ticker"
 
 // Just to make the cache types more readable
 type CacheKey = string
@@ -22,21 +18,9 @@ interface CacheContextType<K, V> {
 }
 
 export type SigningKeyContextType = CacheContextType<PublicKey, Domain>
-export type StellarAccountDataContextType = CacheContextType<PublicKey, FetchState<AccountData>>
 export type StellarAddressContextType = CacheContextType<StellarAddress, FederationServer.Record>
 export type StellarAddressReverseContextType = CacheContextType<PublicKey, StellarAddress>
-export type StellarTomlContextType = CacheContextType<Domain, FetchState<any>>
 export type WebAuthTokenContextType = CacheContextType<CacheKey, JWT>
-
-export interface TickerAssetsContextType {
-  mainnet: () => AssetRecord[]
-  testnet: () => AssetRecord[]
-}
-
-export interface WellknownAccountsContextType {
-  mainnet: () => AccountRecord[]
-  testnet: () => AccountRecord[]
-}
 
 function useCachingContext<K, V>(cache: LRUCache<K, V>): CacheContextType<K, V> {
   // Little hack to force propagating updates
@@ -71,18 +55,7 @@ export const StellarAddressCacheContext = React.createContext<StellarAddressCont
 export const StellarAddressReverseCacheContext = React.createContext<StellarAddressReverseContextType>(
   emptyContextValue
 )
-export const StellarTomlCacheContext = React.createContext<StellarTomlContextType>(emptyContextValue)
 export const WebAuthTokenCacheContext = React.createContext<WebAuthTokenContextType>(emptyContextValue)
-
-export const TickerAssetsCacheContext = React.createContext<TickerAssetsContextType>({
-  mainnet: () => [],
-  testnet: () => []
-})
-
-export const WellknownAccountsCacheContext = React.createContext<WellknownAccountsContextType>({
-  mainnet: () => [],
-  testnet: () => []
-})
 
 interface Props {
   children: React.ReactNode
@@ -129,115 +102,6 @@ export function StellarAddressesReverseCachingProvider(props: Props) {
   )
 }
 
-export function StellarTomlCachingProvider(props: Props) {
-  const cache = useSingleton(
-    () =>
-      new LRUCache<Domain, any>({
-        max: 100
-      })
-  )
-  const contextValue = useCachingContext(cache)
-  return <StellarTomlCacheContext.Provider value={contextValue}>{props.children}</StellarTomlCacheContext.Provider>
-}
-
-export function WellknownAccountsCachingProvider(props: Props) {
-  const [mainnetLoadingState, setMainnetLoadingState] = React.useState<FetchState<AccountRecord[]> | undefined>()
-  const [testnetLoadingState, setTestnetLoadingState] = React.useState<FetchState<AccountRecord[]> | undefined>()
-
-  const contextValue = React.useMemo(
-    () => ({
-      mainnet() {
-        if (!mainnetLoadingState) {
-          setMainnetLoadingState(FetchState.pending())
-
-          fetchWellknownAccounts(false)
-            .then(records => {
-              setMainnetLoadingState(FetchState.resolved(records))
-            })
-            .catch(error => {
-              // tslint:disable-next-line no-console
-              console.error(error)
-              setMainnetLoadingState(FetchState.rejected(error))
-            })
-          return []
-        }
-        return mainnetLoadingState.state === "resolved" ? mainnetLoadingState.data : []
-      },
-      testnet() {
-        if (!testnetLoadingState) {
-          setTestnetLoadingState(FetchState.pending())
-
-          fetchWellknownAccounts(true)
-            .then(records => {
-              setTestnetLoadingState(FetchState.resolved(records))
-            })
-            .catch(error => {
-              // tslint:disable-next-line no-console
-              console.error(error)
-              setTestnetLoadingState(FetchState.rejected(error))
-            })
-          return []
-        }
-        return testnetLoadingState.state === "resolved" ? testnetLoadingState.data : []
-      }
-    }),
-    [mainnetLoadingState, testnetLoadingState]
-  )
-
-  return (
-    <WellknownAccountsCacheContext.Provider value={contextValue}>
-      {props.children}
-    </WellknownAccountsCacheContext.Provider>
-  )
-}
-
-export function TickerAssetsCachingProvider(props: Props) {
-  const [mainnetLoadingState, setMainnetLoadingState] = React.useState<FetchState<AssetRecord[]> | undefined>()
-  const [testnetLoadingState, setTestnetLoadingState] = React.useState<FetchState<AssetRecord[]> | undefined>()
-
-  const contextValue = React.useMemo(
-    () => ({
-      mainnet() {
-        if (!mainnetLoadingState) {
-          setMainnetLoadingState(FetchState.pending())
-
-          fetchAllAssets(false)
-            .then(assets => {
-              setMainnetLoadingState(FetchState.resolved(assets))
-            })
-            .catch(error => {
-              // tslint:disable-next-line no-console
-              console.error(error)
-              setMainnetLoadingState(FetchState.rejected(error))
-            })
-          return []
-        }
-        return mainnetLoadingState.state === "resolved" ? mainnetLoadingState.data : []
-      },
-      testnet() {
-        if (!testnetLoadingState) {
-          setTestnetLoadingState(FetchState.pending())
-
-          fetchAllAssets(true)
-            .then(assets => {
-              setTestnetLoadingState(FetchState.resolved(assets))
-            })
-            .catch(error => {
-              // tslint:disable-next-line no-console
-              console.error(error)
-              setTestnetLoadingState(FetchState.rejected(error))
-            })
-          return []
-        }
-        return testnetLoadingState.state === "resolved" ? testnetLoadingState.data : []
-      }
-    }),
-    [mainnetLoadingState, testnetLoadingState]
-  )
-
-  return <TickerAssetsCacheContext.Provider value={contextValue}>{props.children}</TickerAssetsCacheContext.Provider>
-}
-
 export function WebAuthCachingProvider(props: Props) {
   const cache = useSingleton(
     () =>
@@ -252,17 +116,11 @@ export function WebAuthCachingProvider(props: Props) {
 export function CachingProviders(props: Props) {
   return (
     <SigningKeyCachingProvider>
-      <TickerAssetsCachingProvider>
-        <WellknownAccountsCachingProvider>
-          <StellarAddressesCachingProvider>
-            <StellarAddressesReverseCachingProvider>
-              <StellarTomlCachingProvider>
-                <WebAuthCachingProvider>{props.children}</WebAuthCachingProvider>
-              </StellarTomlCachingProvider>
-            </StellarAddressesReverseCachingProvider>
-          </StellarAddressesCachingProvider>
-        </WellknownAccountsCachingProvider>
-      </TickerAssetsCachingProvider>
+      <StellarAddressesCachingProvider>
+        <StellarAddressesReverseCachingProvider>
+          <WebAuthCachingProvider>{props.children}</WebAuthCachingProvider>
+        </StellarAddressesReverseCachingProvider>
+      </StellarAddressesCachingProvider>
     </SigningKeyCachingProvider>
   )
 }

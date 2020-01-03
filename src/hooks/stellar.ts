@@ -6,16 +6,14 @@ import {
   SigningKeyCacheContext,
   StellarAddressCacheContext,
   StellarAddressReverseCacheContext,
-  StellarTomlCacheContext,
   WebAuthTokenCacheContext
 } from "../context/caches"
 import { StellarContext } from "../context/stellar"
 import { createEmptyAccountData, AccountData } from "../lib/account"
-import { FetchState } from "../lib/async"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
 import { workers } from "../worker-controller"
-import { accountDataCache, accountHomeDomainCache } from "./_caches"
+import { accountDataCache, accountHomeDomainCache, stellarTomlCache } from "./_caches"
 import { useNetWorker } from "./workers"
 
 /** @deprecated */
@@ -97,43 +95,34 @@ export function useWebAuth() {
 const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
 
 export function useStellarToml(domain: string | undefined): StellarToml | undefined {
-  const stellarTomls = React.useContext(StellarTomlCacheContext)
-
-  React.useEffect(() => {
-    // This is semantically different from `.filter()`-ing the domains before the loop,
-    // since this will prevent double-fetching from domains that were part of this iteration
-    if (!domain || stellarTomls.cache.has(domain)) {
-      return
-    }
-
-    stellarTomls.store(domain, FetchState.pending())
-
-    workers
-      .then(({ netWorker }) => netWorker.fetchStellarToml(domain))
-      .then(stellarTomlData => {
-        stellarTomls.store(domain, FetchState.resolved(stellarTomlData))
-        localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(stellarTomlData))
-      })
-      .catch(error => {
-        stellarTomls.store(domain, FetchState.rejected(error))
-      })
-  }, [domain, stellarTomls])
-
   if (!domain) {
     return undefined
   }
 
-  const cached = stellarTomls.cache.get(domain)
-
-  if (cached && cached.state === "resolved") {
-    return cached.data
-  } else if (cached && cached.state === "rejected") {
-    const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-    return persistentlyCached ? JSON.parse(persistentlyCached) : undefined
-  } else {
-    const persistentlyCached = localStorage.getItem(createStellarTomlCacheKey(domain))
-    return persistentlyCached ? JSON.parse(persistentlyCached) : undefined
+  const loadFromLocalStorage = () => {
+    const cachedData = localStorage.getItem(createStellarTomlCacheKey(domain))
+    return cachedData ? JSON.parse(cachedData) : undefined
   }
+
+  const saveToLocalStorage = (data: any) => {
+    localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(data || null))
+  }
+
+  const fetchStellarTomlData = async (): Promise<[true, any]> => {
+    const { netWorker } = await workers
+    const stellarTomlData = await netWorker.fetchStellarToml(domain)
+
+    saveToLocalStorage(stellarTomlData)
+    return [true, stellarTomlData]
+  }
+
+  const cached = stellarTomlCache.get(domain)
+
+  if (cached && cached[0]) {
+    return cached[1]
+  }
+
+  return loadFromLocalStorage() || stellarTomlCache.suspend(domain, fetchStellarTomlData)
 }
 
 export function useAccountData(accountID: string, testnet: boolean) {
