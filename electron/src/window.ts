@@ -1,4 +1,5 @@
 import { BrowserWindow, shell } from "electron"
+import isDev from "electron-is-dev"
 import path from "path"
 import URL from "url"
 
@@ -21,7 +22,7 @@ export function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
-      preload: path.join(__dirname, "preload.js"),
+      preload: isDev ? path.join(__dirname, "..", "lib", "preload.js") : path.join(__dirname, "preload.js"),
       sandbox: true,
       webviewTag: false
     }
@@ -29,10 +30,9 @@ export function createMainWindow() {
 
   window.removeMenu()
 
-  const pathname =
-    process.env.NODE_ENV === "development"
-      ? path.join(__dirname, "../../dist/index.dev.html")
-      : path.join(__dirname, "../../dist/index.prod.html")
+  const pathname = isDev
+    ? path.join(__dirname, "../../dist/index.dev.html")
+    : path.join(__dirname, "../../dist/index.prod.html")
 
   const webappURL = URL.format({
     pathname,

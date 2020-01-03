@@ -10,7 +10,7 @@ import "./ipc/updater"
 // tslint:disable-next-line: no-var-requires
 require("electron-debug")({
   isEnabled: true,
-  showDevTools: process.env.NODE_ENV === "development"
+  showDevTools: false
 })
 
 // Add context menu
