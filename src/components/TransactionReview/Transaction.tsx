@@ -16,17 +16,38 @@ import { Address } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 
-export function DangerousTransactionWarning(props: { style?: React.CSSProperties }) {
+interface WarningProps {
+  primary: React.ReactNode
+  secondary?: React.ReactNode
+  style?: React.CSSProperties
+}
+
+const Warning = React.memo(function Warning(props: WarningProps) {
   return (
-    <ListItem style={{ background: warningColor, ...props.style }}>
-      <ListItemIcon>
+    <ListItem style={{ background: warningColor, marginBottom: 16, ...props.style }}>
+      <ListItemIcon style={{ minWidth: 40 }}>
         <WarningIcon />
       </ListItemIcon>
-      <ListItemText
-        primary="Transaction initiated by unrecognized account"
-        secondary="Please review carefully. In case of doubt, prefer dismissing."
-      />
+      <ListItemText primary={props.primary} secondary={props.secondary} />
     </ListItem>
+  )
+})
+
+export function DangerousTransactionWarning() {
+  return (
+    <Warning
+      primary="Transaction initiated by unrecognized account"
+      secondary="Please review carefully. In case of doubt, prefer dismissing."
+    />
+  )
+}
+
+export function AccountCreationWarning() {
+  return (
+    <Warning
+      primary="Funding a new account"
+      secondary="Funding an empty account. Make sure that the destination is correct."
+    />
   )
 }
 
