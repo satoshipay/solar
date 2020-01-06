@@ -19,7 +19,7 @@ import { AccountName } from "../Fetchers"
 import { ClickableAddress, CopyableAddress } from "../PublicKey"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 import OperationListItem from "./Operations"
-import { DangerousTransactionWarning, Signers, TransactionMemo } from "./Transaction"
+import { AccountCreationWarning, DangerousTransactionWarning, Signers, TransactionMemo } from "./Transaction"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -80,6 +80,8 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
     return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
   }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
 
+  const isAccountCreation = props.transaction.operations.some(op => op.type === "createAccount")
+
   const isWideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 400 } : { minWidth: "66vw" }
 
@@ -91,6 +93,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   return (
     <List disablePadding style={widthStyling}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
+      {isAccountCreation ? <AccountCreationWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
