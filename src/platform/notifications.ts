@@ -1,24 +1,23 @@
 import { Messages } from "../shared/ipc"
 import { call } from "./ipc"
 
-function requestPermissionState() {
-  return call(Messages.NotificationPermission)
+export async function hasPermission() {
+  return (await call(Messages.NotificationPermission)) === "granted"
 }
 
-function requestPermission() {
+export function requestPermission() {
   return call(Messages.RequestNotificationPermission)
 }
 
-export function showNotification(notification: LocalNotification, onClick?: () => void) {
-  requestPermissionState().then(state => {
-    if (state === "granted") {
+export async function showNotification(notification: LocalNotification, onClick?: () => void) {
+  const canNotify = await hasPermission()
+
+  if (canNotify) {
+    call(Messages.ShowNotification, notification).then(onClick)
+  } else {
+    const granted = await requestPermission()
+    if (granted) {
       call(Messages.ShowNotification, notification).then(onClick)
-    } else {
-      requestPermission().then(granted => {
-        if (granted) {
-          call(Messages.ShowNotification, notification).then(onClick)
-        }
-      })
     }
-  })
+  }
 }

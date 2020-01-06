@@ -1,8 +1,14 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Typography from "@material-ui/core/Typography"
-import { Notification as NotificationType, NotificationsContext } from "../../context/notifications"
+import NotificationsIcon from "@material-ui/icons/Notifications"
+import { Notification as NotificationType, NotificationsContext, trackError } from "../../context/notifications"
 import { useOnlineStatus } from "../../hooks/util"
+import {
+  hasPermission as hasPermissionToNotify,
+  requestPermission as requestPermissionToNotify,
+  showNotification
+} from "../../platform/notifications"
 import { FullscreenDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
@@ -75,12 +81,52 @@ const OfflineNotification = React.memo(function OfflineNotification(props: Offli
   return <Notification anchorOrigin={anchorOrigin} contentStyle={contentStyle} type="connection" {...props} />
 })
 
+interface PermissionNotificationProps {
+  onHide: () => void
+  open: boolean
+}
+
+const PermissionNotification = React.memo(function PermissionNotification(props: PermissionNotificationProps) {
+  const Notifications = React.useContext(NotificationsContext)
+
+  const requestPermission = React.useCallback(() => {
+    ;(async () => {
+      const granted = await requestPermissionToNotify()
+      props.onHide()
+
+      if (granted) {
+        showNotification({
+          title: "Notifications enabled",
+          text: "Solar will now show notifications"
+        })
+      } else {
+        Notifications.showNotification("error", "Enable in operating system settings.")
+      }
+    })().catch(trackError)
+  }, [])
+
+  return (
+    <Notification
+      icon={NotificationsIcon}
+      message="Enable app notifications"
+      onClick={requestPermission}
+      open={props.open}
+      type="info"
+    />
+  )
+})
+
 function NotificationsContainer() {
   const { notifications } = React.useContext(NotificationsContext)
   const { isOnline } = useOnlineStatus()
   const [lastClosedNotificationID, setLastClosedNotificationID] = React.useState(0)
+  const [showPermissionNotification, setShowPermissionNotification] = React.useState(false)
   const [notificationInDialog, setNotificationInDialog] = React.useState<NotificationType | undefined>()
   const lastShownNotification = React.useRef<NotificationType | null>(null)
+
+  React.useEffect(() => {
+    hasPermissionToNotify().then(canNotify => setShowPermissionNotification(!canNotify))
+  }, [])
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
   const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID
@@ -115,8 +161,11 @@ function NotificationsContainer() {
     }
   }, [visibleNotification, showNotificationDetails])
 
+  const hidePermissionNotification = React.useCallback(() => setShowPermissionNotification(false), [])
+
   return (
     <>
+      <PermissionNotification onHide={hidePermissionNotification} open={showPermissionNotification} />
       <Notification
         autoHideDuration={autoHideDuration}
         message={visibleNotification ? visibleNotification.message : ""}
