@@ -20,7 +20,7 @@ export const showTransaction = (accountID: string, transactionHash: string) =>
   `/account/${accountID}/tx/${transactionHash}`
 
 export const tradeAsset = (accountID: string, method?: "buy" | "sell", preselectedAsset?: string) => {
-  return `/account/${accountID}/trade` + (method ? `/${method}` : "") + (preselectedAsset ? `/${preselectedAsset}` : "")
+  return [`/account/${accountID}/trade`, method || "", preselectedAsset || ""].filter(fragment => !!fragment).join("/")
 }
 
 export function routeUp(currentPath: string) {
