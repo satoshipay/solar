@@ -77,7 +77,7 @@ function OfferDescription(props: {
     <>
       {prefix}
       {props.type === "manageBuyOffer"
-        ? `Buy ${formatBalance(amount.toString())} ${buying.code} for ${formatBalance(amount.div(price).toString())} ${
+        ? `Buy ${formatBalance(amount.toString())} ${buying.code} for ${formatBalance(amount.mul(price).toString())} ${
             selling.code
           }`
         : `Sell ${formatBalance(amount.toString())} ${selling.code} for ${formatBalance(
