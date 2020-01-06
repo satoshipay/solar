@@ -19,6 +19,7 @@ import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
 import { Account, AccountsContext } from "../context/accounts"
 import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
+import { getLastArgumentFromURL } from "../lib/url"
 import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
 import { FullscreenDialogTransition } from "../theme"
@@ -235,7 +236,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         <React.Suspense fallback={<ViewLoading />}>
           <AssetDetailsDialog
             account={props.account}
-            assetID={showAssetDetails ? router.location.pathname.replace(/^.*\/([^\/]+)/, "$1") : "XLM"}
+            assetID={showAssetDetails ? getLastArgumentFromURL(router.location.pathname) : "XLM"}
             onClose={closeAssetDetails}
           />
         </React.Suspense>
