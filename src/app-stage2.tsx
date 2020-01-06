@@ -1,10 +1,11 @@
 import React from "react"
 import { Route, Switch } from "react-router-dom"
 import AndroidBackButton from "./components/AndroidBackButton"
-import ErrorBoundary from "./components/ErrorBoundary"
-import LinkHandler from "./components/LinkHandler"
-import { VerticalLayout } from "./components/Layout/Box"
 import DesktopNotifications from "./components/DesktopNotifications"
+import ErrorBoundary from "./components/ErrorBoundary"
+import { VerticalLayout } from "./components/Layout/Box"
+import withFallback from "./components/Lazy/withFallback"
+import LinkHandler from "./components/LinkHandler"
 import ConnectionErrorListener from "./components/Toasts/ConnectionErrorListener"
 import NotificationContainer from "./components/Toasts/NotificationContainer"
 import AccountPage from "./pages/account"
@@ -29,13 +30,15 @@ function Stage2() {
               <Route exact path="/" component={AllAccountsPage} />
               <Route exact path="/account/create/mainnet" component={CreateMainnetAccount} />
               <Route exact path="/account/create/testnet" component={CreateTestnetAccount} />
-              <React.Suspense fallback={null}>
-                <Route
-                  path={["/account/:id/:action/:subaction", "/account/:id/:action", "/account/:id"]}
-                  render={props => <AccountPage accountID={props.match.params.id} />}
-                />
-              </React.Suspense>
-              <Route exact path="/settings" component={SettingsPage} />
+              <Route
+                path={["/account/:id/:action/:subaction", "/account/:id/:action", "/account/:id"]}
+                render={props => (
+                  <React.Suspense fallback={null}>
+                    <AccountPage accountID={props.match.params.id} />
+                  </React.Suspense>
+                )}
+              />
+              <Route exact path="/settings" component={withFallback(SettingsPage, null)} />
             </Switch>
           </ErrorBoundary>
         </VerticalLayout>
