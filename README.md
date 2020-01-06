@@ -114,4 +114,4 @@ See [Cordova build readme](./cordova/README.md).
 
 ## License
 
-GPL v3
+MIT
