@@ -4,8 +4,10 @@ import FormHelperText from "@material-ui/core/FormHelperText"
 import Input from "@material-ui/core/Input"
 import InputLabel from "@material-ui/core/InputLabel"
 import ListItem from "@material-ui/core/ListItem"
+import ListItemText from "@material-ui/core/ListItemText"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
+import ExpandIcon from "@material-ui/icons/ExpandMore"
 import { HorizontalLayout } from "../Layout/Box"
 
 interface SummaryDetailsFieldProps {
@@ -60,6 +62,10 @@ const useSummaryItemStyles = makeStyles({
     fontWeight: 400,
     lineHeight: "18px",
     textAlign: "left"
+  },
+  noButton: {
+    background: "transparent",
+    boxShadow: "none !important"
   }
 })
 
@@ -81,3 +87,37 @@ export function SummaryItem(props: SummaryItemProps) {
     </ListItem>
   )
 }
+
+const useShowMoreItemStyles = makeStyles({
+  root: {
+    border: "none",
+    margin: "-8px 0",
+    padding: "8px 0"
+  },
+  button: {
+    boxShadow: "none !important",
+    display: "flex",
+    margin: 0,
+
+    "&:not(:hover)": {
+      background: "transparent"
+    }
+  }
+})
+
+interface ShowMoreItemProps {
+  onClick: () => void
+}
+
+export const ShowMoreItem = React.memo(function ShowMoreItem(props: ShowMoreItemProps) {
+  const classes = useShowMoreItemStyles()
+  return (
+    <ListItem button classes={{ root: classes.root, button: classes.button }} disableGutters onClick={props.onClick}>
+      <ListItemText disableTypography>
+        <Typography style={{ display: "flex", alignItems: "center", justifyContent: "center" }} variant="button">
+          Show more details <ExpandIcon />
+        </Typography>
+      </ListItemText>
+    </ListItem>
+  )
+})

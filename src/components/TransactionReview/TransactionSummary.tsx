@@ -1,23 +1,22 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Operation, Transaction } from "stellar-sdk"
+import Collapse from "@material-ui/core/Collapse"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
-import OpenInNewIcon from "@material-ui/icons/OpenInNew"
 import { useLiveAccountDataSet } from "../../hooks/stellar-subscriptions"
-import { useIsMobile } from "../../hooks/userinterface"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SigningKeyCacheContext } from "../../context/caches"
 import { AccountData } from "../../lib/account"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
 import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction } from "../../lib/transaction"
-import theme from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
 import { AccountName } from "../Fetchers"
+import { VerticalLayout } from "../Layout/Box"
 import { ClickableAddress, CopyableAddress } from "../PublicKey"
-import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
+import { ShowMoreItem, SummaryDetailsField, SummaryItem } from "./SummaryItem"
 import OperationListItem from "./Operations"
 import { AccountCreationWarning, DangerousTransactionWarning, Signers, TransactionMemo } from "./Transaction"
 
@@ -52,7 +51,6 @@ interface DefaultTransactionSummaryProps {
   account: Account | null
   accountData: AccountData
   isDangerousSignatureRequest?: boolean
-  onHashClick?: () => void
   showHash?: boolean
   showSigners?: boolean
   showSource?: boolean
@@ -64,10 +62,11 @@ interface DefaultTransactionSummaryProps {
 function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
+  const [showingAllMetadata, setShowingAllMetadata] = React.useState(false)
   const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
-  const isSmallScreen = useIsMobile()
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
+  const showAllMetadata = React.useCallback(() => setShowingAllMetadata(true), [])
 
   const fee = BigNumber(props.transaction.fee)
     .mul(props.transaction.operations.length)
@@ -118,45 +117,40 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
           style={noHPaddingStyle}
         />
       ) : null}
-      {props.showSource || props.showHash ? (
-        <SummaryItem>
+      <Collapse in={!showingAllMetadata}>
+        <ShowMoreItem onClick={showAllMetadata} />
+      </Collapse>
+      <Collapse in={showingAllMetadata}>
+        <VerticalLayout grow>
           {props.showSource ? (
-            <SummaryDetailsField
-              fullWidth={isSmallScreen}
-              label="Source Account"
-              value={<CopyableAddress address={props.transaction.source} variant="short" />}
-            />
+            <SummaryItem>
+              <SummaryDetailsField
+                fullWidth
+                label="Account"
+                value={<CopyableAddress address={props.transaction.source} variant="short" />}
+              />
+            </SummaryItem>
           ) : null}
           {props.showHash ? (
-            <SummaryDetailsField
-              fullWidth={isSmallScreen}
-              label="Hash"
-              value={
-                <ClickableAddress
-                  address={transactionHash}
-                  icon={
-                    <OpenInNewIcon
-                      style={{
-                        color: theme.palette.primary.dark,
-                        fontSize: "inherit",
-                        marginLeft: 4
-                      }}
-                    />
-                  }
-                  onClick={props.onHashClick}
-                  variant="shorter"
-                />
-              }
-            />
+            <SummaryItem>
+              <SummaryDetailsField
+                fullWidth
+                label="Hash"
+                value={<ClickableAddress address={transactionHash} variant="shorter" />}
+              />
+            </SummaryItem>
           ) : null}
-        </SummaryItem>
-      ) : null}
-      <SummaryItem>
-        <SummaryDetailsField label="Fee" value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />} />
-        {transaction.created_at ? (
-          <SummaryDetailsField fullWidth={isSmallScreen} label="Submission" value={getTime(transaction.created_at)} />
-        ) : null}
-      </SummaryItem>
+          <SummaryItem>
+            <SummaryDetailsField
+              label="Fee"
+              value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />}
+            />
+            {transaction.created_at ? (
+              <SummaryDetailsField fullWidth label="Submission" value={getTime(transaction.created_at)} />
+            ) : null}
+          </SummaryItem>
+        </VerticalLayout>
+      </Collapse>
     </List>
   )
 }
@@ -203,7 +197,6 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
 
 interface TransactionSummaryProps {
   account: Account | null
-  onHashClick?: () => void
   showHash?: boolean
   showSource?: boolean
   signatureRequest?: SignatureRequest
@@ -244,7 +237,6 @@ function TransactionSummary(props: TransactionSummaryProps) {
         {...props}
         accountData={accountData}
         isDangerousSignatureRequest={isDangerousSignatureRequest}
-        onHashClick={props.onHashClick}
         showHash={props.showHash}
         showSigners={showSigners}
       />

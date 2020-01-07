@@ -4,6 +4,7 @@ import { Transaction } from "stellar-sdk"
 import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
+import OpenInNewIcon from "@material-ui/icons/OpenInNew"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { RefStateObject } from "../../hooks/userinterface"
@@ -121,7 +122,6 @@ function TxConfirmationForm(props: Props) {
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
-          onHashClick={props.disabled && !props.signatureRequest ? openInStellarExpert : undefined}
           showHash={props.showHash === undefined ? props.disabled : props.showHash}
           showSource={props.showSource}
           signatureRequest={props.signatureRequest}
@@ -160,6 +160,11 @@ function TxConfirmationForm(props: Props) {
               Confirm
             </ActionButton>
           )}
+          {props.disabled && !props.signatureRequest ? (
+            <ActionButton icon={<OpenInNewIcon />} onClick={openInStellarExpert} type="secondary">
+              Inspect
+            </ActionButton>
+          ) : null}
         </DialogActionsBox>
       </Portal>
       <DismissalConfirmationDialog
