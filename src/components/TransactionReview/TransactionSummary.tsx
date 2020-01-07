@@ -136,14 +136,14 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
             <SummaryItem>
               <SummaryDetailsField
                 fullWidth
-                label="Hash"
+                label="Transaction Hash"
                 value={<ClickableAddress address={transactionHash} variant="shorter" />}
               />
             </SummaryItem>
           ) : null}
           <SummaryItem>
             <SummaryDetailsField
-              label="Fee"
+              label="Maximum fee"
               value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />}
             />
             {transaction.created_at ? (
