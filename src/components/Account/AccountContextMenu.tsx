@@ -7,6 +7,7 @@ import MenuItem from "@material-ui/core/MenuItem"
 import { makeStyles } from "@material-ui/core/styles"
 import CallMadeIcon from "@material-ui/icons/CallMade"
 import CallReceivedIcon from "@material-ui/icons/CallReceived"
+import ListIcon from "@material-ui/icons/List"
 import MoneyIcon from "@material-ui/icons/AttachMoney"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
@@ -59,17 +60,20 @@ interface MenuProps {
   account: Account
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
   onAccountSettings: () => void
+  onAccountTransactions: () => void
   onDeposit: () => void
   onManageAssets: () => void
   onTrade: () => void
   onWithdraw: () => void
   settings: SettingsContextType
+  showingSettings: boolean
 }
 
 function AccountContextMenu(props: MenuProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const activated = accountData.balances.length > 0
+
   return (
     <ContextMenu
       anchor={props.children}
@@ -100,11 +104,19 @@ function AccountContextMenu(props: MenuProps) {
             label="Assets & Balances"
             onClick={closeAndCall(props.onManageAssets)}
           />
-          <AccountContextMenuItem
-            icon={<SettingsIcon />}
-            label="Account Settings"
-            onClick={closeAndCall(props.onAccountSettings)}
-          />
+          {props.showingSettings ? (
+            <AccountContextMenuItem
+              icon={<ListIcon />}
+              label="Transactions"
+              onClick={closeAndCall(props.onAccountTransactions)}
+            />
+          ) : (
+            <AccountContextMenuItem
+              icon={<SettingsIcon />}
+              label="Account Settings"
+              onClick={closeAndCall(props.onAccountSettings)}
+            />
+          )}
         </Menu>
       )}
     />

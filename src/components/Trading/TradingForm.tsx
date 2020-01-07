@@ -46,7 +46,6 @@ interface Props {
   className?: string
   dialogActionsRef: RefStateObject
   initialPrimaryAsset?: Asset
-  onBack: () => void
   primaryAction: "buy" | "sell"
   sendTransaction: (transaction: Transaction) => void
   style?: React.CSSProperties
@@ -300,9 +299,6 @@ function TradingForm(props: Props) {
         ) : null}
         <Portal target={props.dialogActionsRef.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
-            <ActionButton onClick={props.onBack} type="secondary">
-              Back
-            </ActionButton>
             <ActionButton disabled={isDisabled} icon={<GavelIcon />} onClick={submitForm} type="primary">
               Place order
             </ActionButton>

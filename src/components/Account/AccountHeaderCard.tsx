@@ -3,11 +3,12 @@ import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import CloseIcon from "@material-ui/icons/Close"
 import MenuIcon from "@material-ui/icons/Menu"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
-import { useIsMobile } from "../../hooks/userinterface"
+import { useIsMobile, useRouter } from "../../hooks/userinterface"
+import { matchesRoute } from "../../lib/routes"
+import * as routes from "../../routes"
 import { breakpoints } from "../../theme"
 import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
@@ -40,48 +41,64 @@ interface Props {
   children?: React.ReactNode
   editableAccountName?: boolean
   onAccountSettings: () => void
+  onAccountTransactions: () => void
   onClose: () => void
   onDeposit: () => void
   onManageAssets: () => void
   onTrade: () => void
   onWithdraw: () => void
-  showCloseButton?: boolean
 }
 
 function AccountHeaderCard(props: Props) {
   const classes = useAccountHeaderStyles()
   const isSmallScreen = useIsMobile()
+  const router = useRouter()
   const settings = React.useContext(SettingsContext)
+
+  const handleBackNavigation = React.useCallback(() => {
+    if (matchesRoute(router.location.pathname, routes.accountSettings(props.account.id))) {
+      router.history.push(routes.account(props.account.id))
+    } else {
+      router.history.push(routes.allAccounts())
+    }
+  }, [props.account, router.history, router.location])
+
+  const showingSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"))
 
   const actions = React.useMemo(
     () => (
       <Box alignItems="center" display="flex" height={44} justifyContent="flex-end">
         <React.Suspense fallback={null}>
-          {props.showCloseButton ? (
-            <IconButton className={`${classes.button} ${classes.closeButton}`} color="inherit" onClick={props.onClose}>
-              <CloseIcon />
-            </IconButton>
-          ) : (
-            <AccountContextMenu
-              account={props.account}
-              onAccountSettings={props.onAccountSettings}
-              onDeposit={props.onDeposit}
-              onManageAssets={props.onManageAssets}
-              onTrade={props.onTrade}
-              onWithdraw={props.onWithdraw}
-              settings={settings}
-            >
-              {({ onOpen }) => (
-                <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
-                  <MenuIcon style={{ fontSize: "inherit" }} />
-                </IconButton>
-              )}
-            </AccountContextMenu>
-          )}
+          <AccountContextMenu
+            account={props.account}
+            onAccountSettings={props.onAccountSettings}
+            onAccountTransactions={props.onAccountTransactions}
+            onDeposit={props.onDeposit}
+            onManageAssets={props.onManageAssets}
+            onTrade={props.onTrade}
+            onWithdraw={props.onWithdraw}
+            settings={settings}
+            showingSettings={showingSettings}
+          >
+            {({ onOpen }) => (
+              <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
+                <MenuIcon style={{ fontSize: "inherit" }} />
+              </IconButton>
+            )}
+          </AccountContextMenu>
         </React.Suspense>
       </Box>
     ),
-    [props.account, props.onAccountSettings, props.onTrade, props.onWithdraw, props.showCloseButton, settings]
+    [props.account, props.onAccountSettings, props.onTrade, props.onWithdraw, settings, showingSettings]
+  )
+
+  const badges = React.useMemo(
+    () => (
+      <React.Suspense fallback={null}>
+        <Badges account={props.account} />
+      </React.Suspense>
+    ),
+    [props.account]
   )
 
   return (
@@ -99,12 +116,9 @@ function AccountHeaderCard(props: Props) {
           <AccountTitle
             account={props.account}
             actions={actions}
-            badges={
-              <React.Suspense fallback={null}>
-                <Badges account={props.account} />
-              </React.Suspense>
-            }
+            badges={badges}
             editable={props.editableAccountName}
+            onNavigateBack={handleBackNavigation}
           />
         </React.Suspense>
         {props.children}

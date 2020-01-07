@@ -111,7 +111,6 @@ function TradingDialog(props: TradingDialogProps) {
               accountData={accountData}
               dialogActionsRef={dialogActionsRef}
               initialPrimaryAsset={preselectedAsset}
-              onBack={clearPrimaryAction}
               primaryAction={primaryAction}
               sendTransaction={props.sendTransaction}
               style={mainContentStageStyle}
@@ -150,7 +149,7 @@ function TradingDialog(props: TradingDialogProps) {
     <DialogBody
       top={
         <>
-          <MainTitle title="Trade" onBack={props.onClose} />
+          <MainTitle title="Trade" onBack={primaryAction ? clearPrimaryAction : props.onClose} />
           <ScrollableBalances account={props.account} compact />
         </>
       }
