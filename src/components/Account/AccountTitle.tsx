@@ -13,7 +13,6 @@ import { Account, AccountsContext } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
-import * as routes from "../../routes"
 import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
 import { primaryBackgroundColor } from "../../theme"
 import StellarGuardIcon from "../Icon/StellarGuard"
@@ -155,6 +154,7 @@ interface AccountTitleProps {
   actions: React.ReactNode
   badges: React.ReactNode
   editable?: boolean
+  onNavigateBack: () => void
 }
 
 function AccountTitle(props: AccountTitleProps) {
@@ -164,7 +164,6 @@ function AccountTitle(props: AccountTitleProps) {
 
   const [mode, setMode] = React.useState<TitleTextFieldProps["mode"]>("readonly")
   const [name, setName] = React.useState<string>(props.account.name)
-  const onNavigateBack = React.useCallback(() => router.history.push(routes.allAccounts()), [])
 
   const inputRef = React.createRef<HTMLInputElement>()
 
@@ -245,7 +244,7 @@ function AccountTitle(props: AccountTitleProps) {
     <MainTitle
       actions={props.actions}
       badges={props.editable ? null : props.badges}
-      onBack={onNavigateBack}
+      onBack={props.onNavigateBack}
       style={{ marginTop: -12, marginLeft: 0 }}
       title={
         <TitleTextField

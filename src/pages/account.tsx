@@ -159,12 +159,12 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         account={props.account}
         editableAccountName={showAccountSettings}
         onAccountSettings={navigateTo.accountSettings}
+        onAccountTransactions={navigateTo.transactions}
         onClose={navigateTo.transactions}
         onDeposit={navigateTo.deposit}
         onManageAssets={navigateTo.balanceDetails}
         onTrade={navigateTo.tradeAssets}
         onWithdraw={navigateTo.withdraw}
-        showCloseButton={showAccountSettings}
       >
         <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
         {isSmallScreen ? null : (
