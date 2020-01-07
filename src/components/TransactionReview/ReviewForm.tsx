@@ -122,6 +122,7 @@ function TxConfirmationForm(props: Props) {
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
+          canSubmit={!props.disabled}
           showHash={props.showHash === undefined ? props.disabled : props.showHash}
           showSource={props.showSource}
           signatureRequest={props.signatureRequest}

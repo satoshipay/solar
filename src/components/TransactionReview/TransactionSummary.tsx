@@ -50,6 +50,7 @@ const noHPaddingStyle = {
 interface DefaultTransactionSummaryProps {
   account: Account | null
   accountData: AccountData
+  canSubmit: boolean
   isDangerousSignatureRequest?: boolean
   showHash?: boolean
   showSigners?: boolean
@@ -62,7 +63,7 @@ interface DefaultTransactionSummaryProps {
 function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
-  const [showingAllMetadata, setShowingAllMetadata] = React.useState(false)
+  const [showingAllMetadata, setShowingAllMetadata] = React.useState(props.canSubmit)
   const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
@@ -197,6 +198,7 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
 
 interface TransactionSummaryProps {
   account: Account | null
+  canSubmit: boolean
   showHash?: boolean
   showSource?: boolean
   signatureRequest?: SignatureRequest
