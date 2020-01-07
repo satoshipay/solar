@@ -5,6 +5,12 @@ import { TransferFields } from "@satoshipay/stellar-sep-6"
 import { HorizontalLayout } from "../Layout/Box"
 import { formatDescriptionText, formatIdentifier } from "./formatters"
 
+export const fieldStyle = {
+  marginLeft: 12,
+  marginRight: 12,
+  minWidth: "40%"
+}
+
 interface FormBuilderFieldProps {
   descriptor: TransferFields[""]
   name: string
@@ -50,6 +56,19 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
   }
 }
 
+interface FormBuilderFieldSetProps {
+  children: React.ReactNode
+  style?: React.CSSProperties
+}
+
+export function FormBuilderFieldSet(props: FormBuilderFieldSetProps) {
+  return (
+    <HorizontalLayout margin="0 -12px" wrap="wrap" style={props.style}>
+      {props.children}
+    </HorizontalLayout>
+  )
+}
+
 interface Props {
   fields: TransferFields
   fieldStyle?: React.CSSProperties
@@ -58,25 +77,23 @@ interface Props {
   style?: React.CSSProperties
 }
 
-function FormBuilder(props: Props) {
+export function FormBuilder(props: Props) {
   // We had issues with illegal properties in the fields data
   const fields = Object.entries(props.fields).filter(
     ([fieldName, descriptor]) => descriptor && typeof descriptor === "object"
   )
   return (
-    <HorizontalLayout margin="0 -12px" wrap="wrap" style={props.style}>
+    <FormBuilderFieldSet style={props.style}>
       {fields.map(([fieldName, descriptor]) => (
         <FormBuilderField
           key={fieldName}
           descriptor={descriptor}
           name={fieldName}
           onChange={event => props.onSetFormValue(fieldName, event.target.value)}
-          style={{ marginLeft: 12, marginRight: 12, minWidth: "40%", ...props.fieldStyle }}
+          style={{ ...fieldStyle, ...props.fieldStyle }}
           value={props.formValues[fieldName]}
         />
       ))}
-    </HorizontalLayout>
+    </FormBuilderFieldSet>
   )
 }
-
-export default FormBuilder

@@ -28,7 +28,6 @@ interface Props {
   actionsRef: RefStateObject
   assets: Asset[]
   horizon: Server
-  onCancel: () => void
   onSubmit: (createTx: () => Promise<Transaction>) => Promise<any>
   testnet: boolean
 }
@@ -115,7 +114,6 @@ function WithdrawalDialogForm(props: Props) {
           initialAsset={state.details && state.details.asset}
           initialFormValues={state.details && state.details.formValues}
           initialMethod={state.details && state.details.method}
-          onCancel={props.onCancel}
           onSubmit={actions.handleWithdrawalFormSubmission}
           pendingAnchorCommunication={withdrawalRequestPending || withdrawalResponsePending}
           testnet={props.testnet}

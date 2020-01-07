@@ -65,7 +65,6 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
         actionsRef={dialogActionsRef}
         assets={trustedAssets.filter(asset => !asset.isNative())}
         horizon={props.horizon}
-        onCancel={props.onClose}
         onSubmit={handleSubmit}
         testnet={props.account.testnet}
       />
