@@ -10,7 +10,6 @@ import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import { breakpoints } from "../../theme"
-import InlineLoader from "../InlineLoader"
 import { Box } from "../Layout/Box"
 import withFallback from "../Lazy/withFallback"
 import ViewLoading from "../ViewLoading"
@@ -112,7 +111,7 @@ function AccountHeaderCard(props: Props) {
       }}
     >
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
-        <React.Suspense fallback={<InlineLoader />}>
+        <React.Suspense fallback={null}>
           <AccountTitle
             account={props.account}
             actions={actions}
