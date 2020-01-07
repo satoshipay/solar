@@ -3,6 +3,7 @@ import React from "react"
 import { Operation, Transaction } from "stellar-sdk"
 import Collapse from "@material-ui/core/Collapse"
 import Divider from "@material-ui/core/Divider"
+import Grow from "@material-ui/core/Grow"
 import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { useLiveAccountDataSet } from "../../hooks/stellar-subscriptions"
@@ -118,9 +119,9 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
           style={noHPaddingStyle}
         />
       ) : null}
-      <Collapse in={!showingAllMetadata}>
-        <ShowMoreItem onClick={showAllMetadata} />
-      </Collapse>
+      <Grow in={!showingAllMetadata}>
+        <ShowMoreItem onClick={showAllMetadata} style={{ position: "absolute", width: "100%" }} />
+      </Grow>
       <Collapse in={showingAllMetadata}>
         <VerticalLayout grow>
           {props.showSource ? (

@@ -107,12 +107,19 @@ const useShowMoreItemStyles = makeStyles({
 
 interface ShowMoreItemProps {
   onClick: () => void
+  style?: React.CSSProperties
 }
 
 export const ShowMoreItem = React.memo(function ShowMoreItem(props: ShowMoreItemProps) {
   const classes = useShowMoreItemStyles()
   return (
-    <ListItem button classes={{ root: classes.root, button: classes.button }} disableGutters onClick={props.onClick}>
+    <ListItem
+      button
+      classes={{ root: classes.root, button: classes.button }}
+      disableGutters
+      onClick={props.onClick}
+      style={props.style}
+    >
       <ListItemText disableTypography>
         <Typography style={{ display: "flex", alignItems: "center", justifyContent: "center" }} variant="button">
           Show more details <ExpandIcon />
