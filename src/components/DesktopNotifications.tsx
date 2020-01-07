@@ -10,6 +10,7 @@ import { useRouter } from "../hooks/userinterface"
 import { useSingleton } from "../hooks/util"
 import { useNetWorker } from "../hooks/workers"
 import { SignatureRequest } from "../lib/multisig-service"
+import { showNotification } from "../platform/notifications"
 import * as routes from "../routes"
 import { NetWorker } from "../worker-controller"
 import { OfferDetailsString } from "./TransactionReview/Operations"
@@ -61,20 +62,15 @@ function createEffectHandlers(
         return
       }
 
-      // There are no web notifications on iOS
-      if (typeof Notification !== "undefined") {
-        const body = OfferDetailsString({
-          amount: BigNumber(effect.sold_amount),
-          price: BigNumber(effect.bought_amount).div(effect.sold_amount),
-          buying,
-          selling
-        })
+      const title = `Trade completed | ${account.name}`
+      const notificationBody = OfferDetailsString({
+        amount: BigNumber(effect.sold_amount),
+        price: BigNumber(effect.bought_amount).div(effect.sold_amount),
+        buying,
+        selling
+      })
 
-        const title = `Trade completed | ${account.name}`
-        const notification = new Notification(title, { body })
-
-        notification.addEventListener("click", () => router.history.push(routes.account(account.id)))
-      }
+      showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
     }
   }
 }
@@ -95,10 +91,13 @@ function DesktopNotifications() {
   const handleNewSignatureRequest = (signatureRequest: SignatureRequest) => {
     const signersHavingSigned = signatureRequest._embedded.signers.filter(signer => signer.has_signed)
 
-    const notification = new Notification("New transaction to co-sign", {
-      body: `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`
-    })
-    notification.addEventListener("click", () => router.history.push(routes.allAccounts()))
+    showNotification(
+      {
+        title: "New transaction to co-sign",
+        text: `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`
+      },
+      () => router.history.push(routes.allAccounts())
+    )
   }
 
   React.useEffect(() => {

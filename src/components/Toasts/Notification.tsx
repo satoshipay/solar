@@ -57,6 +57,7 @@ interface NotificationProps {
   anchorOrigin?: SnackbarOrigin
   autoHideDuration?: number
   contentStyle?: React.CSSProperties
+  icon?: React.ComponentType<{ className: string }>
   message: string
   type: NotificationType
   open?: boolean
@@ -69,7 +70,7 @@ function Notification(props: NotificationProps) {
   const { open = true } = props
   const classes = useNotificationStyles(props)
 
-  const Icon = icons[props.type]
+  const Icon = props.icon || icons[props.type]
   const contentClassnames: { [key in NotificationType]: string } = {
     connection: classes.connection,
     error: classes.error,

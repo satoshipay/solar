@@ -9,6 +9,10 @@ export const Messages: IPC.MessageType = {
   BioAuthAvailable: "BioAuthAvailable",
   TestBioAuth: "TestBioAuth",
 
+  NotificationPermission: "NotificationPermission",
+  RequestNotificationPermission: "RequestNotificationPermission",
+  ShowNotification: "ShowNotification",
+
   OpenLink: "OpenLink",
 
   DeepLinkURL: "DeepLinkURL",

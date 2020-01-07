@@ -17,6 +17,10 @@ declare namespace IPC {
     BioAuthAvailable: "BioAuthAvailable"
     TestBioAuth: "TestBioAuth"
 
+    NotificationPermission: "NotificationPermission"
+    RequestNotificationPermission: "RequestNotificationPermission"
+    ShowNotification: "ShowNotification"
+
     OpenLink: "OpenLink"
 
     DeepLinkURL: "DeepLinkURL"
@@ -50,6 +54,10 @@ declare namespace IPC {
 
     [Messages.BioAuthAvailable]: () => boolean
     [Messages.TestBioAuth]: () => string | undefined
+
+    [Messages.NotificationPermission]: () => NotificationPermission
+    [Messages.RequestNotificationPermission]: () => boolean
+    [Messages.ShowNotification]: (notification: LocalNotification) => void
 
     [Messages.OpenLink]: (href: string) => void
 
