@@ -113,6 +113,9 @@ function AccountHeaderCard(props: Props) {
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
         <React.Suspense fallback={null}>
           <AccountTitle
+            // set the key to force the component to remount on account change
+            // in order to clear the component state containing a copy of the account title
+            key={props.account.id}
             account={props.account}
             actions={actions}
             badges={badges}
