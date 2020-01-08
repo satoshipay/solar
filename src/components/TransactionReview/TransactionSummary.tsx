@@ -94,7 +94,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   return (
     <List disablePadding style={widthStyling}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
-      {isAccountCreation ? <AccountCreationWarning /> : null}
+      {isAccountCreation && props.canSubmit ? <AccountCreationWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
