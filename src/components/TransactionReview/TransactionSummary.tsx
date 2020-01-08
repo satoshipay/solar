@@ -3,12 +3,13 @@ import React from "react"
 import { Operation, Transaction } from "stellar-sdk"
 import Collapse from "@material-ui/core/Collapse"
 import Divider from "@material-ui/core/Divider"
-import Grow from "@material-ui/core/Grow"
 import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
-import { useLiveAccountDataSet } from "../../hooks/stellar-subscriptions"
+import { useTheme } from "@material-ui/core/styles"
 import { Account, AccountsContext } from "../../context/accounts"
 import { SigningKeyCacheContext } from "../../context/caches"
+import { useLiveAccountDataSet } from "../../hooks/stellar-subscriptions"
+import { useDeferredState } from "../../hooks/util"
 import { AccountData } from "../../lib/account"
 import { SignatureRequest } from "../../lib/multisig-service"
 import { getAllSources } from "../../lib/stellar"
@@ -64,7 +65,11 @@ interface DefaultTransactionSummaryProps {
 function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
-  const [showingAllMetadata, setShowingAllMetadata] = React.useState(props.canSubmit)
+  const theme = useTheme()
+  const [showingAllMetadataDeferred, showingAllMetadata, setShowingAllMetadata] = useDeferredState(
+    false,
+    theme.transitions.duration.shortest
+  )
   const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
@@ -119,10 +124,10 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
           style={noHPaddingStyle}
         />
       ) : null}
-      <Grow in={!showingAllMetadata}>
-        <ShowMoreItem onClick={showAllMetadata} style={{ position: "absolute", width: "100%" }} />
-      </Grow>
-      <Collapse in={showingAllMetadata}>
+      <Collapse in={!showingAllMetadata}>
+        <ShowMoreItem onClick={showAllMetadata} />
+      </Collapse>
+      <Collapse in={showingAllMetadataDeferred}>
         <VerticalLayout grow>
           {props.showSource ? (
             <SummaryItem>
