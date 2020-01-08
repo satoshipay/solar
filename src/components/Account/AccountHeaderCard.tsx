@@ -114,7 +114,7 @@ function AccountHeaderCard(props: Props) {
         <React.Suspense fallback={null}>
           <AccountTitle
             // set the key to force the component to remount on account change
-            // this is needed because we want to reset the local state
+            // in order to clear the component state containing a copy of the account title
             key={props.account.id}
             account={props.account}
             actions={actions}
