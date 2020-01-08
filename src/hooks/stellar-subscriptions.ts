@@ -205,7 +205,11 @@ function applyAccountTransactionsUpdate(prev: Horizon.TransactionResponse[], upd
   }
 }
 
-export function useLiveRecentTransactions(accountID: string, testnet: boolean): Horizon.TransactionResponse[] {
+export function useLiveRecentTransactions(
+  accountID: string,
+  testnet: boolean,
+  handler: (tx: Horizon.TransactionResponse) => void = () => undefined
+): Horizon.TransactionResponse[] {
   const horizonURL = useHorizonURL(testnet)
   const netWorker = useNetWorker()
 
@@ -228,9 +232,10 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
       },
       set(updated: Horizon.TransactionResponse[]) {
         accountTransactionsCache.set(selector, updated)
+        // console.log("set called")
       },
       observe() {
-        return netWorker.subscribeToAccountTransactions(horizonURL, accountID)
+        return netWorker.subscribeToAccountTransactions(horizonURL, accountID).tap(handler)
       }
     }
   }, [accountID, horizonURL])

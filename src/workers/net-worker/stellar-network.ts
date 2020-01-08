@@ -301,21 +301,25 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
     return page._embedded.records
   }
 
+  const updateCursors = (update: Horizon.TransactionResponse[]) => {
+    if (update.length > 0) {
+      latestCreatedAt = max(update.map(tx => tx.created_at), "0")
+      latestCursor = update.find(tx => tx.created_at === latestCreatedAt)!.paging_token
+    }
+  }
+
   return subscribeToUpdatesAndPoll<Horizon.TransactionResponse[]>(
     {
       async applyUpdate(update) {
         const prevLatestCreatedAt = latestCreatedAt
+        updateCursors(update)
 
-        if (update.length > 0) {
-          latestCreatedAt = max(update.map(tx => tx.created_at), "0")
-          latestCursor = update.find(tx => tx.created_at === latestCreatedAt)!.paging_token
-        }
         return update.filter(tx => !prevLatestCreatedAt || tx.created_at > prevLatestCreatedAt)
       },
       fetchUpdate,
       async init() {
         await waitForAccountData(horizonURL, accountID)
-        return fetchUpdate()
+        updateCursors(await fetchUpdate())
       },
       shouldApplyUpdate(update) {
         return update.length > 0 && (!latestCreatedAt || update[0].created_at > latestCreatedAt)

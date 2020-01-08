@@ -20,7 +20,7 @@ export interface SubscriberImplementation<ValueT, UpdateT = ValueT> {
   applyUpdate(update: UpdateT): Promise<ValueT>
   fetchUpdate(streamedUpdate?: UpdateT): Promise<UpdateT | undefined>
   handleError?(error: Error): void
-  init(): Promise<ValueT | undefined>
+  init(): Promise<ValueT | undefined | void>
   shouldApplyUpdate(update: UpdateT): boolean
   subscribeToUpdates(): Observable<UpdateT>
 }
