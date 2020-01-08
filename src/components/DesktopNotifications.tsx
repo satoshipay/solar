@@ -33,6 +33,8 @@ type TradeEffect = ServerApi.EffectRecord & {
 }
 
 const isTradeEffect = (effect: ServerApi.EffectRecord): effect is TradeEffect => effect.type === "trade"
+const isPaymentEffect = (effect: ServerApi.EffectRecord) =>
+  effect.type === "account_credited" || effect.type === "account_debited"
 
 function createEffectHandlers(
   router: ReturnType<typeof useRouter>,
@@ -71,6 +73,14 @@ function createEffectHandlers(
       })
 
       showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
+    },
+    async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
+      if (effect.type === "account_credited" && effect.account === account.publicKey) {
+        const title = `New payment received`
+        const notificationBody = `'${account.name}' received a new payment. Click to view.`
+
+        showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
+      }
     }
   }
 }
@@ -108,6 +118,8 @@ function DesktopNotifications() {
   useLiveAccountEffects(accounts, (account: Account, effect: ServerApi.EffectRecord) => {
     if (isTradeEffect(effect)) {
       effectHandlers.handleTradeEffect(account, effect).catch(trackError)
+    } else if (isPaymentEffect(effect)) {
+      effectHandlers.handlePaymentEffect(account, effect).catch(trackError)
     }
   })
 
