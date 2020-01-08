@@ -45,6 +45,18 @@ export function useDebouncedState<T>(
   return [state, debouncedSetState]
 }
 
+export function useDeferredState<T>(initial: T, delay: number) {
+  const [deferredState, setDeferredState] = React.useState<T>(initial)
+  const [state, setState] = React.useState<T>(initial)
+
+  const setDeferred = React.useCallback((update: React.SetStateAction<T>) => {
+    setState(update)
+    setTimeout(() => setDeferredState(update), delay)
+  }, [])
+
+  return [deferredState, state, setDeferred] as const
+}
+
 export function useForceRerender() {
   const [, setCounter] = React.useState(0)
   const forceRerender = () => setCounter(counter => counter++)
