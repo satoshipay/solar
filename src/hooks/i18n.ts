@@ -2,7 +2,16 @@ import React from "react"
 
 const translations = {
   de: {},
-  en: {}
+  en: {
+    "account-context-menu": {
+      "account-settings-label": "Account Settings",
+      "assets-and-balances-label": "Assets & Balances",
+      "deposit-label": "Deposit",
+      "trade-label": "Trade",
+      "transactions-label": "Account Settings",
+      "withdraw-label": "Withdraw"
+    }
+  }
 }
 
 type Language = keyof typeof translations

@@ -15,6 +15,7 @@ import { Account } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
+import { useTranslation } from "../../hooks/i18n"
 import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
 
 const useContextMenuItemStyles = makeStyles({
@@ -72,6 +73,8 @@ interface MenuProps {
 function AccountContextMenu(props: MenuProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
   const activated = accountData.balances.length > 0
 
   return (
@@ -87,33 +90,37 @@ function AccountContextMenu(props: MenuProps) {
           <AccountContextMenuItem
             disabled={!activated}
             icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
-            label="Trade"
+            label={t("account-context-menu.trade-label")}
             onClick={closeAndCall(props.onTrade)}
           />
-          <AccountContextMenuItem icon={<CallReceivedIcon />} label="Deposit" onClick={closeAndCall(props.onDeposit)} />
+          <AccountContextMenuItem
+            icon={<CallReceivedIcon />}
+            label={t("account-context-menu.deposit-label")}
+            onClick={closeAndCall(props.onDeposit)}
+          />
           <AccountContextMenuItem
             disabled={!activated}
             icon={<CallMadeIcon />}
-            label="Withdraw"
+            label={t("account-context-menu.withdraw-label")}
             onClick={closeAndCall(props.onWithdraw)}
           />
           <Divider />
           <AccountContextMenuItem
             disabled={!activated}
             icon={<MoneyIcon />}
-            label="Assets & Balances"
+            label={t("account-context-menu.assets-and-balances-label")}
             onClick={closeAndCall(props.onManageAssets)}
           />
           {props.showingSettings ? (
             <AccountContextMenuItem
               icon={<ListIcon />}
-              label="Transactions"
+              label={t("account-context-menu.transactions-label")}
               onClick={closeAndCall(props.onAccountTransactions)}
             />
           ) : (
             <AccountContextMenuItem
               icon={<SettingsIcon />}
-              label="Account Settings"
+              label={t("account-context-menu.account-settings-label")}
               onClick={closeAndCall(props.onAccountSettings)}
             />
           )}
