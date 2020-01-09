@@ -23,6 +23,24 @@ const translations = {
       "start-download-of-update": "Starting download of update...",
       "download-ready": "Download is ready and will be installed on next restart!"
     },
+    "settings-page": {
+      "biometric-lock-title-ios": "Face ID / Touch ID",
+      "biometric-lock-title": "Fingerprint Lock",
+      "biometric-lock-description":
+        "Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually your fingerprint).",
+      "show-testnet-accounts-title": "Show Testnet Accounts",
+      "show-testnet-accounts-description-1":
+        "The test network is a copy of the main Stellar network were the traded tokens have no real-world value. You can request free testnet XLM from the so-called friendbot to activate a testnet account and get started without owning any actual funds.",
+      "show-testnet-accounts-description-2":
+        "Note: Testnet accounts will always be shown if you have got testnet accounts already.",
+      "hide-memos-title": "Hide memos in transactions overview",
+      "hide-memos-description":
+        "Memos are text messages that can be included with transactions. Enable this option to hide them in the overview. They will still be shown in the detailed view of a transaction.",
+      "enable-multi-sig-title": "Enable Multi-Signature",
+      "enable-multi-sig-description":
+        "<b> Experimental feature: </b> Add co-signers to an account, define that all signers of an account have to sign transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.",
+      "main-title": "Settings"
+    },
     tooltip: {
       "update-available": "Update available"
     }

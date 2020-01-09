@@ -9,6 +9,7 @@ import MainTitle from "../components/MainTitle"
 import ToggleSection from "../components/Layout/ToggleSection"
 import { Section } from "../components/Layout/Page"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
+import { useTranslation } from "../hooks/i18n"
 import { biometricLockAvailable } from "../platform/settings"
 import * as routes from "../routes"
 
@@ -20,6 +21,7 @@ function Settings() {
   const settings = React.useContext(SettingsContext)
   const hasTestnetAccount = accounts.some(account => account.testnet)
   const [bioLockAvailable, setBioLockAvailable] = React.useState(false)
+  const { t } = useTranslation()
 
   React.useEffect(() => {
     biometricLockAvailable().then(setBioLockAvailable)
@@ -32,66 +34,65 @@ function Settings() {
         checked={settings.biometricLock && settings.biometricLockUsable}
         onChange={settings.toggleBiometricLock}
         style={bioLockAvailable ? {} : { display: "none" }}
-        title={process.env.PLATFORM === "ios" ? "Face ID / Touch ID" : "Fingerprint Lock"}
+        title={
+          process.env.PLATFORM === "ios"
+            ? t("settings-page.biometric-lock-title-ios")
+            : t("settings-page.biometric-lock-title")
+        }
       >
         <Typography
           color={settings.biometricLock ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
-          Enable this option to lock the app whenever you leave it. Unlock it using biometric authentication (usually
-          your fingerprint).
+          {t("settings-page.biometric-lock-description")}
         </Typography>
       </ToggleSection>
       <ToggleSection
         checked={settings.showTestnet}
         disabled={hasTestnetAccount}
         onChange={settings.toggleTestnet}
-        title="Show Testnet Accounts"
+        title={t("settings-page.show-testnet-accounts-title")}
       >
         <Typography
           color={settings.showTestnet ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
-          The test network is a copy of the main Stellar network were the traded tokens have no real-world value. You
-          can request free testnet XLM from the so-called friendbot to activate a testnet account and get started
-          without owning any actual funds.
+          {t("settings-page.show-testnet-accounts-description-1")}
         </Typography>
         <Typography
           color={settings.showTestnet ? "initial" : "textSecondary"}
           style={{ margin: "12px 0 0" }}
           variant="body2"
         >
-          Note: Testnet accounts will always be shown if you have got testnet accounts already.
+          {t("settings-page.show-testnet-accounts-description-2")}
         </Typography>
       </ToggleSection>
       <ToggleSection
         checked={settings.hideMemos}
         onChange={settings.toggleHideMemos}
-        title="Hide memos in transactions overview"
+        title={t("settings-page.hide-memos-title")}
       >
         <Typography
           color={settings.hideMemos ? undefined : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
-          Memos are text messages that can be included with transactions. Enable this option to hide them in the
-          overview. They will still be shown in the detailed view of a transaction.
+          {t("settings-page.hide-memos-description")}
         </Typography>
       </ToggleSection>
       <ToggleSection
         checked={settings.multiSignature}
         onChange={settings.toggleMultiSignature}
-        title="Enable Multi-Signature"
+        title={t("settings-page.enable-multi-sig-title")}
       >
         <Typography
           color={settings.multiSignature ? "initial" : "textSecondary"}
           style={{ margin: "8px 0 0" }}
           variant="body2"
         >
-          <b>Experimental feature:</b> Add co-signers to an account, define that all signers of an account have to sign
-          transactions unanimously or a certain subset of signers have to sign a transaction in order to be valid.
+          {t("settings-page.enable-multi-sig-description")}
         </Typography>
       </ToggleSection>
     </>
@@ -101,6 +102,8 @@ function Settings() {
 function SettingsPage() {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+  const { t } = useTranslation()
+
   return (
     <>
       <Section top brandColored style={{ flexGrow: 0 }}>
@@ -116,7 +119,7 @@ function SettingsPage() {
             <MainTitle
               onBack={() => router.history.push(routes.allAccounts())}
               style={{ margin: "-12px 0 -10px", minHeight: 56 }}
-              title="Settings"
+              title={t("settings-page.main-title")}
               titleColor="inherit"
             />
           </CardContent>
