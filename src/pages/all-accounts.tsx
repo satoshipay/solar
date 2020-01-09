@@ -15,6 +15,7 @@ import TermsAndConditions from "../components/TermsAndConditionsDialog"
 import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
+import { useTranslation } from "../hooks/i18n"
 import * as routes from "../routes"
 import { NotificationsContext, trackError } from "../context/notifications"
 import getUpdater from "../platform/updater"
@@ -43,9 +44,15 @@ function AllAccountsPage() {
   const styles = useStyles()
   const isSmallScreen = useIsMobile()
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
+  const { t } = useTranslation()
 
-  const switchToMainnetLabel = isSmallScreen ? "Mainnet" : "Switch To Mainnet"
-  const switchToTestnetLabel = isSmallScreen ? "Testnet" : "Switch To Testnet"
+  const switchToMainnetLabel = isSmallScreen
+    ? t("all-accounts-page.switch-to-mainnet-label-short")
+    : t("all-accounts-page.switch-to-mainnet-label")
+
+  const switchToTestnetLabel = isSmallScreen
+    ? t("all-accounts-page.switch-to-testnet-label-short")
+    : t("all-accounts-page.switch-to-testnet-label")
 
   const updater = getUpdater()
 
@@ -58,10 +65,10 @@ function AllAccountsPage() {
   const startUpdate = React.useCallback(async () => {
     if (isUpdateAvailable && !updater.isUpdateStarted()) {
       try {
-        showNotification("info", "Starting download of update...")
+        showNotification("info", t("notification.start-download-of-update"))
         setUpdateInProgress(true)
         await updater.startUpdate()
-        showNotification("success", "Download is ready and will be installed on next restart!")
+        showNotification("success", t("notification.download-ready"))
       } catch (error) {
         trackError(error)
       } finally {
@@ -71,7 +78,7 @@ function AllAccountsPage() {
   }, [updater, isUpdateAvailable])
 
   const updateButton = (
-    <Tooltip title="Update available">
+    <Tooltip title={t("tooltip.update-available")}>
       <IconButton
         onClick={startUpdate}
         color="secondary"
@@ -91,7 +98,9 @@ function AllAccountsPage() {
   const headerContent = React.useMemo(
     () => (
       <MainTitle
-        title={networkSwitch === "testnet" ? "Testnet Accounts" : "My Accounts"}
+        title={
+          networkSwitch === "testnet" ? t("all-accounts-page.header-testnet") : t("all-accounts-page.header-mainnet")
+        }
         titleColor="inherit"
         titleStyle={isWidthMax450 ? { marginRight: 0 } : {}}
         hideBackButton
