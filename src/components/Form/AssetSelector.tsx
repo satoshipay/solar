@@ -1,9 +1,46 @@
 import React from "react"
 import { Asset, Horizon } from "stellar-sdk"
+import ListItemIcon from "@material-ui/core/ListItemIcon"
+import ListItemText from "@material-ui/core/ListItemText"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
 import { balancelineToAsset, stringifyAsset } from "../../lib/stellar"
+import AssetLogo from "../AccountAssets/AssetLogo"
+
+const useAssetItemStyles = makeStyles(theme => ({
+  icon: {
+    [theme.breakpoints.up(600)]: {
+      minWidth: 48
+    }
+  },
+  logo: {
+    width: 32,
+    height: 32,
+
+    [theme.breakpoints.up(600)]: {
+      width: 28,
+      height: 28
+    }
+  }
+}))
+
+interface AssetItemProps {
+  asset: Asset
+  testnet: boolean
+}
+
+const AssetItem = React.memo(function AssetItem(props: AssetItemProps) {
+  const classes = useAssetItemStyles()
+  return (
+    <MenuItem value={stringifyAsset(props.asset)}>
+      <ListItemIcon className={classes.icon}>
+        <AssetLogo asset={props.asset} className={classes.logo} testnet={props.testnet} />
+      </ListItemIcon>
+      <ListItemText>{props.asset.getCode()}</ListItemText>
+    </MenuItem>
+  )
+})
 
 const useAssetSelectorStyles = makeStyles({
   helperText: {
@@ -30,6 +67,7 @@ interface AssetSelectorProps {
   minWidth?: number | string
   onChange: (asset: Asset) => void
   style?: React.CSSProperties
+  testnet: boolean
   trustlines: Horizon.BalanceLine[]
   value?: Asset
 }
@@ -91,16 +129,14 @@ function AssetSelector(props: AssetSelectorProps) {
           Select an asset
         </MenuItem>
       )}
-      <MenuItem value={stringifyAsset(Asset.native())}>XLM</MenuItem>
+      <AssetItem asset={Asset.native()} testnet={props.testnet} />
       {props.trustlines
         .filter(trustline => trustline.asset_type !== "native")
         .map(trustline => (
-          <MenuItem key={stringifyAsset(trustline)} value={stringifyAsset(trustline)}>
-            {trustline.asset_type === "native" ? "XLM" : trustline.asset_code}
-          </MenuItem>
+          <AssetItem asset={balancelineToAsset(trustline)} key={stringifyAsset(trustline)} testnet={props.testnet} />
         ))}
     </TextField>
   )
 }
 
-export default AssetSelector
+export default React.memo(AssetSelector)

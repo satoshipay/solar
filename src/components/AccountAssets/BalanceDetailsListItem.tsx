@@ -114,7 +114,11 @@ function BalanceListItem(props: BalanceListItemProps) {
         style={props.style}
       >
         <ListItemIcon className={classes.icon}>
-          <AssetLogo asset={asset} className={`${classes.logo} ${props.hideLogo ? classes.logoHidden : ""}`} />
+          <AssetLogo
+            asset={asset}
+            className={`${classes.logo} ${props.hideLogo ? classes.logoHidden : ""}`}
+            testnet={props.testnet}
+          />
         </ListItemIcon>
         <ListItemText
           classes={{
@@ -148,7 +152,7 @@ function BalanceListItem(props: BalanceListItemProps) {
             asset={asset}
             className={`${classes.logo} ${props.hideLogo ? classes.logoHidden : ""}`}
             dark
-            imageURL={assetMetadata && assetMetadata.image}
+            testnet={props.testnet}
           />
         </Badge>
       </ListItemIcon>

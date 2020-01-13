@@ -1,7 +1,6 @@
 import { Horizon } from "stellar-sdk"
 import React from "react"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import { useAssetMetadata } from "../../hooks/stellar"
 import { balancelineToAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
@@ -117,7 +116,6 @@ interface BalanceItemProps {
 function BalanceItem(props: BalanceItemProps, ref: React.Ref<any>) {
   const classes = useBalanceItemStyles()
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
-  const assetMetadata = useAssetMetadata(asset, props.testnet)
 
   return (
     <div
@@ -125,7 +123,7 @@ function BalanceItem(props: BalanceItemProps, ref: React.Ref<any>) {
       onClick={props.onClick}
       ref={ref}
     >
-      <AssetLogo asset={asset} className={classes.logo} imageURL={assetMetadata ? assetMetadata.image : undefined} />
+      <AssetLogo asset={asset} className={classes.logo} testnet={props.testnet} />
       <div className={classes.balance}>
         <span className={classes.assetCode}>
           {props.balance.asset_type === "native" ? "XLM" : props.balance.asset_code}

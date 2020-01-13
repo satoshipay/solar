@@ -375,7 +375,7 @@ function AssetDetailsDialog(props: Props) {
               <AccountName publicKey={asset.getIssuer()} testnet={props.account.testnet} />
             )}
           </Typography>
-          <AssetLogo asset={asset} className={classes.logo} imageURL={metadata && metadata.image} />
+          <AssetLogo asset={asset} className={classes.logo} testnet={props.account.testnet} />
         </>
       }
       actions={dialogActions}
