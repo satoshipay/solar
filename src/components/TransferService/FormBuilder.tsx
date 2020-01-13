@@ -2,14 +2,8 @@ import React from "react"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { TransferFields } from "@satoshipay/stellar-sep-6"
-import { HorizontalLayout } from "../Layout/Box"
 import { formatDescriptionText, formatIdentifier } from "./formatters"
-
-export const fieldStyle = {
-  marginLeft: 12,
-  marginRight: 12,
-  minWidth: "40%"
-}
+import FormLayout from "./FormLayout"
 
 interface FormBuilderFieldProps {
   descriptor: TransferFields[""]
@@ -56,19 +50,6 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
   }
 }
 
-interface FormBuilderFieldSetProps {
-  children: React.ReactNode
-  style?: React.CSSProperties
-}
-
-export function FormBuilderFieldSet(props: FormBuilderFieldSetProps) {
-  return (
-    <HorizontalLayout margin="0 -12px" wrap="wrap" style={props.style}>
-      {props.children}
-    </HorizontalLayout>
-  )
-}
-
 interface Props {
   fields: TransferFields
   fieldStyle?: React.CSSProperties
@@ -83,17 +64,17 @@ export function FormBuilder(props: Props) {
     ([fieldName, descriptor]) => descriptor && typeof descriptor === "object"
   )
   return (
-    <FormBuilderFieldSet style={props.style}>
+    <FormLayout>
       {fields.map(([fieldName, descriptor]) => (
         <FormBuilderField
           key={fieldName}
           descriptor={descriptor}
           name={fieldName}
           onChange={event => props.onSetFormValue(fieldName, event.target.value)}
-          style={{ ...fieldStyle, ...props.fieldStyle }}
+          style={props.fieldStyle}
           value={props.formValues[fieldName]}
         />
       ))}
-    </FormBuilderFieldSet>
+    </FormLayout>
   )
 }

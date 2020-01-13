@@ -2,6 +2,7 @@ import React from "react"
 import { Asset } from "stellar-sdk"
 import { TransferServer } from "@satoshipay/stellar-sep-6"
 import { RefStateObject } from "../../hooks/userinterface"
+import Carousel from "../Layout/Carousel"
 import { useAssetTransferServerInfos } from "./transferservice"
 import WithdrawalRequestFormDetails, { DetailsFormValues } from "./WithdrawalRequestFormDetails"
 import WithdrawalRequestFormStart, { StartFormValues } from "./WithdrawalRequestFormStart"
@@ -42,30 +43,36 @@ function WithdrawalRequestForm(props: Props) {
       if (!transferServer) {
         throw new Error(`No transfer server found for asset ${startFormValues.asset.getCode()}`)
       }
+
       props.onSubmit(transferServer, startFormValues.asset, startFormValues.methodID, formValues)
     },
     [props.onSubmit, startFormValues, transferInfos]
   )
 
-  return !startFormValues ? (
-    <WithdrawalRequestFormStart
-      actionsRef={props.actionsRef}
-      assets={props.assets}
-      initialAsset={props.initialAsset}
-      initialMethod={props.initialMethod}
-      onSubmit={setStartFormValues}
-      transferInfos={transferInfos}
-      withdrawableAssets={withdrawableAssets}
-    />
-  ) : (
-    <WithdrawalRequestFormDetails
-      actionsRef={props.actionsRef}
-      asset={startFormValues.asset}
-      initialFormValues={detailsFormValues}
-      methodID={startFormValues.methodID}
-      onSubmit={fetchWithdrawalDetails}
-      withdrawalMetadata={startFormValues.withdrawalMetadata}
-    />
+  const showStartForm = !startFormValues
+
+  return (
+    <Carousel current={showStartForm ? 0 : 1}>
+      <WithdrawalRequestFormStart
+        actionsRef={showStartForm ? props.actionsRef : undefined}
+        assets={props.assets}
+        initialAsset={props.initialAsset}
+        initialMethod={props.initialMethod}
+        onSubmit={setStartFormValues}
+        transferInfos={transferInfos}
+        withdrawableAssets={withdrawableAssets}
+      />
+      {startFormValues ? (
+        <WithdrawalRequestFormDetails
+          actionsRef={showStartForm ? undefined : props.actionsRef}
+          asset={startFormValues.asset}
+          initialFormValues={detailsFormValues}
+          methodID={startFormValues.methodID}
+          onSubmit={fetchWithdrawalDetails}
+          withdrawalMetadata={startFormValues.withdrawalMetadata}
+        />
+      ) : null}
+    </Carousel>
   )
 }
 

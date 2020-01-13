@@ -6,10 +6,11 @@ import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import theme from "../../theme"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { ReadOnlyTextfield } from "../Form/FormFields"
-import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
+import { VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 import { formatDescriptionText } from "./formatters"
-import { fieldStyle, FormBuilder, FormBuilderField, FormBuilderFieldSet } from "./FormBuilder"
+import { FormBuilder, FormBuilderField } from "./FormBuilder"
+import FormLayout from "./FormLayout"
 
 interface FormValues {
   [fieldName: string]: string
@@ -46,8 +47,43 @@ function postprocessFormValues(inputFormValues: FormValues, methodID: string): F
   return formValues
 }
 
+interface WithdrawalFeeProps {
+  asset: Asset
+  metadata: AssetTransferInfo["withdraw"]
+  width: string | number
+}
+
+const WithdrawalFee = React.memo(function WithdrawalFee(props: WithdrawalFeeProps) {
+  if (!props.metadata) {
+    return null
+  }
+  return (
+    <ReadOnlyTextfield
+      inputProps={{
+        style: {
+          color: theme.palette.text.secondary
+        }
+      }}
+      label="Withdrawal fee"
+      style={{
+        flexBasis: props.width,
+        marginRight: 24,
+        marginTop: 24
+      }}
+      value={
+        [
+          typeof props.metadata.fee_fixed === "number"
+            ? `${props.metadata.fee_fixed} ${props.asset && props.asset.getCode()}`
+            : "",
+          typeof props.metadata.fee_percent === "number" ? `${props.metadata.fee_percent}%` : ""
+        ].join(" + ") || "unknown"
+      }
+    />
+  )
+})
+
 interface WithdrawalRequestFormDetailsProps {
-  actionsRef: RefStateObject
+  actionsRef: RefStateObject | undefined
   asset: Asset
   initialFormValues?: FormValues
   methodID: string
@@ -100,18 +136,17 @@ function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) 
     /^([^@]+@[^@]+\.[^@]+)?$/.test(formValues.email || formValues.email_address || "")
 
   const isDisabled = !props.asset || !props.methodID || hasEmptyMandatoryFields || !validAmount || !validEmail
-  const leftInputsWidth = isSmallScreen ? 200 : 240
 
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
       <VerticalLayout>
-        <FormBuilderFieldSet>
+        <FormLayout>
           {fields.dest ? (
             <FormBuilderField
               name="Destination account"
               descriptor={fields.dest}
               onChange={event => setFormValue("dest", event.target.value)}
-              style={{ ...fieldStyle, marginTop: 24 }}
+              style={{ marginTop: 24 }}
               value={formValues.dest || ""}
             />
           ) : null}
@@ -124,11 +159,11 @@ function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) 
               }
               descriptor={fields.dest_extra}
               onChange={event => setFormValue("dest_extra", event.target.value)}
-              style={{ ...fieldStyle, marginTop: 24 }}
+              style={{ marginTop: 24 }}
               value={formValues.dest_extra || ""}
             />
           ) : null}
-        </FormBuilderFieldSet>
+        </FormLayout>
         <FormBuilder
           fields={filterObject(
             fields,
@@ -138,34 +173,14 @@ function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) 
           formValues={formValues}
           onSetFormValue={setFormValue}
         />
-        <HorizontalLayout alignItems="center" justifyContent="space-between" wrap="wrap">
-          {props.withdrawalMetadata.withdraw ? (
-            <ReadOnlyTextfield
-              inputProps={{
-                style: {
-                  color: theme.palette.text.secondary
-                }
-              }}
-              label="Withdrawal fee"
-              style={{
-                flexBasis: leftInputsWidth,
-                marginRight: 24,
-                marginTop: 24
-              }}
-              value={
-                [
-                  typeof props.withdrawalMetadata.withdraw.fee_fixed === "number"
-                    ? `${props.withdrawalMetadata.withdraw.fee_fixed} ${props.asset && props.asset.getCode()}`
-                    : "",
-                  typeof props.withdrawalMetadata.withdraw.fee_percent === "number"
-                    ? `${props.withdrawalMetadata.withdraw.fee_percent}%`
-                    : ""
-                ].join(" + ") || "unknown"
-              }
-            />
-          ) : null}
-        </HorizontalLayout>
-        <Portal target={props.actionsRef.element}>
+        <FormLayout>
+          <WithdrawalFee
+            asset={props.asset}
+            metadata={props.withdrawalMetadata.withdraw}
+            width={isSmallScreen ? 200 : 240}
+          />
+        </FormLayout>
+        <Portal target={props.actionsRef && props.actionsRef.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 0 }}>
             <ActionButton
               disabled={isDisabled}

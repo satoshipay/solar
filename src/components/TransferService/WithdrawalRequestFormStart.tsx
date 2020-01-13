@@ -9,10 +9,10 @@ import { trackError } from "../../context/notifications"
 import { useIsSmallMobile, RefStateObject } from "../../hooks/userinterface"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import AssetSelector from "../Form/AssetSelector"
-import { VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 import { formatIdentifier } from "./formatters"
 import { AssetTransferInfos } from "./transferservice"
+import FormLayout from "./FormLayout"
 
 const useFormStyles = makeStyles({
   select: {
@@ -33,7 +33,7 @@ interface SubmitValues {
 }
 
 interface WithdrawalRequestFormStartProps {
-  actionsRef: RefStateObject
+  actionsRef: RefStateObject | undefined
   assets: Asset[]
   initialAsset?: Asset
   initialMethod?: string
@@ -124,7 +124,7 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
 
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
-      <VerticalLayout>
+      <FormLayout>
         <AssetSelector
           assets={props.assets}
           disabledAssets={nonwithdrawableAssets}
@@ -161,8 +161,8 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
             </MenuItem>
           ))}
         </TextField>
-      </VerticalLayout>
-      <Portal target={props.actionsRef.element}>
+      </FormLayout>
+      <Portal target={props.actionsRef && props.actionsRef.element}>
         <DialogActionsBox desktopStyle={{ marginTop: 0 }}>
           <ActionButton disabled={isDisabled} form={formID} onClick={() => undefined} type="submit">
             Proceed

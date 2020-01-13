@@ -134,13 +134,7 @@ function WithdrawalDialogForm(props: Props) {
       </>
     )
   } else {
-    // tslint:disable-next-line no-console
-    console.error("Unhandled offramp state:", state.step)
-    return (
-      <Box textAlign="center">
-        The anchor responsible for this operation sent a response that Solar doesn't know how to act on :(
-      </Box>
-    )
+    throw Error("The anchor responsible for this operation sent a response that Solar doesn't know how to act on :(")
   }
 }
 
