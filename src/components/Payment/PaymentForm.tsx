@@ -159,16 +159,14 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   }
 
   const handleQRScan = React.useCallback((scanResult: string) => {
-    const array = scanResult.split("?")
-
-    const destination = array[0]
+    const [destination, query] = scanResult.split("?")
     setFormValue("destination", destination)
 
-    if (array.length === 1) {
+    if (!query) {
       return
     }
 
-    const searchParams = new URLSearchParams(array[1])
+    const searchParams = new URLSearchParams(query)
     const memoValue = searchParams.get("dt")
 
     if (memoValue) {
