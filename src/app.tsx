@@ -11,6 +11,7 @@ import { ContextProviders } from "./context"
 import handleSplashScreen from "./splash-screen"
 import theme from "./theme"
 import "./worker-controller"
+import "./lib/i18n"
 
 SmoothScroll.polyfill()
 
