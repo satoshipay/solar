@@ -11,6 +11,7 @@ import AllAccountsPage from "../components/AccountListView"
 import AndroidBackButton from "../components/AndroidBackButton"
 import DesktopNotifications from "../components/DesktopNotifications"
 import LinkHandler from "../components/LinkHandler"
+import TransactionRequestHandler from "../components/TransactionRequestHandler"
 
 const CreateMainnetAccount = () => (
   <React.Suspense fallback={null}>
@@ -68,6 +69,7 @@ function Stage2() {
       <React.Suspense fallback={null}>
         <NotificationContainer />
         <ConnectionErrorListener />
+        <TransactionRequestHandler />
       </React.Suspense>
       <React.Suspense fallback={null}>
         {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
