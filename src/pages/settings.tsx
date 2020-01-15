@@ -101,26 +101,34 @@ function Settings() {
 function SettingsPage() {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+
+  const headerCard = React.useMemo(
+    () => (
+      <Card
+        style={{
+          color: "white",
+          position: "relative",
+          background: "transparent",
+          boxShadow: "none"
+        }}
+      >
+        <CardContent style={{ padding: isSmallScreen ? 8 : undefined, paddingBottom: 8 }}>
+          <MainTitle
+            onBack={() => router.history.push(routes.allAccounts())}
+            title="Settings"
+            titleColor="inherit"
+            style={{ marginTop: -12, marginLeft: 0 }}
+          />
+        </CardContent>
+      </Card>
+    ),
+    [isSmallScreen, router]
+  )
+
   return (
-    <>
-      <Section top brandColored style={{ flexGrow: 0 }}>
-        <Card
-          style={{
-            color: "white",
-            position: "relative",
-            background: "transparent",
-            boxShadow: "none"
-          }}
-        >
-          <CardContent style={{ paddingTop: 16, paddingBottom: 16 }}>
-            <MainTitle
-              onBack={() => router.history.push(routes.allAccounts())}
-              style={{ margin: "-12px 0 -10px", minHeight: 56 }}
-              title="Settings"
-              titleColor="inherit"
-            />
-          </CardContent>
-        </Card>
+    <VerticalLayout height="100%">
+      <Section top brandColored grow={0}>
+        {headerCard}
       </Section>
       <Section bottom style={{ display: "flex", paddingTop: 0, flexDirection: "column", overflowY: "auto" }}>
         <VerticalLayout height="100%" padding="0 8px" grow>
@@ -134,7 +142,7 @@ function SettingsPage() {
           </Box>
         </VerticalLayout>
       </Section>
-    </>
+    </VerticalLayout>
   )
 }
 
