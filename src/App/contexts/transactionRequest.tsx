@@ -25,7 +25,10 @@ const TransactionRequestContext = React.createContext<ContextType>(initialValues
 export function TransactionRequestProvider(props: Props) {
   const [uri, setURI] = React.useState<StellarUri | null>(null)
 
-  const clearURI = React.useCallback(() => setURI(null), [])
+  const clearURI = React.useCallback(() => {
+    setURI(null)
+    window.location.search = ""
+  }, [])
 
   React.useEffect(() => {
     const unsubscribe = subscribeToDeepLinkURLs(async incomingURI => {
