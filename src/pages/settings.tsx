@@ -41,7 +41,7 @@ function SettingsPage() {
 
   return (
     <VerticalLayout height="100%">
-      <Section top brandColored grow={0}>
+      <Section top brandColored grow={0} shrink={0}>
         {headerCard}
       </Section>
       <Section
