@@ -1,6 +1,7 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Typography from "@material-ui/core/Typography"
+import { useTheme } from "@material-ui/core/styles"
 import NotificationsIcon from "@material-ui/icons/Notifications"
 import { Notification as NotificationType, NotificationsContext, trackError } from "../../context/notifications"
 import { useOnlineStatus } from "../../hooks/util"
@@ -88,6 +89,7 @@ interface PermissionNotificationProps {
 
 const PermissionNotification = React.memo(function PermissionNotification(props: PermissionNotificationProps) {
   const Notifications = React.useContext(NotificationsContext)
+  const theme = useTheme()
 
   const requestPermission = React.useCallback(() => {
     ;(async () => {
@@ -107,6 +109,10 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
 
   return (
     <Notification
+      contentStyle={{
+        background: "white",
+        color: theme.palette.text.primary
+      }}
       icon={NotificationsIcon}
       message="Enable app notifications"
       onClick={requestPermission}
