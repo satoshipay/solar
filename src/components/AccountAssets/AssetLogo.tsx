@@ -2,6 +2,7 @@ import React from "react"
 import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
 import makeStyles from "@material-ui/core/styles/makeStyles"
+import { useAssetMetadata } from "../../hooks/stellar"
 import { brandColor } from "../../theme"
 import LumenIcon from "../Icon/Lumen"
 
@@ -43,7 +44,7 @@ const useAssetLogoStyles = makeStyles({
   }
 })
 
-interface Props {
+interface AssetLogoProps {
   asset: Asset
   className?: string
   dark?: boolean
@@ -51,7 +52,7 @@ interface Props {
   style?: React.CSSProperties
 }
 
-function AssetLogo(props: Props) {
+function AssetLogo(props: AssetLogoProps) {
   const className = props.className || ""
   const classes = useAssetLogoStyles()
 
@@ -80,4 +81,25 @@ function AssetLogo(props: Props) {
   }
 }
 
-export default React.memo(AssetLogo)
+interface SuspendingAssetLogoProps {
+  asset: Asset
+  className?: string
+  dark?: boolean
+  style?: React.CSSProperties
+  testnet: boolean
+}
+
+function SuspendingAssetLogo(props: SuspendingAssetLogoProps) {
+  const metadata = useAssetMetadata(props.asset, props.testnet)
+  return <AssetLogo {...props} imageURL={metadata ? metadata.image : undefined} />
+}
+
+function AssetLogoWithFallback(props: SuspendingAssetLogoProps) {
+  return (
+    <React.Suspense fallback={<AssetLogo {...props} />}>
+      <SuspendingAssetLogo {...props} />
+    </React.Suspense>
+  )
+}
+
+export default React.memo(AssetLogoWithFallback)

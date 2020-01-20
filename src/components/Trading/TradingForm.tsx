@@ -198,6 +198,7 @@ function TradingForm(props: Props) {
             onChange={setPrimaryAsset}
             minWidth={75}
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+            testnet={props.account.testnet}
             trustlines={props.trustlines}
             value={primaryAsset}
           />
@@ -262,6 +263,7 @@ function TradingForm(props: Props) {
             minWidth={75}
             onChange={setSecondaryAsset}
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+            testnet={props.account.testnet}
             trustlines={props.trustlines}
             value={secondaryAsset}
           />
