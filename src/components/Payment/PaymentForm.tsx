@@ -158,10 +158,27 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     props.onSubmit(formValues, spendableBalance, matchingWellknownAccount)
   }
 
+  const handleQRScan = React.useCallback((scanResult: string) => {
+    const [destination, query] = scanResult.split("?")
+    setFormValue("destination", destination)
+
+    if (!query) {
+      return
+    }
+
+    const searchParams = new URLSearchParams(query)
+    const memoValue = searchParams.get("dt")
+
+    if (memoValue) {
+      setFormValue("memoType", "id")
+      setFormValue("memoValue", memoValue)
+    }
+  }, [])
+
   const qrReaderAdornment = React.useMemo(
     () => (
       <InputAdornment disableTypography position="end">
-        <QRReader onScan={key => setFormValue("destination", key)} />
+        <QRReader onScan={handleQRScan} />
       </InputAdornment>
     ),
     []
