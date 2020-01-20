@@ -13,6 +13,7 @@ import { SignatureRequest } from "../lib/multisig-service"
 import { showNotification } from "../platform/notifications"
 import * as routes from "../routes"
 import { NetWorker } from "../worker-controller"
+import { formatBalance } from "./Account/AccountBalances"
 import { OfferDetailsString } from "./TransactionReview/Operations"
 
 type TradeEffect = ServerApi.EffectRecord & {
@@ -76,8 +77,8 @@ function createEffectHandlers(
     },
     async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
       if (effect.type === "account_credited" && effect.account === account.publicKey) {
-        const title = `New payment received`
-        const notificationBody = `'${account.name}' received a new payment. Click to view.`
+        const title = `Received payment | ${account.name}`
+        const notificationBody = `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`
 
         showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
       }
