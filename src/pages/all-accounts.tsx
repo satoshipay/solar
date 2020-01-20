@@ -8,10 +8,11 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import UpdateIcon from "@material-ui/icons/SystemUpdateAlt"
 import AccountList from "../components/AccountList"
 import DialogBody from "../components/Dialog/DialogBody"
-import { Box } from "../components/Layout/Box"
+import { Box, VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import MainTitle from "../components/MainTitle"
 import TermsAndConditions from "../components/TermsAndConditionsDialog"
+import AppNotificationPermission from "../components/Toasts/AppNotificationPermission"
 import { AccountsContext } from "../context/accounts"
 import { SettingsContext } from "../context/settings"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
@@ -118,14 +119,15 @@ function AllAccountsPage() {
   return (
     <Section top bottom brandColored noPadding style={{ height: "100vh" }}>
       <DialogBody top={headerContent}>
-        <Box margin="16px 0 0">
+        <VerticalLayout justifyContent="space-between" grow margin="16px 0 0">
           <AccountList
             accounts={accounts}
             testnet={networkSwitch === "testnet"}
             onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
             onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
           />
-        </Box>
+          <AppNotificationPermission />
+        </VerticalLayout>
       </DialogBody>
       <TermsAndConditions
         // Do not render T&Cs while loading settings; 99.9% chance we will unmount it immediately
