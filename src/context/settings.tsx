@@ -18,17 +18,19 @@ interface ContextType {
   biometricLock: boolean
   biometricAvailability: BiometricAvailability
   confirmToC: () => void
+  hideMemos: boolean
   ignoreSignatureRequest: (signatureRequestHash: string) => void
   ignoredSignatureRequests: string[]
   initialized: boolean
   multiSignature: boolean
   multiSignatureServiceURL: string
+  setSetting: (key: keyof Platform.SettingsData, value: any) => void
   showTestnet: boolean
-  hideMemos: boolean
   toggleBiometricLock: () => void
   toggleMultiSignature: () => void
   toggleTestnet: () => void
   toggleHideMemos: () => void
+  trustedServices: TrustedService[]
 }
 
 interface SettingsState extends Platform.SettingsData {
@@ -38,10 +40,11 @@ interface SettingsState extends Platform.SettingsData {
 const initialSettings: SettingsState = {
   agreedToTermsAt: undefined,
   biometricLock: false,
+  hideMemos: false,
   initialized: false,
   multisignature: false,
   testnet: false,
-  hideMemos: false
+  trustedServices: []
 }
 
 const initialIgnoredSignatureRequests: string[] = []
@@ -53,17 +56,19 @@ const SettingsContext = React.createContext<ContextType>({
   biometricLock: initialSettings.biometricLock,
   biometricAvailability: { available: false, enrolled: false },
   confirmToC: () => undefined,
+  hideMemos: initialSettings.hideMemos,
   ignoreSignatureRequest: () => undefined,
   ignoredSignatureRequests: initialIgnoredSignatureRequests,
   initialized: false,
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
+  setSetting: () => undefined,
   showTestnet: initialSettings.testnet,
-  hideMemos: initialSettings.hideMemos,
   toggleBiometricLock: () => undefined,
   toggleMultiSignature: () => undefined,
   toggleTestnet: () => undefined,
-  toggleHideMemos: () => undefined
+  toggleHideMemos: () => undefined,
+  trustedServices: initialSettings.trustedServices
 })
 
 export function SettingsProvider(props: Props) {
@@ -126,22 +131,30 @@ export function SettingsProvider(props: Props) {
       .catch(trackError)
   }
 
+  const setSetting = (key: keyof Platform.SettingsData, value: any) => {
+    const partial: Partial<Platform.SettingsData> = {}
+    partial[key] = value
+    updateSettings(partial)
+  }
+
   const contextValue: ContextType = {
     agreedToTermsAt: settings.agreedToTermsAt,
     biometricLock: settings.biometricLock,
     biometricAvailability,
     confirmToC,
+    hideMemos: settings.hideMemos,
     ignoreSignatureRequest,
     ignoredSignatureRequests,
     initialized: settings.initialized,
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
+    setSetting,
     showTestnet: settings.testnet,
-    hideMemos: settings.hideMemos,
     toggleBiometricLock,
     toggleMultiSignature,
     toggleTestnet,
-    toggleHideMemos
+    toggleHideMemos,
+    trustedServices: settings.trustedServices
   }
 
   return <SettingsContext.Provider value={contextValue}>{props.children}</SettingsContext.Provider>

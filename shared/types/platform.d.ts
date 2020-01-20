@@ -7,9 +7,10 @@ declare namespace Platform {
   export interface SettingsData {
     agreedToTermsAt?: string
     biometricLock: boolean
+    hideMemos: boolean
     multisignature: boolean
     testnet: boolean
-    hideMemos: boolean
+    trustedServices: TrustedService[]
   }
 }
 
