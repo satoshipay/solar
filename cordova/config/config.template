@@ -77,6 +77,14 @@
         <icon src="res/icon/ios/80.png" width="80" height="80" />
         <icon src="res/icon/ios/87.png" width="87" height="87" />
 
+        <!-- watchOS -->
+        <icon src="res/icon/ios/48.png" width="48" height="48" />
+        <icon src="res/icon/ios/55.png" width="55" height="55" />
+        <icon src="res/icon/ios/88.png" width="88" height="88" />
+        <icon src="res/icon/ios/172.png" width="172" height="172" />
+        <icon src="res/icon/ios/196.png" width="196" height="196" />
+        <icon src="res/icon/ios/216.png" width="216" height="216" />
+
         <!-- App store icon -->
         <icon src="res/icon/ios/1024.png" width="1024" height="1024" />
 
