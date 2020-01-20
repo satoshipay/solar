@@ -30,17 +30,19 @@ interface AssetItemProps {
   testnet: boolean
 }
 
-const AssetItem = React.memo(function AssetItem(props: AssetItemProps) {
-  const classes = useAssetItemStyles()
-  return (
-    <MenuItem value={stringifyAsset(props.asset)}>
-      <ListItemIcon className={classes.icon}>
-        <AssetLogo asset={props.asset} className={classes.logo} testnet={props.testnet} />
-      </ListItemIcon>
-      <ListItemText>{props.asset.getCode()}</ListItemText>
-    </MenuItem>
-  )
-})
+const AssetItem = React.memo(
+  React.forwardRef(function AssetItem(props: AssetItemProps, ref: React.Ref<HTMLLIElement>) {
+    const classes = useAssetItemStyles()
+    return (
+      <MenuItem {...props} ref={ref} value={stringifyAsset(props.asset)}>
+        <ListItemIcon className={classes.icon}>
+          <AssetLogo asset={props.asset} className={classes.logo} testnet={props.testnet} />
+        </ListItemIcon>
+        <ListItemText>{props.asset.getCode()}</ListItemText>
+      </MenuItem>
+    )
+  })
+)
 
 const useAssetSelectorStyles = makeStyles({
   helperText: {
@@ -76,17 +78,17 @@ function AssetSelector(props: AssetSelectorProps) {
   const classes = useAssetSelectorStyles()
 
   const onChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<{ name?: any; value: any }>, child: React.ComponentElement<AssetItemProps, any>) => {
       const assets = [Asset.native(), ...props.trustlines.map(balancelineToAsset)]
 
-      const matchingAsset = assets.find(asset => stringifyAsset(asset) === event.target.value)
+      const matchingAsset = assets.find(asset => asset.equals(child.props.asset))
 
       if (matchingAsset) {
         props.onChange(matchingAsset)
       } else {
         // tslint:disable-next-line no-console
         console.error(
-          `Invariant violation: Trustline with value ${event.target.value} selected, but no matching asset found.`
+          `Invariant violation: Trustline ${child.props.asset.getCode()} selected, but no matching asset found.`
         )
       }
     },
@@ -98,7 +100,7 @@ function AssetSelector(props: AssetSelectorProps) {
       autoFocus={props.autoFocus}
       helperText={props.helperText}
       label={props.label}
-      onChange={onChange}
+      onChange={onChange as any}
       placeholder="Select an asset"
       select
       style={{ flexShrink: 0, ...props.style }}
