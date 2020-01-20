@@ -1,4 +1,4 @@
-import { BrowserWindow, shell } from "electron"
+import { BrowserWindow, Menu, shell } from "electron"
 import isDev from "electron-is-dev"
 import path from "path"
 import URL from "url"
@@ -10,6 +10,12 @@ import * as protocolHandler from "./protocol-handler"
 import { Messages } from "./shared/ipc"
 
 export function createMainWindow() {
+  if (process.platform !== "darwin") {
+    // Need to set menu to null before creating the window
+    // See <https://github.com/electron/electron/issues/16521#issuecomment-458035634>
+    Menu.setApplicationMenu(null)
+  }
+
   const window = new BrowserWindow({
     width: 800,
     height: 600,
