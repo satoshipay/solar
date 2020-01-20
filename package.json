@@ -50,9 +50,12 @@
     "electron-is-dev": "^1.1.0",
     "electron-store": "^5.0.0",
     "history": "^4.10.1",
+    "i18next": "^19.0.3",
+    "i18next-browser-languagedetector": "^4.0.1",
     "isomorphic-fetch": "^2.2.1",
     "key-store": "^1.1.0",
     "nanoid": "^2.1.1",
+    "react-i18next": "^11.3.0",
     "stellar-sdk": "^3.3.0"
   },
   "devDependencies": {
