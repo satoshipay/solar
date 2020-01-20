@@ -141,6 +141,12 @@
           "shown": "Testnet accounts are shown"
         }
       }
+    },
+    "trusted-services": {
+      "text": {
+        "primary": "Manage Trusted Services",
+        "secondary": "Remove Trusted Services"
+      }
     }
   },
   "asset-details": {
