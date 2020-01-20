@@ -13,6 +13,7 @@ import { SignatureRequest } from "../lib/multisig-service"
 import { showNotification } from "../platform/notifications"
 import * as routes from "../routes"
 import { NetWorker } from "../worker-controller"
+import { formatBalance } from "./Account/AccountBalances"
 import { OfferDetailsString } from "./TransactionReview/Operations"
 
 type TradeEffect = ServerApi.EffectRecord & {
@@ -33,6 +34,8 @@ type TradeEffect = ServerApi.EffectRecord & {
 }
 
 const isTradeEffect = (effect: ServerApi.EffectRecord): effect is TradeEffect => effect.type === "trade"
+const isPaymentEffect = (effect: ServerApi.EffectRecord) =>
+  effect.type === "account_credited" || effect.type === "account_debited"
 
 function createEffectHandlers(
   router: ReturnType<typeof useRouter>,
@@ -71,6 +74,14 @@ function createEffectHandlers(
       })
 
       showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
+    },
+    async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
+      if (effect.type === "account_credited" && effect.account === account.publicKey) {
+        const title = `Received payment | ${account.name}`
+        const notificationBody = `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`
+
+        showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
+      }
     }
   }
 }
@@ -108,6 +119,8 @@ function DesktopNotifications() {
   useLiveAccountEffects(accounts, (account: Account, effect: ServerApi.EffectRecord) => {
     if (isTradeEffect(effect)) {
       effectHandlers.handleTradeEffect(account, effect).catch(trackError)
+    } else if (isPaymentEffect(effect)) {
+      effectHandlers.handlePaymentEffect(account, effect).catch(trackError)
     }
   })
 
