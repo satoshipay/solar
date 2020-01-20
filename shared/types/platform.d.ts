@@ -1,3 +1,8 @@
+interface TrustedService {
+  domain: string
+  signingKey: string
+}
+
 declare namespace Platform {
   export interface SettingsData {
     agreedToTermsAt?: string
@@ -7,6 +12,7 @@ declare namespace Platform {
     hideMemos: boolean
   }
 }
+
 declare namespace NodeJS {
   interface Process {
     browser?: boolean
