@@ -14,7 +14,7 @@ import { useLiveOrderbook } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { calculateSpread } from "../../lib/orderbook"
-import { balancelineToAsset } from "../../lib/stellar"
+import { balancelineToAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import { formatBalance, BalanceFormattingOptions } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import AssetSelector from "../Form/AssetSelector"
@@ -79,7 +79,6 @@ function TradingForm(props: Props) {
     primaryAmountString && isValidAmount(primaryAmountString) ? BigNumber(primaryAmountString) : BigNumber(0)
 
   const primaryBalance = primaryAsset ? findMatchingBalance(props.accountData.balances, primaryAsset) : undefined
-
   const secondaryBalance = secondaryAsset ? findMatchingBalance(props.accountData.balances, secondaryAsset) : undefined
 
   const updatePrice = (newPriceAmount: string) => {
@@ -116,13 +115,23 @@ function TradingForm(props: Props) {
     balance: "0"
   }
 
+  const minAccountBalance = getAccountMinimumBalance(props.accountData)
+
+  const spendablePrimaryBalance = primaryBalance
+    ? BigNumber(primaryBalance.balance).sub(primaryBalance.asset_type === "native" ? minAccountBalance : 0)
+    : BigNumber(0)
+
+  const spendableSecondaryBalance = secondaryBalance
+    ? BigNumber(secondaryBalance.balance).sub(secondaryBalance.asset_type === "native" ? minAccountBalance : 0)
+    : BigNumber(0)
+
   const maxPrimaryAmount =
     props.primaryAction === "buy"
-      ? secondaryBalance && effectivePrice.gt(0)
-        ? BigNumber(secondaryBalance.balance).div(effectivePrice)
+      ? spendableSecondaryBalance.gt(0) && effectivePrice.gt(0)
+        ? BigNumber(spendableSecondaryBalance).div(effectivePrice)
         : BigNumber(0)
-      : primaryBalance
-      ? BigNumber(primaryBalance.balance)
+      : spendablePrimaryBalance.gt(0)
+      ? BigNumber(spendablePrimaryBalance)
       : BigNumber(0)
 
   const isDisabled =
@@ -207,8 +216,8 @@ function TradingForm(props: Props) {
             error={
               primaryAmount.lt(0) ||
               (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
-              (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(primaryBalance.balance)) ||
-              (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
+              (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(spendablePrimaryBalance)) ||
+              (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(spendableSecondaryBalance))
             }
             inputProps={{
               pattern: "[0-9]*",
