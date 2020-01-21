@@ -59,6 +59,7 @@ function WithdrawalRequestForm(props: Props) {
         initialAsset={props.initialAsset}
         initialMethod={props.initialMethod}
         onSubmit={setStartFormValues}
+        testnet={props.testnet}
         transferInfos={transferInfos}
         withdrawableAssets={withdrawableAssets}
       />

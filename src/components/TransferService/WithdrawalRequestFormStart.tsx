@@ -38,6 +38,7 @@ interface WithdrawalRequestFormStartProps {
   initialAsset?: Asset
   initialMethod?: string
   onSubmit: (values: SubmitValues) => void
+  testnet: boolean
   transferInfos: AssetTransferInfos
   withdrawableAssets: Asset[]
 }
@@ -56,11 +57,12 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
   }
 
   const initialAsset = props.initialAsset || props.withdrawableAssets[0] || null
-  const methodNames = getMethodNames(initialAsset)
+  const initialMethod =
+    props.initialMethod || (getMethodNames(initialAsset).length === 1 ? getMethodNames(initialAsset)[0] : null)
 
   const [formValues, setFormValues] = React.useState<FormValues>({
     asset: initialAsset,
-    methodID: props.initialMethod || methodNames.length === 1 ? methodNames[0] : null
+    methodID: initialMethod
   })
 
   const setFormValue = (fieldName: string) => (
@@ -73,6 +75,7 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
   }
 
   const isDisabled = !formValues.asset || !formValues.methodID
+  const methodNames = formValues.asset ? getMethodNames(formValues.asset) : []
 
   const nonwithdrawableAssets = props.assets.filter(
     asset => !props.withdrawableAssets.some(withdrawable => withdrawable.equals(asset))
@@ -131,7 +134,8 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
           label={isTinyScreen ? "Asset" : "Asset to withdraw"}
           margin="normal"
           onChange={handleAssetSelection}
-          selected={formValues.asset || undefined}
+          testnet={props.testnet}
+          value={formValues.asset || undefined}
         >
           {props.withdrawableAssets.length === 0 ? (
             <MenuItem disabled value="">
