@@ -1,5 +1,7 @@
 import React from "react"
-import DeleteIcon from "@material-ui/icons/Delete"
+import Avatar from "@material-ui/core/Avatar"
+import CloudIcon from "@material-ui/icons/Cloud"
+import RemoveIcon from "@material-ui/icons/RemoveCircle"
 import IconButton from "@material-ui/core/IconButton"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -8,11 +10,8 @@ import ListItemText from "@material-ui/core/ListItemText"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { SettingsContext } from "../../context/settings"
-import { useIsMobile } from "../../hooks/userinterface"
+import { useStellarToml } from "../../hooks/stellar"
 import { ActionButton, ConfirmDialog } from "../Dialog/Generic"
-import { Address } from "../PublicKey"
-
-const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 
 function TrustedServiceList() {
   const { setSetting, trustedServices } = React.useContext(SettingsContext)
@@ -76,16 +75,18 @@ const useTrustedServiceListItemStyles = makeStyles({
     boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
     "&:focus": {
       backgroundColor: "#FFFFFF"
-    },
-    "&:hover": {
-      backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
     }
+  },
+  cloudAvatar: {
+    backgroundColor: "rgba(0, 0, 0, 0.54)"
+  },
+  logoAvatar: {
+    backgroundColor: "white"
   }
 })
 
 interface TrustedServiceListItemProps {
   index: number
-  onClick?: (event: React.MouseEvent, index: number) => void
   onDeleteClick?: (event: React.MouseEvent, index: number) => void
   trustedService: TrustedService
   style?: React.CSSProperties
@@ -93,20 +94,26 @@ interface TrustedServiceListItemProps {
 
 const TrustedServiceListItem = React.memo(function TrustedServiceListItem(props: TrustedServiceListItemProps) {
   const classes = useTrustedServiceListItemStyles()
-  const isSmallScreen = useIsMobile()
+
+  const stellarToml = useStellarToml(props.trustedService.domain)
+  const imageURL = stellarToml && stellarToml.DOCUMENTATION && stellarToml.DOCUMENTATION.ORG_LOGO
+  const orgName = stellarToml && stellarToml.DOCUMENTATION && stellarToml.DOCUMENTATION.ORG_NAME
 
   return (
-    <ListItem button className={classes.listItem} onClick={event => props.onClick && props.onClick(event, props.index)}>
+    <ListItem className={classes.listItem}>
       <ListItemIcon style={{ marginRight: 0 }}>
-        <div />
+        {imageURL ? (
+          <Avatar alt={name} className={classes.logoAvatar} src={imageURL} />
+        ) : (
+          <Avatar alt={name} className={classes.cloudAvatar}>
+            <CloudIcon />
+          </Avatar>
+        )}
       </ListItemIcon>
-      <ListItemText
-        primary={props.trustedService.domain}
-        secondary={<Address address={props.trustedService.signingKey} variant={isSmallScreen ? "short" : "full"} />}
-      />
+      <ListItemText primary={orgName ? orgName : props.trustedService.domain} secondary={props.trustedService.domain} />
       <ListItemIcon style={{ marginRight: 0 }}>
         <IconButton onClick={event => props.onDeleteClick && props.onDeleteClick(event, props.index)}>
-          <DeleteIcon />
+          <RemoveIcon />
         </IconButton>
       </ListItemIcon>
     </ListItem>
