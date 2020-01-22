@@ -37,17 +37,19 @@ function TrustedServiceList() {
   return (
     <>
       <List style={{ background: "transparent", paddingLeft: 0, paddingRight: 0 }}>
-        {trustedServices.map((service, index) => (
-          <TrustedServiceListItem
-            index={index}
-            key={service.domain}
-            onDeleteClick={() => {
-              setSelectedIndex(index)
-              setConfirmationPending(true)
-            }}
-            trustedService={service}
-          />
-        ))}
+        {trustedServices
+          .sort((a, b) => a.domain.localeCompare(b.domain))
+          .map((service, index) => (
+            <TrustedServiceListItem
+              index={index}
+              key={service.domain}
+              onDeleteClick={() => {
+                setSelectedIndex(index)
+                setConfirmationPending(true)
+              }}
+              trustedService={service}
+            />
+          ))}
         {trustedServices.length === 0 ? (
           <Typography style={{ opacity: 0.7, textAlign: "center" }}>(No trusted services)</Typography>
         ) : null}
