@@ -23,18 +23,18 @@ import { useWithdrawalState } from "./withdraw"
 
 const doNothing = () => undefined
 
-interface Props {
+type Props = {
   account: Account
   actionsRef: RefStateObject
   assets: Asset[]
   horizon: Server
   onSubmit: (createTx: () => Promise<Transaction>) => Promise<any>
   testnet: boolean
-}
+} & ReturnType<typeof useWithdrawalState>
 
 function WithdrawalDialogForm(props: Props) {
+  const { actions, state, withdrawalRequestPending, withdrawalResponsePending } = props
   const router = useRouter()
-  const { actions, state, withdrawalRequestPending, withdrawalResponsePending } = useWithdrawalState(props.account)
 
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const transferInfos = useAssetTransferServerInfos(props.assets, props.testnet)
@@ -96,14 +96,13 @@ function WithdrawalDialogForm(props: Props) {
         actionsRef={props.actionsRef}
         anchorResponse={state.transfer}
         asset={state.details.asset}
-        onCancel={actions.startOver}
         onSubmit={sendWithdrawalTx}
       />
     )
   } else if (state.step === "before-interactive-kyc") {
-    return <WithdrawalKYCRedirect meta={state.kyc} onCancel={actions.startOver} />
+    return <WithdrawalKYCRedirect meta={state.kyc} />
   } else if (state.step === "pending-kyc") {
-    return <TransferTransactionStatus onCancel={actions.startOver} transaction={state.transaction} />
+    return <TransferTransactionStatus transaction={state.transaction} />
   } else if (state.step === "initial" || state.step === "before-webauth" || state.step === "after-webauth") {
     const webauth = state.step === "before-webauth" && state.webauth ? state.webauth : undefined
     return (

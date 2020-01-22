@@ -1,14 +1,10 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
 import { DepositTransaction, TransferStatus, WithdrawalTransaction } from "@satoshipay/stellar-sep-6"
-import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, VerticalLayout } from "../Layout/Box"
 import { formatDuration } from "./formatters"
 
 interface TransferTransactionStatusProps {
-  onCancel: () => void
   transaction?: DepositTransaction | WithdrawalTransaction
 }
 
@@ -51,13 +47,6 @@ function TransferTransactionStatus(props: TransferTransactionStatusProps) {
       </VerticalLayout>
       <Box grow margin="24px 0 64px">
         {null}
-      </Box>
-      <Box>
-        <Button onClick={props.onCancel} variant="text">
-          <ButtonIconLabel label="Back" style={{ paddingRight: 8 }}>
-            <ChevronLeftIcon />
-          </ButtonIconLabel>
-        </Button>
       </Box>
     </VerticalLayout>
   )

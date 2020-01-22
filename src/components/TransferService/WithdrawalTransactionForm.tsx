@@ -20,7 +20,6 @@ interface Props {
   actionsRef: RefStateObject
   asset: Asset
   anchorResponse: WithdrawalSuccessResponse
-  onCancel: () => void
   onSubmit: (amount: BigNumber, asset: Asset, response: WithdrawalSuccessResponse) => void
 }
 
@@ -101,7 +100,6 @@ function WithdrawalTransactionForm(props: Props) {
         <HorizontalLayout margin="24px 0 64px">{null}</HorizontalLayout>
         <Portal target={props.actionsRef.element}>
           <DialogActionsBox>
-            <ActionButton onClick={props.onCancel}>Cancel</ActionButton>
             <ActionButton
               disabled={isDisabled}
               form={formID}

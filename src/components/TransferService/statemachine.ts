@@ -10,53 +10,59 @@ import {
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import { Asset, Transaction } from "stellar-sdk"
 
-interface TransferDetails {
+interface TransferBasics {
   asset: Asset
+  method: string
+}
+
+interface TransferDetails {
   formValues: {
     [fieldName: string]: string
   }
-  method: string
-  transferServer: TransferServer
+}
+
+interface DetailedState {
+  basics: TransferBasics
+  details: TransferDetails
 }
 
 export interface InitialState {
   step: "initial"
-  details?: Partial<TransferDetails>
+  basics?: TransferBasics
 }
 
-export interface BeforeWebauthState {
+export interface AfterMethodSelectionState {
+  step: "after-method-selection"
+  basics: TransferBasics
+}
+
+export interface BeforeWebauthState extends DetailedState {
   step: "before-webauth"
-  details: TransferDetails
   webauth?: WebauthData & { transaction: Transaction }
 }
 
-export interface AfterWebauthState {
+export interface AfterWebauthState extends DetailedState {
   step: "after-webauth"
   authToken?: string
-  details: TransferDetails
 }
 
-export interface BeforeKYCState {
+export interface BeforeKYCState extends DetailedState {
   step: "before-interactive-kyc"
-  details: TransferDetails
   kyc: KYCInteractiveResponse
 }
 
-export interface PendingKYCState {
+export interface PendingKYCState extends DetailedState {
   step: "pending-kyc"
-  details: TransferDetails
   transaction?: DepositTransaction | WithdrawalTransaction
 }
 
-export interface AfterDeniedKYCState {
+export interface AfterDeniedKYCState extends DetailedState {
   step: "after-denied-kyc"
-  details: TransferDetails
 }
 
 export interface AfterSuccessfulKYC<SuccessResponse extends DepositSuccessResponse | WithdrawalSuccessResponse> {
   step: "after-successful-kyc"
   authToken?: string
-  details: TransferDetails
   transfer: SuccessResponse
 }
 

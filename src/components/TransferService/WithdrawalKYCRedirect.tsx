@@ -2,15 +2,12 @@ import React from "react"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
 import { KYCInteractiveResponse } from "@satoshipay/stellar-sep-6"
 import { openLink } from "../../platform/links"
-import ButtonIconLabel from "../ButtonIconLabel"
 import { Box, VerticalLayout } from "../Layout/Box"
 
 interface KYCRedirectProps {
   meta: KYCInteractiveResponse
-  onCancel: () => void
   onRedirect?: () => void
 }
 
@@ -42,13 +39,6 @@ function WithdrawalKYCRedirect(props: KYCRedirectProps) {
         </VerticalLayout>
         <Box grow margin="48px 0 40px" textAlign="center">
           {isPending ? <CircularProgress /> : null}
-        </Box>
-        <Box>
-          <Button onClick={props.onCancel} variant="text">
-            <ButtonIconLabel label="Back" style={{ paddingRight: 8 }}>
-              <ChevronLeftIcon />
-            </ButtonIconLabel>
-          </Button>
         </Box>
       </VerticalLayout>
     </form>

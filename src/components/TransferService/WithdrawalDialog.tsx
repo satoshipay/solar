@@ -14,6 +14,7 @@ import withFallback from "../Lazy/withFallback"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import ViewLoading from "../ViewLoading"
+import { useWithdrawalState } from "./withdraw"
 
 const WithdrawalDialogForm = withFallback(React.lazy(() => import("./WithdrawalDialogForm")), <ViewLoading />)
 
@@ -27,6 +28,15 @@ interface Props {
 
 const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
   const dialogActionsRef = useDialogActions()
+  const { actions, state, withdrawalRequestPending, withdrawalResponsePending } = useWithdrawalState(props.account)
+
+  const handleBackClick = React.useCallback(() => {
+    if (state.step === "initial") {
+      props.onClose()
+    } else {
+      actions.startOver()
+    }
+  }, [actions, props.onClose, state])
 
   const handleSubmit = React.useCallback(
     async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
@@ -52,7 +62,7 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
             title={
               <span>Withdraw funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>
             }
-            onBack={props.onClose}
+            onBack={handleBackClick}
           />
           <ScrollableBalances account={props.account} compact />
         </>
@@ -62,11 +72,15 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
       <Box margin="24px 0 0">{null}</Box>
       <WithdrawalDialogForm
         account={props.account}
+        actions={actions}
         actionsRef={dialogActionsRef}
         assets={trustedAssets.filter(asset => !asset.isNative())}
         horizon={props.horizon}
         onSubmit={handleSubmit}
+        state={state}
         testnet={props.account.testnet}
+        withdrawalRequestPending={withdrawalRequestPending}
+        withdrawalResponsePending={withdrawalResponsePending}
       />
     </DialogBody>
   )
