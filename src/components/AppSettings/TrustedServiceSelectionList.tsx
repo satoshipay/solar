@@ -13,7 +13,20 @@ import { SettingsContext } from "../../context/settings"
 import { useStellarToml } from "../../hooks/stellar"
 import { ActionButton, ConfirmDialog } from "../Dialog/Generic"
 
+const useTrustedServiceListStyles = makeStyles({
+  list: {
+    background: "transparent",
+    paddingBottom: 16
+  },
+  typography: {
+    opacity: 0.7,
+    textAlign: "center"
+  }
+})
+
 function TrustedServiceList() {
+  const classes = useTrustedServiceListStyles()
+
   const { setSetting, trustedServices } = React.useContext(SettingsContext)
   const [confirmationPending, setConfirmationPending] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(-1)
@@ -36,7 +49,7 @@ function TrustedServiceList() {
 
   return (
     <>
-      <List style={{ background: "transparent", paddingLeft: 0, paddingRight: 0 }}>
+      <List className={classes.list}>
         {trustedServices
           .sort((a, b) => a.domain.localeCompare(b.domain))
           .map((service, index) => (
@@ -51,7 +64,7 @@ function TrustedServiceList() {
             />
           ))}
         {trustedServices.length === 0 ? (
-          <Typography style={{ opacity: 0.7, textAlign: "center" }}>(No trusted services)</Typography>
+          <Typography className={classes.typography}>(No trusted services)</Typography>
         ) : null}
       </List>
       <ConfirmDialog
@@ -74,9 +87,14 @@ function TrustedServiceList() {
 const useTrustedServiceListItemStyles = makeStyles({
   listItem: {
     background: "#FFFFFF",
-    boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-    "&:focus": {
-      backgroundColor: "#FFFFFF"
+    boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.1)",
+    "&:first-child": {
+      borderTopLeftRadius: 8,
+      borderTopRightRadius: 8
+    },
+    "&:last-child": {
+      borderBottomLeftRadius: 8,
+      borderBottomRightRadius: 8
     }
   },
   cloudAvatar: {
