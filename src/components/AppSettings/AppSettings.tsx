@@ -2,6 +2,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
+import ListItemIcon from "@material-ui/core/ListItemIcon"
+import { makeStyles } from "@material-ui/core"
 import Switch from "@material-ui/core/Switch"
 import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
 import FingerprintIcon from "@material-ui/icons/Fingerprint"
@@ -12,12 +14,11 @@ import TrustIcon from "@material-ui/icons/VerifiedUser"
 import { AccountsContext } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
-import * as routes from "../../routes"
-import { matchesRoute } from "../../lib/routes"
 import { FullscreenDialogTransition } from "../../theme"
+import { matchesRoute } from "../../lib/routes"
+import * as routes from "../../routes"
 import AppSettingsItem from "./AppSettingsItem"
 import ManageTrustedServicesDialog from "./ManageTrustedServicesDialog"
-import { ListItemIcon } from "@material-ui/core"
 
 interface SettingsToggleProps {
   checked: boolean
@@ -53,7 +54,25 @@ function SettingsDialogs() {
   )
 }
 
+const useAppSettingsStyles = makeStyles({
+  caret: {
+    color: "rgba(0, 0, 0, 0.35)",
+    fontSize: 48,
+    justifyContent: "center",
+    marginRight: -8,
+    width: 48
+  },
+  icon: {
+    fontSize: 28,
+    justifyContent: "center",
+    marginRight: 4,
+    width: 28
+  }
+})
+
 function AppSettings() {
+  const classes = useAppSettingsStyles()
+
   const isSmallScreen = useIsMobile()
   const { t } = useTranslation()
   const router = useRouter()
@@ -78,7 +97,7 @@ function AppSettings() {
                 onChange={settings.toggleBiometricLock}
               />
             }
-            icon={<FingerprintIcon style={{ fontSize: "100%" }} />}
+            icon={<FingerprintIcon className={classes.icon} />}
             onClick={settings.biometricAvailability.enrolled ? settings.toggleBiometricLock : undefined}
             primaryText={t("app-settings.biometric-lock.text.primary")}
             secondaryText={
@@ -98,7 +117,7 @@ function AppSettings() {
               onChange={settings.toggleTestnet}
             />
           }
-          icon={<TestnetIcon style={{ fontSize: "100%" }} />}
+          icon={<TestnetIcon className={classes.icon} />}
           onClick={hasTestnetAccount ? undefined : settings.toggleTestnet}
           primaryText="Show Testnet Accounts"
           secondaryText={
@@ -111,7 +130,7 @@ function AppSettings() {
         />
         <AppSettingsItem
           actions={<SettingsToggle checked={!settings.hideMemos} onChange={settings.toggleHideMemos} />}
-          icon={<MessageIcon style={{ fontSize: "100%" }} />}
+          icon={<MessageIcon className={classes.icon} />}
           onClick={settings.toggleHideMemos}
           primaryText={t("app-settings.memo.text.primary")}
           secondaryText={
@@ -122,7 +141,7 @@ function AppSettings() {
         />
         <AppSettingsItem
           actions={<SettingsToggle checked={settings.multiSignature} onChange={settings.toggleMultiSignature} />}
-          icon={<GroupIcon style={{ fontSize: "100%" }} />}
+          icon={<GroupIcon className={classes.icon} />}
           onClick={settings.toggleMultiSignature}
           primaryText={t("app-settings.multi-sig.text.primary")}
           secondaryText={
@@ -133,11 +152,11 @@ function AppSettings() {
         />
         <AppSettingsItem
           actions={
-            <ListItemIcon>
-              <ArrowRightIcon style={{ fontSize: "100%" }} />
+            <ListItemIcon className={classes.caret}>
+              <ArrowRightIcon className={classes.caret} />
             </ListItemIcon>
           }
-          icon={<TrustIcon style={{ fontSize: "100%" }} />}
+          icon={<TrustIcon className={classes.icon} />}
           onClick={navigateToTrustedServices}
           primaryText={t("app-settings.trusted-services.text.primary")}
           secondaryText={t("app-settings.trusted-services.text.secondary")}
