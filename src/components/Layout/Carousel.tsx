@@ -11,6 +11,7 @@ const useCarouselStyles = makeStyles({
   sledge: {
     display: "flex",
     height: "100%",
+    justifyContent: "flex-start",
     overflowX: "hidden",
     overflowY: "auto"
   },
