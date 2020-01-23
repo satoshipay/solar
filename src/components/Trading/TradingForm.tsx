@@ -69,6 +69,41 @@ const useStyles = makeStyles({
   }
 })
 
+const prepareValidateFormFields = (props: Props, secondaryAmount: BigNumber, defaultPrice: string) => (
+  values: TradingFormValues
+) => {
+  const errors: FormikErrors<TradingFormValues> = {}
+
+  const { manualPrice, primaryAmountString, primaryAsset, secondaryAsset } = values
+
+  const primaryAmount =
+    primaryAmountString && isValidAmount(primaryAmountString) ? BigNumber(primaryAmountString) : BigNumber(0)
+
+  const primaryBalance = primaryAsset ? findMatchingBalance(props.accountData.balances, primaryAsset) : undefined
+  const secondaryBalance = secondaryAsset ? findMatchingBalance(props.accountData.balances, secondaryAsset) : undefined
+
+  if (!primaryAsset) {
+    errors.primaryAsset = "No asset selected."
+  }
+
+  if (!primaryAmountString) {
+    errors.primaryAmountString = "No amount specified!"
+  } else if (
+    primaryAmount.lt(0) ||
+    (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
+    (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(primaryBalance.balance)) ||
+    (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
+  ) {
+    errors.primaryAmountString = "Invalid amount specified!"
+  }
+
+  if ((manualPrice && (!isValidAmount(manualPrice) || BigNumber(manualPrice).eq(0))) || BigNumber(defaultPrice).eq(0)) {
+    errors.manualPrice = "Invalid Price."
+  }
+
+  return errors
+}
+
 interface TradingFormValues {
   primaryAsset: Asset | undefined
   primaryAmountString: string
@@ -105,33 +140,7 @@ function TradingForm(props: Props) {
       manualPrice: undefined,
       priceMode: "secondary"
     },
-    validate(values) {
-      const errors: FormikErrors<TradingFormValues> = {}
-
-      if (!values.primaryAsset) {
-        errors.primaryAsset = "No asset selected."
-      }
-
-      if (!values.primaryAmountString) {
-        errors.primaryAmountString = "No amount specified!"
-      } else if (
-        primaryAmount.lt(0) ||
-        (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
-        (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(primaryBalance.balance)) ||
-        (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
-      ) {
-        errors.primaryAmountString = "Invalid amount specified!"
-      }
-
-      if (
-        (values.manualPrice && (!isValidAmount(values.manualPrice) || BigNumber(values.manualPrice).eq(0))) ||
-        BigNumber(defaultPrice).eq(0)
-      ) {
-        errors.manualPrice = "Invalid Price."
-      }
-
-      return errors
-    },
+    validate: values => customValidate(values),
     async onSubmit() {
       try {
         const tx = await createTransaction(
@@ -201,6 +210,9 @@ function TradingForm(props: Props) {
   const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
   const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
 
+  // prepare validation here because the necessary variables are initialized now
+  const customValidate = prepareValidateFormFields(props, secondaryAmount, defaultPrice)
+
   const minAccountBalance = getAccountMinimumBalance(props.accountData)
 
   const spendablePrimaryBalance = primaryBalance
@@ -220,9 +232,10 @@ function TradingForm(props: Props) {
       ? BigNumber(spendablePrimaryBalance)
       : BigNumber(0)
 
-  const setPrimaryAmountToMax = React.useCallback(() => {
-    formik.setFieldValue("primaryAmountString", maxPrimaryAmount.toFixed(7))
-  }, [])
+  const setPrimaryAmountToMax = React.useCallback(
+    () => formik.setFieldValue("primaryAmountString", maxPrimaryAmount.toFixed(7)),
+    []
+  )
 
   const handlePrimaryAssetChange = React.useCallback(asset => formik.setFieldValue("primaryAsset", asset), [])
   const handlePrimaryAmountStringChange = React.useCallback(
