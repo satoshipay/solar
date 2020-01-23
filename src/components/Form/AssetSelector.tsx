@@ -73,6 +73,7 @@ interface AssetSelectorProps {
   helperText?: TextFieldProps["helperText"]
   label?: TextFieldProps["label"]
   minWidth?: number | string
+  name?: string
   onBlur?: (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   onChange: (asset: Asset) => void
   style?: React.CSSProperties
@@ -108,6 +109,7 @@ function AssetSelector(props: AssetSelectorProps) {
       error={Boolean(props.inputError)}
       helperText={props.helperText}
       label={props.inputError ? props.inputError : props.label}
+      name={props.name}
       onBlur={props.onBlur}
       onChange={onChange as any}
       placeholder="Select an asset"

@@ -264,6 +264,7 @@ function TradingForm(props: Props) {
               }
               label={props.primaryAction === "buy" ? "You buy" : "You sell"}
               minWidth={75}
+              name="primaryAsset"
               onBlur={formik.handleBlur}
               onChange={handlePrimaryAssetChange}
               style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
@@ -318,6 +319,7 @@ function TradingForm(props: Props) {
             <AssetSelector
               label={props.primaryAction === "buy" ? "Spend" : "Receive"}
               minWidth={75}
+              name="secondaryAsset"
               onBlur={formik.handleBlur}
               onChange={handleSecondaryAssetChange}
               style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
