@@ -141,6 +141,7 @@ function TradingForm(props: Props) {
       priceMode: "secondary"
     },
     validate: values => customValidate(values),
+    validateOnChange: false, // should not validate on change as the values will not be up to date
     async onSubmit() {
       try {
         const tx = await createTransaction(
