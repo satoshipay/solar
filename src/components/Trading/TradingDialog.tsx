@@ -11,7 +11,7 @@ import { parseAssetID, stringifyAsset } from "../../lib/stellar"
 import * as routes from "../../routes"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import { HorizontalLayout } from "../Layout/Box"
+import Carousel from "../Layout/Carousel"
 import ScrollableBalances from "../Lazy/ScrollableBalances"
 import MainTitle from "../MainTitle"
 import Portal from "../Portal"
@@ -78,49 +78,26 @@ function TradingDialog(props: TradingDialogProps) {
     [preselectedAsset, props.account, router.history]
   )
 
-  const mainContentStageStyle: React.CSSProperties = {
-    flexBasis: "100%",
-    minWidth: "100%",
-    width: "100%"
-  }
-
   const MainContent = React.useMemo(
     () => (
-      <HorizontalLayout overflowX="hidden" width="100%">
-        <div
-          style={{
-            flexBasis: "0",
-            flexGrow: 0,
-            marginLeft: primaryAction ? "-100%" : "0",
-            transition: "margin-left .3s"
-          }}
-        />
+      <Carousel current={primaryAction ? 1 : 0}>
         <MainActionSelection
           onSelectBuy={() => selectPrimaryAction("buy")}
           onSelectSell={() => selectPrimaryAction("sell")}
-          style={{
-            ...mainContentStageStyle,
-            alignItems: "flex-start",
-            margin: "48px 0 24px"
-          }}
+          style={{ margin: "48px 0 24px" }}
         />
-        {primaryAction ? (
-          <React.Suspense fallback={<ViewLoading />}>
-            <TradingForm
-              account={props.account}
-              accountData={accountData}
-              dialogActionsRef={dialogActionsRef}
-              initialPrimaryAsset={preselectedAsset}
-              primaryAction={primaryAction}
-              sendTransaction={props.sendTransaction}
-              style={mainContentStageStyle}
-              trustlines={trustlines}
-            />
-          </React.Suspense>
-        ) : (
-          <div style={mainContentStageStyle} />
-        )}
-      </HorizontalLayout>
+        <React.Suspense fallback={<ViewLoading />}>
+          <TradingForm
+            account={props.account}
+            accountData={accountData}
+            dialogActionsRef={dialogActionsRef}
+            initialPrimaryAsset={preselectedAsset}
+            primaryAction={primaryAction || "buy"}
+            sendTransaction={props.sendTransaction}
+            trustlines={trustlines}
+          />
+        </React.Suspense>
+      </Carousel>
     ),
     [dialogActionsRef, primaryAction, selectPrimaryAction, trustlines]
   )
