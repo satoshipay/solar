@@ -376,6 +376,8 @@ function TradingForm(props: Props) {
                   formik.errors.manualPrice && formik.touched.manualPrice ? formik.errors.manualPrice : undefined
                 }
                 manualPrice={manualPrice !== undefined ? manualPrice : defaultPrice}
+                name="manualPrice"
+                onBlur={formik.handleBlur}
                 onChange={handleManualPriceChange}
                 onSetPriceDenotedIn={handlePriceModeChange}
                 price={effectivePrice}

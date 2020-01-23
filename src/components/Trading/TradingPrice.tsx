@@ -9,7 +9,8 @@ import TextField from "@material-ui/core/TextField"
 interface TradingPriceProps {
   inputError?: string
   manualPrice?: string
-  onBlur?: () => void
+  name?: string
+  onBlur?: (eventOrString: any) => void | ((e: any) => void)
   onChange: (priceString: string) => void
   onSetPriceDenotedIn: (denotedIn: "primary" | "secondary") => void
   price: BigNumber
@@ -52,6 +53,7 @@ function TradingPrice(props: TradingPriceProps) {
       InputProps={{ endAdornment }}
       error={Boolean(props.inputError)}
       label={props.inputError ? props.inputError : "Price (limit)"}
+      name={props.name}
       onBlur={props.onBlur}
       onChange={event => props.onChange(event.target.value)}
       onFocus={props.selectOnFocus ? event => event.target.select() : undefined}
