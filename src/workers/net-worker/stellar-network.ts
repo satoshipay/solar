@@ -1,5 +1,6 @@
 import "eventsource"
-import { map, Observable } from "observable-fns"
+import throttle from "lodash.throttle"
+import { flatMap, map, multicast, Observable } from "observable-fns"
 import PromiseQueue from "p-queue"
 import qs from "qs"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
@@ -206,22 +207,26 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
           return String(new URL(`/accounts/${accountID}/effects?${qs.stringify(query)}`, horizonURL))
         }
 
-        return new Observable<ServerApi.EffectRecord>(observer => {
-          return createReconnectingSSE(createURL, {
-            onMessage(message) {
-              const effect: ServerApi.EffectRecord = JSON.parse(message.data)
-              latestCursor = effect.paging_token
-              observer.next(effect)
+        return multicast(
+          new Observable<ServerApi.EffectRecord>(observer => {
+            return createReconnectingSSE(createURL, {
+              onMessage(message) {
+                const effect: ServerApi.EffectRecord = JSON.parse(message.data)
 
-              if (effect.type === "account_removed" && effect.account === accountID) {
-                observer.complete()
+                // Don't update latestCursor cursor here – if we do it too early it might cause
+                // shouldApplyUpdate() to return false, since it compares the new effect with itself
+                observer.next(effect)
+
+                if (effect.type === "account_removed" && effect.account === accountID) {
+                  observer.complete()
+                }
+              },
+              onUnexpectedError(error) {
+                observer.error(error)
               }
-            },
-            onUnexpectedError(error) {
-              observer.error(error)
-            }
+            })
           })
-        })
+        )
       }
     },
     serviceID,
@@ -287,45 +292,60 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
 export const subscribeToAccount = cachify(accountSubscriptionCache, subscribeToAccountUncached, createAccountCacheKey)
 
 function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: string) {
-  const serviceID = getServiceID(horizonURL)
-
-  let latestCreatedAt: string | undefined
   let latestCursor: string | undefined
 
-  const fetchUpdate = async () => {
+  const fetchInitial = async () => {
     const page = await fetchAccountTransactions(horizonURL, accountID, {
-      cursor: latestCursor,
-      limit: 15,
+      limit: 1,
       order: "desc"
     })
-    return page._embedded.records
+    const latestTxs = page._embedded.records
+
+    if (latestTxs.length > 0) {
+      latestCursor = latestTxs[0].paging_token
+    }
   }
 
-  return subscribeToUpdatesAndPoll<Horizon.TransactionResponse[]>(
-    {
-      async applyUpdate(update) {
-        const prevLatestCreatedAt = latestCreatedAt
-
-        if (update.length > 0) {
-          latestCreatedAt = max(update.map(tx => tx.created_at), "0")
-          latestCursor = update.find(tx => tx.created_at === latestCreatedAt)!.paging_token
-        }
-        return update.filter(tx => !prevLatestCreatedAt || tx.created_at > prevLatestCreatedAt)
-      },
-      fetchUpdate,
-      async init() {
-        await waitForAccountData(horizonURL, accountID)
-        return fetchUpdate()
-      },
-      shouldApplyUpdate(update) {
-        return update.length > 0 && (!latestCreatedAt || update[0].created_at > latestCreatedAt)
-      },
-      subscribeToUpdates() {
-        return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
+  const fetchLatestTxs = throttle(
+    async () => {
+      if (latestCursor) {
+        const page = await fetchAccountTransactions(horizonURL, accountID, { cursor: latestCursor, limit: 10 })
+        return [page, "asc"] as const
+      } else {
+        const page = await fetchAccountTransactions(horizonURL, accountID, { limit: 10, order: "desc" })
+        return [page, "desc"] as const
       }
     },
-    serviceID
-  ).flatMap((txs: Horizon.TransactionResponse[]) => Observable.from(txs))
+    200,
+    { leading: true, trailing: true }
+  )
+
+  fetchInitial().catch(error => {
+    // tslint:disable-next-line no-console
+    console.error(error)
+  })
+
+  return multicast(
+    subscribeToAccountEffects(horizonURL, accountID).pipe(
+      flatMap(async function*(): AsyncIterableIterator<Horizon.TransactionResponse> {
+        for (let i = 0; i < 3; i++) {
+          const [page, order] = await fetchLatestTxs()
+          const newTxs = order === "asc" ? page._embedded.records : page._embedded.records.reverse()
+
+          yield* newTxs
+
+          if (newTxs.length > 0) {
+            const latestTx = newTxs[newTxs.length - 1]
+            latestCursor = latestTx.paging_token
+          }
+
+          // There might be race conditions between the different horizon endpoints
+          // Wait 350ms, then fetch again, in case the previous fetch didn't return the latest txs yet
+          await delay(350)
+        }
+      })
+    )
+  )
 }
 
 export const subscribeToAccountTransactions = cachify(

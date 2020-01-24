@@ -81,32 +81,28 @@ export function subscribeToUpdatesAndPoll<ValueT, UpdateT = ValueT>(
         }
       }
 
-      const fetchAndApplyUpdate = throttle(
-        async (streamedUpdate?: UpdateT, retry: number = 0): Promise<void> => {
+      const fetchAndApplyUpdate = async (streamedUpdate?: UpdateT, retry: number = 0): Promise<void> => {
+        try {
+          let update: UpdateT | undefined
+
           try {
-            let update: UpdateT | undefined
-
-            try {
-              update = await implementation.fetchUpdate(streamedUpdate)
-            } catch (error) {
-              return handleConnectionError(error)
-            }
-
-            if (update && implementation.shouldApplyUpdate(update)) {
-              const applied = await implementation.applyUpdate(update)
-              observer.next(applied)
-            } else if (retryFetchOnNoUpdate && retry < 5) {
-              // tslint:disable-next-line no-bitwise
-              await delay(500 * (1 << retry))
-              return fetchAndApplyUpdate(streamedUpdate, retry + 1)
-            }
+            update = await implementation.fetchUpdate(streamedUpdate)
           } catch (error) {
-            handleUnexpectedError(error)
+            return handleConnectionError(error)
           }
-        },
-        250,
-        { leading: true, trailing: true }
-      )
+
+          if (update && implementation.shouldApplyUpdate(update)) {
+            const applied = await implementation.applyUpdate(update)
+            observer.next(applied)
+          } else if (retryFetchOnNoUpdate && retry < 5) {
+            // tslint:disable-next-line no-bitwise
+            await delay(500 * (1 << retry))
+            return fetchAndApplyUpdate(streamedUpdate, retry + 1)
+          }
+        } catch (error) {
+          handleUnexpectedError(error)
+        }
+      }
 
       const interval = createIntervalRunner(() => {
         if (navigator.onLine !== false) {
