@@ -1,4 +1,3 @@
-import throttle from "lodash.throttle"
 import { multicast, Observable, Subject, Subscription } from "observable-fns"
 import { whenBackOnline } from "../../lib/stream"
 import { raiseConnectionError, ServiceID } from "../net-worker/errors"
