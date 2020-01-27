@@ -37,14 +37,37 @@ interface CarouselProps {
 
 function Carousel(props: CarouselProps) {
   const classes = useCarouselStyles(props)
+
+  // workaround to prevent misalignment of children on initial render
+  const refs: Array<React.RefObject<HTMLDivElement>> = props.children.map(() => React.createRef<HTMLDivElement>())
+  React.useEffect(() => {
+    refs.forEach((ref, index) => {
+      if (ref.current) {
+        ref.current.style.visibility = index === props.current ? "visible" : "hidden"
+      }
+    })
+
+    setTimeout(() => {
+      refs.forEach(ref => {
+        if (ref.current) {
+          ref.current.style.visibility = "visible"
+        }
+      })
+    }, 0)
+  }, [props.current])
+
   return (
     <div className={classes.root}>
       <div className={classes.sledge}>
         {props.children.map((content, index) => (
           <div
+            ref={refs[index]}
             key={index}
             className={[classes.slide, index === props.current ? classes.active : ""].join(" ")}
-            style={{ flex: "0 0 100%", transform: `translateX(${-100 * props.current}%)` }}
+            style={{
+              flex: "0 0 100%",
+              transform: `translateX(${-100 * props.current}%)`
+            }}
           >
             {content}
           </div>
