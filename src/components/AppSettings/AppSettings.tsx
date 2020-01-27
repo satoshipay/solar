@@ -1,6 +1,5 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import { makeStyles } from "@material-ui/core"
@@ -14,9 +13,9 @@ import TrustIcon from "@material-ui/icons/VerifiedUser"
 import { AccountsContext } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
-import { FullscreenDialogTransition } from "../../theme"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
+import Carousel from "../Layout/Carousel"
 import AppSettingsItem from "./AppSettingsItem"
 import ManageTrustedServicesDialog from "./ManageTrustedServicesDialog"
 
@@ -42,16 +41,11 @@ function SettingsDialogs() {
   const showManageTrustedServices = matchesRoute(router.location.pathname, routes.manageTrustedServices())
   const navigateToSettings = React.useCallback(() => router.history.push(routes.settings()), [router.history])
 
-  return (
-    <Dialog
-      fullScreen
-      open={showManageTrustedServices}
-      onClose={navigateToSettings}
-      TransitionComponent={FullscreenDialogTransition}
-    >
-      <ManageTrustedServicesDialog onClose={navigateToSettings} />
-    </Dialog>
-  )
+  const ShownDialog = React.useMemo(() => {
+    return showManageTrustedServices ? <ManageTrustedServicesDialog onClose={navigateToSettings} /> : <></>
+  }, [showManageTrustedServices, navigateToSettings])
+
+  return ShownDialog
 }
 
 const useAppSettingsStyles = makeStyles({
@@ -77,6 +71,8 @@ function AppSettings() {
   const { t } = useTranslation()
   const router = useRouter()
 
+  const showSettingsOverview = matchesRoute(router.location.pathname, routes.settings(), true)
+
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
 
@@ -86,7 +82,7 @@ function AppSettings() {
   ])
 
   return (
-    <>
+    <Carousel current={showSettingsOverview ? 0 : 1}>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
         {settings.biometricAvailability.available ? (
           <AppSettingsItem
@@ -163,7 +159,7 @@ function AppSettings() {
         />
       </List>
       <SettingsDialogs />
-    </>
+    </Carousel>
   )
 }
 
