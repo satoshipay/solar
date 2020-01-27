@@ -7,6 +7,7 @@ import { Box, VerticalLayout } from "../components/Layout/Box"
 import MainTitle from "../components/MainTitle"
 import { Section } from "../components/Layout/Page"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
+import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
 
 // tslint:disable-next-line
@@ -15,6 +16,14 @@ const pkg = require("../../package.json")
 function SettingsPage() {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+
+  const showSettingsOverview = matchesRoute(router.location.pathname, routes.settings(), true)
+
+  const navigateToAllAccounts = React.useCallback(() => {
+    router.history.push(routes.allAccounts())
+  }, [router.history])
+
+  const navigateToSettingsOverview = React.useCallback(() => router.history.push(routes.settings()), [router.history])
 
   const headerCard = React.useMemo(
     () => (
@@ -28,7 +37,7 @@ function SettingsPage() {
       >
         <CardContent style={{ padding: isSmallScreen ? 8 : undefined, paddingBottom: 8 }}>
           <MainTitle
-            onBack={() => router.history.push(routes.allAccounts())}
+            onBack={showSettingsOverview ? navigateToAllAccounts : navigateToSettingsOverview}
             title="Settings"
             titleColor="inherit"
             style={{ marginTop: -12, marginLeft: 0 }}

@@ -39,11 +39,10 @@ function SettingsDialogs() {
   const router = useRouter()
 
   const showManageTrustedServices = matchesRoute(router.location.pathname, routes.manageTrustedServices())
-  const navigateToSettings = React.useCallback(() => router.history.push(routes.settings()), [router.history])
 
   const ShownDialog = React.useMemo(() => {
-    return showManageTrustedServices ? <ManageTrustedServicesDialog onClose={navigateToSettings} /> : <></>
-  }, [showManageTrustedServices, navigateToSettings])
+    return showManageTrustedServices ? <ManageTrustedServicesDialog /> : <></>
+  }, [showManageTrustedServices])
 
   return ShownDialog
 }
