@@ -33,8 +33,10 @@ interface AssetItemProps {
 const AssetItem = React.memo(
   React.forwardRef(function AssetItem(props: AssetItemProps, ref: React.Ref<HTMLLIElement>) {
     const classes = useAssetItemStyles()
+    const { testnet, ...reducedProps } = props
+
     return (
-      <MenuItem {...props} ref={ref} value={stringifyAsset(props.asset)}>
+      <MenuItem {...reducedProps} ref={ref} value={stringifyAsset(props.asset)}>
         <ListItemIcon className={classes.icon}>
           <AssetLogo asset={props.asset} className={classes.logo} testnet={props.testnet} />
         </ListItemIcon>
