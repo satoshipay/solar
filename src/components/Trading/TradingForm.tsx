@@ -2,10 +2,14 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, Horizon, Transaction, Operation } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import ExpansionPanel from "@material-ui/core/ExpansionPanel"
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -62,6 +66,7 @@ function TradingForm(props: Props) {
   const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
   const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
   const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
+  const [expanded, setExpanded] = React.useState(false)
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
@@ -200,7 +205,7 @@ function TradingForm(props: Props) {
         shrink={0}
         width="100%"
       >
-        <HorizontalLayout>
+        <HorizontalLayout margin="8px 0">
           <AssetSelector
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
             label={props.primaryAction === "buy" ? "You buy" : "You sell"}
@@ -251,22 +256,7 @@ function TradingForm(props: Props) {
             value={primaryAmountString}
           />
         </HorizontalLayout>
-        <HorizontalLayout margin="24px 0">
-          <div style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }} />
-          <TradingPrice
-            inputError={manualPrice.error}
-            manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
-            onBlur={validatePrice}
-            onChange={updatePrice}
-            onSetPriceDenotedIn={setPriceMode}
-            price={effectivePrice}
-            priceDenotedIn={priceMode}
-            primaryAsset={primaryAsset}
-            secondaryAsset={secondaryAsset}
-            style={{ flexGrow: 1, width: "55%" }}
-          />
-        </HorizontalLayout>
-        <HorizontalLayout>
+        <HorizontalLayout margin="8px 0">
           <AssetSelector
             label={props.primaryAction === "buy" ? "Spend" : "Receive"}
             minWidth={75}
@@ -292,6 +282,27 @@ function TradingForm(props: Props) {
             }
           />
         </HorizontalLayout>
+        <ExpansionPanel expanded={expanded} onChange={() => setExpanded(!expanded)} style={{ margin: "8px 0" }}>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
+            <Typography align="center" style={{ flexGrow: 1 }}>
+              {expanded ? "Less Options" : "More Options"}
+            </Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <TradingPrice
+              inputError={manualPrice.error}
+              manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
+              onBlur={validatePrice}
+              onChange={updatePrice}
+              onSetPriceDenotedIn={setPriceMode}
+              price={effectivePrice}
+              priceDenotedIn={priceMode}
+              primaryAsset={primaryAsset}
+              secondaryAsset={secondaryAsset}
+              style={{ flexGrow: 1, width: "55%" }}
+            />
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
         <HorizontalLayout justifyContent="center" margin="32px 0 0" textAlign="center">
           <Typography color="textSecondary" variant="body1">
             {props.primaryAction === "buy"
