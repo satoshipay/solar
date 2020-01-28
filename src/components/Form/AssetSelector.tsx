@@ -28,13 +28,18 @@ const useAssetItemStyles = makeStyles(theme => ({
 interface AssetItemProps {
   asset: Asset
   testnet: boolean
+  // key + value props are expected here from React/Material-ui validation mechanisms
+  key: string
+  value: string
 }
 
 const AssetItem = React.memo(
   React.forwardRef(function AssetItem(props: AssetItemProps, ref: React.Ref<HTMLLIElement>) {
     const classes = useAssetItemStyles()
+    const { testnet, ...reducedProps } = props
+
     return (
-      <MenuItem {...props} ref={ref} value={stringifyAsset(props.asset)}>
+      <MenuItem {...reducedProps} key={props.key} ref={ref} value={props.value}>
         <ListItemIcon className={classes.icon}>
           <AssetLogo asset={props.asset} className={classes.logo} testnet={props.testnet} />
         </ListItemIcon>
@@ -104,7 +109,7 @@ function AssetSelector(props: AssetSelectorProps) {
       placeholder="Select an asset"
       select
       style={{ flexShrink: 0, ...props.style }}
-      value={props.value ? stringifyAsset(props.value) : ""}
+      value={props.value ? props.value.getCode() : ""}
       FormHelperTextProps={{
         className: classes.helperText
       }}
@@ -131,12 +136,18 @@ function AssetSelector(props: AssetSelectorProps) {
           Select an asset
         </MenuItem>
       )}
-      <AssetItem asset={Asset.native()} testnet={props.testnet} />
+      <AssetItem
+        asset={Asset.native()}
+        key={stringifyAsset(Asset.native())}
+        testnet={props.testnet}
+        value={Asset.native().getCode()}
+      />
       {props.trustlines
         .filter(trustline => trustline.asset_type !== "native")
-        .map(trustline => (
-          <AssetItem asset={balancelineToAsset(trustline)} key={stringifyAsset(trustline)} testnet={props.testnet} />
-        ))}
+        .map(trustline => {
+          const asset = balancelineToAsset(trustline)
+          return <AssetItem asset={asset} key={stringifyAsset(asset)} testnet={props.testnet} value={asset.getCode()} />
+        })}
     </TextField>
   )
 }
