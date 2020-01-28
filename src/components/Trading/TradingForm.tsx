@@ -69,117 +69,24 @@ const useStyles = makeStyles({
   }
 })
 
-const prepareValidateFormFields = (props: Props, secondaryAmount: BigNumber, defaultPrice: string) => (
-  values: TradingFormValues
-) => {
-  const errors: FormikErrors<TradingFormValues> = {}
-
-  const { manualPrice, primaryAmountString, primaryAsset, secondaryAsset } = values
-
-  const primaryAmount =
-    primaryAmountString && isValidAmount(primaryAmountString) ? BigNumber(primaryAmountString) : BigNumber(0)
-
-  const primaryBalance = primaryAsset ? findMatchingBalance(props.accountData.balances, primaryAsset) : undefined
-  const secondaryBalance = secondaryAsset ? findMatchingBalance(props.accountData.balances, secondaryAsset) : undefined
-
-  if (!primaryAsset) {
-    errors.primaryAsset = "No asset selected."
-  }
-
-  if (!primaryAmountString) {
-    errors.primaryAmountString = "No amount specified!"
-  } else if (
-    primaryAmount.lt(0) ||
-    (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
-    (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(primaryBalance.balance)) ||
-    (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
-  ) {
-    errors.primaryAmountString = "Invalid amount specified!"
-  }
-
-  if ((manualPrice && (!isValidAmount(manualPrice) || BigNumber(manualPrice).eq(0))) || BigNumber(defaultPrice).eq(0)) {
-    errors.manualPrice = "Invalid Price."
-  }
-
-  return errors
+interface CalculationResults {
+  defaultPrice: string
+  effectivePrice: BigNumber
+  maxPrimaryAmount: BigNumber
+  minAccountBalance: BigNumber
+  primaryAmount: BigNumber
+  primaryBalance: Horizon.BalanceLine | undefined
+  relativeSpread: number
+  secondaryAmount: BigNumber
+  secondaryBalance: Horizon.BalanceLine | undefined
+  spendablePrimaryBalance: BigNumber
+  spendableSecondaryBalance: BigNumber
 }
 
-interface TradingFormValues {
-  primaryAsset: Asset | undefined
-  primaryAmountString: string
-  secondaryAsset: Asset
-  manualPrice: string | undefined
-  priceMode: "primary" | "secondary"
-}
+const useCalculation = (props: Props, values: TradingFormValues): CalculationResults => {
+  const { manualPrice, priceMode, primaryAmountString, primaryAsset, secondaryAsset } = values
 
-interface Props {
-  account: Account
-  accountData: AccountData
-  className?: string
-  dialogActionsRef: RefStateObject
-  initialPrimaryAsset?: Asset
-  primaryAction: "buy" | "sell"
-  sendTransaction: (transaction: Transaction) => void
-  style?: React.CSSProperties
-  trustlines: Horizon.BalanceLineAsset[]
-}
-
-function TradingForm(props: Props) {
-  const classes = useStyles()
-  const isSmallScreen = useIsMobile()
-  const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
-  const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
-
-  const [expanded, setExpanded] = React.useState(false)
-
-  const formik = useFormik<TradingFormValues>({
-    initialValues: {
-      primaryAsset: props.initialPrimaryAsset,
-      primaryAmountString: "",
-      secondaryAsset: Asset.native(),
-      manualPrice: undefined,
-      priceMode: "secondary"
-    },
-    validate: values => customValidate(values),
-    validateOnChange: false, // should not validate on change as the values will not be up to date
-    async onSubmit() {
-      try {
-        const tx = await createTransaction(
-          [
-            props.primaryAction === "buy"
-              ? Operation.manageBuyOffer({
-                  buyAmount: primaryAmount.toFixed(7),
-                  buying: primaryAsset!,
-                  offerId: 0,
-                  price: effectivePrice.toFixed(7),
-                  selling: secondaryAsset
-                })
-              : Operation.manageSellOffer({
-                  amount: primaryAmount.toFixed(7),
-                  buying: secondaryAsset,
-                  offerId: 0,
-                  price: effectivePrice.toFixed(7),
-                  selling: primaryAsset!
-                })
-          ],
-          {
-            accountData: props.accountData,
-            horizon,
-            walletAccount: props.account
-          }
-        )
-        props.sendTransaction(tx)
-      } catch (error) {
-        trackError(error)
-      }
-    }
-  })
-
-  const { primaryAsset, primaryAmountString, secondaryAsset, priceMode, manualPrice } = formik.values
-
-  const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
-  const formID = React.useMemo(() => nanoid(), [])
 
   const price =
     manualPrice && isValidAmount(manualPrice)
@@ -211,9 +118,6 @@ function TradingForm(props: Props) {
   const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
   const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
 
-  // prepare validation here because the necessary variables are initialized now
-  const customValidate = prepareValidateFormFields(props, secondaryAmount, defaultPrice)
-
   const minAccountBalance = getAccountMinimumBalance(props.accountData)
 
   const spendablePrimaryBalance = primaryBalance
@@ -233,18 +137,151 @@ function TradingForm(props: Props) {
       ? BigNumber(spendablePrimaryBalance)
       : BigNumber(0)
 
+  return {
+    defaultPrice,
+    effectivePrice,
+    maxPrimaryAmount,
+    minAccountBalance,
+    primaryAmount,
+    primaryBalance,
+    relativeSpread,
+    secondaryAmount,
+    secondaryBalance,
+    spendablePrimaryBalance,
+    spendableSecondaryBalance
+  }
+}
+
+function useFormValidation(primaryAction: "buy" | "sell", calculationResults: CalculationResults) {
+  return function validate(values: TradingFormValues) {
+    const errors: FormikErrors<TradingFormValues> = {}
+    const { manualPrice, primaryAsset, primaryAmountString } = values
+    const { defaultPrice, primaryAmount, primaryBalance, secondaryAmount, secondaryBalance } = calculationResults
+
+    if (!primaryAsset) {
+      errors.primaryAsset = "No asset selected."
+    }
+
+    if (!primaryAmountString) {
+      errors.primaryAmountString = "No amount specified!"
+    } else if (
+      primaryAmount.lt(0) ||
+      (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
+      (primaryAction === "sell" && primaryBalance && primaryAmount.gt(primaryBalance.balance)) ||
+      (primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(secondaryBalance.balance))
+    ) {
+      errors.primaryAmountString = "Invalid amount specified!"
+    }
+
+    if (
+      (manualPrice && (!isValidAmount(manualPrice) || BigNumber(manualPrice).eq(0))) ||
+      BigNumber(defaultPrice).eq(0)
+    ) {
+      errors.manualPrice = "Invalid Price."
+    }
+
+    return errors
+  }
+}
+
+interface TradingFormValues {
+  primaryAsset: Asset | undefined
+  primaryAmountString: string
+  secondaryAsset: Asset
+  manualPrice: string | undefined
+  priceMode: "primary" | "secondary"
+}
+
+interface Props {
+  account: Account
+  accountData: AccountData
+  className?: string
+  dialogActionsRef: RefStateObject
+  initialPrimaryAsset?: Asset
+  primaryAction: "buy" | "sell"
+  sendTransaction: (transaction: Transaction) => void
+  style?: React.CSSProperties
+  trustlines: Horizon.BalanceLineAsset[]
+}
+
+function TradingForm(props: Props) {
+  const classes = useStyles()
+  const isSmallScreen = useIsMobile()
+  const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
+  const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
+
+  const [expanded, setExpanded] = React.useState(false)
+  const submitTrade = async () => {
+    try {
+      const tx = await createTransaction(
+        [
+          props.primaryAction === "buy"
+            ? Operation.manageBuyOffer({
+                buyAmount: primaryAmount.toFixed(7),
+                buying: primaryAsset!,
+                offerId: 0,
+                price: effectivePrice.toFixed(7),
+                selling: secondaryAsset
+              })
+            : Operation.manageSellOffer({
+                amount: primaryAmount.toFixed(7),
+                buying: secondaryAsset,
+                offerId: 0,
+                price: effectivePrice.toFixed(7),
+                selling: primaryAsset!
+              })
+        ],
+        {
+          accountData: props.accountData,
+          horizon,
+          walletAccount: props.account
+        }
+      )
+      props.sendTransaction(tx)
+    } catch (error) {
+      trackError(error)
+    }
+  }
+
+  const formik = useFormik<TradingFormValues>({
+    initialValues: {
+      primaryAsset: props.initialPrimaryAsset,
+      primaryAmountString: "",
+      secondaryAsset: Asset.native(),
+      manualPrice: undefined,
+      priceMode: "secondary"
+    },
+    validate: values => validateForm(values),
+    validateOnChange: false, // should not validate on change as the values will not be up to date
+    onSubmit: submitTrade
+  })
+
+  const { primaryAsset, primaryAmountString, secondaryAsset, priceMode, manualPrice } = formik.values
+
+  const calculation = useCalculation(props, formik.values)
+  const validateForm = useFormValidation(props.primaryAction, calculation)
+
+  const {
+    maxPrimaryAmount,
+    primaryBalance,
+    defaultPrice,
+    effectivePrice,
+    primaryAmount,
+    relativeSpread,
+    secondaryAmount,
+    secondaryBalance
+  } = calculation
+
+  const horizon = useHorizon(props.account.testnet)
+  const formID = React.useMemo(() => nanoid(), [])
+
   const setPrimaryAmountToMax = React.useCallback(
     () => formik.setFieldValue("primaryAmountString", maxPrimaryAmount.toFixed(7)),
     []
   )
 
   const handlePrimaryAssetChange = React.useCallback(asset => formik.setFieldValue("primaryAsset", asset), [])
-  const handlePrimaryAmountStringChange = React.useCallback(
-    event => formik.setFieldValue("primaryAmountString", event.target.value, false),
-    []
-  )
   const handleSecondaryAssetChange = React.useCallback(asset => formik.setFieldValue("secondaryAsset", asset), [])
-  const handleManualPriceChange = React.useCallback(asset => formik.setFieldValue("manualPrice", asset), [])
   const handlePriceModeChange = React.useCallback(denotedIn => formik.setFieldValue("priceMode", denotedIn), [])
 
   return (
@@ -321,7 +358,7 @@ function TradingForm(props: Props) {
                   : "Amount to sell"
               }
               onBlur={formik.handleBlur}
-              onChange={handlePrimaryAmountStringChange}
+              onChange={formik.handleChange}
               placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
               required
               style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
@@ -329,7 +366,7 @@ function TradingForm(props: Props) {
               value={primaryAmountString}
             />
           </HorizontalLayout>
-          <HorizontalLayout>
+          <HorizontalLayout margin="8px 0 32px">
             <AssetSelector
               label={props.primaryAction === "buy" ? "Spend" : "Receive"}
               minWidth={75}
@@ -379,7 +416,7 @@ function TradingForm(props: Props) {
                 manualPrice={manualPrice !== undefined ? manualPrice : defaultPrice}
                 name="manualPrice"
                 onBlur={formik.handleBlur}
-                onChange={handleManualPriceChange}
+                onChange={formik.handleChange}
                 onSetPriceDenotedIn={handlePriceModeChange}
                 price={effectivePrice}
                 priceDenotedIn={priceMode}
