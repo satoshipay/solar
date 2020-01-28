@@ -4,7 +4,7 @@ import Switch from "@material-ui/core/Switch"
 import FingerprintIcon from "@material-ui/icons/Fingerprint"
 import GroupIcon from "@material-ui/icons/Group"
 import MessageIcon from "@material-ui/icons/Message"
-import TestnetIcon from "@material-ui/icons/Language"
+import TestnetIcon from "@material-ui/icons/MoneyOff"
 import { AccountsContext } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile } from "../../hooks/userinterface"
@@ -41,26 +41,23 @@ function AppSettings() {
   return (
     <>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
-        <AppSettingsItem
-          actions={
-            <SettingsToggle
-              checked={settings.biometricLock && settings.biometricLockUsable}
-              disabled={!settings.biometricLockUsable}
-              onChange={settings.toggleBiometricLock}
-            />
-          }
-          disabled={!settings.biometricLockUsable}
-          icon={<FingerprintIcon style={{ fontSize: "100%" }} />}
-          onClick={settings.toggleBiometricLock}
-          primaryText="Biometric authentication"
-          secondaryText={
-            settings.biometricLockUsable
-              ? settings.biometricLock
-                ? "Biometric authentication is enabled"
-                : "Biometric authentication is disabled"
-              : "Not available for your device"
-          }
-        />
+        {settings.biometricLockUsable ? (
+          <AppSettingsItem
+            actions={
+              <SettingsToggle
+                checked={settings.biometricLock && settings.biometricLockUsable}
+                disabled={!settings.biometricLockUsable}
+                onChange={settings.toggleBiometricLock}
+              />
+            }
+            icon={<FingerprintIcon style={{ fontSize: "100%" }} />}
+            onClick={settings.toggleBiometricLock}
+            primaryText="Biometric authentication"
+            secondaryText={
+              settings.biometricLock ? "Biometric authentication is enabled" : "Biometric authentication is disabled"
+            }
+          />
+        ) : null}
         <AppSettingsItem
           actions={
             <SettingsToggle
@@ -69,13 +66,12 @@ function AppSettings() {
               onChange={settings.toggleTestnet}
             />
           }
-          disabled={hasTestnetAccount}
           icon={<TestnetIcon style={{ fontSize: "100%" }} />}
-          onClick={settings.toggleTestnet}
+          onClick={hasTestnetAccount ? undefined : settings.toggleTestnet}
           primaryText="Show Testnet Accounts"
           secondaryText={
             hasTestnetAccount
-              ? "Cannot be disabled because you added testnet accounts already"
+              ? "Cannot be disabled because you already added testnet accounts"
               : settings.showTestnet
               ? "Testnet accounts are shown"
               : "Testnet accounts are hidden"

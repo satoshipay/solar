@@ -59,7 +59,7 @@ function SettingsPage() {
           <Box grow overflowY="auto">
             <AppSettings />
           </Box>
-          <Box grow={0} margin="16px 0 0">
+          <Box grow={0} margin="16px 0">
             <Typography align="center" color="textSecondary">
               v{pkg.version}
             </Typography>

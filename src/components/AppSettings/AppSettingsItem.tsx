@@ -34,13 +34,14 @@ const useAppSettingsItemStyles = makeStyles({
     "&:focus": {
       backgroundColor: "#FFFFFF"
     },
-    "&:hover": {
+    "&$actionable:hover": {
       backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
     },
     "&:not(:first-child)": {
       borderTop: "1px solid rgba(230, 230, 230, 1.0)"
     }
-  }
+  },
+  actionable: {}
 })
 
 interface AppSettingsItemProps {
@@ -50,7 +51,7 @@ interface AppSettingsItemProps {
   primaryText: string
   secondaryText?: string
   style?: React.CSSProperties
-  onClick: () => void
+  onClick?: () => void
 }
 
 function AppSettingsItem(props: AppSettingsItemProps) {
@@ -66,8 +67,16 @@ function AppSettingsItem(props: AppSettingsItemProps) {
     [isSmallScreen]
   )
 
+  const className = `${classes.settingsItem} ${props.onClick ? classes.actionable : ""}`
+
   return (
-    <ListItem button className={classes.settingsItem} disabled={props.disabled} onClick={props.onClick} style={style}>
+    <ListItem
+      button={Boolean(props.onClick) as any}
+      className={className}
+      disabled={props.disabled}
+      onClick={props.onClick}
+      style={style}
+    >
       <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
       <ListItemText primary={primaryText} secondary={secondaryText} style={listItemTextStyle} />
       {actions}
