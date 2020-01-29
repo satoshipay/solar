@@ -1,4 +1,4 @@
-import { expose } from "./_ipc"
 import { Messages } from "../shared/ipc"
+import { expose } from "./_ipc"
 
-expose(Messages.BioAuthAvailable, () => false)
+expose(Messages.BioAuthAvailable, () => ({ available: false }))

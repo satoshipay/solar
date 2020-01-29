@@ -2,7 +2,7 @@ import { call } from "./ipc"
 import { Messages } from "../shared/ipc"
 
 interface SettingsStore {
-  biometricLockAvailable(): Promise<boolean>
+  biometricAuthAvailable(): Promise<BiometricAvailabilityResult>
   loadIgnoredSignatureRequestHashes(): Promise<string[]>
   loadSettings(): Promise<Partial<Platform.SettingsData>>
   saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]): void
@@ -10,7 +10,7 @@ interface SettingsStore {
 }
 
 const implementation: SettingsStore = {
-  biometricLockAvailable: () => call(Messages.BioAuthAvailable),
+  biometricAuthAvailable: () => call(Messages.BioAuthAvailable),
   loadIgnoredSignatureRequestHashes: () => call(Messages.ReadIgnoredSignatureRequestHashes),
   saveIgnoredSignatureRequestHashes: updatedSignatureRequestHashes =>
     call(Messages.StoreIgnoredSignatureRequestHashes, updatedSignatureRequestHashes),
@@ -18,7 +18,7 @@ const implementation: SettingsStore = {
   saveSettings: settingsUpdate => call(Messages.StoreSettings, settingsUpdate)
 }
 
-export const biometricLockAvailable = implementation.biometricLockAvailable
+export const isBiometricAuthAvailable = implementation.biometricAuthAvailable
 
 export const loadIgnoredSignatureRequestHashes = implementation.loadIgnoredSignatureRequestHashes
 export const saveIgnoredSignatureRequestHashes = implementation.saveIgnoredSignatureRequestHashes

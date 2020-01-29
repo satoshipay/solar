@@ -1,6 +1,13 @@
 export async function isBiometricAuthAvailable() {
-  return new Promise<boolean>(resolve => {
-    Fingerprint.isAvailable(() => resolve(true), () => resolve(false))
+  return new Promise<BiometricAvailabilityResult>(resolve => {
+    Fingerprint.isAvailable(
+      result => {
+        resolve({ available: true, message: result })
+      },
+      error => {
+        resolve({ available: false, message: error.message, code: error.code })
+      }
+    )
   })
 }
 
