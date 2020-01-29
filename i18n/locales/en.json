@@ -1,1 +1,22 @@
-{}
+{
+  "accounts-context-menu": {
+    "account-settings": {
+      "label": "Account Settings"
+    },
+    "assets-and-balances": {
+      "label": "Assets & Balances"
+    },
+    "deposit": {
+      "label": "Deposit"
+    },
+    "trade": {
+      "label": "Trade"
+    },
+    "transactions": {
+      "label": "Transactions"
+    },
+    "withdraw": {
+      "label": "Withdraw"
+    }
+  }
+}
