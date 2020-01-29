@@ -1,1 +1,36 @@
-{}
+{
+  "account-settings": {
+    "delete-account": {
+      "text": {
+        "primary": "Merge or Delete Account"
+      }
+    },
+    "export-secret-key": {
+      "text": {
+        "primary": "Export Secret Key",
+        "secondary": "Decrypt and show private key"
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Multi-Signature",
+        "secondary": {
+          "short": "Manage co-signers",
+          "long": "Make account multi-signature and manage co-signers"
+        }
+      }
+    },
+    "set-password": {
+      "text": {
+        "primary": {
+          "account-protected": "Change Password",
+          "account-not-protected": "Set Password"
+        },
+        "secondary": {
+          "account-protected": "Your account is secure, protected by a password",
+          "account-not-protected": "Your account is not protected"
+        }
+      }
+    }
+  }
+}

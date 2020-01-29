@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -85,6 +86,7 @@ function AccountSettings(props: Props) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+  const { t } = useTranslation()
   const settings = React.useContext(SettingsContext)
 
   const navigateTo = React.useMemo(
@@ -109,11 +111,15 @@ function AccountSettings(props: Props) {
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
         <AccountSettingsItem icon={<KeyIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.changePassword}>
           <ListItemText
-            primary={props.account.requiresPassword ? "Change Password" : "Set Password"}
+            primary={
+              props.account.requiresPassword
+                ? t("account-settings.set-password.text.primary.account-protected")
+                : t("account-settings.set-password.text.primary.account-not-protected")
+            }
             secondary={
               props.account.requiresPassword
-                ? "Your account is secure, protected by a password"
-                : "Your account is not protected"
+                ? t("account-settings.set-password.text.secondary.account-protected")
+                : t("account-settings.set-password.text.secondary.account-not-protected")
             }
             style={listItemTextStyle}
           />
@@ -125,21 +131,25 @@ function AccountSettings(props: Props) {
             onClick={navigateTo.manageSigners}
           >
             <ListItemText
-              primary="Multi-Signature"
-              secondary={isSmallScreen ? "Manage co-signers" : "Make account multi-signature and manage co-signers"}
+              primary={t("account-settings.multi-sig.text.primary")}
+              secondary={
+                isSmallScreen
+                  ? t("account-settings.multi-sig.text.secondary.short")
+                  : t("account-settings.multi-sig.text.secondary.long")
+              }
               style={listItemTextStyle}
             />
           </AccountSettingsItem>
         ) : null}
         <AccountSettingsItem icon={<EyeIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.exportSecretKey}>
           <ListItemText
-            primary="Export Secret Key"
-            secondary="Decrypt and show private key"
+            primary={t("account-settings.export-secret-key.text.primary")}
+            secondary={t("account-settings.export-secret-key.text.secondary")}
             style={listItemTextStyle}
           />
         </AccountSettingsItem>
         <AccountSettingsItem icon={<DeleteIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.deleteAccount}>
-          <ListItemText primary="Merge or Delete Account" style={listItemTextStyle} />
+          <ListItemText primary={t("account-settings.delete-account.text.primary")} style={listItemTextStyle} />
         </AccountSettingsItem>
       </List>
       <SettingsDialogs account={props.account} />
