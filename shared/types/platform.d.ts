@@ -12,3 +12,9 @@ declare namespace NodeJS {
     browser?: boolean
   }
 }
+
+interface BiometricAvailabilityResult {
+  available: boolean
+  code?: number
+  message?: string
+}
