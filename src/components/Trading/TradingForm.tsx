@@ -6,6 +6,7 @@ import ExpansionPanel from "@material-ui/core/ExpansionPanel"
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
 import InputAdornment from "@material-ui/core/InputAdornment"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
@@ -39,6 +40,26 @@ function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
+const useStyles = makeStyles({
+  expansionPanel: {
+    background: "transparent",
+    margin: "8px 0",
+    "&:before": {
+      background: "transparent"
+    }
+  },
+  expansionPanelSummary: {
+    "&:hover": {
+      "@media (hover: hover)": {
+        backgroundColor: "rgba(0, 0, 0, 0.12) !important"
+      },
+      "@media (hover: none)": {
+        backgroundColor: "rgba(0, 0, 0, 0.08) !important"
+      }
+    }
+  }
+})
+
 interface ManualPrice {
   error?: Error
   value?: string
@@ -57,6 +78,7 @@ interface Props {
 }
 
 function TradingForm(props: Props) {
+  const classes = useStyles()
   const isSmallScreen = useIsMobile()
   const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
   const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
@@ -282,8 +304,13 @@ function TradingForm(props: Props) {
             }
           />
         </HorizontalLayout>
-        <ExpansionPanel expanded={expanded} onChange={() => setExpanded(!expanded)} style={{ margin: "8px 0" }}>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
+        <ExpansionPanel
+          className={classes.expansionPanel}
+          elevation={0}
+          expanded={expanded}
+          onChange={() => setExpanded(!expanded)}
+        >
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} className={classes.expansionPanelSummary}>
             <Typography align="center" style={{ flexGrow: 1 }}>
               {expanded ? "Less Options" : "More Options"}
             </Typography>
