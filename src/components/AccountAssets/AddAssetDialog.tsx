@@ -1,6 +1,5 @@
 import React from "react"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -24,6 +23,7 @@ import { VerticalLayout } from "../Layout/Box"
 import { FixedSizeList } from "../List/VirtualList"
 import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
+import ViewLoading from "../ViewLoading"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
 import CustomTrustlineDialog from "./CustomTrustline"
@@ -294,32 +294,34 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
             &nbsp;&nbsp;Add Custom Asset
           </ButtonListItem>
         </List>
-        {searchFieldValue ? (
-          <ul className={`${classes.list} ${classes.grow}`} ref={containerRef}>
-            <FixedSizeList
-              container={containerRef.current}
-              itemCount={SearchResultRow.count}
-              itemSize={searchResultRowHeight}
-            >
-              {SearchResultRow}
-            </FixedSizeList>
-          </ul>
-        ) : (
-          <List className={`${classes.list} ${classes.grow}`}>
-            <PopularAssets
-              assets={notYetAddedAssets}
-              onOpenAssetDetails={openAssetDetails}
-              testnet={props.account.testnet}
-            />
-          </List>
-        )}
+        <React.Suspense fallback={<ViewLoading />}>
+          {searchFieldValue ? (
+            <ul className={`${classes.list} ${classes.grow}`} ref={containerRef}>
+              <FixedSizeList
+                container={containerRef.current}
+                itemCount={SearchResultRow.count}
+                itemSize={searchResultRowHeight}
+              >
+                {SearchResultRow}
+              </FixedSizeList>
+            </ul>
+          ) : (
+            <List className={`${classes.list} ${classes.grow}`}>
+              <PopularAssets
+                assets={notYetAddedAssets}
+                onOpenAssetDetails={openAssetDetails}
+                testnet={props.account.testnet}
+              />
+            </List>
+          )}
+        </React.Suspense>
       </VerticalLayout>
       <Dialog
         open={customTrustlineDialogOpen}
         onClose={closeCustomTrustlineDialog}
         TransitionComponent={CompactDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <CustomTrustlineDialog
             account={props.account}
             accountData={props.accountData}
