@@ -15,7 +15,7 @@ interface Props {
 interface ContextType {
   agreedToTermsAt: string | undefined
   biometricLock: boolean
-  biometricAuthAvailability: BiometricAvailabilityResult
+  biometricAvailability: BiometricAvailability
   confirmToC: () => void
   ignoreSignatureRequest: (signatureRequestHash: string) => void
   ignoredSignatureRequests: string[]
@@ -50,7 +50,7 @@ const multiSignatureServiceURL = process.env.MULTISIG_SERVICE || "https://multis
 const SettingsContext = React.createContext<ContextType>({
   agreedToTermsAt: initialSettings.agreedToTermsAt,
   biometricLock: initialSettings.biometricLock,
-  biometricAuthAvailability: { available: false },
+  biometricAvailability: { available: false, enrolled: false },
   confirmToC: () => undefined,
   ignoreSignatureRequest: () => undefined,
   ignoredSignatureRequests: initialIgnoredSignatureRequests,
@@ -68,8 +68,9 @@ const SettingsContext = React.createContext<ContextType>({
 export function SettingsProvider(props: Props) {
   const [ignoredSignatureRequests, setIgnoredSignatureRequests] = React.useState(initialIgnoredSignatureRequests)
   const [settings, setSettings] = React.useState<SettingsState>(initialSettings)
-  const [biometricAuthAvailability, setBiometricAuthAvailability] = React.useState<BiometricAvailabilityResult>({
-    available: false
+  const [biometricAvailability, setBiometricAvailability] = React.useState<BiometricAvailability>({
+    available: false,
+    enrolled: false
   })
 
   React.useEffect(() => {
@@ -80,7 +81,7 @@ export function SettingsProvider(props: Props) {
       })
       .catch(trackError)
 
-    isBiometricAuthAvailable().then(setBiometricAuthAvailability)
+    isBiometricAuthAvailable().then(setBiometricAvailability)
 
     // Can't really cancel loading the settings
     const unsubscribe = () => undefined
@@ -126,7 +127,7 @@ export function SettingsProvider(props: Props) {
   const contextValue: ContextType = {
     agreedToTermsAt: settings.agreedToTermsAt,
     biometricLock: settings.biometricLock,
-    biometricAuthAvailability,
+    biometricAvailability,
     confirmToC,
     ignoreSignatureRequest,
     ignoredSignatureRequests,

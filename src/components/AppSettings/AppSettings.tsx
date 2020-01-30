@@ -36,41 +36,25 @@ function AppSettings() {
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
 
-  const [biometricAuthAvailable, setBiometricAuthAvailable] = React.useState(false)
-  const [biometricAuthEnrolled, setBiometricAuthEnrolled] = React.useState(false)
-
-  React.useEffect(() => {
-    if (settings.biometricAuthAvailability.available) {
-      setBiometricAuthAvailable(true)
-      setBiometricAuthEnrolled(true)
-    } else {
-      // code -106 means 'BIOMETRIC_NOT_ENROLLED' (cordova fingerprint plugin)
-      // hence biometric auth is available but not currently set up
-      if (settings.biometricAuthAvailability.code === -106) {
-        setBiometricAuthAvailable(true)
-      }
-    }
-  }, [settings.biometricAuthAvailability])
-
   const hasTestnetAccount = accounts.some(account => account.testnet)
 
   return (
     <>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
-        {biometricAuthAvailable ? (
+        {settings.biometricAvailability.available ? (
           <AppSettingsItem
             actions={
               <SettingsToggle
-                checked={settings.biometricLock && biometricAuthEnrolled}
-                disabled={!biometricAuthEnrolled}
+                checked={settings.biometricLock && settings.biometricAvailability.enrolled}
+                disabled={!settings.biometricAvailability.enrolled}
                 onChange={settings.toggleBiometricLock}
               />
             }
             icon={<FingerprintIcon style={{ fontSize: "100%" }} />}
-            onClick={biometricAuthEnrolled ? settings.toggleBiometricLock : undefined}
+            onClick={settings.biometricAvailability.enrolled ? settings.toggleBiometricLock : undefined}
             primaryText="Biometric authentication"
             secondaryText={
-              !biometricAuthEnrolled
+              !settings.biometricAvailability.enrolled
                 ? "Cannot be enabled because you are not enrolled in biometric authentication"
                 : settings.biometricLock
                 ? "Biometric authentication is enabled"

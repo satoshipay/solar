@@ -1,11 +1,17 @@
 export async function isBiometricAuthAvailable() {
-  return new Promise<BiometricAvailabilityResult>(resolve => {
+  return new Promise<BiometricAvailability>(resolve => {
     Fingerprint.isAvailable(
-      result => {
-        resolve({ available: true, message: result })
+      () => {
+        resolve({ available: true, enrolled: true })
       },
       error => {
-        resolve({ available: false, message: error.message, code: error.code })
+        // code -106 means 'BIOMETRIC_NOT_ENROLLED' (cordova fingerprint plugin)
+        // hence biometric auth is available but not currently set up
+        if (error.code === -106) {
+          resolve({ available: true, enrolled: false })
+        } else {
+          resolve({ available: false, enrolled: false })
+        }
       }
     )
   })

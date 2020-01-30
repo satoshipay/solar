@@ -16,7 +16,7 @@ import { registerNotificationHandler } from "./notifications"
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 
 let bioAuthInProgress: Promise<void> | undefined
-let bioAuthAvailablePromise: Promise<BiometricAvailabilityResult>
+let bioAuthAvailablePromise: Promise<BiometricAvailability>
 let isBioAuthAvailable = false
 
 let lastNativeInteractionTime: number = 0

@@ -2,7 +2,7 @@ import { call } from "./ipc"
 import { Messages } from "../shared/ipc"
 
 interface SettingsStore {
-  biometricAuthAvailable(): Promise<BiometricAvailabilityResult>
+  biometricAuthAvailable(): Promise<BiometricAvailability>
   loadIgnoredSignatureRequestHashes(): Promise<string[]>
   loadSettings(): Promise<Partial<Platform.SettingsData>>
   saveIgnoredSignatureRequestHashes(updatedSignatureRequestHashes: string[]): void
