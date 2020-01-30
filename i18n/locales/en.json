@@ -52,5 +52,43 @@
         }
       }
     }
+  },
+  "set-password": {
+    "actions": {
+      "change-password": {
+        "long": "Change password",
+        "short": "Change"
+      },
+      "remove-password": {
+        "long": "Remove password",
+        "short": "Remove"
+      }
+    },
+    "notification": {
+      "password-changed": "Password changed.",
+      "password-set": "Password set.",
+      "password-removed": "Password removed."
+    },
+    "textfield": {
+      "prev-password": {
+        "label": "Current password"
+      },
+      "next-password": {
+        "label": "New password"
+      },
+      "next-password-repeat": {
+        "label": "Repeat new password"
+      }
+    },
+    "title": {
+      "change-password": "Change Password",
+      "set-password": "Set Password"
+    },
+    "validation": {
+      "next-password-missing": "Enter a password or set \"remove password\".",
+      "next-password-repeat-missing": "Please repeat the password.",
+      "passwords-no-match": "Password does not match",
+      "previous-password-missing": "Current password is missing."
+    }
   }
 }

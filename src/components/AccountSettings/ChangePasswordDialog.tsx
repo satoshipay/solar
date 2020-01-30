@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import DialogActions from "@material-ui/core/DialogActions"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import InputAdornment from "@material-ui/core/InputAdornment"
@@ -12,8 +13,8 @@ import { useIsMobile } from "../../hooks/userinterface"
 import { renderFormFieldError, isWrongPasswordError } from "../../lib/errors"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box } from "../Layout/Box"
-import MainTitle from "../MainTitle"
 import DialogBody from "../Dialog/DialogBody"
+import MainTitle from "../MainTitle"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -35,26 +36,29 @@ interface FormValues {
 
 type Errors = { [key in keyof FormValues]?: Error | undefined }
 
-function validateFormValues(formValues: FormValues, passwordMode: "change" | "initial" | "remove") {
-  const errors: Errors = {}
+function useFormValidation() {
+  const { t } = useTranslation()
+  return function validate(formValues: FormValues, passwordMode: "change" | "initial" | "remove") {
+    const errors: Errors = {}
 
-  if (!formValues.prevPassword && passwordMode !== "initial") {
-    errors.prevPassword = new Error("Current password is missing.")
-  }
-  if (passwordMode !== "remove") {
-    if (!formValues.nextPassword) {
-      errors.nextPassword = new Error(`Enter a password or set "remove password".`)
+    if (!formValues.prevPassword && passwordMode !== "initial") {
+      errors.prevPassword = new Error(t("set-password.validation.previous-password-missing"))
     }
-    if (!formValues.nextPasswordRepeat) {
-      errors.nextPasswordRepeat = new Error("Please repeat the password.")
+    if (passwordMode !== "remove") {
+      if (!formValues.nextPassword) {
+        errors.nextPassword = new Error(t("set-password.validation.next-password-missing"))
+      }
+      if (!formValues.nextPasswordRepeat) {
+        errors.nextPasswordRepeat = new Error(t("set-password.validation.next-password-repeat-missing"))
+      }
+      if (formValues.nextPasswordRepeat && formValues.nextPassword !== formValues.nextPasswordRepeat) {
+        errors.nextPasswordRepeat = new Error(t("set-password.validation.passwords-no-match"))
+      }
     }
-    if (formValues.nextPasswordRepeat && formValues.nextPassword !== formValues.nextPasswordRepeat) {
-      errors.nextPasswordRepeat = new Error("Password does not match.")
-    }
-  }
 
-  const success = Object.keys(errors).length === 0
-  return { errors, success }
+    const success = Object.keys(errors).length === 0
+    return { errors, success }
+  }
 }
 
 interface ActionsProps {
@@ -66,28 +70,32 @@ interface ActionsProps {
 
 function Actions(props: ActionsProps) {
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
   return (
     <DialogActionsBox smallDialog>
       {props.isPasswordProtected ? (
         isSmallScreen ? (
           <ActionButton onClick={props.onToggleRemovePassword} type="secondary">
-            {props.removePassword ? "Change password" : "Remove password"}
+            {props.removePassword
+              ? t("set-password.actions.change-password.long")
+              : t("set-password.actions.remove-password.long")}
           </ActionButton>
         ) : (
           <FormControlLabel
             control={<Switch checked={props.removePassword} color="primary" onChange={props.onToggleRemovePassword} />}
-            label="Remove password"
+            label={t("set-password.actions.remove-password.long")}
           />
         )
       ) : null}
       <ActionButton icon={<LockIcon />} onClick={props.onSubmit} type="primary">
         {isSmallScreen
           ? props.removePassword
-            ? "Remove"
-            : "Change"
+            ? t("set-password.actions.remove-password.long")
+            : t("set-password.actions.change-password.short")
           : props.removePassword
-            ? "Remove password"
-            : "Change password"}
+          ? t("set-password.actions.remove-password.long")
+          : t("set-password.actions.change-password.long")}
       </ActionButton>
     </DialogActionsBox>
   )
@@ -108,6 +116,8 @@ function ChangePasswordDialog(props: Props) {
     prevPassword: ""
   })
   const [removingPassword, setRemovingPassword] = React.useState(false)
+  const validate = useFormValidation()
+  const { t } = useTranslation()
 
   const changePassword = () => {
     const { id: accountID, requiresPassword } = props.account
@@ -115,14 +125,19 @@ function ChangePasswordDialog(props: Props) {
 
     const passwordMode = requiresPassword ? "change" : "initial"
 
-    const validation = validateFormValues(formValues, passwordMode)
+    const validation = validate(formValues, passwordMode)
     setErrors(validation.errors)
 
     if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
       Accounts.changePassword(accountID, prevPassword, nextPassword)
         .then(() => {
-          showNotification("success", requiresPassword ? "Password changed." : "Password set.")
+          showNotification(
+            "success",
+            requiresPassword
+              ? t("set-password.notification.password-changed")
+              : t("set-password.notification.password-set")
+          )
           props.onClose()
         })
         .catch(error => {
@@ -139,14 +154,14 @@ function ChangePasswordDialog(props: Props) {
     })
   }
   const removePassword = () => {
-    const validation = validateFormValues(formValues, "remove")
+    const validation = validate(formValues, "remove")
     setErrors(validation.errors)
 
     if (validation.success) {
       // TODO: Show confirmation prompt (dialog)
       Accounts.removePassword(props.account.id, formValues.prevPassword)
         .then(() => {
-          showNotification("success", "Password removed.")
+          showNotification("success", t("set-password.notification.password-removed"))
           props.onClose()
         })
         .catch(error => {
@@ -164,7 +179,16 @@ function ChangePasswordDialog(props: Props) {
 
   return (
     <DialogBody
-      top={<MainTitle onBack={onClose} title={props.account.requiresPassword ? "Change Password" : "Set Password"} />}
+      top={
+        <MainTitle
+          onBack={onClose}
+          title={
+            props.account.requiresPassword
+              ? t("set-password.title.change-password")
+              : t("set-password.title.set-password")
+          }
+        />
+      }
       actions={
         <DialogActions style={{ margin: "32px 0 0" }}>
           <Actions
@@ -181,7 +205,11 @@ function ChangePasswordDialog(props: Props) {
           <TextField
             autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.prevPassword)}
-            label={errors.prevPassword ? renderFormFieldError(errors.prevPassword) : "Current password"}
+            label={
+              errors.prevPassword
+                ? renderFormFieldError(errors.prevPassword)
+                : t("set-password.textfield.prev-password.label")
+            }
             fullWidth
             margin="normal"
             value={formValues.prevPassword}
@@ -194,7 +222,11 @@ function ChangePasswordDialog(props: Props) {
           <TextField
             autoFocus={!props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.nextPassword)}
-            label={errors.nextPassword ? renderFormFieldError(errors.nextPassword) : "New password"}
+            label={
+              errors.nextPassword
+                ? renderFormFieldError(errors.nextPassword)
+                : t("set-password.textfield.next-password.label")
+            }
             fullWidth
             margin="normal"
             value={formValues.nextPassword}
@@ -204,7 +236,11 @@ function ChangePasswordDialog(props: Props) {
           />
           <TextField
             error={Boolean(errors.nextPasswordRepeat)}
-            label={errors.nextPasswordRepeat ? renderFormFieldError(errors.nextPasswordRepeat) : "Repeat new password"}
+            label={
+              errors.nextPasswordRepeat
+                ? renderFormFieldError(errors.nextPasswordRepeat)
+                : t("set-password.textfield.next-password-repeat.label")
+            }
             fullWidth
             margin="normal"
             value={formValues.nextPasswordRepeat}
