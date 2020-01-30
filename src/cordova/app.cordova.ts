@@ -181,9 +181,11 @@ function initializeStorage(contentWindow: Window) {
   window.addEventListener("message", async event => {
     const [secureStorage, keyStore] = await initPromise
 
-    const { messageType } = event.data
-    const payload = { args: event.data.args, callID: event.data.callID }
-    handleMessageEvent(messageType, payload, contentWindow, secureStorage, keyStore)
+    if (event.data && event.data.callID && event.data.messageType) {
+      const { messageType } = event.data
+      const payload = { args: event.data.args, callID: event.data.callID }
+      handleMessageEvent(messageType, payload, contentWindow, secureStorage, keyStore)
+    }
   })
 
   storageInitialization = initPromise.then(([secureStorage]) => secureStorage)
