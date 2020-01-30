@@ -508,7 +508,7 @@ export async function fetchAccountData(horizonURL: string, accountID: string) {
     return null
   }
 
-  return parseJSONResponse<Horizon.AccountResponse>(response)
+  return parseJSONResponse<Horizon.AccountResponse & { home_domain: string | undefined }>(response)
 }
 
 export async function fetchLatestAccountEffect(horizonURL: string, accountID: string) {

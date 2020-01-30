@@ -1,5 +1,19 @@
 import React from "react"
 
+type AsyncSuspense<T> = (promise: Promise<T>) => void
+
+export function useAsyncSuspense<T>(): AsyncSuspense<T> {
+  const [pendingPromise, setPendingPromise] = React.useState<Promise<T> | undefined>()
+
+  if (pendingPromise) {
+    throw pendingPromise
+  }
+
+  return function suspend(promise: Promise<T>) {
+    setPendingPromise(promise)
+  }
+}
+
 export function useDebouncedState<T>(
   initial: T | (() => T),
   delay: number = 50

@@ -21,6 +21,7 @@ export function usePolling(pollIntervalMs: number) {
   const stop = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
+      intervalRef.current = null
     }
   }
 
@@ -30,6 +31,7 @@ export function usePolling(pollIntervalMs: number) {
   }, [])
 
   return {
+    isActive: intervalRef.current !== null,
     start,
     stop
   }

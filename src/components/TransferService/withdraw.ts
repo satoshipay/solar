@@ -1,18 +1,24 @@
+import BigNumber from "big.js"
 import React from "react"
-import { Asset, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Memo, Networks, Operation, Server, Transaction, xdr } from "stellar-sdk"
 import {
-  withdraw,
+  fetchTransaction,
+  fetchTransferInfos,
+  openTransferServer,
+  KYCResponseType,
+  TransferResultType,
   TransferServer,
   TransferStatus,
-  WithdrawalRequestKYC,
-  WithdrawalRequestSuccess
-} from "@satoshipay/stellar-sep-6"
-import { WebauthData } from "@satoshipay/stellar-sep-10"
+  Withdrawal,
+  WithdrawalInstructionsSuccess,
+  WithdrawalSuccessResponse
+} from "@satoshipay/stellar-transfer"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useHorizonURL, useWebAuth } from "../../hooks/stellar"
-import { signTransaction } from "../../lib/transaction"
-import { Action, initialState, stateMachine, BeforeWebauthState } from "./statemachine"
+import { useNetWorker } from "../../hooks/workers"
+import { createTransaction, signTransaction } from "../../lib/transaction"
+import { Action, initialState, stateMachine, WithdrawalStates } from "./statemachine"
 import { usePolling } from "./util"
 
 export interface WithdrawalRequestData {
@@ -27,149 +33,198 @@ export interface WithdrawalRequestData {
 
 const kycPollIntervalMs = 6000
 
-function sendWithdrawalRequest(request: WithdrawalRequestData, authToken?: string) {
-  const { account, asset, formValues, method, transferServer } = request
-  return withdraw(transferServer, method, asset.getCode(), authToken, { account, ...formValues } as any)
+function createWithdrawal(state: Omit<WithdrawalStates.EnterBasics, "step">): Withdrawal {
+  return Withdrawal(state.transferServer, state.asset, state.formValues as Record<string, string>)
+}
+
+function createMemo(response: WithdrawalSuccessResponse): Memo | undefined {
+  if (response.memo_type === "text" && response.memo) {
+    return Memo.text(response.memo)
+  } else if (response.memo_type === "hash" && response.memo) {
+    return Memo.hash(response.memo)
+  } else if (response.memo_type === "id" && response.memo) {
+    return Memo.id(response.memo)
+  } else {
+    return undefined
+  }
+}
+
+async function createWithdrawalTransaction(
+  account: Account,
+  accountData: Horizon.AccountResponse,
+  amount: BigNumber,
+  horizon: Server,
+  instructions: WithdrawalInstructionsSuccess,
+  withdrawal: Withdrawal
+): Promise<Transaction> {
+  const memo = createMemo(instructions.data)
+
+  const operations: xdr.Operation[] = [
+    Operation.payment({
+      amount: String(amount),
+      asset: withdrawal.asset,
+      destination: instructions.data.account_id
+    })
+  ]
+
+  return createTransaction(operations, {
+    accountData,
+    horizon,
+    memo,
+    walletAccount: account
+  })
 }
 
 export function useWithdrawalState(account: Account) {
+  const netWorker = useNetWorker()
   const horizonURL = useHorizonURL(account.testnet)
   const WebAuth = useWebAuth()
 
-  const [state, dispatch] = React.useReducer(stateMachine, initialState)
-  const [withdrawalRequestPending, setWithdrawalRequestPending] = React.useState(false)
-  const [withdrawalResponsePending, setWithdrawalResponsePending] = React.useState(false)
+  const [currentState, dispatch] = React.useReducer(stateMachine, initialState)
 
-  const handleWithdrawalInitResponse = (response: WithdrawalRequestSuccess | WithdrawalRequestKYC) => {
-    if (response.type === "success") {
-      dispatch(Action.successfulKYC(response.data))
+  const submitWithdrawalSelection = async (asset: Asset, method: string) => {
+    const issuerAccount = await netWorker.fetchAccountData(horizonURL, asset.issuer)
+    if (!issuerAccount) {
+      throw Error(`Cannot resolve account data of issuing account ${asset.issuer} of asset ${asset.code}.`)
+    }
+
+    const domain = issuerAccount.home_domain
+    if (!domain) {
+      throw Error(`Cannot resolve issuing account home domain: ${asset.issuer} of asset ${asset.code}`)
+    }
+
+    const transferServer = await openTransferServer(domain, account.testnet ? Networks.TESTNET : Networks.PUBLIC, {
+      walletName: "Solar",
+      walletURL: "https://solarwallet.io"
+    })
+
+    dispatch(Action.selectType(asset, method, transferServer))
+  }
+
+  const performWebAuth = async (asset: Asset, domain: string, password: string) => {
+    const webauthMetadata = await WebAuth.fetchWebAuthData(horizonURL, asset.issuer)
+    if (!webauthMetadata) {
+      throw Error(`Cannot initialize Stellar web authentication at ${domain}`)
+    }
+
+    const cachedAuthToken = WebAuth.getCachedAuthToken(webauthMetadata.endpointURL, account.publicKey)
+    if (cachedAuthToken) {
+      dispatch(Action.setAuthToken(cachedAuthToken))
+      return cachedAuthToken
+    }
+
+    const challenge = await WebAuth.fetchChallenge(
+      webauthMetadata.endpointURL,
+      webauthMetadata.signingKey,
+      account.publicKey
+    )
+
+    const transaction = await signTransaction(challenge, account, password)
+    const authToken = await WebAuth.postResponse(webauthMetadata.endpointURL, transaction, account.testnet)
+
+    dispatch(Action.setAuthToken(authToken))
+    return authToken
+  }
+
+  const requestWithdrawal = async (withdrawal: Withdrawal, amount: BigNumber, authToken?: string) => {
+    const instructions = await withdrawal.interactive(authToken)
+    const accountData = await netWorker.fetchAccountData(horizonURL, account.publicKey)
+
+    if (!accountData) {
+      throw Error(`Cannot fetch account data of ${account.publicKey} from ${horizonURL}`)
+    }
+
+    if (instructions.type === TransferResultType.ok) {
+      const transaction = await createWithdrawalTransaction(
+        account,
+        accountData,
+        amount,
+        new Server(horizonURL),
+        instructions,
+        withdrawal
+      )
+      dispatch(Action.waitForStellarTx(instructions, transaction))
       stopKYCPolling()
-    } else if (response.data.type === "interactive_customer_info_needed") {
-      dispatch(Action.startInteractiveKYC(response.data))
+    } else if (instructions.type === TransferResultType.kyc && instructions.subtype === KYCResponseType.interactive) {
+      // sandbox.anchorusd.com seems to use `identifier` instead of `id`
+      const transactionID = (instructions.data as any).id || (instructions.data as any).identifier
+      startKYCPolling(() => pollKYCStatus(withdrawal, amount, transactionID, authToken))
+      dispatch(
+        Action.conductKYC(
+          withdrawal,
+          instructions.data,
+          "authToken" in currentState ? currentState.authToken : undefined
+        )
+      )
     } else {
-      throw Error(`Unexpected response type: ${response.type} / ${response.data.type}`)
+      throw Error(`Unexpected response type: ${instructions.type} / ${instructions.data.type}`)
     }
   }
 
-  const handleWithdrawalFormSubmission = async (
-    transferServer: TransferServer,
-    asset: Asset,
-    method: string,
-    formValues: { [fieldName: string]: string }
+  const submitWithdrawalFieldValues = async (
+    amount: BigNumber,
+    details: Omit<WithdrawalStates.EnterBasics, "step">
   ) => {
-    try {
-      const withdrawalRequest: WithdrawalRequestData = {
-        account: account.publicKey,
-        asset,
-        formValues,
-        method,
-        transferServer
-      }
-      setWithdrawalRequestPending(true)
-      const webauthMetadata = await WebAuth.fetchWebAuthData(horizonURL, asset.getIssuer())
+    dispatch(Action.captureWithdrawalInput(details.formValues))
 
-      if (webauthMetadata) {
-        const webauth = {
-          ...webauthMetadata,
-          transaction: await WebAuth.fetchChallenge(
-            webauthMetadata.endpointURL,
-            webauthMetadata.signingKey,
-            account.publicKey
-          )
-        }
-        const cachedAuthToken = WebAuth.getCachedAuthToken(webauthMetadata.endpointURL, account.publicKey)
-        dispatch(Action.saveInitFormData(transferServer, asset, method, formValues, webauth))
+    const infos = await fetchTransferInfos(details.transferServer)
+    const assetInfo = infos.assets.find(info => info.asset.equals(details.asset))
+    const withdraw = assetInfo && assetInfo.withdraw
 
-        if (cachedAuthToken) {
-          dispatch(Action.setAuthToken(cachedAuthToken))
-          await requestWithdrawal(withdrawalRequest, cachedAuthToken)
-        }
-      } else {
-        dispatch(Action.saveInitFormData(transferServer, asset, method, formValues, undefined))
-        await requestWithdrawal(withdrawalRequest)
-      }
-    } catch (error) {
-      trackError(error)
-    } finally {
-      setWithdrawalRequestPending(false)
+    if (!withdraw || !withdraw.enabled) {
+      throw Error(`Asset ${details.asset.code} seems to not be withdrawable via ${details.transferServer.domain}`)
+    }
+
+    const withdrawal = createWithdrawal(details)
+
+    if (withdraw.authentication_required) {
+      dispatch(Action.conductAuth(withdrawal))
+    } else {
+      await requestWithdrawal(withdrawal, amount)
     }
   }
 
-  const performWebAuthentication = async (
-    details: BeforeWebauthState["details"],
-    webauthData: WebauthData & { transaction: Transaction },
-    password: string | null
-  ) => {
-    try {
-      const withdrawalRequest: WithdrawalRequestData = {
-        ...details,
-        account: account.publicKey
-      }
-      const transaction = await signTransaction(webauthData.transaction, account, password)
-      const authToken = await WebAuth.postResponse(webauthData.endpointURL, transaction, account.testnet)
-      dispatch(Action.setAuthToken(authToken))
-      await requestWithdrawal(withdrawalRequest, authToken)
-    } catch (error) {
-      // tslint:disable-next-line no-console
-      console.error(error)
-      trackError(Error("Web authentication failed"))
+  const afterSuccessfulExecution = () => dispatch(Action.completed())
+
+  const pollKYCStatus = async (withdrawal: Withdrawal, amount: BigNumber, transferTxId: string, authToken?: string) => {
+    if (window.navigator.onLine === false) {
+      return
     }
-  }
 
-  const requestWithdrawal = async (withdrawalRequest: WithdrawalRequestData, authToken?: string) => {
     try {
-      setWithdrawalResponsePending(true)
-      const initResponse = await sendWithdrawalRequest(withdrawalRequest, authToken)
-      handleWithdrawalInitResponse(initResponse)
+      const authToken = "authToken" in currentState ? currentState.authToken : undefined
+      const { transaction } = await fetchTransaction(withdrawal.transferServer, transferTxId, "transfer", authToken)
 
-      if (initResponse.type === "kyc") {
-        // sandbox.anchorusd.com seems to use `identifier` instead of `id`
-        const transactionID = (initResponse.data as any).id || (initResponse.data as any).identifier
-        startKYCPolling(() => pollKYCStatus(withdrawalRequest, transactionID, authToken))
-      }
-    } catch (error) {
-      trackError(error)
-    } finally {
-      setWithdrawalResponsePending(false)
-    }
-  }
-
-  const pollKYCStatus = async (request: WithdrawalRequestData, transferTxId: string, authToken?: string) => {
-    if (window.navigator.onLine !== false) {
-      try {
-        const { transaction } = await request.transferServer.fetchTransaction(transferTxId)
-
-        if (transaction.status === TransferStatus.incomplete) {
-          // Transfer transaction is still incomplete. Waiting for KYC to finish…
-          return
-        }
-      } catch (error) {
-        // tslint:disable-next-line no-console
-        console.warn(error)
+      if (transaction.status === TransferStatus.incomplete) {
+        // Transfer transaction is still incomplete. Waiting for KYC to finish…
         return
       }
-      const response = await sendWithdrawalRequest(request, authToken)
-      handleWithdrawalInitResponse(response)
+
+      await requestWithdrawal(withdrawal, amount, authToken)
+    } catch (error) {
+      return trackError(error)
     }
   }
 
-  const { start: startKYCPolling, stop: stopKYCPolling } = usePolling(kycPollIntervalMs)
+  const { isActive: isKYCPollingActive, start: startKYCPolling, stop: stopKYCPolling } = usePolling(kycPollIntervalMs)
 
-  const startOver = () => {
-    stopKYCPolling()
-    dispatch(Action.backToStart())
+  const navigateBack = () => {
+    if (isKYCPollingActive) {
+      stopKYCPolling()
+    }
+    dispatch(Action.navigateBack())
   }
 
   const actions = {
-    handleWithdrawalFormSubmission,
-    performWebAuthentication,
-    startOver
+    afterSuccessfulExecution,
+    navigateBack,
+    performWebAuth,
+    submitWithdrawalFieldValues,
+    submitWithdrawalSelection
   }
 
   return {
     actions,
-    state,
-    withdrawalRequestPending,
-    withdrawalResponsePending
+    state: currentState
   }
 }
