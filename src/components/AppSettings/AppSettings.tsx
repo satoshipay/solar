@@ -55,7 +55,7 @@ function AppSettings() {
             primaryText="Biometric authentication"
             secondaryText={
               !settings.biometricAvailability.enrolled
-                ? "Cannot be enabled because you are not enrolled in biometric authentication"
+                ? "Configure biometric authentication in your operating system settings"
                 : settings.biometricLock
                 ? "Biometric authentication is enabled"
                 : "Biometric authentication is disabled"
