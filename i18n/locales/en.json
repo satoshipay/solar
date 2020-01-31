@@ -99,6 +99,63 @@
     },
     "title": "Add Asset"
   },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "Description",
+        "text": "The native token of the Stellar network.\n\n Every account on the network has a lumens balance. Lumens are used to pay transaction fees."
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "Authorization by issuer required",
+        "auth-not-required": "No authorization required",
+        "auth-revocable": "Authorization revocable",
+        "auth-not-revocable": "Authorization not revocable",
+        "auth-immutable": "These flags are immutable",
+        "auth-mutable": "Issuer can change these flags",
+        "label": "Account flags"
+      },
+      "anchor-asset": {
+        "label": "Anchored to"
+      },
+      "conditions": {
+        "label": "Conditions"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "issuing-account": {
+        "label": "Issuing account"
+      },
+      "organisation": {
+        "address": {
+          "label": "Address"
+        },
+        "dba": {
+          "label": "Doing business as"
+        },
+        "description": {
+          "label": "Description"
+        },
+        "email": {
+          "label": "Email address"
+        },
+        "name": {
+          "label": "Organization name"
+        },
+        "phone-number": {
+          "label": "Phone number"
+        },
+        "website": {
+          "label": "Website"
+        }
+      },
+      "redemption-instructions": {
+        "label": "Redemption instructions"
+      }
+    }
+  },
   "balance-details": {
     "button": {
       "add-asset": {
