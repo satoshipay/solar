@@ -53,6 +53,35 @@
       }
     }
   },
+  "export-key": {
+    "actions": {
+      "confirm": "Done",
+      "reveal": {
+        "long": "Reveal key",
+        "short": "Click to reveal secret key"
+      }
+    },
+    "info": {
+      "backup": {
+        "1": "Please back up your secret key now.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "export": {
+        "1": "Your secret key must be stored in a safe place and must not be shared with anyone.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "secret-key": "Write down the key on paper and store it in a safe place."
+    },
+    "textfield": {
+      "password": {
+        "label": "Password"
+      }
+    },
+    "title": {
+      "default": "Export Secret Key",
+      "initial-backup": "Secret Key Backup"
+    }
+  },
   "set-password": {
     "actions": {
       "change-password": {
