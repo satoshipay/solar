@@ -90,7 +90,7 @@ function AccountTransactions(props: { account: Account }) {
           <VerticalLayout
             alignItems="stretch"
             margin="0 auto"
-            style={{ padding: isSmallScreen ? "16px 28px" : "30px 28px", width: "fit-content" }}
+            style={{ padding: isSmallScreen ? "16px 28px" : "32px 28px", width: "fit-content" }}
           >
             {account.testnet ? (
               <FriendbotButton
