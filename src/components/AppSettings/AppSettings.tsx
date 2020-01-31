@@ -41,20 +41,24 @@ function AppSettings() {
   return (
     <>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
-        {settings.biometricLockUsable ? (
+        {settings.biometricAvailability.available ? (
           <AppSettingsItem
             actions={
               <SettingsToggle
-                checked={settings.biometricLock && settings.biometricLockUsable}
-                disabled={!settings.biometricLockUsable}
+                checked={settings.biometricLock && settings.biometricAvailability.enrolled}
+                disabled={!settings.biometricAvailability.enrolled}
                 onChange={settings.toggleBiometricLock}
               />
             }
             icon={<FingerprintIcon style={{ fontSize: "100%" }} />}
-            onClick={settings.toggleBiometricLock}
+            onClick={settings.biometricAvailability.enrolled ? settings.toggleBiometricLock : undefined}
             primaryText="Biometric authentication"
             secondaryText={
-              settings.biometricLock ? "Biometric authentication is enabled" : "Biometric authentication is disabled"
+              !settings.biometricAvailability.enrolled
+                ? "Configure biometric authentication in your operating system settings"
+                : settings.biometricLock
+                ? "Biometric authentication is enabled"
+                : "Biometric authentication is disabled"
             }
           />
         ) : null}

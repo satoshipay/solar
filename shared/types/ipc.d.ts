@@ -52,7 +52,7 @@ declare namespace IPC {
     [Messages.ShowSplashScreen]: () => void
     [Messages.HideSplashScreen]: () => void
 
-    [Messages.BioAuthAvailable]: () => boolean
+    [Messages.BioAuthAvailable]: () => BiometricAvailability
     [Messages.TestBioAuth]: () => string | undefined
 
     [Messages.NotificationPermission]: () => NotificationPermission

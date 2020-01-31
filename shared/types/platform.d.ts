@@ -12,3 +12,8 @@ declare namespace NodeJS {
     browser?: boolean
   }
 }
+
+interface BiometricAvailability {
+  available: boolean
+  enrolled: boolean
+}

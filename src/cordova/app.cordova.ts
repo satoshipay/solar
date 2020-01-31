@@ -16,7 +16,7 @@ import { registerNotificationHandler } from "./notifications"
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 
 let bioAuthInProgress: Promise<void> | undefined
-let bioAuthAvailablePromise: Promise<boolean>
+let bioAuthAvailablePromise: Promise<BiometricAvailability>
 let isBioAuthAvailable = false
 
 let lastNativeInteractionTime: number = 0
@@ -75,7 +75,8 @@ function onDeviceReady() {
   // getCurrentSettings() won't be reliable
   initializeStorage(contentWindow)
     .then(async () => {
-      isBioAuthAvailable = await bioAuthAvailablePromise
+      const bioAuthAvailabilityResult = await bioAuthAvailablePromise
+      isBioAuthAvailable = bioAuthAvailabilityResult.available
 
       if (isBioAuthEnabled()) {
         await authenticate(contentWindow)
@@ -235,8 +236,8 @@ function setupBioAuthTestHandler() {
 function setupBioAuthAvailableHandler() {
   const messageHandler = async () => {
     const checkAuthAvailability = async () => {
-      const authAvailable = await isBiometricAuthAvailable()
-      return authAvailable
+      const authAvailableResult = await isBiometricAuthAvailable()
+      return authAvailableResult
       // sendSuccessResponse(contentWindow, event, authAvailable)
     }
 

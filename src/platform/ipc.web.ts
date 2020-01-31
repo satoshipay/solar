@@ -157,7 +157,7 @@ function initSettings() {
     hideMemos: false
   }
 
-  callHandlers[Messages.BioAuthAvailable] = () => false
+  callHandlers[Messages.BioAuthAvailable] = () => ({ available: false, enrolled: false })
 
   callHandlers[Messages.ReadSettings] = () => settings
   callHandlers[Messages.StoreSettings] = (updatedSettings: Partial<Platform.SettingsData>) => {
