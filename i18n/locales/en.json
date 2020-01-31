@@ -235,5 +235,54 @@
       "passwords-no-match": "Password does not match",
       "previous-password-missing": "Current password is missing."
     }
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "Confirm",
+      "dismiss": "Dismiss",
+      "inspect": "Inspect",
+      "show-more": "Show more details"
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "Account"
+        },
+        "authenticating-account": {
+          "label": "Authenticating Account"
+        },
+        "expiry": {
+          "label": "Expiry"
+        },
+        "max-fee": {
+          "label": "Maximum fee"
+        },
+        "service": {
+          "label": "Service"
+        },
+        "submission": {
+          "label": "Submission"
+        },
+        "tx-hash": {
+          "label": "Transaction Hash"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "Password"
+      }
+    },
+    "title": {
+      "transaction": "Transaction",
+      "payment": "Payment",
+      "delete-orders-operation": "Delete Trading Orders",
+      "web-auth": "Web Authentication"
+    },
+    "validation": {
+      "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
+      "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
+      "password-required": "Password required"
+    }
   }
 }

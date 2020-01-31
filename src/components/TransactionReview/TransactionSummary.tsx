@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Operation, Transaction } from "stellar-sdk"
 import Collapse from "@material-ui/core/Collapse"
 import Divider from "@material-ui/core/Divider"
@@ -71,6 +72,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
     theme.transitions.duration.shortest
   )
   const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
+  const { t } = useTranslation()
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
   const showAllMetadata = React.useCallback(() => setShowingAllMetadata(true), [])
@@ -133,7 +135,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
             <SummaryItem>
               <SummaryDetailsField
                 fullWidth
-                label="Account"
+                label={t("transaction-review.summary.item.account.label")}
                 value={<CopyableAddress address={props.transaction.source} variant="short" />}
               />
             </SummaryItem>
@@ -142,18 +144,22 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
             <SummaryItem>
               <SummaryDetailsField
                 fullWidth
-                label="Transaction Hash"
+                label={t("transaction-review.summary.item.tx-hash.label")}
                 value={<ClickableAddress address={transactionHash} variant="shorter" />}
               />
             </SummaryItem>
           ) : null}
           <SummaryItem>
             <SummaryDetailsField
-              label="Maximum fee"
+              label={t("transaction-review.summary.item.max-fee.label")}
               value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />}
             />
             {transaction.created_at ? (
-              <SummaryDetailsField fullWidth label="Submission" value={getTime(transaction.created_at)} />
+              <SummaryDetailsField
+                fullWidth
+                label={t("transaction-review.summary.item.submission.label")}
+                value={getTime(transaction.created_at)}
+              />
             ) : null}
           </SummaryItem>
         </VerticalLayout>
@@ -170,6 +176,7 @@ interface WebAuthTransactionSummaryProps {
 
 function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
   const signingKeyCache = React.useContext(SigningKeyCacheContext).cache
+  const { t } = useTranslation()
   const { timeBounds } = props.transaction
 
   const domain = signingKeyCache.get(props.transaction.source)
@@ -177,25 +184,25 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
   const maxTime = timeBounds ? Math.round(Number.parseInt(timeBounds.maxTime, 10) * 1000) : 0
 
   if (!manageDataOperation) {
-    throw Error("Invariant violation: Stellar web auth transaction must contain a manage_data operation.")
+    throw Error(t("transaction-review.validation.no-manage-data-operation"))
   }
 
   return (
     <List disablePadding style={props.style}>
       <SummaryItem>
         <SummaryDetailsField
-          label="Service"
+          label={t("transaction-review.summary.item.service.label")}
           value={domain ? domain : <AccountName publicKey={props.transaction.source} testnet={props.testnet} />}
         />
         <SummaryDetailsField
-          label="Authenticating Account"
+          label={t("transaction-review.summary.item.authenticating-account.label")}
           value={<CopyableAddress address={manageDataOperation.source || ""} variant="short" />}
         />
       </SummaryItem>
       <Divider />
       {maxTime ? (
         <SummaryItem>
-          <SummaryDetailsField label="Expiry" value={getTime(maxTime)} />
+          <SummaryDetailsField label={t("transaction-review.summary.item.expiry.label")} value={getTime(maxTime)} />
         </SummaryItem>
       ) : null}
     </List>
@@ -216,15 +223,13 @@ function TransactionSummary(props: TransactionSummaryProps) {
   const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
   const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
+  const { t } = useTranslation()
 
   const accountData = accountDataSet.find(someAccountData => someAccountData.id === props.transaction.source)
   const showSigners = accountDataSet.some(someAccountData => someAccountData.signers.length > 1)
 
   if (!accountData) {
-    throw new Error(
-      "Invariant violation: " +
-        "Cannot find the transaction source account's account data in set of account data subscriptions."
-    )
+    throw new Error(t("transaction-review.validation.no-account-data"))
   }
 
   const isDangerousSignatureRequest = React.useMemo(() => {

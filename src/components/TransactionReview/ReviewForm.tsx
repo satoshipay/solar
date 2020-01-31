@@ -1,5 +1,6 @@
 import nanoid from "nanoid"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Transaction } from "stellar-sdk"
 import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
@@ -14,9 +15,9 @@ import { createCheapTxID } from "../../lib/transaction"
 import { openLink } from "../../platform/links"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
+import Portal from "../Portal"
 import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
 import TransactionSummary from "./TransactionSummary"
-import Portal from "../Portal"
 
 type FormErrors = { [formField in keyof FormValues]: Error | null }
 
@@ -46,6 +47,7 @@ function TxConfirmationForm(props: Props) {
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
   const [loading, setLoading] = React.useState<boolean>(false)
+  const { t } = useTranslation()
 
   const passwordError = props.passwordError || errors.password
 
@@ -93,7 +95,7 @@ function TxConfirmationForm(props: Props) {
         setLoading(false)
         return setErrors({
           ...errors,
-          password: new Error("Password required")
+          password: new Error(t("transaction-review.validation.password-required"))
         })
       }
 
@@ -133,7 +135,9 @@ function TxConfirmationForm(props: Props) {
           <TextField
             autoFocus={process.env.PLATFORM !== "ios"}
             error={Boolean(passwordError)}
-            label={passwordError ? renderFormFieldError(passwordError) : "Password"}
+            label={
+              passwordError ? renderFormFieldError(passwordError) : t("transaction-review.textfield.password.label")
+            }
             type="password"
             fullWidth
             margin="dense"
@@ -147,7 +151,7 @@ function TxConfirmationForm(props: Props) {
         <DialogActionsBox smallDialog={props.disabled && !props.signatureRequest}>
           {props.signatureRequest ? (
             <ActionButton icon={DismissIcon} onClick={requestDismissalConfirmation}>
-              Dismiss
+              {t("transaction-review.action.dismiss")}
             </ActionButton>
           ) : null}
           {props.disabled ? null : (
@@ -158,12 +162,12 @@ function TxConfirmationForm(props: Props) {
               onClick={showLoadingIndicator}
               type="submit"
             >
-              Confirm
+              {t("transaction-review.action.confirm")}
             </ActionButton>
           )}
           {props.disabled && !props.signatureRequest ? (
             <ActionButton icon={<OpenInNewIcon />} onClick={openInStellarExpert} type="secondary">
-              Inspect
+              {t("transaction-review.action.inspect")}
             </ActionButton>
           ) : null}
         </DialogActionsBox>
