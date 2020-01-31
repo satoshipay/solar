@@ -2,10 +2,15 @@ import BigNumber from "big.js"
 import React from "react"
 import { Asset, Horizon, Transaction, Operation } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
+import ExpansionPanel from "@material-ui/core/ExpansionPanel"
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
 import InputAdornment from "@material-ui/core/InputAdornment"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import GavelIcon from "@material-ui/icons/Gavel"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
@@ -35,6 +40,33 @@ function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
+const useStyles = makeStyles({
+  expansionPanel: {
+    background: "transparent",
+    margin: "8px 0 !important",
+
+    "&:before": {
+      background: "transparent"
+    }
+  },
+  expansionPanelSummary: {
+    justifyContent: "flex-start",
+    minHeight: "48px !important",
+    padding: 0
+  },
+  expansionPanelSummaryContent: {
+    flexGrow: 0,
+    marginTop: "0 !important",
+    marginBottom: "0 !important"
+  },
+  expansionPanelDetails: {
+    justifyContent: "flex-start",
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 12
+  }
+})
+
 interface ManualPrice {
   error?: Error
   value?: string
@@ -53,6 +85,7 @@ interface Props {
 }
 
 function TradingForm(props: Props) {
+  const classes = useStyles()
   const isSmallScreen = useIsMobile()
   const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
   const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
@@ -62,6 +95,7 @@ function TradingForm(props: Props) {
   const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
   const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
   const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
+  const [expanded, setExpanded] = React.useState(false)
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
@@ -183,7 +217,6 @@ function TradingForm(props: Props) {
       alignItems="stretch"
       alignSelf={isSmallScreenXY ? undefined : "center"}
       grow={1}
-      justifyContent={isSmallScreenXY ? undefined : "center"}
       minHeight={300}
       maxHeight="100%"
       margin={isSmallScreen ? undefined : "32px 0 0"}
@@ -200,7 +233,7 @@ function TradingForm(props: Props) {
         shrink={0}
         width="100%"
       >
-        <HorizontalLayout>
+        <HorizontalLayout margin="8px 0">
           <AssetSelector
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
             label={props.primaryAction === "buy" ? "You buy" : "You sell"}
@@ -251,22 +284,7 @@ function TradingForm(props: Props) {
             value={primaryAmountString}
           />
         </HorizontalLayout>
-        <HorizontalLayout margin="24px 0">
-          <div style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }} />
-          <TradingPrice
-            inputError={manualPrice.error}
-            manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
-            onBlur={validatePrice}
-            onChange={updatePrice}
-            onSetPriceDenotedIn={setPriceMode}
-            price={effectivePrice}
-            priceDenotedIn={priceMode}
-            primaryAsset={primaryAsset}
-            secondaryAsset={secondaryAsset}
-            style={{ flexGrow: 1, width: "55%" }}
-          />
-        </HorizontalLayout>
-        <HorizontalLayout>
+        <HorizontalLayout margin="8px 0 32px">
           <AssetSelector
             label={props.primaryAction === "buy" ? "Spend" : "Receive"}
             minWidth={75}
@@ -292,15 +310,35 @@ function TradingForm(props: Props) {
             }
           />
         </HorizontalLayout>
-        <HorizontalLayout justifyContent="center" margin="32px 0 0" textAlign="center">
-          <Typography color="textSecondary" variant="body1">
-            {props.primaryAction === "buy"
-              ? `«Buy ${bigNumberToInputValue(primaryAmount)} ${primaryAsset ? primaryAsset.getCode() : "-"} ` +
-                `for ${bigNumberToInputValue(secondaryAmount)} ${secondaryAsset ? secondaryAsset.getCode() : "-"}»`
-              : `«Sell ${bigNumberToInputValue(primaryAmount)} ${primaryAsset ? primaryAsset.getCode() : "-"} ` +
-                `for ${bigNumberToInputValue(secondaryAmount)} ${secondaryAsset ? secondaryAsset.getCode() : "-"}»`}
-          </Typography>
-        </HorizontalLayout>
+        <ExpansionPanel
+          className={classes.expansionPanel}
+          elevation={0}
+          expanded={expanded}
+          onChange={() => setExpanded(!expanded)}
+        >
+          <ExpansionPanelSummary
+            classes={{ root: classes.expansionPanelSummary, content: classes.expansionPanelSummaryContent }}
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography align="center" style={{ flexGrow: 1 }}>
+              Advanced
+            </Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails className={classes.expansionPanelDetails}>
+            <TradingPrice
+              inputError={manualPrice.error}
+              manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
+              onBlur={validatePrice}
+              onChange={updatePrice}
+              onSetPriceDenotedIn={setPriceMode}
+              price={effectivePrice}
+              priceDenotedIn={priceMode}
+              primaryAsset={primaryAsset}
+              secondaryAsset={secondaryAsset}
+              style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
+            />
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
         {relativeSpread >= 0.015 ? (
           <Box margin="32px 0 0" padding="8px 12px" style={{ background: warningColor }}>
             <b>Warning</b>
