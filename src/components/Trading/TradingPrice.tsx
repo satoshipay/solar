@@ -50,7 +50,7 @@ function TradingPrice(props: TradingPriceProps) {
       }}
       InputProps={{ endAdornment }}
       error={Boolean(props.inputError)}
-      label={props.inputError ? props.inputError.message : "Limit price"}
+      label={props.inputError ? props.inputError.message : "Price (limit)"}
       onBlur={props.onBlur}
       onChange={event => props.onChange(event.target.value)}
       style={props.style}

@@ -43,20 +43,27 @@ function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
 const useStyles = makeStyles({
   expansionPanel: {
     background: "transparent",
-    margin: "8px 0",
+    margin: "8px 0 !important",
+
     "&:before": {
       background: "transparent"
     }
   },
   expansionPanelSummary: {
-    "&:hover": {
-      "@media (hover: hover)": {
-        backgroundColor: "rgba(0, 0, 0, 0.12) !important"
-      },
-      "@media (hover: none)": {
-        backgroundColor: "rgba(0, 0, 0, 0.08) !important"
-      }
-    }
+    justifyContent: "flex-start",
+    minHeight: "48px !important",
+    padding: 0
+  },
+  expansionPanelSummaryContent: {
+    flexGrow: 0,
+    marginTop: "0 !important",
+    marginBottom: "0 !important"
+  },
+  expansionPanelDetails: {
+    justifyContent: "flex-start",
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 12
   }
 })
 
@@ -210,7 +217,6 @@ function TradingForm(props: Props) {
       alignItems="stretch"
       alignSelf={isSmallScreenXY ? undefined : "center"}
       grow={1}
-      justifyContent={isSmallScreenXY ? undefined : "center"}
       minHeight={300}
       maxHeight="100%"
       margin={isSmallScreen ? undefined : "32px 0 0"}
@@ -278,7 +284,7 @@ function TradingForm(props: Props) {
             value={primaryAmountString}
           />
         </HorizontalLayout>
-        <HorizontalLayout margin="8px 0">
+        <HorizontalLayout margin="8px 0 32px">
           <AssetSelector
             label={props.primaryAction === "buy" ? "Spend" : "Receive"}
             minWidth={75}
@@ -310,12 +316,15 @@ function TradingForm(props: Props) {
           expanded={expanded}
           onChange={() => setExpanded(!expanded)}
         >
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} className={classes.expansionPanelSummary}>
+          <ExpansionPanelSummary
+            classes={{ root: classes.expansionPanelSummary, content: classes.expansionPanelSummaryContent }}
+            expandIcon={<ExpandMoreIcon />}
+          >
             <Typography align="center" style={{ flexGrow: 1 }}>
-              {expanded ? "Less Options" : "More Options"}
+              Advanced
             </Typography>
           </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          <ExpansionPanelDetails className={classes.expansionPanelDetails}>
             <TradingPrice
               inputError={manualPrice.error}
               manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
@@ -326,19 +335,10 @@ function TradingForm(props: Props) {
               priceDenotedIn={priceMode}
               primaryAsset={primaryAsset}
               secondaryAsset={secondaryAsset}
-              style={{ flexGrow: 1, width: "55%" }}
+              style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
-        <HorizontalLayout justifyContent="center" margin="32px 0 0" textAlign="center">
-          <Typography color="textSecondary" variant="body1">
-            {props.primaryAction === "buy"
-              ? `«Buy ${bigNumberToInputValue(primaryAmount)} ${primaryAsset ? primaryAsset.getCode() : "-"} ` +
-                `for ${bigNumberToInputValue(secondaryAmount)} ${secondaryAsset ? secondaryAsset.getCode() : "-"}»`
-              : `«Sell ${bigNumberToInputValue(primaryAmount)} ${primaryAsset ? primaryAsset.getCode() : "-"} ` +
-                `for ${bigNumberToInputValue(secondaryAmount)} ${secondaryAsset ? secondaryAsset.getCode() : "-"}»`}
-          </Typography>
-        </HorizontalLayout>
         {relativeSpread >= 0.015 ? (
           <Box margin="32px 0 0" padding="8px 12px" style={{ background: warningColor }}>
             <b>Warning</b>
