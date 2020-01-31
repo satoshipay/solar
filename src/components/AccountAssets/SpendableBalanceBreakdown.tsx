@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -136,6 +137,7 @@ interface Props {
 
 function SpendableBalanceBreakdown(props: Props) {
   const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const { t } = useTranslation()
 
   const nativeBalance = props.accountData.balances.find(balance => balance.asset_type === "native")
   const trustedAssetBalances = props.accountData.balances.filter(balance => balance.asset_type !== "native")
@@ -157,64 +159,68 @@ function SpendableBalanceBreakdown(props: Props) {
 
   return (
     <List style={{ padding: 0 }}>
-      <BreakdownHeadline right="Amounts in XLM" />
+      <BreakdownHeadline right={t("balance-details.spendable-balances.headline")} />
       <BreakdownItem
         amount={rawBalance.toFixed(1)}
-        primary="Total balance"
-        secondary="Your balance, incl. unspendable"
+        primary={t("balance-details.spendable-balances.total-balance.primary")}
+        secondary={t("balance-details.spendable-balances.total-balance.secondary")}
         style={props.style}
         variant="gross"
       />
       <BreakdownItem
         amount={props.baseReserve.toFixed(1)}
         indent
-        primary="Base reserve"
-        secondary="Fixed base reserve"
+        primary={t("balance-details.spendable-balances.base-reserve.primary")}
+        secondary={t("balance-details.spendable-balances.base-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={signersReserve.toFixed(1)}
         indent
-        primary="Account signers reserve"
-        secondary={props.accountData.signers.length === 1 ? "Single key reserve" : "Master key + co-signers"}
+        primary={t("balance-details.spendable-balances.signers-reserve.primary")}
+        secondary={
+          props.accountData.signers.length === 1
+            ? t("balance-details.spendable-balances.signers-reserve.secondary.single-key")
+            : t("balance-details.spendable-balances.signers-reserve.secondary.multiple-keys")
+        }
         style={props.style}
       />
       <BreakdownItem
         amount={trustlinesReserve.toFixed(1)}
         hide={trustlinesReserve === 0}
         indent
-        primary="Trustlines reserve"
-        secondary="For each non-XLM balance"
+        primary={t("balance-details.spendable-balances.trustline-reserve.primary")}
+        secondary={t("balance-details.spendable-balances.trustline-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={openOrdersReserve.toFixed(1)}
         hide={openOrdersReserve === 0}
         indent
-        primary="Open orders reserve"
-        secondary="Open SDEX orders"
+        primary={t("balance-details.spendable-balances.open-orders-reserve.primary")}
+        secondary={t("balance-details.spendable-balances.open-orders-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={dataReserve.toFixed(1)}
         hide={dataReserve === 0}
         indent
-        primary="Data fields reserve"
-        secondary="Account data fields"
+        primary={t("balance-details.spendable-balances.data-reserve.primary")}
+        secondary={t("balance-details.spendable-balances.data-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={sellingLiabilities.toString()}
         hide={sellingLiabilities.eq(0)}
         indent
-        primary="Selling liabilities"
-        secondary="Covers open orders"
+        primary={t("balance-details.spendable-balances.selling-liabilities.primary")}
+        secondary={t("balance-details.spendable-balances.selling-liabilities.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={spendableBalance.toString()}
-        primary="Spendable balance"
-        secondary="Freely useable amount"
+        primary={t("balance-details.spendable-balances.spendable-balance.primary")}
+        secondary={t("balance-details.spendable-balances.spendable-balance.secondary")}
         style={props.style}
         variant="total"
       />

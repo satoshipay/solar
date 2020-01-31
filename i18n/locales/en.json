@@ -109,6 +109,44 @@
       "spendable-balance": {
         "primary": "Spendable balance"
       }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "Base reserve",
+        "secondary": "Fixed base reserve"
+      },
+      "data-reserve": {
+        "primary": "Data fields reserve",
+        "secondary": "Account data fields"
+      },
+      "headline": "Amounts in XLM",
+      "open-orders-reserve": {
+        "primary": "Open orders reserve",
+        "secondary": "Open SDEX orders"
+      },
+      "selling-liabilities": {
+        "primary": "Selling liabilities",
+        "secondary": "Covers open orders"
+      },
+      "signers-reserve": {
+        "primary": "Account signers reserve",
+        "secondary": {
+          "single-key": "Single key reserve",
+          "multiple-keys": "Master key + co-signers"
+        }
+      },
+      "spendable-balance": {
+        "primary": "Spendable balance",
+        "secondary": "Freely usable amount"
+      },
+      "total-balance": {
+        "primary": "Total balance",
+        "secondary": "Your balance, incl. unspendable"
+      },
+      "trustline-reserve": {
+        "primary": "Trustlines reserve",
+        "secondary": "For each non-XLM balance"
+      }
     }
   },
   "custom-trustline": {
