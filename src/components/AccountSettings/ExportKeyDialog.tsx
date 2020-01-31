@@ -38,7 +38,7 @@ function PromptToReveal(props: PromptToRevealProps) {
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
           <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} type="primary">
-            {isSmallScreen ? t("export-key.actions.reveal.short") : t("export-key.actions.reveal.long")}
+            {isSmallScreen ? t("export-key.action.reveal.short") : t("export-key.action.reveal.long")}
           </ActionButton>
         </DialogActionsBox>
       }
@@ -88,7 +88,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
         props.onConfirm ? (
           <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
             <ActionButton onClick={props.onConfirm} type="primary">
-              {t("export-key.actions.confirm")}
+              {t("export-key.action.confirm")}
             </ActionButton>
           </DialogActionsBox>
         ) : null

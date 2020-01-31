@@ -54,7 +54,7 @@
     }
   },
   "export-key": {
-    "actions": {
+    "action": {
       "confirm": "Done",
       "reveal": {
         "long": "Reveal key",
@@ -83,7 +83,7 @@
     }
   },
   "set-password": {
-    "actions": {
+    "action": {
       "change-password": {
         "long": "Change password",
         "short": "Change"

@@ -78,24 +78,24 @@ function Actions(props: ActionsProps) {
         isSmallScreen ? (
           <ActionButton onClick={props.onToggleRemovePassword} type="secondary">
             {props.removePassword
-              ? t("set-password.actions.change-password.long")
-              : t("set-password.actions.remove-password.long")}
+              ? t("set-password.action.change-password.long")
+              : t("set-password.action.remove-password.long")}
           </ActionButton>
         ) : (
           <FormControlLabel
             control={<Switch checked={props.removePassword} color="primary" onChange={props.onToggleRemovePassword} />}
-            label={t("set-password.actions.remove-password.long")}
+            label={t("set-password.action.remove-password.long")}
           />
         )
       ) : null}
       <ActionButton icon={<LockIcon />} onClick={props.onSubmit} type="primary">
         {isSmallScreen
           ? props.removePassword
-            ? t("set-password.actions.remove-password.long")
-            : t("set-password.actions.change-password.short")
+            ? t("set-password.action.remove-password.long")
+            : t("set-password.action.change-password.short")
           : props.removePassword
-          ? t("set-password.actions.remove-password.long")
-          : t("set-password.actions.change-password.long")}
+          ? t("set-password.action.remove-password.long")
+          : t("set-password.action.change-password.long")}
       </ActionButton>
     </DialogActionsBox>
   )
