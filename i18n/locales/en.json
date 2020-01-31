@@ -109,6 +109,41 @@
       "initial-backup": "Secret Key Backup"
     }
   },
+  "manage-signers": {
+    "action": {
+      "add-co-signer": {
+        "long": "Add Co-Signer",
+        "short": "Signer"
+      },
+      "cancel": "Cancel",
+      "apply": {
+        "long": "Apply changes",
+        "short": "Apply"
+      }
+    },
+    "textfield": {
+      "weight-threshold": {
+        "explanation": {
+          "required-signatures": "Every transaction needs to be signed by {{amount}} signers",
+          "required-weight": "Every transaction needs to be signed by signers with a combined key weight of {{amount}}"
+        },
+        "label": {
+          "required-signatures": "Required signatures",
+          "required-weight": "Required key weight"
+        }
+      }
+    },
+    "title": {
+      "long": "Manage Signers",
+      "short": "Manage Account Signers"
+    },
+    "validation": {
+      "no-signers": "No signers left. Don't lock yourself out!",
+      "invalid-weight-type": "Weight must be an integer",
+      "threshold-higher-than-weights": "Threshold higher than combined key weights",
+      "no-threshold": "Please set a threshold"
+    }
+  },
   "set-password": {
     "action": {
       "change-password": {
