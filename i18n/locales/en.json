@@ -80,6 +80,25 @@
       }
     }
   },
+  "add-asset": {
+    "button": {
+      "add-custom-asset": {
+        "label": "Add Custom Asset"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "One matching asset",
+          "more-than-one-asset": "{{amount}} matching assets"
+        }
+      }
+    },
+    "search-field": {
+      "placeholder": "Search assets by code or name…"
+    },
+    "title": "Add Asset"
+  },
   "balance-details": {
     "button": {
       "add-asset": {
