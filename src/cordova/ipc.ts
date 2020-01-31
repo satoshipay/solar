@@ -21,6 +21,10 @@ export async function handleMessageEvent<Message extends keyof IPC.MessageType>(
 ) {
   const { args, callID } = payload
 
+  if (!messageType) {
+    throw Error("Missing messageType on call to handleMessageEvent() (defined in ipc.ts)")
+  }
+
   const messageHandler = commandHandlers[messageType]
   if (messageHandler) {
     try {
