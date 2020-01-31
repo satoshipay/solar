@@ -111,6 +111,29 @@
       }
     }
   },
+  "custom-trustline": {
+    "action": {
+      "cancel": "Cancel",
+      "trust": {
+        "long": "Trust Asset",
+        "short": "Trust"
+      }
+    },
+    "textfield": {
+      "code": {
+        "label": "Code"
+      },
+      "issuer": {
+        "label": "Issuer",
+        "placeholder": "Issuing account public key"
+      },
+      "limit": {
+        "label": "Limit (optional)",
+        "placeholder": "Limit trust in this asset / maximum balance to hold"
+      }
+    },
+    "title": "Add Custom Asset"
+  },
   "export-key": {
     "action": {
       "confirm": "Done",
