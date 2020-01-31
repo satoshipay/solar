@@ -8,7 +8,7 @@ import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { hasSigned } from "../../lib/transaction"
 import { useHorizonURL } from "../../hooks/stellar"
 import { useLiveRecentTransactions, useLiveAccountData } from "../../hooks/stellar-subscriptions"
-import { useRouter } from "../../hooks/userinterface"
+import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
 import MainSelectionButton from "../Form/MainSelectionButton"
 import { VerticalLayout } from "../Layout/Box"
@@ -59,8 +59,9 @@ function PendingMultisigTransactions(props: { account: Account }) {
 
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
-  const horizonURL = useHorizonURL(account.testnet)
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const horizonURL = useHorizonURL(account.testnet)
+  const isSmallScreen = useIsMobile()
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
@@ -88,11 +89,15 @@ function AccountTransactions(props: { account: Account }) {
         <>
           <VerticalLayout
             alignItems="stretch"
-            margin="32px auto"
-            style={{ padding: "0 28px 30px", width: "fit-content" }}
+            margin="0 auto"
+            style={{ padding: isSmallScreen ? "16px 28px" : "32px 28px", width: "fit-content" }}
           >
             {account.testnet ? (
-              <FriendbotButton horizonURL={horizonURL} publicKey={account.publicKey} />
+              <FriendbotButton
+                horizonURL={horizonURL}
+                publicKey={account.publicKey}
+                style={{ marginBottom: isSmallScreen ? 16 : 32 }}
+              />
             ) : null}
             <MainSelectionButton
               Icon={CreditCardIcon}
