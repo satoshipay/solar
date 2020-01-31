@@ -80,6 +80,18 @@
       }
     }
   },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "Add Asset To Your Account"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "Spendable balance"
+      }
+    }
+  },
   "export-key": {
     "action": {
       "confirm": "Done",

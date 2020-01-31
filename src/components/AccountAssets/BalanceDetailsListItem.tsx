@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
 import Badge from "@material-ui/core/Badge"
 import ListItem from "@material-ui/core/ListItem"
@@ -99,6 +100,7 @@ function BalanceListItem(props: BalanceListItemProps) {
 
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
   const assetMetadata = useAssetMetadata(asset, props.testnet)
+  const { t } = useTranslation()
 
   const balance = React.useMemo(
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
@@ -126,7 +128,9 @@ function BalanceListItem(props: BalanceListItemProps) {
             primary: classes.mainListItemTextPrimaryTypography,
             secondary: classes.mainListItemTextSecondaryTypography
           }}
-          primary={props.spendableBalance ? "Spendable balance" : "Stellar Lumens (XLM)"}
+          primary={
+            props.spendableBalance ? t("balance-details.item.spendable-balance.primary") : "Stellar Lumens (XLM)"
+          }
           secondary={props.spendableBalance ? undefined : "stellar.org"}
         />
         <ListItemText
