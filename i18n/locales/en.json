@@ -19,6 +19,33 @@
       "label": "Withdraw"
     }
   },
+  "account-deletion": {
+    "action": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "merge": {
+        "long": "Merge into",
+        "short": "Merge"
+      }
+    },
+    "confirm": {
+      "title": "Confirm deletion",
+      "text": {
+        "confirm": "Are you sure?",
+        "delete": "The account will be deleted",
+        "merge": "and the remaining funds transferred"
+      }
+    },
+    "remaining-funds": {
+      "text": "Send remaining funds to"
+    },
+    "text": {
+      "1": "Are you sure you want to delete the account \"{{accountName}}?\"",
+      "2": " Make sure to backup your private key or merge the funds into another account of yours, since there are still funds left!"
+    },
+    "title": "Confirm Account Deletion"
+  },
   "account-settings": {
     "delete-account": {
       "text": {
