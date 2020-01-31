@@ -1,6 +1,6 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { DepositTransaction, TransferStatus, WithdrawalTransaction } from "@satoshipay/stellar-sep-6"
+import { DepositTransaction, TransferStatus, WithdrawalTransaction } from "@satoshipay/stellar-transfer"
 import { Box, VerticalLayout } from "../Layout/Box"
 import { formatDuration } from "./formatters"
 

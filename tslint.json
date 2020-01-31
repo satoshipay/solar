@@ -6,6 +6,7 @@
     "member-access": [true, "no-public"],
     "no-duplicate-imports": false,
     "no-implicit-dependencies": [true, "dev"],
+    "no-namespace": false,
     "no-shadowed-variable": [
       true,
       {

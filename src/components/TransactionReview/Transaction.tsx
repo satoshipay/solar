@@ -24,7 +24,7 @@ interface WarningProps {
 
 const Warning = React.memo(function Warning(props: WarningProps) {
   return (
-    <ListItem style={{ background: warningColor, marginBottom: 16, ...props.style }}>
+    <ListItem component="div" style={{ background: warningColor, marginBottom: 16, ...props.style }}>
       <ListItemIcon style={{ minWidth: 40 }}>
         <WarningIcon />
       </ListItemIcon>

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 import { Operation, Transaction } from "stellar-sdk"
 import Collapse from "@material-ui/core/Collapse"
 import Divider from "@material-ui/core/Divider"
-import List from "@material-ui/core/List"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { useTheme } from "@material-ui/core/styles"
 import { Account, AccountsContext } from "../../context/accounts"
@@ -99,7 +98,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   }, [transaction])
 
   return (
-    <List disablePadding style={widthStyling}>
+    <VerticalLayout style={widthStyling}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {isAccountCreation && props.canSubmit ? <AccountCreationWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
@@ -164,7 +163,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
           </SummaryItem>
         </VerticalLayout>
       </Collapse>
-    </List>
+    </VerticalLayout>
   )
 }
 
@@ -188,7 +187,7 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
   }
 
   return (
-    <List disablePadding style={props.style}>
+    <VerticalLayout>
       <SummaryItem>
         <SummaryDetailsField
           label={t("transaction-review.summary.item.service.label")}
@@ -199,13 +198,12 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
           value={<CopyableAddress address={manageDataOperation.source || ""} variant="short" />}
         />
       </SummaryItem>
-      <Divider />
       {maxTime ? (
         <SummaryItem>
           <SummaryDetailsField label={t("transaction-review.summary.item.expiry.label")} value={getTime(maxTime)} />
         </SummaryItem>
       ) : null}
-    </List>
+    </VerticalLayout>
   )
 }
 

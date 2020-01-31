@@ -4,15 +4,17 @@ import { Asset } from "stellar-sdk"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
-import { AssetTransferInfo, EmptyAssetTransferInfo } from "@satoshipay/stellar-sep-6"
+import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import { trackError } from "../../context/notifications"
 import { useIsSmallMobile, RefStateObject } from "../../hooks/userinterface"
+import { useLoadingState } from "../../hooks/util"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import AssetSelector from "../Form/AssetSelector"
 import Portal from "../Portal"
 import { formatIdentifier } from "./formatters"
-import { AssetTransferInfos } from "./transferservice"
 import FormLayout from "./FormLayout"
+import { WithdrawalContext } from "./WithdrawalProvider"
+import { WithdrawalStates } from "./statemachine"
 
 const useFormStyles = makeStyles({
   select: {
@@ -26,39 +28,33 @@ interface FormValues {
   methodID: string | null
 }
 
-interface SubmitValues {
-  asset: Asset
-  methodID: string
-  withdrawalMetadata: AssetTransferInfo | EmptyAssetTransferInfo
-}
-
-interface WithdrawalRequestFormStartProps {
-  actionsRef: RefStateObject | undefined
-  assets: Asset[]
-  initialAsset?: Asset
-  initialMethod?: string
-  onSubmit: (values: SubmitValues) => void
-  testnet: boolean
-  transferInfos: AssetTransferInfos
+interface WithdrawalInitialProps {
+  assetTransferInfos: AssetTransferInfo[]
+  dialogActionsRef: RefStateObject | undefined
+  state: WithdrawalStates.SelectType
+  trustedAssets: Asset[]
   withdrawableAssets: Asset[]
 }
 
-function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
+function WithdrawalInitial(props: WithdrawalInitialProps) {
+  const { account, actions } = React.useContext(WithdrawalContext)
+
   const formID = React.useMemo(() => nanoid(), [])
   const classes = useFormStyles()
   const isTinyScreen = useIsSmallMobile()
+  const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
 
-  const getWithdrawalMetadata = (asset: Asset | null): AssetTransferInfo | EmptyAssetTransferInfo | undefined => {
-    return asset && props.transferInfos.data.has(asset) ? props.transferInfos.data.get(asset)!.transferInfo : undefined
+  const getAssetInfo = (asset: Asset | null): AssetTransferInfo | undefined => {
+    return asset ? props.assetTransferInfos.find(assetInfo => assetInfo.asset.equals(asset)) : undefined
   }
   const getMethodNames = (asset: Asset | null): string[] => {
-    const meta = getWithdrawalMetadata(asset)
+    const meta = getAssetInfo(asset)
     return meta && meta.withdraw && meta.withdraw.types ? Object.keys(meta.withdraw.types) : []
   }
 
-  const initialAsset = props.initialAsset || props.withdrawableAssets[0] || null
+  const initialAsset = props.state.asset || props.withdrawableAssets[0] || null
   const initialMethod =
-    props.initialMethod || (getMethodNames(initialAsset).length === 1 ? getMethodNames(initialAsset)[0] : null)
+    props.state.method || (getMethodNames(initialAsset).length === 1 ? getMethodNames(initialAsset)[0] : null)
 
   const [formValues, setFormValues] = React.useState<FormValues>({
     asset: initialAsset,
@@ -77,15 +73,16 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
   const isDisabled = !formValues.asset || !formValues.methodID
   const methodNames = formValues.asset ? getMethodNames(formValues.asset) : []
 
-  const nonwithdrawableAssets = props.assets.filter(
+  const nonwithdrawableAssets = props.trustedAssets.filter(
     asset => !props.withdrawableAssets.some(withdrawable => withdrawable.equals(asset))
   )
 
-  const withdrawalMetadata = getWithdrawalMetadata(formValues.asset)
+  const assetTransferInfo = getAssetInfo(formValues.asset)
 
   const handleAssetSelection = React.useCallback(
     (asset: Asset) => {
-      const withdraw = props.transferInfos.data.has(asset) && props.transferInfos.data.get(asset)!.transferInfo.withdraw
+      const assetInfo = props.assetTransferInfos.find(info => info.asset.equals(asset))
+      const withdraw = assetInfo && assetInfo.withdraw
 
       if (withdraw && withdraw.types && Object.keys(withdraw.types).length === 1) {
         setFormValues({
@@ -99,7 +96,7 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
         }))
       }
     },
-    [props.transferInfos]
+    [props.assetTransferInfos]
   )
 
   const handleSubmit = React.useCallback(
@@ -112,29 +109,27 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
       if (!formValues.methodID) {
         return trackError(Error("Invariant violation: Form submission without selected method"))
       }
-      if (!withdrawalMetadata) {
-        return trackError(Error("Invariant violation: Form submission without withdrawal metadata"))
+      if (!assetTransferInfo) {
+        return trackError(Error("Invariant violation: Form submission without asset transfer information"))
       }
 
-      props.onSubmit({
-        asset: formValues.asset,
-        methodID: formValues.methodID,
-        withdrawalMetadata
-      })
+      handleSubmission(
+        actions.submitWithdrawalSelection(formValues.asset, formValues.methodID, assetTransferInfo.transferServer)
+      )
     },
-    [formValues, withdrawalMetadata]
+    [actions.submitWithdrawalSelection, assetTransferInfo, formValues]
   )
 
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
       <FormLayout>
         <AssetSelector
-          assets={props.assets}
+          assets={props.trustedAssets}
           disabledAssets={nonwithdrawableAssets}
           label={isTinyScreen ? "Asset" : "Asset to withdraw"}
           margin="normal"
           onChange={handleAssetSelection}
-          testnet={props.testnet}
+          testnet={account.testnet}
           value={formValues.asset || undefined}
         >
           {props.withdrawableAssets.length === 0 ? (
@@ -166,9 +161,15 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
           ))}
         </TextField>
       </FormLayout>
-      <Portal target={props.actionsRef && props.actionsRef.element}>
-        <DialogActionsBox desktopStyle={{ marginTop: 0 }}>
-          <ActionButton disabled={isDisabled} form={formID} onClick={() => undefined} type="submit">
+      <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
+        <DialogActionsBox>
+          <ActionButton
+            disabled={isDisabled}
+            form={formID}
+            loading={submissionState.type === "pending"}
+            onClick={() => undefined}
+            type="submit"
+          >
             Proceed
           </ActionButton>
         </DialogActionsBox>
@@ -177,6 +178,4 @@ function WithdrawalRequestFormStart(props: WithdrawalRequestFormStartProps) {
   )
 }
 
-export default React.memo(WithdrawalRequestFormStart)
-
-export { SubmitValues as StartFormValues }
+export default React.memo(WithdrawalInitial)

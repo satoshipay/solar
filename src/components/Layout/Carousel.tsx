@@ -30,7 +30,7 @@ const useCarouselStyles = makeStyles({
   }
 })
 
-interface CarouselProps {
+export interface CarouselProps {
   children: React.ReactNode[]
   current: number
 }

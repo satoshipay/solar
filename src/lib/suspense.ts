@@ -3,8 +3,15 @@
  * iteration once the first element suspends, but always runs the mapper on
  * all elements and throws a Promise.all([…]) after the iteration.
  */
-export function mapSuspendables<In, Out>(array: In[], mapper: (input: In, index: number) => Out): Out[] {
+export function mapSuspendables<In, Out>(
+  array: In[],
+  mapper: (input: In, index: number) => Out,
+  options: {
+    ignoreSingleErrors?: boolean
+  } = {}
+): Out[] {
   const pendingSuspenses: Array<Promise<any>> = []
+  const rejections: Error[] = []
 
   const result = array.map((element, index) => {
     try {
@@ -19,7 +26,21 @@ export function mapSuspendables<In, Out>(array: In[], mapper: (input: In, index:
   })
 
   if (pendingSuspenses.length > 0) {
-    throw pendingSuspenses.length === 1 ? pendingSuspenses[0] : Promise.all(pendingSuspenses)
+    throw options.ignoreSingleErrors
+      ? Promise.all([
+          ...pendingSuspenses.map(promise =>
+            promise.catch(error => {
+              rejections.push(error)
+            })
+          )
+        ]).then(results => {
+          if (rejections.length > 0 && rejections.length === array.length) {
+            throw rejections[0]
+          } else {
+            return results
+          }
+        })
+      : Promise.all(pendingSuspenses)
   }
 
   return result as Out[]

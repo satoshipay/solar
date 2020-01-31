@@ -77,6 +77,60 @@ export function useForceRerender() {
   return forceRerender
 }
 
+export type LoadingState<T> =
+  | {
+      type: "initial"
+    }
+  | {
+      type: "pending"
+      promise: Promise<T>
+    }
+  | {
+      type: "resolved"
+      result: T
+    }
+  | {
+      type: "rejected"
+      error: Error
+    }
+
+const initialLoadingState = {
+  type: "initial"
+}
+
+export function useLoadingState<T = any>(options: { throwOnError?: boolean } = {}) {
+  const [loadingState, setLoadingState] = React.useState<LoadingState<T>>()
+
+  if (loadingState && loadingState.type === "rejected" && options.throwOnError) {
+    throw loadingState.error
+  }
+
+  const handlePromise = React.useCallback(async (arg: Promise<T> | (() => Promise<T>)) => {
+    try {
+      const promise: Promise<T> = typeof arg === "function" ? arg() : arg
+
+      setLoadingState({
+        type: "pending",
+        promise
+      })
+
+      const result = await promise
+
+      setLoadingState({
+        type: "resolved",
+        result
+      })
+    } catch (error) {
+      setLoadingState({
+        type: "rejected",
+        error
+      })
+    }
+  }, [])
+
+  return [loadingState || initialLoadingState, handlePromise] as const
+}
+
 export function useOnlineStatus() {
   const [isOnline, setOnlineStatus] = React.useState(window.navigator.onLine)
   const setOffline = () => setOnlineStatus(false)

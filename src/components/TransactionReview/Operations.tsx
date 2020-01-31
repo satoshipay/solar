@@ -180,17 +180,19 @@ function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust>) {
           label={t("operations.change-trust.summary.issued-by")}
           value={<CopyableAddress address={props.operation.line.issuer} variant="short" />}
         />
-        <SummaryDetailsField
-          label={t("operations.change-trust.summary.limit.label")}
-          value={
-            trustlineLimitEqualsUnlimited(props.operation.limit)
-              ? t("operations.change-trust.summary.limit.value.unlimited")
-              : t("operations.change-trust.summary.limit.value.limited-to", {
+        {BigNumber(props.operation.limit).gt(900000000000) ? null : (
+          <SummaryDetailsField
+            label={t("operations.change-trust.summary.limit.label")}
+            value={
+              trustlineLimitEqualsUnlimited(props.operation.limit)
+                ? t("operations.change-trust.summary.limit.value.unlimited")
+                : t("operations.change-trust.summary.limit.value.limited-to", {
                   limit: props.operation.limit,
                   code: props.operation.line.code
                 })
-          }
-        />
+            }
+          />
+        )}
       </SummaryItem>
     )
   }

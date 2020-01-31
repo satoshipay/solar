@@ -12,6 +12,7 @@ import { StellarContext } from "../context/stellar"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import * as StellarAddresses from "../lib/stellar-address"
 import { StellarToml, StellarTomlCurrency } from "../types/stellar-toml"
+import { mapSuspendables } from "../lib/suspense"
 import { workers } from "../worker-controller"
 import { accountDataCache, accountHomeDomainCache, stellarTomlCache } from "./_caches"
 import { useNetWorker } from "./workers"
@@ -53,9 +54,10 @@ export function useWebAuth() {
   )
 
   return {
-    async fetchChallenge(endpointURL: string, serviceSigningKey: string, localPublicKey: string) {
+    async fetchChallenge(endpointURL: string, serviceSigningKey: string, localPublicKey: string, network: Networks) {
       const { netWorker } = await workers
-      return netWorker.fetchWebAuthChallenge(endpointURL, serviceSigningKey, localPublicKey)
+      const challenge = await netWorker.fetchWebAuthChallenge(endpointURL, serviceSigningKey, localPublicKey)
+      return new Transaction(challenge, network)
     },
 
     async fetchWebAuthData(horizonURL: string, issuerAccountID: string) {
@@ -141,42 +143,55 @@ export function useAccountData(accountID: string, testnet: boolean) {
   return cached || createEmptyAccountData(accountID)
 }
 
-function useAccountHomeDomain(accountID: string | undefined, testnet: boolean, allowIncompleteResult?: boolean) {
+export function useAccountHomeDomains(
+  accountIDs: string[],
+  testnet: boolean,
+  allowIncompleteResult?: boolean
+): Array<string | undefined> {
   const horizonURL = useHorizonURL(testnet)
   const netWorker = useNetWorker()
   const [, setRerenderCounter] = React.useState(0)
 
   const forceRerender = () => setRerenderCounter(counter => counter + 1)
-  const selector = accountID ? ([horizonURL, accountID] as const) : undefined
 
-  if (!accountID || !selector) {
-    return undefined
-  } else if (accountHomeDomainCache.has(selector)) {
-    return accountHomeDomainCache.get(selector)
-  } else {
-    try {
-      accountHomeDomainCache.suspend([horizonURL, accountID], async () => {
-        const accountData = await netWorker.fetchAccountData(horizonURL, accountID)
-        const homeDomain = accountData ? (accountData as any).home_domain : undefined
-        if (homeDomain) {
-          localStorage.setItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`, homeDomain)
-        }
-        if (allowIncompleteResult) {
-          forceRerender()
-        }
-        return homeDomain
-      })
-    } catch (thrown) {
-      if (allowIncompleteResult && thrown && typeof thrown.then === "function") {
-        const persistentlyCached = localStorage.getItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`)
-        if (persistentlyCached) {
-          return persistentlyCached
-        }
-      }
-      throw thrown
+  const fetchHomeDomain = async (accountID: string): Promise<[string] | []> => {
+    const accountData = await netWorker.fetchAccountData(horizonURL, accountID)
+    const homeDomain = accountData ? (accountData as any).home_domain : undefined
+    if (homeDomain) {
+      localStorage.setItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`, homeDomain)
     }
-    return undefined
+    if (allowIncompleteResult) {
+      forceRerender()
+    }
+    return homeDomain ? [homeDomain] : []
   }
+
+  try {
+    return mapSuspendables(accountIDs, accountID => {
+      const selector = [horizonURL, accountID] as const
+      return (accountHomeDomainCache.get(selector) ||
+        accountHomeDomainCache.suspend(selector, () => fetchHomeDomain(accountID)))[0]
+    })
+  } catch (thrown) {
+    if (allowIncompleteResult && thrown && typeof thrown.then === "function") {
+      const persistentlyCached = accountIDs.map(accountID =>
+        localStorage.getItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`)
+      )
+
+      if (persistentlyCached.every(element => typeof element === "string" && element)) {
+        return persistentlyCached as string[]
+      }
+    }
+    throw thrown
+  }
+}
+
+export function useAccountHomeDomain(
+  accountID: string | undefined,
+  testnet: boolean,
+  allowIncompleteResult?: boolean
+): string | undefined {
+  return useAccountHomeDomains(accountID ? [accountID] : [], testnet, allowIncompleteResult)[0]
 }
 
 export function useAssetMetadata(asset: Asset | undefined, testnet: boolean): StellarTomlCurrency | undefined {

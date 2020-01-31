@@ -1,4 +1,5 @@
 // tslint:disable no-object-literal-type-assertion
+import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
   KYCStatusResponse,
   KYCResponseType,
@@ -7,6 +8,7 @@ import {
   WithdrawalInstructionsKYC,
   WithdrawalInstructionsSuccess
 } from "@satoshipay/stellar-transfer"
+import BigNumber from "big.js"
 import { Asset, Transaction } from "stellar-sdk"
 
 export namespace WithdrawalStates {
@@ -25,13 +27,14 @@ export namespace WithdrawalStates {
     method: string
     formValues: {
       [fieldName: string]: string | undefined
-      amount?: string
     }
     transferServer: TransferServer
   }
 
   export interface AuthPending {
     step: "auth-pending"
+    authChallenge: Transaction
+    webauth: WebauthData
     withdrawal: Withdrawal
   }
 
@@ -42,20 +45,22 @@ export namespace WithdrawalStates {
     withdrawal: Withdrawal
   }
 
-  export interface StellarTxPending {
-    step: "stellar-tx-pending"
+  export interface KYCDenied {
+    step: "kyc-denied"
+    response: KYCStatusResponse<"denied">
+    withdrawal: Withdrawal
+  }
+
+  export interface EnterTxDetails {
+    step: "enter-tx-details"
     response: WithdrawalInstructionsSuccess
-    transaction: Transaction
     withdrawal: Withdrawal
   }
 
   export interface WithdrawalCompleted {
     step: "completed"
-  }
-
-  export interface KYCDenied {
-    step: "kyc-denied"
-    response: KYCStatusResponse<"denied">
+    amount: BigNumber
+    response: WithdrawalInstructionsSuccess
     withdrawal: Withdrawal
   }
 }
@@ -80,9 +85,11 @@ export const Action = {
       formValues
     } as const),
 
-  conductAuth: (withdrawal: Withdrawal) =>
+  conductAuth: (withdrawal: Withdrawal, webauth: WebauthData, authChallenge: Transaction) =>
     ({
       type: "conduct-auth",
+      authChallenge,
+      webauth,
       withdrawal
     } as const),
 
@@ -100,16 +107,17 @@ export const Action = {
       withdrawal
     } as const),
 
-  waitForStellarTx: (response: WithdrawalInstructionsSuccess, transaction: Transaction) =>
+  promptForTxDetails: (withdrawal: Withdrawal, response: WithdrawalInstructionsSuccess) =>
     ({
-      type: "wait-for-stellar-tx",
+      type: "prompt-for-tx-details",
       response,
-      transaction
+      withdrawal
     } as const),
 
-  completed: () =>
+  completed: (amount: BigNumber) =>
     ({
-      type: "completed"
+      type: "completed",
+      amount
     } as const),
 
   kycDenied: (response: KYCStatusResponse<"denied">) =>
@@ -119,16 +127,16 @@ export const Action = {
     } as const)
 } as const
 
-type WithdrawalAction = ReturnType<(typeof Action)[keyof typeof Action]>
+export type WithdrawalAction = ReturnType<(typeof Action)[keyof typeof Action]>
 
-type WithdrawalState =
+export type WithdrawalState =
   | WithdrawalStates.SelectType
   | WithdrawalStates.EnterBasics
   | WithdrawalStates.AuthPending
   | WithdrawalStates.KYCPending
-  | WithdrawalStates.StellarTxPending
-  | WithdrawalStates.WithdrawalCompleted
   | WithdrawalStates.KYCDenied
+  | WithdrawalStates.EnterTxDetails
+  | WithdrawalStates.WithdrawalCompleted
 
 export function shouldBackNavigationCloseDialog(state: WithdrawalState) {
   return state.step === "initial" || state.step === "completed" || state.step === "kyc-denied"
@@ -177,6 +185,8 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
     case "conduct-auth":
       return {
         step: "auth-pending",
+        authChallenge: action.authChallenge,
+        webauth: action.webauth,
         withdrawal: action.withdrawal
       }
     case "set-auth-token":
@@ -191,16 +201,18 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
         response: action.response,
         withdrawal: action.withdrawal
       }
-    case "wait-for-stellar-tx":
+    case "prompt-for-tx-details":
       return {
-        step: "stellar-tx-pending",
+        step: "enter-tx-details",
         response: action.response,
-        transaction: action.transaction,
-        withdrawal: (state as WithdrawalStates.AuthPending | WithdrawalStates.KYCPending).withdrawal
+        withdrawal: action.withdrawal
       }
     case "completed":
       return {
-        step: "completed"
+        step: "completed",
+        amount: action.amount,
+        response: (state as WithdrawalStates.EnterTxDetails).response,
+        withdrawal: (state as WithdrawalStates.EnterTxDetails).withdrawal
       }
     case "kyc-denied":
       return {

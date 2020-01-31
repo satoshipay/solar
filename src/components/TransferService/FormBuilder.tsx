@@ -1,12 +1,13 @@
 import React from "react"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
-import { TransferFields } from "@satoshipay/stellar-sep-6"
+import { TransferInfoFields } from "@satoshipay/stellar-transfer"
 import { formatDescriptionText, formatIdentifier } from "./formatters"
 import FormLayout from "./FormLayout"
 
 interface FormBuilderFieldProps {
-  descriptor: TransferFields[""]
+  autoFocus?: boolean
+  descriptor: TransferInfoFields[""]
   name: string
   onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
   style?: React.CSSProperties
@@ -23,6 +24,7 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
   if (choices) {
     return (
       <TextField
+        autoFocus={props.autoFocus}
         helperText={formattedDescription}
         label={formattedName}
         onChange={props.onChange}
@@ -39,6 +41,7 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
   } else {
     return (
       <TextField
+        autoFocus={props.autoFocus}
         helperText={formattedDescription}
         label={formattedName}
         onChange={props.onChange}
@@ -51,7 +54,7 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
 }
 
 interface Props {
-  fields: TransferFields
+  fields: TransferInfoFields
   fieldStyle?: React.CSSProperties
   formValues: { [fieldName: string]: string }
   onSetFormValue: (fieldName: string, newValue: string) => void

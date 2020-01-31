@@ -1,20 +1,22 @@
+import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
 import { Asset } from "stellar-sdk"
-import { AssetTransferInfo, EmptyAssetTransferInfo } from "@satoshipay/stellar-sep-6"
+import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
+import { useLoadingState } from "../../hooks/util"
 import theme from "../../theme"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 import { formatDescriptionText } from "./formatters"
+import { WithdrawalStates } from "./statemachine"
 import { FormBuilder, FormBuilderField } from "./FormBuilder"
 import FormLayout from "./FormLayout"
+import { WithdrawalContext } from "./WithdrawalProvider"
 
-interface FormValues {
-  [fieldName: string]: string
-}
+type FormValues = Record<string, string>
 
 type FormValueTransform<Value = string> = (input: Value) => Value
 
@@ -50,7 +52,6 @@ function postprocessFormValues(inputFormValues: FormValues, methodID: string): F
 interface WithdrawalFeeProps {
   asset: Asset
   metadata: AssetTransferInfo["withdraw"]
-  width: string | number
 }
 
 const WithdrawalFee = React.memo(function WithdrawalFee(props: WithdrawalFeeProps) {
@@ -65,11 +66,7 @@ const WithdrawalFee = React.memo(function WithdrawalFee(props: WithdrawalFeeProp
         }
       }}
       label="Withdrawal fee"
-      style={{
-        flexBasis: props.width,
-        marginRight: 24,
-        marginTop: 24
-      }}
+      style={{ marginTop: 24 }}
       value={
         [
           typeof props.metadata.fee_fixed === "number"
@@ -82,38 +79,50 @@ const WithdrawalFee = React.memo(function WithdrawalFee(props: WithdrawalFeeProp
   )
 })
 
-interface WithdrawalRequestFormDetailsProps {
-  actionsRef: RefStateObject | undefined
-  asset: Asset
-  initialFormValues?: FormValues
-  methodID: string
-  onSubmit: (formValues: FormValues) => void
-  pendingAnchorCommunication?: boolean
-  withdrawalMetadata: AssetTransferInfo | EmptyAssetTransferInfo
+interface WithdrawalDetailsFormProps {
+  active: boolean
+  assetTransferInfos: AssetTransferInfo[]
+  dialogActionsRef: RefStateObject | undefined
+  state: WithdrawalStates.EnterBasics
 }
 
-function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) {
+function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
+  const { account, actions } = React.useContext(WithdrawalContext)
+
   const formID = React.useMemo(() => nanoid(), [])
   const isSmallScreen = useIsMobile()
+  const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
 
-  const [formValues, setFormValues] = React.useState<FormValues>(props.initialFormValues || {})
+  const assetInfo = props.assetTransferInfos.find(info => info.asset.equals(props.state.asset))
+
+  const [formValues, setFormValues] = React.useState<FormValues>(
+    (props.state.formValues as Record<string, string>) || {}
+  )
   const setFormValue = (fieldName: string, newValue: string) =>
     setFormValues(prevFormValues => ({ ...prevFormValues, [fieldName]: newValue }))
+
+  const amount = formValues.amount ? BigNumber(formValues.amount) : undefined
 
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent) => {
       event.preventDefault()
-      const postprocessedValues = postprocessFormValues(formValues, props.methodID)
-      setFormValues(postprocessedValues)
-      props.onSubmit(postprocessedValues)
+
+      handleSubmission(
+        actions.submitWithdrawalFieldValues({
+          ...props.state,
+          formValues: {
+            ...props.state.formValues,
+            ...postprocessFormValues(formValues, props.state.method),
+            account: account.publicKey
+          }
+        })
+      )
     },
-    [formValues, props.methodID]
+    [actions.submitWithdrawalFieldValues, amount, formValues]
   )
 
   const methodMetadata =
-    props.methodID && props.withdrawalMetadata.withdraw && props.withdrawalMetadata.withdraw.types
-      ? props.withdrawalMetadata.withdraw.types[props.methodID]
-      : null
+    assetInfo && assetInfo.withdraw && assetInfo.withdraw.types ? assetInfo.withdraw.types[props.state.method] : null
 
   const fields = methodMetadata && methodMetadata.fields ? methodMetadata.fields : {}
 
@@ -135,7 +144,7 @@ function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) 
     (emailOptional || isFormValueSet(formValues.email) || isFormValueSet(formValues.email_address)) &&
     /^([^@]+@[^@]+\.[^@]+)?$/.test(formValues.email || formValues.email_address || "")
 
-  const isDisabled = !props.asset || !props.methodID || hasEmptyMandatoryFields || !validAmount || !validEmail
+  const isDisabled = hasEmptyMandatoryFields || !validAmount || !validEmail
 
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
@@ -143,8 +152,9 @@ function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) 
         <FormLayout>
           {fields.dest ? (
             <FormBuilderField
+              autoFocus={process.env.PLATFORM !== "ios" && props.active}
               name="Destination account"
-              descriptor={fields.dest}
+              descriptor={fields.dest || {}}
               onChange={event => setFormValue("dest", event.target.value)}
               style={{ marginTop: 24 }}
               value={formValues.dest || ""}
@@ -167,25 +177,21 @@ function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) 
         <FormBuilder
           fields={filterObject(
             fields,
-            (value, key) => [...automaticallySetValues, "dest", "dest_extra"].indexOf(key) === -1
+            (value, key) => [...automaticallySetValues, "amount", "dest", "dest_extra"].indexOf(key) === -1
           )}
           fieldStyle={{ marginTop: 24 }}
           formValues={formValues}
           onSetFormValue={setFormValue}
         />
         <FormLayout>
-          <WithdrawalFee
-            asset={props.asset}
-            metadata={props.withdrawalMetadata.withdraw}
-            width={isSmallScreen ? 200 : 240}
-          />
+          <WithdrawalFee asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} />
         </FormLayout>
-        <Portal target={props.actionsRef && props.actionsRef.element}>
-          <DialogActionsBox desktopStyle={{ marginTop: 0 }}>
+        <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
+          <DialogActionsBox>
             <ActionButton
               disabled={isDisabled}
               form={formID}
-              loading={props.pendingAnchorCommunication}
+              loading={submissionState && submissionState.type === "pending"}
               onClick={() => undefined}
               type="submit"
             >
@@ -198,6 +204,4 @@ function WithdrawalRequestFormDetails(props: WithdrawalRequestFormDetailsProps) 
   )
 }
 
-export default React.memo(WithdrawalRequestFormDetails)
-
-export { FormValues as DetailsFormValues }
+export default React.memo(WithdrawalDetailsForm)

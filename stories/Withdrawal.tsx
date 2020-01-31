@@ -1,6 +1,6 @@
 import React from "react"
 import { Asset } from "stellar-sdk"
-import { TransferStatus, WithdrawalSuccessResponse } from "@satoshipay/stellar-sep-6"
+import { TransferStatus, WithdrawalSuccessResponse } from "@satoshipay/stellar-transfer"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import WithdrawalTransactionForm from "../src/components/TransferService/WithdrawalTransactionForm"
