@@ -1,5 +1,7 @@
 import BigNumber from "big.js"
+import { TFunction } from "i18next"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { Account, AccountsContext } from "../context/accounts"
 import { trackError } from "../context/notifications"
@@ -41,7 +43,8 @@ function createEffectHandlers(
   router: ReturnType<typeof useRouter>,
   netWorker: NetWorker,
   mainnetHorizonURL: string,
-  testnetHorizonURL: string
+  testnetHorizonURL: string,
+  t: TFunction
 ) {
   return {
     async handleTradeEffect(account: Account, effect: TradeEffect) {
@@ -66,12 +69,15 @@ function createEffectHandlers(
       }
 
       const title = `Trade completed | ${account.name}`
-      const notificationBody = OfferDetailsString({
-        amount: BigNumber(effect.sold_amount),
-        price: BigNumber(effect.bought_amount).div(effect.sold_amount),
-        buying,
-        selling
-      })
+      const notificationBody = OfferDetailsString(
+        {
+          amount: BigNumber(effect.sold_amount),
+          price: BigNumber(effect.bought_amount).div(effect.sold_amount),
+          buying,
+          selling
+        },
+        t
+      )
 
       showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
     },
@@ -94,9 +100,10 @@ function DesktopNotifications() {
   const testnetHorizonURL = useHorizonURL(true)
   const netWorker = useNetWorker()
   const router = useRouter()
+  const { t } = useTranslation()
 
   const effectHandlers = useSingleton(() =>
-    createEffectHandlers(router, netWorker, mainnetHorizonURL, testnetHorizonURL)
+    createEffectHandlers(router, netWorker, mainnetHorizonURL, testnetHorizonURL, t)
   )
 
   const handleNewSignatureRequest = (signatureRequest: SignatureRequest) => {

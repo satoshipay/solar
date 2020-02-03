@@ -13,7 +13,7 @@ import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
-import { getOperationTitle } from "./Operations"
+import { useOperationTitle } from "./Operations"
 import ReviewForm from "./ReviewForm"
 
 function isPaymentOperation(operation: Operation) {
@@ -28,7 +28,9 @@ function isOfferDeletionOperation(operation: Operation) {
 }
 
 function useTitle() {
+  const getOperationTitle = useOperationTitle()
   const { t } = useTranslation()
+
   return function getTitle(transaction: Transaction | null): string {
     if (!transaction) {
       return t("transaction-review.title.transaction")
