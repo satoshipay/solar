@@ -16,6 +16,7 @@ import { mapSuspendables } from "../lib/suspense"
 import { workers } from "../worker-controller"
 import { accountDataCache, accountHomeDomainCache, stellarTomlCache } from "./_caches"
 import { useNetWorker } from "./workers"
+import { useTranslation } from "react-i18next"
 
 /** @deprecated */
 export function useHorizon(testnet: boolean = false) {
@@ -35,9 +36,10 @@ export function useHorizonURL(testnet: boolean = false) {
 export function useFederationLookup() {
   const lookup = React.useContext(StellarAddressCacheContext)
   const reverseLookup = React.useContext(StellarAddressReverseCacheContext)
+  const { t } = useTranslation()
   return {
     lookupFederationRecord(stellarAddress: string) {
-      return StellarAddresses.lookupFederationRecord(stellarAddress, lookup.cache, reverseLookup.cache)
+      return StellarAddresses.lookupFederationRecord(stellarAddress, lookup.cache, reverseLookup.cache, t)
     },
     lookupStellarAddress(publicKey: string) {
       return reverseLookup.cache.get(publicKey)

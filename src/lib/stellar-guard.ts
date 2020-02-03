@@ -1,3 +1,4 @@
+import { TFunction } from "i18next"
 import { Server, Transaction, Horizon } from "stellar-sdk"
 
 const STELLARGUARD_TRANSACTION_ENDPOINT_MAINNET = "https://stellarguard.me/api/transactions"
@@ -13,7 +14,7 @@ export function containsStellarGuardAsSigner(signers: Horizon.AccountSigner[]) {
   return signers.some(signer => signer.key === STELLARGUARD_PUBLIC_KEY)
 }
 
-export async function submitTransactionToStellarGuard(signedTransaction: Transaction, testnet: boolean) {
+export async function submitTransactionToStellarGuard(signedTransaction: Transaction, testnet: boolean, t: TFunction) {
   const signedTransactionXDR = signedTransaction
     .toEnvelope()
     .toXDR()
@@ -36,8 +37,10 @@ export async function submitTransactionToStellarGuard(signedTransaction: Transac
     const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
 
     throw new Error(
-      `Submitting transaction to StellarGuard endpoint failed with status ${response.status}: ` +
-        (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
+      t("error.stellar-guard.submission-failed", {
+        status: response.status,
+        message: responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+      })
     )
   }
 

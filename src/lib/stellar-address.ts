@@ -1,3 +1,4 @@
+import { TFunction } from "i18next"
 import LRUCache from "lru-cache"
 import { FederationServer } from "stellar-sdk"
 import { workers } from "../worker-controller"
@@ -10,7 +11,8 @@ export const isStellarAddress = (str: string) =>
 export async function lookupFederationRecord(
   stellarAddress: string,
   lookupCache: LRUCache<string, FederationServer.Record>,
-  reverseLookupCache: LRUCache<string, string>
+  reverseLookupCache: LRUCache<string, string>,
+  t: TFunction
 ) {
   const { netWorker } = await workers
   const cached = lookupCache.get(stellarAddress)
@@ -24,9 +26,9 @@ export async function lookupFederationRecord(
     resolved = await netWorker.resolveStellarAddress(stellarAddress)
   } catch (error) {
     if (error && error.request && !error.response) {
-      throw new Error(`Request for resolving the stellar address failed: ${stellarAddress}`)
+      throw new Error(t("error.stellar-address.request-failed", { address: stellarAddress }))
     } else if (isNotFoundError(error)) {
-      throw new Error(`Stellar address not found: ${stellarAddress}`)
+      throw new Error(t("error.stellar-address.address-not-found", { address: stellarAddress }))
     } else {
       throw error
     }

@@ -20,6 +20,7 @@ import AssetSelector from "../Form/AssetSelector"
 import { PriceInput, QRReader } from "../Form/FormFields"
 import { HorizontalLayout } from "../Layout/Box"
 import Portal from "../Portal"
+import { useTranslation } from "react-i18next"
 
 export interface PaymentFormValues {
   amount: string
@@ -319,6 +320,7 @@ interface Props {
 
 function PaymentFormContainer(props: Props) {
   const { lookupFederationRecord } = useFederationLookup()
+  const { t } = useTranslation()
 
   const [errors, setErrors] = React.useState<PaymentFormErrors>({})
 
@@ -342,12 +344,15 @@ function PaymentFormContainer(props: Props) {
 
     const isMultisigTx = props.accountData.signers.length > 1
 
-    const payment = await createPaymentOperation({
-      asset: asset || Asset.native(),
-      amount: formValues.amount,
-      destination,
-      horizon
-    })
+    const payment = await createPaymentOperation(
+      {
+        asset: asset || Asset.native(),
+        amount: formValues.amount,
+        destination,
+        horizon
+      },
+      t
+    )
     const tx = await createTransaction([payment], {
       accountData: props.accountData,
       memo: federationMemo.type !== "none" ? federationMemo : userMemo,

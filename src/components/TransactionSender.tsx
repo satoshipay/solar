@@ -174,7 +174,7 @@ class TransactionSender extends React.Component<Props, State> {
     const { account, horizon, onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
 
     try {
-      signedTx = await signTransaction(transaction, this.props.account, formValues.password)
+      signedTx = await signTransaction(transaction, this.props.account, formValues.password, this.props.t)
       this.setState({ passwordError: null })
     } catch (error) {
       if (isWrongPasswordError(error)) {
@@ -248,7 +248,7 @@ class TransactionSender extends React.Component<Props, State> {
 
   submitTransactionToStellarGuard = async (signedTransaction: Transaction) => {
     try {
-      const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet)
+      const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet, this.props.t)
 
       this.setSubmissionPromise(promise)
       this.setState({ submissionType: SubmissionType.stellarguard })
