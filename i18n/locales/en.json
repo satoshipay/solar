@@ -346,6 +346,11 @@
     "title": "Add Custom Asset"
   },
   "error": {
+    "multi-sig": {
+      "no-callback-url": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
+      "submission-failed": "Submitting transaction to multi-signature service failed with status {{status}}: {{message}}",
+      "wrong-start": "Expected request to start with 'web+stellar:'"
+    },
     "unknown": "An unknown error occured.",
     "submission-error": {
       "default": "Transaction rejected by the network. Error code(s): {{codes}}",

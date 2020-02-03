@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { SignatureRequest, deserializeSignatureRequest } from "../lib/multisig-service"
 import { workers } from "../worker-controller"
 import { Account, AccountsContext } from "./accounts"
@@ -27,6 +28,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
   const { ignoredSignatureRequests } = React.useContext(SettingsContext)
   const subscribersRef = React.useRef<SubscribersState>({ newRequestSubscribers: [] })
   const [pendingSignatureRequests, setPendingSignatureRequests] = React.useState<SignatureRequest[]>([])
+  const { t } = useTranslation()
 
   React.useEffect(() => {
     if (accounts.length === 0) {
@@ -44,7 +46,9 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 
       netWorker
         .fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
-        .then(requests => setPendingSignatureRequests(requests.reverse().map(deserializeSignatureRequest)))
+        .then(requests =>
+          setPendingSignatureRequests(requests.reverse().map(request => deserializeSignatureRequest(request, t)))
+        )
         .catch(trackError)
 
       if (cancelled) {
@@ -56,11 +60,11 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
       const subscription = signatureRequests.subscribe(event => {
         if (event.type === "NewSignatureRequest") {
           setPendingSignatureRequests(prevPending => [
-            deserializeSignatureRequest(event.signatureRequest),
+            deserializeSignatureRequest(event.signatureRequest, t),
             ...prevPending
           ])
           subscribersRef.current.newRequestSubscribers.forEach(subscriber =>
-            subscriber(deserializeSignatureRequest(event.signatureRequest))
+            subscriber(deserializeSignatureRequest(event.signatureRequest, t))
           )
         }
         if (event.type === "SignatureRequestSubmitted") {

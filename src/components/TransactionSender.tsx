@@ -234,8 +234,8 @@ class TransactionSender extends React.Component<Props, State> {
 
     try {
       const promise = this.state.signatureRequest
-        ? collateSignature(this.state.signatureRequest, signedTransaction)
-        : submitNewSignatureRequest(this.props.settings.multiSignatureServiceURL, signatureRequestURI)
+        ? collateSignature(this.state.signatureRequest, signedTransaction, this.props.t)
+        : submitNewSignatureRequest(this.props.settings.multiSignatureServiceURL, signatureRequestURI, this.props.t)
 
       this.setSubmissionPromise(promise)
       this.setState({ submissionType: SubmissionType.multisig })

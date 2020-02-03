@@ -1,3 +1,4 @@
+import { TFunction } from "i18next"
 import fetch from "isomorphic-fetch"
 import qs from "qs"
 import { Transaction, Networks } from "stellar-sdk"
@@ -46,9 +47,9 @@ export interface TxParameters {
   signature?: string
 }
 
-function parseRequestURI(requestURI: string) {
+function parseRequestURI(requestURI: string, t: TFunction) {
   if (!requestURI.startsWith("web+stellar:")) {
-    throw new Error("Expected request to start with 'web+stellar:'")
+    throw new Error(t("error.multi-sig.wrong-start"))
   }
 
   const [operation, queryString] = requestURI.replace(/^web\+stellar:/, "").split("?", 2)
@@ -60,8 +61,11 @@ function parseRequestURI(requestURI: string) {
   }
 }
 
-export function deserializeSignatureRequest(rawSignatureRequest: Omit<SignatureRequest, "meta">): SignatureRequest {
-  const { operation, parameters } = parseRequestURI(rawSignatureRequest.request_uri)
+export function deserializeSignatureRequest(
+  rawSignatureRequest: Omit<SignatureRequest, "meta">,
+  t: TFunction
+): SignatureRequest {
+  const { operation, parameters } = parseRequestURI(rawSignatureRequest.request_uri, t)
   const networkPassphrase = parameters.network_passphrase ? parameters.network_passphrase : Networks.PUBLIC
 
   return {
@@ -87,7 +91,7 @@ export function createSignatureRequestURI(transaction: Transaction, options: TxP
   return "web+stellar:tx?" + qs.stringify(query)
 }
 
-export async function submitNewSignatureRequest(serviceURL: string, signatureRequestURI: string) {
+export async function submitNewSignatureRequest(serviceURL: string, signatureRequestURI: string, t: TFunction) {
   const submissionEndpoint = joinURL(serviceURL, "/submit")
 
   const response = await fetch(submissionEndpoint, {
@@ -103,19 +107,21 @@ export async function submitNewSignatureRequest(serviceURL: string, signatureReq
     const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
 
     throw new Error(
-      `Submitting transaction to multi-signature service failed with status ${response.status}: ` +
-        (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
+      t("error.multi-sig.submission-failed", {
+        status: response.status,
+        message: responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+      })
     )
   }
 
   return response
 }
 
-export async function collateSignature(signatureRequest: SignatureRequest, signedTx: Transaction) {
+export async function collateSignature(signatureRequest: SignatureRequest, signedTx: Transaction, t: TFunction) {
   const collateEndpointURL = signatureRequest.meta.callbackURL
 
   if (!collateEndpointURL) {
-    throw new Error("Cannot submit back to multi-signature service. Signature request has no callback URL set.")
+    throw new Error(t("error.multi-sig.no-callback-url"))
   }
 
   const response = await fetch(collateEndpointURL, {
@@ -141,7 +147,10 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
       // Throw something that can be handled by explainSubmissionError()
       throw Object.assign(
         new Error(
-          `Submitting transaction to multi-signature service failed with status ${response.status}: ${responseBodyObject.message}`
+          t("error.multi-sig.submission-failed", {
+            status: response.status,
+            message: responseBodyObject.message
+          })
         ),
         {
           response: {
@@ -152,8 +161,10 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
       )
     } else {
       throw new Error(
-        `Submitting transaction to multi-signature service failed with status ${response.status}: ` +
-          (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
+        t("error.multi-sig.submission-failed", {
+          status: response.status,
+          message: responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+        })
       )
     }
   }
