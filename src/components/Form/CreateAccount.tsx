@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation, Trans } from "react-i18next"
 import IconButton from "@material-ui/core/IconButton"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -10,10 +11,10 @@ import { Account } from "../../context/accounts"
 import { useIsMobile, useIsSmallMobile } from "../../hooks/userinterface"
 import { renderFormFieldError } from "../../lib/errors"
 import { ActionButton, CloseButton, DialogActionsBox, ConfirmDialog } from "../Dialog/Generic"
+import DialogBody from "../Dialog/DialogBody"
 import { HorizontalLayout } from "../Layout/Box"
 import ToggleSection from "../Layout/ToggleSection"
 import { QRReader } from "./FormFields"
-import DialogBody from "../Dialog/DialogBody"
 
 export interface AccountCreationValues {
   name: string
@@ -26,18 +27,21 @@ export interface AccountCreationValues {
 
 type AccountCreationErrors = { [fieldName in keyof AccountCreationValues]?: Error | null }
 
-function getNewAccountName(accounts: Account[], testnet?: boolean) {
-  const baseName = `My ${testnet ? "Testnet " : ""}Account`
-  const deriveName = (idx: number) => (idx === 0 ? baseName : `${baseName} ${idx + 1}`)
+function useNewAccountName() {
+  const { t } = useTranslation()
+  return function getNewAccountName(accounts: Account[], testnet?: boolean) {
+    const baseName = testnet ? t("create-account.base-name.testnet") : t("create-account.base-name.mainnet")
+    const deriveName = (idx: number) => (idx === 0 ? baseName : `${baseName} ${idx + 1}`)
 
-  let index = 0
+    let index = 0
 
-  // Find an account name that is not in use yet
-  while (accounts.some(account => account.name === deriveName(index))) {
-    index++
+    // Find an account name that is not in use yet
+    while (accounts.some(account => account.name === deriveName(index))) {
+      index++
+    }
+
+    return deriveName(index)
   }
-
-  return deriveName(index)
 }
 
 function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
@@ -45,26 +49,29 @@ function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
   return accounts.some(account => account.publicKey === publicKey)
 }
 
-function validateFormValues(formValues: AccountCreationValues, accounts: Account[]) {
-  const errors: AccountCreationErrors = {}
+function useFormValidation() {
+  const { t } = useTranslation()
+  return function validateFormValues(formValues: AccountCreationValues, accounts: Account[]) {
+    const errors: AccountCreationErrors = {}
 
-  if (!formValues.name) {
-    errors.name = new Error("No account name has been entered.")
-  }
-  if (formValues.setPassword && !formValues.password) {
-    errors.password = new Error("No password has been entered.")
-  }
-  if (formValues.setPassword && formValues.passwordRepeat !== formValues.password) {
-    errors.passwordRepeat = new Error("Password does not match.")
-  }
-  if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
-    errors.privateKey = new Error("Invalid stellar private key.")
-  } else if (!formValues.createNewKey && isAccountAlreadyImported(formValues.privateKey, accounts)) {
-    errors.privateKey = new Error("You cannot import the same account twice.")
-  }
+    if (!formValues.name) {
+      errors.name = new Error(t("create-account.validation.no-account-name"))
+    }
+    if (formValues.setPassword && !formValues.password) {
+      errors.password = new Error(t("create-account.validation.no-password"))
+    }
+    if (formValues.setPassword && formValues.passwordRepeat !== formValues.password) {
+      errors.passwordRepeat = new Error(t("create-account.validation.password-no-match"))
+    }
+    if (!formValues.createNewKey && !formValues.privateKey.match(/^S[A-Z0-9]{55}$/)) {
+      errors.privateKey = new Error(t("create-account.validation.invalid-key"))
+    } else if (!formValues.createNewKey && isAccountAlreadyImported(formValues.privateKey, accounts)) {
+      errors.privateKey = new Error(t("create-account.validation.same-account"))
+    }
 
-  const success = Object.keys(errors).length === 0
-  return { errors, success }
+    const success = Object.keys(errors).length === 0
+    return { errors, success }
+  }
 }
 
 interface AccountCreationFormProps {
@@ -85,13 +92,14 @@ function AccountCreationForm(props: AccountCreationFormProps) {
   const inputRef = React.useRef<HTMLInputElement | undefined>()
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
+  const { t } = useTranslation()
   const primaryButtonLabel = formValues.createNewKey
     ? isSmallScreen
-      ? "Create"
-      : "Create Account"
+      ? t("create-account.actions.create.short")
+      : t("create-account.actions.create.long")
     : isSmallScreen
-    ? "Import"
-    : "Import Account"
+    ? t("create-account.actions.import.short")
+    : t("create-account.actions.import.long")
 
   const onQRImport = (key: string) => {
     setFormValue("privateKey", key)
@@ -108,7 +116,11 @@ function AccountCreationForm(props: AccountCreationFormProps) {
           label={errors.name ? renderFormFieldError(errors.name) : undefined}
           margin="normal"
           onChange={event => setFormValue("name", event.target.value)}
-          placeholder={props.testnet ? "New Testnet Account" : "New Account"}
+          placeholder={
+            props.testnet
+              ? t("create-account.header.placeholder.testnet")
+              : t("create-account.header.placeholder.mainnet")
+          }
           value={formValues.name}
           InputProps={{
             disableUnderline: true,
@@ -129,7 +141,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         />
       </Typography>
     ),
-    [errors, formValues, isTinyScreen, props.testnet]
+    [errors, formValues, isTinyScreen, props.testnet, t]
   )
 
   const actionsContent = React.useMemo(
@@ -151,7 +163,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
           style={{ marginTop: 24, flexShrink: 0 }}
-          title="Password Protect"
+          title={t("create-account.toggle.password.title")}
         >
           <HorizontalLayout
             wrap="wrap"
@@ -164,8 +176,12 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               disabled={!formValues.setPassword}
               error={Boolean(errors.password)}
               fullWidth
-              label={errors.password ? renderFormFieldError(errors.password) : "Password"}
-              placeholder="Enter a password"
+              label={
+                errors.password
+                  ? renderFormFieldError(errors.password)
+                  : t("create-account.toggle.password.textfield.1.label")
+              }
+              placeholder={t("create-account.toggle.password.textfield.1.placeholder")}
               margin="normal"
               onChange={event => setFormValue("password", event.target.value)}
               style={{
@@ -181,10 +197,14 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               disabled={!formValues.setPassword}
               error={Boolean(errors.passwordRepeat)}
               fullWidth
-              label={errors.passwordRepeat ? renderFormFieldError(errors.passwordRepeat) : "Repeat password"}
+              label={
+                errors.passwordRepeat
+                  ? renderFormFieldError(errors.passwordRepeat)
+                  : t("create-account.toggle.password.textfield.2.label")
+              }
               margin="normal"
               onChange={event => setFormValue("passwordRepeat", event.target.value)}
-              placeholder="Repeat your password"
+              placeholder={t("create-account.toggle.password.textfield.2.placeholder")}
               style={{
                 flex: "1 0 0",
                 marginLeft: isSmallScreen ? 6 : 16,
@@ -199,17 +219,19 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         <ToggleSection
           checked={!formValues.createNewKey}
           onChange={() => setFormValue("createNewKey", !formValues.createNewKey as any)}
-          title="Import Existing"
+          title={t("create-account.toggle.import.title")}
         >
           <HorizontalLayout alignItems="center">
             <TextField
               disabled={Boolean(formValues.createNewKey)}
               error={Boolean(errors.privateKey)}
-              helperText={
-                errors.privateKey ? "A Stellar secret key is 56 alphanumeric characters long and starts with an S" : " "
+              helperText={errors.privateKey ? t("create-account.toggle.import.textfield.helper-text") : " "}
+              label={
+                errors.privateKey
+                  ? renderFormFieldError(errors.privateKey)
+                  : t("create-account.toggle.import.textfield.label")
               }
-              label={errors.privateKey ? renderFormFieldError(errors.privateKey) : "Secret key"}
-              placeholder="SABCDEFGH…"
+              placeholder={t("create-account.toggle.import.textfield.placeholder")}
               fullWidth
               margin="normal"
               value={formValues.privateKey}
@@ -240,7 +262,10 @@ interface Props {
 }
 
 function StatefulAccountCreationForm(props: Props) {
+  const getNewAccountName = useNewAccountName()
   const defaultAccountName = React.useMemo(() => getNewAccountName(props.accounts, props.testnet), [])
+  const validateFormValues = useFormValidation()
+  const { t } = useTranslation()
   const [errors, setErrors] = React.useState<AccountCreationErrors>({})
   const [pendingConfirmation, setPendingConfirmation] = React.useState<boolean>(false)
   const [formValues, setFormValues] = React.useState<AccountCreationValues>({
@@ -298,19 +323,25 @@ function StatefulAccountCreationForm(props: Props) {
         setFormValue={setFormValue}
       />
       <ConfirmDialog
-        cancelButton={<ActionButton onClick={() => setPendingConfirmation(false)}>Cancel</ActionButton>}
+        cancelButton={
+          <ActionButton onClick={() => setPendingConfirmation(false)}>
+            {t("create-account.actions.cancel")}
+          </ActionButton>
+        }
         confirmButton={
           <ActionButton onClick={onConfirmNoPasswordProtection} type="primary">
-            Confirm
+            {t("create-account.actions.confirm")}
           </ActionButton>
         }
         onClose={() => setPendingConfirmation(false)}
         open={pendingConfirmation}
-        title="Continue without password"
+        title={t("create-account.confirm.title")}
       >
-        You are about to create an account without password protection. Anyone that has access to your device will have
-        access to your account funds. <br /> <br />
-        Are you sure you want to continue without setting up a password?
+        <Trans i18nKey="create-account.confirm.text">
+          You are about to create an account without password protection. Anyone that has access to your device will
+          have access to your account funds. <br /> <br /> Are you sure you want to continue without setting up a
+          password?
+        </Trans>
       </ConfirmDialog>
     </>
   )
