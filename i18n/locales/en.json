@@ -356,6 +356,19 @@
         "short": "Apply"
       }
     },
+    "signers-editor": {
+      "list": {
+        "item": {
+          "weight": "Weight",
+          "local-key": "Local key"
+        }
+      },
+      "validation": {
+        "existing-signer": "Cannot add existing signer.",
+        "integer-required": "Must be an integer.",
+        "invalid-stellar-address": "Expected a public key or stellar address."
+      }
+    },
     "textfield": {
       "weight-threshold": {
         "explanation": {
