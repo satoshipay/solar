@@ -346,6 +346,10 @@
     "title": "Add Custom Asset"
   },
   "error": {
+    "accounts": {
+      "existing-account": "An account with that name does already exist.",
+      "password-required": "Account {{accountName}} is password-protected, but no password was passed."
+    },
     "multi-sig": {
       "no-callback-url": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
       "submission-failed": "Submitting transaction to multi-signature service failed with status {{status}}: {{message}}",

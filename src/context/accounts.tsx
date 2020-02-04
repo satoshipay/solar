@@ -1,4 +1,6 @@
+import { TFunction } from "i18next"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Keypair, Transaction } from "stellar-sdk"
 import { WrongPasswordError } from "../lib/errors"
 import getKeyStore, { KeyStoreAPI } from "../platform/key-store"
@@ -39,7 +41,7 @@ interface ContextValue {
  * Creates a wallet account instance. Not to be confused with the Stellar
  * account response, although they map 1:1.
  */
-async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
+async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string, t: TFunction) {
   const publicData = await keyStore.getPublicKeyData(keyID)
   const account: Account = {
     id: keyID,
@@ -52,7 +54,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
       const requiresPassword = publicData.password
 
       if (password === null && requiresPassword) {
-        throw new Error(`Account ${keyID} is password-protected, but no password was passed.`)
+        throw new Error(t("error.accounts.password-required", { accountName: publicData.name }))
       }
       try {
         const privateData = await keyStore.getPrivateKeyData(keyID, password || "")
@@ -68,7 +70,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
       const requiresPassword = publicData.password
 
       if (password === null && requiresPassword) {
-        throw new Error(`Account ${keyID} is password-protected, but no password was passed.`)
+        throw new Error(t("error.accounts.password-required", { accountName: publicData.name }))
       }
 
       return keyStore.signTransaction(account.id, transaction, password || "")
@@ -77,9 +79,9 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
   return account
 }
 
-async function createAccountInKeyStore(accounts: Account[], accountData: NewAccountData) {
+async function createAccountInKeyStore(accounts: Account[], accountData: NewAccountData, t: TFunction) {
   if (accounts.some(someAccount => someAccount.name.toLowerCase() === accountData.name.toLowerCase())) {
-    throw new Error("An account with that name does already exist.")
+    throw new Error(t("error.accounts.existing-account"))
   }
 
   const id = accountData.id || createNextID(accounts)
@@ -98,7 +100,7 @@ async function createAccountInKeyStore(accounts: Account[], accountData: NewAcco
   )
 
   // Must happen after updating the key store
-  return createAccountInstance(keyStore, id)
+  return createAccountInstance(keyStore, id, t)
 }
 
 function createNextID(accounts: Account[]) {
@@ -137,6 +139,7 @@ interface Props {
 export function AccountsProvider(props: Props) {
   const [accounts, setAccounts] = React.useState<Account[]>(initialAccounts)
   const [networkSwitch, setNetworkSwitch] = React.useState<NetworkID>("mainnet")
+  const { t } = useTranslation()
 
   React.useEffect(() => {
     const keyStore = getKeyStore()
@@ -145,7 +148,7 @@ export function AccountsProvider(props: Props) {
       keyStore
         .getKeyIDs()
         .then(async keyIDs => {
-          const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
+          const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID, t)))
           setAccounts(loadedAccounts)
           setNetworkSwitch(getInitialNetwork(loadedAccounts))
         })
@@ -159,7 +162,7 @@ export function AccountsProvider(props: Props) {
   }, [])
 
   const createAccount = async (accountData: NewAccountData) => {
-    const account = await createAccountInKeyStore(accounts, accountData)
+    const account = await createAccountInKeyStore(accounts, accountData, t)
     setAccounts(prevAccounts => [...prevAccounts, account])
     return account
   }
@@ -176,7 +179,7 @@ export function AccountsProvider(props: Props) {
       ...(await keyStore.getPublicKeyData(accountID)),
       name: newName
     })
-    updateAccountInStore(await createAccountInstance(keyStore, accountID))
+    updateAccountInStore(await createAccountInstance(keyStore, accountID, t))
   }
 
   const deleteAccount = async (accountID: string) => {
@@ -202,7 +205,7 @@ export function AccountsProvider(props: Props) {
     // Setting `password: true` explicitly, in case there was no password set before
     await keyStore.saveKey(accountID, nextPassword, privateKeyData, { ...publicKeyData, password: true })
 
-    updateAccountInStore(await createAccountInstance(keyStore, accountID))
+    updateAccountInStore(await createAccountInstance(keyStore, accountID, t))
   }
 
   const removePassword = async (accountID: string, prevPassword: string) => {
@@ -220,7 +223,7 @@ export function AccountsProvider(props: Props) {
     }
 
     await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })
-    updateAccountInStore(await createAccountInstance(keyStore, accountID))
+    updateAccountInStore(await createAccountInstance(keyStore, accountID, t))
   }
 
   const toggleNetwork = () => {
