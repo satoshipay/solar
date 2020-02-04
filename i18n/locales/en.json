@@ -99,6 +99,50 @@
     },
     "title": "Add Asset"
   },
+  "app-settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": "Biometric authentication",
+        "secondary": {
+          "disabled": "Biometric authentication is disabled",
+          "enabled": "Biometric authentication is enabled",
+          "not-enrolled": "Configure biometric authentication in your operating system settings"
+        }
+      },
+      "prompt": {
+        "enable": "Unlock your device once to enable the feature.",
+        "disable": "Unlock your device to disable the auto-lock."
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "Show Memos",
+        "secondary": {
+          "hidden": "Memos are hidden in the transaction overview",
+          "shown": "Memos are shown in the transaction overview"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Enable Multi-Signature",
+        "secondary": {
+          "enabled": "Multi-Signature features are enabled",
+          "disabled": "Multi-Signature features are disabled"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "Show Testnet Accounts",
+        "secondary": {
+          "cannot-disable": "Cannot be disabled because you already added testnet accounts",
+          "hidden": "Testnet accounts are hidden",
+          "shown": "Testnet accounts are shown"
+        }
+      }
+    }
+  },
   "asset-details": {
     "lumen": {
       "description": {
