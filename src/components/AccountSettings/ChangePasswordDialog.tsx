@@ -141,7 +141,9 @@ function ChangePasswordDialog(props: Props) {
           props.onClose()
         })
         .catch(error => {
-          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
+          isWrongPasswordError(error)
+            ? setErrors({ prevPassword: new Error(t("common.wrong-password")) })
+            : showError(error)
         })
     }
   }
@@ -165,7 +167,9 @@ function ChangePasswordDialog(props: Props) {
           props.onClose()
         })
         .catch(error => {
-          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
+          isWrongPasswordError(error)
+            ? setErrors({ prevPassword: new Error(t("common.wrong-password")) })
+            : showError(error)
         })
     }
   }

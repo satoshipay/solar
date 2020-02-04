@@ -263,6 +263,9 @@
       }
     }
   },
+  "common": {
+    "wrong-password": "Wrong password."
+  },
   "create-account": {
     "actions": {
       "cancel": "Cancel",

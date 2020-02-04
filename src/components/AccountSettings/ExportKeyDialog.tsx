@@ -135,11 +135,7 @@ function ExportKeyDialog(props: Props) {
         setSecretKey(decryptedSecretKey)
       })
       .catch(error => {
-        if (isWrongPasswordError(error)) {
-          setPasswordError(error)
-        } else {
-          trackError(error)
-        }
+        isWrongPasswordError(error) ? setPasswordError(new Error(t("common.wrong-password"))) : trackError(error)
       })
   }
 
