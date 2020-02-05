@@ -346,6 +346,10 @@
     "title": "Add Custom Asset"
   },
   "error": {
+    "boundary": {
+      "header": "Oops, something went wrong...",
+      "contact-us": "Contact us via"
+    },
     "custom": {
       "address-not-found-error": "Stellar address not found: {{address}}",
       "existing-account-error": "An account with that name does already exist.",

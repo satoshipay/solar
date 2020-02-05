@@ -49,26 +49,32 @@ export default class ErrorBoundary extends React.Component<Props, State> {
           padding="40px"
           position="relative"
         >
-          <Box textAlign="center">
-            <Typography variant="h5">Oops, something went wrong...</Typography>
-            <Typography style={{ margin: "8px 0 24px", userSelect: "text" }} variant="body2">
-              <Translation>{t => <>{getErrorTranslation(error, t)}</>}</Translation>
-            </Typography>
-            <Button color="primary" onClick={this.reload} variant="contained">
-              {buttonLabels[Math.floor(Math.random() * buttonLabels.length)]}
-            </Button>
-          </Box>
-          <Box style={{ position: "absolute", bottom: 8, left: 0, width: "100%", opacity: 0.5 }}>
-            <Typography align="center" color="textPrimary">
-              Contact us via{" "}
-              <a href="mailto:hello@solarwallet.io" style={{ color: "inherit" }} target="_blank">
-                hello@solarwallet.io
-              </a>
-            </Typography>
-            <Typography align="center" color="textPrimary">
-              v{pkg.version}
-            </Typography>
-          </Box>
+          <Translation>
+            {t => (
+              <>
+                <Box textAlign="center">
+                  <Typography variant="h5">{t("error.boundary.header")}</Typography>
+                  <Typography style={{ margin: "8px 0 24px", userSelect: "text" }} variant="body2">
+                    {getErrorTranslation(error, t)}
+                  </Typography>
+                  <Button color="primary" onClick={this.reload} variant="contained">
+                    {buttonLabels[Math.floor(Math.random() * buttonLabels.length)]}
+                  </Button>
+                </Box>
+                <Box style={{ position: "absolute", bottom: 8, left: 0, width: "100%", opacity: 0.5 }}>
+                  <Typography align="center" color="textPrimary">
+                    {t("error.boundary.contact-us")}{" "}
+                    <a href="mailto:hello@solarwallet.io" style={{ color: "inherit" }} target="_blank">
+                      hello@solarwallet.io
+                    </a>
+                  </Typography>
+                  <Typography align="center" color="textPrimary">
+                    v{pkg.version}
+                  </Typography>
+                </Box>
+              </>
+            )}
+          </Translation>
         </VerticalLayout>
       )
     } else {
