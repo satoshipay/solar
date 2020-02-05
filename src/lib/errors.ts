@@ -53,9 +53,9 @@ export function getErrorTranslation(error: Error, t: TFunction): string {
   return t([key, fallback], params)
 }
 
-export function renderFormFieldError(error: any) {
+export function renderFormFieldError(error: any, t: TFunction) {
   if (error) {
-    return error instanceof Error ? error.message : error
+    return error instanceof Error ? getErrorTranslation(error, t) : error.message
   } else {
     return error
   }

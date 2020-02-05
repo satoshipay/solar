@@ -113,7 +113,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
           autoFocus={process.env.PLATFORM !== "ios"}
           error={Boolean(errors.name)}
           inputRef={inputRef}
-          label={errors.name ? renderFormFieldError(errors.name) : undefined}
+          label={errors.name ? renderFormFieldError(errors.name, t) : undefined}
           margin="normal"
           onChange={event => setFormValue("name", event.target.value)}
           placeholder={
@@ -178,7 +178,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               fullWidth
               label={
                 errors.password
-                  ? renderFormFieldError(errors.password)
+                  ? renderFormFieldError(errors.password, t)
                   : t("create-account.toggle.password.textfield.1.label")
               }
               placeholder={t("create-account.toggle.password.textfield.1.placeholder")}
@@ -199,7 +199,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               fullWidth
               label={
                 errors.passwordRepeat
-                  ? renderFormFieldError(errors.passwordRepeat)
+                  ? renderFormFieldError(errors.passwordRepeat, t)
                   : t("create-account.toggle.password.textfield.2.label")
               }
               margin="normal"
@@ -228,7 +228,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
               helperText={errors.privateKey ? t("create-account.toggle.import.textfield.helper-text") : " "}
               label={
                 errors.privateKey
-                  ? renderFormFieldError(errors.privateKey)
+                  ? renderFormFieldError(errors.privateKey, t)
                   : t("create-account.toggle.import.textfield.label")
               }
               placeholder={t("create-account.toggle.import.textfield.placeholder")}

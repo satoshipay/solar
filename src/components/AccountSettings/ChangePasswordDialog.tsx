@@ -141,9 +141,7 @@ function ChangePasswordDialog(props: Props) {
           props.onClose()
         })
         .catch(error => {
-          isWrongPasswordError(error)
-            ? setErrors({ prevPassword: new Error(t("common.wrong-password")) })
-            : showError(error)
+          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
         })
     }
   }
@@ -167,9 +165,7 @@ function ChangePasswordDialog(props: Props) {
           props.onClose()
         })
         .catch(error => {
-          isWrongPasswordError(error)
-            ? setErrors({ prevPassword: new Error(t("common.wrong-password")) })
-            : showError(error)
+          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
         })
     }
   }
@@ -211,7 +207,7 @@ function ChangePasswordDialog(props: Props) {
             error={Boolean(errors.prevPassword)}
             label={
               errors.prevPassword
-                ? renderFormFieldError(errors.prevPassword)
+                ? renderFormFieldError(errors.prevPassword, t)
                 : t("set-password.textfield.prev-password.label")
             }
             fullWidth
@@ -228,7 +224,7 @@ function ChangePasswordDialog(props: Props) {
             error={Boolean(errors.nextPassword)}
             label={
               errors.nextPassword
-                ? renderFormFieldError(errors.nextPassword)
+                ? renderFormFieldError(errors.nextPassword, t)
                 : t("set-password.textfield.next-password.label")
             }
             fullWidth
@@ -242,7 +238,7 @@ function ChangePasswordDialog(props: Props) {
             error={Boolean(errors.nextPasswordRepeat)}
             label={
               errors.nextPasswordRepeat
-                ? renderFormFieldError(errors.nextPasswordRepeat)
+                ? renderFormFieldError(errors.nextPasswordRepeat, t)
                 : t("set-password.textfield.next-password-repeat.label")
             }
             fullWidth

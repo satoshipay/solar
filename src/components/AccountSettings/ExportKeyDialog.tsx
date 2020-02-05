@@ -10,7 +10,7 @@ import WarnIcon from "@material-ui/icons/Warning"
 import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useIsMobile } from "../../hooks/userinterface"
-import { isWrongPasswordError } from "../../lib/errors"
+import { isWrongPasswordError, getErrorTranslation } from "../../lib/errors"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box } from "../Layout/Box"
 import DialogBody from "../Dialog/DialogBody"
@@ -135,7 +135,7 @@ function ExportKeyDialog(props: Props) {
         setSecretKey(decryptedSecretKey)
       })
       .catch(error => {
-        isWrongPasswordError(error) ? setPasswordError(new Error(t("common.wrong-password"))) : trackError(error)
+        isWrongPasswordError(error) ? setPasswordError(error) : trackError(error)
       })
   }
 
@@ -192,7 +192,7 @@ function ExportKeyDialog(props: Props) {
     <PromptToReveal
       onReveal={reveal}
       password={password}
-      passwordError={passwordError}
+      passwordError={passwordError ? new Error(getErrorTranslation(passwordError, t)) : null}
       requiresPassword={props.account.requiresPassword}
       title={titleContent}
       updatePassword={updatePassword}
