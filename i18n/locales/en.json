@@ -347,23 +347,15 @@
   },
   "error": {
     "common": {
-      "wrong-password-error": "Wrong password."
-    },
-    "accounts": {
-      "existing-account": "An account with that name does already exist.",
-      "password-required": "Account {{accountName}} is password-protected, but no password was passed."
-    },
-    "multi-sig": {
-      "no-callback-url": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
-      "submission-failed": "Submitting transaction to multi-signature service failed with status {{status}}: {{message}}",
-      "wrong-start": "Expected request to start with 'web+stellar:'"
-    },
-    "stellar-address": {
-      "address-not-found": "Stellar address not found: {{address}}",
-      "request-failed": "Request for resolving the stellar address failed: {{address}}"
-    },
-    "stellar-guard": {
-      "submission-failed": "Submitting transaction to StellarGuard endpoint failed with status ${status}: {{message}}"
+      "address-not-found-error": "Stellar address not found: {{address}}",
+      "existing-account-error": "An account with that name does already exist.",
+      "no-callback-url-error": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
+      "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
+      "request-failed-error": "Request for resolving the stellar address failed: {{address}}",
+      "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
+      "unknown-error": "An unknown error occured.",
+      "wrong-password-error": "Wrong password.",
+      "wrong-request-start-error": "Expected request to start with 'web+stellar:'"
     },
     "submission-error": {
       "default": "Transaction rejected by the network. Error code(s): {{codes}}",
@@ -387,8 +379,7 @@
         "tx_bad_seq": "Sequence number mismatch. Please re-create the transaction.",
         "tx_insufficient_balance": "Insufficient balance. Balance would fall below the minimum reserve.",
         "tx_too_late": "Transaction draft has expired. Try again."
-      },
-      "unknown": "An unknown error occured."
+      }
     },
     "transaction": {
       "bad-transaction": "Bad transaction given. Expected a Transaction or TransactionRecord, but got: {{transaction}}",
