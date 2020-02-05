@@ -7,7 +7,7 @@ import { Account } from "../context/accounts"
 import { SettingsContext, SettingsContextType } from "../context/settings"
 import { useHorizon } from "../hooks/stellar"
 import { useIsMobile } from "../hooks/userinterface"
-import { isWrongPasswordError } from "../lib/errors"
+import { isWrongPasswordError, getErrorTranslation } from "../lib/errors"
 import { explainSubmissionErrorResponse } from "../lib/horizonErrors"
 import {
   collateSignature,
@@ -273,7 +273,7 @@ class TransactionSender extends React.Component<Props, State> {
           open={confirmationDialogOpen && !this.props.forceClose}
           account={this.props.account}
           disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
-          passwordError={passwordError}
+          passwordError={passwordError ? new Error(getErrorTranslation(passwordError, this.props.t)) : undefined}
           showHash={false}
           showSource={transaction ? this.props.account.publicKey !== transaction.source : undefined}
           showSubmissionProgress={Boolean(submissionPromise)}
