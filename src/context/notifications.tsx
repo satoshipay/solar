@@ -1,4 +1,6 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
+import { getErrorTranslation } from "../lib/errors"
 
 export type NotificationType = "connection" | "error" | "info" | "success"
 
@@ -48,6 +50,7 @@ export function NotificationsProvider(props: Props) {
   // Not in the state, since state updates would be performed asyncronously
   const nextIDRef = React.useRef(1)
   const [notifications, setNotifications] = React.useState<Notification[]>([])
+  const { t } = useTranslation()
 
   const showNotification = (type: NotificationType, message: string, options: NotificationOptions = {}) => {
     const id = nextIDRef.current++
@@ -63,7 +66,7 @@ export function NotificationsProvider(props: Props) {
   }
 
   const showError = (error: any) => {
-    showNotification("error", String(error.message || error))
+    showNotification("error", getErrorTranslation(error, t))
 
     // tslint:disable-next-line:no-console
     console.error(error)

@@ -1,6 +1,8 @@
 import React from "react"
+import { Translation } from "react-i18next"
 import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
+import { getErrorTranslation } from "../lib/errors"
 import { Box, VerticalLayout } from "./Layout/Box"
 
 // tslint:disable-next-line
@@ -50,7 +52,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
           <Box textAlign="center">
             <Typography variant="h5">Oops, something went wrong...</Typography>
             <Typography style={{ margin: "8px 0 24px", userSelect: "text" }} variant="body2">
-              {error.message || error}
+              <Translation>{t => <>{getErrorTranslation(error, t)}</>}</Translation>
             </Typography>
             <Button color="primary" onClick={this.reload} variant="contained">
               {buttonLabels[Math.floor(Math.random() * buttonLabels.length)]}
