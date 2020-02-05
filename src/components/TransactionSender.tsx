@@ -171,8 +171,10 @@ class TransactionSender extends React.Component<Props, State> {
     } catch (error) {
       if (isWrongPasswordError(error)) {
         this.setState({ passwordError: error })
+        return
+      } else {
+        throw error
       }
-      throw error
     }
 
     try {
