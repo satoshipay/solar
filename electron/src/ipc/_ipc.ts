@@ -1,4 +1,5 @@
 import { ipcMain } from "electron"
+import pick = require("lodash.pick")
 
 export function expose<Message extends keyof IPC.MessageType>(
   messageType: Message,
@@ -12,9 +13,16 @@ export function expose<Message extends keyof IPC.MessageType>(
       const result = await handler(...args)
       event.sender.send(messageType, { callID, result })
     } catch (error) {
+      const extras = pick(error, error.__extraProps || [])
       event.sender.send(messageType, {
-        error: { name: error.name || "Error", message: error.message, stack: error.stack },
-        callID
+        callID,
+        error: {
+          ...extras,
+          __extraProps: error.__extraProps,
+          message: error.message,
+          name: error.name || "Error",
+          stack: error.stack
+        }
       })
     }
   })
