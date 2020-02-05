@@ -1,5 +1,5 @@
 import { TFunction } from "i18next"
-import { ComplexError } from "./errors"
+import { CustomError } from "./errors"
 
 interface TxSubmissionResponse {
   data: any
@@ -10,7 +10,7 @@ interface TxSubmissionResponse {
 // See <https://www.stellar.org/developers/guides/concepts/transactions.html#possible-errors>
 export function explainSubmissionErrorResponse(response: TxSubmissionResponse | undefined, t: TFunction) {
   if (!response || response.status !== 400) {
-    return ComplexError("UnknownError", "An unknown error occured")
+    return CustomError("UnknownError", "An unknown error occured")
   }
 
   if (response.data && response.data.extras && response.data.extras.result_codes) {
@@ -40,5 +40,5 @@ export function explainSubmissionErrorResponse(response: TxSubmissionResponse | 
     // TODO: Handle more result codes
   }
 
-  return ComplexError("UnknownError", "An unknown error occured")
+  return CustomError("UnknownError", "An unknown error occured")
 }

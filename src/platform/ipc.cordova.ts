@@ -1,4 +1,4 @@
-import { ComplexError } from "../lib/errors"
+import { CustomError } from "../lib/errors"
 import pick from "lodash.pick"
 
 let nextCallID = 1
@@ -27,7 +27,7 @@ export function call<Message extends keyof IPC.MessageType>(
         if ("error" in message && message.error) {
           const error = message.error
           const extra = error.__extraProps ? pick(error, error.__extraProps || []) : undefined
-          reject(ComplexError(error.name, error.message, extra))
+          reject(CustomError(error.name, error.message, extra))
         } else {
           resolve((message as any).result)
         }

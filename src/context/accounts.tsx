@@ -1,6 +1,6 @@
 import React from "react"
 import { Keypair, Transaction } from "stellar-sdk"
-import { WrongPasswordError, ComplexError } from "../lib/errors"
+import { WrongPasswordError, CustomError } from "../lib/errors"
 import getKeyStore, { KeyStoreAPI } from "../platform/key-store"
 import { trackError } from "./notifications"
 
@@ -52,7 +52,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
       const requiresPassword = publicData.password
 
       if (password === null && requiresPassword) {
-        throw ComplexError(
+        throw CustomError(
           "PasswordRequiredError",
           `Account ${publicData.name} is password-protected, but no password was passed.`,
           { accountName: publicData.name }
@@ -72,7 +72,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
       const requiresPassword = publicData.password
 
       if (password === null && requiresPassword) {
-        throw ComplexError(
+        throw CustomError(
           "PasswordRequiredError",
           `Account ${publicData.name} is password-protected, but no password was passed.`,
           { accountName: publicData.name }
@@ -87,7 +87,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
 
 async function createAccountInKeyStore(accounts: Account[], accountData: NewAccountData) {
   if (accounts.some(someAccount => someAccount.name.toLowerCase() === accountData.name.toLowerCase())) {
-    throw ComplexError("ExistingAccountError", "An account with that name does already exist.")
+    throw CustomError("ExistingAccountError", "An account with that name does already exist.")
   }
 
   const id = accountData.id || createNextID(accounts)

@@ -1,7 +1,7 @@
 import LRUCache from "lru-cache"
 import { FederationServer } from "stellar-sdk"
 import { workers } from "../worker-controller"
-import { ComplexError } from "./errors"
+import { CustomError } from "./errors"
 import { isNotFoundError } from "./stellar"
 
 export const isPublicKey = (str: string) => Boolean(str.match(/^G[A-Z0-9]{55}$/))
@@ -25,11 +25,11 @@ export async function lookupFederationRecord(
     resolved = await netWorker.resolveStellarAddress(stellarAddress)
   } catch (error) {
     if (error && error.request && !error.response) {
-      throw ComplexError("RequestFailedError", `Request for resolving the stellar address failed: ${stellarAddress}`, {
+      throw CustomError("RequestFailedError", `Request for resolving the stellar address failed: ${stellarAddress}`, {
         address: stellarAddress
       })
     } else if (isNotFoundError(error)) {
-      throw ComplexError("AddressNotFoundError", `Stellar address not found: ${stellarAddress}`, {
+      throw CustomError("AddressNotFoundError", `Stellar address not found: ${stellarAddress}`, {
         address: stellarAddress
       })
     } else {

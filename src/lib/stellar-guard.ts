@@ -1,5 +1,5 @@
 import { Server, Transaction, Horizon } from "stellar-sdk"
-import { ComplexError } from "./errors"
+import { CustomError } from "./errors"
 
 const STELLARGUARD_TRANSACTION_ENDPOINT_MAINNET = "https://stellarguard.me/api/transactions"
 const STELLARGUARD_TRANSACTION_ENDPOINT_TESTNET = "https://test.stellarguard.me/api/transactions"
@@ -38,7 +38,7 @@ export async function submitTransactionToStellarGuard(signedTransaction: Transac
 
     const message =
       responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
-    throw ComplexError(
+    throw CustomError(
       "SubmissionFailedError",
       `Submitting transaction to StellarGuard failed with status ${response.status}: ${message}`,
       {

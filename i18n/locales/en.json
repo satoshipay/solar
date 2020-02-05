@@ -346,7 +346,7 @@
     "title": "Add Custom Asset"
   },
   "error": {
-    "common": {
+    "custom": {
       "address-not-found-error": "Stellar address not found: {{address}}",
       "existing-account-error": "An account with that name does already exist.",
       "no-callback-url-error": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
