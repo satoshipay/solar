@@ -1,6 +1,7 @@
 import { KeyStore } from "key-store"
 import { Transaction, Keypair, Networks } from "stellar-sdk"
 import { Messages } from "../shared/ipc"
+import { WrongPasswordError } from "../lib/errors"
 import { CommandHandlers, expose } from "./ipc"
 
 export const commandHandlers: CommandHandlers = {
@@ -99,6 +100,6 @@ async function respondWithSignedTransaction(
       .toXDR()
       .toString("base64")
   } catch (error) {
-    throw Object.assign(new Error("Wrong password."), { name: "WrongPasswordError" })
+    throw WrongPasswordError()
   }
 }

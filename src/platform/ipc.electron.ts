@@ -21,7 +21,7 @@ export function call<Message extends keyof IPC.MessageType>(
       unsubscribe()
 
       if ("error" in message && message.error) {
-        reject(Error(message.error.message))
+        reject(Object.assign(Error(message.error.message), { name: message.error.name }))
       } else {
         resolve((message as ElectronIPCCallResultMessage).result)
       }
