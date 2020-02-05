@@ -263,9 +263,6 @@
       }
     }
   },
-  "common": {
-    "wrong-password": "Wrong password."
-  },
   "create-account": {
     "actions": {
       "cancel": "Cancel",
@@ -349,6 +346,9 @@
     "title": "Add Custom Asset"
   },
   "error": {
+    "common": {
+      "wrong-password-error": "Wrong password."
+    },
     "accounts": {
       "existing-account": "An account with that name does already exist.",
       "password-required": "Account {{accountName}} is password-protected, but no password was passed."
