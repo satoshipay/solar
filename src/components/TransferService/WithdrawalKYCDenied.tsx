@@ -1,5 +1,6 @@
 import React from "react"
 import { WithdrawalStates } from "./statemachine"
+import { Paragraph, Summary } from "./Sidebar"
 
 interface Props {
   state: WithdrawalStates.KYCDenied
@@ -15,4 +16,12 @@ function WithdrawalKYCDenied(props: Props): never {
   )
 }
 
-export default React.memo(WithdrawalKYCDenied)
+const Sidebar = () => (
+  <Summary headline="Know Your Customer">
+    <Paragraph>You have been rejected – the withdrawal is disabled for you. Please contact the asset issuer.</Paragraph>
+  </Summary>
+)
+
+const KYCDeniedView = Object.assign(React.memo(WithdrawalKYCDenied), { Sidebar })
+
+export default KYCDeniedView

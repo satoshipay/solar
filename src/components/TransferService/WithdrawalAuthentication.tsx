@@ -1,6 +1,4 @@
 import React from "react"
-import Divider from "@material-ui/core/Divider"
-import Typography from "@material-ui/core/Typography"
 import { Transaction } from "stellar-sdk"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import { Account } from "../../context/accounts"
@@ -10,6 +8,7 @@ import { isWrongPasswordError } from "../../lib/errors"
 import { VerticalLayout } from "../Layout/Box"
 import ReviewForm from "../TransactionReview/ReviewForm"
 import { WithdrawalState } from "./statemachine"
+import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
 const doNothing = () => undefined
@@ -65,4 +64,12 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
   )
 }
 
-export default React.memo(WithdrawalAuthentication)
+const Sidebar = () => (
+  <Summary headline="Authentication">
+    <Paragraph>The asset issuer requires you to log in to their service using your account.</Paragraph>
+  </Summary>
+)
+
+const AuthenticationView = Object.assign(React.memo(WithdrawalAuthentication), { Sidebar })
+
+export default AuthenticationView

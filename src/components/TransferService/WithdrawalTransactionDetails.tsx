@@ -10,13 +10,12 @@ import { findMatchingBalanceLine } from "../../lib/stellar"
 import { formatBalance } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
-import { HorizontalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 import { formatBalanceRange, formatDescriptionText, formatDuration } from "./formatters"
 import { WithdrawalStates } from "./statemachine"
 import FormLayout from "./FormLayout"
+import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
-import { FormBuilderField } from "./FormBuilder"
 
 interface WithdrawalTransactionDetailsProps {
   dialogActionsRef: RefStateObject | undefined
@@ -131,4 +130,13 @@ function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) 
   )
 }
 
-export default React.memo(WithdrawalTransactionDetails)
+const Sidebar = () => (
+  <Summary headline="Almost done">
+    <Paragraph>Check the form and provide an amount to withdraw if necessary.</Paragraph>
+    <Paragraph>The withdrawal is almost ready.</Paragraph>
+  </Summary>
+)
+
+const TransactionDetailsView = Object.assign(React.memo(WithdrawalTransactionDetails), { Sidebar })
+
+export default TransactionDetailsView

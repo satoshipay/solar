@@ -6,6 +6,7 @@ import { trackError } from "../../context/notifications"
 import { openLink } from "../../platform/links"
 import { Box, VerticalLayout } from "../Layout/Box"
 import { WithdrawalStates } from "./statemachine"
+import { Paragraph, Summary } from "./Sidebar"
 
 interface WithdrawalKYCPendingProps {
   state: WithdrawalStates.KYCPending
@@ -47,4 +48,13 @@ function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
   )
 }
 
-export default React.memo(WithdrawalKYCPending)
+const Sidebar = () => (
+  <Summary headline="Know Your Customer">
+    <Paragraph>The withdrawal service will only work if you provide personal information about you.</Paragraph>
+    <Paragraph>This usually happens for legal reasons.</Paragraph>
+  </Summary>
+)
+
+const KYCPendingView = Object.assign(React.memo(WithdrawalKYCPending), { Sidebar })
+
+export default KYCPendingView

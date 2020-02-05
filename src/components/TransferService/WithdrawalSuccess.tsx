@@ -3,6 +3,7 @@ import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import { VerticalLayout } from "../Layout/Box"
 import { WithdrawalStates } from "./statemachine"
+import { Paragraph, Summary } from "./Sidebar"
 
 interface WithdrawalSuccessProps {
   onClose: () => void
@@ -28,4 +29,12 @@ function WithdrawalSuccess(props: WithdrawalSuccessProps) {
   )
 }
 
-export default React.memo(WithdrawalSuccess)
+const Sidebar = () => (
+  <Summary headline="Done">
+    <Paragraph>Your withdrawal has been accepted and will be processed by the asset issuer.</Paragraph>
+  </Summary>
+)
+
+const SuccessView = Object.assign(React.memo(WithdrawalSuccess), { Sidebar })
+
+export default SuccessView

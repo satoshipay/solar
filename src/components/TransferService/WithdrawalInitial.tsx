@@ -13,6 +13,7 @@ import AssetSelector from "../Form/AssetSelector"
 import Portal from "../Portal"
 import { formatIdentifier } from "./formatters"
 import FormLayout from "./FormLayout"
+import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
 import { WithdrawalStates } from "./statemachine"
 
@@ -178,4 +179,15 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
   )
 }
 
-export default React.memo(WithdrawalInitial)
+const Sidebar = () => (
+  <Summary headline="What to withdraw">
+    <Paragraph>
+      Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.
+    </Paragraph>
+    <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
+  </Summary>
+)
+
+const InitialView = Object.assign(React.memo(WithdrawalInitial), { Sidebar })
+
+export default InitialView

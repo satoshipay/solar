@@ -3,7 +3,7 @@ import nanoid from "nanoid"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
-import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
+import { RefStateObject } from "../../hooks/userinterface"
 import { useLoadingState } from "../../hooks/util"
 import theme from "../../theme"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -14,6 +14,7 @@ import { formatDescriptionText } from "./formatters"
 import { WithdrawalStates } from "./statemachine"
 import { FormBuilder, FormBuilderField } from "./FormBuilder"
 import FormLayout from "./FormLayout"
+import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
 type FormValues = Record<string, string>
@@ -90,7 +91,6 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
   const { account, actions } = React.useContext(WithdrawalContext)
 
   const formID = React.useMemo(() => nanoid(), [])
-  const isSmallScreen = useIsMobile()
   const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
 
   const assetInfo = props.assetTransferInfos.find(info => info.asset.equals(props.state.asset))
@@ -204,4 +204,13 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
   )
 }
 
-export default React.memo(WithdrawalDetailsForm)
+const Sidebar = () => (
+  <Summary headline="Enter details">
+    <Paragraph>Provide further details about your intended withdrawal.</Paragraph>
+    <Paragraph>The information you have to enter depends on what the asset issuer requests.</Paragraph>
+  </Summary>
+)
+
+const DetailsFormView = Object.assign(React.memo(WithdrawalDetailsForm), { Sidebar })
+
+export default DetailsFormView

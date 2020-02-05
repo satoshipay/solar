@@ -1,11 +1,9 @@
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
-import Typography from "@material-ui/core/Typography"
 import React from "react"
 import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
-import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
-import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import ViewLoading from "../ViewLoading"
+import { RefStateObject } from "../../hooks/userinterface"
+import { DesktopTwoColumns } from "./Sidebar"
 import WithdrawalAuthentication from "./WithdrawalAuthentication"
 import WithdrawalDetailsForm from "./WithdrawalDetailsForm"
 import WithdrawalInitial from "./WithdrawalInitial"
@@ -14,56 +12,6 @@ import WithdrawalKYCPending from "./WithdrawalKYCPending"
 import WithdrawalSuccess from "./WithdrawalSuccess"
 import WithdrawalTransactionDetails from "./WithdrawalTransactionDetails"
 import { WithdrawalState } from "./statemachine"
-
-function DesktopTwoColumns(props: { children: React.ReactNode[] }) {
-  const isSmallScreen = useIsMobile()
-
-  if (isSmallScreen) {
-    return <VerticalLayout>{props.children[0]}</VerticalLayout>
-  }
-
-  return (
-    <HorizontalLayout height="100%">
-      <VerticalLayout grow minWidth={300} maxWidth={400} overflowY="auto" shrink={0} width="50%">
-        <React.Suspense fallback={<ViewLoading />}>{props.children[0]}</React.Suspense>
-      </VerticalLayout>
-      <VerticalLayout
-        grow
-        height="100%"
-        margin="0 0 0 5%"
-        padding="0 1vw 0 5%"
-        shrink
-        style={{ borderLeft: "1px solid rgba(0, 0, 0, 0.25)" }}
-      >
-        {props.children[1]}
-      </VerticalLayout>
-    </HorizontalLayout>
-  )
-}
-
-function Paragraph(props: { children: React.ReactNode }) {
-  return (
-    <Typography color="textSecondary" style={{ marginBottom: 16 }} variant="body2">
-      {props.children}
-    </Typography>
-  )
-}
-
-interface SummaryProps {
-  children: React.ReactNode
-  headline: React.ReactNode
-}
-
-function Summary(props: SummaryProps) {
-  return (
-    <>
-      <Typography color="textSecondary" style={{ marginTop: 16, marginBottom: 16 }} variant="h6">
-        {props.headline}
-      </Typography>
-      {props.children}
-    </>
-  )
-}
 
 interface WithdrawalContentProps {
   account: Account
@@ -90,12 +38,7 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
           trustedAssets={trustedAssets}
           withdrawableAssets={withdrawableAssets}
         />
-        <Summary headline="What to withdraw">
-          <Paragraph>
-            Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.
-          </Paragraph>
-          <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
-        </Summary>
+        <WithdrawalInitial.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "enter-values") {
@@ -107,10 +50,7 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
           dialogActionsRef={props.dialogActionsRef}
           state={state}
         />
-        <Summary headline="Enter details">
-          <Paragraph>Provide further details about your intended withdrawal.</Paragraph>
-          <Paragraph>The information you have to enter depends on what the asset issuer requests.</Paragraph>
-        </Summary>
+        <WithdrawalDetailsForm.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "auth-pending") {
@@ -123,30 +63,21 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
           dialogActionsRef={props.dialogActionsRef}
           state={state}
         />
-        <Summary headline="Authentication">
-          The asset issuer requires you to log in to their service using your account.
-        </Summary>
+        <WithdrawalAuthentication.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "kyc-pending") {
     return (
       <DesktopTwoColumns>
         <WithdrawalKYCPending state={state} />
-        <Summary headline="Know Your Customer">
-          <Paragraph>The withdrawal service will only work if you provide personal information about you.</Paragraph>
-          <Paragraph>This usually happens for legal reasons.</Paragraph>
-        </Summary>
+        <WithdrawalKYCPending.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "kyc-denied") {
     return (
       <DesktopTwoColumns>
         <WithdrawalKYCDenied state={state} />
-        <Summary headline="Know Your Customer">
-          <Paragraph>
-            You have been rejected – the withdrawal is disabled for you. Please contact the asset issuer.
-          </Paragraph>
-        </Summary>
+        <WithdrawalKYCDenied.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "enter-tx-details") {
@@ -157,17 +88,14 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
           sendTransaction={props.sendTransaction}
           state={state}
         />
-        <Summary headline="Almost done">
-          <Paragraph>Check the form and provide an amount to withdraw if necessary.</Paragraph>
-          <Paragraph>The withdrawal is almost ready.</Paragraph>
-        </Summary>
+        <WithdrawalTransactionDetails.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "completed") {
     return (
       <DesktopTwoColumns>
         <WithdrawalSuccess onClose={props.onClose} state={state} />
-        <Summary headline="Done">Your withdrawal has been accepted and will be processed by the asset issuer.</Summary>
+        <WithdrawalSuccess.Sidebar />
       </DesktopTwoColumns>
     )
   } else {
