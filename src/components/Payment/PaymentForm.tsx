@@ -142,7 +142,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         placeholder: "Description (optional)"
       })
     }
-  }, [formValues.destination, formValues.memoType])
+  }, [formValues.destination, formValues.memoType, wellknownAccounts])
 
   const isDisabled = !formValues.amount || Number.isNaN(Number.parseFloat(formValues.amount)) || !formValues.destination
 
