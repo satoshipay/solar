@@ -32,6 +32,11 @@ export const SummaryDetailsField = React.memo(function SummaryDetailsField(props
           wordBreak: "break-word"
         }
       }}
+      InputLabelProps={{
+        style: {
+          whiteSpace: "nowrap"
+        }
+      }}
     />
   )
 })
