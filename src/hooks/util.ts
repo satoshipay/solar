@@ -94,11 +94,13 @@ export type LoadingState<T> =
       error: Error
     }
 
-const initialLoadingState = {
+const initialLoadingState: LoadingState<any> = {
   type: "initial"
 }
 
-export function useLoadingState<T = any>(options: { throwOnError?: boolean } = {}) {
+export function useLoadingState<T = any>(
+  options: { throwOnError?: boolean } = {}
+): [LoadingState<T>, (arg: Promise<T> | (() => Promise<T>)) => void] {
   const [loadingState, setLoadingState] = React.useState<LoadingState<T>>()
 
   if (loadingState && loadingState.type === "rejected" && options.throwOnError) {
@@ -128,7 +130,7 @@ export function useLoadingState<T = any>(options: { throwOnError?: boolean } = {
     }
   }, [])
 
-  return [loadingState || initialLoadingState, handlePromise] as const
+  return [loadingState || initialLoadingState, handlePromise]
 }
 
 export function useOnlineStatus() {
