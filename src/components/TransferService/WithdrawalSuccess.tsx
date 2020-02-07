@@ -1,11 +1,14 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
+import { RefStateObject } from "../../hooks/userinterface"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
+import Portal from "../Portal"
 import { WithdrawalStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 
 interface WithdrawalSuccessProps {
+  dialogActionsRef: RefStateObject | undefined
   onClose: () => void
   state: WithdrawalStates.WithdrawalCompleted
 }
@@ -26,9 +29,13 @@ function WithdrawalSuccess(props: WithdrawalSuccessProps) {
           </Typography>
           {/* TODO: Show nice summary */}
         </Typography>
-        <Button color="primary" onClick={props.onClose} variant="contained">
-          Close
-        </Button>
+        <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
+          <DialogActionsBox>
+            <ActionButton onClick={props.onClose} type="primary">
+              Close
+            </ActionButton>
+          </DialogActionsBox>
+        </Portal>
       </VerticalLayout>
     </VerticalLayout>
   )

@@ -1,16 +1,19 @@
 import React from "react"
-import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import { trackError } from "../../context/notifications"
+import { RefStateObject } from "../../hooks/userinterface"
 import { openLink } from "../../platform/links"
+import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, VerticalLayout } from "../Layout/Box"
+import Portal from "../Portal"
 import { WithdrawalStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 import TransferTransactionStatus from "./TransferTransactionStatus"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
 interface WithdrawalKYCPendingProps {
+  dialogActionsRef: RefStateObject | undefined
   state: WithdrawalStates.KYCPending
 }
 
@@ -41,9 +44,11 @@ function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
               <CircularProgress />
             </Box>
           ) : null}
-          <Button color="primary" type="submit" variant="contained">
-            {props.state.didRedirect ? "Open again" : "Continue"}
-          </Button>
+          <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
+            <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
+              <ActionButton type="submit">{props.state.didRedirect ? "Open again" : "Continue"}</ActionButton>
+            </DialogActionsBox>
+          </Portal>
         </VerticalLayout>
       </VerticalLayout>
     </form>

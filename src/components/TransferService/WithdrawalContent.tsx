@@ -69,7 +69,7 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
   } else if (state.step === "kyc-pending") {
     return (
       <DesktopTwoColumns>
-        <WithdrawalKYCPending state={state} />
+        <WithdrawalKYCPending dialogActionsRef={props.dialogActionsRef} state={state} />
         <WithdrawalKYCPending.Sidebar />
       </DesktopTwoColumns>
     )
@@ -94,7 +94,7 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
   } else if (state.step === "completed") {
     return (
       <DesktopTwoColumns>
-        <WithdrawalSuccess onClose={props.onClose} state={state} />
+        <WithdrawalSuccess dialogActionsRef={props.dialogActionsRef} onClose={props.onClose} state={state} />
         <WithdrawalSuccess.Sidebar />
       </DesktopTwoColumns>
     )
