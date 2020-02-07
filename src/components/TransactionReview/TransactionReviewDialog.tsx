@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { Operation, Transaction } from "stellar-sdk"
@@ -12,7 +13,7 @@ import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import MainTitle from "../MainTitle"
-import { getOperationTitle } from "./Operations"
+import { useOperationTitle } from "./Operations"
 import ReviewForm from "./ReviewForm"
 
 function isPaymentOperation(operation: Operation) {
@@ -26,19 +27,24 @@ function isOfferDeletionOperation(operation: Operation) {
   )
 }
 
-function getTitle(transaction: Transaction | null): string {
-  if (!transaction) {
-    return "Transaction"
-  } else if (transaction.operations.length === 1) {
-    return getOperationTitle(transaction.operations[0])
-  } else if (transaction.operations.every(isPaymentOperation)) {
-    return "Payment"
-  } else if (transaction.operations.every(isOfferDeletionOperation)) {
-    return "Delete Trading Orders"
-  } else if (isStellarWebAuthTransaction(transaction)) {
-    return "Web Authentication"
-  } else {
-    return "Transaction"
+function useTitle() {
+  const getOperationTitle = useOperationTitle()
+  const { t } = useTranslation()
+
+  return function getTitle(transaction: Transaction | null): string {
+    if (!transaction) {
+      return t("transaction-review.title.transaction")
+    } else if (transaction.operations.length === 1) {
+      return getOperationTitle(transaction.operations[0])
+    } else if (transaction.operations.every(isPaymentOperation)) {
+      return t("transaction-review.title.payment")
+    } else if (transaction.operations.every(isOfferDeletionOperation)) {
+      return t("transaction-review.title.delete-orders-operation")
+    } else if (isStellarWebAuthTransaction(transaction)) {
+      return t("transaction-review.title.web-auth")
+    } else {
+      return t("transaction-review.title.transaction")
+    }
   }
 }
 
@@ -59,6 +65,7 @@ interface TransactionReviewDialogBodyProps {
 export function TransactionReviewDialogBody(props: TransactionReviewDialogBodyProps) {
   const dialogActionsRef = useDialogActions()
   const isSmallScreen = useIsMobile()
+  const getTitle = useTitle()
 
   const titleContent = React.useMemo(
     () => (

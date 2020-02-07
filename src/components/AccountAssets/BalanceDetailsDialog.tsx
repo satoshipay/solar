@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
@@ -130,6 +131,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+  const { t } = useTranslation()
 
   const openAddAssetDialog = React.useCallback(
     () => router.history.push(routes.manageAccountAssets(props.account.id)),
@@ -172,7 +174,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           }}
         >
           <AddIcon />
-          &nbsp;&nbsp;Add Asset To Your Account
+          &nbsp;&nbsp;{t("balance-details.button.add-asset.label")}
         </ButtonListItem>
         <TrustedAssets
           account={props.account}

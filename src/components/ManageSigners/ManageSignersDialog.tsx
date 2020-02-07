@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import Button from "@material-ui/core/Button"
@@ -30,6 +31,7 @@ function ManageSignersDialog(props: Props) {
 
   const isSmallScreen = useIsMobile()
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
+  const { t } = useTranslation()
 
   const submitTransaction = async (update: SignerUpdate) => {
     try {
@@ -82,11 +84,17 @@ function ManageSignersDialog(props: Props) {
   const titleContent = React.useMemo(
     () => (
       <MainTitle
-        title={isSmallScreen ? "Manage Signers" : "Manage Account Signers"}
+        title={isSmallScreen ? t("manage-signers.title.short") : t("manage-signers.title.long")}
         actions={
           <>
             <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
-              <ButtonIconLabel label={isWidthMax450 ? "Signer" : "Add Co-Signer"}>
+              <ButtonIconLabel
+                label={
+                  isWidthMax450
+                    ? t("manage-signers.action.add-co-signer.short")
+                    : t("manage-signers.action.add-co-signer.long")
+                }
+              >
                 <PersonAddIcon />
               </ButtonIconLabel>
             </Button>

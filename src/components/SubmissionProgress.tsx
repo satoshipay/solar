@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Async from "react-promise"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
@@ -45,6 +46,7 @@ interface SubmissionProgressProps {
 }
 
 function SubmissionProgress(props: SubmissionProgressProps) {
+  const { t } = useTranslation()
   return (
     <Async
       promise={props.promise}
@@ -63,7 +65,7 @@ function SubmissionProgress(props: SubmissionProgressProps) {
       catch={error => (
         <Container>
           <ErrorIcon size={100} />
-          <Heading>{explainSubmissionErrorResponse(error.response).message || JSON.stringify(error)}</Heading>
+          <Heading>{explainSubmissionErrorResponse(error.response, t).message || JSON.stringify(error)}</Heading>
           <DialogActionsBox>
             <CloseButton onClick={props.onClose} />
           </DialogActionsBox>

@@ -1,1 +1,645 @@
-{}
+{
+  "accounts-context-menu": {
+    "account-settings": {
+      "label": "Account Settings"
+    },
+    "assets-and-balances": {
+      "label": "Assets & Balances"
+    },
+    "deposit": {
+      "label": "Deposit"
+    },
+    "trade": {
+      "label": "Trade"
+    },
+    "transactions": {
+      "label": "Transactions"
+    },
+    "withdraw": {
+      "label": "Withdraw"
+    }
+  },
+  "account-deletion": {
+    "action": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "merge": {
+        "long": "Merge into",
+        "short": "Merge"
+      }
+    },
+    "confirm": {
+      "title": "Confirm deletion",
+      "text": {
+        "confirm": "Are you sure?",
+        "delete": "The account will be deleted",
+        "merge": "and the remaining funds transferred"
+      }
+    },
+    "remaining-funds": {
+      "text": "Send remaining funds to"
+    },
+    "text": {
+      "1": "Are you sure you want to delete the account \"{{accountName}}?\"",
+      "2": " Make sure to backup your private key or merge the funds into another account of yours, since there are still funds left!"
+    },
+    "title": "Confirm Account Deletion"
+  },
+  "account-settings": {
+    "delete-account": {
+      "text": {
+        "primary": "Merge or Delete Account"
+      }
+    },
+    "export-secret-key": {
+      "text": {
+        "primary": "Export Secret Key",
+        "secondary": "Decrypt and show private key"
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Multi-Signature",
+        "secondary": {
+          "short": "Manage co-signers",
+          "long": "Make account multi-signature and manage co-signers"
+        }
+      }
+    },
+    "set-password": {
+      "text": {
+        "primary": {
+          "account-protected": "Change Password",
+          "account-not-protected": "Set Password"
+        },
+        "secondary": {
+          "account-protected": "Your account is secure, protected by a password",
+          "account-not-protected": "Your account is not protected"
+        }
+      }
+    }
+  },
+  "add-asset": {
+    "button": {
+      "add-custom-asset": {
+        "label": "Add Custom Asset"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "One matching asset",
+          "more-than-one-asset": "{{amount}} matching assets"
+        }
+      }
+    },
+    "search-field": {
+      "placeholder": "Search assets by code or name…"
+    },
+    "title": "Add Asset"
+  },
+  "app-settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": "Biometric authentication",
+        "secondary": {
+          "disabled": "Biometric authentication is disabled",
+          "enabled": "Biometric authentication is enabled",
+          "not-enrolled": "Configure biometric authentication in your operating system settings"
+        }
+      },
+      "prompt": {
+        "enable": "Unlock your device once to enable the feature.",
+        "disable": "Unlock your device to disable the auto-lock."
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "Show Memos",
+        "secondary": {
+          "hidden": "Memos are hidden in the transaction overview",
+          "shown": "Memos are shown in the transaction overview"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Enable Multi-Signature",
+        "secondary": {
+          "enabled": "Multi-Signature features are enabled",
+          "disabled": "Multi-Signature features are disabled"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "Show Testnet Accounts",
+        "secondary": {
+          "cannot-disable": "Cannot be disabled because you already added testnet accounts",
+          "hidden": "Testnet accounts are hidden",
+          "shown": "Testnet accounts are shown"
+        }
+      }
+    }
+  },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "Description",
+        "text": "The native token of the Stellar network.\n\n Every account on the network has a lumens balance. Lumens are used to pay transaction fees."
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "Authorization by issuer required",
+        "auth-not-required": "No authorization required",
+        "auth-revocable": "Authorization revocable",
+        "auth-not-revocable": "Authorization not revocable",
+        "auth-immutable": "These flags are immutable",
+        "auth-mutable": "Issuer can change these flags",
+        "label": "Account flags"
+      },
+      "anchor-asset": {
+        "label": "Anchored to"
+      },
+      "conditions": {
+        "label": "Conditions"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "issuing-account": {
+        "label": "Issuing account"
+      },
+      "organisation": {
+        "address": {
+          "label": "Address"
+        },
+        "dba": {
+          "label": "Doing business as"
+        },
+        "description": {
+          "label": "Description"
+        },
+        "email": {
+          "label": "Email address"
+        },
+        "name": {
+          "label": "Organization name"
+        },
+        "phone-number": {
+          "label": "Phone number"
+        },
+        "website": {
+          "label": "Website"
+        }
+      },
+      "redemption-instructions": {
+        "label": "Redemption instructions"
+      }
+    }
+  },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "Add Asset To Your Account"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "Spendable balance"
+      }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "Base reserve",
+        "secondary": "Fixed base reserve"
+      },
+      "data-reserve": {
+        "primary": "Data fields reserve",
+        "secondary": "Account data fields"
+      },
+      "headline": "Amounts in XLM",
+      "open-orders-reserve": {
+        "primary": "Open orders reserve",
+        "secondary": "Open SDEX orders"
+      },
+      "selling-liabilities": {
+        "primary": "Selling liabilities",
+        "secondary": "Covers open orders"
+      },
+      "signers-reserve": {
+        "primary": "Account signers reserve",
+        "secondary": {
+          "single-key": "Single key reserve",
+          "multiple-keys": "Master key + co-signers"
+        }
+      },
+      "spendable-balance": {
+        "primary": "Spendable balance",
+        "secondary": "Freely usable amount"
+      },
+      "total-balance": {
+        "primary": "Total balance",
+        "secondary": "Your balance, incl. unspendable"
+      },
+      "trustline-reserve": {
+        "primary": "Trustlines reserve",
+        "secondary": "For each non-XLM balance"
+      }
+    }
+  },
+  "create-account": {
+    "actions": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "create": {
+        "long": "Create Account",
+        "short": "Create"
+      },
+      "import": {
+        "long": "Import Account",
+        "short": "Import"
+      }
+    },
+    "base-name": {
+      "mainnet": "My Account",
+      "testnet": "My Testnet Account"
+    },
+    "confirm": {
+      "text": "You are about to create an account without password protection. Anyone that has access to your device will have access to your account funds. <1 /> <3 /> Are you sure you want to continue without setting up a password?",
+      "title": "Continue without password"
+    },
+    "header": {
+      "placeholder": {
+        "mainnet": "New Account",
+        "testnet": "New Testnet Account"
+      }
+    },
+    "toggle": {
+      "password": {
+        "textfield": {
+          "1": {
+            "label": "Password",
+            "placeholder": "Enter a password"
+          },
+          "2": {
+            "label": "Repeat password",
+            "placeholder": "Repeat your password"
+          }
+        },
+        "label": "Enter a password",
+        "title": "Password Protect"
+      },
+      "import": {
+        "textfield": {
+          "helper-text": "A Stellar secret key is 56 alphanumeric characters long and starts with an S",
+          "placeholder": "SABCDEFGH…",
+          "label": "Secret key"
+        },
+        "title": "Import Existing"
+      }
+    },
+    "validation": {
+      "invalid-key": "Invalid stellar private key.",
+      "no-account-name": "No account name has been entered.",
+      "no-password": "No password has been entered.",
+      "password-no-match": "Password does not match.",
+      "same-account": "You cannot import the same account twice."
+    }
+  },
+  "custom-trustline": {
+    "action": {
+      "cancel": "Cancel",
+      "trust": {
+        "long": "Trust Asset",
+        "short": "Trust"
+      }
+    },
+    "textfield": {
+      "code": {
+        "label": "Code"
+      },
+      "issuer": {
+        "label": "Issuer",
+        "placeholder": "Issuing account public key"
+      },
+      "limit": {
+        "label": "Limit (optional)",
+        "placeholder": "Limit trust in this asset / maximum balance to hold"
+      }
+    },
+    "title": "Add Custom Asset"
+  },
+  "error": {
+    "unknown": "An unknown error occured.",
+    "submission-error": {
+      "default": "Transaction rejected by the network. Error code(s): {{codes}}",
+      "op-result-code": {
+        "op-cross-self": "The order would counter an open order of yours.",
+        "op-has-sub-entries": "Account still has trustlines (assets) or open trading orders.",
+        "op-immutable-set": "Account is immutable (AUTH_IMMUTABLE flag set).",
+        "op-line-full": "The destination account's balance would exceed the destination's trust in the asset.",
+        "op-low-reserve": "Transaction rejected by the network. Source or destination account balance would be below minimum balance.",
+        "op-no-account": "Destination account does not exist.",
+        "op-no-issuer": "Asset is invalid. Incorrect asset issuer.",
+        "op-no-trust": "Destination account does not trust the asset you are attempting to send.",
+        "op-underfunded": "Not enough funds to perform this operation."
+      },
+      "tx-result-code": {
+        "insufficient_fee": "Network demands higher fees than set in the transaction.",
+        "internal_error": "An unknown error occured on the Stellar server.",
+        "no_account": "Source account not found.",
+        "tx_bad_auth": "Too few valid signatures or wrong network.",
+        "tx_bad_auth_extra": "Unused signatures attached to transaction.",
+        "tx_bad_seq": "Sequence number mismatch. Please re-create the transaction.",
+        "tx_insufficient_balance": "Insufficient balance. Balance would fall below the minimum reserve.",
+        "tx_too_late": "Transaction draft has expired. Try again."
+      }
+    }
+  },
+  "export-key": {
+    "action": {
+      "confirm": "Done",
+      "reveal": {
+        "long": "Reveal key",
+        "short": "Click to reveal secret key"
+      }
+    },
+    "info": {
+      "backup": {
+        "1": "Please back up your secret key now.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "export": {
+        "1": "Your secret key must be stored in a safe place and must not be shared with anyone.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "secret-key": "Write down the key on paper and store it in a safe place."
+    },
+    "textfield": {
+      "password": {
+        "label": "Password"
+      }
+    },
+    "title": {
+      "default": "Export Secret Key",
+      "initial-backup": "Secret Key Backup"
+    }
+  },
+  "manage-signers": {
+    "action": {
+      "add-co-signer": {
+        "long": "Add Co-Signer",
+        "short": "Signer"
+      },
+      "cancel": "Cancel",
+      "apply": {
+        "long": "Apply changes",
+        "short": "Apply"
+      }
+    },
+    "signers-editor": {
+      "list": {
+        "item": {
+          "weight": "Weight",
+          "local-key": "Local key"
+        }
+      },
+      "validation": {
+        "existing-signer": "Cannot add existing signer.",
+        "integer-required": "Must be an integer.",
+        "invalid-stellar-address": "Expected a public key or stellar address."
+      }
+    },
+    "textfield": {
+      "weight-threshold": {
+        "explanation": {
+          "required-signatures": "Every transaction needs to be signed by {{amount}} signers",
+          "required-weight": "Every transaction needs to be signed by signers with a combined key weight of {{amount}}"
+        },
+        "label": {
+          "required-signatures": "Required signatures",
+          "required-weight": "Required key weight"
+        }
+      }
+    },
+    "title": {
+      "long": "Manage Signers",
+      "short": "Manage Account Signers"
+    },
+    "validation": {
+      "no-signers": "No signers left. Don't lock yourself out!",
+      "invalid-weight-type": "Weight must be an integer",
+      "threshold-higher-than-weights": "Threshold higher than combined key weights",
+      "no-threshold": "Please set a threshold"
+    }
+  },
+  "operations": {
+    "account-merge": {
+      "summary": {
+        "account": "Account",
+        "merge-into": "Merge into"
+      },
+      "title": "Merge Account"
+    },
+    "change-trust": {
+      "summary": {
+        "asset": "Asset",
+        "issued-by": "Issued by",
+        "limit": {
+          "label": "Limit",
+          "value": {
+            "unlimited": "Unlimited",
+            "limited-to": "Limited to {{limit}} {{code}}"
+          }
+        }
+      },
+      "title": {
+        "add-asset": "Add asset",
+        "remove-asset": "Remove asset"
+      }
+    },
+    "create-account": {
+      "summary": {
+        "account": "Account to create",
+        "funding-account": "Funding account",
+        "funding-amount": "Funding amount"
+      },
+      "title": "Create account"
+    },
+    "manage-buy-offer": {
+      "title": {
+        "create": "Create buy order",
+        "delete": "Delete buy order",
+        "update": "Update buy order"
+      }
+    },
+    "manage-data": {
+      "title": "Set account data"
+    },
+    "manage-offer": {
+      "summary": {
+        "buy": "Buy",
+        "sell": "Sell"
+      }
+    },
+    "manage-sell-offer": {
+      "title": {
+        "create": "Create sell order",
+        "delete": "Delete sell order",
+        "update": "Update sell order"
+      }
+    },
+    "offer-details": {
+      "string": "Buy {{price}} {{buyingCode}} for {{amount}} {{sellingCode}}"
+    },
+    "payment": {
+      "summary": {
+        "amount": "Amount",
+        "destination": "Destination",
+        "source": "Source"
+      },
+      "title": "Payment"
+    },
+    "set-options": {
+      "add-signer": {
+        "summary": {
+          "account": "Account to add signer to",
+          "key-weight": "Key weight",
+          "new-signer": "New signer"
+        },
+        "title": "Add signer"
+      },
+      "change-signature-setup": {
+        "summary": {
+          "key-thresholds": {
+            "label": "New key thresholds",
+            "value": {
+              "low": "Low threshold:    {{threshold}}",
+              "medium": "Medium threshold: {{threshold}}",
+              "high": "High threshold:   {{threshold}}"
+            }
+          },
+          "required-signatures": "Required signatures"
+        },
+        "title": "Change signature setup"
+      },
+      "remove-signer": {
+        "summary": {
+          "account": "Account to remove signer from",
+          "signer": "Signer"
+        },
+        "title": "Remove signer"
+      },
+      "set-account-options": { "title": "Set account options" },
+      "set-home-domain": { "title": "Set home domain" },
+      "set-inflation-destination": {
+        "summary": {
+          "new-destination": "New destination"
+        },
+        "title": "Set inflation destination"
+      },
+      "set-master-key-weight": { "title": "Set master key weight" }
+    }
+  },
+  "remove-trustline": {
+    "action": {
+      "cancel": "Cancel",
+      "remove": "Remove"
+    },
+    "text": {
+      "warning": "You cannot remove this asset unless the asset's balance is zero.",
+      "info": "You are about to remove the asset <1>{{asset}}</1>, from account \"{{accountName}}\"."
+    },
+    "title": "Confirm Removing Asset"
+  },
+  "set-password": {
+    "action": {
+      "change-password": {
+        "long": "Change password",
+        "short": "Change"
+      },
+      "remove-password": {
+        "long": "Remove password",
+        "short": "Remove"
+      }
+    },
+    "notification": {
+      "password-changed": "Password changed.",
+      "password-set": "Password set.",
+      "password-removed": "Password removed."
+    },
+    "textfield": {
+      "prev-password": {
+        "label": "Current password"
+      },
+      "next-password": {
+        "label": "New password"
+      },
+      "next-password-repeat": {
+        "label": "Repeat new password"
+      }
+    },
+    "title": {
+      "change-password": "Change Password",
+      "set-password": "Set Password"
+    },
+    "validation": {
+      "next-password-missing": "Enter a password or set \"remove password\".",
+      "next-password-repeat-missing": "Please repeat the password.",
+      "passwords-no-match": "Password does not match",
+      "previous-password-missing": "Current password is missing."
+    }
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "Confirm",
+      "dismiss": "Dismiss",
+      "inspect": "Inspect",
+      "show-more": "Show more details"
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "Account"
+        },
+        "authenticating-account": {
+          "label": "Authenticating Account"
+        },
+        "expiry": {
+          "label": "Expiry"
+        },
+        "max-fee": {
+          "label": "Maximum fee"
+        },
+        "service": {
+          "label": "Service"
+        },
+        "submission": {
+          "label": "Submission"
+        },
+        "tx-hash": {
+          "label": "Transaction Hash"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "Password"
+      }
+    },
+    "title": {
+      "transaction": "Transaction",
+      "payment": "Payment",
+      "delete-orders-operation": "Delete Trading Orders",
+      "web-auth": "Web Authentication"
+    },
+    "validation": {
+      "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
+      "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
+      "password-required": "Password required"
+    }
+  }
+}

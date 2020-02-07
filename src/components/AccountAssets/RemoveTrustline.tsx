@@ -1,4 +1,5 @@
 import React from "react"
+import { Trans, useTranslation } from "react-i18next"
 import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
 import DialogContent from "@material-ui/core/DialogContent"
@@ -24,6 +25,8 @@ interface Props {
 
 // tslint:disable-next-line no-shadowed-variable
 const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: Props) {
+  const { t } = useTranslation()
+
   const removeAsset = async () => {
     try {
       const operations = [Operation.changeTrust({ asset: props.asset, limit: "0" })]
@@ -45,22 +48,22 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
 
   return (
     <>
-      <DialogTitle>Confirm Removing Asset</DialogTitle>
+      <DialogTitle>{t("remove-trustline.title")}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           {stillOwnsTokens ? (
-            <>You cannot remove this asset unless the asset's balance is zero.</>
+            <>{t("remove-trustline.text.warning")}</>
           ) : (
-            <>
-              You are about to remove the asset <b>{props.asset.code}</b> from account "{props.account.name}
-              ".
-            </>
+            <Trans i18nKey="remove-trustline.text.info">
+              You are about to remove the asset <b>{{ asset: props.asset.code }}</b> from account "
+              {{ accountName: props.account.name }}".
+            </Trans>
           )}
         </DialogContentText>
         {/* Not in the DialogBody's `actions` prop as it's not a fullscreen dialog */}
         <DialogActionsBox preventMobileActionsBox>
           <ActionButton onClick={props.onClose} style={{ maxWidth: "none" }}>
-            Cancel
+            {t("remove-trustline.action.cancel")}
           </ActionButton>
           {stillOwnsTokens ? null : (
             <ActionButton
@@ -71,7 +74,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
               style={{ maxWidth: "none" }}
               type="primary"
             >
-              Remove
+              {t("remove-trustline.action.remove")}
             </ActionButton>
           )}
         </DialogActionsBox>

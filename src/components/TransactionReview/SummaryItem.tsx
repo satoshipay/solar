@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import FormControl from "@material-ui/core/FormControl"
 import FormHelperText from "@material-ui/core/FormHelperText"
 import Input from "@material-ui/core/Input"
@@ -112,6 +113,7 @@ interface ShowMoreItemProps {
 
 export const ShowMoreItem = React.memo(function ShowMoreItem(props: ShowMoreItemProps) {
   const classes = useShowMoreItemStyles()
+  const { t } = useTranslation()
   return (
     <ListItem
       button
@@ -122,7 +124,7 @@ export const ShowMoreItem = React.memo(function ShowMoreItem(props: ShowMoreItem
     >
       <ListItemText disableTypography>
         <Typography style={{ display: "flex", alignItems: "center", justifyContent: "center" }} variant="button">
-          Show more details <ExpandIcon />
+          {t("transaction-review.action.show-more")} <ExpandIcon />
         </Typography>
       </ListItemText>
     </ListItem>

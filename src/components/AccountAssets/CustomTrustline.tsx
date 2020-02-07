@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import TextField from "@material-ui/core/TextField"
@@ -24,16 +25,17 @@ function CustomTrustlineDialog(props: Props) {
   const [issuerPublicKey, setIssuerPublicKey] = React.useState("")
   const [limit, setLimit] = React.useState("")
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
+  const { t } = useTranslation()
 
   const createTransaction = () =>
     props.createAddAssetTransaction(new Asset(code, issuerPublicKey), { limit: limit || undefined })
   const addCustomAsset = () => props.sendTransaction(createTransaction)
 
   return (
-    <DialogBody top={<MainTitle hideBackButton onBack={props.onClose} title="Add Custom Asset" />}>
+    <DialogBody top={<MainTitle hideBackButton onBack={props.onClose} title={t("custom-trustline.title")} />}>
       <form noValidate style={{ display: "block", width: "100%" }}>
         <TextField
-          label="Code"
+          label={t("custom-trustline.textfield.code.label")}
           placeholder="EURT, USDT, BTC, ..."
           autoFocus={process.env.PLATFORM !== "ios"}
           margin="dense"
@@ -43,8 +45,8 @@ function CustomTrustlineDialog(props: Props) {
         />
         <TextField
           fullWidth
-          label="Issuer"
-          placeholder="Issuing account public key"
+          label={t("custom-trustline.textfield.issuer.label")}
+          placeholder={t("custom-trustline.textfield.issuer.placeholder")}
           margin="dense"
           name="asset-issuer"
           value={issuerPublicKey}
@@ -56,8 +58,8 @@ function CustomTrustlineDialog(props: Props) {
             inputMode: "decimal"
           }}
           fullWidth
-          label="Limit (optional)"
-          placeholder="Limit trust in this asset / maximum balance to hold"
+          label={t("custom-trustline.textfield.limit.label")}
+          placeholder={t("custom-trustline.textfield.limit.placeholder")}
           margin="dense"
           name="trust-limit"
           value={limit}
@@ -66,14 +68,14 @@ function CustomTrustlineDialog(props: Props) {
         />
         {/* Not in the DialogBody's `actions` prop as it's not a fullscreen dialog */}
         <DialogActionsBox preventMobileActionsBox>
-          <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+          <ActionButton onClick={props.onClose}>{t("custom-trustline.action.cancel")}</ActionButton>
           <ActionButton
             icon={<VerifiedUserIcon />}
             loading={props.txCreationPending}
             onClick={addCustomAsset}
             type="primary"
           >
-            {isWidthMax450 ? "Trust" : "Trust Asset"}
+            {isWidthMax450 ? t("custom-trustline.action.trust.short") : t("custom-trustline.action.trust.long")}
           </ActionButton>
         </DialogActionsBox>
       </form>

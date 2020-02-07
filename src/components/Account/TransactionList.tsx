@@ -25,7 +25,7 @@ import { breakpoints } from "../../theme"
 import { PublicKey } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
-import { getOperationTitle } from "../TransactionReview/Operations"
+import { useOperationTitle } from "../TransactionReview/Operations"
 import { formatBalance, SingleBalance } from "./AccountBalances"
 import { matchesRoute } from "../../lib/routes"
 
@@ -153,6 +153,7 @@ interface TitleTextProps {
 // TODO: Re-use code of transaction summary operation heading
 // tslint:disable-next-line no-shadowed-variable
 const TransactionItemText = React.memo(function TransactionItemText(props: TitleTextProps) {
+  const getOperationTitle = useOperationTitle()
   const remotePublicKeys = props.paymentSummary.reduce(
     (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
     [] as string[]

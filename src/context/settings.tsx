@@ -7,6 +7,7 @@ import {
   saveSettings
 } from "../platform/settings"
 import { trackError } from "./notifications"
+import { useTranslation } from "react-i18next"
 
 interface Props {
   children: React.ReactNode
@@ -72,6 +73,7 @@ export function SettingsProvider(props: Props) {
     available: false,
     enrolled: false
   })
+  const { t } = useTranslation()
 
   React.useEffect(() => {
     Promise.all([loadIgnoredSignatureRequestHashes(), loadSettings()])
@@ -116,8 +118,8 @@ export function SettingsProvider(props: Props) {
 
   const toggleBiometricLock = () => {
     const message = settings.biometricLock
-      ? "Unlock your device to disable the auto-lock."
-      : "Unlock your device once to enable the feature."
+      ? t("app-settings.biometric-lock.prompt.disable")
+      : t("app-settings.biometric-lock.prompt.enable")
 
     testBiometricAuth(message)
       .then(() => updateSettings({ biometricLock: !settings.biometricLock }))

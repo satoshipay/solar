@@ -1,4 +1,6 @@
+import { TFunction } from "i18next"
 import React from "react"
+import { Translation } from "react-i18next"
 import { Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
@@ -71,6 +73,7 @@ interface Props {
   forceClose?: boolean
   horizon: Server
   settings: SettingsContextType
+  t: TFunction
   children: (props: RenderFunctionProps) => React.ReactNode
   onCloseTransactionDialog?: () => void
   onSubmissionCompleted?: (transaction: Transaction) => void
@@ -204,7 +207,7 @@ class TransactionSender extends React.Component<Props, State> {
       .toString("base64")
     const promise = netWorker.submitTransaction(String(this.props.horizon.serverURL), txEnvelopeXdr).then(response => {
       if (response.status !== 200) {
-        throw explainSubmissionErrorResponse(response)
+        throw explainSubmissionErrorResponse(response, this.props.t)
       }
       return response
     })
@@ -234,7 +237,7 @@ class TransactionSender extends React.Component<Props, State> {
       return await promise
     } catch (error) {
       // re-throw refined error
-      throw explainSubmissionErrorResponse(error)
+      throw explainSubmissionErrorResponse(error, this.props.t)
     }
   }
 
@@ -246,7 +249,7 @@ class TransactionSender extends React.Component<Props, State> {
       this.setState({ submissionType: SubmissionType.stellarguard })
       return await promise
     } catch (error) {
-      throw explainSubmissionErrorResponse(error)
+      throw explainSubmissionErrorResponse(error, this.props.t)
     }
   }
 
@@ -286,10 +289,10 @@ class TransactionSender extends React.Component<Props, State> {
   }
 }
 
-function TransactionSenderWithHorizon(props: Omit<Props, "horizon" | "settings">) {
+function TransactionSenderWithHorizon(props: Omit<Props, "horizon" | "settings" | "t">) {
   const horizon = useHorizon(props.account.testnet)
   const settings = React.useContext(SettingsContext)
-  return <TransactionSender {...props} horizon={horizon} settings={settings} />
+  return <Translation>{t => <TransactionSender {...props} horizon={horizon} settings={settings} t={t} />}</Translation>
 }
 
-export default TransactionSenderWithHorizon
+export default React.memo(TransactionSenderWithHorizon)

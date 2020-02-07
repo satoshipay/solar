@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
 import ListItem from "@material-ui/core/ListItem"
@@ -24,19 +25,25 @@ interface SignerFormErrors {
   weight?: Error
 }
 
-function validateNewSignerValues(values: SignerFormValues, signers: Horizon.AccountSigner[]): SignerFormErrors {
-  const errors: SignerFormErrors = {}
+function useFormnValidation() {
+  const { t } = useTranslation()
+  return function validateNewSignerValues(
+    values: SignerFormValues,
+    signers: Horizon.AccountSigner[]
+  ): SignerFormErrors {
+    const errors: SignerFormErrors = {}
 
-  if (!isPublicKey(values.publicKey) && !isStellarAddress(values.publicKey)) {
-    errors.publicKey = new Error("Expected a public key or stellar address.")
-  } else if (signers.find(existingSigner => existingSigner.key === values.publicKey)) {
-    errors.publicKey = new Error("Cannot add existing signer.")
-  }
-  if (!values.weight.match(/^[0-9]+$/)) {
-    errors.weight = new Error("Must be an integer.")
-  }
+    if (!isPublicKey(values.publicKey) && !isStellarAddress(values.publicKey)) {
+      errors.publicKey = new Error(t("manage-signers.signers-editor.validation.invalid-stellar-address"))
+    } else if (signers.find(existingSigner => existingSigner.key === values.publicKey)) {
+      errors.publicKey = new Error(t("manage-signers.signers-editor.validation.existing-signer"))
+    }
+    if (!values.weight.match(/^[0-9]+$/)) {
+      errors.weight = new Error(t("manage-signers.signers-editor.validation.integer-required"))
+    }
 
-  return errors
+    return errors
+  }
 }
 
 interface SignersEditorProps {
@@ -53,6 +60,8 @@ function SignersEditor(props: SignersEditorProps) {
   const { isEditingNewSigner, setIsEditingNewSigner } = props
 
   const { lookupFederationRecord } = useFederationLookup()
+  const validateNewSignerValues = useFormnValidation()
+  const { t } = useTranslation()
   const [newSignerErrors, setNewSignerErrors] = React.useState<SignerFormErrors>({})
   const [newSignerValues, setNewSignerValues] = React.useState<SignerFormValues>({
     publicKey: "",
@@ -106,8 +115,14 @@ function SignersEditor(props: SignersEditorProps) {
             primary={<Address address={signer.key} variant="full" />}
             secondary={
               <>
-                {props.showKeyWeights ? <span style={{ marginRight: 24 }}>Weight: {signer.weight}</span> : null}
-                {signer.key === props.localPublicKey ? <span>Local key</span> : null}
+                {props.showKeyWeights ? (
+                  <span style={{ marginRight: 24 }}>
+                    {t("manage-signers.signers-editor.list.item.weight")}: {signer.weight}
+                  </span>
+                ) : null}
+                {signer.key === props.localPublicKey ? (
+                  <span>{t("manage-signers.signers-editor.list.item.local-key")}</span>
+                ) : null}
               </>
             }
           />

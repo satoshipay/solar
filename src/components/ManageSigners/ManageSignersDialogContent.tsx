@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -56,22 +57,26 @@ function getUpdatedSigners(
   ]
 }
 
-function validateFormValues(weightThreshold: string, updatedSigners: Horizon.AccountSigner[]): Error | undefined {
-  if (updatedSigners.length === 0) {
-    throw new Error("No signers left. Don't lock yourself out!")
-  }
-  if (!weightThreshold.match(/^[0-9]+$/)) {
-    return new Error("Weight must be an integer.")
-  }
+function useFormValidation() {
+  const { t } = useTranslation()
 
-  const allKeysCombinedWeight = sum(updatedSigners.map(signer => signer.weight))
-  const weightThresholdInteger = Number.parseInt(weightThreshold, 10)
+  return function validate(weightThreshold: string, updatedSigners: Horizon.AccountSigner[]): Error | undefined {
+    if (updatedSigners.length === 0) {
+      return new Error(t("manage-signers.validation.no-signers"))
+    }
+    if (!weightThreshold.match(/^[0-9]+$/)) {
+      return new Error(t("manage-signers.validation.invalid-weight-type"))
+    }
 
-  if (weightThresholdInteger > allKeysCombinedWeight) {
-    return new Error("Threshold higher than combined key weights.")
-  }
-  if (updatedSigners.length > 1 && weightThresholdInteger === 0) {
-    return new Error("Please set a threshold.")
+    const allKeysCombinedWeight = sum(updatedSigners.map(signer => signer.weight))
+    const weightThresholdInteger = Number.parseInt(weightThreshold, 10)
+
+    if (weightThresholdInteger > allKeysCombinedWeight) {
+      return new Error(t("manage-signers.validation.threshold-higher-than-weight"))
+    }
+    if (updatedSigners.length > 1 && weightThresholdInteger === 0) {
+      return new Error(t("manage-signers.validation.no-threshold"))
+    }
   }
 }
 
@@ -100,6 +105,8 @@ function ManageSignersDialogContent(props: Props) {
 
   const actionsRef = useDialogActions()
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+  const validate = useFormValidation()
 
   const [signersToAdd, setSignersToAdd] = React.useState<Horizon.AccountSigner[]>([])
   const [signersToRemove, setSignersToRemove] = React.useState<Horizon.AccountSigner[]>([])
@@ -118,7 +125,7 @@ function ManageSignersDialogContent(props: Props) {
 
   const submit = async () => {
     try {
-      const validationError = validateFormValues(weightThreshold, updatedSigners)
+      const validationError = validate(weightThreshold, updatedSigners)
 
       if (validationError) {
         return setWeightThresholdError(validationError)
@@ -145,12 +152,14 @@ function ManageSignersDialogContent(props: Props) {
 
   const nothingEdited = weightThresholdUnchanged && signersToAdd.length === 0 && signersToRemove.length === 0
 
-  const weightThresholdLabel = allDefaultKeyweights ? "Required signatures" : "Required key weight"
+  const weightThresholdLabel = allDefaultKeyweights
+    ? t("manage-signers.textfield.weight-threshold.label.required-signatures")
+    : t("manage-signers.textfield.weight-threshold.label.required-weight")
 
   const sanitizedKeyWeight = weightThreshold.match(/^[0-9]+$/) ? String(weightThreshold) : "X"
   const weightThresholdExplanation = allDefaultKeyweights
-    ? `Every transaction needs to be signed by ${sanitizedKeyWeight} signers`
-    : `Every transaction needs to be signed by signers with a combined key weight of ${sanitizedKeyWeight} `
+    ? t("manage-signers.textfield.weight-threshold.explanation.required-signatures", { amount: sanitizedKeyWeight })
+    : t("manage-signers.textfield.weight-threshold.explanation.required-weight", { amount: sanitizedKeyWeight })
 
   const DialogActionsPortal = isSmallScreen
     ? (subprops: { children: React.ReactNode }) => <Portal target={actionsRef.element}>{subprops.children}</Portal>
@@ -183,10 +192,10 @@ function ManageSignersDialogContent(props: Props) {
         <DialogActionsPortal>
           <DialogActionsBox desktopStyle={{ margin: 0 }}>
             <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
-              Cancel
+              {t("manage-signers.action.cancel")}
             </ActionButton>
             <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
-              {isSmallScreen ? "Apply" : "Apply changes"}
+              {isSmallScreen ? t("manage-signers.action.apply.short") : t("manage-signers.action.apply.long")}
             </ActionButton>
           </DialogActionsBox>
         </DialogActionsPortal>

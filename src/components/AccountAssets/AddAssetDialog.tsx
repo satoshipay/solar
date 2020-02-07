@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
@@ -130,6 +131,7 @@ function createSearchResultRow(
   function SearchResultRow(props: { index: number; style: React.CSSProperties }) {
     const classes = useSearchResultStyles()
     const item = itemRenderMap[props.index]
+    const { t } = useTranslation()
 
     return (
       <div style={props.style}>
@@ -139,8 +141,10 @@ function createSearchResultRow(
               primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
               secondary={
                 assetsByIssuer[item.issuer].length === 1
-                  ? `One matching asset`
-                  : `${assetsByIssuer[item.issuer].length} matching assets`
+                  ? t("add-asset.item.issuer.secondary.one-asset")
+                  : t("add-asset.item.issuer.secondary.more-than-one-asset", {
+                      amount: assetsByIssuer[item.issuer].length
+                    })
               }
               secondaryTypographyProps={{
                 style: { overflow: "hidden", textOverflow: "ellipsis" }
@@ -203,6 +207,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const containerRef = React.useRef<HTMLUListElement | null>(null)
   const allAssets = useTickerAssets(props.account.testnet)
   const router = useRouter()
+  const { t } = useTranslation()
   const wellKnownAccounts = useWellKnownAccounts(props.account.testnet)
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
@@ -276,7 +281,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   ])
 
   return (
-    <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title="Add Asset" />}>
+    <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title={t("add-asset.title")} />}>
       <VerticalLayout grow margin="16px 0 0">
         <SearchField
           autoFocus
@@ -286,12 +291,12 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
           }}
           onChange={onSearchFieldChange}
           value={searchFieldValue}
-          placeholder="Search assets by code or name…"
+          placeholder={t("add-asset.search-field.placeholder")}
         />
         <List className={classes.list}>
           <ButtonListItem onClick={openCustomTrustlineDialog}>
             <AddIcon />
-            &nbsp;&nbsp;Add Custom Asset
+            &nbsp;&nbsp;{t("add-asset.button.add-custom-asset.label")}
           </ButtonListItem>
         </List>
         <React.Suspense fallback={<ViewLoading />}>

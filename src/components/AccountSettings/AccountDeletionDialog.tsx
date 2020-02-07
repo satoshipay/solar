@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Operation, Transaction, Server } from "stellar-sdk"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
@@ -36,6 +37,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   const [confirmationPending, setConfirmationPending] = React.useState(false)
   const [selectedMergeAccount, setSelectedMergeAccount] = React.useState<Account | null>(null)
 
+  const { t } = useTranslation()
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
 
@@ -90,7 +92,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
                 fontSize: isSmallScreen ? 16 : 20
               }}
             >
-              Send remaining funds to
+              {t("account-deletion.remaining-funds.text")}
             </Typography>
           </HorizontalLayout>
 
@@ -113,7 +115,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       top={
         <>
           <MainTitle
-            title={<span>Confirm Account Deletion</span>}
+            title={<span>{t("account-deletion.title")}</span>}
             titleColor="inherit"
             onBack={props.onClose}
             style={{ marginTop: 0, marginLeft: 0 }}
@@ -131,11 +133,11 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
               onClick={() => setConfirmationPending(true)}
               type="primary"
             >
-              {isTinyScreen ? "Merge" : "Merge into"}
+              {isTinyScreen ? t("account-deletion.action.merge.short") : t("account-deletion.action.merge.long")}
             </ActionButton>
           ) : (
             <ActionButton autoFocus icon={<DeleteIcon />} onClick={() => setConfirmationPending(true)} type="primary">
-              Delete
+              {t("account-deletion.action.delete")}
             </ActionButton>
           )}
         </DialogActionsBox>
@@ -143,29 +145,32 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     >
       <DialogContent style={{ padding: 0 }}>
         <DialogContentText style={{ marginTop: 24 }}>
-          Are you sure you want to delete the account "{props.account.name}
-          "?
+          {t("account-deletion.text.1", { accountName: props.account.name })}
         </DialogContentText>
         <DialogContentText style={{ display: accountData.balances.length > 0 ? undefined : "none", marginTop: 16 }}>
-          Make sure to backup your private key or merge the funds into another account of yours, since there are still
-          funds left!
+          {t("account-deletion.text.2")}
         </DialogContentText>
 
         {remainingFundsContent}
 
         <ConfirmDialog
-          cancelButton={<ActionButton onClick={() => setConfirmationPending(false)}>Cancel</ActionButton>}
+          cancelButton={
+            <ActionButton onClick={() => setConfirmationPending(false)}>
+              {t("account-deletion.action.cancel")}
+            </ActionButton>
+          }
           confirmButton={
             <ActionButton onClick={onConfirm} type="primary">
-              Confirm
+              {t("account-deletion.action.confirm")}
             </ActionButton>
           }
           open={confirmationPending}
           onClose={() => setConfirmationPending(false)}
-          title="Confirm deletion"
+          title={t("account-deletion.confirm.title")}
         >
-          The account will be deleted
-          {mergeAccountEnabled ? " and the remaining funds transferred" : ""}. Are you sure?
+          {t("account-deletion.confirm.text.delete")}
+          {mergeAccountEnabled ? ` ${t("account-deletion.confirm.text.merge")}. ` : ". "}
+          {t("account-deletion.confirm.text.confirm")}
         </ConfirmDialog>
       </DialogContent>
     </DialogBody>

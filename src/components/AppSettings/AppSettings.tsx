@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import List from "@material-ui/core/List"
 import Switch from "@material-ui/core/Switch"
 import FingerprintIcon from "@material-ui/icons/Fingerprint"
@@ -32,6 +33,7 @@ function SettingsToggle(props: SettingsToggleProps) {
 
 function AppSettings() {
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
 
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
@@ -52,13 +54,13 @@ function AppSettings() {
             }
             icon={<FingerprintIcon style={{ fontSize: "100%" }} />}
             onClick={settings.biometricAvailability.enrolled ? settings.toggleBiometricLock : undefined}
-            primaryText="Biometric authentication"
+            primaryText={t("app-settings.biometric-lock.text.primary")}
             secondaryText={
               !settings.biometricAvailability.enrolled
-                ? "Configure biometric authentication in your operating system settings"
+                ? t("app-settings.biometric-lock.text.secondary.not-enrolled")
                 : settings.biometricLock
-                ? "Biometric authentication is enabled"
-                : "Biometric authentication is disabled"
+                ? t("app-settings.biometric-lock.text.secondary.enabled")
+                : t("app-settings.biometric-lock.text.secondary.disabled")
             }
           />
         ) : null}
@@ -75,30 +77,32 @@ function AppSettings() {
           primaryText="Show Testnet Accounts"
           secondaryText={
             hasTestnetAccount
-              ? "Cannot be disabled because you already added testnet accounts"
+              ? t("app-settings.testnet.text.secondary.cannot-disable")
               : settings.showTestnet
-              ? "Testnet accounts are shown"
-              : "Testnet accounts are hidden"
+              ? t("app-settings.testnet.text.secondary.shown")
+              : t("app-settings.testnet.text.secondary.hidden")
           }
         />
         <AppSettingsItem
           actions={<SettingsToggle checked={!settings.hideMemos} onChange={settings.toggleHideMemos} />}
           icon={<MessageIcon style={{ fontSize: "100%" }} />}
           onClick={settings.toggleHideMemos}
-          primaryText="Show Memos"
+          primaryText={t("app-settings.memo.text.primary")}
           secondaryText={
             settings.hideMemos
-              ? "Memos are hidden in the transaction overview"
-              : "Memos are shown in the transaction overview"
+              ? t("app-settings.memo.text.secondary.hidden")
+              : t("app-settings.memo.text.secondary.shown")
           }
         />
         <AppSettingsItem
           actions={<SettingsToggle checked={settings.multiSignature} onChange={settings.toggleMultiSignature} />}
           icon={<GroupIcon style={{ fontSize: "100%" }} />}
           onClick={settings.toggleMultiSignature}
-          primaryText="Enable Multi-Signature"
+          primaryText={t("app-settings.multi-sig.text.primary")}
           secondaryText={
-            settings.multiSignature ? "Multi-Signature features are enabled" : "Multi-Signature features are disabled"
+            settings.multiSignature
+              ? t("app-settings.multi-sig.text.secondary.enabled")
+              : t("app-settings.multi-sig.text.secondary.disabled")
           }
         />
       </List>

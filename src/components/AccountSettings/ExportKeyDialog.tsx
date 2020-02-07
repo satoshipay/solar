@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
@@ -10,11 +11,11 @@ import { Account } from "../../context/accounts"
 import { trackError } from "../../context/notifications"
 import { useIsMobile } from "../../hooks/userinterface"
 import { isWrongPasswordError } from "../../lib/errors"
-import KeyExportBox from "../Account/KeyExportBox"
-import DialogBody from "../Dialog/DialogBody"
-import { Box } from "../Layout/Box"
-import MainTitle from "../MainTitle"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
+import { Box } from "../Layout/Box"
+import DialogBody from "../Dialog/DialogBody"
+import KeyExportBox from "../Account/KeyExportBox"
+import MainTitle from "../MainTitle"
 
 interface PromptToRevealProps {
   children: React.ReactNode
@@ -28,6 +29,8 @@ interface PromptToRevealProps {
 
 function PromptToReveal(props: PromptToRevealProps) {
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
   return (
     <DialogBody
       background={<WarnIcon style={{ fontSize: 220 }} />}
@@ -35,7 +38,7 @@ function PromptToReveal(props: PromptToRevealProps) {
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
           <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} type="primary">
-            {isSmallScreen ? "Reveal key" : "Click to reveal secret key"}
+            {isSmallScreen ? t("export-key.action.reveal.short") : t("export-key.action.reveal.long")}
           </ActionButton>
         </DialogActionsBox>
       }
@@ -47,7 +50,7 @@ function PromptToReveal(props: PromptToRevealProps) {
             autoFocus={process.env.PLATFORM !== "ios"}
             fullWidth
             error={props.passwordError !== null}
-            label={props.passwordError ? props.passwordError.message : "Password"}
+            label={props.passwordError ? props.passwordError.message : t("export-key.textfield.password.label")}
             margin="dense"
             type="password"
             value={props.password}
@@ -75,6 +78,8 @@ interface ShowSecretKeyProps {
 }
 
 function ShowSecretKey(props: ShowSecretKeyProps) {
+  const { t } = useTranslation()
+
   return (
     <DialogBody
       background={<LockFilledIcon style={{ fontSize: 220 }} />}
@@ -83,7 +88,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
         props.onConfirm ? (
           <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
             <ActionButton onClick={props.onConfirm} type="primary">
-              Done
+              {t("export-key.action.confirm")}
             </ActionButton>
           </DialogActionsBox>
         ) : null
@@ -91,7 +96,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
     >
       {props.variant === "initial-backup" ? (
         <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 16 }}>
-          Write down the key on paper and store it in a safe place.
+          {t("export-key.info.secret-key")}
         </Typography>
       ) : null}
       <Box padding={"8px 0 0"}>
@@ -113,6 +118,7 @@ function ExportKeyDialog(props: Props) {
   const [passwordError, setPasswordError] = React.useState<Error | null>(null)
   const [isRevealed, setIsRevealed] = React.useState(false)
   const [secretKey, setSecretKey] = React.useState<string | null>(null)
+  const { t } = useTranslation()
 
   const onBackButtonClick = React.useCallback(props.onClose || (() => undefined), [props.onClose])
 
@@ -148,7 +154,9 @@ function ExportKeyDialog(props: Props) {
         hideBackButton={!props.onClose}
         onBack={onBackButtonClick}
         style={{ marginBottom: 24 }}
-        title={props.variant === "initial-backup" ? "Secret Key Backup" : "Export Secret Key"}
+        title={
+          props.variant === "initial-backup" ? t("export-key.title.initial-backup") : t("export-key.title.default")
+        }
       />
     ),
     [props.onClose, props.variant, onBackButtonClick]
@@ -158,11 +166,10 @@ function ExportKeyDialog(props: Props) {
     () => (
       <Box style={{ fontSize: "140%" }}>
         <Typography component="p" variant="body1" style={{ fontSize: "inherit" }}>
-          Please back up your secret key now.
+          {t("export-key.info.backup.1")}
         </Typography>
         <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24, fontSize: "inherit" }}>
-          The secret key backup is the only way to recover your funds if you forget your password or cannot access your
-          device anymore.
+          {t("export-key.info.backup.2")}
         </Typography>
       </Box>
     ),
@@ -173,11 +180,10 @@ function ExportKeyDialog(props: Props) {
     () => (
       <>
         <Typography component="p" variant="body1">
-          Your secret key must be stored in a safe place and must not be shared with anyone.
+          {t("export-key.info.export.1")}
         </Typography>
         <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24 }}>
-          The secret key backup is the only way to recover your funds if you forget your password or cannot access your
-          device anymore.
+          {t("export-key.info.export.2")}
         </Typography>
       </>
     ),
