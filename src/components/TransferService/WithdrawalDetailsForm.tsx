@@ -80,6 +80,8 @@ const MinMaxAmount = React.memo(function MinMaxAmount(props: ReadOnlyFieldProps)
   )
 })
 
+const filterEmptyStrings = (array: string[]): string[] => array.filter(str => str !== "")
+
 const WithdrawalFee = React.memo(function WithdrawalFee(props: ReadOnlyFieldProps) {
   if (!props.metadata) {
     return null
@@ -94,12 +96,12 @@ const WithdrawalFee = React.memo(function WithdrawalFee(props: ReadOnlyFieldProp
       label="Withdrawal fee"
       style={{ marginTop: 24 }}
       value={
-        [
+        filterEmptyStrings([
           typeof props.metadata.fee_fixed === "number"
             ? `${props.metadata.fee_fixed} ${props.asset && props.asset.getCode()}`
             : "",
           typeof props.metadata.fee_percent === "number" ? `${props.metadata.fee_percent}%` : ""
-        ].join(" + ") || "unknown"
+        ]).join(" + ") || "unknown"
       }
     />
   )
