@@ -12,15 +12,22 @@ export function DesktopTwoColumns(props: { children: React.ReactNode[] }) {
   }
 
   return (
-    <HorizontalLayout height="100%">
-      <VerticalLayout grow minWidth={300} maxWidth={400} overflowY="auto" shrink={0} width="50%">
+    <HorizontalLayout alignItems="stretch" height="100%">
+      <VerticalLayout
+        grow
+        minWidth={300}
+        maxWidth={400}
+        padding={isSmallScreen ? 0 : "4vh 0"}
+        overflowY="auto"
+        shrink={0}
+        width="50%"
+      >
         <React.Suspense fallback={<ViewLoading />}>{props.children[0]}</React.Suspense>
       </VerticalLayout>
       <VerticalLayout
         grow
-        height="100%"
         margin="0 0 0 5%"
-        padding="0 1vw 0 5%"
+        padding="4vh 1vw 4vh 5%"
         shrink
         style={{ borderLeft: "1px solid rgba(0, 0, 0, 0.25)" }}
       >

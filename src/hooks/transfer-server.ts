@@ -11,14 +11,27 @@ import { useAccountHomeDomains } from "./stellar"
 
 const dedupe = <T>(input: T[]): T[] => Array.from(new Set(input))
 
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((resolve, reject) => {
+      setTimeout(() => reject(Error(message)), ms)
+    })
+  ])
+}
+
 async function initTransferServer(domain: string, testnet: boolean): Promise<TransferServer | undefined> {
   const network = testnet ? Networks.TESTNET : Networks.PUBLIC
 
   try {
-    const transferServer = await openTransferServer(domain, network, {
-      walletName: "Solar",
-      walletURL: "https://solarwallet.io"
-    })
+    const transferServer = await withTimeout(
+      openTransferServer(domain, network, {
+        walletName: "Solar",
+        walletURL: "https://solarwallet.io"
+      }),
+      8000,
+      `Transfer server discovery at ${domain} timed out.`
+    )
     return transferServer
   } catch (error) {
     // tslint:disable-next-line no-console

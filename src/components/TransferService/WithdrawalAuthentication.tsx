@@ -67,6 +67,7 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
 const Sidebar = () => (
   <Summary headline="Authentication">
     <Paragraph>The asset issuer requires you to log in to their service using your account.</Paragraph>
+    <Paragraph>An authentication transaction will be signed to prove ownership of that account.</Paragraph>
   </Summary>
 )
 

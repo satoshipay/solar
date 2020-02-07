@@ -2,7 +2,11 @@ import JWT from "jsonwebtoken"
 import { Networks, Server, Transaction } from "stellar-sdk"
 import * as WebAuth from "@satoshipay/stellar-sep-10"
 
-export async function fetchWebAuthChallenge(endpointURL: string, serviceSigningKey: string, localPublicKey: string) {
+export async function fetchWebAuthChallenge(
+  endpointURL: string,
+  serviceSigningKey: string | null,
+  localPublicKey: string
+) {
   const challenge = await WebAuth.fetchChallenge(endpointURL, serviceSigningKey, localPublicKey)
   return challenge
     .toEnvelope()

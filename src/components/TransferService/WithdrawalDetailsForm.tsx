@@ -50,12 +50,37 @@ function postprocessFormValues(inputFormValues: FormValues, methodID: string): F
   return formValues
 }
 
-interface WithdrawalFeeProps {
+interface ReadOnlyFieldProps {
   asset: Asset
   metadata: AssetTransferInfo["withdraw"]
 }
 
-const WithdrawalFee = React.memo(function WithdrawalFee(props: WithdrawalFeeProps) {
+const MinMaxAmount = React.memo(function MinMaxAmount(props: ReadOnlyFieldProps) {
+  const assetCode = props.asset ? props.asset.getCode() : ""
+
+  if (!props.metadata || (!props.metadata.min_amount && !props.metadata.max_amount)) {
+    return null
+  }
+  return (
+    <ReadOnlyTextfield
+      inputProps={{
+        style: {
+          color: theme.palette.text.secondary
+        }
+      }}
+      label="Amount"
+      style={{ marginTop: 24 }}
+      value={[
+        props.metadata.min_amount ? `Min. ${props.metadata.min_amount} ${assetCode}`.trim() : null,
+        props.metadata.max_amount ? `Max. ${props.metadata.max_amount} ${assetCode}`.trim() : null
+      ]
+        .filter(str => Boolean(str))
+        .join(" / ")}
+    />
+  )
+})
+
+const WithdrawalFee = React.memo(function WithdrawalFee(props: ReadOnlyFieldProps) {
   if (!props.metadata) {
     return null
   }
@@ -184,6 +209,7 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
           onSetFormValue={setFormValue}
         />
         <FormLayout>
+          <MinMaxAmount asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} />
           <WithdrawalFee asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} />
         </FormLayout>
         <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
@@ -205,9 +231,11 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
 }
 
 const Sidebar = () => (
-  <Summary headline="Enter details">
-    <Paragraph>Provide further details about your intended withdrawal.</Paragraph>
-    <Paragraph>The information you have to enter depends on what the asset issuer requests.</Paragraph>
+  <Summary headline="Withdrawal details">
+    <Paragraph>Further details about your intended withdrawal.</Paragraph>
+    <Paragraph>
+      Depending on what the asset issuer requests you may have to enter additional information here.
+    </Paragraph>
   </Summary>
 )
 

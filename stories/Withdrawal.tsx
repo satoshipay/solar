@@ -1,16 +1,26 @@
+import BigNumber from "big.js"
 import React from "react"
 import { Asset } from "stellar-sdk"
-import { TransferStatus, WithdrawalSuccessResponse } from "@satoshipay/stellar-transfer"
+import {
+  AssetTransferInfo,
+  KYCResponseType,
+  TransferResultType,
+  TransferServer,
+  TransferStatus,
+  Withdrawal,
+  WithdrawalSuccessResponse,
+  TransferTransaction
+} from "@satoshipay/stellar-transfer"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
-import WithdrawalTransactionForm from "../src/components/TransferService/WithdrawalTransactionForm"
-import WithdrawalKYCRedirect from "../src/components/TransferService/WithdrawalKYCRedirect"
-import TransferTransactionStatus from "../src/components/TransferService/TransferTransactionStatus"
-import WithdrawalRequestForm from "../src/components/TransferService/WithdrawalRequestForm"
+import { WithdrawalState } from "../src/components/TransferService/statemachine"
+import { useWithdrawalState } from "../src/components/TransferService/useWithdrawalState"
+import WithdrawalContent from "../src/components/TransferService/WithdrawalContent"
+import WithdrawalProvider from "../src/components/TransferService/WithdrawalProvider"
 import { Account } from "../src/context/accounts"
-import { RefStateObject } from "../src/hooks/userinterface"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
+const demoAssets = [eurt]
 
 const account: Account = {
   id: "1",
@@ -26,12 +36,29 @@ const account: Account = {
   }
 }
 
-const actionsRef: RefStateObject = {
-  element: null,
-  update: () => undefined
-}
+const transferServer: TransferServer = {
+  domain: "example.com",
+  options: {}
+} as any
 
-const demoTransaction = {
+const assetTransferInfos: AssetTransferInfo[] = [
+  {
+    asset: eurt,
+    deposit: {
+      authentication_required: true,
+      enabled: true
+    },
+    transferServer,
+    withdraw: {
+      authentication_required: true,
+      enabled: true,
+      fee_fixed: 0.5,
+      fee_percent: 1
+    }
+  }
+]
+
+const demoTransaction: TransferTransaction = {
   amount_fee: "0.0",
   amount_in: "0.0",
   amount_out: "0.0",
@@ -39,8 +66,10 @@ const demoTransaction = {
   id: "123",
   kind: "withdrawal" as const,
   from: "",
+  more_info_url: "https://example.com/foobar",
   refunded: false,
   started_at: new Date().toISOString(),
+  status: TransferStatus.incomplete,
   stellar_transaction_id: "",
   to: "",
   withdraw_anchor_account: "",
@@ -48,8 +77,10 @@ const demoTransaction = {
   withdraw_memo_type: "none"
 }
 
+const withdrawal = Withdrawal(transferServer, eurt, {})
+
 const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
-  account_id: "",
+  account_id: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",
   eta: 24 * 60 * 60,
   memo_type: "hash",
   memo: "6391dd190f15f7d1665ba53c63842e368f485651a53d8d852ed442a446d1c69a",
@@ -57,57 +88,146 @@ const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
   fee_fixed: 2.0
 }
 
+function WithdrawalDemoState(props: { state: WithdrawalState }) {
+  const { actions } = useWithdrawalState(account, action("close dialog"))
+  return (
+    <WithdrawalProvider account={account} actions={actions} state={props.state}>
+      <div style={{ minWidth: "70vw", margin: "20px" }}>
+        <WithdrawalContent
+          account={account}
+          assetTransferInfos={assetTransferInfos}
+          onClose={action("close dialog")}
+          sendTransaction={action("send transaction") as any}
+          trustedAssets={demoAssets}
+          state={props.state}
+          withdrawableAssets={demoAssets}
+        />
+      </div>
+    </WithdrawalProvider>
+  )
+}
+
 storiesOf("Withdrawal", module)
-  .addDecorator(render => <div style={{ minWidth: "70vw", margin: "20px" }}>{render()}</div>)
-  .add("Request", () => (
-    <WithdrawalRequestForm
-      actionsRef={actionsRef}
-      assets={[eurt]}
-      onCancel={action("Clicked cancel")}
-      onSubmit={action("Clicked submit")}
-      testnet={false}
-      withdrawableAssets={[eurt]}
+  .add("Initial", () => (
+    <WithdrawalDemoState
+      state={
+        {
+          step: "initial",
+          formValues: {}
+        } as const
+      }
     />
   ))
-  .add("Finish", () => (
-    <WithdrawalTransactionForm
-      account={account}
-      actionsRef={actionsRef}
-      asset={eurt}
-      anchorResponse={withdrawalSuccessResponse}
-      onCancel={action("Clicked cancel")}
-      onSubmit={action("Clicked submit")}
+  .add("Enter details", () => (
+    <WithdrawalDemoState
+      state={
+        {
+          step: "enter-values",
+          asset: eurt,
+          formValues: {},
+          method: "",
+          transferServer
+        } as const
+      }
     />
   ))
-  .add("Interactive KYC", () => (
-    <WithdrawalKYCRedirect
-      meta={{
-        id: "1234",
-        type: "interactive_customer_info_needed",
-        url: "https://google.com/"
-      }}
-      onCancel={action("clicked cancel")}
+  // .add("Authentication", () => (
+  //   <WithdrawalDemoState state={{
+  //     step: "auth-pending",
+  //     authChallenge,
+  //     webauth,
+  //     withdrawal
+  //   } as const} />
+  // ))
+  .add("Interactive KYC required", () => (
+    <WithdrawalDemoState
+      state={
+        {
+          step: "kyc-pending",
+          response: {
+            data: {
+              status: "pending",
+              type: "customer_info_status"
+            },
+            subtype: KYCResponseType.interactive,
+            type: TransferResultType.kyc
+          },
+          withdrawal
+        } as const
+      }
     />
   ))
-  .add("KYC pending", () => (
-    <TransferTransactionStatus
-      transaction={{
-        ...demoTransaction,
-        more_info_url: "https://google.com/",
-        status: TransferStatus.incomplete,
-        status_eta: 36 * 60 * 60
-      }}
-      onCancel={action("clicked cancel")}
+  .add("Interactive KYC pending", () => (
+    <WithdrawalDemoState
+      state={
+        {
+          step: "kyc-pending",
+          didRedirect: true,
+          response: {
+            data: {
+              status: "pending",
+              type: "customer_info_status"
+            },
+            subtype: KYCResponseType.interactive,
+            type: TransferResultType.kyc
+          },
+          transfer: demoTransaction,
+          withdrawal
+        } as const
+      }
     />
   ))
   .add("KYC denied", () => (
-    <TransferTransactionStatus
-      transaction={{
-        ...demoTransaction,
-        message: "We could not verify your identity.",
-        more_info_url: "https://google.com/",
-        status: TransferStatus.error
-      }}
-      onCancel={action("clicked cancel")}
+    <WithdrawalDemoState
+      state={
+        {
+          step: "kyc-pending",
+          didRedirect: true,
+          response: {
+            data: {
+              status: "pending",
+              type: "customer_info_status"
+            },
+            subtype: KYCResponseType.interactive,
+            type: TransferResultType.kyc
+          },
+          transfer: {
+            ...demoTransaction,
+            message: "We could not verify your identity.",
+            more_info_url: "https://google.com/",
+            status: TransferStatus.error
+          },
+          withdrawal
+        } as const
+      }
+    />
+  ))
+  .add("Transaction details", () => (
+    <WithdrawalDemoState
+      state={
+        {
+          step: "enter-tx-details",
+          response: {
+            data: withdrawalSuccessResponse,
+            type: TransferResultType.ok
+          },
+          withdrawal
+        } as const
+      }
+    />
+  ))
+  .add("Success", () => (
+    <WithdrawalDemoState
+      state={
+        {
+          step: "completed",
+          amount: BigNumber(12),
+          response: {
+            data: withdrawalSuccessResponse,
+            type: TransferResultType.ok
+          },
+          withdrawal
+        } as const
+      }
     />
   ))

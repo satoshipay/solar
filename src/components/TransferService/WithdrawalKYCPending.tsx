@@ -7,6 +7,8 @@ import { openLink } from "../../platform/links"
 import { Box, VerticalLayout } from "../Layout/Box"
 import { WithdrawalStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
+import TransferTransactionStatus from "./TransferTransactionStatus"
+import { WithdrawalContext } from "./WithdrawalProvider"
 
 interface WithdrawalKYCPendingProps {
   state: WithdrawalStates.KYCPending
@@ -15,14 +17,14 @@ interface WithdrawalKYCPendingProps {
 function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
   const { response } = props.state
   const { transferServer } = props.state.withdrawal
-  const [isPending, setPending] = React.useState(false)
+  const { actions } = React.useContext(WithdrawalContext)
 
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
+    actions.didRedirectToKYC()
 
     if (response.data.type === "interactive_customer_info_needed") {
       openLink(response.data.url)
-      setPending(true)
     } else {
       trackError(Error("Only interactive KYCs are supported."))
     }
@@ -31,18 +33,18 @@ function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
   return (
     <form noValidate onSubmit={handleSubmit}>
       <VerticalLayout grow>
-        <VerticalLayout alignItems="center" margin="48px auto 0" maxWidth="500px" textAlign="center" width="80%">
+        <VerticalLayout alignItems="center" margin="24px auto" textAlign="center">
           <Typography variant="h5">Additional information needed</Typography>
-          <Typography style={{ margin: "16px 0 24px" }} variant="body2">
-            {transferServer.domain} requires that you provide additional information before accessing the service.
-          </Typography>
+          <TransferTransactionStatus domain={transferServer.domain} transaction={props.state.transfer} />
+          {props.state.didRedirect ? (
+            <Box grow margin="48px 0" textAlign="center">
+              <CircularProgress />
+            </Box>
+          ) : null}
           <Button color="primary" type="submit" variant="contained">
-            {isPending ? "Open again" : "Continue"}
+            {props.state.didRedirect ? "Open again" : "Continue"}
           </Button>
         </VerticalLayout>
-        <Box grow margin="48px 0 40px" textAlign="center">
-          {isPending ? <CircularProgress /> : null}
-        </Box>
       </VerticalLayout>
     </form>
   )

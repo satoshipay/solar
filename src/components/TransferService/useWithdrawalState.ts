@@ -1,6 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Asset, Horizon, Memo, Networks, Operation, Server, Transaction, xdr } from "stellar-sdk"
+import { getServiceSigningKey, getWebAuthEndpointURL, WebauthData } from "@satoshipay/stellar-sep-10"
 import {
   fetchTransaction,
   fetchTransferInfos,
@@ -10,18 +11,20 @@ import {
   TransferStatus,
   Withdrawal,
   WithdrawalInstructionsSuccess,
-  WithdrawalSuccessResponse
+  WithdrawalSuccessResponse,
+  WithdrawalTransaction
 } from "@satoshipay/stellar-transfer"
 import { Account } from "../../context/accounts"
+import { SigningKeyCacheContext } from "../../context/caches"
 import { trackError } from "../../context/notifications"
+import { stellarTomlCache } from "../../hooks/_caches"
 import { useHorizonURL, useWebAuth } from "../../hooks/stellar"
 import { useNetWorker } from "../../hooks/workers"
 import { createTransaction, signTransaction } from "../../lib/transaction"
 import { initialState, stateMachine, Action, WithdrawalAction, WithdrawalState, WithdrawalStates } from "./statemachine"
 import { usePolling } from "./util"
-import { WebauthData } from "@satoshipay/stellar-sep-10"
 
-export interface WithdrawalMachineState<CurrentState extends WithdrawalState = WithdrawalState> {
+export interface WithdrawalMachineState {
   current: WithdrawalState
   next?: WithdrawalState
   prevs: WithdrawalState[]
@@ -29,9 +32,13 @@ export interface WithdrawalMachineState<CurrentState extends WithdrawalState = W
 
 const kycPollIntervalMs = 6000
 
-const initialMachineState: WithdrawalMachineState<WithdrawalStates.SelectType> = {
+const initialMachineState: WithdrawalMachineState = {
   current: initialState,
   prevs: []
+}
+
+function fail(message: string): never {
+  throw Error(message)
 }
 
 function timeTravelingStateMachine(
@@ -110,17 +117,32 @@ async function createWithdrawalTransaction(
 export function useWithdrawalState(account: Account, closeDialog: () => void) {
   const netWorker = useNetWorker()
   const horizonURL = useHorizonURL(account.testnet)
+  const signingKeys = React.useContext(SigningKeyCacheContext)
   const WebAuth = useWebAuth()
 
   const [machineState, dispatch] = React.useReducer(timeTravelingStateMachine, initialMachineState)
 
-  const submitWithdrawalSelection = async (asset: Asset, method: string, transferServer: TransferServer) => {
-    dispatch(Action.selectType(asset, method, transferServer))
+  const submitWithdrawalSelection = async (transferServer: TransferServer, asset: Asset, method: string | null) => {
+    dispatch(Action.selectType(asset, method || "", transferServer))
   }
 
   const initiateWebAuth = async (withdrawal: Withdrawal) => {
-    const { asset, transferServer } = withdrawal
-    const webauthMetadata = await WebAuth.fetchWebAuthData(horizonURL, asset.issuer)
+    const { transferServer } = withdrawal
+    const stellarTomlData =
+      stellarTomlCache.get(transferServer.domain) || (await netWorker.fetchStellarToml(transferServer.domain))
+
+    const endpointURL =
+      getWebAuthEndpointURL(stellarTomlData) || fail(`No web auth endpoint found at ${transferServer.domain}`)
+
+    const webauthMetadata: WebauthData = {
+      domain: transferServer.domain,
+      endpointURL,
+      signingKey: getServiceSigningKey(stellarTomlData) || null
+    }
+
+    if (webauthMetadata.signingKey) {
+      signingKeys.store(webauthMetadata.signingKey, webauthMetadata.domain)
+    }
 
     if (!webauthMetadata) {
       throw Error(`Cannot initialize Stellar web authentication at ${transferServer.domain}`)
@@ -131,26 +153,35 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     return [webauthMetadata, cachedAuthToken] as const
   }
 
-  const requestWithdrawal = async (withdrawal: Withdrawal, authToken?: string) => {
+  const requestWithdrawal = async (withdrawal: Withdrawal, authToken?: string, transfer?: WithdrawalTransaction) => {
     const instructions = await withdrawal.interactive(authToken)
 
     if (instructions.type === TransferResultType.ok) {
-      dispatch(Action.promptForTxDetails(withdrawal, instructions))
+      dispatch(Action.promptForTxDetails(withdrawal, instructions, transfer))
       stopKYCPolling()
     } else if (instructions.type === TransferResultType.kyc && instructions.subtype === KYCResponseType.interactive) {
       // sandbox.anchorusd.com seems to use `identifier` instead of `id`
       const transactionID = (instructions.data as any).id || (instructions.data as any).identifier
-      startKYCPolling(() => pollKYCStatus(withdrawal, transactionID))
-      dispatch(
-        Action.conductKYC(
-          withdrawal,
-          instructions.data,
-          "authToken" in machineState.current ? machineState.current.authToken : undefined
+
+      if (!isKYCPollingActive()) {
+        startKYCPolling(() => pollKYCStatus(withdrawal, transactionID, authToken))
+
+        dispatch(
+          Action.conductKYC(
+            withdrawal,
+            instructions,
+            "authToken" in machineState.current ? machineState.current.authToken : undefined
+          )
         )
-      )
+
+        // Poll status immediately in case the withdrawal is already pending
+        pollKYCStatus(withdrawal, transactionID, authToken)
+      }
     } else {
       throw Error(`Unexpected response type: ${instructions.type} / ${instructions.data.type}`)
     }
+
+    return instructions
   }
 
   const performWebAuth = async (
@@ -180,11 +211,6 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     }
 
     const withdrawal = createWithdrawal(details)
-
-    if (!withdraw.authentication_required) {
-      return requestWithdrawal(withdrawal)
-    }
-
     const [webauth, cachedAuthToken] = await initiateWebAuth(withdrawal)
 
     if (cachedAuthToken) {
@@ -216,32 +242,38 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     return createWithdrawalTransaction(account, accountData, amount, new Server(horizonURL), instructions, withdrawal)
   }
 
+  const didRedirectToKYC = () => dispatch(Action.setDidRedirectToKYC())
   const afterSuccessfulExecution = (amount: BigNumber) => dispatch(Action.completed(amount))
 
-  const pollKYCStatus = async (withdrawal: Withdrawal, transferTxId: string) => {
+  let consecutiveKYCPollErrors = 0
+
+  const pollKYCStatus = async (withdrawal: Withdrawal, transferTxId: string, authToken?: string) => {
     if (window.navigator.onLine === false) {
       return
     }
 
     try {
-      const authToken = "authToken" in machineState.current ? machineState.current.authToken : undefined
       const { transaction } = await fetchTransaction(withdrawal.transferServer, transferTxId, "transfer", authToken)
 
-      if (transaction.status === TransferStatus.incomplete) {
-        // Transfer transaction is still incomplete. Waiting for KYC to finish…
-        return
-      }
+      consecutiveKYCPollErrors = 0
+      dispatch(Action.setTransferTransaction(transaction))
 
-      await requestWithdrawal(withdrawal, authToken)
+      if (transaction.status === TransferStatus.pending_user_transfer_start) {
+        await requestWithdrawal(withdrawal, authToken, transaction as WithdrawalTransaction)
+      }
     } catch (error) {
-      return trackError(error)
+      consecutiveKYCPollErrors++
+
+      if (consecutiveKYCPollErrors <= 3) {
+        trackError(error)
+      }
     }
   }
 
   const { isActive: isKYCPollingActive, start: startKYCPolling, stop: stopKYCPolling } = usePolling(kycPollIntervalMs)
 
   const navigateBack = () => {
-    if (isKYCPollingActive) {
+    if (isKYCPollingActive()) {
       stopKYCPolling()
     }
 
@@ -254,6 +286,7 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
 
   const actions = {
     afterSuccessfulExecution,
+    didRedirectToKYC,
     navigateBack,
     performWebAuth,
     prepareWithdrawalTransaction,

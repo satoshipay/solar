@@ -9,15 +9,34 @@ import { getAssetsFromBalances } from "../../lib/stellar"
 import VirtualizedCarousel from "../Layout/VirtualizedCarousel"
 import TransactionSender from "../TransactionSender"
 import ViewLoading from "../ViewLoading"
-import NoWithdrawableAssets from "./NoWithdrawableAssets"
-import WithdrawalProvider from "./WithdrawalProvider"
 import { useWithdrawalState } from "./useWithdrawalState"
-import WithdrawalContent from "./WithdrawalContent"
+import NoWithdrawableAssets from "./NoWithdrawableAssets"
+import { DesktopTwoColumns } from "./Sidebar"
+import PureWithdrawalContent from "./WithdrawalContent"
 import WithdrawalDialogLayout from "./WithdrawalDialogLayout"
+import WithdrawalProvider from "./WithdrawalProvider"
+import withFallback from "../Lazy/withFallback"
 
 function flatMap<In, Out>(inputs: In[], mapper: (input: In) => Out[]): Out[] {
   return inputs.reduce<Out[]>((outputs, input): Out[] => [...outputs, ...mapper(input)], [])
 }
+
+const EmptyView = React.memo(function EmptyView() {
+  return (
+    <DesktopTwoColumns>
+      <div />
+      <div />
+    </DesktopTwoColumns>
+  )
+})
+
+const WithdrawalContent = withFallback(
+  PureWithdrawalContent,
+  <DesktopTwoColumns>
+    <ViewLoading />
+    <div />
+  </DesktopTwoColumns>
+)
 
 interface Props {
   account: Account
@@ -70,7 +89,7 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
           <VirtualizedCarousel
             current={<WithdrawalContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
             index={prevStates.length}
-            next={nextState ? <WithdrawalContent {...contentProps} state={nextState} /> : null}
+            next={nextState ? <WithdrawalContent {...contentProps} state={nextState} /> : <EmptyView />}
             prev={prevState ? <WithdrawalContent {...contentProps} state={prevState} /> : null}
             size={prevStates.length + (nextState ? 2 : 1)}
           />

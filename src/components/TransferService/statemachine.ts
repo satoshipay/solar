@@ -1,12 +1,14 @@
 // tslint:disable no-object-literal-type-assertion
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
+  KYCInstructions,
   KYCStatusResponse,
   KYCResponseType,
   TransferServer,
+  TransferTransaction,
   Withdrawal,
-  WithdrawalInstructionsKYC,
-  WithdrawalInstructionsSuccess
+  WithdrawalInstructionsSuccess,
+  WithdrawalTransaction
 } from "@satoshipay/stellar-transfer"
 import BigNumber from "big.js"
 import { Asset, Transaction } from "stellar-sdk"
@@ -41,7 +43,9 @@ export namespace WithdrawalStates {
   export interface KYCPending {
     step: "kyc-pending"
     authToken?: string
-    response: WithdrawalInstructionsKYC<KYCResponseType>
+    didRedirect?: boolean
+    response: KYCInstructions<KYCResponseType>
+    transfer?: TransferTransaction
     withdrawal: Withdrawal
   }
 
@@ -54,6 +58,7 @@ export namespace WithdrawalStates {
   export interface EnterTxDetails {
     step: "enter-tx-details"
     response: WithdrawalInstructionsSuccess
+    transfer?: WithdrawalTransaction
     withdrawal: Withdrawal
   }
 
@@ -99,7 +104,18 @@ export const Action = {
       authToken
     } as const),
 
-  conductKYC: (withdrawal: Withdrawal, response: WithdrawalInstructionsKYC<KYCResponseType>, authToken?: string) =>
+  setDidRedirectToKYC: () =>
+    ({
+      type: "did-redirect-to-kyc"
+    } as const),
+
+  setTransferTransaction: (transaction: TransferTransaction) =>
+    ({
+      type: "set-transfer-transaction",
+      transaction
+    } as const),
+
+  conductKYC: (withdrawal: Withdrawal, response: KYCInstructions<KYCResponseType>, authToken?: string) =>
     ({
       type: "conduct-kyc",
       authToken,
@@ -107,10 +123,15 @@ export const Action = {
       withdrawal
     } as const),
 
-  promptForTxDetails: (withdrawal: Withdrawal, response: WithdrawalInstructionsSuccess) =>
+  promptForTxDetails: (
+    withdrawal: Withdrawal,
+    response: WithdrawalInstructionsSuccess,
+    transfer?: WithdrawalTransaction
+  ) =>
     ({
       type: "prompt-for-tx-details",
       response,
+      transfer,
       withdrawal
     } as const),
 
@@ -201,10 +222,21 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
         response: action.response,
         withdrawal: action.withdrawal
       }
+    case "did-redirect-to-kyc":
+      return {
+        ...(state as WithdrawalStates.KYCPending),
+        didRedirect: true
+      }
+    case "set-transfer-transaction":
+      return {
+        ...(state as WithdrawalStates.KYCPending),
+        transfer: action.transaction
+      }
     case "prompt-for-tx-details":
       return {
         step: "enter-tx-details",
         response: action.response,
+        transfer: action.transfer,
         withdrawal: action.withdrawal
       }
     case "completed":

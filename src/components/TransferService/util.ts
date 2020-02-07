@@ -31,7 +31,7 @@ export function usePolling(pollIntervalMs: number) {
   }, [])
 
   return {
-    isActive: intervalRef.current !== null,
+    isActive: () => intervalRef.current !== null,
     start,
     stop
   }

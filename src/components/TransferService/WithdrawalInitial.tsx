@@ -71,8 +71,8 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
     }))
   }
 
-  const isDisabled = !formValues.asset || !formValues.methodID
   const methodNames = formValues.asset ? getMethodNames(formValues.asset) : []
+  const isDisabled = !formValues.asset || (!formValues.methodID && methodNames.length > 0)
 
   const nonwithdrawableAssets = props.trustedAssets.filter(
     asset => !props.withdrawableAssets.some(withdrawable => withdrawable.equals(asset))
@@ -107,15 +107,12 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
       if (!formValues.asset) {
         return trackError(Error("Invariant violation: Form submission without selected asset"))
       }
-      if (!formValues.methodID) {
-        return trackError(Error("Invariant violation: Form submission without selected method"))
-      }
       if (!assetTransferInfo) {
         return trackError(Error("Invariant violation: Form submission without asset transfer information"))
       }
 
       handleSubmission(
-        actions.submitWithdrawalSelection(formValues.asset, formValues.methodID, assetTransferInfo.transferServer)
+        actions.submitWithdrawalSelection(assetTransferInfo.transferServer, formValues.asset, formValues.methodID)
       )
     },
     [actions.submitWithdrawalSelection, assetTransferInfo, formValues]
@@ -139,28 +136,30 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
             </MenuItem>
           ) : null}
         </AssetSelector>
-        <TextField
-          fullWidth
-          label="Type of withdrawal"
-          margin="normal"
-          onChange={setFormValue("methodID")}
-          select
-          SelectProps={{
-            classes: {
-              select: classes.select
-            }
-          }}
-          value={formValues.methodID || ""}
-        >
-          <MenuItem disabled value="">
-            {formValues.asset ? "Please select a type" : "Select an asset first"}
-          </MenuItem>
-          {methodNames.map(methodName => (
-            <MenuItem key={methodName} value={methodName}>
-              {formatIdentifier(methodName)}
+        {methodNames.length === 0 ? null : (
+          <TextField
+            fullWidth
+            label="Type of withdrawal"
+            margin="normal"
+            onChange={setFormValue("methodID")}
+            select
+            SelectProps={{
+              classes: {
+                select: classes.select
+              }
+            }}
+            value={formValues.methodID || ""}
+          >
+            <MenuItem disabled value="">
+              {formValues.asset ? "Please select a type" : "Select an asset first"}
             </MenuItem>
-          ))}
-        </TextField>
+            {methodNames.map(methodName => (
+              <MenuItem key={methodName} value={methodName}>
+                {formatIdentifier(methodName)}
+              </MenuItem>
+            ))}
+          </TextField>
+        )}
       </FormLayout>
       <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
         <DialogActionsBox>

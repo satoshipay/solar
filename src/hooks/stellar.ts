@@ -54,7 +54,12 @@ export function useWebAuth() {
   )
 
   return {
-    async fetchChallenge(endpointURL: string, serviceSigningKey: string, localPublicKey: string, network: Networks) {
+    async fetchChallenge(
+      endpointURL: string,
+      serviceSigningKey: string | null,
+      localPublicKey: string,
+      network: Networks
+    ) {
       const { netWorker } = await workers
       const challenge = await netWorker.fetchWebAuthChallenge(endpointURL, serviceSigningKey, localPublicKey)
       return new Transaction(challenge, network)
@@ -63,7 +68,7 @@ export function useWebAuth() {
     async fetchWebAuthData(horizonURL: string, issuerAccountID: string) {
       const { netWorker } = await workers
       const metadata = await netWorker.fetchWebAuthData(horizonURL, issuerAccountID)
-      if (metadata) {
+      if (metadata && metadata.signingKey) {
         signingKeys.store(metadata.signingKey, metadata.domain)
       }
       return metadata

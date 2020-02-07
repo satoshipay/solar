@@ -29,7 +29,9 @@ function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) 
 
   const formID = React.useMemo(() => nanoid(), [])
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
-  const [amountString, setAmountString] = React.useState("")
+  const amountIn = props.state.transfer ? props.state.transfer.amount_in : ""
+
+  const [amountString, setAmountString] = React.useState(amountIn || "")
   const [txPreparationState, handleTxPreparation] = useLoadingState({ throwOnError: true })
 
   const balanceLine = findMatchingBalanceLine(accountData.balances, asset)
