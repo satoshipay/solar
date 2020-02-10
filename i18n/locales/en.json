@@ -442,6 +442,20 @@
       "no-threshold": "Please set a threshold"
     }
   },
+  "manage-trusted-services": {
+    "info": "Trusted Services are domains whose (SEP-0007) requests will be processed without requiring additional confirmation from you. You can choose to add a new service to this list every time you receive a request from an unknown domain.",
+    "service-selection": {
+      "actions": {
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "confirm": {
+        "title": "Confirm removal",
+        "text": "The service will be removed from your trust list. Are you sure?"
+      },
+      "no-services": "No trusted services"
+    }
+  },
   "operations": {
     "account-merge": {
       "summary": {

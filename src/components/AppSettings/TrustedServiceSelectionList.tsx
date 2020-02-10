@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Avatar from "@material-ui/core/Avatar"
 import CloudIcon from "@material-ui/icons/Cloud"
 import RemoveIcon from "@material-ui/icons/RemoveCircle"
@@ -30,6 +31,8 @@ function TrustedServiceList() {
   const { setSetting, trustedServices } = React.useContext(SettingsContext)
   const [confirmationPending, setConfirmationPending] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(-1)
+
+  const { t } = useTranslation()
 
   const onDelete = () => {
     const selectedService = trustedServices[selectedIndex]
@@ -64,21 +67,27 @@ function TrustedServiceList() {
             />
           ))}
         {trustedServices.length === 0 ? (
-          <Typography className={classes.typography}>(No trusted services)</Typography>
+          <Typography className={classes.typography}>
+            ({t("manage-trusted-services.service-selection.no-services")})
+          </Typography>
         ) : null}
       </List>
       <ConfirmDialog
-        cancelButton={<ActionButton onClick={() => setConfirmationPending(false)}>Cancel</ActionButton>}
+        cancelButton={
+          <ActionButton onClick={() => setConfirmationPending(false)}>
+            {t("manage-trusted-services.service-selection.actions.cancel")}
+          </ActionButton>
+        }
         confirmButton={
           <ActionButton onClick={onConfirm} type="primary">
-            Confirm
+            {t("manage-trusted-services.service-selection.actions.confirm")}
           </ActionButton>
         }
         open={confirmationPending}
         onClose={() => setConfirmationPending(false)}
-        title="Confirm removal"
+        title={t("manage-trusted-services.service-selection.confirm.title")}
       >
-        The service will be removed from your trust list. Are you sure?
+        {t("manage-trusted-services.service-selection.confirm.text")}
       </ConfirmDialog>
     </>
   )
