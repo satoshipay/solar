@@ -1,6 +1,7 @@
 import nanoid from "nanoid"
 import React from "react"
 import { Asset } from "stellar-sdk"
+import Collapse from "@material-ui/core/Collapse"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
@@ -12,10 +13,12 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import AssetSelector from "../Form/AssetSelector"
 import Portal from "../Portal"
 import { formatIdentifier } from "./formatters"
+import { TransferStates } from "./statemachine"
+import { DepositActions } from "./useDepositState"
+import { DepositContext } from "./DepositProvider"
 import FormLayout from "./FormLayout"
 import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
-import { TransferStates } from "./statemachine"
 
 const useFormStyles = makeStyles({
   select: {
@@ -29,16 +32,18 @@ interface FormValues {
   methodID: string | null
 }
 
-interface WithdrawalInitialProps {
+interface TransferInitialProps {
   assetTransferInfos: AssetTransferInfo[]
   dialogActionsRef: RefStateObject | undefined
   state: TransferStates.SelectType
   trustedAssets: Asset[]
-  withdrawableAssets: Asset[]
+  type: "deposit" | "withdrawal"
+  transferableAssets: Asset[]
 }
 
-function WithdrawalInitial(props: WithdrawalInitialProps) {
-  const { account, actions } = React.useContext(WithdrawalContext)
+function TransferInitial(props: TransferInitialProps) {
+  const { account, actions } =
+    props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
   const formID = React.useMemo(() => nanoid(), [])
   const classes = useFormStyles()
@@ -53,7 +58,7 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
     return meta && meta.withdraw && meta.withdraw.types ? Object.keys(meta.withdraw.types) : []
   }
 
-  const initialAsset = props.state.asset || props.withdrawableAssets[0] || null
+  const initialAsset = props.state.asset || props.transferableAssets[0] || null
   const initialMethod =
     props.state.method || (getMethodNames(initialAsset).length === 1 ? getMethodNames(initialAsset)[0] : null)
 
@@ -74,8 +79,8 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
   const methodNames = formValues.asset ? getMethodNames(formValues.asset) : []
   const isDisabled = !formValues.asset || (!formValues.methodID && methodNames.length > 0)
 
-  const nonwithdrawableAssets = props.trustedAssets.filter(
-    asset => !props.withdrawableAssets.some(withdrawable => withdrawable.equals(asset))
+  const nontransferableAssets = props.trustedAssets.filter(
+    asset => !props.transferableAssets.some(transferable => transferable.equals(asset))
   )
 
   const assetTransferInfo = getAssetInfo(formValues.asset)
@@ -83,12 +88,12 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
   const handleAssetSelection = React.useCallback(
     (asset: Asset) => {
       const assetInfo = props.assetTransferInfos.find(info => info.asset.equals(asset))
-      const withdraw = assetInfo && assetInfo.withdraw
+      const transfer = assetInfo && (props.type === "deposit" ? assetInfo.deposit : assetInfo.withdraw)
 
-      if (withdraw && withdraw.types && Object.keys(withdraw.types).length === 1) {
+      if (transfer && "types" in transfer && transfer.types && Object.keys(transfer.types).length === 1) {
         setFormValues({
           asset,
-          methodID: Object.keys(withdraw.types)[0]
+          methodID: Object.keys(transfer.types)[0]
         })
       } else {
         setFormValues(prevValues => ({
@@ -97,12 +102,16 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
         }))
       }
     },
-    [props.assetTransferInfos]
+    [props.assetTransferInfos, props.type]
   )
 
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent) => {
       event.preventDefault()
+
+      if (props.type === "deposit" && formValues.asset && formValues.asset.isNative()) {
+        return (actions as DepositActions).selectXLMDeposit()
+      }
 
       if (!formValues.asset) {
         return trackError(Error("Invariant violation: Form submission without selected asset"))
@@ -123,23 +132,24 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
       <FormLayout>
         <AssetSelector
           assets={props.trustedAssets}
-          disabledAssets={nonwithdrawableAssets}
-          label={isTinyScreen ? "Asset" : "Asset to withdraw"}
+          disabledAssets={nontransferableAssets}
+          label={isTinyScreen ? "Asset" : props.type === "deposit" ? "Asset to deposit" : "Asset to withdraw"}
           margin="normal"
           onChange={handleAssetSelection}
+          showXLM={props.type === "deposit"}
           testnet={account.testnet}
           value={formValues.asset || undefined}
         >
-          {props.withdrawableAssets.length === 0 ? (
+          {props.transferableAssets.length === 0 ? (
             <MenuItem disabled value="">
               No withdrawable assets
             </MenuItem>
           ) : null}
         </AssetSelector>
-        {methodNames.length === 0 ? null : (
+        <Collapse in={props.type === "withdrawal" && methodNames.length > 0}>
           <TextField
             fullWidth
-            label="Type of withdrawal"
+            label={props.type === "deposit" ? "Type of deposit" : "Type of withdrawal"}
             margin="normal"
             onChange={setFormValue("methodID")}
             select
@@ -159,7 +169,7 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
               </MenuItem>
             ))}
           </TextField>
-        )}
+        </Collapse>
       </FormLayout>
       <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
         <DialogActionsBox>
@@ -178,15 +188,23 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
   )
 }
 
-const Sidebar = () => (
-  <Summary headline="What to withdraw">
-    <Paragraph>
-      Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.
-    </Paragraph>
-    <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
-  </Summary>
-)
+const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
+  props.type === "deposit" ? (
+    <Summary headline="What to deposit">
+      <Paragraph>
+        Deposit assets to fund your account. Send USD from your bank account or ETH from your Ethereum wallet.
+      </Paragraph>
+      <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
+    </Summary>
+  ) : (
+    <Summary headline="What to withdraw">
+      <Paragraph>
+        Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.
+      </Paragraph>
+      <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
+    </Summary>
+  )
 
-const InitialView = Object.assign(React.memo(WithdrawalInitial), { Sidebar })
+const InitialView = Object.assign(React.memo(TransferInitial), { Sidebar })
 
 export default InitialView

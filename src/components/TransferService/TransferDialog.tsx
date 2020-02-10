@@ -9,11 +9,13 @@ import { getAssetsFromBalances } from "../../lib/stellar"
 import VirtualizedCarousel from "../Layout/VirtualizedCarousel"
 import TransactionSender from "../TransactionSender"
 import ViewLoading from "../ViewLoading"
+import { useDepositState } from "./useDepositState"
 import { useWithdrawalState } from "./useWithdrawalState"
+import DepositProvider from "./DepositProvider"
 import NoWithdrawableAssets from "./NoWithdrawableAssets"
 import { DesktopTwoColumns } from "./Sidebar"
-import PureWithdrawalContent from "./WithdrawalContent"
-import WithdrawalDialogLayout from "./WithdrawalDialogLayout"
+import PureTransferContent from "./TransferContent"
+import TransferDialogLayout from "./TransferDialogLayout"
 import WithdrawalProvider from "./WithdrawalProvider"
 import withFallback from "../Lazy/withFallback"
 
@@ -30,8 +32,8 @@ const EmptyView = React.memo(function EmptyView() {
   )
 })
 
-const WithdrawalContent = withFallback(
-  PureWithdrawalContent,
+const TransferContent = withFallback(
+  PureTransferContent,
   <DesktopTwoColumns>
     <ViewLoading />
     <div />
@@ -44,11 +46,15 @@ interface Props {
   horizon: Server
   onClose: () => void
   sendTransaction: (transaction: Transaction) => Promise<any>
+  type: "deposit" | "withdrawal"
 }
 
 const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
   const dialogActionsRef = useDialogActions()
-  const { actions, nextState, prevStates, state } = useWithdrawalState(props.account, props.onClose)
+  const { actions, nextState, prevStates, state } =
+    props.type === "deposit"
+      ? useDepositState(props.account, props.onClose)
+      : useWithdrawalState(props.account, props.onClose)
 
   const prevState = prevStates.length > 0 ? prevStates[prevStates.length - 1] : undefined
 
@@ -63,43 +69,59 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
     [transferInfos]
   )
 
-  const withdrawableAssets = React.useMemo(() => {
+  const transferableAssets = React.useMemo(() => {
     return assetTransferInfos
-      .filter(assetInfo => assetInfo.withdraw && assetInfo.withdraw.enabled)
+      .filter(assetInfo =>
+        props.type === "deposit"
+          ? assetInfo.deposit && assetInfo.deposit.enabled
+          : assetInfo.withdraw && assetInfo.withdraw.enabled
+      )
       .map(assetInfo => assetInfo.asset)
+      .concat(props.type === "deposit" ? [Asset.native()] : [])
   }, [assetTransferInfos])
 
   const contentProps = {
     ...props,
     assetTransferInfos,
-    trustedAssets,
-    withdrawableAssets
+    transferableAssets,
+    trustedAssets
   }
 
+  const TransferProvider = props.type === "deposit" ? DepositProvider : WithdrawalProvider
+
   return (
-    <WithdrawalProvider account={props.account} actions={actions} state={state}>
-      <WithdrawalDialogLayout
+    <TransferProvider account={props.account} actions={actions as any} state={state}>
+      <TransferDialogLayout
         account={props.account}
         dialogActionsRef={dialogActionsRef}
         onNavigateBack={actions.navigateBack}
+        type={props.type}
       >
-        {withdrawableAssets.length === 0 ? (
+        {transferableAssets.length === 0 ? (
           <NoWithdrawableAssets account={props.account} actionsRef={dialogActionsRef} margin="32px 0 0" />
+        ) : props.type === "deposit" ? (
+          <VirtualizedCarousel
+            current={<TransferContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
+            index={prevStates.length}
+            next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
+            prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
+            size={prevStates.length + (nextState ? 2 : 1)}
+          />
         ) : (
           <VirtualizedCarousel
-            current={<WithdrawalContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
+            current={<TransferContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
             index={prevStates.length}
-            next={nextState ? <WithdrawalContent {...contentProps} state={nextState} /> : <EmptyView />}
-            prev={prevState ? <WithdrawalContent {...contentProps} state={prevState} /> : null}
+            next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
+            prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
             size={prevStates.length + (nextState ? 2 : 1)}
           />
         )}
-      </WithdrawalDialogLayout>
-    </WithdrawalProvider>
+      </TransferDialogLayout>
+    </TransferProvider>
   )
 })
 
-function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose">) {
+function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose" | "type">) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const closeAfterTimeout = React.useCallback(() => {
     // Close automatically a second after successful submission
@@ -111,9 +133,14 @@ function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose">) {
       {({ horizon, sendTransaction }) => (
         <React.Suspense
           fallback={
-            <WithdrawalDialogLayout account={props.account} dialogActionsRef={undefined} onNavigateBack={props.onClose}>
+            <TransferDialogLayout
+              account={props.account}
+              dialogActionsRef={undefined}
+              onNavigateBack={props.onClose}
+              type={props.type}
+            >
               <ViewLoading height={300} />
-            </WithdrawalDialogLayout>
+            </TransferDialogLayout>
           }
         >
           <WithdrawalDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />

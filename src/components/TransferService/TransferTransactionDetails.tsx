@@ -3,7 +3,12 @@ import nanoid from "nanoid"
 import React from "react"
 import { Transaction } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
-import { Withdrawal } from "@satoshipay/stellar-transfer"
+import {
+  Deposit,
+  Withdrawal,
+  WithdrawalInstructionsSuccess,
+  DepositInstructionsSuccess
+} from "@satoshipay/stellar-transfer"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { RefStateObject } from "../../hooks/userinterface"
 import { useLoadingState } from "../../hooks/util"
@@ -14,19 +19,23 @@ import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
 import Portal from "../Portal"
 import { formatBalanceRange, formatDescriptionText, formatDuration } from "./formatters"
 import { TransferStates } from "./statemachine"
+import { WithdrawalActions } from "./useWithdrawalState"
+import { DepositContext } from "./DepositProvider"
 import FormLayout from "./FormLayout"
 import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
-interface WithdrawalTransactionDetailsProps {
+interface TransferTransactionDetailsProps {
   dialogActionsRef: RefStateObject | undefined
   sendTransaction: (transaction: Transaction) => Promise<any>
-  state: TransferStates.EnterTxDetails<Withdrawal>
+  state: TransferStates.EnterTxDetails<Deposit | Withdrawal>
+  type: "deposit" | "withdrawal"
 }
 
-function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) {
-  const { account, actions } = React.useContext(WithdrawalContext)
-  const { asset } = props.state.withdrawal!
+function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
+  const { account, actions } =
+    props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
+  const { asset } = (props.state.deposit || props.state.withdrawal) as Deposit | Withdrawal
 
   const formID = React.useMemo(() => nanoid(), [])
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
@@ -59,26 +68,41 @@ function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) 
     (event: React.SyntheticEvent) => {
       event.preventDefault()
 
-      handleTxPreparation(
-        (async () => {
-          const tx = await actions.prepareWithdrawalTransaction(props.state.withdrawal!, props.state.response, amount)
-          await props.sendTransaction(tx)
-          actions.afterSuccessfulExecution(amount)
-        })()
-      )
+      if (props.type === "deposit") {
+        actions.afterSuccessfulExecution(amount)
+      } else {
+        handleTxPreparation(
+          (async () => {
+            const tx = await (actions as WithdrawalActions).prepareWithdrawalTransaction(
+              props.state.withdrawal!,
+              props.state.response as WithdrawalInstructionsSuccess,
+              amount
+            )
+            await props.sendTransaction(tx)
+            actions.afterSuccessfulExecution(amount)
+          })()
+        )
+      }
     },
-    [actions.afterSuccessfulExecution, actions.prepareWithdrawalTransaction, props.sendTransaction, props.state, amount]
+    [actions, props.sendTransaction, props.state, amount]
   )
 
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
       <FormLayout wrap>
+        {props.type === "deposit" ? (
+          <ReadOnlyTextfield
+            label="Deposit instructions"
+            multiline
+            value={(props.state.response as DepositInstructionsSuccess).data.how}
+          />
+        ) : null}
         <PriceInput
           assetCode={asset.getCode()}
           autoFocus
           disabled={minAmount && minAmount.gt(balance)}
           error={minAmount && minAmount.gt(balance)}
-          label="Amount to withdraw"
+          label={props.type === "deposit" ? "Amount to deposit" : "Amount to withdraw"}
           margin="normal"
           onChange={event => setAmountString(event.target.value)}
           placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
@@ -119,12 +143,12 @@ function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) 
             <ActionButton
               disabled={isDisabled}
               form={formID}
-              icon={<SendIcon />}
+              icon={props.type === "deposit" ? null : <SendIcon />}
               loading={txPreparationState.type === "pending"}
               onClick={() => undefined}
               type="submit"
             >
-              Withdraw
+              {props.type === "deposit" ? "Done" : "Withdraw"}
             </ActionButton>
           </DialogActionsBox>
         </Portal>
@@ -133,13 +157,19 @@ function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) 
   )
 }
 
-const Sidebar = () => (
-  <Summary headline="Almost done">
-    <Paragraph>Check the form and provide an amount to withdraw if necessary.</Paragraph>
-    <Paragraph>The withdrawal is almost ready.</Paragraph>
-  </Summary>
-)
+const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
+  props.type === "deposit" ? (
+    <Summary headline="Deposit instructions">
+      <Paragraph>Deposit the funds as described. Make sure that you send the funds to the right destination.</Paragraph>
+      <Paragraph>The asset issuer will credit the tokens once your deposit is credited.</Paragraph>
+    </Summary>
+  ) : (
+    <Summary headline="Almost done">
+      <Paragraph>Check the form and provide an amount to withdraw if necessary.</Paragraph>
+      <Paragraph>The withdrawal is almost ready.</Paragraph>
+    </Summary>
+  )
 
-const TransactionDetailsView = Object.assign(React.memo(WithdrawalTransactionDetails), { Sidebar })
+const TransactionDetailsView = Object.assign(React.memo(TransferTransactionDetails), { Sidebar })
 
 export default TransactionDetailsView

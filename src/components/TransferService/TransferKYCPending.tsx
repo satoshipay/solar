@@ -9,19 +9,21 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 import { TransferStates } from "./statemachine"
+import { DepositContext } from "./DepositProvider"
 import { Paragraph, Summary } from "./Sidebar"
 import TransferTransactionStatus from "./TransferTransactionStatus"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
-interface WithdrawalKYCPendingProps {
+interface TransferKYCPendingProps {
   dialogActionsRef: RefStateObject | undefined
   state: TransferStates.KYCPending<Withdrawal>
+  type: "deposit" | "withdrawal"
 }
 
-function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
+function TransferKYCPending(props: TransferKYCPendingProps) {
   const { response } = props.state
-  const { transferServer } = props.state.withdrawal!
-  const { actions } = React.useContext(WithdrawalContext)
+  const { transferServer } = props.type === "deposit" ? props.state.deposit! : props.state.withdrawal!
+  const { actions } = props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
@@ -39,11 +41,17 @@ function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
       <VerticalLayout grow>
         <VerticalLayout alignItems="center" margin="24px auto" textAlign="center">
           <Typography variant="h5">Additional information needed</Typography>
-          <TransferTransactionStatus domain={transferServer.domain} transaction={props.state.transfer} />
+          <TransferTransactionStatus
+            domain={transferServer.domain}
+            transaction={props.state.transfer}
+            type={props.type}
+          />
           {props.state.didRedirect ? (
             <Box grow margin="48px 0" textAlign="center">
               <CircularProgress />
             </Box>
+          ) : !props.state.transfer ? (
+            <Typography variant="body2">{transferServer.domain} requires more information from you.</Typography>
           ) : null}
           <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
             <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
@@ -58,11 +66,11 @@ function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
 
 const Sidebar = () => (
   <Summary headline="Know Your Customer">
-    <Paragraph>The withdrawal service will only work if you provide personal information about you.</Paragraph>
+    <Paragraph>The service will only work if you provide personal information about you.</Paragraph>
     <Paragraph>This usually happens for legal reasons.</Paragraph>
   </Summary>
 )
 
-const KYCPendingView = Object.assign(React.memo(WithdrawalKYCPending), { Sidebar })
+const KYCPendingView = Object.assign(React.memo(TransferKYCPending), { Sidebar })
 
 export default KYCPendingView

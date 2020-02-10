@@ -8,8 +8,11 @@ import { isWrongPasswordError } from "../../lib/errors"
 import { VerticalLayout } from "../Layout/Box"
 import ReviewForm from "../TransactionReview/ReviewForm"
 import { TransferState } from "./statemachine"
+import { DepositContext } from "./DepositProvider"
 import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
+import { DepositActions } from "./useDepositState"
+import { WithdrawalActions } from "./useWithdrawalState"
 
 const doNothing = () => undefined
 
@@ -19,10 +22,12 @@ interface WithdrawalAuthenticationProps {
   authChallenge: Transaction | null
   dialogActionsRef: RefStateObject | undefined
   state: TransferState
+  type: "deposit" | "withdrawal"
 }
 
 function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
-  const { actions, state } = React.useContext(WithdrawalContext)
+  const { actions, state } =
+    props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
   const [passwordError, setPasswordError] = React.useState<Error>()
   const [submission, handleSubmission] = useLoadingState({ throwOnError: true })
 
@@ -33,9 +38,10 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
           throw Error(`Encountered unexpected state: ${state.step}`)
         }
         try {
-          return await actions.performWebAuth(
-            undefined,
-            state.withdrawal!,
+          return await (actions.performWebAuth as DepositActions["performWebAuth"] &
+            WithdrawalActions["performWebAuth"])(
+            state.deposit as any,
+            state.withdrawal as any,
             state.webauth,
             props.authChallenge!,
             options.password

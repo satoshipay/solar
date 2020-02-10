@@ -104,7 +104,7 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
   }
 
   const performWebAuth = async (
-    deposit: undefined, // Just in here to match the same method on a later useDepositState() action
+    deposit: undefined, // Just in here to match the same method in useDepositState()
     withdrawal: Withdrawal,
     webauthMetadata: WebauthData,
     challenge: Transaction,

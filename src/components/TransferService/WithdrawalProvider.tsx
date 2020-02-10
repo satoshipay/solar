@@ -11,7 +11,7 @@ export interface WithdrawalContextType {
 
 export const WithdrawalContext = React.createContext<WithdrawalContextType>({} as any)
 
-interface WithdrawalProviderProps extends WithdrawalContextType {
+export interface WithdrawalProviderProps extends WithdrawalContextType {
   children: React.ReactNode
 }
 

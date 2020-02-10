@@ -15,7 +15,7 @@ import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import { TransferState } from "../src/components/TransferService/statemachine"
 import { useWithdrawalState } from "../src/components/TransferService/useWithdrawalState"
-import WithdrawalContent from "../src/components/TransferService/WithdrawalContent"
+import DepositContent from "../src/components/TransferService/TransferContent"
 import WithdrawalProvider from "../src/components/TransferService/WithdrawalProvider"
 import { Account } from "../src/context/accounts"
 
@@ -93,7 +93,7 @@ function WithdrawalDemoState(props: { state: TransferState }) {
   return (
     <WithdrawalProvider account={account} actions={actions} state={props.state}>
       <div style={{ minWidth: "70vw", margin: "20px" }}>
-        <WithdrawalContent
+        <DepositContent
           account={account}
           assetTransferInfos={assetTransferInfos}
           onClose={action("close dialog")}

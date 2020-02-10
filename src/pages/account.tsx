@@ -4,7 +4,6 @@ import { makeStyles } from "@material-ui/core/styles"
 import SendIcon from "@material-ui/icons/Send"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
-import DepositDialog from "../components/Deposit/DepositDialog"
 import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
 import QRCodeIcon from "../components/Icon/QRCode"
 import InlineLoader from "../components/InlineLoader"
@@ -42,8 +41,8 @@ const BalanceDetailsDialog = withFallback(
 )
 const TradeAssetDialog = withFallback(React.lazy(() => import("../components/Trading/TradingDialog")), <ViewLoading />)
 
-const WithdrawalDialog = withFallback(
-  React.lazy(() => import("../components/TransferService/WithdrawalDialog")),
+const TransferDialog = withFallback(
+  React.lazy(() => import("../components/TransferService/TransferDialog")),
   <ViewLoading />
 )
 
@@ -276,22 +275,18 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
         </React.Suspense>
       </Dialog>
       <Dialog
-        open={showWithdrawal}
+        open={showDeposit || showWithdrawal}
         fullScreen
         onClose={navigateTo.transactions}
         TransitionComponent={FullscreenDialogTransition}
       >
         <React.Suspense fallback={<ViewLoading />}>
-          <WithdrawalDialog account={props.account} onClose={navigateTo.transactions} />
+          <TransferDialog
+            account={props.account}
+            onClose={navigateTo.transactions}
+            type={showDeposit ? "deposit" : "withdrawal"}
+          />
         </React.Suspense>
-      </Dialog>
-      <Dialog
-        open={showDeposit}
-        fullScreen
-        onClose={navigateTo.deposit}
-        TransitionComponent={FullscreenDialogTransition}
-      >
-        <DepositDialog account={props.account} onClose={navigateTo.transactions} />
       </Dialog>
     </VerticalLayout>
   )

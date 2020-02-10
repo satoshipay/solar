@@ -4,13 +4,14 @@ import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { RefStateObject } from "../../hooks/userinterface"
 import { DesktopTwoColumns } from "./Sidebar"
-import WithdrawalAuthentication from "./TransferAuthentication"
-import WithdrawalDetailsForm from "./WithdrawalDetailsForm"
-import WithdrawalInitial from "./WithdrawalInitial"
-import WithdrawalKYCDenied from "./TransferKYCDenied"
-import WithdrawalKYCPending from "./TransferKYCPending"
+import DepositXLM from "./DepositXLM"
+import TransferAuthentication from "./TransferAuthentication"
+import TransferKYCDenied from "./TransferKYCDenied"
+import TransferKYCPending from "./TransferKYCPending"
+import WithdrawalDetailsForm from "./TransferDetailsForm"
+import TransferInitial from "./TransferInitial"
 import WithdrawalSuccess from "./WithdrawalSuccess"
-import WithdrawalTransactionDetails from "./WithdrawalTransactionDetails"
+import WithdrawalTransactionDetails from "./TransferTransactionDetails"
 import { TransferState } from "./statemachine"
 
 interface WithdrawalContentProps {
@@ -22,23 +23,25 @@ interface WithdrawalContentProps {
   sendTransaction: (transaction: Transaction) => Promise<any>
   state: TransferState
   trustedAssets: Asset[]
-  withdrawableAssets: Asset[]
+  type: "deposit" | "withdrawal"
+  transferableAssets: Asset[]
 }
 
-const WithdrawalContent = React.memo(function WithdrawalContent(props: WithdrawalContentProps) {
-  const { assetTransferInfos, state, trustedAssets, withdrawableAssets } = props
+const DepositContent = React.memo(function WithdrawalContent(props: WithdrawalContentProps) {
+  const { assetTransferInfos, state, trustedAssets, transferableAssets } = props
 
   if (state.step === "initial") {
     return (
       <DesktopTwoColumns>
-        <WithdrawalInitial
+        <TransferInitial
           assetTransferInfos={assetTransferInfos}
           dialogActionsRef={props.dialogActionsRef}
           state={state}
           trustedAssets={trustedAssets}
-          withdrawableAssets={withdrawableAssets}
+          type={props.type}
+          transferableAssets={transferableAssets}
         />
-        <WithdrawalInitial.Sidebar />
+        <TransferInitial.Sidebar type={props.type} />
       </DesktopTwoColumns>
     )
   } else if (state.step === "enter-values") {
@@ -49,35 +52,44 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
           assetTransferInfos={assetTransferInfos}
           dialogActionsRef={props.dialogActionsRef}
           state={state}
+          type={props.type}
         />
-        <WithdrawalDetailsForm.Sidebar />
+        <WithdrawalDetailsForm.Sidebar type={props.type} />
+      </DesktopTwoColumns>
+    )
+  } else if (state.step === "xlm-deposit") {
+    return (
+      <DesktopTwoColumns>
+        <DepositXLM />
+        <DepositXLM.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "auth-pending") {
     return (
       <DesktopTwoColumns>
-        <WithdrawalAuthentication
+        <TransferAuthentication
           account={props.account}
           assetTransferInfos={assetTransferInfos}
           authChallenge={"authChallenge" in state ? state.authChallenge : null}
           dialogActionsRef={props.dialogActionsRef}
           state={state}
+          type={props.type}
         />
-        <WithdrawalAuthentication.Sidebar />
+        <TransferAuthentication.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "kyc-pending") {
     return (
       <DesktopTwoColumns>
-        <WithdrawalKYCPending dialogActionsRef={props.dialogActionsRef} state={state} />
-        <WithdrawalKYCPending.Sidebar />
+        <TransferKYCPending dialogActionsRef={props.dialogActionsRef} state={state} type={props.type} />
+        <TransferKYCPending.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "kyc-denied") {
     return (
       <DesktopTwoColumns>
-        <WithdrawalKYCDenied state={state} />
-        <WithdrawalKYCDenied.Sidebar />
+        <TransferKYCDenied state={state} />
+        <TransferKYCDenied.Sidebar />
       </DesktopTwoColumns>
     )
   } else if (state.step === "enter-tx-details") {
@@ -87,12 +99,13 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
           dialogActionsRef={props.dialogActionsRef}
           sendTransaction={props.sendTransaction}
           state={state}
+          type={props.type}
         />
-        <WithdrawalTransactionDetails.Sidebar />
+        <WithdrawalTransactionDetails.Sidebar type={props.type} />
       </DesktopTwoColumns>
     )
   } else if (state.step === "completed") {
-    return (
+    return props.type === "deposit" ? null : (
       <DesktopTwoColumns>
         <WithdrawalSuccess dialogActionsRef={props.dialogActionsRef} onClose={props.onClose} state={state} />
         <WithdrawalSuccess.Sidebar />
@@ -103,4 +116,4 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
   }
 })
 
-export default React.memo(WithdrawalContent)
+export default React.memo(DepositContent)
