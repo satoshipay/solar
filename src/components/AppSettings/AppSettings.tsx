@@ -80,6 +80,8 @@ function AppSettings() {
     router.history
   ])
 
+  const trustedServicesEnabled = process.env.TRUSTED_SERVICES
+
   return (
     <Carousel current={showSettingsOverview ? 0 : 1}>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
@@ -145,17 +147,21 @@ function AppSettings() {
               : t("app-settings.multi-sig.text.secondary.disabled")
           }
         />
-        <AppSettingsItem
-          actions={
-            <ListItemIcon className={classes.caret}>
-              <ArrowRightIcon className={classes.caret} />
-            </ListItemIcon>
-          }
-          icon={<TrustIcon className={classes.icon} />}
-          onClick={navigateToTrustedServices}
-          primaryText={t("app-settings.trusted-services.text.primary")}
-          secondaryText={t("app-settings.trusted-services.text.secondary")}
-        />
+        {trustedServicesEnabled ? (
+          <AppSettingsItem
+            actions={
+              <ListItemIcon className={classes.caret}>
+                <ArrowRightIcon className={classes.caret} />
+              </ListItemIcon>
+            }
+            icon={<TrustIcon className={classes.icon} />}
+            onClick={navigateToTrustedServices}
+            primaryText={t("app-settings.trusted-services.text.primary")}
+            secondaryText={t("app-settings.trusted-services.text.secondary")}
+          />
+        ) : (
+          undefined
+        )}
       </List>
       <SettingsDialogs />
     </Carousel>
