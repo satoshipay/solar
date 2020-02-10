@@ -1,5 +1,4 @@
 import React from "react"
-import { RefStateObject } from "../../hooks/userinterface"
 import { VerticalLayout } from "../Layout/Box"
 import { DepositContext } from "./DepositProvider"
 import { Paragraph, Summary } from "./Sidebar"

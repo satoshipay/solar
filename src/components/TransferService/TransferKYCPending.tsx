@@ -50,8 +50,6 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
             <Box grow margin="48px 0" textAlign="center">
               <CircularProgress />
             </Box>
-          ) : !props.state.transfer ? (
-            <Typography variant="body2">{transferServer.domain} requires more information from you.</Typography>
           ) : null}
           <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
             <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>

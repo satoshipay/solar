@@ -105,7 +105,7 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
             index={prevStates.length}
             next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
             prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
-            size={prevStates.length + (nextState ? 2 : 1)}
+            size={prevStates.length + 2}
           />
         ) : (
           <VirtualizedCarousel
@@ -113,7 +113,7 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
             index={prevStates.length}
             next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
             prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
-            size={prevStates.length + (nextState ? 2 : 1)}
+            size={prevStates.length + 2}
           />
         )}
       </TransferDialogLayout>
