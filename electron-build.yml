@@ -21,10 +21,14 @@ publish:
     repo: solar
 
 win:
+  # dashes are needed for electron-builder auto-update
+  artifactName: Solar-Wallet-Setup-${version}.${ext}
   # Electron builder bug: Without this line the icon gets corrupted on Windows
   icon: ./electron/build/icon.png
 
 mac:
+  # dashes are needed for electron-builder auto-update
+  artifactName: Solar-Wallet-${version}.${ext}
   hardenedRuntime: true
   entitlements: ./electron/build/entitlements.mac.inherit.plist
 
