@@ -1,113 +1,48 @@
-import { app, autoUpdater, dialog, Notification } from "electron"
-import isDev from "electron-is-dev"
-import fetch from "isomorphic-fetch"
-import os from "os"
-import { URL } from "url"
-import { expose } from "./_ipc"
-import { readInstallationID } from "./storage"
+import { dialog, Notification, app } from "electron"
+import { autoUpdater, UpdateInfo } from "electron-updater"
 import { Messages } from "../shared/ipc"
+import { expose } from "./_ipc"
 
-interface UpdateInfo {
-  name: string
-  notes: string
-  pub_date: string
-  url: string
-}
+let updateInfo: UpdateInfo | null = null
 
-const showMessageBox = (options: Electron.MessageBoxOptions) =>
-  new Promise(resolve => dialog.showMessageBox(options, resolve))
-
-const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
-
-// tslint:disable-next-line: no-console
-checkForUpdates().catch(console.error)
+autoUpdater.autoDownload = false
 
 expose(Messages.CheckUpdateAvailability, async function updateAvailable() {
-  const updateInfo = await fetchUpdateInfo()
-  return Boolean(updateInfo)
+  if (!updateInfo) {
+    const result = await autoUpdater.checkForUpdates()
+    updateInfo = result.updateInfo
+  }
+  return app.getVersion().localeCompare(updateInfo.version) < 0
 })
 
 expose(Messages.StartUpdate, function startUpdate() {
-  return startUpdatingWithoutInfo()
+  return startUpdating()
 })
 
-function getUpdaterOptions() {
-  const installationID = readInstallationID()
-  const url = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
-
-  const headers = {
-    "user-agent": `SatoshiPaySolar/${app.getVersion()} ${os.platform()}/${os.release()}`,
-    "x-user-staging-id": installationID
-  }
-
-  return { headers, url }
+function showMessageBox(options: Electron.MessageBoxOptions) {
+  return new Promise(resolve => dialog.showMessageBox(options, resolve))
 }
 
-async function fetchUpdateInfo(): Promise<UpdateInfo | undefined> {
-  if (!updateEndpoint) {
-    return undefined
-  }
-
-  const { headers, url } = getUpdaterOptions()
-  const response = await fetch(url, { headers })
-
-  // will see status 204 if local version is latest
-  const updateInfo = response.status === 200 ? await response.json() : undefined
-
-  return updateInfo && updateInfo.name.replace(/^v/, "") >= app.getVersion() ? updateInfo : undefined
+async function startUpdating() {
+  await autoUpdater.downloadUpdate()
 }
 
-async function checkForUpdates() {
-  const updateInfo = await fetchUpdateInfo()
-
-  // tslint:disable-next-line: no-console
-  console.debug(updateInfo ? `Update available: ${updateInfo.name}` : `No update available`)
-
-  if (!updateInfo || !Notification.isSupported()) return
-
-  autoUpdater.setFeedURL(getUpdaterOptions())
-
-  const userAction = await showUpdateNotification(updateInfo.name)
-
-  if (userAction === "click") {
-    await startUpdating(updateInfo.name)
-  }
-}
-
-async function startUpdatingWithoutInfo() {
-  if (!updateEndpoint) {
-    return
-  }
-
-  const installationID = readInstallationID()
-  const feedURL = new URL(`/update/${process.platform}/${app.getVersion()}`, updateEndpoint).toString()
-
-  const headers = {
-    "user-agent": `SatoshiPaySolar/${app.getVersion()} ${os.platform()}/${os.release()}`,
-    "x-user-staging-id": installationID
-  }
-
-  const response = await fetch(feedURL, { headers })
-
-  // will see status 204 if local version is latest
-  const updateInfo = response.status === 200 ? await response.json() : undefined
-
-  if (updateInfo) {
-    await startUpdating(updateInfo.name)
-  }
-}
-
-async function startUpdating(version: string) {
-  const progressNotification = showProgressNotification(version)
-  autoUpdater.checkForUpdates()
-
-  await new Promise(resolve => {
-    // will only be called on signed mac applications
-    autoUpdater.once("update-downloaded", resolve)
+autoUpdater.once("update-available", (info: UpdateInfo) => {
+  const notification = new Notification({
+    title: `New version ${info.version} of Solar available`,
+    body: "",
+    subtitle: `Click to update.`
   })
 
-  progressNotification.close()
+  notification.show()
 
+  notification.once("click", () => {
+    autoUpdater.downloadUpdate()
+    notification.close()
+  })
+})
+
+autoUpdater.once("update-downloaded", async () => {
   const response = await showMessageBox({
     type: "info",
     buttons: ["Restart", "Later"],
@@ -120,33 +55,9 @@ async function startUpdating(version: string) {
   if (response === 0) {
     autoUpdater.quitAndInstall()
   }
-}
+})
 
-function showUpdateNotification(version: string) {
-  const notification = new Notification({
-    title: `New version ${version} of Solar available`,
-    body: "",
-    subtitle: `Click to update.`
-  })
+// tslint:disable-next-line: no-console
+autoUpdater.on("error", console.error)
 
-  notification.show()
-
-  return new Promise(resolve => {
-    notification.once("click", () => {
-      notification.close()
-      resolve("click")
-    })
-  })
-}
-
-function showProgressNotification(version: string) {
-  const notification = new Notification({
-    title: `Updating Solar…`,
-    subtitle: `Download of ${version} in progress.`,
-    body: "",
-    silent: true
-  })
-
-  notification.show()
-  return notification
-}
+autoUpdater.checkForUpdatesAndNotify()
