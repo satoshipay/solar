@@ -1,14 +1,14 @@
 import React from "react"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 
 interface Props {
-  state: WithdrawalStates.KYCDenied
+  state: TransferStates.KYCDenied
 }
 
 function WithdrawalKYCDenied(props: Props): never {
   const { response } = props.state
-  const { transferServer } = props.state.withdrawal
+  const { transferServer } = props.state.withdrawal!
 
   throw Error(
     `${transferServer.domain} has rejected the information about your person that you supplied. ` +

@@ -7,7 +7,7 @@ import { useLoadingState } from "../../hooks/util"
 import { isWrongPasswordError } from "../../lib/errors"
 import { VerticalLayout } from "../Layout/Box"
 import ReviewForm from "../TransactionReview/ReviewForm"
-import { WithdrawalState } from "./statemachine"
+import { TransferState } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
@@ -18,7 +18,7 @@ interface WithdrawalAuthenticationProps {
   assetTransferInfos: AssetTransferInfo[]
   authChallenge: Transaction | null
   dialogActionsRef: RefStateObject | undefined
-  state: WithdrawalState
+  state: TransferState
 }
 
 function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
@@ -33,7 +33,13 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
           throw Error(`Encountered unexpected state: ${state.step}`)
         }
         try {
-          return await actions.performWebAuth(state.withdrawal, state.webauth, props.authChallenge!, options.password)
+          return await actions.performWebAuth(
+            undefined,
+            state.withdrawal!,
+            state.webauth,
+            props.authChallenge!,
+            options.password
+          )
         } catch (error) {
           if (isWrongPasswordError(error)) {
             setPasswordError(error)

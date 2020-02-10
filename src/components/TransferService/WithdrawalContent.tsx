@@ -4,14 +4,14 @@ import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { RefStateObject } from "../../hooks/userinterface"
 import { DesktopTwoColumns } from "./Sidebar"
-import WithdrawalAuthentication from "./WithdrawalAuthentication"
+import WithdrawalAuthentication from "./TransferAuthentication"
 import WithdrawalDetailsForm from "./WithdrawalDetailsForm"
 import WithdrawalInitial from "./WithdrawalInitial"
-import WithdrawalKYCDenied from "./WithdrawalKYCDenied"
-import WithdrawalKYCPending from "./WithdrawalKYCPending"
+import WithdrawalKYCDenied from "./TransferKYCDenied"
+import WithdrawalKYCPending from "./TransferKYCPending"
 import WithdrawalSuccess from "./WithdrawalSuccess"
 import WithdrawalTransactionDetails from "./WithdrawalTransactionDetails"
-import { WithdrawalState } from "./statemachine"
+import { TransferState } from "./statemachine"
 
 interface WithdrawalContentProps {
   account: Account
@@ -20,7 +20,7 @@ interface WithdrawalContentProps {
   dialogActionsRef?: RefStateObject
   onClose: () => void
   sendTransaction: (transaction: Transaction) => Promise<any>
-  state: WithdrawalState
+  state: TransferState
   trustedAssets: Asset[]
   withdrawableAssets: Asset[]
 }
@@ -99,7 +99,7 @@ const WithdrawalContent = React.memo(function WithdrawalContent(props: Withdrawa
       </DesktopTwoColumns>
     )
   } else {
-    throw Error(`Reached unexpected state: ${(state as WithdrawalState).step}`)
+    throw Error(`Reached unexpected state: ${(state as TransferState).step}`)
   }
 })
 

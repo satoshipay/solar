@@ -1,20 +1,21 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
+import { Withdrawal } from "@satoshipay/stellar-transfer"
 import { RefStateObject } from "../../hooks/userinterface"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 
 interface WithdrawalSuccessProps {
   dialogActionsRef: RefStateObject | undefined
   onClose: () => void
-  state: WithdrawalStates.WithdrawalCompleted
+  state: TransferStates.TransferCompleted<Withdrawal>
 }
 
 function WithdrawalSuccess(props: WithdrawalSuccessProps) {
-  const { transferServer } = props.state.withdrawal
+  const { transferServer } = props.state.withdrawal!
   return (
     <VerticalLayout grow>
       <VerticalLayout alignItems="center" margin="24px 0" textAlign="center">

@@ -1,25 +1,26 @@
 import React from "react"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
+import { Withdrawal } from "@satoshipay/stellar-transfer"
 import { trackError } from "../../context/notifications"
 import { RefStateObject } from "../../hooks/userinterface"
 import { openLink } from "../../platform/links"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box, VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 import TransferTransactionStatus from "./TransferTransactionStatus"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
 interface WithdrawalKYCPendingProps {
   dialogActionsRef: RefStateObject | undefined
-  state: WithdrawalStates.KYCPending
+  state: TransferStates.KYCPending<Withdrawal>
 }
 
 function WithdrawalKYCPending(props: WithdrawalKYCPendingProps) {
   const { response } = props.state
-  const { transferServer } = props.state.withdrawal
+  const { transferServer } = props.state.withdrawal!
   const { actions } = React.useContext(WithdrawalContext)
 
   const handleSubmit = (event: React.SyntheticEvent) => {

@@ -15,7 +15,7 @@ import { formatIdentifier } from "./formatters"
 import FormLayout from "./FormLayout"
 import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
 
 const useFormStyles = makeStyles({
   select: {
@@ -32,7 +32,7 @@ interface FormValues {
 interface WithdrawalInitialProps {
   assetTransferInfos: AssetTransferInfo[]
   dialogActionsRef: RefStateObject | undefined
-  state: WithdrawalStates.SelectType
+  state: TransferStates.SelectType
   trustedAssets: Asset[]
   withdrawableAssets: Asset[]
 }
@@ -112,10 +112,10 @@ function WithdrawalInitial(props: WithdrawalInitialProps) {
       }
 
       handleSubmission(
-        actions.submitWithdrawalSelection(assetTransferInfo.transferServer, formValues.asset, formValues.methodID)
+        actions.submitTransferSelection(assetTransferInfo.transferServer, formValues.asset, formValues.methodID)
       )
     },
-    [actions.submitWithdrawalSelection, assetTransferInfo, formValues]
+    [actions.submitTransferSelection, assetTransferInfo, formValues]
   )
 
   return (

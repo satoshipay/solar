@@ -3,6 +3,7 @@ import nanoid from "nanoid"
 import React from "react"
 import { Transaction } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
+import { Withdrawal } from "@satoshipay/stellar-transfer"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { RefStateObject } from "../../hooks/userinterface"
 import { useLoadingState } from "../../hooks/util"
@@ -12,7 +13,7 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { PriceInput, ReadOnlyTextfield } from "../Form/FormFields"
 import Portal from "../Portal"
 import { formatBalanceRange, formatDescriptionText, formatDuration } from "./formatters"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
 import FormLayout from "./FormLayout"
 import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
@@ -20,12 +21,12 @@ import { WithdrawalContext } from "./WithdrawalProvider"
 interface WithdrawalTransactionDetailsProps {
   dialogActionsRef: RefStateObject | undefined
   sendTransaction: (transaction: Transaction) => Promise<any>
-  state: WithdrawalStates.EnterTxDetails
+  state: TransferStates.EnterTxDetails<Withdrawal>
 }
 
 function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) {
   const { account, actions } = React.useContext(WithdrawalContext)
-  const { asset } = props.state.withdrawal
+  const { asset } = props.state.withdrawal!
 
   const formID = React.useMemo(() => nanoid(), [])
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
@@ -60,7 +61,7 @@ function WithdrawalTransactionDetails(props: WithdrawalTransactionDetailsProps) 
 
       handleTxPreparation(
         (async () => {
-          const tx = await actions.prepareWithdrawalTransaction(props.state.withdrawal, props.state.response, amount)
+          const tx = await actions.prepareWithdrawalTransaction(props.state.withdrawal!, props.state.response, amount)
           await props.sendTransaction(tx)
           actions.afterSuccessfulExecution(amount)
         })()

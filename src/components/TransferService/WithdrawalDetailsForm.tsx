@@ -11,7 +11,7 @@ import { ReadOnlyTextfield } from "../Form/FormFields"
 import { VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 import { formatDescriptionText } from "./formatters"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
 import { FormBuilder, FormBuilderField } from "./FormBuilder"
 import FormLayout from "./FormLayout"
 import { Paragraph, Summary } from "./Sidebar"
@@ -111,7 +111,7 @@ interface WithdrawalDetailsFormProps {
   active: boolean
   assetTransferInfos: AssetTransferInfo[]
   dialogActionsRef: RefStateObject | undefined
-  state: WithdrawalStates.EnterBasics
+  state: TransferStates.EnterBasics
 }
 
 function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
@@ -135,7 +135,7 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
       event.preventDefault()
 
       handleSubmission(
-        actions.submitWithdrawalFieldValues({
+        actions.submitTransferFieldValues({
           ...props.state,
           formValues: {
             ...props.state.formValues,
@@ -145,7 +145,7 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
         })
       )
     },
-    [actions.submitWithdrawalFieldValues, amount, formValues]
+    [actions.submitTransferFieldValues, amount, formValues]
   )
 
   const methodMetadata =
