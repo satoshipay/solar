@@ -46,7 +46,7 @@ function toKebabCase(value: string) {
 }
 
 export function getErrorTranslation(error: Error, t: TFunction): string {
-  const key = `error.custom.${toKebabCase(error.name)}`
+  const key = `error.${toKebabCase(error.name)}`
   const params = isCustomError(error) ? pick(error, error.__extraProps || []) : undefined
 
   const fallback = error.message
