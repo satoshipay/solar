@@ -7,6 +7,7 @@ import { useDialogActions } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import VirtualizedCarousel from "../Layout/VirtualizedCarousel"
+import VirtualizedFader from "../Layout/VirtualizedFader"
 import TransactionSender from "../TransactionSender"
 import ViewLoading from "../ViewLoading"
 import { useDepositState } from "./useDepositState"
@@ -14,7 +15,7 @@ import { useWithdrawalState } from "./useWithdrawalState"
 import DepositProvider from "./DepositProvider"
 import NoWithdrawableAssets from "./NoWithdrawableAssets"
 import { DesktopTwoColumns } from "./Sidebar"
-import PureTransferContent from "./TransferContent"
+import { TransferContent as PureTransferContent, TransferSidebar } from "./TransferContent"
 import TransferDialogLayout from "./TransferDialogLayout"
 import WithdrawalProvider from "./WithdrawalProvider"
 import withFallback from "../Lazy/withFallback"
@@ -97,25 +98,26 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
         onNavigateBack={actions.navigateBack}
         type={props.type}
       >
-        {transferableAssets.length === 0 ? (
-          <NoWithdrawableAssets account={props.account} actionsRef={dialogActionsRef} margin="32px 0 0" />
-        ) : props.type === "deposit" ? (
-          <VirtualizedCarousel
-            current={<TransferContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
+        <DesktopTwoColumns>
+          {transferableAssets.length === 0 ? (
+            <NoWithdrawableAssets account={props.account} actionsRef={dialogActionsRef} margin="32px 0 0" />
+          ) : (
+            <VirtualizedCarousel
+              current={<TransferContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
+              index={prevStates.length}
+              next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
+              prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
+              size={prevStates.length + 2}
+            />
+          )}
+          <VirtualizedFader
+            current={<TransferSidebar state={state} type={props.type} />}
             index={prevStates.length}
-            next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
-            prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
+            next={nextState ? <TransferSidebar state={nextState} type={props.type} /> : null}
+            prev={prevState ? <TransferSidebar state={prevState} type={props.type} /> : null}
             size={prevStates.length + 2}
           />
-        ) : (
-          <VirtualizedCarousel
-            current={<TransferContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
-            index={prevStates.length}
-            next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
-            prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
-            size={prevStates.length + 2}
-          />
-        )}
+        </DesktopTwoColumns>
       </TransferDialogLayout>
     </TransferProvider>
   )

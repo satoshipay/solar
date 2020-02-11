@@ -3,7 +3,7 @@ import React from "react"
 import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { RefStateObject } from "../../hooks/userinterface"
-import { DesktopTwoColumns } from "./Sidebar"
+import DepositSuccess from "./DepositSuccess"
 import DepositXLM from "./DepositXLM"
 import TransferAuthentication from "./TransferAuthentication"
 import TransferKYCDenied from "./TransferKYCDenied"
@@ -14,7 +14,7 @@ import WithdrawalSuccess from "./WithdrawalSuccess"
 import WithdrawalTransactionDetails from "./TransferTransactionDetails"
 import { TransferState } from "./statemachine"
 
-interface WithdrawalContentProps {
+interface TransferContentProps {
   account: Account
   active?: boolean
   assetTransferInfos: AssetTransferInfo[]
@@ -27,93 +27,92 @@ interface WithdrawalContentProps {
   transferableAssets: Asset[]
 }
 
-const DepositContent = React.memo(function WithdrawalContent(props: WithdrawalContentProps) {
+export const TransferContent = React.memo(function TransferContent(props: TransferContentProps) {
   const { assetTransferInfos, state, trustedAssets, transferableAssets } = props
 
   if (state.step === "initial") {
     return (
-      <DesktopTwoColumns>
-        <TransferInitial
-          assetTransferInfos={assetTransferInfos}
-          dialogActionsRef={props.dialogActionsRef}
-          state={state}
-          trustedAssets={trustedAssets}
-          type={props.type}
-          transferableAssets={transferableAssets}
-        />
-        <TransferInitial.Sidebar type={props.type} />
-      </DesktopTwoColumns>
+      <TransferInitial
+        assetTransferInfos={assetTransferInfos}
+        dialogActionsRef={props.dialogActionsRef}
+        state={state}
+        trustedAssets={trustedAssets}
+        type={props.type}
+        transferableAssets={transferableAssets}
+      />
     )
   } else if (state.step === "enter-values") {
     return (
-      <DesktopTwoColumns>
-        <WithdrawalDetailsForm
-          active={props.active || false}
-          assetTransferInfos={assetTransferInfos}
-          dialogActionsRef={props.dialogActionsRef}
-          state={state}
-          type={props.type}
-        />
-        <WithdrawalDetailsForm.Sidebar type={props.type} />
-      </DesktopTwoColumns>
+      <WithdrawalDetailsForm
+        active={props.active || false}
+        assetTransferInfos={assetTransferInfos}
+        dialogActionsRef={props.dialogActionsRef}
+        state={state}
+        type={props.type}
+      />
     )
   } else if (state.step === "xlm-deposit") {
-    return (
-      <DesktopTwoColumns>
-        <DepositXLM />
-        <DepositXLM.Sidebar />
-      </DesktopTwoColumns>
-    )
+    return <DepositXLM />
   } else if (state.step === "auth-pending") {
     return (
-      <DesktopTwoColumns>
-        <TransferAuthentication
-          account={props.account}
-          assetTransferInfos={assetTransferInfos}
-          authChallenge={"authChallenge" in state ? state.authChallenge : null}
-          dialogActionsRef={props.dialogActionsRef}
-          state={state}
-          type={props.type}
-        />
-        <TransferAuthentication.Sidebar />
-      </DesktopTwoColumns>
+      <TransferAuthentication
+        account={props.account}
+        assetTransferInfos={assetTransferInfos}
+        authChallenge={"authChallenge" in state ? state.authChallenge : null}
+        dialogActionsRef={props.dialogActionsRef}
+        state={state}
+        type={props.type}
+      />
     )
   } else if (state.step === "kyc-pending") {
-    return (
-      <DesktopTwoColumns>
-        <TransferKYCPending dialogActionsRef={props.dialogActionsRef} state={state} type={props.type} />
-        <TransferKYCPending.Sidebar />
-      </DesktopTwoColumns>
-    )
+    return <TransferKYCPending dialogActionsRef={props.dialogActionsRef} state={state} type={props.type} />
   } else if (state.step === "kyc-denied") {
-    return (
-      <DesktopTwoColumns>
-        <TransferKYCDenied state={state} />
-        <TransferKYCDenied.Sidebar />
-      </DesktopTwoColumns>
-    )
+    return <TransferKYCDenied state={state} />
   } else if (state.step === "enter-tx-details") {
     return (
-      <DesktopTwoColumns>
-        <WithdrawalTransactionDetails
-          dialogActionsRef={props.dialogActionsRef}
-          sendTransaction={props.sendTransaction}
-          state={state}
-          type={props.type}
-        />
-        <WithdrawalTransactionDetails.Sidebar type={props.type} />
-      </DesktopTwoColumns>
+      <WithdrawalTransactionDetails
+        dialogActionsRef={props.dialogActionsRef}
+        sendTransaction={props.sendTransaction}
+        state={state}
+        type={props.type}
+      />
     )
   } else if (state.step === "completed") {
-    return props.type === "deposit" ? null : (
-      <DesktopTwoColumns>
-        <WithdrawalSuccess dialogActionsRef={props.dialogActionsRef} onClose={props.onClose} state={state} />
-        <WithdrawalSuccess.Sidebar />
-      </DesktopTwoColumns>
+    return props.type === "deposit" ? (
+      <DepositSuccess dialogActionsRef={props.dialogActionsRef} onClose={props.onClose} state={state} />
+    ) : (
+      <WithdrawalSuccess dialogActionsRef={props.dialogActionsRef} onClose={props.onClose} state={state} />
     )
   } else {
     throw Error(`Reached unexpected state: ${(state as TransferState).step}`)
   }
 })
 
-export default React.memo(DepositContent)
+interface TransferSidebarProps {
+  state: TransferState
+  type: "deposit" | "withdrawal"
+}
+
+export const TransferSidebar = React.memo(function TransferSidebar(props: TransferSidebarProps) {
+  const { state, type } = props
+
+  if (state.step === "initial") {
+    return <TransferInitial.Sidebar type={type} />
+  } else if (state.step === "enter-values") {
+    return <WithdrawalDetailsForm.Sidebar type={type} />
+  } else if (state.step === "xlm-deposit") {
+    return <DepositXLM.Sidebar />
+  } else if (state.step === "auth-pending") {
+    return <TransferAuthentication.Sidebar />
+  } else if (state.step === "kyc-pending") {
+    return <TransferKYCPending.Sidebar />
+  } else if (state.step === "kyc-denied") {
+    return <TransferKYCDenied.Sidebar />
+  } else if (state.step === "enter-tx-details") {
+    return <WithdrawalTransactionDetails.Sidebar type={type} />
+  } else if (state.step === "completed") {
+    return type === "deposit" ? <DepositSuccess.Sidebar /> : <WithdrawalSuccess.Sidebar />
+  } else {
+    throw Error(`Reached unexpected state: ${(state as TransferState).step}`)
+  }
+})

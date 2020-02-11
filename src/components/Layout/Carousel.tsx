@@ -74,7 +74,6 @@ function Carousel(props: CarouselProps) {
             key={index}
             className={[classes.slide, index === props.current ? classes.active : ""].join(" ")}
             style={{
-              flex: "0 0 100%",
               transform: `translateX(${-100 * props.current}%)`
             }}
           >

@@ -50,7 +50,9 @@ function TransferDialogLayout(props: TransferDialogLayoutProps) {
       }
       actions={props.dialogActionsRef}
     >
-      <VerticalLayout padding={isSmallScreen ? "16px 0px" : "16px 8px"}>{props.children}</VerticalLayout>
+      <VerticalLayout height="100%" padding={isSmallScreen ? "16px 0px" : "16px 8px"}>
+        {props.children}
+      </VerticalLayout>
     </DialogBody>
   )
 }
