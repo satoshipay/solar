@@ -3,16 +3,13 @@ import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
   fetchTransferInfos,
   Deposit,
-  DepositInstructionsSuccess,
-  DepositSuccessResponse,
   DepositTransaction,
   KYCResponseType,
   TransferResultType,
   TransferStatus
 } from "@satoshipay/stellar-transfer"
 import { Account } from "../../context/accounts"
-import { useHorizonURL, useWebAuth } from "../../hooks/stellar"
-import { useNetWorker } from "../../hooks/workers"
+import { useWebAuth } from "../../hooks/stellar"
 import { Action, TransferStates } from "./statemachine"
 import { useTransferState } from "./useTransferState"
 
@@ -81,13 +78,17 @@ export function useDepositState(account: Account, closeDialog: () => void) {
   const submitTransferFieldValues = async (details: Omit<TransferStates.EnterBasics, "step">) => {
     const infos = await fetchTransferInfos(details.transferServer)
     const assetInfo = infos.assets.find(info => info.asset.equals(details.asset))
-    const withdraw = assetInfo && assetInfo.withdraw
 
-    if (!withdraw || !withdraw.enabled) {
-      throw Error(`Asset ${details.asset.code} seems to not be withdrawable via ${details.transferServer.domain}`)
+    if (!assetInfo || !assetInfo.deposit || !assetInfo.deposit.enabled) {
+      throw Error(`Asset ${details.asset.code} seems to not be depositable via ${details.transferServer.domain}`)
     }
 
     const deposit = createDeposit(account, details)
+
+    if (!assetInfo.deposit.authentication_required) {
+      return requestDeposit(deposit)
+    }
+
     const [webauth, cachedAuthToken] = await transfer.submitTransferFieldValues(details)
 
     if (cachedAuthToken) {

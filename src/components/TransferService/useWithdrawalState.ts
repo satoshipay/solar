@@ -126,6 +126,11 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     }
 
     const withdrawal = createWithdrawal(details)
+
+    if (!withdraw.authentication_required) {
+      return requestWithdrawal(withdrawal)
+    }
+
     const [webauth, cachedAuthToken] = await transfer.submitTransferFieldValues(details)
 
     if (cachedAuthToken) {

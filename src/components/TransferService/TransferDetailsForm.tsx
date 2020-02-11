@@ -151,12 +151,15 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
     [actions.submitTransferFieldValues, amount, formValues]
   )
 
-  const methodMetadata =
-    props.type === "withdrawal"
-      ? assetInfo && assetInfo.withdraw && assetInfo.withdraw.types
+  const methodMetadata = (() => {
+    if (props.type === "deposit") {
+      return assetInfo && assetInfo.deposit ? assetInfo.deposit : null
+    } else {
+      return assetInfo && assetInfo.withdraw && assetInfo.withdraw.types
         ? assetInfo.withdraw.types[props.state.method]
         : null
-      : null
+    }
+  })()
 
   const fields = methodMetadata && methodMetadata.fields ? methodMetadata.fields : {}
 

@@ -147,11 +147,11 @@ export const Action = {
       withdrawal
     } as const),
 
-  promptForTxDetails: <Transaction extends DepositTransaction | WithdrawalTransaction>(
-    deposit: DepositTransaction extends Transaction ? Deposit : undefined,
-    withdrawal: WithdrawalTransaction extends Transaction ? Withdrawal : undefined,
-    response: DepositTransaction extends Transaction ? DepositInstructionsSuccess : WithdrawalInstructionsSuccess,
-    transfer?: Transaction
+  promptForTxDetails: <TransactionType extends DepositTransaction | WithdrawalTransaction>(
+    deposit: DepositTransaction extends TransactionType ? Deposit : undefined,
+    withdrawal: WithdrawalTransaction extends TransactionType ? Withdrawal : undefined,
+    response: DepositTransaction extends TransactionType ? DepositInstructionsSuccess : WithdrawalInstructionsSuccess,
+    transfer?: TransactionType
   ) =>
     ({
       type: "prompt-for-tx-details",
