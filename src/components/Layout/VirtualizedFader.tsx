@@ -43,7 +43,9 @@ function Fader(props: FaderProps) {
   return (
     <div className={`${classes.root} ${props.className || ""}`} style={props.style}>
       {props.children.map((child, index) => (
-        <div className={[classes.slide, index === props.current ? classes.active : ""].join(" ")}>{child}</div>
+        <div className={[classes.slide, index === props.current ? classes.active : ""].join(" ")} key={index}>
+          {child}
+        </div>
       ))}
     </div>
   )
