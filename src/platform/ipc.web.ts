@@ -155,6 +155,7 @@ function initSettings() {
     biometricLock: false,
     multisignature: true,
     testnet: true,
+    trustedServices: [],
     hideMemos: false
   }
 
