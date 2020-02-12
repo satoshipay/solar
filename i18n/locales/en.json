@@ -350,7 +350,6 @@
       "header": "Oops, something went wrong...",
       "contact-us": "Contact us via"
     },
-    "address-not-found-error": "Stellar address not found: {{address}}",
     "bad-response-error": "Bad response ({{status}}) from {{server}} server",
     "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
     "existing-account-error": "An account with that name does already exist.",
@@ -359,6 +358,7 @@
     "no-callback-url-error": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
     "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
     "request-failed-error": "Request to {{target}} failed with status {{status}}: {{message}}",
+    "stellar-address-not-found-error": "Stellar address not found: {{address}}",
     "stellar-address-request-failed-error": "Request for resolving the stellar address failed: {{address}}",
     "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
     "unknown-error": "An unknown error occured.",

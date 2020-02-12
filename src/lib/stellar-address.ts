@@ -33,7 +33,7 @@ export async function lookupFederationRecord(
         }
       )
     } else if (isNotFoundError(error)) {
-      throw CustomError("AddressNotFoundError", `Stellar address not found: ${stellarAddress}`, {
+      throw CustomError("StellarAddressNotFoundError", `Stellar address not found: ${stellarAddress}`, {
         address: stellarAddress
       })
     } else {
