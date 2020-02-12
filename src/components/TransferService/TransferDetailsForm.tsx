@@ -83,12 +83,18 @@ const MinMaxAmount = React.memo(function MinMaxAmount(props: ReadOnlyFieldProps)
 
 const filterEmptyStrings = (array: string[]): string[] => array.filter(str => str !== "")
 
-const TransferFee = React.memo(function TransferFee(props: ReadOnlyFieldProps & { type: "deposit" | "withdrawal" }) {
+interface TransferFeeProps extends ReadOnlyFieldProps {
+  domain: string
+  type: "deposit" | "withdrawal"
+}
+
+const TransferFee = React.memo(function TransferFee(props: TransferFeeProps) {
   if (!props.metadata) {
     return null
   }
   return (
     <ReadOnlyTextfield
+      helperText={`As charged by ${props.domain}`}
       inputProps={{
         style: {
           color: theme.palette.text.secondary
@@ -222,7 +228,12 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
         />
         <FormLayout>
           <MinMaxAmount asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} />
-          <TransferFee asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} type={props.type} />
+          <TransferFee
+            asset={props.state.asset}
+            domain={assetInfo ? assetInfo.transferServer.domain : ""}
+            metadata={assetInfo && assetInfo.withdraw}
+            type={props.type}
+          />
         </FormLayout>
         <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
           <DialogActionsBox>
