@@ -1,9 +1,12 @@
 import "threads/register"
-import { spawn, ModuleThread } from "threads"
+import { ModuleThread, registerSerializer, spawn } from "threads"
+import { CustomErrorSerializer } from "./lib/errors"
 import { NetWorker as NetWorkerInterface } from "./workers/net-worker"
 
 // Load worker eagerly
 const netWorker = new Worker("./workers/net-worker.ts")
+
+registerSerializer(CustomErrorSerializer)
 
 function spawnNetWorker() {
   window.addEventListener("message", event => {

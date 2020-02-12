@@ -1,4 +1,5 @@
-import { expose } from "threads"
+import { expose, registerSerializer } from "threads"
+import { CustomErrorSerializer } from "../lib/errors"
 import { ConnectionErrorDescription, ConnectionErrorEvent, Exposed as Errors, ServiceID } from "./net-worker/errors"
 import * as Multisig from "./net-worker/multisig"
 import * as SEP10 from "./net-worker/sep-10"
@@ -20,6 +21,8 @@ export type NetWorker = typeof netWorker
 export type Service = ServiceID
 
 export { ConnectionErrorDescription, ConnectionErrorEvent }
+
+registerSerializer(CustomErrorSerializer)
 
 setTimeout(() => {
   // We had some issues with what appeared to be a race condition at worker spawn time
