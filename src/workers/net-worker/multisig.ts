@@ -1,4 +1,5 @@
 import { Observable } from "observable-fns"
+import { CustomError } from "../../lib/errors"
 import { ServerSentEvent, SignatureRequest } from "../../lib/multisig-service"
 import { manageStreamConnection, whenBackOnline } from "../../lib/stream"
 import { joinURL } from "../../lib/url"
@@ -12,7 +13,15 @@ export async function fetchSignatureRequests(serviceURL: string, accountIDs: str
   const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error(`Fetching signature requests failed: ${await response.text()}\nService: ${serviceURL}`)
+    const responseText = await response.text()
+    throw CustomError(
+      "FetchSignatureRequestsError",
+      `Fetching signature requests failed: ${responseText} \nService: ${serviceURL}`,
+      {
+        response: responseText,
+        service: serviceURL
+      }
+    )
   }
 
   return (await response.json()) as Array<Omit<SignatureRequest, "meta">>
@@ -104,7 +113,11 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
         if (navigator.onLine !== false && Date.now() - lastErrorTime < 3000) {
           // double trouble
           raiseConnectionError(
-            Error(`Multi-signature update event stream double-errored: ${url}`),
+            CustomError(
+              "MultiSigEventStreamDoubleErroredError",
+              `Multi-signature update event stream double-errored: ${url}`,
+              { url }
+            ),
             ServiceID.MultiSignature
           )
         }

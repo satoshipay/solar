@@ -5,7 +5,7 @@ import PromiseQueue from "p-queue"
 import qs from "qs"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import pkg from "../../../package.json"
-import { Cancellation } from "../../lib/errors"
+import { Cancellation, CustomError } from "../../lib/errors"
 import { parseAssetID } from "../../lib/stellar"
 import { max } from "../../lib/strings"
 import { createReconnectingSSE } from "../_util/event-source"
@@ -134,7 +134,10 @@ async function waitForAccountDataUncached(horizonURL: string, accountID: string,
       initialFetchFailed = true
       await delay(interval)
     } else {
-      throw Error(`Request to ${response.url} failed with status ${response.status}`)
+      throw CustomError("RequestFailedError", `Request to ${response.url} failed with status ${response.status}`, {
+        target: response.url,
+        status: response.status
+      })
     }
   }
 

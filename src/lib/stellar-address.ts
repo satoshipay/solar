@@ -25,9 +25,13 @@ export async function lookupFederationRecord(
     resolved = await netWorker.resolveStellarAddress(stellarAddress)
   } catch (error) {
     if (error && error.request && !error.response) {
-      throw CustomError("RequestFailedError", `Request for resolving the stellar address failed: ${stellarAddress}`, {
-        address: stellarAddress
-      })
+      throw CustomError(
+        "StellarAddressRequestFailedError",
+        `Request for resolving the stellar address failed: ${stellarAddress}`,
+        {
+          address: stellarAddress
+        }
+      )
     } else if (isNotFoundError(error)) {
       throw CustomError("AddressNotFoundError", `Stellar address not found: ${stellarAddress}`, {
         address: stellarAddress
