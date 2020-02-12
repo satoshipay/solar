@@ -4,12 +4,16 @@ import { DepositContext } from "./DepositProvider"
 import { Paragraph, Summary } from "./Sidebar"
 import LumenDepositOptions from "../Deposit/LumenDepositOptions"
 
-function DepositXLM() {
-  const { account, actions } = React.useContext(DepositContext)
+interface DepositXLMProps {
+  onCloseDialog: () => void
+}
+
+function DepositXLM(props: DepositXLMProps) {
+  const { account } = React.useContext(DepositContext)
 
   return (
     <VerticalLayout alignItems="center" textAlign="center">
-      <LumenDepositOptions account={account} onCloseDialog={actions.navigateBack} />
+      <LumenDepositOptions account={account} onCloseDialog={props.onCloseDialog} />
     </VerticalLayout>
   )
 }

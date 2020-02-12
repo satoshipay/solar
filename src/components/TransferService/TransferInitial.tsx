@@ -58,7 +58,8 @@ function TransferInitial(props: TransferInitialProps) {
     return meta && meta.withdraw && meta.withdraw.types ? Object.keys(meta.withdraw.types) : []
   }
 
-  const initialAsset = props.state.asset || props.transferableAssets[0] || null
+  const initialAsset =
+    props.state.asset || (props.type === "deposit" ? Asset.native() : props.transferableAssets[0]) || null
   const initialMethod =
     props.state.method || (getMethodNames(initialAsset).length === 1 ? getMethodNames(initialAsset)[0] : null)
 

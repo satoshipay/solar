@@ -3,7 +3,7 @@ import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useTransferInfos } from "../../hooks/transfer-server"
-import { useDialogActions } from "../../hooks/userinterface"
+import { useIsMobile, useDialogActions } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import VirtualizedCarousel from "../Layout/VirtualizedCarousel"
@@ -19,6 +19,10 @@ import { TransferContent as PureTransferContent, TransferSidebar } from "./Trans
 import TransferDialogLayout from "./TransferDialogLayout"
 import WithdrawalProvider from "./WithdrawalProvider"
 import withFallback from "../Lazy/withFallback"
+
+const faderStyles: React.CSSProperties = {
+  minWidth: 150
+}
 
 function flatMap<In, Out>(inputs: In[], mapper: (input: In) => Out[]): Out[] {
   return inputs.reduce<Out[]>((outputs, input): Out[] => [...outputs, ...mapper(input)], [])
@@ -52,6 +56,8 @@ interface Props {
 
 const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
   const dialogActionsRef = useDialogActions()
+  const isSmallScreen = useIsMobile()
+
   const { actions, nextState, prevStates, state } =
     props.type === "deposit"
       ? useDepositState(props.account, props.onClose)
@@ -116,6 +122,7 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
             next={nextState ? <TransferSidebar state={nextState} type={props.type} /> : null}
             prev={prevState ? <TransferSidebar state={prevState} type={props.type} /> : null}
             size={prevStates.length + 2}
+            style={isSmallScreen ? undefined : faderStyles}
           />
         </DesktopTwoColumns>
       </TransferDialogLayout>

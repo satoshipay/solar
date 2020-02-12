@@ -52,7 +52,7 @@ export const TransferContent = React.memo(function TransferContent(props: Transf
       />
     )
   } else if (state.step === "xlm-deposit") {
-    return <DepositXLM />
+    return <DepositXLM onCloseDialog={props.onClose} />
   } else if (state.step === "auth-pending") {
     return (
       <TransferAuthentication
