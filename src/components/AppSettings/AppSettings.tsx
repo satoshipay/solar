@@ -80,7 +80,7 @@ function AppSettings() {
     router.history
   ])
 
-  const trustedServicesEnabled = process.env.TRUSTED_SERVICES
+  const trustedServicesEnabled = process.env.TRUSTED_SERVICES && process.env.TRUSTED_SERVICES === "enabled"
 
   return (
     <Carousel current={showSettingsOverview ? 0 : 1}>
