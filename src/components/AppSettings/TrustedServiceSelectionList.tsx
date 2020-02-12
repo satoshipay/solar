@@ -14,85 +14,6 @@ import { SettingsContext } from "../../context/settings"
 import { useStellarToml } from "../../hooks/stellar"
 import { ActionButton, ConfirmDialog } from "../Dialog/Generic"
 
-const useTrustedServiceListStyles = makeStyles({
-  list: {
-    background: "transparent",
-    paddingBottom: 16
-  },
-  typography: {
-    opacity: 0.7,
-    textAlign: "center"
-  }
-})
-
-function TrustedServiceList() {
-  const classes = useTrustedServiceListStyles()
-
-  const { setSetting, trustedServices } = React.useContext(SettingsContext)
-  const [confirmationPending, setConfirmationPending] = React.useState(false)
-  const [selectedIndex, setSelectedIndex] = React.useState(-1)
-
-  const { t } = useTranslation()
-
-  const onDelete = () => {
-    const selectedService = trustedServices[selectedIndex]
-    if (!selectedService) {
-      return
-    }
-
-    const newTrustedServices = trustedServices.filter(service => service.domain !== selectedService.domain)
-    setSetting("trustedServices", newTrustedServices)
-  }
-
-  const onConfirm = () => {
-    setConfirmationPending(false)
-    setSelectedIndex(-1)
-    onDelete()
-  }
-
-  return (
-    <>
-      <List className={classes.list}>
-        {trustedServices
-          .sort((a, b) => a.domain.localeCompare(b.domain))
-          .map((service, index) => (
-            <TrustedServiceListItem
-              index={index}
-              key={service.domain}
-              onDeleteClick={() => {
-                setSelectedIndex(index)
-                setConfirmationPending(true)
-              }}
-              trustedService={service}
-            />
-          ))}
-        {trustedServices.length === 0 ? (
-          <Typography className={classes.typography}>
-            ({t("manage-trusted-services.service-selection.no-services")})
-          </Typography>
-        ) : null}
-      </List>
-      <ConfirmDialog
-        cancelButton={
-          <ActionButton onClick={() => setConfirmationPending(false)}>
-            {t("manage-trusted-services.service-selection.actions.cancel")}
-          </ActionButton>
-        }
-        confirmButton={
-          <ActionButton onClick={onConfirm} type="primary">
-            {t("manage-trusted-services.service-selection.actions.confirm")}
-          </ActionButton>
-        }
-        open={confirmationPending}
-        onClose={() => setConfirmationPending(false)}
-        title={t("manage-trusted-services.service-selection.confirm.title")}
-      >
-        {t("manage-trusted-services.service-selection.confirm.text")}
-      </ConfirmDialog>
-    </>
-  )
-}
-
 const useTrustedServiceListItemStyles = makeStyles({
   listItem: {
     background: "#FFFFFF",
@@ -147,6 +68,80 @@ const TrustedServiceListItem = React.memo(function TrustedServiceListItem(props:
       </ListItemIcon>
     </ListItem>
   )
-} as React.ComponentType<TrustedServiceListItemProps>)
+})
 
-export default TrustedServiceList
+const useTrustedServiceListStyles = makeStyles({
+  list: {
+    background: "transparent",
+    paddingBottom: 16
+  }
+})
+
+const TrustedServiceList = React.memo(function TrustedServiceList() {
+  const classes = useTrustedServiceListStyles()
+
+  const { t } = useTranslation()
+  const { setSetting, trustedServices } = React.useContext(SettingsContext)
+  const [confirmationPending, setConfirmationPending] = React.useState(false)
+  const [selectedIndex, setSelectedIndex] = React.useState(-1)
+
+  const onDelete = () => {
+    const selectedService = trustedServices[selectedIndex]
+    if (!selectedService) {
+      return
+    }
+
+    const newTrustedServices = trustedServices.filter(service => service.domain !== selectedService.domain)
+    setSetting("trustedServices", newTrustedServices)
+  }
+
+  const onConfirm = () => {
+    setConfirmationPending(false)
+    setSelectedIndex(-1)
+    onDelete()
+  }
+
+  return (
+    <>
+      <List className={classes.list}>
+        {trustedServices
+          .sort((a, b) => a.domain.localeCompare(b.domain))
+          .map((service, index) => (
+            <TrustedServiceListItem
+              index={index}
+              key={service.domain}
+              onDeleteClick={() => {
+                setSelectedIndex(index)
+                setConfirmationPending(true)
+              }}
+              trustedService={service}
+            />
+          ))}
+      </List>
+      {trustedServices.length === 0 ? (
+        <Typography align="center" color="textSecondary">
+          ({t("manage-trusted-services.service-selection.no-services")})
+        </Typography>
+      ) : null}
+      <ConfirmDialog
+        cancelButton={
+          <ActionButton onClick={() => setConfirmationPending(false)}>
+            {t("manage-trusted-services.service-selection.actions.cancel")}
+          </ActionButton>
+        }
+        confirmButton={
+          <ActionButton onClick={onConfirm} type="primary">
+            {t("manage-trusted-services.service-selection.actions.confirm")}
+          </ActionButton>
+        }
+        open={confirmationPending}
+        onClose={() => setConfirmationPending(false)}
+        title={t("manage-trusted-services.service-selection.confirm.title")}
+      >
+        {t("manage-trusted-services.service-selection.confirm.text")}
+      </ConfirmDialog>
+    </>
+  )
+})
+
+export default React.memo(TrustedServiceList)

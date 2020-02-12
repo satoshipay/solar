@@ -35,17 +35,12 @@ function SettingsToggle(props: SettingsToggleProps) {
   return <Switch checked={checked} color="primary" disabled={disabled} onChange={handleChange} />
 }
 
-function SettingsDialogs() {
+const SettingsDialogs = React.memo(function SettingsDialogs() {
   const router = useRouter()
-
   const showManageTrustedServices = matchesRoute(router.location.pathname, routes.manageTrustedServices())
 
-  const ShownDialog = React.useMemo(() => {
-    return showManageTrustedServices ? <ManageTrustedServicesDialog /> : <></>
-  }, [showManageTrustedServices])
-
-  return ShownDialog
-}
+  return showManageTrustedServices ? <ManageTrustedServicesDialog /> : <></>
+})
 
 const useAppSettingsStyles = makeStyles({
   caret: {

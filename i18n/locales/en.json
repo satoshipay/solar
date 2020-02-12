@@ -443,7 +443,7 @@
     }
   },
   "manage-trusted-services": {
-    "info": "Trusted Services are domains whose (SEP-0007) requests will be processed without requiring additional confirmation from you. You can choose to add a new service to this list every time you receive a request from an unknown domain.",
+    "info": "Trusted Services are web services that are allowed to interact with Solar wallet by requesting account data or proposing transactions. You can add a new service once it tries to interact with Solar.",
     "service-selection": {
       "actions": {
         "cancel": "Cancel",
