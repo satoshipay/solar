@@ -30,6 +30,8 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
     actions.didRedirectToKYC()
 
     if (response.data.type === "interactive_customer_info_needed") {
+      // tslint:disable-next-line no-console
+      console.debug(`Opening anchor KYC page: ${response.data.url}`)
       openLink(response.data.url)
     } else {
       trackError(Error("Only interactive KYCs are supported."))
