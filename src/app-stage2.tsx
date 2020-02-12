@@ -4,7 +4,6 @@ import AndroidBackButton from "./components/AndroidBackButton"
 import DesktopNotifications from "./components/DesktopNotifications"
 import ErrorBoundary from "./components/ErrorBoundary"
 import { VerticalLayout } from "./components/Layout/Box"
-import withFallback from "./components/Lazy/withFallback"
 import LinkHandler from "./components/LinkHandler"
 import ConnectionErrorListener from "./components/Toasts/ConnectionErrorListener"
 import NotificationContainer from "./components/Toasts/NotificationContainer"
@@ -38,7 +37,14 @@ function Stage2() {
                   </React.Suspense>
                 )}
               />
-              <Route exact path="/settings" component={withFallback(SettingsPage, null)} />
+              <Route
+                path={["/settings/:action", "/settings"]}
+                render={() => (
+                  <React.Suspense fallback={null}>
+                    <SettingsPage />
+                  </React.Suspense>
+                )}
+              />
             </Switch>
           </ErrorBoundary>
         </VerticalLayout>

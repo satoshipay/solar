@@ -141,6 +141,12 @@
           "shown": "Testnet accounts are shown"
         }
       }
+    },
+    "trusted-services": {
+      "text": {
+        "primary": "Manage Trusted Services",
+        "secondary": "Remove Trusted Services"
+      }
     }
   },
   "asset-details": {
@@ -434,6 +440,20 @@
       "invalid-weight-type": "Weight must be an integer",
       "threshold-higher-than-weights": "Threshold higher than combined key weights",
       "no-threshold": "Please set a threshold"
+    }
+  },
+  "manage-trusted-services": {
+    "info": "Trusted Services are web services that are allowed to interact with Solar wallet by requesting account data or proposing transactions. You can add a new service once it tries to interact with Solar.",
+    "service-selection": {
+      "actions": {
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "confirm": {
+        "title": "Confirm removal",
+        "text": "The service will be removed from your trust list. Are you sure?"
+      },
+      "no-services": "No trusted services"
     }
   },
   "operations": {

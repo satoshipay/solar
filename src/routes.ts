@@ -14,6 +14,7 @@ export const exportSecretKey = (accountID: string) => `/account/${accountID}/set
 export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/balances/manage`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
+export const manageTrustedServices = () => "/settings/trusted-services"
 export const settings = () => "/settings"
 export const withdrawAsset = (accountID: string) => `/account/${accountID}/withdraw`
 export const showTransaction = (accountID: string, transactionHash: string) =>
