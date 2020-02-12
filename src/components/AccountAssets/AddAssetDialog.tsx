@@ -45,6 +45,7 @@ function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
     asset_issuer: asset.getIssuer(),
     asset_type: asset.getAssetType() as AssetType.credit4 | AssetType.credit12,
     balance: "0",
+    is_authorized: true,
     last_modified_ledger: 0,
     limit: "0",
     buying_liabilities: "0",
