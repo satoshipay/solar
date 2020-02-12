@@ -26,10 +26,6 @@ const initialMachineState: TransferMachineState = {
   prevs: []
 }
 
-function fail(message: string): never {
-  throw Error(message)
-}
-
 function timeTravelingStateMachine(machineState: TransferMachineState, action: TransferAction): TransferMachineState {
   const nextState = stateMachine(machineState.current, action)
   const goingForward = action.type !== "navigate-back"
@@ -65,12 +61,17 @@ export function useTransferState(account: Account, closeDialog: () => void) {
     dispatch(Action.selectType(asset, method || "", transferServer))
   }
 
-  const initiateWebAuth = async (transferServer: TransferServer) => {
+  const initiateWebAuth = async (
+    transferServer: TransferServer
+  ): Promise<[undefined, undefined] | [WebauthData, string | undefined]> => {
     const stellarTomlData =
       stellarTomlCache.get(transferServer.domain) || (await netWorker.fetchStellarToml(transferServer.domain))
 
-    const endpointURL =
-      getWebAuthEndpointURL(stellarTomlData) || fail(`No web auth endpoint found at ${transferServer.domain}`)
+    const endpointURL = getWebAuthEndpointURL(stellarTomlData)
+
+    if (!endpointURL) {
+      return [undefined, undefined]
+    }
 
     const webauthMetadata: WebauthData = {
       domain: transferServer.domain,
@@ -83,12 +84,11 @@ export function useTransferState(account: Account, closeDialog: () => void) {
     }
 
     if (!webauthMetadata) {
-      throw Error(`Cannot initialize Stellar web authentication at ${transferServer.domain}`)
+      return [undefined, undefined]
     }
 
     const cachedAuthToken = WebAuth.getCachedAuthToken(webauthMetadata.endpointURL, account.publicKey)
-
-    return [webauthMetadata, cachedAuthToken] as const
+    return [webauthMetadata, cachedAuthToken]
   }
 
   const performWebAuth = async (webauthMetadata: WebauthData, challenge: Transaction, password: string | null) => {

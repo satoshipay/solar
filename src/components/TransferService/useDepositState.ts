@@ -23,7 +23,6 @@ function createDeposit(account: Account, state: Omit<TransferStates.EnterBasics,
 
 export function useDepositState(account: Account, closeDialog: () => void) {
   const WebAuth = useWebAuth()
-
   const { dispatch, machineState, transfer } = useTransferState(account, closeDialog)
 
   const selectXLMDeposit = () => {
@@ -84,14 +83,13 @@ export function useDepositState(account: Account, closeDialog: () => void) {
     }
 
     const deposit = createDeposit(account, details)
-
-    if (!assetInfo.deposit.authentication_required) {
-      return requestDeposit(deposit)
-    }
-
     const [webauth, cachedAuthToken] = await transfer.submitTransferFieldValues(details)
 
-    if (cachedAuthToken) {
+    if (!webauth) {
+      // Hacky: We don't have a better way to determine if auth is required.
+      // `auth_required` has been dropped from SEP-24 /info response
+      await requestDeposit(deposit)
+    } else if (cachedAuthToken) {
       await requestDeposit(deposit, cachedAuthToken)
     } else {
       const network = account.testnet ? Networks.TESTNET : Networks.PUBLIC

@@ -126,14 +126,13 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     }
 
     const withdrawal = createWithdrawal(details)
-
-    if (!withdraw.authentication_required) {
-      return requestWithdrawal(withdrawal)
-    }
-
     const [webauth, cachedAuthToken] = await transfer.submitTransferFieldValues(details)
 
-    if (cachedAuthToken) {
+    if (!webauth) {
+      // Hacky: We don't have a better way to determine if auth is required.
+      // `auth_required` has been dropped from SEP-24 /info response
+      await requestWithdrawal(withdrawal)
+    } else if (cachedAuthToken) {
       await requestWithdrawal(withdrawal, cachedAuthToken)
     } else {
       const network = account.testnet ? Networks.TESTNET : Networks.PUBLIC
