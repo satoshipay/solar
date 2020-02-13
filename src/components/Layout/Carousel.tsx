@@ -20,6 +20,7 @@ const useCarouselStyles = makeStyles({
     opacity: 0.5,
     overflow: "auto",
     transition: "opacity .3s, transform .3s",
+    willChange: "opacity, transform",
 
     "&$active": {
       opacity: 1
@@ -30,7 +31,7 @@ const useCarouselStyles = makeStyles({
   }
 })
 
-interface CarouselProps {
+export interface CarouselProps {
   children: React.ReactNode[]
   current: number
 }
@@ -54,6 +55,14 @@ function Carousel(props: CarouselProps) {
         }
       })
     }, 0)
+
+    setTimeout(() => {
+      refs.forEach(ref => {
+        if (ref.current) {
+          ref.current.style.visibility = "visible"
+        }
+      })
+    }, 500)
   }, [props.current])
 
   return (

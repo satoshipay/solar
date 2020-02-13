@@ -1,13 +1,17 @@
 import React from "react"
 import CircularProgress from "@material-ui/core/CircularProgress"
 
-function ViewLoading() {
+interface Props {
+  height?: string | number
+}
+
+function ViewLoading(props: Props) {
   return (
     <div
       style={{
         display: "flex",
         width: "100%",
-        height: "100%",
+        height: props.height || "100%",
         alignItems: "center",
         flexShrink: 0,
         justifyContent: "center"
@@ -18,4 +22,4 @@ function ViewLoading() {
   )
 }
 
-export default ViewLoading
+export default React.memo(ViewLoading)

@@ -1,3 +1,4 @@
+import { TransferServerInfo } from "@satoshipay/stellar-transfer"
 import { multicast, Observable, ObservableLike } from "observable-fns"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { trackError } from "../context/notifications"
@@ -14,6 +15,7 @@ function createCache<SelectorT, DataT, UpdateT>(
 ) {
   const values = new Map<string, DataT>()
   const fetchs = new Map<string, Promise<DataT>>()
+  const errors = new Map<string, Error>()
   const observables = new Map<string, Observable<UpdateT>>()
 
   const cache = {
@@ -30,6 +32,13 @@ function createCache<SelectorT, DataT, UpdateT>(
       const cacheKey = createCacheKey(selector)
       const cached = values.get(cacheKey)
 
+      if (!value) {
+        throw Error(
+          "Trying to set a cache item value to something falsy. " +
+            "This will break `cache.get() || cache.suspend()` calls to the cache."
+        )
+      }
+
       if (!cached || isDataNewer(cached, value)) {
         values.set(cacheKey, value)
       }
@@ -38,6 +47,12 @@ function createCache<SelectorT, DataT, UpdateT>(
       const cacheKey = createCacheKey(selector)
       let loading = fetchs.get(cacheKey)
 
+      if (errors.has(cacheKey)) {
+        // Important to re-throw the error synchronously, so it gets caught by the next
+        // error boundary, not React.Suspense, to prevent endless re-render loops
+        throw errors.get(cacheKey)
+      }
+
       if (!loading) {
         loading = fetcher().then(
           value => {
@@ -45,6 +60,7 @@ function createCache<SelectorT, DataT, UpdateT>(
             return value
           },
           error => {
+            errors.set(cacheKey, error)
             trackError(error)
             throw error
           }
@@ -91,11 +107,9 @@ function areTransactionsNewer(prev: Horizon.TransactionResponse[], next: Horizon
 
 export const accountDataCache = createCache<readonly [string, string], AccountData, AccountData>(createAccountCacheKey)
 
-export const accountHomeDomainCache = createCache<
-  readonly [string, string],
-  AccountData["home_domain"],
-  AccountData["home_domain"]
->(createAccountCacheKey)
+export const accountHomeDomainCache = createCache<readonly [string, string], [string] | [], AccountData["home_domain"]>(
+  createAccountCacheKey
+)
 
 export const accountOpenOrdersCache = createCache<
   readonly [string, string],
@@ -114,6 +128,7 @@ export const orderbookCache = createCache<readonly [string, Asset, Asset], Fixed
 )
 
 export const stellarTomlCache = createCache<string, [boolean, any], any>(domain => domain)
+export const transferInfosCache = createCache<string, [TransferServerInfo] | [], TransferServerInfo>(domain => domain)
 export const tickerAssetsCache = createCache<boolean, AssetRecord[], AssetRecord[]>(testnet =>
   testnet ? "testnet" : "pubnet"
 )

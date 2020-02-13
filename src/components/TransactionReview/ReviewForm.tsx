@@ -27,8 +27,9 @@ interface FormValues {
 
 interface Props {
   account: Account
-  actionsRef: RefStateObject
+  actionsRef: RefStateObject | undefined
   disabled?: boolean
+  loading?: boolean
   passwordError?: Error | null
   showHash?: boolean
   showSource?: boolean
@@ -143,11 +144,11 @@ function TxConfirmationForm(props: Props) {
             margin="dense"
             value={formValues.password || ""}
             onChange={handleTextFieldChange}
-            style={{ marginTop: 16, marginBottom: 32 }}
+            style={{ margin: "32px auto 0", maxWidth: 300 }}
           />
         ) : null}
       </VerticalLayout>
-      <Portal target={props.actionsRef.element}>
+      <Portal desktop="inline" target={props.actionsRef && props.actionsRef.element}>
         <DialogActionsBox smallDialog={props.disabled && !props.signatureRequest}>
           {props.signatureRequest ? (
             <ActionButton icon={DismissIcon} onClick={requestDismissalConfirmation}>
@@ -158,7 +159,7 @@ function TxConfirmationForm(props: Props) {
             <ActionButton
               icon={ConfirmIcon}
               form={formID}
-              loading={loading}
+              loading={props.loading || loading}
               onClick={showLoadingIndicator}
               type="submit"
             >

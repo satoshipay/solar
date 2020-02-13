@@ -60,7 +60,8 @@ function SampleWebAuth(props: SampleWebAuthProps) {
         const transaction = await WebAuth.fetchChallenge(
           webauthMetadata!.endpointURL,
           webauthMetadata!.signingKey,
-          account.id
+          account.id,
+          Networks.PUBLIC
         )
         return transaction
       })(),

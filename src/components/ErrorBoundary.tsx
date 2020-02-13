@@ -49,7 +49,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
         >
           <Box textAlign="center">
             <Typography variant="h5">Oops, something went wrong...</Typography>
-            <Typography style={{ margin: "8px 0 24px" }} variant="body2">
+            <Typography style={{ margin: "8px 0 24px", userSelect: "text" }} variant="body2">
               {error.message || error}
             </Typography>
             <Button color="primary" onClick={this.reload} variant="contained">

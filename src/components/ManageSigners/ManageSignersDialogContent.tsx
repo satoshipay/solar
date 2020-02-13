@@ -162,7 +162,11 @@ function ManageSignersDialogContent(props: Props) {
     : t("manage-signers.textfield.weight-threshold.explanation.required-weight", { amount: sanitizedKeyWeight })
 
   const DialogActionsPortal = isSmallScreen
-    ? (subprops: { children: React.ReactNode }) => <Portal target={actionsRef.element}>{subprops.children}</Portal>
+    ? (subprops: { children: React.ReactNode }) => (
+        <Portal target={actionsRef.element}>
+          <>{subprops.children}</>
+        </Portal>
+      )
     : (subprops: { children: React.ReactNode }) => <>{subprops.children}</>
 
   const actionsContent = (

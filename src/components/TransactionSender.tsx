@@ -63,9 +63,11 @@ function ConditionalSubmissionProgress(props: {
   )
 }
 
+export type SendTransaction = (transaction: Transaction, signatureRequest?: SignatureRequest | null) => Promise<any>
+
 interface RenderFunctionProps {
   horizon: Server
-  sendTransaction: (transaction: Transaction, signatureRequest?: SignatureRequest | null) => Promise<any>
+  sendTransaction: SendTransaction
 }
 
 interface Props {

@@ -15,7 +15,6 @@ import withFallback from "../components/Lazy/withFallback"
 import PaymentDialog from "../components/Payment/PaymentDialog"
 import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
 import ViewLoading from "../components/ViewLoading"
-import WithdrawalDialog from "../components/Withdrawal/WithdrawalDialog"
 import { Account, AccountsContext } from "../context/accounts"
 import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
@@ -42,6 +41,11 @@ const BalanceDetailsDialog = withFallback(
   <ViewLoading />
 )
 const TradeAssetDialog = withFallback(React.lazy(() => import("../components/Trading/TradingDialog")), <ViewLoading />)
+
+const WithdrawalDialog = withFallback(
+  React.lazy(() => import("../components/TransferService/WithdrawalDialog")),
+  <ViewLoading />
+)
 
 const useButtonStyles = makeStyles(theme => ({
   desktop: {
