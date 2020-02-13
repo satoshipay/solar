@@ -1,6 +1,6 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { Withdrawal } from "@satoshipay/stellar-transfer"
+import { Deposit } from "@satoshipay/stellar-transfer"
 import { RefStateObject } from "../../hooks/userinterface"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
@@ -8,25 +8,24 @@ import Portal from "../Portal"
 import { TransferStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 
-interface WithdrawalSuccessProps {
+interface DepositSuccessProps {
   dialogActionsRef: RefStateObject | undefined
   onClose: () => void
-  state: TransferStates.TransferCompleted<Withdrawal>
+  state: TransferStates.TransferCompleted<Deposit>
 }
 
-function WithdrawalSuccess(props: WithdrawalSuccessProps) {
+function DepositSuccess(props: DepositSuccessProps) {
   const { transferServer } = props.state.withdrawal!
   return (
     <VerticalLayout grow>
       <VerticalLayout alignItems="center" margin="24px 0" textAlign="center">
-        <Typography variant="h5">Withdrawal in progress</Typography>
+        <Typography variant="h5">Deposit pending</Typography>
         <Typography style={{ margin: "16px 0" }} variant="body2">
           <Typography style={{ margin: "8px 0" }} variant="body2">
-            {transferServer.domain} is conducting the withdrawal.
+            {transferServer.domain} is waiting for your deposit.
           </Typography>
           <Typography style={{ margin: "8px 0" }} variant="body2">
-            The funds have been deducted from your Stellar account and should be credited to the withdrawal destination
-            shortly.
+            The funds will be credited to your Stellar account when the deposit is credited to the asset issuer.
           </Typography>
           {/* TODO: Show nice summary */}
         </Typography>
@@ -44,10 +43,12 @@ function WithdrawalSuccess(props: WithdrawalSuccessProps) {
 
 const Sidebar = () => (
   <Summary headline="Done">
-    <Paragraph>Your withdrawal has been accepted and will be processed by the asset issuer.</Paragraph>
+    <Paragraph>
+      Your deposit has been accepted and will be processed by the asset issuer when your payment arrives.
+    </Paragraph>
   </Summary>
 )
 
-const SuccessView = Object.assign(React.memo(WithdrawalSuccess), { Sidebar })
+const SuccessView = Object.assign(React.memo(DepositSuccess), { Sidebar })
 
 export default SuccessView

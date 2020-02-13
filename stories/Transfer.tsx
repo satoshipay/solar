@@ -13,9 +13,10 @@ import {
 } from "@satoshipay/stellar-transfer"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
-import { WithdrawalState } from "../src/components/TransferService/statemachine"
+import { DesktopTwoColumns } from "../src/components/TransferService/Sidebar"
+import { TransferState } from "../src/components/TransferService/statemachine"
 import { useWithdrawalState } from "../src/components/TransferService/useWithdrawalState"
-import WithdrawalContent from "../src/components/TransferService/WithdrawalContent"
+import { TransferContent, TransferSidebar } from "../src/components/TransferService/TransferContent"
 import WithdrawalProvider from "../src/components/TransferService/WithdrawalProvider"
 import { Account } from "../src/context/accounts"
 
@@ -88,20 +89,24 @@ const withdrawalSuccessResponse: WithdrawalSuccessResponse = {
   fee_fixed: 2.0
 }
 
-function WithdrawalDemoState(props: { state: WithdrawalState }) {
+function WithdrawalDemoState(props: { state: TransferState }) {
   const { actions } = useWithdrawalState(account, action("close dialog"))
   return (
     <WithdrawalProvider account={account} actions={actions} state={props.state}>
       <div style={{ minWidth: "70vw", margin: "20px" }}>
-        <WithdrawalContent
-          account={account}
-          assetTransferInfos={assetTransferInfos}
-          onClose={action("close dialog")}
-          sendTransaction={action("send transaction") as any}
-          trustedAssets={demoAssets}
-          state={props.state}
-          withdrawableAssets={demoAssets}
-        />
+        <DesktopTwoColumns>
+          <TransferContent
+            account={account}
+            assetTransferInfos={assetTransferInfos}
+            onClose={action("close dialog")}
+            sendTransaction={action("send transaction") as any}
+            transferableAssets={demoAssets}
+            trustedAssets={demoAssets}
+            type="withdrawal"
+            state={props.state}
+          />
+          <TransferSidebar state={props.state} type="withdrawal" />
+        </DesktopTwoColumns>
       </div>
     </WithdrawalProvider>
   )
@@ -144,6 +149,7 @@ storiesOf("Withdrawal", module)
       state={
         {
           step: "kyc-pending",
+          deposit: undefined,
           response: {
             data: {
               status: "pending",
@@ -162,6 +168,7 @@ storiesOf("Withdrawal", module)
       state={
         {
           step: "kyc-pending",
+          deposit: undefined,
           didRedirect: true,
           response: {
             data: {
@@ -182,6 +189,7 @@ storiesOf("Withdrawal", module)
       state={
         {
           step: "kyc-pending",
+          deposit: undefined,
           didRedirect: true,
           response: {
             data: {
@@ -207,6 +215,7 @@ storiesOf("Withdrawal", module)
       state={
         {
           step: "enter-tx-details",
+          deposit: undefined,
           response: {
             data: withdrawalSuccessResponse,
             type: TransferResultType.ok
@@ -222,6 +231,7 @@ storiesOf("Withdrawal", module)
         {
           step: "completed",
           amount: BigNumber(12),
+          deposit: undefined,
           response: {
             data: withdrawalSuccessResponse,
             type: TransferResultType.ok

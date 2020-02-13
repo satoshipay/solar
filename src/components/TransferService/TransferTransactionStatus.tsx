@@ -16,6 +16,7 @@ interface TransferTransactionStatusProps {
   didRedirectAlready?: boolean
   domain: string
   transaction: DepositTransaction | WithdrawalTransaction | undefined
+  type: "deposit" | "withdrawal"
 }
 
 function TransferTransactionStatus(props: TransferTransactionStatusProps) {
@@ -37,10 +38,14 @@ function TransferTransactionStatus(props: TransferTransactionStatusProps) {
           } else if (props.transaction.status === TransferStatus.error) {
             return (
               <>
-                <Paragraph>Withdrawal rejected – {props.transaction.message}</Paragraph>
+                <Paragraph>
+                  ${props.type === "deposit" ? "Deposit rejected" : "Withdrawal rejected"} – {props.transaction.message}
+                </Paragraph>
                 <Paragraph>Please contact {props.domain}.</Paragraph>
               </>
             )
+          } else if (props.transaction.status === TransferStatus.pending_user_transfer_start) {
+            return <Paragraph>{props.domain} requires further information from you.</Paragraph>
           } else if (props.transaction.more_info_url) {
             return (
               <Paragraph>

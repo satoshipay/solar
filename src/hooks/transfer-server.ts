@@ -40,10 +40,18 @@ async function initTransferServer(domain: string, testnet: boolean): Promise<Tra
   }
 }
 
-export function useTransferInfos(assets: Asset[], testnet: boolean): Array<TransferServerInfo | undefined> {
+export function useTransferInfos(
+  assets: Asset[],
+  testnet: boolean,
+  assetTransferDomainOverrides: Record<string, string> = {}
+): Array<TransferServerInfo | undefined> {
   const accountIDs = assets.map(asset => asset.issuer).filter(issuer => Boolean(issuer))
   const homeDomains = useAccountHomeDomains(accountIDs, testnet)
-  const domains = dedupe(homeDomains).filter((domain): domain is string => Boolean(domain))
+
+  const homeDomainsWithOverrides = homeDomains.map(
+    (domain, index) => assetTransferDomainOverrides[assets[index].code] || domain
+  )
+  const domains = dedupe(homeDomainsWithOverrides).filter((domain): domain is string => Boolean(domain))
 
   return mapSuspendables(
     domains,

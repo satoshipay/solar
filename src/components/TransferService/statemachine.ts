@@ -1,6 +1,9 @@
 // tslint:disable no-object-literal-type-assertion
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
+  Deposit,
+  DepositInstructionsSuccess,
+  DepositTransaction,
   KYCInstructions,
   KYCStatusResponse,
   KYCResponseType,
@@ -13,7 +16,7 @@ import {
 import BigNumber from "big.js"
 import { Asset, Transaction } from "stellar-sdk"
 
-export namespace WithdrawalStates {
+export namespace TransferStates {
   export interface SelectType {
     step: "initial"
     asset?: Asset
@@ -33,40 +36,44 @@ export namespace WithdrawalStates {
     transferServer: TransferServer
   }
 
-  export interface AuthPending {
+  export interface DepositXLM {
+    step: "xlm-deposit"
+  }
+
+  interface TransferProps {
+    deposit: Deposit | undefined
+    withdrawal: Withdrawal | undefined
+  }
+
+  export interface AuthPending extends TransferProps {
     step: "auth-pending"
     authChallenge: Transaction
     webauth: WebauthData
-    withdrawal: Withdrawal
   }
 
-  export interface KYCPending {
+  export interface KYCPending<Transfer extends Deposit | Withdrawal> extends TransferProps {
     step: "kyc-pending"
     authToken?: string
     didRedirect?: boolean
     response: KYCInstructions<KYCResponseType>
-    transfer?: TransferTransaction
-    withdrawal: Withdrawal
+    transfer?: Transfer extends Deposit ? DepositTransaction : WithdrawalTransaction
   }
 
-  export interface KYCDenied {
+  export interface KYCDenied extends TransferProps {
     step: "kyc-denied"
     response: KYCStatusResponse<"denied">
-    withdrawal: Withdrawal
   }
 
-  export interface EnterTxDetails {
+  export interface EnterTxDetails<Transfer extends Deposit | Withdrawal> extends TransferProps {
     step: "enter-tx-details"
-    response: WithdrawalInstructionsSuccess
-    transfer?: WithdrawalTransaction
-    withdrawal: Withdrawal
+    response: Transfer extends Deposit ? DepositInstructionsSuccess : WithdrawalInstructionsSuccess
+    transfer?: Transfer extends Deposit ? DepositTransaction : WithdrawalTransaction
   }
 
-  export interface WithdrawalCompleted {
+  export interface TransferCompleted<Transfer extends Deposit | Withdrawal> extends TransferProps {
     step: "completed"
     amount: BigNumber
-    response: WithdrawalInstructionsSuccess
-    withdrawal: Withdrawal
+    response: Transfer extends Deposit ? DepositInstructionsSuccess : WithdrawalInstructionsSuccess
   }
 }
 
@@ -84,16 +91,27 @@ export const Action = {
       transferServer
     } as const),
 
+  selectXLMDeposit: () =>
+    ({
+      type: "select-xlm-deposit"
+    } as const),
+
   captureWithdrawalInput: (formValues: { [fieldName: string]: string | undefined }) =>
     ({
       type: "capture-fields",
       formValues
     } as const),
 
-  conductAuth: (withdrawal: Withdrawal, webauth: WebauthData, authChallenge: Transaction) =>
+  conductAuth: <Transfer extends Deposit | Withdrawal>(
+    deposit: Transfer extends Deposit ? Deposit : undefined,
+    withdrawal: Transfer extends Withdrawal ? Withdrawal : undefined,
+    webauth: WebauthData,
+    authChallenge: Transaction
+  ) =>
     ({
       type: "conduct-auth",
       authChallenge,
+      deposit,
       webauth,
       withdrawal
     } as const),
@@ -115,24 +133,32 @@ export const Action = {
       transaction
     } as const),
 
-  conductKYC: (withdrawal: Withdrawal, response: KYCInstructions<KYCResponseType>, authToken?: string) =>
+  conductKYC: <Transfer extends Deposit | Withdrawal>(
+    deposit: Transfer extends Deposit ? Deposit : undefined,
+    withdrawal: Transfer extends Withdrawal ? Withdrawal : undefined,
+    response: KYCInstructions<KYCResponseType>,
+    authToken?: string
+  ) =>
     ({
       type: "conduct-kyc",
       authToken,
+      deposit,
       response,
       withdrawal
     } as const),
 
-  promptForTxDetails: (
-    withdrawal: Withdrawal,
-    response: WithdrawalInstructionsSuccess,
-    transfer?: WithdrawalTransaction
+  promptForTxDetails: <TransactionType extends DepositTransaction | WithdrawalTransaction>(
+    deposit: DepositTransaction extends TransactionType ? Deposit : undefined,
+    withdrawal: WithdrawalTransaction extends TransactionType ? Withdrawal : undefined,
+    response: DepositTransaction extends TransactionType ? DepositInstructionsSuccess : WithdrawalInstructionsSuccess,
+    transfer?: TransactionType
   ) =>
     ({
       type: "prompt-for-tx-details",
-      response,
+      deposit: deposit as Deposit | undefined,
+      response: response as DepositInstructionsSuccess | WithdrawalInstructionsSuccess,
       transfer,
-      withdrawal
+      withdrawal: withdrawal as Withdrawal | undefined
     } as const),
 
   completed: (amount: BigNumber) =>
@@ -148,27 +174,28 @@ export const Action = {
     } as const)
 } as const
 
-export type WithdrawalAction = ReturnType<(typeof Action)[keyof typeof Action]>
+export type TransferAction = ReturnType<(typeof Action)[keyof typeof Action]>
 
-export type WithdrawalState =
-  | WithdrawalStates.SelectType
-  | WithdrawalStates.EnterBasics
-  | WithdrawalStates.AuthPending
-  | WithdrawalStates.KYCPending
-  | WithdrawalStates.KYCDenied
-  | WithdrawalStates.EnterTxDetails
-  | WithdrawalStates.WithdrawalCompleted
+export type TransferState =
+  | TransferStates.SelectType
+  | TransferStates.EnterBasics
+  | TransferStates.DepositXLM
+  | TransferStates.AuthPending
+  | TransferStates.KYCPending<Deposit | Withdrawal>
+  | TransferStates.KYCDenied
+  | TransferStates.EnterTxDetails<Deposit | Withdrawal>
+  | TransferStates.TransferCompleted<Deposit | Withdrawal>
 
-export function shouldBackNavigationCloseDialog(state: WithdrawalState) {
+export function shouldBackNavigationCloseDialog(state: TransferState) {
   return state.step === "initial" || state.step === "completed" || state.step === "kyc-denied"
 }
 
-export const initialState: WithdrawalState = {
+export const initialState: TransferState = {
   step: "initial",
   formValues: {}
 }
 
-export function stateMachine(state: WithdrawalState, action: WithdrawalAction): WithdrawalState {
+export function stateMachine(state: TransferState, action: TransferAction): TransferState {
   switch (action.type) {
     case "navigate-back":
       if (state.step === "enter-values") {
@@ -176,7 +203,20 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
           ...state,
           step: "initial"
         }
-      } else if ("withdrawal" in state) {
+      } else if (state.step === "xlm-deposit") {
+        return {
+          step: "initial",
+          formValues: {}
+        }
+      } else if ("deposit" in state && state.deposit) {
+        return {
+          step: "enter-values",
+          asset: state.deposit.asset,
+          method: state.deposit.fields.type!,
+          formValues: state.deposit.fields,
+          transferServer: state.deposit.transferServer
+        }
+      } else if ("withdrawal" in state && state.withdrawal) {
         return {
           step: "enter-values",
           asset: state.withdrawal.asset,
@@ -189,24 +229,29 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
       }
     case "select-type":
       return {
-        ...(state as WithdrawalStates.SelectType),
+        ...(state as TransferStates.SelectType),
         step: "enter-values",
         asset: action.asset,
         method: action.method,
         transferServer: action.transferServer
       }
+    case "select-xlm-deposit":
+      return {
+        step: "xlm-deposit"
+      }
     case "capture-fields":
       return {
         step: "enter-values",
-        asset: (state as WithdrawalStates.EnterBasics).asset,
-        formValues: action.formValues || (state as WithdrawalStates.EnterBasics).formValues,
-        method: (state as WithdrawalStates.EnterBasics).method,
-        transferServer: (state as WithdrawalStates.EnterBasics).transferServer
+        asset: (state as TransferStates.EnterBasics).asset,
+        formValues: action.formValues || (state as TransferStates.EnterBasics).formValues,
+        method: (state as TransferStates.EnterBasics).method,
+        transferServer: (state as TransferStates.EnterBasics).transferServer
       }
     case "conduct-auth":
       return {
         step: "auth-pending",
         authChallenge: action.authChallenge,
+        deposit: action.deposit,
         webauth: action.webauth,
         withdrawal: action.withdrawal
       }
@@ -219,22 +264,24 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
       return {
         step: "kyc-pending",
         authToken: action.authToken,
+        deposit: action.deposit,
         response: action.response,
         withdrawal: action.withdrawal
       }
     case "did-redirect-to-kyc":
       return {
-        ...(state as WithdrawalStates.KYCPending),
+        ...(state as TransferStates.KYCPending<Deposit | Withdrawal>),
         didRedirect: true
       }
     case "set-transfer-transaction":
       return {
-        ...(state as WithdrawalStates.KYCPending),
+        ...(state as TransferStates.KYCPending<Deposit | Withdrawal>),
         transfer: action.transaction
       }
     case "prompt-for-tx-details":
       return {
         step: "enter-tx-details",
+        deposit: action.deposit,
         response: action.response,
         transfer: action.transfer,
         withdrawal: action.withdrawal
@@ -243,16 +290,18 @@ export function stateMachine(state: WithdrawalState, action: WithdrawalAction): 
       return {
         step: "completed",
         amount: action.amount,
-        response: (state as WithdrawalStates.EnterTxDetails).response,
-        withdrawal: (state as WithdrawalStates.EnterTxDetails).withdrawal
+        deposit: (state as TransferStates.EnterTxDetails<Deposit | Withdrawal>).deposit,
+        response: (state as TransferStates.EnterTxDetails<Deposit | Withdrawal>).response,
+        withdrawal: (state as TransferStates.EnterTxDetails<Deposit | Withdrawal>).withdrawal
       }
     case "kyc-denied":
       return {
         step: "kyc-denied",
+        deposit: (state as TransferStates.EnterTxDetails<Deposit | Withdrawal>).deposit,
         response: action.response,
-        withdrawal: (state as WithdrawalStates.KYCPending).withdrawal
+        withdrawal: (state as TransferStates.KYCPending<Deposit | Withdrawal>).withdrawal
       }
     default:
-      throw Error(`Unexpected action: ${(action as WithdrawalAction).type}`)
+      throw Error(`Unexpected action: ${(action as TransferAction).type}`)
   }
 }

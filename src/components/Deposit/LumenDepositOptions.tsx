@@ -20,6 +20,7 @@ function createMoonPayURLForAccount(account: Account) {
 
 interface LumenDepositOptionsProps {
   account: Account
+  heading?: string
   onCloseDialog: () => void
 }
 
@@ -38,7 +39,7 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
 
   return (
     <List style={{ margin: "16px auto", maxWidth: 600 }}>
-      <ListSubheader style={{ background: "none" }}>Funding options</ListSubheader>
+      {props.heading ? <ListSubheader style={{ background: "none" }}>{props.heading}</ListSubheader> : null}
       <ListItem button onClick={openLegalNote}>
         <ListItemText
           primary="MoonPay"

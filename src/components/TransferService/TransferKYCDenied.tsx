@@ -1,14 +1,14 @@
 import React from "react"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 
 interface Props {
-  state: WithdrawalStates.KYCDenied
+  state: TransferStates.KYCDenied
 }
 
 function WithdrawalKYCDenied(props: Props): never {
   const { response } = props.state
-  const { transferServer } = props.state.withdrawal
+  const { transferServer } = props.state.deposit! || props.state.withdrawal!
 
   throw Error(
     `${transferServer.domain} has rejected the information about your person that you supplied. ` +
@@ -18,7 +18,7 @@ function WithdrawalKYCDenied(props: Props): never {
 
 const Sidebar = () => (
   <Summary headline="Know Your Customer">
-    <Paragraph>You have been rejected – the withdrawal is disabled for you. Please contact the asset issuer.</Paragraph>
+    <Paragraph>You have been rejected – the service is disabled for you. Please contact the asset issuer.</Paragraph>
   </Summary>
 )
 

@@ -1,17 +1,17 @@
 import React from "react"
 import { Account } from "../../context/accounts"
-import { WithdrawalState } from "./statemachine"
+import { TransferState } from "./statemachine"
 import { WithdrawalActions } from "./useWithdrawalState"
 
 export interface WithdrawalContextType {
   account: Account
   actions: WithdrawalActions
-  state: WithdrawalState
+  state: TransferState
 }
 
 export const WithdrawalContext = React.createContext<WithdrawalContextType>({} as any)
 
-interface WithdrawalProviderProps extends WithdrawalContextType {
+export interface WithdrawalProviderProps extends WithdrawalContextType {
   children: React.ReactNode
 }
 

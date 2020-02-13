@@ -11,31 +11,38 @@ import MainTitle from "../MainTitle"
 interface TitleProps {
   account: Account
   onNavigateBack: () => void
+  type: "deposit" | "withdrawal"
 }
 
 const Title = React.memo(function Title(props: TitleProps) {
   return (
     <MainTitle
-      title={<span>Withdraw funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+      title={
+        <span>
+          {props.type === "deposit" ? "Deposit funds" : "Withdraw funds"}{" "}
+          {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+        </span>
+      }
       onBack={props.onNavigateBack}
     />
   )
 })
 
-interface WithdrawalDialogLayoutProps {
+interface TransferDialogLayoutProps {
   account: Account
   children: React.ReactNode
   dialogActionsRef: RefStateObject | undefined
   onNavigateBack: () => void
+  type: "deposit" | "withdrawal"
 }
 
-function WithdrawalDialogLayout(props: WithdrawalDialogLayoutProps) {
+function TransferDialogLayout(props: TransferDialogLayoutProps) {
   const isSmallScreen = useIsMobile()
   return (
     <DialogBody
       top={
         <>
-          <Title account={props.account} onNavigateBack={props.onNavigateBack} />
+          <Title account={props.account} onNavigateBack={props.onNavigateBack} type={props.type} />
           <React.Suspense fallback={<InlineLoader />}>
             <ScrollableBalances account={props.account} compact />
           </React.Suspense>
@@ -43,9 +50,11 @@ function WithdrawalDialogLayout(props: WithdrawalDialogLayoutProps) {
       }
       actions={props.dialogActionsRef}
     >
-      <VerticalLayout padding={isSmallScreen ? "16px 0px" : "16px 8px"}>{props.children}</VerticalLayout>
+      <VerticalLayout height="100%" padding={isSmallScreen ? "16px 0px" : "16px 8px"}>
+        {props.children}
+      </VerticalLayout>
     </DialogBody>
   )
 }
 
-export default React.memo(WithdrawalDialogLayout)
+export default React.memo(TransferDialogLayout)

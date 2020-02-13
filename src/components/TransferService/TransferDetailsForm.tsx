@@ -11,7 +11,8 @@ import { ReadOnlyTextfield } from "../Form/FormFields"
 import { VerticalLayout } from "../Layout/Box"
 import Portal from "../Portal"
 import { formatDescriptionText } from "./formatters"
-import { WithdrawalStates } from "./statemachine"
+import { TransferStates } from "./statemachine"
+import { DepositContext } from "./DepositProvider"
 import { FormBuilder, FormBuilderField } from "./FormBuilder"
 import FormLayout from "./FormLayout"
 import { Paragraph, Summary } from "./Sidebar"
@@ -82,18 +83,24 @@ const MinMaxAmount = React.memo(function MinMaxAmount(props: ReadOnlyFieldProps)
 
 const filterEmptyStrings = (array: string[]): string[] => array.filter(str => str !== "")
 
-const WithdrawalFee = React.memo(function WithdrawalFee(props: ReadOnlyFieldProps) {
+interface TransferFeeProps extends ReadOnlyFieldProps {
+  domain: string
+  type: "deposit" | "withdrawal"
+}
+
+const TransferFee = React.memo(function TransferFee(props: TransferFeeProps) {
   if (!props.metadata) {
     return null
   }
   return (
     <ReadOnlyTextfield
+      helperText={`As charged by ${props.domain}`}
       inputProps={{
         style: {
           color: theme.palette.text.secondary
         }
       }}
-      label="Withdrawal fee"
+      label={props.type === "deposit" ? "Deposit fee" : "Withdrawal fee"}
       style={{ marginTop: 24 }}
       value={
         filterEmptyStrings([
@@ -107,15 +114,17 @@ const WithdrawalFee = React.memo(function WithdrawalFee(props: ReadOnlyFieldProp
   )
 })
 
-interface WithdrawalDetailsFormProps {
+interface TransferDetailsFormProps {
   active: boolean
   assetTransferInfos: AssetTransferInfo[]
   dialogActionsRef: RefStateObject | undefined
-  state: WithdrawalStates.EnterBasics
+  state: TransferStates.EnterBasics
+  type: "deposit" | "withdrawal"
 }
 
-function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
-  const { account, actions } = React.useContext(WithdrawalContext)
+function TransferDetailsForm(props: TransferDetailsFormProps) {
+  const { account, actions } =
+    props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
   const formID = React.useMemo(() => nanoid(), [])
   const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
@@ -135,7 +144,7 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
       event.preventDefault()
 
       handleSubmission(
-        actions.submitWithdrawalFieldValues({
+        actions.submitTransferFieldValues({
           ...props.state,
           formValues: {
             ...props.state.formValues,
@@ -145,11 +154,18 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
         })
       )
     },
-    [actions.submitWithdrawalFieldValues, amount, formValues]
+    [actions.submitTransferFieldValues, amount, formValues]
   )
 
-  const methodMetadata =
-    assetInfo && assetInfo.withdraw && assetInfo.withdraw.types ? assetInfo.withdraw.types[props.state.method] : null
+  const methodMetadata = (() => {
+    if (props.type === "deposit") {
+      return assetInfo && assetInfo.deposit ? assetInfo.deposit : null
+    } else {
+      return assetInfo && assetInfo.withdraw && assetInfo.withdraw.types
+        ? assetInfo.withdraw.types[props.state.method]
+        : null
+    }
+  })()
 
   const fields = methodMetadata && methodMetadata.fields ? methodMetadata.fields : {}
 
@@ -212,7 +228,12 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
         />
         <FormLayout>
           <MinMaxAmount asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} />
-          <WithdrawalFee asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} />
+          <TransferFee
+            asset={props.state.asset}
+            domain={assetInfo ? assetInfo.transferServer.domain : ""}
+            metadata={assetInfo && assetInfo.withdraw}
+            type={props.type}
+          />
         </FormLayout>
         <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
           <DialogActionsBox>
@@ -232,15 +253,23 @@ function WithdrawalDetailsForm(props: WithdrawalDetailsFormProps) {
   )
 }
 
-const Sidebar = () => (
-  <Summary headline="Withdrawal details">
-    <Paragraph>Further details about your intended withdrawal.</Paragraph>
-    <Paragraph>
-      Depending on what the asset issuer requests you may have to enter additional information here.
-    </Paragraph>
-  </Summary>
-)
+const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
+  props.type === "deposit" ? (
+    <Summary headline="Deposit details">
+      <Paragraph>Further details about your intended deposit.</Paragraph>
+      <Paragraph>
+        Depending on what the asset issuer requests you may have to enter additional information here.
+      </Paragraph>
+    </Summary>
+  ) : (
+    <Summary headline="Withdrawal details">
+      <Paragraph>Further details about your intended withdrawal.</Paragraph>
+      <Paragraph>
+        Depending on what the asset issuer requests you may have to enter additional information here.
+      </Paragraph>
+    </Summary>
+  )
 
-const DetailsFormView = Object.assign(React.memo(WithdrawalDetailsForm), { Sidebar })
+const DetailsFormView = Object.assign(React.memo(TransferDetailsForm), { Sidebar })
 
 export default DetailsFormView
