@@ -62,7 +62,7 @@
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "@satoshipay/stellar-sep-10": "^0.2.0",
-    "@satoshipay/stellar-transfer": "0.1.0-beta",
+    "@satoshipay/stellar-transfer": "^0.2.0",
     "@satoshipay/worker-plugin": "^3.2.0",
     "@storybook/addon-actions": "^5.2.0",
     "@storybook/addon-centered": "^5.2.0",
