@@ -3,7 +3,6 @@ import { Keypair } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import ExportKeyDialog from "../components/AccountSettings/ExportKeyDialog"
 import AccountCreationForm, { AccountCreationValues } from "../components/Form/CreateAccount"
-import { Section } from "../components/Layout/Page"
 import { AccountsContext, Account } from "../context/accounts"
 import { trackError } from "../context/notifications"
 import { useRouter } from "../hooks/userinterface"
@@ -43,7 +42,7 @@ function CreateAccountPage(props: { testnet: boolean }) {
   const onClose = () => router.history.push(routes.allAccounts())
 
   return (
-    <Section top bottom noPadding>
+    <>
       <AccountCreationForm accounts={accounts} onCancel={onClose} onSubmit={onCreateAccount} testnet={props.testnet} />
       <Dialog
         fullScreen
@@ -53,7 +52,7 @@ function CreateAccountPage(props: { testnet: boolean }) {
       >
         <ExportKeyDialog account={createdAccount!} onConfirm={closeBackupDialog} variant="initial-backup" />
       </Dialog>
-    </Section>
+    </>
   )
 }
 

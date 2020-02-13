@@ -26,6 +26,8 @@
             <manifest xmlns:tools="http://schemas.android.com/tools" />
         </edit-config>
 
+        <hook type="before_build" src="scripts/android/useFullScreenActivity.sh" />
+
         <icon background="res/icon/android/adaptiveicon/mipmap-mdpi/ic_launcher_background.png" density="mdpi" foreground="res/icon/android/adaptiveicon/mipmap-mdpi/ic_launcher_foreground.png" />
         <icon background="res/icon/android/adaptiveicon/mipmap-hdpi/ic_launcher_background.png" density="hdpi" foreground="res/icon/android/adaptiveicon/mipmap-hdpi/ic_launcher_foreground.png" />
         <icon background="res/icon/android/adaptiveicon/mipmap-xhdpi/ic_launcher_background.png" density="xhdpi" foreground="res/icon/android/adaptiveicon/mipmap-xhdpi/ic_launcher_foreground.png" />

@@ -1,7 +1,7 @@
 import React from "react"
 import createBoxStyle, { BoxStyles } from "./createBoxStyle"
 
-type BoxProps = BoxStyles & {
+export type BoxProps = BoxStyles & {
   children: React.ReactNode
   className?: string
   component?: string

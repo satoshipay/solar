@@ -1,5 +1,5 @@
 import React from "react"
-import { Box } from "./Box"
+import { Box, BoxProps } from "./Box"
 import { useIsMobile } from "../../hooks/userinterface"
 import { primaryBackground } from "../../theme"
 
@@ -9,6 +9,8 @@ const platform = process.env.PLATFORM || require("os").platform()
 const isFramelessWindow = platform === "darwin"
 
 function TopOfTopSection(props: { background?: React.CSSProperties["background"] }) {
+  const isSmallScreen = useIsMobile()
+
   if (isFramelessWindow) {
     // Add invisible window-drag area and a bit of additional v-space on top
     // Need to define a static CSS class for it, since `-webkit-app-region` in CSS-in-JS might lead to trouble
@@ -19,7 +21,10 @@ function TopOfTopSection(props: { background?: React.CSSProperties["background"]
     )
   } else if (platform === "ios") {
     // Add some additional v-space for the iPhone X notch
-    return <div className="iphone-notch-top-spacing" />
+    return isSmallScreen ? <div className="iphone-notch-top-spacing" /> : <></>
+  } else if (platform === "android") {
+    // Add some additional v-space for android fullscreen view
+    return isSmallScreen ? <div className="android-top-spacing" /> : <></>
   } else {
     return null
   }
@@ -35,30 +40,23 @@ function PageInset(props: { children: React.ReactNode }) {
   )
 }
 
-interface SectionProps {
-  children: React.ReactNode
+interface SectionProps extends BoxProps {
   backgroundColor?: React.CSSProperties["backgroundColor"]
   bottom?: boolean
   brandColored?: boolean
   grow?: number
   minHeight?: React.CSSProperties["minHeight"]
   noPadding?: boolean
-  shrink?: number
   pageInset?: boolean
   top?: boolean
-  style?: React.CSSProperties
 }
 
 const Section = React.memo(function Section(props: SectionProps) {
   const background = props.brandColored ? primaryBackground : props.backgroundColor || "#fcfcfc"
   const isSmallScreen = useIsMobile()
 
-  const className = [
-    platform === "ios" && props.top ? "iphone-notch-top-spacing" : "",
-    platform === "ios" ? "iphone-notch-left-spacing" : "",
-    platform === "ios" ? "iphone-notch-right-spacing" : "",
-    platform === "ios" && props.bottom ? "iphone-notch-bottom-spacing" : ""
-  ].join(" ")
+  const padding: React.CSSProperties["padding"] = props.noPadding ? 0 : props.padding !== undefined ? props.padding : 16
+
   const style: React.CSSProperties = {
     background,
     color: props.brandColored ? "white" : undefined,
@@ -70,16 +68,16 @@ const Section = React.memo(function Section(props: SectionProps) {
     zIndex: props.top ? undefined : 1,
     ...props.style
   }
+
   const MaybeInset = props.pageInset ? PageInset : React.Fragment
+
   return (
-    <>
-      <Box className={className} component="section" padding={props.noPadding ? 0 : 16} style={style}>
-        {props.top ? <TopOfTopSection background={background} /> : null}
-        {/* Add a little padding to the top if window is frameless */}
-        {props.top && !isSmallScreen ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
-        <MaybeInset>{props.children}</MaybeInset>
-      </Box>
-    </>
+    <Box {...props} component="section" padding={padding} style={style}>
+      {props.top ? <TopOfTopSection background={background} /> : null}
+      {/* Add a little padding to the top if window is frameless */}
+      {props.top && !isSmallScreen ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
+      <MaybeInset>{props.children}</MaybeInset>
+    </Box>
   )
 })
 

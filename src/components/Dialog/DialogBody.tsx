@@ -5,6 +5,7 @@ import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { MobileKeyboardOpenedSelector } from "../../theme"
 import ErrorBoundary from "../ErrorBoundary"
 import { Box, VerticalLayout } from "../Layout/Box"
+import { Section } from "../Layout/Page"
 
 const isRefStateObject = (thing: any): thing is RefStateObject =>
   thing && "element" in thing && typeof thing.update === "function"
@@ -46,7 +47,9 @@ const topStyle: React.CSSProperties = {
 interface Props {
   actions?: React.ReactNode | RefStateObject
   actionsPosition?: "after-content" | "bottom"
+  brandColored?: boolean
   background?: React.ReactNode
+  backgroundColor?: React.CSSProperties["backgroundColor"]
   children: React.ReactNode
   excessWidth?: number
   fitToShrink?: boolean
@@ -88,15 +91,19 @@ function DialogBody(props: Props) {
 
   return (
     <ErrorBoundary>
-      <VerticalLayout
-        className="dialog-body"
-        width="100%"
-        height="100%"
-        maxWidth={900}
+      <Section
         alignItems="stretch"
-        overflowX="hidden"
-        padding={isSmallScreen ? "12px 24px" : " 24px 32px"}
+        brandColored={props.brandColored}
+        backgroundColor={props.backgroundColor}
+        display="flex"
+        height="100%"
         margin="0 auto"
+        maxWidth={900}
+        overflowX="hidden"
+        padding={isSmallScreen ? "12px 24px" : "24px 32px"}
+        style={{ flexDirection: "column" }}
+        top
+        width="100%"
       >
         <React.Suspense fallback={<CircularProgress style={{ alignSelf: "center", justifySelf: "center" }} />}>
           {topContent}
@@ -116,7 +123,7 @@ function DialogBody(props: Props) {
           </VerticalLayout>
           {actionsPosition === "bottom" ? actionsContent : null}
         </React.Suspense>
-      </VerticalLayout>
+      </Section>
     </ErrorBoundary>
   )
 }

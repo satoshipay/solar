@@ -1,9 +1,9 @@
 import React from "react"
 import { Account } from "../../context/accounts"
-import { useIsMobile } from "../../hooks/userinterface"
 import { Box } from "../Layout/Box"
-import MainTitle from "../MainTitle"
+import DialogBody from "../Dialog/DialogBody"
 import KeyExportBox from "../Account/KeyExportBox"
+import MainTitle from "../MainTitle"
 
 interface Props {
   account: Account
@@ -11,15 +11,12 @@ interface Props {
 }
 
 function ReceivePaymentDialog(props: Props) {
-  const isSmallScreen = useIsMobile()
-
   return (
-    <>
-      <Box width="100%" maxWidth={900} padding={isSmallScreen ? "24px" : " 24px 32px"} margin="0 auto 32px">
-        <MainTitle onBack={props.onClose} title="Receive Funds" />
+    <DialogBody top={<MainTitle onBack={props.onClose} title="Receive Funds" />}>
+      <Box width="100%" margin="32px auto">
+        <KeyExportBox export={props.account.publicKey} />
       </Box>
-      <KeyExportBox export={props.account.publicKey} />
-    </>
+    </DialogBody>
   )
 }
 

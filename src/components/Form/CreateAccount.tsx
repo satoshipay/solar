@@ -158,7 +158,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
 
   return (
     <form noValidate onSubmit={props.onSubmit} style={{ display: "block", height: "100vh" }}>
-      <DialogBody top={headerContent} actions={actionsContent}>
+      <DialogBody top={headerContent} backgroundColor="unset" actions={actionsContent}>
         <ToggleSection
           checked={formValues.setPassword}
           onChange={() => setFormValue("setPassword", !formValues.setPassword)}
