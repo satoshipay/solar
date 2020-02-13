@@ -28,6 +28,13 @@ function flatMap<In, Out>(inputs: In[], mapper: (input: In) => Out[]): Out[] {
   return inputs.reduce<Out[]>((outputs, input): Out[] => [...outputs, ...mapper(input)], [])
 }
 
+function parseOverrides(overridesString: string) {
+  const [assetCode, domain] = overridesString.split(":")
+  return {
+    [assetCode]: domain
+  }
+}
+
 const EmptyView = React.memo(function EmptyView() {
   return (
     <DesktopTwoColumns>
@@ -69,7 +76,11 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
     props.accountData.balances
   ])
 
-  const transferInfos = useTransferInfos(trustedAssets, props.account.testnet)
+  // Allow overriding the transfer server domain by asset using an env var (for testing purposes)
+  const assetTransferDomainOverrides = process.env.TRANSFER_DOMAIN_OVERRIDE
+    ? parseOverrides(process.env.TRANSFER_DOMAIN_OVERRIDE)
+    : {}
+  const transferInfos = useTransferInfos(trustedAssets, props.account.testnet, assetTransferDomainOverrides)
 
   const assetTransferInfos = React.useMemo(
     () => flatMap(transferInfos, transferInfo => (transferInfo ? transferInfo.assets : [])),
