@@ -1,14 +1,12 @@
 import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "../../context/accounts"
-import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useTransferInfos } from "../../hooks/transfer-server"
 import { useIsMobile, useDialogActions } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { getAssetsFromBalances } from "../../lib/stellar"
 import VirtualizedCarousel from "../Layout/VirtualizedCarousel"
 import VirtualizedFader from "../Layout/VirtualizedFader"
-import TransactionSender from "../TransactionSender"
 import ViewLoading from "../ViewLoading"
 import { useDepositState } from "./useDepositState"
 import { useWithdrawalState } from "./useWithdrawalState"
@@ -52,7 +50,7 @@ const TransferContent = withFallback(
   </DesktopTwoColumns>
 )
 
-interface Props {
+export interface TransferDialogProps {
   account: Account
   accountData: AccountData
   horizon: Server
@@ -61,7 +59,7 @@ interface Props {
   type: "deposit" | "withdrawal"
 }
 
-const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
+function TransferDialog(props: TransferDialogProps) {
   const dialogActionsRef = useDialogActions()
   const isSmallScreen = useIsMobile()
 
@@ -139,35 +137,6 @@ const WithdrawalDialog = React.memo(function WithdrawalDialog(props: Props) {
       </TransferDialogLayout>
     </TransferProvider>
   )
-})
-
-function ConnectedWithdrawalDialog(props: Pick<Props, "account" | "onClose" | "type">) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const closeAfterTimeout = React.useCallback(() => {
-    // Close automatically a second after successful submission
-    setTimeout(() => props.onClose(), 1000)
-  }, [props.onClose])
-
-  return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
-      {({ horizon, sendTransaction }) => (
-        <React.Suspense
-          fallback={
-            <TransferDialogLayout
-              account={props.account}
-              dialogActionsRef={undefined}
-              onNavigateBack={props.onClose}
-              type={props.type}
-            >
-              <ViewLoading height={300} />
-            </TransferDialogLayout>
-          }
-        >
-          <WithdrawalDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
-        </React.Suspense>
-      )}
-    </TransactionSender>
-  )
 }
 
-export default ConnectedWithdrawalDialog
+export default React.memo(TransferDialog)
