@@ -22,6 +22,13 @@ import { matchesRoute } from "../lib/routes"
 import * as routes from "../routes"
 import { FullscreenDialogTransition } from "../theme"
 
+const modules = {
+  AssetDetailsDialog: import("../components/AccountAssets/AssetDetailsDialog"),
+  BalanceDetailsDialog: import("../components/AccountAssets/BalanceDetailsDialog"),
+  TradeAssetDialog: import("../components/Trading/TradingDialog"),
+  TransferDialog: import("../components/TransferService/ConnectedTransferDialog")
+}
+
 const AccountSettings = withFallback(
   React.lazy(() => import("../components/AccountSettings/AccountSettings")),
   <TransactionListPlaceholder />
@@ -31,20 +38,13 @@ const AccountTransactions = withFallback(
   <TransactionListPlaceholder />
 )
 
-const AssetDetailsDialog = withFallback(
-  React.lazy(() => import("../components/AccountAssets/AssetDetailsDialog")),
-  <ViewLoading />
-)
-const BalanceDetailsDialog = withFallback(
-  React.lazy(() => import("../components/AccountAssets/BalanceDetailsDialog")),
-  <ViewLoading />
-)
-const TradeAssetDialog = withFallback(React.lazy(() => import("../components/Trading/TradingDialog")), <ViewLoading />)
+const AssetDetailsDialog = withFallback(React.lazy(() => modules.AssetDetailsDialog), <ViewLoading />)
+const BalanceDetailsDialog = withFallback(React.lazy(() => modules.BalanceDetailsDialog), <ViewLoading />)
+const TradeAssetDialog = withFallback(React.lazy(() => modules.TradeAssetDialog), <ViewLoading />)
 
-const TransferDialog = withFallback(
-  React.lazy(() => import("../components/TransferService/TransferDialog")),
-  <ViewLoading />
-)
+// The TransferDialog has it's own lazy-loading stage, but a parcel bundler bug requires us
+// to lazy-load that lazy-loading stage as well…
+const TransferDialog = withFallback(React.lazy(() => modules.TransferDialog), <ViewLoading />)
 
 const useButtonStyles = makeStyles(theme => ({
   desktop: {
