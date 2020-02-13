@@ -54,6 +54,7 @@ interface Props {
   excessWidth?: number
   fitToShrink?: boolean
   preventActionsPlaceholder?: boolean
+  preventNotch?: boolean
   top?: React.ReactNode
 }
 
@@ -102,7 +103,7 @@ function DialogBody(props: Props) {
         overflowX="hidden"
         padding={isSmallScreen ? "12px 24px" : "24px 32px"}
         style={{ flexDirection: "column" }}
-        top
+        top={!props.preventNotch}
         width="100%"
       >
         <React.Suspense fallback={<CircularProgress style={{ alignSelf: "center", justifySelf: "center" }} />}>
