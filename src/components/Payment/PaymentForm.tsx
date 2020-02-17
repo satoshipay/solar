@@ -322,7 +322,6 @@ interface Props {
 
 function PaymentFormContainer(props: Props) {
   const { lookupFederationRecord } = useFederationLookup()
-  const { t } = useTranslation()
 
   const [errors, setErrors] = React.useState<PaymentFormErrors>({})
 
@@ -346,15 +345,12 @@ function PaymentFormContainer(props: Props) {
 
     const isMultisigTx = props.accountData.signers.length > 1
 
-    const payment = await createPaymentOperation(
-      {
-        asset: asset || Asset.native(),
-        amount: formValues.amount,
-        destination,
-        horizon
-      },
-      t
-    )
+    const payment = await createPaymentOperation({
+      asset: asset || Asset.native(),
+      amount: formValues.amount,
+      destination,
+      horizon
+    })
     const tx = await createTransaction([payment], {
       accountData: props.accountData,
       memo: federationMemo.type !== "none" ? federationMemo : userMemo,

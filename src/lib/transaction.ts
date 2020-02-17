@@ -1,4 +1,3 @@
-import { TFunction } from "i18next"
 import {
   Asset,
   Keypair,
@@ -12,7 +11,7 @@ import {
   Networks
 } from "stellar-sdk"
 import { Account } from "../context/accounts"
-import { WrongPasswordError } from "../lib/errors"
+import { WrongPasswordError, CustomError } from "../lib/errors"
 import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
 
@@ -27,12 +26,16 @@ const highFeePreset: SmartFeePreset = {
 // on the network later when the tx will be submitted to the network
 export const multisigMinimumFee = 10_000
 
-export function createCheapTxID(transaction: Transaction | ServerApi.TransactionRecord, t: TFunction): string {
+export function createCheapTxID(transaction: Transaction | ServerApi.TransactionRecord): string {
   const source = "source" in transaction ? transaction.source : transaction.source_account
   const sequence = "sequence" in transaction ? transaction.sequence : transaction.source_account_sequence
 
   if (!source || !sequence) {
-    throw new Error(t("error.transaction.bad-transaction", { transaction }))
+    throw CustomError(
+      "BadTransactionError",
+      `Bad transaction given. Expected a Transaction or TransactionRecord, but got: ${transaction}`,
+      { transaction: transaction.hash.toString() }
+    )
   }
 
   return `${source}:${sequence}`
@@ -131,12 +134,16 @@ interface PaymentOperationBlueprint {
   horizon: Server
 }
 
-export async function createPaymentOperation(options: PaymentOperationBlueprint, t: TFunction) {
+export async function createPaymentOperation(options: PaymentOperationBlueprint) {
   const { amount, asset, destination, horizon } = options
   const destinationAccountExists = await accountExists(horizon, destination)
 
   if (!destinationAccountExists && !Asset.native().equals(options.asset)) {
-    throw new Error(t("error.transaction.non-existent-destination", { assetCode: asset.code }))
+    throw CustomError(
+      "NonExistentDestinationError",
+      `Cannot pay in ${asset.code}$, since the destination account does not exist yet. Account creations always need to be done via XLM.`,
+      { assetCode: asset.code }
+    )
   }
 
   const operation = destinationAccountExists
@@ -146,14 +153,9 @@ export async function createPaymentOperation(options: PaymentOperationBlueprint,
   return operation as xdr.Operation<Operation.CreateAccount | Operation.Payment>
 }
 
-export async function signTransaction(
-  transaction: Transaction,
-  walletAccount: Account,
-  password: string | null,
-  t: TFunction
-) {
+export async function signTransaction(transaction: Transaction, walletAccount: Account, password: string | null) {
   if (walletAccount.requiresPassword && !password) {
-    throw WrongPasswordError(t("error.transaction.no-password-provided"))
+    throw WrongPasswordError()
   }
 
   const signedTransaction = walletAccount.signTransaction(transaction, password)

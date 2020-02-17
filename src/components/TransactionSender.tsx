@@ -174,7 +174,7 @@ class TransactionSender extends React.Component<Props, State> {
     const { account, horizon, onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
 
     try {
-      signedTx = await signTransaction(transaction, this.props.account, formValues.password, this.props.t)
+      signedTx = await signTransaction(transaction, this.props.account, formValues.password)
       this.setState({ passwordError: null })
     } catch (error) {
       if (isWrongPasswordError(error)) {

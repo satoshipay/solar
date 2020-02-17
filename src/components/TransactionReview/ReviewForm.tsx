@@ -79,7 +79,7 @@ function TxConfirmationForm(props: Props) {
         props.account.testnet ? "testnet" : "public"
       }/tx/${props.transaction.hash().toString("hex")}`
     )
-  }, [createCheapTxID(props.transaction, t)])
+  }, [createCheapTxID(props.transaction)])
 
   const handleTextFieldChange = React.useCallback(event => setFormValue("password", event.target.value), [])
 
