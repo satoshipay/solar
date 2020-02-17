@@ -87,6 +87,11 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
     [actions, props.sendTransaction, props.state, amount]
   )
 
+  const extraInfo =
+    data.extra_info && typeof data.extra_info === "string"
+      ? { message: data.extra_info as string }
+      : data.extra_info || {}
+
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
       <FormLayout wrap>
@@ -127,17 +132,13 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
           value={amount.minus(fees).lte(0) ? "-" : formatBalance(amount.minus(fees))}
         />
         <ReadOnlyTextfield label="ETA" style={{ marginTop: 24 }} value={eta} />
-        {data.extra_info && typeof data.extra_info === "string" ? (
-          <ReadOnlyTextfield label="Information" style={{ marginTop: 24 }} value={data.extra_info} />
-        ) : (
-          Object.keys(data.extra_info || {}).map(extraKey => (
-            <ReadOnlyTextfield
-              label={formatDescriptionText(extraKey)}
-              style={{ marginTop: 24 }}
-              value={data.extra_info![extraKey]}
-            />
-          ))
-        )}
+        {Object.keys(extraInfo).map(extraKey => (
+          <ReadOnlyTextfield
+            label={Object.keys(extraInfo).length === 1 ? "Information" : formatDescriptionText(extraKey)}
+            style={{ marginTop: 24 }}
+            value={extraInfo[extraKey]}
+          />
+        ))}
         <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
           <DialogActionsBox>
             <ActionButton

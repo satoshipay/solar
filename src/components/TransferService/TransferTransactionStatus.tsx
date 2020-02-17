@@ -49,7 +49,8 @@ function TransferTransactionStatus(props: TransferTransactionStatusProps) {
           } else if (props.transaction.more_info_url) {
             return (
               <Paragraph>
-                For more information, visit{" "}
+                For more information, visit
+                <br />
                 <a href={props.transaction.more_info_url} target="_blank">
                   {props.transaction.more_info_url}
                 </a>

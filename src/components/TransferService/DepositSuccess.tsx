@@ -15,7 +15,7 @@ interface DepositSuccessProps {
 }
 
 function DepositSuccess(props: DepositSuccessProps) {
-  const { transferServer } = props.state.withdrawal!
+  const { transferServer } = props.state.deposit!
   return (
     <VerticalLayout grow>
       <VerticalLayout alignItems="center" margin="24px 0" textAlign="center">

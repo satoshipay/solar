@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import { Networks, Transaction } from "stellar-sdk"
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
@@ -108,6 +109,10 @@ export function useDepositState(account: Account, closeDialog: () => void) {
 
     if (transaction && transaction.status === TransferStatus.pending_user_transfer_start) {
       await requestDeposit(deposit, authToken, transaction as DepositTransaction)
+    } else if (transaction && transaction.status === "completed") {
+      const amount = BigNumber(transaction.amount_out)
+      dispatch(Action.completed(amount))
+      transfer.stopKYCPolling()
     }
   }
 
