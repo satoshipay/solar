@@ -161,10 +161,26 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
   }
 
   const pollKYCStatus = async (withdrawal: Withdrawal, transferTxId: string, authToken?: string) => {
-    const transaction = await transfer.pollKYCStatus(withdrawal.transferServer, transferTxId, authToken)
+    const transaction = (await transfer.pollKYCStatus(
+      withdrawal.transferServer,
+      transferTxId,
+      authToken
+    )) as WithdrawalTransaction
 
     if (transaction && transaction.status === TransferStatus.pending_user_transfer_start) {
-      await requestWithdrawal(withdrawal, authToken, transaction as WithdrawalTransaction)
+      const instructions: WithdrawalInstructionsSuccess = {
+        type: TransferResultType.ok,
+        data: {
+          account_id: transaction.withdraw_anchor_account,
+          memo_type: transaction.withdraw_memo_type as "id" | "hash" | "text" | undefined,
+          memo: transaction.withdraw_memo,
+          eta: transaction.status_eta,
+          fee_fixed: Number.parseFloat(transaction.amount_fee),
+          extra_info: transaction.to ? { message: transaction.to } : undefined
+        }
+      }
+      dispatch(Action.promptForTxDetails(undefined, withdrawal, instructions, transaction))
+      transfer.stopKYCPolling()
     }
   }
 

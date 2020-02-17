@@ -54,7 +54,7 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
             </Box>
           ) : null}
           <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
-            <DialogActionsBox desktopStyle={{ justifyContent: "center" }}>
+            <DialogActionsBox desktopStyle={{ justifyContent: "center", marginTop: 16 }}>
               <ActionButton type="submit">{props.state.didRedirect ? "Open again" : "Continue"}</ActionButton>
             </DialogActionsBox>
           </Portal>
