@@ -1,5 +1,5 @@
 import { ipcMain } from "electron"
-import pick = require("lodash.pick")
+import pick from "lodash.pick"
 
 export function expose<Message extends keyof IPC.MessageType>(
   messageType: Message,
