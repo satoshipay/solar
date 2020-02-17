@@ -13,10 +13,10 @@
   "main": "./electron/lib/index.prod.js",
   "scripts": {
     "precommit": "lint-staged",
-    "lint:fix": "tslint --fix '{src,stories}/**/*.{ts,tsx}' && eslint '{src,stories,electron/src}/**/*.{ts,tsx}' --quiet --fix --no-eslintrc -c ./.eslintrc.json",
+    "lint:fix": "tslint --fix '{src,stories}/**/*.{ts,tsx}'",
     "prettier": "prettier --write '{src,stories}/**/*.{ts,tsx}' *.md electron/src/*.ts",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "test": "tslint --project .",
+    "test": "tslint --project . && eslint '{src,stories,electron/src}/**/*.{ts,tsx}' --no-eslintrc -c ./.eslintrc.json",
     "clean:dist": "rimraf dist/*",
     "clean:electron:ts": "rimraf electron/lib/*",
     "prebuild:electron:bundle": "NODE_ENV=production parcel build ./src/index.prod.njk --detailed-report --no-cache --no-source-maps --public-url=./",
