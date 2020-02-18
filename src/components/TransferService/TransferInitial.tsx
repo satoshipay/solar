@@ -78,7 +78,8 @@ function TransferInitial(props: TransferInitialProps) {
   }
 
   const methodNames = formValues.asset ? getMethodNames(formValues.asset) : []
-  const isDisabled = !formValues.asset || (!formValues.methodID && methodNames.length > 0)
+  const showMethods = props.type === "withdrawal" && methodNames.length > 0
+  const isDisabled = !formValues.asset || (!formValues.methodID && showMethods)
 
   const nontransferableAssets = props.trustedAssets.filter(
     asset => !props.transferableAssets.some(transferable => transferable.equals(asset))
@@ -147,7 +148,7 @@ function TransferInitial(props: TransferInitialProps) {
             </MenuItem>
           ) : null}
         </AssetSelector>
-        <Collapse in={props.type === "withdrawal" && methodNames.length > 0}>
+        <Collapse in={showMethods}>
           <TextField
             fullWidth
             label={props.type === "deposit" ? "Type of deposit" : "Type of withdrawal"}
