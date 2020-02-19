@@ -24,7 +24,9 @@ function showMessageBox(options: Electron.MessageBoxOptions) {
 }
 
 async function startUpdating() {
+  showMessageBox({ message: "Before downloadupdate()" })
   await autoUpdater.downloadUpdate()
+  showMessageBox({ message: "After downloadupdate()" })
 }
 
 autoUpdater.once("update-available", (info: UpdateInfo) => {
@@ -42,7 +44,13 @@ autoUpdater.once("update-available", (info: UpdateInfo) => {
   })
 })
 
+autoUpdater.on("download-progress", progressInfo => {
+  showMessageBox({ message: "Downloadprogress: " + progressInfo.percent })
+})
+
 autoUpdater.once("update-downloaded", async () => {
+  showMessageBox({ message: "Update-Downloaded event fired" })
+
   const response = await showMessageBox({
     type: "info",
     buttons: ["Restart", "Later"],
@@ -59,5 +67,6 @@ autoUpdater.once("update-downloaded", async () => {
 
 // tslint:disable-next-line: no-console
 autoUpdater.on("error", console.error)
+autoUpdater.on("error", error => showMessageBox({ message: String(error) }))
 
 autoUpdater.checkForUpdatesAndNotify()
