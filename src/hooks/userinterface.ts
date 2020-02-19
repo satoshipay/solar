@@ -48,6 +48,7 @@ export function useRouter<Params = {}>() {
   const routerContext = React.useContext<RouteComponentProps<Params>>(__RouterContext)
   const [updateEnforcementState, setUpdateEnforcementState] = React.useState(0)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const forceUpdate = () => setUpdateEnforcementState(updateEnforcementState + 1)
 
   if (!routerContext) {

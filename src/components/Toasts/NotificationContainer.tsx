@@ -40,7 +40,12 @@ const NotificationDetails = React.memo(function NotificationDetails(props: Notif
             Having an issue with the app?
             <br />
             Contact us via{" "}
-            <a href="mailto:hello@solarwallet.io" style={{ color: "inherit" }} target="_blank">
+            <a
+              href="mailto:hello@solarwallet.io"
+              style={{ color: "inherit" }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               hello@solarwallet.io
             </a>
           </Typography>

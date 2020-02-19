@@ -18,7 +18,12 @@ function CheckboxLabel(props: { children: React.ReactNode }) {
 
 function ExternalLink(props: { children: React.ReactNode; href: string }) {
   return (
-    <a href={props.href} style={{ color: "inherit", fontWeight: "bold", textDecoration: "underline" }} target="_blank">
+    <a
+      href={props.href}
+      style={{ color: "inherit", fontWeight: "bold", textDecoration: "underline" }}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       {props.children}
     </a>
   )

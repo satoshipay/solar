@@ -24,7 +24,7 @@ export type WebAuthTokenContextType = CacheContextType<CacheKey, JWT>
 
 function useCachingContext<K, V>(cache: LRUCache<K, V>): CacheContextType<K, V> {
   // Little hack to force propagating updates
-  const [counter, setUpdateCounter] = React.useState(0)
+  const [, setUpdateCounter] = React.useState(0)
   const forceRerender = debounce(() => setUpdateCounter(ctr => ctr + 1), 50)
 
   const contextValue = React.useMemo<CacheContextType<K, V>>(

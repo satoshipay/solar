@@ -6,7 +6,6 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
 import { Account } from "../../context/accounts"
-import { useRouter } from "../../hooks/userinterface"
 import { openLink } from "../../platform/links"
 import LegalConfirmation from "./LegalConfirmation"
 
@@ -27,7 +26,6 @@ interface LumenDepositOptionsProps {
 function LumenDepositOptions(props: LumenDepositOptionsProps) {
   const { account } = props
   const [isLegalNoteOpen, setIsLegalNoteOpen] = React.useState(false)
-  const router = useRouter()
 
   const closeLegalNote = React.useCallback(() => setIsLegalNoteOpen(false), [])
   const openLegalNote = React.useCallback(() => setIsLegalNoteOpen(true), [])

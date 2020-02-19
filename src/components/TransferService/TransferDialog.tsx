@@ -51,8 +51,10 @@ function TransferDialog(props: TransferDialogProps) {
 
   const { actions, nextState, prevStates, state } =
     props.type === "deposit"
-      ? useDepositState(props.account, props.onClose)
-      : useWithdrawalState(props.account, props.onClose)
+      ? // eslint-disable-next-line react-hooks/rules-of-hooks
+        useDepositState(props.account, props.onClose)
+      : // eslint-disable-next-line react-hooks/rules-of-hooks
+        useWithdrawalState(props.account, props.onClose)
 
   const prevState = prevStates.length > 0 ? prevStates[prevStates.length - 1] : undefined
 

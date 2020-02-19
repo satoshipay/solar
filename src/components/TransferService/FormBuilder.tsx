@@ -33,8 +33,10 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
         style={{ flexGrow: 1, ...props.style }}
         value={props.value}
       >
-        {choices.map(choice => (
-          <MenuItem value={choice}>{formatIdentifier(choice)}</MenuItem>
+        {choices.map((choice, index) => (
+          <MenuItem key={index} value={choice}>
+            {formatIdentifier(choice)}
+          </MenuItem>
         ))}
       </TextField>
     )

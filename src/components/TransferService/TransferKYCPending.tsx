@@ -24,6 +24,7 @@ interface TransferKYCPendingProps {
 function TransferKYCPending(props: TransferKYCPendingProps) {
   const { response } = props.state
   const { transferServer } = props.type === "deposit" ? props.state.deposit! : props.state.withdrawal!
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { actions } = props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
   const formID = React.useMemo(() => nanoid(), [])

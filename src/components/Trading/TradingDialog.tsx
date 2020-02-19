@@ -114,7 +114,7 @@ function TradingDialog(props: TradingDialogProps) {
   const LinkToManageAssets = React.useMemo(
     () => (
       <Box margin="32px 0 0" textAlign="center">
-        <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
+        <Typography>This account does not use any assets other than Stellar Lumens yet.</Typography>
         <Portal target={dialogActionsRef.element}>
           <DialogActionsBox>
             <ActionButton

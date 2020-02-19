@@ -1,4 +1,3 @@
-import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
 import { Asset } from "stellar-sdk"
@@ -131,6 +130,7 @@ interface TransferDetailsFormProps {
 
 function TransferDetailsForm(props: TransferDetailsFormProps) {
   const { account, actions } =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
   const formID = React.useMemo(() => nanoid(), [])
@@ -144,8 +144,6 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
   )
   const setFormValue = (fieldName: string, newValue: string) =>
     setFormValues(prevFormValues => ({ ...prevFormValues, [fieldName]: newValue }))
-
-  const amount = formValues.amount ? BigNumber(formValues.amount) : undefined
 
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent) => {

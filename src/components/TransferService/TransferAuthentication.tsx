@@ -27,6 +27,7 @@ interface WithdrawalAuthenticationProps {
 
 function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
   const { actions, state } =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
   const [passwordError, setPasswordError] = React.useState<Error>()
   const [submission, handleSubmission] = useLoadingState({ throwOnError: true })
@@ -54,15 +55,7 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
           }
         }
       }),
-    [
-      actions.performWebAuth,
-      handleSubmission,
-      props.authChallenge,
-      state.deposit,
-      state.step,
-      state.webauth,
-      state.withdrawal
-    ]
+    [actions.performWebAuth, handleSubmission, props.authChallenge, state]
   )
 
   if (!props.authChallenge) {

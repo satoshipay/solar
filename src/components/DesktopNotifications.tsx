@@ -106,17 +106,20 @@ function DesktopNotifications() {
     createEffectHandlers(router, netWorker, mainnetHorizonURL, testnetHorizonURL, t)
   )
 
-  const handleNewSignatureRequest = (signatureRequest: SignatureRequest) => {
-    const signersHavingSigned = signatureRequest._embedded.signers.filter(signer => signer.has_signed)
+  const handleNewSignatureRequest = React.useCallback(
+    (signatureRequest: SignatureRequest) => {
+      const signersHavingSigned = signatureRequest._embedded.signers.filter(signer => signer.has_signed)
 
-    showNotification(
-      {
-        title: "New transaction to co-sign",
-        text: `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`
-      },
-      () => router.history.push(routes.allAccounts())
-    )
-  }
+      showNotification(
+        {
+          title: "New transaction to co-sign",
+          text: `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`
+        },
+        () => router.history.push(routes.allAccounts())
+      )
+    },
+    [router.history]
+  )
 
   React.useEffect(() => {
     const unsubscribeFromNewSignatureRequests = subscribeToNewSignatureRequests(handleNewSignatureRequest)

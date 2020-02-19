@@ -206,7 +206,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [errors.destination, formValues.destination, qrReaderAdornment]
+    [errors.destination, formValues.destination, qrReaderAdornment, t]
   )
 
   const assetSelector = React.useMemo(
@@ -242,7 +242,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [assetSelector, errors.amount, formValues.amount, isSmallScreen, spendableBalance]
+    [assetSelector, errors.amount, formValues.amount, isSmallScreen, spendableBalance, t]
   )
 
   const memoInput = React.useMemo(
@@ -270,7 +270,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [errors.memoValue, formValues.memoType, formValues.memoValue, memoMetadata.label, memoMetadata.placeholder]
+    [errors.memoValue, formValues.memoType, formValues.memoValue, memoMetadata.label, memoMetadata.placeholder, t]
   )
 
   const dialogActions = React.useMemo(

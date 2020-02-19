@@ -61,25 +61,25 @@ interface SignatureRequestListProps {
 export const SignatureRequestList = React.memo(function SignatureRequestList(props: SignatureRequestListProps) {
   const router = useRouter()
 
-  const handleNavigation = (pathname: string) => {
-    if (matchesRoute(pathname, routes.showTransaction("*", "*"))) {
-      const [, , , hash] = pathname.replace(/^\//, "").split("/")
-      const signatureRequest = props.signatureRequests.find(sr => sr.hash === hash)
+  React.useEffect(() => {
+    const handleNavigation = (pathname: string) => {
+      if (matchesRoute(pathname, routes.showTransaction("*", "*"))) {
+        const [, , , hash] = pathname.replace(/^\//, "").split("/")
+        const signatureRequest = props.signatureRequests.find(sr => sr.hash === hash)
 
-      if (signatureRequest) {
-        props.sendTransaction(signatureRequest.meta.transaction, signatureRequest)
+        if (signatureRequest) {
+          props.sendTransaction(signatureRequest.meta.transaction, signatureRequest)
+        }
       }
     }
-  }
 
-  React.useEffect(() => {
     handleNavigation(router.location.pathname)
 
     const unsubscribe = router.history.listen(location => {
       handleNavigation(location.pathname)
     })
     return unsubscribe
-  }, [handleNavigation, router.history, router.location.pathname])
+  }, [router.history, router.location.pathname, props])
 
   const openSignatureRequest = (tx: Transaction, signatureRequest: SignatureRequest) => {
     router.history.push(routes.showTransaction(props.account.id, signatureRequest.hash))

@@ -238,8 +238,9 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
-  const openAssetDetails = useCallback((asset: Asset) =>
-    router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
+  const openAssetDetails = React.useCallback(
+    (asset: Asset) => router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset))),
+    [router.history, props.account.id]
   )
 
   const openCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(true)
@@ -272,17 +273,20 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
     )
   }
 
-  const wellknownAccountMatches = (accountID: string, search: string) => {
-    const lowerCasedSearch = search.toLowerCase()
-    const record = wellKnownAccounts.lookup(accountID)
+  const wellknownAccountMatches = React.useCallback(
+    (accountID: string, search: string) => {
+      const lowerCasedSearch = search.toLowerCase()
+      const record = wellKnownAccounts.lookup(accountID)
 
-    if (!record) {
-      return false
-    }
-    return (
-      record.domain.toLowerCase().includes(lowerCasedSearch) || record.name.toLowerCase().includes(lowerCasedSearch)
-    )
-  }
+      if (!record) {
+        return false
+      }
+      return (
+        record.domain.toLowerCase().includes(lowerCasedSearch) || record.name.toLowerCase().includes(lowerCasedSearch)
+      )
+    },
+    [wellKnownAccounts]
+  )
 
   const notYetAddedAssets = assets.filter(asset => !isAssetAlreadyAdded(asset))
 
