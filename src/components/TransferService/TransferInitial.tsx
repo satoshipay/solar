@@ -126,7 +126,7 @@ function TransferInitial(props: TransferInitialProps) {
         actions.submitTransferSelection(assetTransferInfo.transferServer, formValues.asset, formValues.methodID)
       )
     },
-    [actions.submitTransferSelection, assetTransferInfo, formValues]
+    [actions, assetTransferInfo, formValues.asset, formValues.methodID, handleSubmission, props.type]
   )
 
   return (

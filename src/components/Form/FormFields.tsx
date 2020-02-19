@@ -30,7 +30,7 @@ export const QRReader = React.memo(function QRReader(props: Props) {
         closeQRReader()
       }
     },
-    [props.onScan]
+    [closeQRReader, props]
   )
 
   return (

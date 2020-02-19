@@ -172,7 +172,7 @@ function AccountTitle(props: AccountTitleProps) {
       setMode("readonly")
       clearTextSelection()
     })
-  }, [])
+  }, [router.history])
 
   const handleNameEditing = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value),
@@ -190,14 +190,14 @@ function AccountTitle(props: AccountTitleProps) {
         clearTextSelection()
       }
     },
-    [props.account, name]
+    [renameAccount, props.account.id, props.account.name, name]
   )
 
   const applyRenaming = React.useCallback(() => {
     renameAccount(props.account.id, name).catch(trackError)
     setMode("readonly")
     clearTextSelection()
-  }, [props.account, name])
+  }, [renameAccount, props.account.id, name])
   const cancelRenaming = React.useCallback(() => {
     setName(props.account.name)
     setMode("readonly")
@@ -207,7 +207,7 @@ function AccountTitle(props: AccountTitleProps) {
     if (props.editable) {
       setMode("editing")
     }
-  }, [])
+  }, [props.editable])
   const toggleMode = React.useCallback(() => {
     setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
     // Doesn't work on iOS, even leads to weird broken behavior
@@ -228,7 +228,7 @@ function AccountTitle(props: AccountTitleProps) {
         </IconButton>
       </>
     ),
-    [applyRenaming, cancelRenaming]
+    [applyRenaming, cancelRenaming, isSmallScreen]
   )
 
   const readonlyActions = React.useMemo(

@@ -82,7 +82,7 @@ function DialogBody(props: Props) {
           {isRefStateObject(props.actions) ? null : props.actions}
         </Box>
       ) : null,
-    [props.actions]
+    [classes.actions, isSmallScreen, props.actions, props.preventActionsPlaceholder]
   )
 
   const background = React.useMemo(

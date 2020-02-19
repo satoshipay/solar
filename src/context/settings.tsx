@@ -100,7 +100,7 @@ export function SettingsProvider(props: Props) {
     // Can't really cancel loading the settings
     const unsubscribe = () => undefined
     return unsubscribe
-  }, [])
+  }, [settings])
 
   const ignoreSignatureRequest = (signatureRequestHash: string) => {
     if (ignoredSignatureRequests.indexOf(signatureRequestHash) === -1) {

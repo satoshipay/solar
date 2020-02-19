@@ -35,7 +35,7 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
   const navigateToMoonPay = React.useCallback(() => {
     openLink(createMoonPayURLForAccount(account))
     props.onCloseDialog()
-  }, [account, router, props.onCloseDialog])
+  }, [account, props])
 
   return (
     <List style={{ margin: "16px auto", maxWidth: 600 }}>

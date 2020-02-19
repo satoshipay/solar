@@ -476,13 +476,13 @@ function TransactionList(props: TransactionListProps) {
 
     // tslint:disable-next-line prefer-object-spread
     return tx && txResponse ? Object.assign(tx, { created_at: txResponse.created_at }) : tx
-  }, [openedTxHash, props.transactions])
+  }, [openedTxHash, props.account.testnet, props.transactions])
 
   const openTransaction = React.useCallback(
     (transactionHash: string) => {
       router.history.push(routes.showTransaction(props.account.id, transactionHash))
     },
-    [props.account, router.history.push]
+    [props.account.id, router.history]
   )
 
   const closeTransaction = React.useCallback(() => {
@@ -494,7 +494,7 @@ function TransactionList(props: TransactionListProps) {
         ;(document.activeElement as HTMLElement).blur()
       }
     }, 0)
-  }, [])
+  }, [props.account.id, router.history])
 
   const transactionListItems = React.useMemo(
     () => (
@@ -518,7 +518,7 @@ function TransactionList(props: TransactionListProps) {
         ))}
       </>
     ),
-    [props.account, props.transactions, openTransaction]
+    [props.transactions, props.account.publicKey, props.account.testnet, classes.listItem, openTransaction]
   )
 
   if (props.transactions.length === 0) {

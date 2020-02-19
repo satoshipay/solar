@@ -34,7 +34,7 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
         Notifications.showNotification("error", "Enable in operating system settings.")
       }
     })().catch(trackError)
-  }, [])
+  }, [Notifications, props])
 
   return (
     <Grow in={props.open}>

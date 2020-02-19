@@ -99,7 +99,16 @@ function TradingDialog(props: TradingDialogProps) {
         </React.Suspense>
       </Carousel>
     ),
-    [dialogActionsRef, primaryAction, selectPrimaryAction, trustlines]
+    [
+      accountData,
+      dialogActionsRef,
+      preselectedAsset,
+      primaryAction,
+      props.account,
+      props.sendTransaction,
+      selectPrimaryAction,
+      trustlines
+    ]
   )
 
   const LinkToManageAssets = React.useMemo(

@@ -135,10 +135,11 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
 
   const openAddAssetDialog = React.useCallback(
     () => router.history.push(routes.manageAccountAssets(props.account.id)),
-    [props.account.id]
+    [props.account.id, router.history]
   )
   const closeAddAssetDialog = React.useCallback(() => router.history.push(routes.balanceDetails(props.account.id)), [
-    props.account.id
+    props.account.id,
+    router.history
   ])
 
   const addAssetDialogOpen = matchesRoute(router.location.pathname, routes.manageAccountAssets(props.account.id))

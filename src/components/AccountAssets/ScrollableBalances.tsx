@@ -191,7 +191,7 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
     if (props.onClick && !mouseDragJustHappened) {
       props.onClick()
     }
-  }, [props.onClick])
+  }, [props])
 
   const canScrollLeft = currentStep > 0
   const canScrollRight = currentStep < stepCount - 1
@@ -231,7 +231,16 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         testnet={props.account.testnet}
       />
     ],
-    [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets.map(stringifyAsset).join(",")]
+    [
+      accountData.balances,
+      handleClick,
+      isAccountActivated,
+      nativeBalance,
+      props.account.testnet,
+      props.compact,
+      props.onClick,
+      trustedAssets
+    ]
   )
 
   return (

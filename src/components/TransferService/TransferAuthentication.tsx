@@ -54,7 +54,15 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
           }
         }
       }),
-    [actions.performWebAuth, props.authChallenge, state]
+    [
+      actions.performWebAuth,
+      handleSubmission,
+      props.authChallenge,
+      state.deposit,
+      state.step,
+      state.webauth,
+      state.withdrawal
+    ]
   )
 
   if (!props.authChallenge) {

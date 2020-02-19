@@ -141,7 +141,7 @@ function AccountCreationForm(props: AccountCreationFormProps) {
         />
       </Typography>
     ),
-    [errors, formValues, isTinyScreen, props.testnet, t]
+    [errors.name, formValues.name, isTinyScreen, props.testnet, setFormValue, t]
   )
 
   const actionsContent = React.useMemo(
@@ -263,7 +263,11 @@ interface Props {
 
 function StatefulAccountCreationForm(props: Props) {
   const getNewAccountName = useNewAccountName()
-  const defaultAccountName = React.useMemo(() => getNewAccountName(props.accounts, props.testnet), [])
+  const defaultAccountName = React.useMemo(() => getNewAccountName(props.accounts, props.testnet), [
+    getNewAccountName,
+    props.accounts,
+    props.testnet
+  ])
   const validateFormValues = useFormValidation()
   const { t } = useTranslation()
   const [errors, setErrors] = React.useState<AccountCreationErrors>({})

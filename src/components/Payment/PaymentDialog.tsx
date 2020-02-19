@@ -39,7 +39,7 @@ function PaymentDialog(props: Props) {
         setTxCreationPending(false)
       }
     },
-    [props.account, props.horizon]
+    [props]
   )
 
   const trustedAssets = React.useMemo(() => getAssetsFromBalances(props.accountData.balances) || [Asset.native()], [

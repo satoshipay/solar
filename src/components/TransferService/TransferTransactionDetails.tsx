@@ -87,7 +87,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
         )
       }
     },
-    [actions, props.sendTransaction, props.state, amount]
+    [props, actions, amount, handleTxPreparation]
   )
 
   const extraInfo =

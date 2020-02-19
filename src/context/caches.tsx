@@ -39,7 +39,7 @@ function useCachingContext<K, V>(cache: LRUCache<K, V>): CacheContextType<K, V> 
         forceRerender()
       }
     }),
-    [cache, counter]
+    [cache, forceRerender]
   )
   return contextValue
 }

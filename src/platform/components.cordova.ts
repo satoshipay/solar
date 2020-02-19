@@ -28,7 +28,7 @@ function CordovaQRReader(props: Props): ReturnType<React.FunctionComponent<Props
         props.onError(error)
         trackError(error)
       })
-  }, [])
+  }, [props])
   return null
 }
 

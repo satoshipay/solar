@@ -104,7 +104,7 @@ function BalanceListItem(props: BalanceListItemProps) {
 
   const balance = React.useMemo(
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
-    [props.balance]
+    [props.balance.balance, props.hideBalance]
   )
 
   if (props.balance.asset_type === "native") {

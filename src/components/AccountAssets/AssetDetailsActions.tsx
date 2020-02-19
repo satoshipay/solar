@@ -66,7 +66,7 @@ function AssetDetailsActions(props: Props) {
 
   const tradeThisAsset = React.useCallback(
     () => router.history.push(routes.tradeAsset(props.account.id, undefined, stringifyAsset(asset))),
-    [asset, router.history]
+    [asset, props.account.id, router.history]
   )
 
   return (

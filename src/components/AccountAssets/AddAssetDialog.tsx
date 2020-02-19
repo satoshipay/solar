@@ -238,8 +238,9 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
-  const openAssetDetails = (asset: Asset) =>
+  const openAssetDetails = useCallback((asset: Asset) =>
     router.history.push(routes.assetDetails(props.account.id, stringifyAsset(asset)))
+  )
 
   const openCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(true)
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
@@ -298,11 +299,12 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
     )
 
     return groupAssets(filteredAssets, assetRecord => assetRecord.issuer)
-  }, [searchFieldValue, wellKnownAccounts.accounts])
+  }, [allAssets, searchFieldValue, wellknownAccountMatches])
 
   const SearchResultRow = React.useMemo(() => createSearchResultRow(props.account, assetsByIssuer, openAssetDetails), [
     props.account,
-    assetsByIssuer
+    assetsByIssuer,
+    openAssetDetails
   ])
 
   return (

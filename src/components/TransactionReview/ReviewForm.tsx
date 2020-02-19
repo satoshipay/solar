@@ -64,7 +64,7 @@ function TxConfirmationForm(props: Props) {
     if (props.onClose) {
       props.onClose()
     }
-  }, [props.signatureRequest])
+  }, [props, settings])
 
   const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
     setFormValues(prevValues => ({
@@ -79,7 +79,7 @@ function TxConfirmationForm(props: Props) {
         props.account.testnet ? "testnet" : "public"
       }/tx/${props.transaction.hash().toString("hex")}`
     )
-  }, [createCheapTxID(props.transaction)])
+  }, [props.account.testnet, props.transaction])
 
   const handleTextFieldChange = React.useCallback(event => setFormValue("password", event.target.value), [])
 
@@ -110,7 +110,7 @@ function TxConfirmationForm(props: Props) {
         setLoading(false)
       }
     },
-    [props.account, props.disabled, formValues, onConfirm]
+    [props.disabled, props.account.requiresPassword, formValues, errors, t, onConfirm]
   )
 
   const DismissIcon = React.useMemo(() => <CloseIcon style={{ fontSize: "140%" }} />, [])

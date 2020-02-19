@@ -88,10 +88,15 @@ interface AssetSelectorProps {
 function AssetSelector(props: AssetSelectorProps) {
   const classes = useAssetSelectorStyles()
 
-  const assets = React.useMemo(() => [
-    Asset.native(),
-    ...props.assets.map(asset => "code" in asset && "issuer" in asset ? asset as Asset : balancelineToAsset(asset))
-  ], [props.assets])
+  const assets = React.useMemo(
+    () => [
+      Asset.native(),
+      ...props.assets.map(asset =>
+        "code" in asset && "issuer" in asset ? (asset as Asset) : balancelineToAsset(asset)
+      )
+    ],
+    [props.assets]
+  )
 
   const onChange = React.useCallback(
     (event: React.ChangeEvent<{ name?: any; value: any }>, child: React.ComponentElement<AssetItemProps, any>) => {
@@ -106,7 +111,7 @@ function AssetSelector(props: AssetSelectorProps) {
         )
       }
     },
-    [props.assets, props.onChange]
+    [assets, props]
   )
 
   return (
@@ -166,8 +171,7 @@ function AssetSelector(props: AssetSelectorProps) {
             testnet={props.testnet}
             value={asset.getCode()}
           />
-        ))
-      }
+        ))}
     </TextField>
   )
 }

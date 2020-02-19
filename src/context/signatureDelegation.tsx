@@ -77,7 +77,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 
     // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
     return () => unsubscribe()
-  }, [accountIDs.join(",")])
+  }, [accountIDs, accounts.length, multiSignatureServiceURL])
 
   const subscribeToNewSignatureRequests = (callback: SignatureRequestCallback) => {
     subscribersRef.current.newRequestSubscribers.push(callback)

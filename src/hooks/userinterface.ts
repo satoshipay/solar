@@ -57,7 +57,7 @@ export function useRouter<Params = {}>() {
   React.useEffect(() => {
     const unsubscribe = routerContext.history.listen(() => forceUpdate())
     return unsubscribe
-  }, [routerContext])
+  }, [forceUpdate, routerContext])
 
   return routerContext
 }

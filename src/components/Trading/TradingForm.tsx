@@ -211,7 +211,7 @@ function TradingForm(props: Props) {
     } catch (error) {
       trackError(error)
     }
-  }, [props.accountData, props.sendTransaction, effectivePrice, primaryAmount, primaryAsset, secondaryAsset])
+  }, [primaryAsset, props, primaryAmount, effectivePrice, secondaryAsset, horizon])
 
   return (
     // set minHeight to prevent wrapping of layout when keyboard is shown

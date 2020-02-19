@@ -62,7 +62,7 @@ function AllAccountsPage() {
         setUpdateInProgress(false)
       }
     }
-  }, [updater, settings.updateAvailable])
+  }, [settings.updateAvailable, showNotification, updater])
 
   const updateButton = (
     <Tooltip title="Update available">
@@ -112,14 +112,16 @@ function AllAccountsPage() {
       />
     ),
     [
-      isWidthMax450,
       isUpdateInProgress,
+      isWidthMax450,
       networkSwitch,
-      router,
+      networkSwitchButton,
+      router.history,
       settings.showTestnet,
       settings.updateAvailable,
-      testnetAccounts,
-      updater
+      testnetAccounts.length,
+      updater,
+      updateButton
     ]
   )
 

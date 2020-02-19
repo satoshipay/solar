@@ -79,7 +79,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
       handleNavigation(location.pathname)
     })
     return unsubscribe
-  }, [])
+  }, [handleNavigation, router.history, router.location.pathname])
 
   const openSignatureRequest = (tx: Transaction, signatureRequest: SignatureRequest) => {
     router.history.push(routes.showTransaction(props.account.id, signatureRequest.hash))

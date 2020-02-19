@@ -63,7 +63,7 @@ function Carousel(props: CarouselProps) {
         }
       })
     }, 500)
-  }, [props.current])
+  }, [props, refs])
 
   return (
     <div className={classes.root}>

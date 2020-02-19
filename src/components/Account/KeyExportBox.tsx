@@ -12,7 +12,7 @@ interface Props {
 function KeyExportBox(props: Props) {
   const clipboard = useClipboard()
   const isSmallScreen = useIsMobile()
-  const copyToClipboard = React.useCallback(() => clipboard.copyToClipboard(props.export), [props.export])
+  const copyToClipboard = React.useCallback(() => clipboard.copyToClipboard(props.export), [clipboard, props.export])
 
   return (
     <VerticalLayout alignItems="center" justifyContent="center">

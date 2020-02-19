@@ -121,7 +121,7 @@ function DesktopNotifications() {
   React.useEffect(() => {
     const unsubscribeFromNewSignatureRequests = subscribeToNewSignatureRequests(handleNewSignatureRequest)
     return unsubscribeFromNewSignatureRequests
-  }, [])
+  }, [handleNewSignatureRequest, subscribeToNewSignatureRequests])
 
   useLiveAccountEffects(accounts, (account: Account, effect: ServerApi.EffectRecord) => {
     if (isTradeEffect(effect)) {
