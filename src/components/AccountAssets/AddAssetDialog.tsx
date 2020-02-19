@@ -98,6 +98,11 @@ const useSearchResultStyles = makeStyles({
     background: "white",
     borderRadius: 8,
     height: searchResultRowHeight
+  },
+  noResultItem: {
+    background: "white",
+    borderRadius: 8,
+    height: searchResultRowHeight
   }
 })
 
@@ -167,8 +172,27 @@ function createSearchResultRow(
     )
   }
 
-  SearchResultRow.count = itemRenderMap.length
-  return SearchResultRow
+  function NoResultRow() {
+    const classes = useSearchResultStyles()
+    const { t } = useTranslation()
+
+    return (
+      <ListItem key={0} className={classes.noResultItem}>
+        <ListItemText
+          primary={t("add-asset.item.no-result.primary")}
+          secondary={t("add-asset.item.no-result.secondary")}
+        />
+      </ListItem>
+    )
+  }
+
+  if (itemRenderMap.length > 0) {
+    SearchResultRow.count = itemRenderMap.length
+    return SearchResultRow
+  } else {
+    NoResultRow.count = 1
+    return NoResultRow
+  }
 }
 
 const useAddAssetStyles = makeStyles({

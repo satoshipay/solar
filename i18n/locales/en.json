@@ -92,6 +92,10 @@
           "one-asset": "One matching asset",
           "more-than-one-asset": "{{amount}} matching assets"
         }
+      },
+      "no-result": {
+        "primary": "No matching asset",
+        "secondary": "No asset or issuer matches your search"
       }
     },
     "search-field": {
