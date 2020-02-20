@@ -1,11 +1,8 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
-import { makeStyles } from "@material-ui/core/styles"
-import SendIcon from "@material-ui/icons/Send"
+import AccountActions from "../components/Account/AccountActions"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
-import { ActionButton, DialogActionsBox } from "../components/Dialog/Generic"
-import QRCodeIcon from "../components/Icon/QRCode"
 import InlineLoader from "../components/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
@@ -15,7 +12,6 @@ import PaymentDialog from "../components/Payment/PaymentDialog"
 import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
 import ViewLoading from "../components/ViewLoading"
 import { Account, AccountsContext } from "../context/accounts"
-import { useLiveAccountData } from "../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
 import { getLastArgumentFromURL } from "../lib/url"
 import { matchesRoute } from "../lib/routes"
@@ -45,76 +41,6 @@ const TradeAssetDialog = withFallback(React.lazy(() => modules.TradeAssetDialog)
 // The TransferDialog has it's own lazy-loading stage, but a parcel bundler bug requires us
 // to lazy-load that lazy-loading stage as well…
 const TransferDialog = withFallback(React.lazy(() => modules.TransferDialog), <ViewLoading />)
-
-const useButtonStyles = makeStyles(theme => ({
-  desktop: {
-    margin: 0,
-    padding: "24px 0 0",
-
-    "& $button:firt-child": {
-      marginRight: 40
-    },
-    "& $button:last-child": {
-      marginLeft: 40
-    }
-  },
-  mobile: {},
-  hidden: {
-    paddingTop: 0
-  },
-  collapse: {
-    width: "100%",
-    zIndex: 1
-  },
-  button: {
-    border: "none",
-    borderRadius: 8,
-    boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)",
-    fontSize: "1rem",
-    flexBasis: 1,
-    flexGrow: 1,
-    padding: "20px !important"
-  },
-  secondaryButton: {
-    background: "white",
-    color: theme.palette.primary.dark
-  }
-}))
-
-interface AccountActionsProps {
-  account: Account
-  bottomOfScreen?: boolean
-  hidden?: boolean
-  onCreatePayment: () => void
-  onReceivePayment: () => void
-}
-
-const AccountActions = React.memo(function AccountActions(props: AccountActionsProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const classes = useButtonStyles()
-  const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
-  return (
-    <DialogActionsBox className={className} hidden={props.hidden}>
-      <ActionButton
-        className={`${classes.button} ${classes.secondaryButton}`}
-        icon={<QRCodeIcon style={{ fontSize: "110%" }} />}
-        onClick={props.onReceivePayment}
-        variant="contained"
-      >
-        Receive
-      </ActionButton>
-      <ActionButton
-        className={classes.button}
-        disabled={accountData.balances.length === 0}
-        icon={<SendIcon style={{ fontSize: "110%" }} />}
-        onClick={props.onCreatePayment}
-        type="primary"
-      >
-        Send
-      </ActionButton>
-    </DialogActionsBox>
-  )
-})
 
 const AccountPageContent = React.memo(function AccountPageContent(props: { account: Account }) {
   const isSmallScreen = useIsMobile()
