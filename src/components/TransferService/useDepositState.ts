@@ -4,6 +4,7 @@ import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
   fetchTransferInfos,
   Deposit,
+  DepositInstructionsSuccess,
   DepositTransaction,
   KYCResponseType,
   TransferResultType,
@@ -105,10 +106,23 @@ export function useDepositState(account: Account, closeDialog: () => void) {
   }
 
   const pollKYCStatus = async (deposit: Deposit, transferTxId: string, authToken?: string) => {
-    const transaction = await transfer.pollKYCStatus(deposit.transferServer, transferTxId, authToken)
+    const transaction = (await transfer.pollKYCStatus(
+      deposit.transferServer,
+      transferTxId,
+      authToken
+    )) as DepositTransaction
 
     if (transaction && transaction.status === TransferStatus.pending_user_transfer_start) {
-      await requestDeposit(deposit, authToken, transaction as DepositTransaction)
+      const instructions: DepositInstructionsSuccess = {
+        type: TransferResultType.ok,
+        data: {
+          how: "",
+          eta: transaction.status_eta,
+          fee_fixed: Number.parseFloat(transaction.amount_fee)
+        }
+      }
+      dispatch(Action.promptForTxDetails(deposit, undefined as any, instructions, transaction))
+      transfer.stopKYCPolling()
     } else if (transaction && transaction.status === "completed") {
       const amount = BigNumber(transaction.amount_out)
       dispatch(Action.completed(amount))

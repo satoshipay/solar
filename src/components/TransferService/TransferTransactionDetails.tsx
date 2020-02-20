@@ -95,7 +95,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
       <FormLayout wrap>
-        {props.type === "deposit" ? (
+        {props.type === "deposit" && (props.state.response as DepositInstructionsSuccess).data.how ? (
           <ReadOnlyTextfield
             label="Deposit instructions"
             multiline
@@ -160,8 +160,8 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
 
 const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
   props.type === "deposit" ? (
-    <Summary headline="Deposit instructions">
-      <Paragraph>Deposit the funds as described. Make sure that you send the funds to the right destination.</Paragraph>
+    <Summary headline="Deposit summary">
+      <Paragraph>Make sure that you send the funds to the right destination.</Paragraph>
       <Paragraph>The asset issuer will credit the tokens once your deposit is credited.</Paragraph>
     </Summary>
   ) : (
