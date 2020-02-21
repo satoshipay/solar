@@ -2,7 +2,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import AccountActions from "../components/Account/AccountActions"
-import AccountCreationActions from "../components/Account/AccountCreationActions"
+import AccountCreationActions from "../components/AccountCreation/AccountCreationActions"
 import AccountHeaderCard, { AccountCreation } from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
 import InlineLoader from "../components/InlineLoader"
@@ -28,16 +28,16 @@ const modules = {
   TransferDialog: import("../components/TransferService/ConnectedTransferDialog")
 }
 
-const AccountCreationOptions = withFallback(
-  React.lazy(() => import("../components/Account/AccountCreationOptions")),
-  <TransactionListPlaceholder />
-)
 const AccountSettings = withFallback(
   React.lazy(() => import("../components/AccountSettings/AccountSettings")),
   <TransactionListPlaceholder />
 )
 const AccountTransactions = withFallback(
   React.lazy(() => import("../components/Account/AccountTransactions")),
+  <TransactionListPlaceholder />
+)
+const NewAccountSetup = withFallback(
+  React.lazy(() => import("../components/AccountCreation/NewAccountSetup")),
   <TransactionListPlaceholder />
 )
 
@@ -81,6 +81,7 @@ function useNewAccountName() {
 
 interface AccountPageContentProps {
   account: Account | undefined
+  testnet: boolean
 }
 
 const AccountPageContent = React.memo(function AccountPageContent(props: AccountPageContentProps) {
@@ -91,7 +92,12 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
 
   const showAccountCreation =
     matchesRoute(router.location.pathname, routes.createAccount(true), false) ||
-    matchesRoute(router.location.pathname, routes.createAccount(false), false)
+    matchesRoute(router.location.pathname, routes.createAccount(false), false) ||
+    matchesRoute(router.location.pathname, routes.importAccount(true), false) ||
+    matchesRoute(router.location.pathname, routes.importAccount(false), false) ||
+    matchesRoute(router.location.pathname, routes.newAccount(true), false) ||
+    matchesRoute(router.location.pathname, routes.newAccount(false), false)
+
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
   const showAssetDetails =
     matchesRoute(router.location.pathname, routes.assetDetails("*", "*")) &&
@@ -107,9 +113,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
 
   const [accountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
     multisig: false,
-    name: getNewAccountName(accounts, matchesRoute(router.location.pathname, routes.createAccount(true), false)),
+    name: getNewAccountName(accounts, props.testnet),
     requiresPassword: false, // FIXME
-    testnet: matchesRoute(router.location.pathname, routes.createAccount(true), false)
+    testnet: props.testnet
   }))
 
   const headerHeight = showAccountCreation
@@ -190,7 +196,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
                 onReceivePayment={navigateTo.receivePayment!}
               />
             ) : (
-              <AccountCreationActions bottomOfScreen onCreateAccount={onCreateAccount} />
+              <AccountCreationActions onActionButtonClick={onCreateAccount} testnet={props.testnet} />
             )}
           </React.Suspense>
         )}
@@ -203,6 +209,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       onCreateAccount,
       performRenaming,
       props.account,
+      props.testnet,
       showAccountCreation,
       showAccountSettings,
       showSendReceiveButtons
@@ -226,7 +233,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       >
         <React.Suspense fallback={<TransactionListPlaceholder />}>
           {showAccountCreation ? (
-            <AccountCreationOptions />
+            <NewAccountSetup />
           ) : showAccountSettings ? (
             <AccountSettings account={props.account!} />
           ) : (
@@ -245,7 +252,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
               onReceivePayment={navigateTo.receivePayment!}
             />
           ) : (
-            <AccountCreationActions bottomOfScreen onCreateAccount={onCreateAccount} />
+            <AccountCreationActions bottomOfScreen onActionButtonClick={onCreateAccount} testnet={props.testnet} />
           )}
         </React.Suspense>
       ) : null}
@@ -345,7 +352,9 @@ function AccountPage(props: AccountPageProps) {
     return <div>Wallet account not found. ID: {props.accountID}</div>
   }
 
-  return <AccountPageContent account={account} />
+  return (
+    <AccountPageContent account={account} testnet={account ? account.testnet : props.accountCreation === "testnet"} />
+  )
 }
 
 export default React.memo(AccountPage)

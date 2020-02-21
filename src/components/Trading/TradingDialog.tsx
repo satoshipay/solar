@@ -84,7 +84,6 @@ function TradingDialog(props: TradingDialogProps) {
         <MainActionSelection
           onSelectBuy={() => selectPrimaryAction("buy")}
           onSelectSell={() => selectPrimaryAction("sell")}
-          style={{ margin: "48px 0 24px" }}
         />
         <React.Suspense fallback={<ViewLoading />}>
           <TradingForm

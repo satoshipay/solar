@@ -7,7 +7,11 @@ const useAccountCreationStyles = makeStyles({
   buttonListItem: {}
 })
 
-function AccountCreationOptions() {
+interface AccountCreationOptionsProps {
+  import?: boolean
+}
+
+function AccountCreationOptions(props: AccountCreationOptionsProps) {
   const classes = useAccountCreationStyles()
   const isSmallScreen = useIsMobile()
 

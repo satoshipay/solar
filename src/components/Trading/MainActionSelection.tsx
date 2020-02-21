@@ -15,7 +15,7 @@ const MainActionSelection = React.forwardRef(function MainActionSelection(
   ref: React.Ref<HTMLDivElement>
 ) {
   return (
-    <HorizontalLayout ref={ref} justifyContent="space-evenly" padding="0 8px" style={props.style} wrap="wrap">
+    <HorizontalLayout ref={ref} justifyContent="space-evenly" margin="48px 0 24px" padding="0 8px" wrap="wrap">
       <MainSelectionButton
         label="Buy asset"
         description={"Buy some amount of an asset on the distributed exchange"}

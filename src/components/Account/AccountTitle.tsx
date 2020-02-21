@@ -190,7 +190,7 @@ interface AccountTitleProps {
 }
 
 function AccountTitle(props: AccountTitleProps) {
-  const { onNavigateBack, onRename } = props
+  const { onRename } = props
   const router = useRouter()
   const isSmallScreen = useIsMobile()
 
@@ -251,12 +251,6 @@ function AccountTitle(props: AccountTitleProps) {
     setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
     focusInput()
   }, [focusInput])
-
-  React.useEffect(() => {
-    if (props.permanentlyEditing) {
-      focusInput()
-    }
-  }, [focusInput, props.permanentlyEditing])
 
   const editActions = React.useMemo(
     () => (
