@@ -123,7 +123,7 @@
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-bundle-visualiser": "^1.2.0",
     "parcel-plugin-nunjucks": "^1.1.0",
-    "prettier": "~1.18.2",
+    "prettier": "^1.19.1",
     "qrcode.react": "^0.9.3",
     "qs": "^6.8.0",
     "react": "^16.9.0",
