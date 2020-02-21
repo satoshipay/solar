@@ -60,12 +60,12 @@ const AccountContextMenuItem = React.memo(
 interface MenuProps {
   account: Account
   children: (anchorProps: AnchorRenderProps) => React.ReactNode
-  onAccountSettings: () => void
-  onAccountTransactions: () => void
-  onDeposit: () => void
-  onManageAssets: () => void
-  onTrade: () => void
-  onWithdraw: () => void
+  onAccountSettings?: () => void
+  onAccountTransactions?: () => void
+  onDeposit?: () => void
+  onManageAssets?: () => void
+  onTrade?: () => void
+  onWithdraw?: () => void
   settings: SettingsContextType
   showingSettings: boolean
 }
@@ -87,37 +87,40 @@ function AccountContextMenu(props: MenuProps) {
           open={open}
         >
           <AccountContextMenuItem
-            disabled={!activated}
+            disabled={!activated || !props.onTrade}
             icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
             label={t("accounts-context-menu.trade.label")}
             onClick={closeAndCall(props.onTrade)}
           />
           <AccountContextMenuItem
+            disabled={!props.onDeposit}
             icon={<CallReceivedIcon />}
             label={t("accounts-context-menu.deposit.label")}
             onClick={closeAndCall(props.onDeposit)}
           />
           <AccountContextMenuItem
-            disabled={!activated}
+            disabled={!activated || !props.onWithdraw}
             icon={<CallMadeIcon />}
             label={t("accounts-context-menu.withdraw.label")}
             onClick={closeAndCall(props.onWithdraw)}
           />
           <Divider />
           <AccountContextMenuItem
-            disabled={!activated}
+            disabled={!activated || !props.onManageAssets}
             icon={<MoneyIcon />}
             label={t("accounts-context-menu.assets-and-balances.label")}
             onClick={closeAndCall(props.onManageAssets)}
           />
           {props.showingSettings ? (
             <AccountContextMenuItem
+              disabled={!props.onAccountTransactions}
               icon={<ListIcon />}
               label={t("accounts-context-menu.transactions.label")}
               onClick={closeAndCall(props.onAccountTransactions)}
             />
           ) : (
             <AccountContextMenuItem
+              disabled={!props.onAccountSettings}
               icon={<SettingsIcon />}
               label={t("accounts-context-menu.account-settings.label")}
               onClick={closeAndCall(props.onAccountSettings)}

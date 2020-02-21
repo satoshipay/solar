@@ -9,8 +9,7 @@ import ClearIcon from "@material-ui/icons/Clear"
 import EditIcon from "@material-ui/icons/Edit"
 import GroupIcon from "@material-ui/icons/Group"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
-import { Account, AccountsContext } from "../../context/accounts"
-import { trackError } from "../../context/notifications"
+import { Account } from "../../context/accounts"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
@@ -51,6 +50,38 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
   return <span style={style}>Testnet</span>
 }
 
+interface StaticBadgesProps {
+  multisig: "generic" | "stellar-guard" | undefined
+  password: boolean
+  testnet: boolean
+}
+
+export const StaticBadges = React.memo(function StaticBadges(props: StaticBadgesProps) {
+  return (
+    <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
+      {props.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
+      {(() => {
+        if (props.multisig === "generic") {
+          return (
+            <Tooltip title="Multi-Signature Account">
+              <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
+            </Tooltip>
+          )
+        } else if (props.multisig === "stellar-guard") {
+          return (
+            <Tooltip title="StellarGuard Protection">
+              <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
+            </Tooltip>
+          )
+        } else {
+          return null
+        }
+      })()}
+      <PasswordStatus safe={props.password} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
+    </HorizontalLayout>
+  )
+})
+
 interface BadgesProps {
   account: Account
 }
@@ -58,22 +89,18 @@ interface BadgesProps {
 export const Badges = React.memo(function Badges(props: BadgesProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
 
-  const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
-    <Tooltip title="StellarGuard Protection">
-      <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
-    </Tooltip>
-  ) : (
-    <Tooltip title="Multi-Signature Account">
-      <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
-    </Tooltip>
-  )
-
   return (
-    <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
-      {props.account.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
-      {accountData.signers.length > 1 ? multiSigIcon : null}
-      <PasswordStatus safe={props.account.requiresPassword} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
-    </HorizontalLayout>
+    <StaticBadges
+      multisig={
+        accountData.signers.length > 1
+          ? containsStellarGuardAsSigner(accountData.signers)
+            ? "stellar-guard"
+            : "generic"
+          : undefined
+      }
+      password={props.account.requiresPassword}
+      testnet={props.account.testnet}
+    />
   )
 })
 
@@ -97,6 +124,7 @@ interface TitleTextFieldProps {
   onChange: TextFieldProps["onChange"]
   onClick?: () => void
   onKeyDown?: TextFieldProps["onKeyDown"]
+  placeholder?: TextFieldProps["placeholder"]
   preventClicks?: boolean
   mode: "editing" | "readonly"
   showEdit: boolean
@@ -107,6 +135,7 @@ interface TitleTextFieldProps {
 
 function TitleTextField(props: TitleTextFieldProps) {
   const classes = useTitleTextfieldStyles()
+  const length = props.value.length || props.placeholder?.length || 0
   return (
     <TextField
       inputProps={{
@@ -114,7 +143,7 @@ function TitleTextField(props: TitleTextFieldProps) {
           props.mode === "editing" && props.showUnderlineOnEdit ? classes.underlinedInput : ""
         }`,
         onClick: props.onClick,
-        size: Math.max(props.value.length + 1, 4),
+        size: Math.max(length + 1, 4),
         style: {
           cursor: props.mode === "editing" ? "text" : "default",
           height: 48,
@@ -140,6 +169,7 @@ function TitleTextField(props: TitleTextFieldProps) {
       }}
       onChange={props.onChange}
       onKeyDown={props.onKeyDown}
+      placeholder={props.placeholder}
       style={{
         color: "inherit",
         ...props.style
@@ -150,20 +180,22 @@ function TitleTextField(props: TitleTextFieldProps) {
 }
 
 interface AccountTitleProps {
-  account: Account
   actions: React.ReactNode
   badges: React.ReactNode
   editable?: boolean
+  name: string
   onNavigateBack: () => void
+  onRename: (newName: string) => void
+  permanentlyEditing?: boolean
 }
 
 function AccountTitle(props: AccountTitleProps) {
+  const { onNavigateBack, onRename } = props
   const router = useRouter()
   const isSmallScreen = useIsMobile()
-  const { renameAccount } = React.useContext(AccountsContext)
 
-  const [mode, setMode] = React.useState<TitleTextFieldProps["mode"]>("readonly")
-  const [name, setName] = React.useState<string>(props.account.name)
+  const [mode, setMode] = React.useState<TitleTextFieldProps["mode"]>(props.permanentlyEditing ? "editing" : "readonly")
+  const [name, setName] = React.useState<string>(props.name)
 
   const inputRef = React.createRef<HTMLInputElement>()
 
@@ -181,28 +213,35 @@ function AccountTitle(props: AccountTitleProps) {
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === "Enter") {
-        renameAccount(props.account.id, name).catch(trackError)
+        onRename(name)
         setMode("readonly")
         clearTextSelection()
       } else if (event.key === "Escape") {
-        setName(props.account.name)
+        onRename(props.name)
         setMode("readonly")
         clearTextSelection()
       }
     },
-    [renameAccount, props.account.id, props.account.name, name]
+    [props.name, onRename, name]
   )
 
   const applyRenaming = React.useCallback(() => {
-    renameAccount(props.account.id, name).catch(trackError)
+    onRename(name)
     setMode("readonly")
     clearTextSelection()
-  }, [renameAccount, props.account.id, name])
+  }, [onRename, name])
   const cancelRenaming = React.useCallback(() => {
-    setName(props.account.name)
+    setName(props.name)
     setMode("readonly")
     clearTextSelection()
-  }, [props.account])
+  }, [props.name])
+  const focusInput = React.useCallback(() => {
+    // Doesn't work on iOS, even leads to weird broken behavior
+    if (inputRef.current && process.env.PLATFORM !== "ios") {
+      inputRef.current.select()
+      inputRef.current.focus()
+    }
+  }, [inputRef])
   const switchToEditMode = React.useCallback(() => {
     if (props.editable) {
       setMode("editing")
@@ -210,12 +249,14 @@ function AccountTitle(props: AccountTitleProps) {
   }, [props.editable])
   const toggleMode = React.useCallback(() => {
     setMode(prevMode => (prevMode === "editing" ? "readonly" : "editing"))
-    // Doesn't work on iOS, even leads to weird broken behavior
-    if (inputRef.current && process.env.PLATFORM !== "ios") {
-      inputRef.current.select()
-      inputRef.current.focus()
+    focusInput()
+  }, [focusInput])
+
+  React.useEffect(() => {
+    if (props.permanentlyEditing) {
+      focusInput()
     }
-  }, [inputRef])
+  }, [focusInput, props.permanentlyEditing])
 
   const editActions = React.useMemo(
     () => (
@@ -231,6 +272,15 @@ function AccountTitle(props: AccountTitleProps) {
     [applyRenaming, cancelRenaming, isSmallScreen]
   )
 
+  const permanentEditActions = React.useMemo(
+    () => (
+      <IconButton onClick={focusInput} style={{ color: "inherit" }}>
+        <EditIcon />
+      </IconButton>
+    ),
+    [focusInput]
+  )
+
   const readonlyActions = React.useMemo(
     () => (
       <IconButton onClick={toggleMode} style={{ color: "inherit" }}>
@@ -243,16 +293,19 @@ function AccountTitle(props: AccountTitleProps) {
   return (
     <MainTitle
       actions={props.actions}
-      badges={props.editable ? null : props.badges}
+      badges={props.editable && !isSmallScreen ? null : props.badges}
       onBack={props.onNavigateBack}
       style={{ marginTop: -12, marginLeft: 0 }}
       title={
         <TitleTextField
-          actions={mode === "readonly" ? readonlyActions : editActions}
+          actions={
+            props.permanentlyEditing ? permanentEditActions : mode === "readonly" ? readonlyActions : editActions
+          }
           inputRef={inputRef}
           onChange={handleNameEditing}
           onClick={props.editable ? switchToEditMode : undefined}
           onKeyDown={handleKeyDown}
+          placeholder="Account name…"
           preventClicks={!props.editable}
           mode={mode}
           showEdit={props.editable || false}

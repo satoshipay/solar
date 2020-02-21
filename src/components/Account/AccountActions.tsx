@@ -6,7 +6,7 @@ import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import QRCodeIcon from "../Icon/QRCode"
 
-const useButtonStyles = makeStyles(theme => ({
+export const useButtonStyles = makeStyles(theme => ({
   desktop: {
     margin: 0,
     padding: "24px 0 0",

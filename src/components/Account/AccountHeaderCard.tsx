@@ -2,8 +2,8 @@ import React from "react"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import IconButton from "@material-ui/core/IconButton"
-import makeStyles from "@material-ui/core/styles/makeStyles"
 import MenuIcon from "@material-ui/icons/Menu"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import { Account } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
@@ -13,7 +13,7 @@ import { breakpoints } from "../../theme"
 import { Box } from "../Layout/Box"
 import withFallback from "../Lazy/withFallback"
 import ViewLoading from "../ViewLoading"
-import AccountTitle, { Badges } from "./AccountTitle"
+import AccountTitle, { Badges, StaticBadges } from "./AccountTitle"
 
 const AccountContextMenu = withFallback(
   React.lazy(() => import("./AccountContextMenu")),
@@ -38,17 +38,25 @@ const useAccountHeaderStyles = makeStyles({
   menuButton: {}
 })
 
+export interface AccountCreation {
+  multisig: boolean
+  name: string
+  requiresPassword: boolean
+  testnet: boolean
+}
+
 interface Props {
-  account: Account
+  account: Account | AccountCreation
   children?: React.ReactNode
   editableAccountName?: boolean
-  onAccountSettings: () => void
-  onAccountTransactions: () => void
-  onClose: () => void
-  onDeposit: () => void
-  onManageAssets: () => void
-  onTrade: () => void
-  onWithdraw: () => void
+  onAccountSettings?: () => void
+  onAccountTransactions?: () => void
+  onClose?: () => void
+  onDeposit?: () => void
+  onManageAssets?: () => void
+  onRename: (newName: string) => void
+  onTrade?: () => void
+  onWithdraw?: () => void
 }
 
 function AccountHeaderCard(props: Props) {
@@ -57,42 +65,49 @@ function AccountHeaderCard(props: Props) {
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
 
+  const meta =
+    "publicKey" in props.account
+      ? ({ account: props.account as Account } as const)
+      : ({ accountCreation: props.account as AccountCreation } as const)
+
   const handleBackNavigation = React.useCallback(() => {
-    if (matchesRoute(router.location.pathname, routes.accountSettings(props.account.id))) {
-      router.history.push(routes.account(props.account.id))
+    if (meta.account && matchesRoute(router.location.pathname, routes.accountSettings(meta.account.id))) {
+      router.history.push(routes.account(meta.account.id))
     } else {
       router.history.push(routes.allAccounts())
     }
-  }, [props.account, router.history, router.location])
+  }, [meta.account, router.history, router.location])
 
   const showingSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"))
 
   const actions = React.useMemo(
     () => (
       <Box alignItems="center" display="flex" height={44} justifyContent="flex-end">
-        <AccountContextMenu
-          account={props.account}
-          onAccountSettings={props.onAccountSettings}
-          onAccountTransactions={props.onAccountTransactions}
-          onDeposit={props.onDeposit}
-          onManageAssets={props.onManageAssets}
-          onTrade={props.onTrade}
-          onWithdraw={props.onWithdraw}
-          settings={settings}
-          showingSettings={showingSettings}
-        >
-          {({ onOpen }) => (
-            <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
-              <MenuIcon style={{ fontSize: "inherit" }} />
-            </IconButton>
-          )}
-        </AccountContextMenu>
+        {meta.account ? (
+          <AccountContextMenu
+            account={meta.account}
+            onAccountSettings={props.onAccountSettings}
+            onAccountTransactions={props.onAccountTransactions}
+            onDeposit={props.onDeposit}
+            onManageAssets={props.onManageAssets}
+            onTrade={props.onTrade}
+            onWithdraw={props.onWithdraw}
+            settings={settings}
+            showingSettings={showingSettings}
+          >
+            {({ onOpen }) => (
+              <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
+                <MenuIcon style={{ fontSize: "inherit" }} />
+              </IconButton>
+            )}
+          </AccountContextMenu>
+        ) : null}
       </Box>
     ),
     [
       classes.button,
       classes.menuButton,
-      props.account,
+      meta.account,
       props.onAccountSettings,
       props.onAccountTransactions,
       props.onDeposit,
@@ -107,10 +122,18 @@ function AccountHeaderCard(props: Props) {
   const badges = React.useMemo(
     () => (
       <React.Suspense fallback={null}>
-        <Badges account={props.account} />
+        {meta.account ? (
+          <Badges account={meta.account} />
+        ) : (
+          <StaticBadges
+            multisig={meta.accountCreation.multisig ? "generic" : undefined}
+            password={meta.accountCreation.requiresPassword}
+            testnet={meta.accountCreation.testnet}
+          />
+        )}
       </React.Suspense>
     ),
-    [props.account]
+    [meta.account, meta.accountCreation]
   )
 
   return (
@@ -128,12 +151,14 @@ function AccountHeaderCard(props: Props) {
           <AccountTitle
             // set the key to force the component to remount on account change
             // in order to clear the component state containing a copy of the account title
-            key={props.account.id}
-            account={props.account}
+            key={meta.account?.id}
             actions={actions}
             badges={badges}
             editable={props.editableAccountName}
+            permanentlyEditing={!meta.account}
+            name={meta.account?.name || meta.accountCreation!.name}
             onNavigateBack={handleBackNavigation}
+            onRename={props.onRename}
           />
         </React.Suspense>
         {props.children}

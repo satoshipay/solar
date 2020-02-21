@@ -9,12 +9,20 @@ import ConnectionErrorListener from "./components/Toasts/ConnectionErrorListener
 import NotificationContainer from "./components/Toasts/NotificationContainer"
 import AccountPage from "./pages/account"
 import AllAccountsPage from "./pages/all-accounts"
-import CreateAccountPage from "./pages/create-account"
 import SettingsPage from "./pages/settings"
 import { appIsLoaded } from "./splash-screen"
 
-const CreateMainnetAccount = () => <CreateAccountPage testnet={false} />
-const CreateTestnetAccount = () => <CreateAccountPage testnet={true} />
+const CreateMainnetAccount = () => (
+  <React.Suspense fallback={null}>
+    <AccountPage accountCreation="pubnet" />
+  </React.Suspense>
+)
+
+const CreateTestnetAccount = () => (
+  <React.Suspense fallback={null}>
+    <AccountPage accountCreation="testnet" />
+  </React.Suspense>
+)
 
 function Stage2() {
   React.useEffect(() => {
