@@ -15,7 +15,10 @@ import withFallback from "../Lazy/withFallback"
 import ViewLoading from "../ViewLoading"
 import AccountTitle, { Badges } from "./AccountTitle"
 
-const AccountContextMenu = withFallback(React.lazy(() => import("./AccountContextMenu")), <ViewLoading />)
+const AccountContextMenu = withFallback(
+  React.lazy(() => import("./AccountContextMenu")),
+  <ViewLoading style={{ justifyContent: "flex-end" }} />
+)
 
 const useAccountHeaderStyles = makeStyles({
   button: {
@@ -67,25 +70,23 @@ function AccountHeaderCard(props: Props) {
   const actions = React.useMemo(
     () => (
       <Box alignItems="center" display="flex" height={44} justifyContent="flex-end">
-        <React.Suspense fallback={null}>
-          <AccountContextMenu
-            account={props.account}
-            onAccountSettings={props.onAccountSettings}
-            onAccountTransactions={props.onAccountTransactions}
-            onDeposit={props.onDeposit}
-            onManageAssets={props.onManageAssets}
-            onTrade={props.onTrade}
-            onWithdraw={props.onWithdraw}
-            settings={settings}
-            showingSettings={showingSettings}
-          >
-            {({ onOpen }) => (
-              <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
-                <MenuIcon style={{ fontSize: "inherit" }} />
-              </IconButton>
-            )}
-          </AccountContextMenu>
-        </React.Suspense>
+        <AccountContextMenu
+          account={props.account}
+          onAccountSettings={props.onAccountSettings}
+          onAccountTransactions={props.onAccountTransactions}
+          onDeposit={props.onDeposit}
+          onManageAssets={props.onManageAssets}
+          onTrade={props.onTrade}
+          onWithdraw={props.onWithdraw}
+          settings={settings}
+          showingSettings={showingSettings}
+        >
+          {({ onOpen }) => (
+            <IconButton className={`${classes.button} ${classes.menuButton}`} color="inherit" onClick={onOpen}>
+              <MenuIcon style={{ fontSize: "inherit" }} />
+            </IconButton>
+          )}
+        </AccountContextMenu>
       </Box>
     ),
     [props.account, props.onAccountSettings, props.onTrade, props.onWithdraw, settings, showingSettings]
