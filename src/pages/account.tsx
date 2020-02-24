@@ -42,7 +42,7 @@ const AccountTransactions = withFallback(
 )
 const NewAccountSetup = withFallback(
   React.lazy(() => import("../components/AccountCreation/NewAccountSetup")),
-  <TransactionListPlaceholder />
+  <ViewLoading />
 )
 
 const AssetDetailsDialog = withFallback(
