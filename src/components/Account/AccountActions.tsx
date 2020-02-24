@@ -8,13 +8,10 @@ import QRCodeIcon from "../Icon/QRCode"
 
 export const useButtonStyles = makeStyles(theme => ({
   desktop: {
-    margin: 0,
+    margin: "0",
     padding: "24px 0 0",
 
-    "& $button:firt-child": {
-      marginRight: 40
-    },
-    "& $button:last-child": {
+    "& $button:last-child:not(:first-child)": {
       marginLeft: 40
     }
   },

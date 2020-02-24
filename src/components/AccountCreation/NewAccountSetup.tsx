@@ -5,48 +5,59 @@ import { useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import MainSelectionButton from "../Form/MainSelectionButton"
-import { HorizontalLayout } from "../Layout/Box"
+import { VerticalLayout } from "../Layout/Box"
 import Carousel from "../Layout/Carousel"
-import AccountCreationOptions from "./AccountCreationOptions"
+import AccountCreationOptions from "./AccountCreationSettings"
+import { AccountCreation, AccountCreationErrors } from "./types"
 
 interface InitialSelectionProps {
+  onUpdateAccountCreation: (update: Partial<AccountCreation>) => void
   testnet: boolean
 }
 
 const InitialSelection = React.memo(
   React.forwardRef(function InitialSelection(props: InitialSelectionProps, ref: React.Ref<HTMLDivElement>) {
+    const { onUpdateAccountCreation } = props
     const router = useRouter()
 
-    const navigateTo = React.useMemo(
-      () => ({
-        createAccount: () => router.history.push(routes.createAccount(props.testnet)),
-        importAccount: () => router.history.push(routes.importAccount(props.testnet))
-      }),
-      [props.testnet, router.history]
-    )
+    const createAccount = React.useCallback(() => {
+      onUpdateAccountCreation({ import: false })
+      router.history.push(routes.createAccount(props.testnet))
+    }, [onUpdateAccountCreation, props.testnet, router.history])
+
+    const importAccount = React.useCallback(() => {
+      onUpdateAccountCreation({ import: true })
+      router.history.push(routes.importAccount(props.testnet))
+    }, [onUpdateAccountCreation, props.testnet, router.history])
 
     return (
-      <HorizontalLayout ref={ref} justifyContent="space-evenly" margin="48px 0 24px" padding="0 8px" wrap="wrap">
+      <VerticalLayout ref={ref} alignItems="center" justifyContent="space-evenly" margin="48px 0 24px" padding="0 8px">
         <MainSelectionButton
           label="Create account"
           description="Create a new empty account"
-          onClick={navigateTo.createAccount}
+          onClick={createAccount}
           style={{ marginBottom: 16 }}
           Icon={AddIcon}
         />
         <MainSelectionButton
           label="Import account"
           description="Restore account from backup"
-          onClick={navigateTo.importAccount}
+          onClick={importAccount}
           style={{ marginBottom: 16 }}
           Icon={RestoreIcon}
         />
-      </HorizontalLayout>
+      </VerticalLayout>
     )
   })
 )
 
-function NewAccountSetup() {
+interface NewAccountSetupProps {
+  accountCreation: AccountCreation
+  errors: AccountCreationErrors
+  onUpdateAccountCreation: (update: Partial<AccountCreation>) => void
+}
+
+function NewAccountSetup(props: NewAccountSetupProps) {
   const router = useRouter()
   const testnet = Boolean(router.location.pathname.match(/\/testnet/))
 
@@ -54,20 +65,8 @@ function NewAccountSetup() {
 
   return (
     <Carousel current={isSelectionStep ? 0 : 1}>
-      <InitialSelection testnet={testnet} />
-      <>
-        {(() => {
-          if (matchesRoute(router.location.pathname, routes.createAccount(testnet), false)) {
-            return <AccountCreationOptions />
-          } else if (matchesRoute(router.location.pathname, routes.importAccount(testnet), false)) {
-            return <AccountCreationOptions import />
-          } else if (matchesRoute(router.location.pathname, routes.newAccount(testnet), false)) {
-            return null
-          } else {
-            throw Error(`On unknown route: ${router.location.pathname}`)
-          }
-        })()}
-      </>
+      <InitialSelection onUpdateAccountCreation={props.onUpdateAccountCreation} testnet={testnet} />
+      <AccountCreationOptions {...props} />
     </Carousel>
   )
 }

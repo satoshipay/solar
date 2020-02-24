@@ -1,10 +1,23 @@
 import React from "react"
+import { makeStyles } from "@material-ui/core/styles"
 import CheckIcon from "@material-ui/icons/Check"
 import { useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { useButtonStyles } from "../Account/AccountActions"
+
+const useAccountCreationStyles = makeStyles({
+  desktopBox: {
+    margin: "16px 0",
+    padding: "0 40px"
+  },
+  inlineButton: {
+    flexBasis: "auto",
+    flexGrow: 0,
+    padding: "10px 20px !important"
+  }
+})
 
 interface AccountCreationActionsProps {
   bottomOfScreen?: boolean
@@ -13,16 +26,22 @@ interface AccountCreationActionsProps {
 }
 
 function AccountCreationActions(props: AccountCreationActionsProps) {
-  const classes = useButtonStyles()
+  const defaultClasses = useButtonStyles()
+  const customClasses = useAccountCreationStyles()
+
+  const classes = { ...defaultClasses, ...customClasses }
   const router = useRouter()
-  const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop}`
+
+  const boxClassName = `${props.bottomOfScreen ? classes.mobile : `${classes.desktop} ${classes.desktopBox}`}`
+  const buttonClassName = `${classes.button} ${props.bottomOfScreen ? "" : classes.inlineButton}`
+
   return (
-    <DialogActionsBox className={className}>
+    <DialogActionsBox className={boxClassName}>
       {(() => {
         if (matchesRoute(router.location.pathname, routes.createAccount(props.testnet))) {
           return (
             <ActionButton
-              className={classes.button}
+              className={buttonClassName}
               icon={<CheckIcon style={{ fontSize: "120%" }} />}
               onClick={props.onActionButtonClick}
               type="primary"
@@ -33,7 +52,7 @@ function AccountCreationActions(props: AccountCreationActionsProps) {
         } else if (matchesRoute(router.location.pathname, routes.importAccount(props.testnet))) {
           return (
             <ActionButton
-              className={classes.button}
+              className={buttonClassName}
               icon={<CheckIcon style={{ fontSize: "120%" }} />}
               onClick={props.onActionButtonClick}
               type="primary"

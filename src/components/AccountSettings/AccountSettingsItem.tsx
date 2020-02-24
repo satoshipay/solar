@@ -13,6 +13,7 @@ const useAccountSettingsItemStyles = makeStyles({
     fontSize: 48,
     justifyContent: "center",
     marginRight: -8,
+    transition: "transform .3s",
     width: 48
   },
   icon: {
@@ -25,6 +26,7 @@ const useAccountSettingsItemStyles = makeStyles({
     position: "relative",
     padding: "16px 24px",
     background: "#FFFFFF",
+    boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.1)",
 
     [breakpoints.down(600)]: {
       padding: "16px 12px"
@@ -33,34 +35,54 @@ const useAccountSettingsItemStyles = makeStyles({
     "&:focus": {
       backgroundColor: "#FFFFFF"
     },
-    "&:hover": {
+    "&$button:hover": {
       backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
     },
     "&:not(:first-child)": {
       borderTop: "1px solid rgba(230, 230, 230, 1.0)"
     }
+  },
+  button: {
+    // only used in conjunction with settingsItem
+  },
+  rotateRight: {
+    transform: "rotate(90deg)"
   }
 })
 
 interface AccountSettingsItemProps {
   children: React.ReactNode
+  caret?: "show" | "hide" | "rotate-right"
   disabled?: boolean
-  icon: React.ReactElement
-  onClick: () => void
+  icon: React.ReactElement | null | undefined
+  onClick?: () => void
 }
 
-function AccountSettingsItem(props: AccountSettingsItemProps) {
+const AccountSettingsItem = React.forwardRef(function AccountSettingsItem(
+  props: AccountSettingsItemProps,
+  ref: React.Ref<HTMLLIElement>
+) {
   const classes = useAccountSettingsItemStyles()
+  const isButton = Boolean(props.onClick)
+  const className = `${classes.settingsItem} ${isButton ? classes.button : ""}`
 
   return (
-    <ListItem button className={classes.settingsItem} disabled={props.disabled} onClick={props.onClick}>
-      <ListItemIcon className={classes.icon}>{props.icon}</ListItemIcon>
+    <ListItem
+      button={isButton as any}
+      className={className}
+      disabled={props.disabled}
+      onClick={props.onClick}
+      ref={ref}
+    >
+      <ListItemIcon className={classes.icon}>{props.icon || <div />}</ListItemIcon>
       {props.children}
-      <ListItemIcon className={classes.caret}>
-        <KeyboardArrowRightIcon className={classes.caret} />
-      </ListItemIcon>
+      {props.caret !== "hide" ? (
+        <ListItemIcon className={`${classes.caret} ${props.caret === "rotate-right" ? classes.rotateRight : ""}`}>
+          <KeyboardArrowRightIcon className={classes.caret} />
+        </ListItemIcon>
+      ) : null}
     </ListItem>
   )
-}
+})
 
-export default AccountSettingsItem
+export default React.memo(AccountSettingsItem)

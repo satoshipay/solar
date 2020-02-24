@@ -1,10 +1,14 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import { Keypair } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import AccountActions from "../components/Account/AccountActions"
 import AccountCreationActions from "../components/AccountCreation/AccountCreationActions"
-import AccountHeaderCard, { AccountCreation } from "../components/Account/AccountHeaderCard"
+import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
+import NoPasswordConfirmation from "../components/AccountCreation/NoPasswordConfirmation"
+import { AccountCreation, AccountCreationErrors } from "../components/AccountCreation/types"
+import ExportKeyDialog from "../components/AccountSettings/ExportKeyDialog"
 import InlineLoader from "../components/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
@@ -61,10 +65,42 @@ const TransferDialog = withFallback(
   <ViewLoading />
 )
 
-function useNewAccountName() {
+function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
+  const publicKey = Keypair.fromSecret(privateKey).publicKey()
+  return accounts.some(account => account.publicKey === publicKey)
+}
+
+function useAccountCreationValidation() {
+  const { accounts } = React.useContext(AccountsContext)
   const { t } = useTranslation()
 
-  return function getNewAccountName(accounts: Account[], testnet?: boolean) {
+  return function validateAccountCreation(accountCreation: AccountCreation) {
+    const errors: AccountCreationErrors = {}
+
+    if (accountCreation.requiresPassword && !accountCreation.password) {
+      errors.password = t("create-account.validation.no-password")
+    } else if (accountCreation.requiresPassword && accountCreation.repeatedPassword !== accountCreation.password) {
+      errors.password = t("create-account.validation.password-no-match")
+    }
+
+    if (accountCreation.import && !(accountCreation.secretKey || "").match(/^S[A-Z0-9]{55}$/)) {
+      errors.secretKey = t("create-account.validation.invalid-key")
+    } else if (accountCreation.import && isAccountAlreadyImported(accountCreation.secretKey!, accounts)) {
+      errors.secretKey = t("create-account.validation.same-account")
+    }
+
+    return {
+      errors,
+      success: Object.keys(errors).length === 0
+    }
+  }
+}
+
+function useNewAccountName() {
+  const { accounts } = React.useContext(AccountsContext)
+  const { t } = useTranslation()
+
+  return function getNewAccountName(testnet?: boolean) {
     const baseName = testnet ? t("create-account.base-name.testnet") : t("create-account.base-name.mainnet")
     const deriveName = (idx: number) => (idx === 0 ? baseName : `${baseName} ${idx + 1}`)
 
@@ -79,6 +115,23 @@ function useNewAccountName() {
   }
 }
 
+function useAccountCreation() {
+  const { createAccount } = React.useContext(AccountsContext)
+
+  return async (accountCreation: AccountCreation, testnet: boolean) => {
+    const keypair = accountCreation.import ? Keypair.fromSecret(accountCreation.secretKey!) : Keypair.random()
+
+    const account = await createAccount({
+      name: accountCreation.name,
+      keypair,
+      password: accountCreation.requiresPassword ? accountCreation.password : null,
+      testnet
+    })
+
+    return account
+  }
+}
+
 interface AccountPageContentProps {
   account: Account | undefined
   testnet: boolean
@@ -87,14 +140,24 @@ interface AccountPageContentProps {
 const AccountPageContent = React.memo(function AccountPageContent(props: AccountPageContentProps) {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+  const { t } = useTranslation()
   const { accounts, renameAccount } = React.useContext(AccountsContext)
+  const [createdAccount, setCreatedAccount] = React.useState<Account | null>(null)
+  const [noPasswordDialogOpen, setNoPasswordDialogOpen] = React.useState(false)
+
+  const createAccount = useAccountCreation()
   const getNewAccountName = useNewAccountName()
+  const validateAccountCreation = useAccountCreationValidation()
 
   const showAccountCreation =
     matchesRoute(router.location.pathname, routes.createAccount(true), false) ||
     matchesRoute(router.location.pathname, routes.createAccount(false), false) ||
     matchesRoute(router.location.pathname, routes.importAccount(true), false) ||
     matchesRoute(router.location.pathname, routes.importAccount(false), false) ||
+    matchesRoute(router.location.pathname, routes.newAccount(true), false) ||
+    matchesRoute(router.location.pathname, routes.newAccount(false), false)
+
+  const showAccountCreationOptions =
     matchesRoute(router.location.pathname, routes.newAccount(true), false) ||
     matchesRoute(router.location.pathname, routes.newAccount(false), false)
 
@@ -112,11 +175,16 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const showSendReceiveButtons = !matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
 
   const [accountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
+    import: matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false),
     multisig: false,
-    name: getNewAccountName(accounts, props.testnet),
-    requiresPassword: false, // FIXME
+    name: getNewAccountName(props.testnet),
+    password: "",
+    repeatedPassword: "",
+    requiresPassword: true,
     testnet: props.testnet
   }))
+
+  const [accountCreationErrors, setAccountCreationErrors] = React.useState<AccountCreationErrors>({})
 
   const headerHeight = showAccountCreation
     ? isSmallScreen
@@ -164,16 +232,68 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     [props.account, renameAccount]
   )
 
-  const onCreateAccount = React.useCallback(() => {
-    // FIXME
+  const updateAccountCreation = React.useCallback((update: Partial<AccountCreation>) => {
+    setAccountCreation(prev => ({
+      ...prev,
+      ...update
+    }))
   }, [])
+
+  const createNewAccount = React.useCallback(() => {
+    ;(async () => {
+      const account = await createAccount(accountCreation, props.testnet)
+
+      if (!accountCreation.import && !props.testnet) {
+        setCreatedAccount(account)
+      } else {
+        router.history.push(routes.account(account.id))
+      }
+    })().catch(trackError)
+  }, [accountCreation, createAccount, props.testnet, router.history])
+
+  const onCreateAccount = React.useCallback(() => {
+    const { errors, success } = validateAccountCreation(accountCreation)
+
+    setAccountCreationErrors(errors)
+
+    if (!success) {
+      return
+    }
+
+    if (!accountCreation.requiresPassword && !props.testnet) {
+      setNoPasswordDialogOpen(true)
+    } else {
+      createNewAccount()
+    }
+  }, [accountCreation, createNewAccount, props.testnet, validateAccountCreation])
+
+  const closeNoPasswordDialog = React.useCallback(() => {
+    setNoPasswordDialogOpen(false)
+  }, [])
+
+  const confirmNoPasswordDialog = React.useCallback(() => {
+    setNoPasswordDialogOpen(false)
+    createNewAccount()
+  }, [createNewAccount])
+
+  const closeBackupDialog = React.useCallback(() => {
+    if (createdAccount) {
+      router.history.push(routes.account(createdAccount.id))
+    }
+  }, [createdAccount, router.history])
+
+  const creationTitle = props.testnet
+    ? t("create-account.header.placeholder.testnet")
+    : t("create-account.header.placeholder.mainnet")
 
   // Let's memo the AccountHeaderCard as it's pretty expensive to re-render
   const headerCard = React.useMemo(
     () => (
       <AccountHeaderCard
-        account={props.account || accountCreation}
-        editableAccountName={showAccountSettings || showAccountCreation}
+        account={
+          showAccountCreationOptions ? { ...accountCreation, name: creationTitle } : props.account || accountCreation
+        }
+        editableAccountName={showAccountSettings || (showAccountCreation && !showAccountCreationOptions)}
         onAccountSettings={navigateTo.accountSettings}
         onAccountTransactions={navigateTo.transactions}
         onClose={navigateTo.transactions}
@@ -186,31 +306,27 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
         {props.account ? (
           <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
         ) : null}
-        {isSmallScreen ? null : (
+        {isSmallScreen || !props.account ? null : (
           <React.Suspense fallback={<InlineLoader />}>
-            {props.account ? (
-              <AccountActions
-                account={props.account}
-                hidden={!showSendReceiveButtons}
-                onCreatePayment={navigateTo.createPayment!}
-                onReceivePayment={navigateTo.receivePayment!}
-              />
-            ) : (
-              <AccountCreationActions onActionButtonClick={onCreateAccount} testnet={props.testnet} />
-            )}
+            <AccountActions
+              account={props.account}
+              hidden={!showSendReceiveButtons}
+              onCreatePayment={navigateTo.createPayment!}
+              onReceivePayment={navigateTo.receivePayment!}
+            />
           </React.Suspense>
         )}
       </AccountHeaderCard>
     ),
     [
       accountCreation,
+      creationTitle,
       isSmallScreen,
       navigateTo,
-      onCreateAccount,
       performRenaming,
       props.account,
-      props.testnet,
       showAccountCreation,
+      showAccountCreationOptions,
       showAccountSettings,
       showSendReceiveButtons
     ]
@@ -231,30 +347,40 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           overflowY: "auto"
         }}
       >
-        <React.Suspense fallback={<TransactionListPlaceholder />}>
-          {showAccountCreation ? (
-            <NewAccountSetup />
-          ) : showAccountSettings ? (
-            <AccountSettings account={props.account!} />
-          ) : (
-            <AccountTransactions account={props.account!} />
-          )}
-        </React.Suspense>
-      </Section>
-      {isSmallScreen ? (
-        <React.Suspense fallback={<ViewLoading />}>
-          {props.account ? (
-            <AccountActions
-              account={props.account}
-              bottomOfScreen
-              hidden={!showSendReceiveButtons}
-              onCreatePayment={navigateTo.createPayment!}
-              onReceivePayment={navigateTo.receivePayment!}
+        {showAccountCreation ? (
+          <React.Suspense fallback={<ViewLoading />}>
+            <NewAccountSetup
+              accountCreation={accountCreation}
+              errors={accountCreationErrors}
+              onUpdateAccountCreation={updateAccountCreation}
             />
-          ) : (
-            <AccountCreationActions bottomOfScreen onActionButtonClick={onCreateAccount} testnet={props.testnet} />
-          )}
+          </React.Suspense>
+        ) : showAccountSettings ? (
+          <React.Suspense fallback={<TransactionListPlaceholder />}>
+            <AccountSettings account={props.account!} />
+          </React.Suspense>
+        ) : (
+          <React.Suspense fallback={<TransactionListPlaceholder />}>
+            <AccountTransactions account={props.account!} />
+          </React.Suspense>
+        )}
+      </Section>
+      {isSmallScreen && props.account ? (
+        <React.Suspense fallback={<ViewLoading />}>
+          <AccountActions
+            account={props.account}
+            bottomOfScreen
+            hidden={!showSendReceiveButtons}
+            onCreatePayment={navigateTo.createPayment!}
+            onReceivePayment={navigateTo.receivePayment!}
+          />
         </React.Suspense>
+      ) : !props.account ? (
+        <AccountCreationActions
+          bottomOfScreen={isSmallScreen}
+          onActionButtonClick={onCreateAccount}
+          testnet={props.testnet}
+        />
       ) : null}
 
       {props.account ? (
@@ -329,6 +455,21 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           </Dialog>
         </>
       ) : null}
+      {props.account ? null : (
+        <NoPasswordConfirmation
+          onClose={closeNoPasswordDialog}
+          onConfirm={confirmNoPasswordDialog}
+          open={noPasswordDialogOpen}
+        />
+      )}
+      <Dialog
+        fullScreen
+        open={createdAccount !== null}
+        onClose={closeBackupDialog}
+        TransitionComponent={FullscreenDialogTransition}
+      >
+        <ExportKeyDialog account={createdAccount!} onConfirm={closeBackupDialog} variant="initial-backup" />
+      </Dialog>
     </VerticalLayout>
   )
 })

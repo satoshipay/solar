@@ -10,6 +10,7 @@ import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import { breakpoints } from "../../theme"
+import { AccountCreation } from "../AccountCreation/types"
 import { Box } from "../Layout/Box"
 import withFallback from "../Lazy/withFallback"
 import ViewLoading from "../ViewLoading"
@@ -37,13 +38,6 @@ const useAccountHeaderStyles = makeStyles({
   },
   menuButton: {}
 })
-
-export interface AccountCreation {
-  multisig: boolean
-  name: string
-  requiresPassword: boolean
-  testnet: boolean
-}
 
 interface Props {
   account: Account | AccountCreation
@@ -155,9 +149,9 @@ function AccountHeaderCard(props: Props) {
             // in order to clear the component state containing a copy of the account title
             key={meta.account?.id}
             actions={actions}
-            badges={badges}
+            badges={meta.account || props.editableAccountName ? badges : null}
             editable={props.editableAccountName}
-            permanentlyEditing={!meta.account}
+            permanentlyEditing={props.editableAccountName && !meta.account}
             name={meta.account?.name || meta.accountCreation!.name}
             onNavigateBack={handleBackNavigation}
             onRename={props.onRename}

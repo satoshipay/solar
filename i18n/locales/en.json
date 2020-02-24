@@ -290,6 +290,17 @@
         "testnet": "New Testnet Account"
       }
     },
+    "options": {
+      "import": {
+        "label": "Import secret key",
+        "description": "Restore account from backup"
+      },
+      "password": {
+        "label": "Password protection",
+        "protected": "Your secret key will be encrypted",
+        "unprotected": "Your secret key will be unprotected"
+      }
+    },
     "toggle": {
       "password": {
         "textfield": {

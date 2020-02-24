@@ -113,8 +113,13 @@ const useTitleTextfieldStyles = makeStyles({
       color: "white"
     }
   },
-  underlinedInput: {
-    borderBottom: "1px solid white"
+  underlined: {
+    "&:before": {
+      borderBottomColor: "rgba(255, 255, 255, 0.7)"
+    },
+    "&:hover:before": {
+      borderBottomColor: "rgba(255, 255, 255, 0.87) !important"
+    }
   }
 })
 
@@ -128,7 +133,6 @@ interface TitleTextFieldProps {
   preventClicks?: boolean
   mode: "editing" | "readonly"
   showEdit: boolean
-  showUnderlineOnEdit?: boolean
   style?: React.CSSProperties
   value: string
 }
@@ -139,9 +143,6 @@ function TitleTextField(props: TitleTextFieldProps) {
   return (
     <TextField
       inputProps={{
-        className: `${classes.input} ${
-          props.mode === "editing" && props.showUnderlineOnEdit ? classes.underlinedInput : ""
-        }`,
         onClick: props.onClick,
         size: Math.max(length + 1, 4),
         style: {
@@ -153,7 +154,8 @@ function TitleTextField(props: TitleTextFieldProps) {
       }}
       inputRef={props.inputRef}
       InputProps={{
-        disableUnderline: true,
+        className: props.mode === "editing" ? classes.underlined : "",
+        disableUnderline: props.mode === "readonly",
         endAdornment: !props.showEdit ? null : (
           <InputAdornment position="end" style={{ height: "auto" }}>
             {props.actions}
@@ -194,8 +196,13 @@ function AccountTitle(props: AccountTitleProps) {
   const router = useRouter()
   const isSmallScreen = useIsMobile()
 
-  const [mode, setMode] = React.useState<TitleTextFieldProps["mode"]>(props.permanentlyEditing ? "editing" : "readonly")
-  const [name, setName] = React.useState<string>(props.name)
+  const [rawMode, setMode] = React.useState<TitleTextFieldProps["mode"]>(
+    props.permanentlyEditing ? "editing" : "readonly"
+  )
+  const [rawName, setName] = React.useState<string>(props.name)
+
+  const mode = props.permanentlyEditing ? "editing" : rawMode
+  const name = props.permanentlyEditing ? props.name : rawName
 
   const inputRef = React.createRef<HTMLInputElement>()
 
@@ -303,8 +310,6 @@ function AccountTitle(props: AccountTitleProps) {
           preventClicks={!props.editable}
           mode={mode}
           showEdit={props.editable || false}
-          // Since we cannot auto-select the text on iOS, highlight that it's editable by underline
-          showUnderlineOnEdit={process.env.PLATFORM === "ios"}
           value={name}
         />
       }
