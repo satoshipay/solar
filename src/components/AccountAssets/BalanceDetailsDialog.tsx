@@ -2,7 +2,6 @@ import BigNumber from "big.js"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
-import CircularProgress from "@material-ui/core/CircularProgress"
 import Dialog from "@material-ui/core/Dialog"
 import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
@@ -18,6 +17,7 @@ import { FullscreenDialogTransition } from "../../theme"
 import { sortBalances } from "../Account/AccountBalances"
 import DialogBody from "../Dialog/DialogBody"
 import MainTitle from "../MainTitle"
+import ViewLoading from "../ViewLoading"
 import AddAssetDialog from "./AddAssetDialog"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 import ButtonListItem from "./ButtonListItem"
@@ -206,7 +206,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
         onClose={closeAddAssetDialog}
         TransitionComponent={FullscreenDialogTransition}
       >
-        <React.Suspense fallback={<CircularProgress />}>
+        <React.Suspense fallback={<ViewLoading />}>
           <AddAssetDialog
             account={props.account}
             accountData={accountData}
