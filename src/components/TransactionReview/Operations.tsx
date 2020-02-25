@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
 import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
+import { useAccountHomeDomainSafe } from "../../hooks/stellar"
 import { useIsSmallMobile } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
@@ -160,15 +161,17 @@ function CreateAccountOperation(props: OperationProps<Operation.CreateAccount>) 
   )
 }
 
-function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust>) {
+function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust> & { testnet: boolean }) {
   const { t } = useTranslation()
+  const homeDomain = useAccountHomeDomainSafe(props.operation.line.issuer, props.testnet)
+
   if (BigNumber(props.operation.limit).eq(0)) {
     return (
       <SummaryItem heading={props.hideHeading ? undefined : t("operations.change-trust.title.remove-asset")}>
         <SummaryDetailsField label={t("operations.change-trust.summary.asset")} value={props.operation.line.code} />
         <SummaryDetailsField
           label={t("operations.change-trust.summary.issued-by")}
-          value={<CopyableAddress address={props.operation.line.issuer} variant="short" />}
+          value={<CopyableAddress address={homeDomain || props.operation.line.issuer} variant="short" />}
         />
       </SummaryItem>
     )
@@ -178,7 +181,7 @@ function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust>) {
         <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
           label={t("operations.change-trust.summary.issued-by")}
-          value={<CopyableAddress address={props.operation.line.issuer} variant="short" />}
+          value={<CopyableAddress address={homeDomain || props.operation.line.issuer} variant="short" />}
         />
         {BigNumber(props.operation.limit).gt(900000000000) ? null : (
           <SummaryDetailsField
@@ -187,9 +190,9 @@ function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust>) {
               trustlineLimitEqualsUnlimited(props.operation.limit)
                 ? t("operations.change-trust.summary.limit.value.unlimited")
                 : t("operations.change-trust.summary.limit.value.limited-to", {
-                  limit: props.operation.limit,
-                  code: props.operation.line.code
-                })
+                    limit: props.operation.limit,
+                    code: props.operation.line.code
+                  })
             }
           />
         )}
@@ -483,7 +486,14 @@ function OperationListItem(props: Props) {
   const hideHeading = props.transaction.operations.length === 1
 
   if (props.operation.type === "changeTrust") {
-    return <ChangeTrustOperation hideHeading={hideHeading} operation={props.operation} style={props.style} />
+    return (
+      <ChangeTrustOperation
+        hideHeading={hideHeading}
+        operation={props.operation}
+        style={props.style}
+        testnet={props.testnet}
+      />
+    )
   } else if (props.operation.type === "createAccount") {
     return <CreateAccountOperation hideHeading={hideHeading} operation={props.operation} style={props.style} />
   } else if (props.operation.type === "payment") {
