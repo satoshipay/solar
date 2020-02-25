@@ -1,6 +1,6 @@
 import React from "react"
-import AddIcon from "@material-ui/icons/Add"
 import RestoreIcon from "@material-ui/icons/SettingsBackupRestore"
+import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
 import { useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
@@ -34,17 +34,20 @@ const InitialSelection = React.memo(
       <VerticalLayout ref={ref} alignItems="center" margin="48px 0 24px" padding="0 8px">
         <VerticalLayout alignItems="stretch" margin="0 auto">
           <MainSelectionButton
+            dense
             label="Create account"
             description="Create a new empty account"
+            gutterBottom
             onClick={createAccount}
-            style={{ marginBottom: 16 }}
-            Icon={AddIcon}
+            variant="primary"
+            Icon={WalletIcon}
           />
           <MainSelectionButton
+            dense
             label="Import account"
             description="Restore account from backup"
+            gutterBottom
             onClick={importAccount}
-            style={{ marginBottom: 16 }}
             Icon={RestoreIcon}
           />
         </VerticalLayout>

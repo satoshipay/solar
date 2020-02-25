@@ -19,15 +19,15 @@ const MainActionSelection = React.forwardRef(function MainActionSelection(
       <MainSelectionButton
         label="Buy asset"
         description={"Buy some amount of an asset on the distributed exchange"}
+        gutterBottom
         onClick={props.onSelectBuy}
-        style={{ marginBottom: 16 }}
         Icon={AddIcon}
       />
       <MainSelectionButton
         label="Sell asset"
         description={"Trade some amount of an asset for another one"}
+        gutterBottom
         onClick={props.onSelectSell}
-        style={{ marginBottom: 16 }}
         Icon={RemoveIcon}
       />
     </HorizontalLayout>
