@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { Asset, Operation, Transaction } from "stellar-sdk"
 import { formatBalance, SingleBalance } from "../Account/AccountBalances"
 import { useLiveAccountOffers } from "../../hooks/stellar-subscriptions"
-import { useAccountHomeDomain } from "../../hooks/stellar"
+import { useAccountHomeDomainSafe } from "../../hooks/stellar"
 import { useIsSmallMobile } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
@@ -163,7 +163,7 @@ function CreateAccountOperation(props: OperationProps<Operation.CreateAccount>) 
 
 function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust> & { testnet: boolean }) {
   const { t } = useTranslation()
-  const homeDomain = useAccountHomeDomain(props.operation.line.issuer, props.testnet)
+  const homeDomain = useAccountHomeDomainSafe(props.operation.line.issuer, props.testnet)
 
   if (BigNumber(props.operation.limit).eq(0)) {
     return (

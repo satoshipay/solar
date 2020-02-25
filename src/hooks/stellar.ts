@@ -199,6 +199,25 @@ export function useAccountHomeDomain(
   return useAccountHomeDomains(accountID ? [accountID] : [], testnet, allowIncompleteResult)[0]
 }
 
+/**
+ * Same as `useAccountHomeDomain()`, but additionally checks
+ */
+export function useAccountHomeDomainSafe(
+  accountID: string | undefined,
+  testnet: boolean,
+  allowIncompleteResult?: boolean
+) {
+  const homeDomain = useAccountHomeDomain(accountID, testnet, allowIncompleteResult)
+  const stellarToml = useStellarToml(homeDomain)
+
+  const matchesIssuingAccount =
+    stellarToml && (stellarToml.CURRENCIES || []).some(currency => currency.issuer === accountID)
+  const matchesSigningKey =
+    stellarToml && (stellarToml.SIGNING_KEY === accountID || stellarToml.URI_REQUEST_SIGNING_KEY === accountID)
+
+  return homeDomain && (matchesIssuingAccount || matchesSigningKey) ? homeDomain : undefined
+}
+
 export function useAssetMetadata(asset: Asset | undefined, testnet: boolean): StellarTomlCurrency | undefined {
   const assetCode = !asset || asset.isNative() ? undefined : asset.getCode()
   const issuerAccountID = !asset || asset.isNative() ? undefined : asset.getIssuer()

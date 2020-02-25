@@ -54,4 +54,6 @@ export type StellarToml = Partial<{
   CURRENCIES: StellarTomlCurrency[]
   DOCUMENTATION: StellarTomlIssuer
   PRINCIPALS: StellarTomlPrincipal[]
+  SIGNING_KEY?: string
+  URI_REQUEST_SIGNING_KEY?: string
 }>
