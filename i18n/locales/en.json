@@ -316,7 +316,7 @@
       "no-account-name": "No account name has been entered.",
       "no-password": "No password has been entered.",
       "password-no-match": "Password does not match.",
-      "same-account": "You cannot import the same account twice."
+      "same-account": "Already added this account."
     }
   },
   "custom-trustline": {
