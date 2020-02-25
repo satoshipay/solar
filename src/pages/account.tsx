@@ -1,9 +1,9 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Keypair } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import AccountActions from "../components/Account/AccountActions"
 import AccountCreationActions from "../components/AccountCreation/AccountCreationActions"
+import useAccountCreation from "../components/AccountCreation/useAccountCreation"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
 import NoPasswordConfirmation from "../components/AccountCreation/NoPasswordConfirmation"
@@ -65,73 +65,6 @@ const TransferDialog = withFallback(
   <ViewLoading />
 )
 
-function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
-  const publicKey = Keypair.fromSecret(privateKey).publicKey()
-  return accounts.some(account => account.publicKey === publicKey)
-}
-
-function useAccountCreationValidation() {
-  const { accounts } = React.useContext(AccountsContext)
-  const { t } = useTranslation()
-
-  return function validateAccountCreation(accountCreation: AccountCreation) {
-    const errors: AccountCreationErrors = {}
-
-    if (accountCreation.requiresPassword && !accountCreation.password) {
-      errors.password = t("create-account.validation.no-password")
-    } else if (accountCreation.requiresPassword && accountCreation.repeatedPassword !== accountCreation.password) {
-      errors.password = t("create-account.validation.password-no-match")
-    }
-
-    if (accountCreation.import && !(accountCreation.secretKey || "").match(/^S[A-Z0-9]{55}$/)) {
-      errors.secretKey = t("create-account.validation.invalid-key")
-    } else if (accountCreation.import && isAccountAlreadyImported(accountCreation.secretKey!, accounts)) {
-      errors.secretKey = t("create-account.validation.same-account")
-    }
-
-    return {
-      errors,
-      success: Object.keys(errors).length === 0
-    }
-  }
-}
-
-function useNewAccountName() {
-  const { accounts } = React.useContext(AccountsContext)
-  const { t } = useTranslation()
-
-  return function getNewAccountName(testnet?: boolean) {
-    const baseName = testnet ? t("create-account.base-name.testnet") : t("create-account.base-name.mainnet")
-    const deriveName = (idx: number) => (idx === 0 ? baseName : `${baseName} ${idx + 1}`)
-
-    let index = 0
-
-    // Find an account name that is not in use yet
-    while (accounts.some(account => account.name === deriveName(index))) {
-      index++
-    }
-
-    return deriveName(index)
-  }
-}
-
-function useAccountCreation() {
-  const { createAccount } = React.useContext(AccountsContext)
-
-  return async (accountCreation: AccountCreation, testnet: boolean) => {
-    const keypair = accountCreation.import ? Keypair.fromSecret(accountCreation.secretKey!) : Keypair.random()
-
-    const account = await createAccount({
-      name: accountCreation.name,
-      keypair,
-      password: accountCreation.requiresPassword ? accountCreation.password : null,
-      testnet
-    })
-
-    return account
-  }
-}
-
 interface AccountPageContentProps {
   account: Account | undefined
   testnet: boolean
@@ -145,21 +78,12 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const [createdAccount, setCreatedAccount] = React.useState<Account | null>(null)
   const [noPasswordDialogOpen, setNoPasswordDialogOpen] = React.useState(false)
 
-  const createAccount = useAccountCreation()
-  const getNewAccountName = useNewAccountName()
-  const validateAccountCreation = useAccountCreationValidation()
-
   const showAccountCreation =
-    matchesRoute(router.location.pathname, routes.createAccount(true), false) ||
-    matchesRoute(router.location.pathname, routes.createAccount(false), false) ||
-    matchesRoute(router.location.pathname, routes.importAccount(true), false) ||
-    matchesRoute(router.location.pathname, routes.importAccount(false), false) ||
-    matchesRoute(router.location.pathname, routes.newAccount(true), false) ||
-    matchesRoute(router.location.pathname, routes.newAccount(false), false)
+    matchesRoute(router.location.pathname, routes.createAccount(props.testnet), false) ||
+    matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false) ||
+    matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
 
-  const showAccountCreationOptions =
-    matchesRoute(router.location.pathname, routes.newAccount(true), false) ||
-    matchesRoute(router.location.pathname, routes.newAccount(false), false)
+  const showAccountCreationOptions = matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
 
   const showAccountSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
   const showAssetDetails =
@@ -174,17 +98,16 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
 
   const showSendReceiveButtons = !matchesRoute(router.location.pathname, routes.accountSettings("*"), false)
 
-  const [accountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
+  const {
+    accountCreation,
+    accountCreationErrors,
+    createAccount,
+    setAccountCreation,
+    validateAccountCreation
+  } = useAccountCreation({
     import: matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false),
-    multisig: false,
-    name: getNewAccountName(props.testnet),
-    password: "",
-    repeatedPassword: "",
-    requiresPassword: true,
     testnet: props.testnet
-  }))
-
-  const [accountCreationErrors, setAccountCreationErrors] = React.useState<AccountCreationErrors>({})
+  })
 
   const headerHeight = showAccountCreation
     ? isSmallScreen
@@ -241,7 +164,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
 
   const createNewAccount = React.useCallback(() => {
     ;(async () => {
-      const account = await createAccount(accountCreation, props.testnet)
+      const account = await createAccount(accountCreation)
 
       if (!accountCreation.import && !props.testnet) {
         setCreatedAccount(account)
@@ -252,11 +175,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   }, [accountCreation, createAccount, props.testnet, router.history])
 
   const onCreateAccount = React.useCallback(() => {
-    const { errors, success } = validateAccountCreation(accountCreation)
-
-    setAccountCreationErrors(errors)
-
-    if (!success) {
+    if (!validateAccountCreation(accountCreation)) {
       return
     }
 
