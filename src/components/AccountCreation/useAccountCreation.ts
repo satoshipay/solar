@@ -55,7 +55,7 @@ function useAccountCreation(options: UseAccountCreationOptions) {
   const { accounts, createAccount } = React.useContext(AccountsContext)
   const [accountCreationErrors, setAccountCreationErrors] = React.useState<AccountCreationErrors>({})
 
-  const [accountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
+  const [currentAccountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
     import: options.import,
     multisig: false,
     name: getNewAccountName(t, accounts, options.testnet),
@@ -79,7 +79,7 @@ function useAccountCreation(options: UseAccountCreationOptions) {
   }
 
   return {
-    accountCreation,
+    accountCreation: currentAccountCreation,
     accountCreationErrors,
     createAccount(blueprint: AccountCreation) {
       return createNewAccount(blueprint)
