@@ -219,10 +219,10 @@ function AccountTitle(props: AccountTitleProps) {
       setName(event.target.value)
 
       if (props.permanentlyEditing) {
-        props.onRename(event.target.value)
+        onRename(event.target.value)
       }
     },
-    [props.onRename, props.permanentlyEditing]
+    [onRename, props.permanentlyEditing]
   )
 
   const handleKeyDown = React.useCallback(

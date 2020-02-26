@@ -5,13 +5,13 @@ import PasswordSetting from "./PasswordSetting"
 import SecretKeyImport from "./SecretKeyImport"
 import { AccountCreation, AccountCreationErrors } from "./types"
 
-interface AccountCreationSettingsProps {
+interface NewAccountSettingsProps {
   accountCreation: AccountCreation
   errors: AccountCreationErrors
   onUpdateAccountCreation: (update: Partial<AccountCreation>) => void
 }
 
-function AccountCreationSettings(props: AccountCreationSettingsProps) {
+function NewAccountSettings(props: NewAccountSettingsProps) {
   const { onUpdateAccountCreation } = props
   const isSmallScreen = useIsMobile()
 
@@ -58,4 +58,4 @@ function AccountCreationSettings(props: AccountCreationSettingsProps) {
   )
 }
 
-export default React.memo(AccountCreationSettings)
+export default React.memo(NewAccountSettings)

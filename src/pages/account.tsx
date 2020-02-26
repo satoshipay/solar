@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import AccountActions from "../components/Account/AccountActions"
 import AccountCreationActions from "../components/AccountCreation/AccountCreationActions"
+import NoPasswordConfirmation from "../components/AccountCreation/NoPasswordConfirmation"
+import { AccountCreation } from "../components/AccountCreation/types"
 import useAccountCreation from "../components/AccountCreation/useAccountCreation"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
-import NoPasswordConfirmation from "../components/AccountCreation/NoPasswordConfirmation"
-import { AccountCreation, AccountCreationErrors } from "../components/AccountCreation/types"
 import ExportKeyDialog from "../components/AccountSettings/ExportKeyDialog"
 import InlineLoader from "../components/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
@@ -40,8 +40,8 @@ const AccountTransactions = withFallback(
   React.lazy(() => import("../components/Account/AccountTransactions")),
   <TransactionListPlaceholder />
 )
-const NewAccountSetup = withFallback(
-  React.lazy(() => import("../components/AccountCreation/NewAccountSetup")),
+const AccountCreationOptions = withFallback(
+  React.lazy(() => import("../components/AccountCreation/AccountCreationOptions")),
   <ViewLoading />
 )
 
@@ -152,7 +152,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
         }))
       }
     },
-    [props.account, renameAccount]
+    [props.account, renameAccount, setAccountCreation]
   )
 
   const updateAccountCreation = React.useCallback((update: Partial<AccountCreation>) => {
@@ -160,7 +160,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       ...prev,
       ...update
     }))
-  }, [])
+  }, [setAccountCreation])
 
   const createNewAccount = React.useCallback(() => {
     ;(async () => {
@@ -268,7 +268,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       >
         {showAccountCreation ? (
           <React.Suspense fallback={<ViewLoading />}>
-            <NewAccountSetup
+            <AccountCreationOptions
               accountCreation={accountCreation}
               errors={accountCreationErrors}
               onUpdateAccountCreation={updateAccountCreation}

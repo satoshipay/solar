@@ -7,7 +7,7 @@ import * as routes from "../../routes"
 import MainSelectionButton from "../Form/MainSelectionButton"
 import { VerticalLayout } from "../Layout/Box"
 import Carousel from "../Layout/Carousel"
-import AccountCreationOptions from "./AccountCreationSettings"
+import NewAccountSettings from "./NewAccountSettings"
 import { AccountCreation, AccountCreationErrors } from "./types"
 
 interface InitialSelectionProps {
@@ -56,13 +56,13 @@ const InitialSelection = React.memo(
   })
 )
 
-interface NewAccountSetupProps {
+interface AccountCreationOptionsProps {
   accountCreation: AccountCreation
   errors: AccountCreationErrors
   onUpdateAccountCreation: (update: Partial<AccountCreation>) => void
 }
 
-function NewAccountSetup(props: NewAccountSetupProps) {
+function AccountCreationOptions(props: AccountCreationOptionsProps) {
   const router = useRouter()
   const testnet = Boolean(router.location.pathname.match(/\/testnet/))
 
@@ -71,9 +71,9 @@ function NewAccountSetup(props: NewAccountSetupProps) {
   return (
     <Carousel current={isSelectionStep ? 0 : 1}>
       <InitialSelection onUpdateAccountCreation={props.onUpdateAccountCreation} testnet={testnet} />
-      <AccountCreationOptions {...props} />
+      <NewAccountSettings {...props} />
     </Carousel>
   )
 }
 
-export default React.memo(NewAccountSetup)
+export default React.memo(AccountCreationOptions)
