@@ -56,3 +56,11 @@ export function createMemo(withdrawalResponse: WithdrawalSuccessResponse): Memo 
       return null
   }
 }
+
+type ToNumber<T> = T extends null | undefined ? T : number
+
+export function parseAmount<T extends string | number | null | undefined>(value: T): ToNumber<T> {
+  const parsed = value === null || value === undefined ? value : Number.parseFloat(value as string)
+
+  return parsed as ToNumber<T>
+}

@@ -25,6 +25,8 @@ import FormLayout from "./FormLayout"
 import { Paragraph, Summary } from "./Sidebar"
 import { WithdrawalContext } from "./WithdrawalProvider"
 
+const nullOrUndefined = (value: any): value is null | undefined => value === null || value === undefined
+
 interface TransferTransactionDetailsProps {
   dialogActionsRef: RefStateObject | undefined
   sendTransaction: (transaction: Transaction) => Promise<any>
@@ -63,6 +65,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
       .mul(amount)
   )
   const feeMaxDecimals = fees.round(2).eq(fees) ? 2 : undefined
+  const feesUnknown = nullOrUndefined(data.fee_fixed) && nullOrUndefined(data.fee_percent)
 
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent) => {
@@ -121,7 +124,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
           margin="normal"
           readOnly
           style={{ marginTop: 24 }}
-          value={`- ${formatBalance(fees, { maximumDecimals: feeMaxDecimals })}`}
+          value={feesUnknown ? "unknown" : `- ${formatBalance(fees, { maximumDecimals: feeMaxDecimals })}`}
         />
         <PriceInput
           assetCode={asset.getCode()}

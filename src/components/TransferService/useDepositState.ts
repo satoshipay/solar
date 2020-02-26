@@ -14,6 +14,7 @@ import { Account } from "../../context/accounts"
 import { useWebAuth } from "../../hooks/stellar"
 import { Action, TransferStates } from "./statemachine"
 import { useTransferState } from "./useTransferState"
+import { parseAmount } from "./util"
 
 function createDeposit(account: Account, state: Omit<TransferStates.EnterBasics, "step">): Deposit {
   const fields = {
@@ -118,7 +119,7 @@ export function useDepositState(account: Account, closeDialog: () => void) {
         data: {
           how: "",
           eta: transaction.status_eta,
-          fee_fixed: Number.parseFloat(transaction.amount_fee)
+          fee_fixed: parseAmount(transaction.amount_fee)
         }
       }
       dispatch(Action.promptForTxDetails(deposit, undefined as any, instructions, transaction))
