@@ -17,6 +17,7 @@ import { useNetWorker } from "../../hooks/workers"
 import { createTransaction } from "../../lib/transaction"
 import { Action, TransferStates } from "./statemachine"
 import { useTransferState } from "./useTransferState"
+import { parseAmount } from "./util"
 
 function createWithdrawal(state: Omit<TransferStates.EnterBasics, "step">): Withdrawal {
   const fields = {
@@ -175,7 +176,7 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
           memo_type: transaction.withdraw_memo_type as "id" | "hash" | "text" | undefined,
           memo: transaction.withdraw_memo,
           eta: transaction.status_eta,
-          fee_fixed: Number.parseFloat(transaction.amount_fee),
+          fee_fixed: parseAmount(transaction.amount_fee),
           extra_info: transaction.to ? { message: transaction.to } : undefined
         }
       }

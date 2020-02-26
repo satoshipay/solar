@@ -18,13 +18,9 @@ const TransferDialog = React.lazy(() => import("./TransferDialog"))
 
 function ConnectedTransferDialog(props: Pick<TransferDialogProps, "account" | "onClose" | "type">) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const closeAfterTimeout = React.useCallback(() => {
-    // Close automatically a second after successful submission
-    setTimeout(() => props.onClose(), 1000)
-  }, [props.onClose])
 
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+    <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (
         <React.Suspense
           fallback={
