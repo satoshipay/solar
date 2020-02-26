@@ -89,7 +89,8 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
                 alignItems: "center",
                 height: 48,
                 cursor: "pointer",
-                fontSize: isSmallScreen ? 16 : 20
+                fontSize: isSmallScreen ? 16 : 20,
+                marginLeft: 8
               }}
             >
               {t("account-deletion.remaining-funds.text")}
