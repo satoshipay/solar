@@ -45,7 +45,7 @@ interface Props {
   editableAccountName?: boolean
   onAccountSettings?: () => void
   onAccountTransactions?: () => void
-  onClose?: () => void
+  onClose: () => void
   onDeposit?: () => void
   onManageAssets?: () => void
   onRename: (newName: string) => void
@@ -63,16 +63,6 @@ function AccountHeaderCard(props: Props) {
     "publicKey" in props.account
       ? ({ account: props.account as Account } as const)
       : ({ accountCreation: props.account as AccountCreation } as const)
-
-  const handleBackNavigation = React.useCallback(() => {
-    if (meta.account && matchesRoute(router.location.pathname, routes.accountSettings(meta.account.id))) {
-      router.history.push(routes.account(meta.account.id))
-    } else if (meta.accountCreation) {
-      router.history.push(routes.routeUp(router.location.pathname))
-    } else {
-      router.history.push(routes.allAccounts())
-    }
-  }, [meta.account, meta.accountCreation, router.history, router.location])
 
   const showingSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"))
 
@@ -153,7 +143,7 @@ function AccountHeaderCard(props: Props) {
             editable={props.editableAccountName}
             permanentlyEditing={props.editableAccountName && !meta.account}
             name={meta.account?.name || meta.accountCreation!.name}
-            onNavigateBack={handleBackNavigation}
+            onNavigateBack={props.onClose}
             onRename={props.onRename}
           />
         </React.Suspense>

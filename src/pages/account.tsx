@@ -8,7 +8,6 @@ import { AccountCreation } from "../components/AccountCreation/types"
 import useAccountCreation from "../components/AccountCreation/useAccountCreation"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
-import ExportKeyDialog from "../components/AccountSettings/ExportKeyDialog"
 import InlineLoader from "../components/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
@@ -74,8 +73,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const { t } = useTranslation()
-  const { accounts, renameAccount } = React.useContext(AccountsContext)
-  const [createdAccount, setCreatedAccount] = React.useState<Account | null>(null)
+  const { renameAccount } = React.useContext(AccountsContext)
+  const [accountToBackup, setAccountToBackup] = React.useState<Account | null>(null)
   const [noPasswordDialogOpen, setNoPasswordDialogOpen] = React.useState(false)
 
   const showAccountCreation =
@@ -167,7 +166,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       const account = await createAccount(accountCreation)
 
       if (!accountCreation.import && !props.testnet) {
-        setCreatedAccount(account)
+        setAccountToBackup(account)
       } else {
         router.history.push(routes.account(account.id))
       }
@@ -196,10 +195,22 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   }, [createNewAccount])
 
   const closeBackupDialog = React.useCallback(() => {
-    if (createdAccount) {
-      router.history.push(routes.account(createdAccount.id))
+    if (accountToBackup) {
+      router.history.push(routes.account(accountToBackup.id))
     }
-  }, [createdAccount, router.history])
+  }, [accountToBackup, router.history])
+
+  const handleBackNavigation = React.useCallback(() => {
+    if (props.account && matchesRoute(router.location.pathname, routes.accountSettings(props.account.id))) {
+      router.history.push(routes.account(props.account.id))
+    } else if (showAccountCreation && accountToBackup) {
+      setAccountToBackup(null)
+    } else if (showAccountCreation) {
+      router.history.push(routes.routeUp(router.location.pathname))
+    } else {
+      router.history.push(routes.allAccounts())
+    }
+  }, [accountToBackup, props.account, router.history, router.location, showAccountCreation])
 
   const creationTitle = props.testnet
     ? t("create-account.header.placeholder.testnet")
@@ -215,7 +226,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
         editableAccountName={showAccountSettings || (showAccountCreation && !showAccountCreationOptions)}
         onAccountSettings={navigateTo.accountSettings}
         onAccountTransactions={navigateTo.transactions}
-        onClose={navigateTo.transactions}
+        onClose={handleBackNavigation}
         onDeposit={navigateTo.deposit}
         onManageAssets={navigateTo.balanceDetails}
         onRename={performRenaming}
@@ -240,6 +251,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     [
       accountCreation,
       creationTitle,
+      handleBackNavigation,
       isSmallScreen,
       navigateTo,
       performRenaming,
@@ -270,7 +282,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           <React.Suspense fallback={<ViewLoading />}>
             <AccountCreationOptions
               accountCreation={accountCreation}
+              accountToBackup={accountToBackup}
               errors={accountCreationErrors}
+              onFinishBackup={closeBackupDialog}
               onUpdateAccountCreation={updateAccountCreation}
             />
           </React.Suspense>
@@ -294,7 +308,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
             onReceivePayment={navigateTo.receivePayment!}
           />
         </React.Suspense>
-      ) : !props.account ? (
+      ) : !props.account && !accountToBackup ? (
         <AccountCreationActions
           bottomOfScreen={isSmallScreen}
           onActionButtonClick={onCreateAccount}
@@ -381,14 +395,6 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           open={noPasswordDialogOpen}
         />
       )}
-      <Dialog
-        fullScreen
-        open={createdAccount !== null}
-        onClose={closeBackupDialog}
-        TransitionComponent={FullscreenDialogTransition}
-      >
-        <ExportKeyDialog account={createdAccount!} onConfirm={closeBackupDialog} variant="initial-backup" />
-      </Dialog>
     </VerticalLayout>
   )
 })

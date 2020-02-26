@@ -1,9 +1,11 @@
 import React from "react"
 import RestoreIcon from "@material-ui/icons/SettingsBackupRestore"
 import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
+import { Account } from "../../context/accounts"
 import { useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
+import ExportKeyDialog from "../AccountSettings/ExportKeyDialog"
 import MainSelectionButton from "../Form/MainSelectionButton"
 import { VerticalLayout } from "../Layout/Box"
 import Carousel from "../Layout/Carousel"
@@ -57,8 +59,10 @@ const InitialSelection = React.memo(
 )
 
 interface AccountCreationOptionsProps {
+  accountToBackup: Account | null
   accountCreation: AccountCreation
   errors: AccountCreationErrors
+  onFinishBackup: () => void
   onUpdateAccountCreation: (update: Partial<AccountCreation>) => void
 }
 
@@ -66,12 +70,17 @@ function AccountCreationOptions(props: AccountCreationOptionsProps) {
   const router = useRouter()
   const testnet = Boolean(router.location.pathname.match(/\/testnet/))
 
-  const isSelectionStep = matchesRoute(router.location.pathname, routes.newAccount(testnet), false)
+  const currentStep = matchesRoute(router.location.pathname, routes.newAccount(testnet), false)
+    ? 0
+    : !props.accountToBackup
+    ? 1
+    : 2
 
   return (
-    <Carousel current={isSelectionStep ? 0 : 1}>
+    <Carousel current={currentStep}>
       <InitialSelection onUpdateAccountCreation={props.onUpdateAccountCreation} testnet={testnet} />
       <NewAccountSettings {...props} />
+      <ExportKeyDialog account={props.accountToBackup} onConfirm={props.onFinishBackup} variant="initial-backup" />
     </Carousel>
   )
 }

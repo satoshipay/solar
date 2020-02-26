@@ -94,20 +94,15 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
         ) : null
       }
     >
-      {props.variant === "initial-backup" ? (
-        <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 16 }}>
-          {t("export-key.info.secret-key")}
-        </Typography>
-      ) : null}
-      <Box padding={"8px 0 0"}>
-        <KeyExportBox hideTapToCopy={props.variant === "initial-backup"} export={props.export} />
+      <Box padding="32px 0 0">
+        <KeyExportBox export={props.export} hideTapToCopy={props.variant === "initial-backup"} size={192} />
       </Box>
     </DialogBody>
   )
 }
 
 interface Props {
-  account: Account
+  account: Account | null | undefined
   onClose?: () => void
   onConfirm?: () => void
   variant: "export" | "initial-backup"
@@ -122,22 +117,28 @@ function ExportKeyDialog(props: Props) {
 
   const onBackButtonClick = React.useCallback(props.onClose || (() => undefined), [props.onClose])
 
-  const reveal = (event: React.SyntheticEvent) => {
-    event.preventDefault()
+  const reveal = props.account
+    ? (event: React.SyntheticEvent) => {
+        event.preventDefault()
 
-    const passwordToUse = props.account.requiresPassword ? password : null
+        const passwordToUse = props.account!.requiresPassword ? password : null
 
-    props.account
-      .getPrivateKey(passwordToUse)
-      .then(decryptedSecretKey => {
-        setPasswordError(null)
-        setIsRevealed(true)
-        setSecretKey(decryptedSecretKey)
-      })
-      .catch(error => {
-        isWrongPasswordError(error) ? setPasswordError(error) : trackError(error)
-      })
-  }
+        props
+          .account!.getPrivateKey(passwordToUse)
+          .then(decryptedSecretKey => {
+            setPasswordError(null)
+            setIsRevealed(true)
+            setSecretKey(decryptedSecretKey)
+          })
+          .catch(error => {
+            if (isWrongPasswordError(error)) {
+              setPasswordError(error)
+            } else {
+              trackError(error)
+            }
+          })
+      }
+    : () => undefined
 
   const updatePassword = React.useCallback(
     (event: React.SyntheticEvent<HTMLInputElement>) => setPassword(event.currentTarget.value),
@@ -145,27 +146,24 @@ function ExportKeyDialog(props: Props) {
   )
 
   const titleContent = React.useMemo(
-    () => (
-      <MainTitle
-        hideBackButton={!props.onClose}
-        onBack={onBackButtonClick}
-        style={{ marginBottom: 24 }}
-        title={
-          props.variant === "initial-backup" ? t("export-key.title.initial-backup") : t("export-key.title.default")
-        }
-      />
-    ),
+    () =>
+      props.variant === "initial-backup" ? null : (
+        <MainTitle hideBackButton={!props.onClose} onBack={onBackButtonClick} title={t("export-key.title.default")} />
+      ),
     [props.onClose, props.variant, onBackButtonClick, t]
   )
 
   const backupInfoContent = React.useMemo(
     () => (
-      <Box style={{ fontSize: "140%" }}>
-        <Typography component="p" variant="body1" style={{ fontSize: "inherit" }}>
-          {t("export-key.info.backup.1")}
+      <Box fontSize="18px" margin="24px 0 0">
+        <Typography component="p" variant="h5">
+          {t("export-key.info.backup.title")}
         </Typography>
-        <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24, fontSize: "inherit" }}>
-          {t("export-key.info.backup.2")}
+        <Typography component="p" variant="body1" style={{ fontSize: "inherit", margin: "24px 0" }}>
+          {t("export-key.info.backup.paragraph-1")}
+        </Typography>
+        <Typography component="p" variant="body1" style={{ fontSize: "inherit", margin: "24px 0" }}>
+          {t("export-key.info.backup.paragraph-2")}
         </Typography>
       </Box>
     ),
@@ -174,14 +172,14 @@ function ExportKeyDialog(props: Props) {
 
   const exportInfoContent = React.useMemo(
     () => (
-      <>
+      <Box margin="24px 0 0">
         <Typography component="p" variant="body1">
-          {t("export-key.info.export.1")}
+          {t("export-key.info.export.paragraph-1")}
         </Typography>
-        <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24 }}>
-          {t("export-key.info.export.2")}
+        <Typography component="p" variant="body1" style={{ margin: "24px 0" }}>
+          {t("export-key.info.export.paragraph-2")}
         </Typography>
-      </>
+      </Box>
     ),
     [t]
   )
@@ -193,7 +191,7 @@ function ExportKeyDialog(props: Props) {
       onReveal={reveal}
       password={password}
       passwordError={passwordError ? new Error(getErrorTranslation(passwordError, t)) : null}
-      requiresPassword={props.account.requiresPassword}
+      requiresPassword={Boolean(props.account && props.account.requiresPassword)}
       title={titleContent}
       updatePassword={updatePassword}
     >
