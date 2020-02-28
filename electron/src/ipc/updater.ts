@@ -2,6 +2,7 @@ import { dialog, Notification, app } from "electron"
 import { autoUpdater, UpdateInfo } from "electron-updater"
 import { Messages } from "../shared/ipc"
 import { expose } from "./_ipc"
+import { getOpenWindows } from "../window"
 
 let updateInfo: UpdateInfo | null = null
 
@@ -45,7 +46,14 @@ autoUpdater.once("update-available", (info: UpdateInfo) => {
 })
 
 autoUpdater.on("download-progress", progressInfo => {
-  showMessageBox({ message: "Downloadprogress: " + progressInfo.percent })
+  const window = getOpenWindows().length > 0 ? getOpenWindows()[0] : null
+  if (window) {
+    window.setProgressBar(progressInfo.percent / 100)
+    if (progressInfo.percent === 100) {
+      // remove progress bar
+      window.setProgressBar(-1)
+    }
+  }
 })
 
 autoUpdater.once("update-downloaded", async () => {
