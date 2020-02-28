@@ -1,0 +1,30 @@
+An open source Stellar wallet which emphasizes speed, ease-of-use, and security.
+
+Solar is created by SatoshiPay with the explicit goal of making a business-friendly wallet which empowers Stellar users anywhere in the world.
+
+Here’s an overview of some of the key features:
+
+<h2><b>Fast and User-friendly</b></h2>
+Install and get started with Stellar within minutes. The intuitive user interface  makes it easy to navigate and our comprehensive guides will take you through the basic setup and more complex activities.
+
+<h2><b>100% Free & Open Source</b></h2>
+The wallet is free to use and the code is open for all to review and contribute to. 
+ 
+<h2><b>Enterprise-grade Security</b></h2>
+As with all cryptocurrencies, security must be a top priority. All code is open for external audit and updates are thoroughly tested before being released to the public. It’s a non-custodial key storage solution so your secret key is stored on your device only.
+
+<h2><b>Multi-signature Accounts</b></h2>
+For additional security, Solar lets you make any account multi-sig, which means multiple co-signers must sign any transaction/operation before it can be executed. The Solar interface makes multi-sig easy to set up and manage.
+
+<h2><b>Asset/Token Management</b></h2>
+Add popular assets from our curated list with one click or add any custom asset you may want.
+
+<h2><b>Decentralized Exchange (DEX) Integration</b></h2>
+Trade Stellar assets on the DEX via the intuitive trading interface straight from the wallet. 
+
+<h2><b>Testnet Support</b></h2>
+Developers often need a quick way to test their features on the Stellar testnet. Enable the testnet features in Solar and use the friendbot to receive testnet lumens with just one click. 
+
+----
+
+We constantly add new features and welcome feedback from the community. Get in touch on hello@solarwallet.io and tell us what features you want to see next and we will try to  prioritize them.
