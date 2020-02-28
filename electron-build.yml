@@ -28,7 +28,7 @@ win:
 
 mac:
   # dashes are needed for electron-builder auto-update
-  artifactName: Solar-Wallet-${version}.${ext}
+  artifactName: Solar-Wallet-${version}-mac.${ext}
   hardenedRuntime: true
   entitlements: ./electron/build/entitlements.mac.inherit.plist
 
