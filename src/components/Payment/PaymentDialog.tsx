@@ -23,6 +23,7 @@ interface Props {
 }
 
 function PaymentDialog(props: Props) {
+  const { sendTransaction } = props
   const dialogActionsRef = useDialogActions()
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
@@ -32,14 +33,14 @@ function PaymentDialog(props: Props) {
         setTxCreationPending(true)
         const tx = await createTx(props.horizon, props.account)
         setTxCreationPending(false)
-        await props.sendTransaction(tx)
+        await sendTransaction(tx)
       } catch (error) {
         trackError(error)
       } finally {
         setTxCreationPending(false)
       }
     },
-    [props]
+    [props.account, props.horizon, sendTransaction]
   )
 
   const trustedAssets = React.useMemo(() => getAssetsFromBalances(props.accountData.balances) || [Asset.native()], [

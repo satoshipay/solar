@@ -59,6 +59,7 @@ interface SignatureRequestListProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const SignatureRequestList = React.memo(function SignatureRequestList(props: SignatureRequestListProps) {
+  const { sendTransaction } = props
   const router = useRouter()
 
   React.useEffect(() => {
@@ -68,7 +69,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
         const signatureRequest = props.signatureRequests.find(sr => sr.hash === hash)
 
         if (signatureRequest) {
-          props.sendTransaction(signatureRequest.meta.transaction, signatureRequest)
+          sendTransaction(signatureRequest.meta.transaction, signatureRequest)
         }
       }
     }
@@ -79,7 +80,7 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
       handleNavigation(location.pathname)
     })
     return unsubscribe
-  }, [router.history, router.location.pathname, props])
+  }, [router.history, router.location.pathname, sendTransaction, props.signatureRequests])
 
   const openSignatureRequest = (tx: Transaction, signatureRequest: SignatureRequest) => {
     router.history.push(routes.showTransaction(props.account.id, signatureRequest.hash))

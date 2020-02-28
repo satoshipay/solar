@@ -18,6 +18,7 @@ interface Props {
 }
 
 export const QRReader = React.memo(function QRReader(props: Props) {
+  const { onScan } = props
   const isTouchScreen = useMediaQuery("(hover: none)")
   const [isQRReaderOpen, setQRReaderOpen] = React.useState(false)
   const closeQRReader = React.useCallback(() => setQRReaderOpen(false), [])
@@ -26,11 +27,11 @@ export const QRReader = React.memo(function QRReader(props: Props) {
   const handleQRScan = React.useCallback(
     (data: string | null) => {
       if (data) {
-        props.onScan(data)
+        onScan(data)
         closeQRReader()
       }
     },
-    [closeQRReader, props]
+    [closeQRReader, onScan]
   )
 
   return (

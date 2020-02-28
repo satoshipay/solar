@@ -86,6 +86,7 @@ interface AssetSelectorProps {
 }
 
 function AssetSelector(props: AssetSelectorProps) {
+  const { onChange } = props
   const classes = useAssetSelectorStyles()
 
   const assets = React.useMemo(
@@ -98,12 +99,12 @@ function AssetSelector(props: AssetSelectorProps) {
     [props.assets]
   )
 
-  const onChange = React.useCallback(
+  const handleChange = React.useCallback(
     (event: React.ChangeEvent<{ name?: any; value: any }>, child: React.ComponentElement<AssetItemProps, any>) => {
       const matchingAsset = assets.find(asset => asset.equals(child.props.asset))
 
       if (matchingAsset) {
-        props.onChange(matchingAsset)
+        onChange(matchingAsset)
       } else {
         // tslint:disable-next-line no-console
         console.error(
@@ -111,7 +112,7 @@ function AssetSelector(props: AssetSelectorProps) {
         )
       }
     },
-    [assets, props]
+    [assets, onChange]
   )
 
   return (
@@ -121,7 +122,7 @@ function AssetSelector(props: AssetSelectorProps) {
       helperText={props.helperText}
       label={props.label}
       margin={props.margin}
-      onChange={onChange as any}
+      onChange={handleChange as any}
       placeholder="Select an asset"
       select
       style={{ flexShrink: 0, ...props.style }}

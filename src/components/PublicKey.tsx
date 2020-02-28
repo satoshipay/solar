@@ -151,14 +151,15 @@ interface CopyableAddressProps extends AddressProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const CopyableAddress = React.memo(function CopyableAddress(props: CopyableAddressProps) {
+  const { onClick } = props
   const clipboard = useClipboard()
 
-  const onClick = React.useCallback(() => {
-    if (props.onClick) {
-      props.onClick()
+  const handleClick = React.useCallback(() => {
+    if (onClick) {
+      onClick()
     }
     clipboard.copyToClipboard(props.address)
-  }, [clipboard, props])
+  }, [clipboard, onClick, props.address])
 
-  return <ClickableAddress {...props} onClick={onClick} />
+  return <ClickableAddress {...props} onClick={handleClick} />
 })

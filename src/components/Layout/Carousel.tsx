@@ -37,6 +37,7 @@ export interface CarouselProps {
 }
 
 function Carousel(props: CarouselProps) {
+  const { current } = props
   const classes = useCarouselStyles(props)
 
   // workaround to prevent misalignment of children on initial render
@@ -44,7 +45,7 @@ function Carousel(props: CarouselProps) {
   React.useEffect(() => {
     refs.forEach((ref, index) => {
       if (ref.current) {
-        ref.current.style.visibility = index === props.current ? "visible" : "hidden"
+        ref.current.style.visibility = index === current ? "visible" : "hidden"
       }
     })
 
@@ -63,7 +64,7 @@ function Carousel(props: CarouselProps) {
         }
       })
     }, 500)
-  }, [props, refs])
+  }, [current, refs])
 
   return (
     <div className={classes.root}>

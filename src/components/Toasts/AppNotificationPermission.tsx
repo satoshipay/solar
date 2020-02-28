@@ -17,13 +17,14 @@ interface PermissionNotificationProps {
 }
 
 const PermissionNotification = React.memo(function PermissionNotification(props: PermissionNotificationProps) {
+  const { onHide } = props
   const Notifications = React.useContext(NotificationsContext)
   const theme = useTheme()
 
   const requestPermission = React.useCallback(() => {
     ;(async () => {
       const granted = await requestPermissionToNotify()
-      props.onHide()
+      onHide()
 
       if (granted) {
         showNotification({
@@ -34,7 +35,7 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
         Notifications.showNotification("error", "Enable in operating system settings.")
       }
     })().catch(trackError)
-  }, [Notifications, props])
+  }, [Notifications, onHide])
 
   return (
     <Grow in={props.open}>

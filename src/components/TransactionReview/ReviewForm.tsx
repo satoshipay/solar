@@ -39,7 +39,7 @@ interface Props {
 }
 
 function TxConfirmationForm(props: Props) {
-  const { onConfirm = () => undefined } = props
+  const { onConfirm = () => undefined, onClose } = props
 
   const settings = React.useContext(SettingsContext)
   const formID = React.useMemo(() => nanoid(), [])
@@ -60,10 +60,10 @@ function TxConfirmationForm(props: Props) {
     settings.ignoreSignatureRequest(props.signatureRequest.hash)
     setDismissalConfirmationPending(false)
 
-    if (props.onClose) {
-      props.onClose()
+    if (onClose) {
+      onClose()
     }
-  }, [props, settings])
+  }, [onClose, props.signatureRequest, settings])
 
   const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
     setFormValues(prevValues => ({

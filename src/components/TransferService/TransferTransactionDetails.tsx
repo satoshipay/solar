@@ -35,6 +35,7 @@ interface TransferTransactionDetailsProps {
 }
 
 function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
+  const { sendTransaction } = props
   const { account, actions } =
     // eslint-disable-next-line react-hooks/rules-of-hooks
     props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
@@ -82,13 +83,13 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
               props.state.response as WithdrawalInstructionsSuccess,
               amount
             )
-            await props.sendTransaction(tx)
+            await sendTransaction(tx)
             actions.afterSuccessfulExecution(amount)
           })()
         )
       }
     },
-    [props, actions, amount, handleTxPreparation]
+    [actions, amount, handleTxPreparation, props.state, props.type, sendTransaction]
   )
 
   const extraInfo =

@@ -24,7 +24,7 @@ interface LumenDepositOptionsProps {
 }
 
 function LumenDepositOptions(props: LumenDepositOptionsProps) {
-  const { account } = props
+  const { account, onCloseDialog } = props
   const [isLegalNoteOpen, setIsLegalNoteOpen] = React.useState(false)
 
   const closeLegalNote = React.useCallback(() => setIsLegalNoteOpen(false), [])
@@ -32,8 +32,8 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
 
   const navigateToMoonPay = React.useCallback(() => {
     openLink(createMoonPayURLForAccount(account))
-    props.onCloseDialog()
-  }, [account, props])
+    onCloseDialog()
+  }, [account, onCloseDialog])
 
   return (
     <List style={{ margin: "16px auto", maxWidth: 600 }}>

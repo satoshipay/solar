@@ -85,6 +85,7 @@ interface Props {
 }
 
 function TradingForm(props: Props) {
+  const { sendTransaction } = props
   const classes = useStyles()
   const isSmallScreen = useIsMobile()
   const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
@@ -207,11 +208,21 @@ function TradingForm(props: Props) {
           walletAccount: props.account
         }
       )
-      props.sendTransaction(tx)
+      sendTransaction(tx)
     } catch (error) {
       trackError(error)
     }
-  }, [primaryAsset, props, primaryAmount, effectivePrice, secondaryAsset, horizon])
+  }, [
+    effectivePrice,
+    horizon,
+    primaryAsset,
+    props.account,
+    props.accountData,
+    props.primaryAction,
+    primaryAmount,
+    secondaryAsset,
+    sendTransaction
+  ])
 
   return (
     // set minHeight to prevent wrapping of layout when keyboard is shown
