@@ -44,7 +44,10 @@ const useNotificationStyles = makeStyles({
     alignItems: "center",
     display: "flex",
     overflow: "hidden",
-    width: "90vw"
+
+    [theme.breakpoints.down(600)]: {
+      width: "90vw"
+    }
   },
   messageText: {
     textOverflow: "ellipsis",
