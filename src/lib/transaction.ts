@@ -12,6 +12,7 @@ import {
 } from "stellar-sdk"
 import { Account } from "../context/accounts"
 import { WrongPasswordError } from "../lib/errors"
+import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
 
 // See <https://github.com/stellar/go/issues/926>
@@ -34,6 +35,10 @@ export function createCheapTxID(transaction: Transaction | ServerApi.Transaction
   }
 
   return `${source}:${sequence}`
+}
+
+function fail(message: string): never {
+  throw Error(message)
 }
 
 export function hasSigned(transaction: Transaction, publicKey: string) {
@@ -89,12 +94,15 @@ interface TxBlueprint {
 
 export async function createTransaction(operations: Array<xdr.Operation<any>>, options: TxBlueprint) {
   const { horizon, walletAccount } = options
+  const fallbackFee = 10000
   const timeout = selectTransactionTimeout(options.accountData)
 
   const [account, smartTxFee, timebounds] = await Promise.all([
-    horizon.loadAccount(walletAccount.publicKey),
-    selectTransactionFeeWithFallback(horizon, 1500),
-    horizon.fetchTimebounds(timeout)
+    applyTimeout(horizon.loadAccount(walletAccount.publicKey), 10000, () =>
+      fail(`Fetching source account data timed out`)
+    ),
+    applyTimeout(selectTransactionFeeWithFallback(horizon, fallbackFee), 5000, () => fallbackFee),
+    applyTimeout(horizon.fetchTimebounds(timeout), 10000, () => fail(`Syncing time bounds with horizon timed out`))
   ])
 
   const networkPassphrase = walletAccount.testnet ? Networks.TESTNET : Networks.PUBLIC
@@ -181,7 +189,10 @@ export function isPotentiallyDangerousTransaction(
   const localAffectedAccounts = localAccounts.filter(account => allTxSources.indexOf(account.id) > -1)
 
   const isSignedByLocalAccount = transaction.signatures.some(signature =>
-    isSignedByAnyOf(signature, localAccounts.map(account => account.id))
+    isSignedByAnyOf(
+      signature,
+      localAccounts.map(account => account.id)
+    )
   )
 
   // Co-signers of local accounts
@@ -190,7 +201,10 @@ export function isPotentiallyDangerousTransaction(
     [] as ServerApi.AccountRecord["signers"]
   )
   const isSignedByKnownCosigner = transaction.signatures.some(signature =>
-    isSignedByAnyOf(signature, knownCosigners.map(cosigner => cosigner.key))
+    isSignedByAnyOf(
+      signature,
+      knownCosigners.map(cosigner => cosigner.key)
+    )
   )
 
   return localAffectedAccounts.length > 0 && !isSignedByLocalAccount && !isSignedByKnownCosigner
