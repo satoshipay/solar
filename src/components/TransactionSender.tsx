@@ -41,7 +41,8 @@ function ConditionalSubmissionProgress(props: {
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    background: isSmallScreen ? "#fcfcfc" : "white"
+    background: "#fcfcfc",
+    marginTop: isSmallScreen ? undefined : 24
   }
   const innerStyle: React.CSSProperties = {
     display: "flex",

@@ -5,7 +5,6 @@ import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import Tooltip from "@material-ui/core/Tooltip"
 import CheckIcon from "@material-ui/icons/Check"
-import CloseIcon from "@material-ui/icons/Close"
 import InfoIcon from "@material-ui/icons/Info"
 import { trackError } from "../../context/notifications"
 import { useDialogActions, useIsMobile } from "../../hooks/userinterface"
@@ -195,9 +194,6 @@ function ManageSignersDialogContent(props: Props) {
       >
         <DialogActionsPortal>
           <DialogActionsBox desktopStyle={{ margin: 0 }}>
-            <ActionButton icon={<CloseIcon />} onClick={props.onCancel}>
-              {t("manage-signers.action.cancel")}
-            </ActionButton>
             <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
               {isSmallScreen ? t("manage-signers.action.apply.short") : t("manage-signers.action.apply.long")}
             </ActionButton>
