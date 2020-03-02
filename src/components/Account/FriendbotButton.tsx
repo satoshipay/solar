@@ -20,12 +20,11 @@ function FriendbotButton(props: Props) {
       setPending(true)
       await friendbotTopup(props.horizonURL, props.publicKey)
 
-      // Give the account subscription a little bit of time to recognize the account activation
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Do not reset the pending state – we want to see the spinner until we receive
+      // the update and hide the whole friendbot button
     } catch (error) {
-      trackError(error)
-    } finally {
       setPending(false)
+      trackError(error)
     }
   }
 
