@@ -18,7 +18,7 @@ export function explainSubmissionErrorResponse(response: TxSubmissionResponse | 
     const resultCodes = response.data.extras.result_codes
 
     if (resultCodes.operations && resultCodes.operations.length > 0) {
-      const errorCodes = resultCodes.filter((code: string) => code !== "op_success")
+      const errorCodes = resultCodes.operations.filter((code: string) => code !== "op_success")
       return augment(
         Error(
           t(`error.submission-error.op-result-code.${errorCodes[0]}`, "error.submission-error.default", {
