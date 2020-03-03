@@ -5,7 +5,7 @@ import { useTransferInfos } from "../../hooks/transfer-server"
 import { useIsMobile, useDialogActions } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { getAssetsFromBalances } from "../../lib/stellar"
-import VirtualizedCarousel from "../Layout/VirtualizedCarousel"
+import Carousel from "../Layout/Carousel"
 import VirtualizedFader from "../Layout/VirtualizedFader"
 import ViewLoading from "../ViewLoading"
 import { useDepositState } from "./useDepositState"
@@ -17,6 +17,7 @@ import { TransferContent as PureTransferContent, TransferSidebar } from "./Trans
 import TransferDialogLayout from "./TransferDialogLayout"
 import WithdrawalProvider from "./WithdrawalProvider"
 import withFallback from "../Lazy/withFallback"
+import { TransferState } from "./statemachine"
 
 const faderStyles: React.CSSProperties = {
   minWidth: 150
@@ -33,22 +34,7 @@ function parseOverrides(overridesString: string) {
   }
 }
 
-const EmptyView = React.memo(function EmptyView() {
-  return (
-    <DesktopTwoColumns>
-      <div />
-      <div />
-    </DesktopTwoColumns>
-  )
-})
-
-const TransferContent = withFallback(
-  PureTransferContent,
-  <DesktopTwoColumns>
-    <ViewLoading />
-    <div />
-  </DesktopTwoColumns>
-)
+const TransferContent = withFallback(PureTransferContent, <ViewLoading />)
 
 export interface TransferDialogProps {
   account: Account
@@ -117,13 +103,19 @@ function TransferDialog(props: TransferDialogProps) {
           {transferableAssets.length === 0 ? (
             <NoWithdrawableAssets account={props.account} actionsRef={dialogActionsRef} margin="32px 0 0" />
           ) : (
-            <VirtualizedCarousel
-              current={<TransferContent {...contentProps} active dialogActionsRef={dialogActionsRef} state={state} />}
-              index={prevStates.length}
-              next={nextState ? <TransferContent {...contentProps} state={nextState} /> : <EmptyView />}
-              prev={prevState ? <TransferContent {...contentProps} state={prevState} /> : null}
-              size={prevStates.length + 2}
-            />
+            <Carousel current={prevStates.length}>
+              {[...prevStates, state, nextState]
+                .filter((s): s is TransferState => !!s)
+                .map((current, index) => (
+                  <TransferContent
+                    key={index}
+                    {...contentProps}
+                    active={current === state}
+                    dialogActionsRef={current === state ? dialogActionsRef : undefined}
+                    state={current}
+                  />
+                ))}
+            </Carousel>
           )}
           <VirtualizedFader
             current={<TransferSidebar state={state} type={props.type} />}
