@@ -48,13 +48,13 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
 
   return (
     <>
-      <DialogTitle>{t("remove-trustline.title")}</DialogTitle>
+      <DialogTitle>{t("account.remove-trustline.title")}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           {stillOwnsTokens ? (
-            <>{t("remove-trustline.text.warning")}</>
+            <>{t("account.remove-trustline.text.warning")}</>
           ) : (
-            <Trans i18nKey="remove-trustline.text.info">
+            <Trans i18nKey="account.remove-trustline.text.info">
               You are about to remove the asset <b>{{ asset: props.asset.code }}</b> from account "
               {{ accountName: props.account.name }}".
             </Trans>
@@ -63,7 +63,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
         {/* Not in the DialogBody's `actions` prop as it's not a fullscreen dialog */}
         <DialogActionsBox preventMobileActionsBox>
           <ActionButton onClick={props.onClose} style={{ maxWidth: "none" }}>
-            {t("remove-trustline.action.cancel")}
+            {t("account.remove-trustline.action.cancel")}
           </ActionButton>
           {stillOwnsTokens ? null : (
             <ActionButton
@@ -74,7 +74,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
               style={{ maxWidth: "none" }}
               type="primary"
             >
-              {t("remove-trustline.action.remove")}
+              {t("account.remove-trustline.action.remove")}
             </ActionButton>
           )}
         </DialogActionsBox>

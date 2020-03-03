@@ -1,0 +1,66 @@
+{
+  "settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": "Biometric authentication",
+        "secondary": {
+          "disabled": "Biometric authentication is disabled",
+          "enabled": "Biometric authentication is enabled",
+          "not-enrolled": "Configure biometric authentication in your operating system settings"
+        }
+      },
+      "prompt": {
+        "enable": "Unlock your device once to enable the feature.",
+        "disable": "Unlock your device to disable the auto-lock."
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "Show Memos",
+        "secondary": {
+          "hidden": "Memos are hidden in the transaction overview",
+          "shown": "Memos are shown in the transaction overview"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Enable Multi-Signature",
+        "secondary": {
+          "enabled": "Multi-Signature features are enabled",
+          "disabled": "Multi-Signature features are disabled"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "Show Testnet Accounts",
+        "secondary": {
+          "cannot-disable": "Cannot be disabled because you already added testnet accounts",
+          "hidden": "Testnet accounts are hidden",
+          "shown": "Testnet accounts are shown"
+        }
+      }
+    },
+    "trusted-services": {
+      "text": {
+        "primary": "Manage Trusted Services",
+        "secondary": "Remove Trusted Services"
+      }
+    }
+  },
+  "trusted-services": {
+    "info": "Trusted Services are web services that are allowed to interact with Solar wallet by requesting account data or proposing transactions. You can add a new service once it tries to interact with Solar.",
+    "service-selection": {
+      "actions": {
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "confirm": {
+        "title": "Confirm removal",
+        "text": "The service will be removed from your trust list. Are you sure?"
+      },
+      "no-services": "No trusted services"
+    }
+  }
+}

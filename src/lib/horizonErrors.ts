@@ -9,7 +9,7 @@ interface TxSubmissionResponse {
 // See <https://www.stellar.org/developers/guides/concepts/transactions.html#possible-errors>
 export function explainSubmissionErrorResponse(response: TxSubmissionResponse | undefined, t: TFunction) {
   if (!response || response.status !== 400) {
-    return Error(t("error.unknown"))
+    return Error(t("generic.error.unknown"))
   }
 
   if (response.data && response.data.extras && response.data.extras.result_codes) {
@@ -21,7 +21,7 @@ export function explainSubmissionErrorResponse(response: TxSubmissionResponse | 
       const errorCodes = resultCodes.operations.filter((code: string) => code !== "op_success")
       return augment(
         Error(
-          t(`error.submission-error.op-result-code.${errorCodes[0]}`, "error.submission-error.default", {
+          t(`error.submission-error.op-result-code.${errorCodes[0]}`, "generic.error.submission-error.default", {
             codes: errorCodes.join(", ")
           })
         )
@@ -29,9 +29,13 @@ export function explainSubmissionErrorResponse(response: TxSubmissionResponse | 
     } else if (resultCodes.transaction) {
       return augment(
         Error(
-          t(`error.submission-error.op-result-code.${resultCodes.transaction}`, "error.submission-error.default", {
-            codes: resultCodes.transaction
-          })
+          t(
+            `error.submission-error.op-result-code.${resultCodes.transaction}`,
+            "generic.error.submission-error.default",
+            {
+              codes: resultCodes.transaction
+            }
+          )
         )
       )
     }
@@ -39,5 +43,5 @@ export function explainSubmissionErrorResponse(response: TxSubmissionResponse | 
     // TODO: Handle more result codes
   }
 
-  return Error(t("error.unknown"))
+  return Error(t("generic.error.unknown"))
 }

@@ -147,8 +147,8 @@ function createSearchResultRow(
               primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
               secondary={
                 assetsByIssuer[item.issuer].length === 1
-                  ? t("add-asset.item.issuer.secondary.one-asset")
-                  : t("add-asset.item.issuer.secondary.more-than-one-asset", {
+                  ? t("account.add-asset.item.issuer.secondary.one-asset")
+                  : t("account.add-asset.item.issuer.secondary.more-than-one-asset", {
                       amount: assetsByIssuer[item.issuer].length
                     })
               }
@@ -179,8 +179,8 @@ function createSearchResultRow(
     return (
       <ListItem key={0} className={classes.noResultItem}>
         <ListItemText
-          primary={t("add-asset.item.no-result.primary")}
-          secondary={t("add-asset.item.no-result.secondary")}
+          primary={t("account.add-asset.item.no-result.primary")}
+          secondary={t("account.add-asset.item.no-result.secondary")}
         />
       </ListItem>
     )
@@ -306,7 +306,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   ])
 
   return (
-    <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title={t("add-asset.title")} />}>
+    <DialogBody excessWidth={24} top={<MainTitle onBack={props.onClose} title={t("account.add-asset.title")} />}>
       <VerticalLayout grow margin="16px 0 0">
         <SearchField
           autoFocus
@@ -316,12 +316,12 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
           }}
           onChange={onSearchFieldChange}
           value={searchFieldValue}
-          placeholder={t("add-asset.search-field.placeholder")}
+          placeholder={t("account.add-asset.search-field.placeholder")}
         />
         <List className={classes.list}>
           <ButtonListItem onClick={openCustomTrustlineDialog}>
             <AddIcon />
-            &nbsp;&nbsp;{t("add-asset.button.add-custom-asset.label")}
+            &nbsp;&nbsp;{t("account.add-asset.button.add-custom-asset.label")}
           </ButtonListItem>
         </List>
         <React.Suspense fallback={<ViewLoading />}>

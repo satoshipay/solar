@@ -123,8 +123,8 @@ export function SettingsProvider(props: Props) {
 
   const toggleBiometricLock = () => {
     const message = settings.biometricLock
-      ? t("app-settings.biometric-lock.prompt.disable")
-      : t("app-settings.biometric-lock.prompt.enable")
+      ? t("app-settings.settings.biometric-lock.prompt.disable")
+      : t("app-settings.settings.biometric-lock.prompt.enable")
 
     testBiometricAuth(message)
       .then(() => updateSettings({ biometricLock: !settings.biometricLock }))

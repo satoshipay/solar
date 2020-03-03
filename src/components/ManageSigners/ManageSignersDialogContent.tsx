@@ -61,20 +61,20 @@ function useFormValidation() {
 
   return function validate(weightThreshold: string, updatedSigners: Horizon.AccountSigner[]): Error | undefined {
     if (updatedSigners.length === 0) {
-      return new Error(t("manage-signers.validation.no-signers"))
+      return new Error(t("account-settings.manage-signers.validation.no-signers"))
     }
     if (!weightThreshold.match(/^[0-9]+$/)) {
-      return new Error(t("manage-signers.validation.invalid-weight-type"))
+      return new Error(t("account-settings.manage-signers.validation.invalid-weight-type"))
     }
 
     const allKeysCombinedWeight = sum(updatedSigners.map(signer => signer.weight))
     const weightThresholdInteger = Number.parseInt(weightThreshold, 10)
 
     if (weightThresholdInteger > allKeysCombinedWeight) {
-      return new Error(t("manage-signers.validation.threshold-higher-than-weight"))
+      return new Error(t("account-settings.manage-signers.validation.threshold-higher-than-weight"))
     }
     if (updatedSigners.length > 1 && weightThresholdInteger === 0) {
-      return new Error(t("manage-signers.validation.no-threshold"))
+      return new Error(t("account-settings.manage-signers.validation.no-threshold"))
     }
   }
 }
@@ -152,13 +152,17 @@ function ManageSignersDialogContent(props: Props) {
   const nothingEdited = weightThresholdUnchanged && signersToAdd.length === 0 && signersToRemove.length === 0
 
   const weightThresholdLabel = allDefaultKeyweights
-    ? t("manage-signers.textfield.weight-threshold.label.required-signatures")
-    : t("manage-signers.textfield.weight-threshold.label.required-weight")
+    ? t("account-settings.manage-signers.textfield.weight-threshold.label.required-signatures")
+    : t("account-settings.manage-signers.textfield.weight-threshold.label.required-weight")
 
   const sanitizedKeyWeight = weightThreshold.match(/^[0-9]+$/) ? String(weightThreshold) : "X"
   const weightThresholdExplanation = allDefaultKeyweights
-    ? t("manage-signers.textfield.weight-threshold.explanation.required-signatures", { amount: sanitizedKeyWeight })
-    : t("manage-signers.textfield.weight-threshold.explanation.required-weight", { amount: sanitizedKeyWeight })
+    ? t("account-settings.manage-signers.textfield.weight-threshold.explanation.required-signatures", {
+        amount: sanitizedKeyWeight
+      })
+    : t("account-settings.manage-signers.textfield.weight-threshold.explanation.required-weight", {
+        amount: sanitizedKeyWeight
+      })
 
   const DialogActionsPortal = isSmallScreen
     ? (subprops: { children: React.ReactNode }) => (
@@ -195,7 +199,9 @@ function ManageSignersDialogContent(props: Props) {
         <DialogActionsPortal>
           <DialogActionsBox desktopStyle={{ margin: 0 }}>
             <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
-              {isSmallScreen ? t("manage-signers.action.apply.short") : t("manage-signers.action.apply.long")}
+              {isSmallScreen
+                ? t("account-settings.manage-signers.action.apply.short")
+                : t("account-settings.manage-signers.action.apply.long")}
             </ActionButton>
           </DialogActionsBox>
         </DialogActionsPortal>

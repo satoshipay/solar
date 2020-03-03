@@ -174,7 +174,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           }}
         >
           <AddIcon />
-          &nbsp;&nbsp;{t("balance-details.button.add-asset.label")}
+          &nbsp;&nbsp;{t("account.balance-details.button.add-asset.label")}
         </ButtonListItem>
         <TrustedAssets
           account={props.account}

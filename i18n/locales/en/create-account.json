@@ -1,0 +1,59 @@
+{
+  "actions": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "create": {
+      "long": "Create Account",
+      "short": "Create"
+    },
+    "import": {
+      "long": "Import Account",
+      "short": "Import"
+    }
+  },
+  "base-name": {
+    "mainnet": "My Account",
+    "testnet": "My Testnet Account"
+  },
+  "confirm": {
+    "text": "You are about to create an account without password protection. Anyone that has access to your device will have access to your account funds. <1 /> <3 /> Are you sure you want to continue without setting up a password?",
+    "title": "Continue without password"
+  },
+  "header": {
+    "placeholder": {
+      "mainnet": "New Account",
+      "testnet": "New Testnet Account"
+    }
+  },
+  "toggle": {
+    "password": {
+      "textfield": {
+        "1": {
+          "label": "Password",
+          "placeholder": "Enter a password"
+        },
+        "2": {
+          "label": "Repeat password",
+          "placeholder": "Repeat your password"
+        }
+      },
+      "label": "Enter a password",
+      "title": "Password Protect"
+    },
+    "import": {
+      "textfield": {
+        "helper-text": "A Stellar secret key is 56 alphanumeric characters long and starts with an S",
+        "placeholder": "SABCDEFGH…",
+        "label": "Secret key"
+      },
+      "title": "Import Existing"
+    }
+  },
+  "validation": {
+    "invalid-key": "Invalid stellar private key.",
+    "no-account-name": "No account name has been entered.",
+    "no-password": "No password has been entered.",
+    "password-no-match": "Password does not match.",
+    "same-account": "Already added this account."
+  }
+}

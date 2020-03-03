@@ -96,7 +96,7 @@ function TxConfirmationForm(props: Props) {
         setLoading(false)
         return setErrors({
           ...errors,
-          password: new Error(t("transaction-review.validation.password-required"))
+          password: new Error(t("account.transaction-review.validation.password-required"))
         })
       }
 
@@ -137,7 +137,9 @@ function TxConfirmationForm(props: Props) {
             autoFocus={process.env.PLATFORM !== "ios"}
             error={Boolean(passwordError)}
             label={
-              passwordError ? renderFormFieldError(passwordError) : t("transaction-review.textfield.password.label")
+              passwordError
+                ? renderFormFieldError(passwordError)
+                : t("account.transaction-review.textfield.password.label")
             }
             type="password"
             fullWidth
@@ -152,7 +154,7 @@ function TxConfirmationForm(props: Props) {
         <DialogActionsBox smallDialog={props.disabled && !props.signatureRequest}>
           {props.signatureRequest ? (
             <ActionButton icon={DismissIcon} onClick={requestDismissalConfirmation}>
-              {t("transaction-review.action.dismiss")}
+              {t("account.transaction-review.action.dismiss")}
             </ActionButton>
           ) : null}
           {props.disabled ? null : (
@@ -163,12 +165,12 @@ function TxConfirmationForm(props: Props) {
               onClick={showLoadingIndicator}
               type="submit"
             >
-              {t("transaction-review.action.confirm")}
+              {t("account.transaction-review.action.confirm")}
             </ActionButton>
           )}
           {props.disabled && !props.signatureRequest ? (
             <ActionButton icon={<OpenInNewIcon />} onClick={openInStellarExpert} type="secondary">
-              {t("transaction-review.action.inspect")}
+              {t("account.transaction-review.action.inspect")}
             </ActionButton>
           ) : null}
         </DialogActionsBox>

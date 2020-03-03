@@ -42,17 +42,19 @@ function useFormValidation() {
     const errors: Errors = {}
 
     if (!formValues.prevPassword && passwordMode !== "initial") {
-      errors.prevPassword = new Error(t("set-password.validation.previous-password-missing"))
+      errors.prevPassword = new Error(t("account-settings.set-password.validation.previous-password-missing"))
     }
     if (passwordMode !== "remove") {
       if (!formValues.nextPassword) {
-        errors.nextPassword = new Error(t("set-password.validation.next-password-missing"))
+        errors.nextPassword = new Error(t("account-settings.set-password.validation.next-password-missing"))
       }
       if (!formValues.nextPasswordRepeat) {
-        errors.nextPasswordRepeat = new Error(t("set-password.validation.next-password-repeat-missing"))
+        errors.nextPasswordRepeat = new Error(
+          t("account-settings.set-password.validation.next-password-repeat-missing")
+        )
       }
       if (formValues.nextPasswordRepeat && formValues.nextPassword !== formValues.nextPasswordRepeat) {
-        errors.nextPasswordRepeat = new Error(t("set-password.validation.passwords-no-match"))
+        errors.nextPasswordRepeat = new Error(t("account-settings.set-password.validation.passwords-no-match"))
       }
     }
 
@@ -78,24 +80,24 @@ function Actions(props: ActionsProps) {
         isSmallScreen ? (
           <ActionButton onClick={props.onToggleRemovePassword} type="secondary">
             {props.removePassword
-              ? t("set-password.action.change-password.long")
-              : t("set-password.action.remove-password.long")}
+              ? t("account-settings.set-password.action.change-password.long")
+              : t("account-settings.set-password.action.remove-password.long")}
           </ActionButton>
         ) : (
           <FormControlLabel
             control={<Switch checked={props.removePassword} color="primary" onChange={props.onToggleRemovePassword} />}
-            label={t("set-password.action.remove-password.long")}
+            label={t("account-settings.set-password.action.remove-password.long")}
           />
         )
       ) : null}
       <ActionButton icon={<LockIcon />} onClick={props.onSubmit} type="primary">
         {isSmallScreen
           ? props.removePassword
-            ? t("set-password.action.remove-password.long")
-            : t("set-password.action.change-password.short")
+            ? t("account-settings.set-password.action.remove-password.long")
+            : t("account-settings.set-password.action.change-password.short")
           : props.removePassword
-          ? t("set-password.action.remove-password.long")
-          : t("set-password.action.change-password.long")}
+          ? t("account-settings.set-password.action.remove-password.long")
+          : t("account-settings.set-password.action.change-password.long")}
       </ActionButton>
     </DialogActionsBox>
   )
@@ -135,8 +137,8 @@ function ChangePasswordDialog(props: Props) {
           showNotification(
             "success",
             requiresPassword
-              ? t("set-password.notification.password-changed")
-              : t("set-password.notification.password-set")
+              ? t("account-settings.set-password.notification.password-changed")
+              : t("account-settings.set-password.notification.password-set")
           )
           props.onClose()
         })
@@ -161,7 +163,7 @@ function ChangePasswordDialog(props: Props) {
       // TODO: Show confirmation prompt (dialog)
       Accounts.removePassword(props.account.id, formValues.prevPassword)
         .then(() => {
-          showNotification("success", t("set-password.notification.password-removed"))
+          showNotification("success", t("account-settings.set-password.notification.password-removed"))
           props.onClose()
         })
         .catch(error => {
@@ -184,8 +186,8 @@ function ChangePasswordDialog(props: Props) {
           onBack={onClose}
           title={
             props.account.requiresPassword
-              ? t("set-password.title.change-password")
-              : t("set-password.title.set-password")
+              ? t("account-settings.set-password.title.change-password")
+              : t("account-settings.set-password.title.set-password")
           }
         />
       }
@@ -208,7 +210,7 @@ function ChangePasswordDialog(props: Props) {
             label={
               errors.prevPassword
                 ? renderFormFieldError(errors.prevPassword)
-                : t("set-password.textfield.prev-password.label")
+                : t("account-settings.set-password.textfield.prev-password.label")
             }
             fullWidth
             margin="normal"
@@ -225,7 +227,7 @@ function ChangePasswordDialog(props: Props) {
             label={
               errors.nextPassword
                 ? renderFormFieldError(errors.nextPassword)
-                : t("set-password.textfield.next-password.label")
+                : t("account-settings.set-password.textfield.next-password.label")
             }
             fullWidth
             margin="normal"
@@ -239,7 +241,7 @@ function ChangePasswordDialog(props: Props) {
             label={
               errors.nextPasswordRepeat
                 ? renderFormFieldError(errors.nextPasswordRepeat)
-                : t("set-password.textfield.next-password-repeat.label")
+                : t("account-settings.set-password.textfield.next-password-repeat.label")
             }
             fullWidth
             margin="normal"

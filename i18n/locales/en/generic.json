@@ -1,0 +1,29 @@
+{
+  "error": {
+    "unknown": "An unknown error occured.",
+    "submission-error": {
+      "default": "Transaction rejected by the network. Error code(s): {{codes}}",
+      "op-result-code": {
+        "op-cross-self": "The order would counter an open order of yours.",
+        "op-has-sub-entries": "Account still has trustlines (assets) or open trading orders.",
+        "op-immutable-set": "Account is immutable (AUTH_IMMUTABLE flag set).",
+        "op-line-full": "The destination account's balance would exceed the destination's trust in the asset.",
+        "op-low-reserve": "Transaction rejected by the network. Source or destination account balance would be below minimum balance.",
+        "op-no-account": "Destination account does not exist.",
+        "op-no-issuer": "Asset is invalid. Incorrect asset issuer.",
+        "op-no-trust": "Destination account does not trust the asset you are attempting to send.",
+        "op-underfunded": "Not enough funds to perform this operation."
+      },
+      "tx-result-code": {
+        "insufficient_fee": "Network demands higher fees than set in the transaction.",
+        "internal_error": "An unknown error occured on the Stellar server.",
+        "no_account": "Source account not found.",
+        "tx_bad_auth": "Too few valid signatures or wrong network.",
+        "tx_bad_auth_extra": "Unused signatures attached to transaction.",
+        "tx_bad_seq": "Sequence number mismatch. Please re-create the transaction.",
+        "tx_insufficient_balance": "Insufficient balance. Balance would fall below the minimum reserve.",
+        "tx_too_late": "Transaction draft has expired. Try again."
+      }
+    }
+  }
+}

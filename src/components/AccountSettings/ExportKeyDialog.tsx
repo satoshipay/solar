@@ -38,7 +38,9 @@ function PromptToReveal(props: PromptToRevealProps) {
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
           <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} type="primary">
-            {isSmallScreen ? t("export-key.action.reveal.short") : t("export-key.action.reveal.long")}
+            {isSmallScreen
+              ? t("account-settings.export-key.action.reveal.short")
+              : t("account-settings.export-key.action.reveal.long")}
           </ActionButton>
         </DialogActionsBox>
       }
@@ -50,7 +52,11 @@ function PromptToReveal(props: PromptToRevealProps) {
             autoFocus={process.env.PLATFORM !== "ios"}
             fullWidth
             error={props.passwordError !== null}
-            label={props.passwordError ? props.passwordError.message : t("export-key.textfield.password.label")}
+            label={
+              props.passwordError
+                ? props.passwordError.message
+                : t("account-settings.export-key.textfield.password.label")
+            }
             margin="dense"
             type="password"
             value={props.password}
@@ -88,7 +94,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
         props.onConfirm ? (
           <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
             <ActionButton onClick={props.onConfirm} type="primary">
-              {t("export-key.action.confirm")}
+              {t("account-settings.export-key.action.confirm")}
             </ActionButton>
           </DialogActionsBox>
         ) : null
@@ -96,7 +102,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
     >
       {props.variant === "initial-backup" ? (
         <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 16 }}>
-          {t("export-key.info.secret-key")}
+          {t("account-settings.export-key.info.secret-key")}
         </Typography>
       ) : null}
       <Box padding={"8px 0 0"}>
@@ -155,7 +161,9 @@ function ExportKeyDialog(props: Props) {
         onBack={onBackButtonClick}
         style={{ marginBottom: 24 }}
         title={
-          props.variant === "initial-backup" ? t("export-key.title.initial-backup") : t("export-key.title.default")
+          props.variant === "initial-backup"
+            ? t("account-settings.export-key.title.initial-backup")
+            : t("account-settings.export-key.title.default")
         }
       />
     ),
@@ -166,10 +174,10 @@ function ExportKeyDialog(props: Props) {
     () => (
       <Box style={{ fontSize: "140%" }}>
         <Typography component="p" variant="body1" style={{ fontSize: "inherit" }}>
-          {t("export-key.info.backup.1")}
+          {t("account-settings.export-key.info.backup.1")}
         </Typography>
         <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24, fontSize: "inherit" }}>
-          {t("export-key.info.backup.2")}
+          {t("account-settings.export-key.info.backup.2")}
         </Typography>
       </Box>
     ),
@@ -180,10 +188,10 @@ function ExportKeyDialog(props: Props) {
     () => (
       <>
         <Typography component="p" variant="body1">
-          {t("export-key.info.export.1")}
+          {t("account-settings.export-key.info.export.1")}
         </Typography>
         <Typography component="p" variant="body1" style={{ marginTop: 16, marginBottom: 24 }}>
-          {t("export-key.info.export.2")}
+          {t("account-settings.export-key.info.export.2")}
         </Typography>
       </>
     ),

@@ -130,7 +130,7 @@ export const ShowMoreItem = React.memo(function ShowMoreItem(props: ShowMoreItem
     >
       <ListItemText disableTypography>
         <Typography style={{ display: "flex", alignItems: "center", justifyContent: "center" }} variant="button">
-          {t("transaction-review.action.show-more")} <ExpandIcon />
+          {t("account.transaction-review.action.show-more")} <ExpandIcon />
         </Typography>
       </ListItemText>
     </ListItem>

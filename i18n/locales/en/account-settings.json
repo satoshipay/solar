@@ -1,0 +1,201 @@
+{
+  "account-deletion": {
+    "action": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "merge": {
+        "long": "Merge into",
+        "short": "Merge"
+      }
+    },
+    "confirm": {
+      "title": "Confirm deletion",
+      "text": {
+        "confirm": "Are you sure?",
+        "delete": "The account will be deleted",
+        "merge": "and the remaining funds transferred"
+      }
+    },
+    "remaining-funds": {
+      "text": "Send remaining funds to"
+    },
+    "text": {
+      "1": "Are you sure you want to delete the account \"{{accountName}}?\"",
+      "2": " Make sure to backup your private key or merge the funds into another account of yours, since there are still funds left!"
+    },
+    "title": "Confirm Account Deletion"
+  },
+  "custom-trustline": {
+    "action": {
+      "cancel": "Cancel",
+      "trust": {
+        "long": "Trust Asset",
+        "short": "Trust"
+      }
+    },
+    "textfield": {
+      "code": {
+        "label": "Code"
+      },
+      "issuer": {
+        "label": "Issuer",
+        "placeholder": "Issuing account public key"
+      },
+      "limit": {
+        "label": "Limit (optional)",
+        "placeholder": "Limit trust in this asset / maximum balance to hold"
+      }
+    },
+    "title": "Add Custom Asset"
+  },
+  "export-key": {
+    "action": {
+      "confirm": "Done",
+      "reveal": {
+        "long": "Reveal key",
+        "short": "Click to reveal secret key"
+      }
+    },
+    "info": {
+      "backup": {
+        "1": "Please back up your secret key now.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "export": {
+        "1": "Your secret key must be stored in a safe place and must not be shared with anyone.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "secret-key": "Write down the key on paper and store it in a safe place."
+    },
+    "textfield": {
+      "password": {
+        "label": "Password"
+      }
+    },
+    "title": {
+      "default": "Export Secret Key",
+      "initial-backup": "Secret Key Backup"
+    }
+  },
+  "manage-signers": {
+    "action": {
+      "add-co-signer": {
+        "long": "Add Co-Signer",
+        "short": "Signer"
+      },
+      "cancel": "Cancel",
+      "apply": {
+        "long": "Apply changes",
+        "short": "Apply"
+      }
+    },
+    "signers-editor": {
+      "list": {
+        "item": {
+          "weight": "Weight",
+          "local-key": "Local key"
+        }
+      },
+      "validation": {
+        "existing-signer": "Cannot add existing signer.",
+        "integer-required": "Must be an integer.",
+        "invalid-stellar-address": "Expected a public key or stellar address."
+      }
+    },
+    "textfield": {
+      "weight-threshold": {
+        "explanation": {
+          "required-signatures": "Every transaction needs to be signed by {{amount}} signers",
+          "required-weight": "Every transaction needs to be signed by signers with a combined key weight of {{amount}}"
+        },
+        "label": {
+          "required-signatures": "Required signatures",
+          "required-weight": "Required key weight"
+        }
+      }
+    },
+    "title": {
+      "long": "Manage Signers",
+      "short": "Manage Account Signers"
+    },
+    "validation": {
+      "no-signers": "No signers left. Don't lock yourself out!",
+      "invalid-weight-type": "Weight must be an integer",
+      "threshold-higher-than-weights": "Threshold higher than combined key weights",
+      "no-threshold": "Please set a threshold"
+    }
+  },
+  "set-password": {
+    "action": {
+      "change-password": {
+        "long": "Change password",
+        "short": "Change"
+      },
+      "remove-password": {
+        "long": "Remove password",
+        "short": "Remove"
+      }
+    },
+    "notification": {
+      "password-changed": "Password changed.",
+      "password-set": "Password set.",
+      "password-removed": "Password removed."
+    },
+    "textfield": {
+      "prev-password": {
+        "label": "Current password"
+      },
+      "next-password": {
+        "label": "New password"
+      },
+      "next-password-repeat": {
+        "label": "Repeat new password"
+      }
+    },
+    "title": {
+      "change-password": "Change Password",
+      "set-password": "Set Password"
+    },
+    "validation": {
+      "next-password-missing": "Enter a password or set \"remove password\".",
+      "next-password-repeat-missing": "Please repeat the password.",
+      "passwords-no-match": "Password does not match",
+      "previous-password-missing": "Current password is missing."
+    }
+  },
+  "settings": {
+    "delete-account": {
+      "text": {
+        "primary": "Merge or Delete Account"
+      }
+    },
+    "export-secret-key": {
+      "text": {
+        "primary": "Export Secret Key",
+        "secondary": "Decrypt and show private key"
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Multi-Signature",
+        "secondary": {
+          "short": "Manage co-signers",
+          "long": "Make account multi-signature and manage co-signers"
+        }
+      }
+    },
+    "set-password": {
+      "text": {
+        "primary": {
+          "account-protected": "Change Password",
+          "account-not-protected": "Set Password"
+        },
+        "secondary": {
+          "account-protected": "Your account is secure, protected by a password",
+          "account-not-protected": "Your account is not protected"
+        }
+      }
+    }
+  }
+}

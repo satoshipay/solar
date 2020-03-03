@@ -84,15 +84,19 @@ function ManageSignersDialog(props: Props) {
   const titleContent = React.useMemo(
     () => (
       <MainTitle
-        title={isSmallScreen ? t("manage-signers.title.short") : t("manage-signers.title.long")}
+        title={
+          isSmallScreen
+            ? t("account-settings.manage-signers.title.short")
+            : t("account-settings.manage-signers.title.long")
+        }
         actions={
           <>
             <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
               <ButtonIconLabel
                 label={
                   isWidthMax450
-                    ? t("manage-signers.action.add-co-signer.short")
-                    : t("manage-signers.action.add-co-signer.long")
+                    ? t("account-settings.manage-signers.action.add-co-signer.short")
+                    : t("account-settings.manage-signers.action.add-co-signer.long")
                 }
               >
                 <PersonAddIcon />
