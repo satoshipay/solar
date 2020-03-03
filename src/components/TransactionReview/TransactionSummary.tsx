@@ -131,7 +131,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
       <Collapse in={showingAllMetadataDeferred}>
         <VerticalLayout grow>
           {props.showSource ? (
-            <SummaryItem marginTop={12}>
+            <SummaryItem>
               <SummaryDetailsField
                 fullWidth
                 label={t("transaction-review.summary.item.account.label")}
@@ -140,7 +140,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
             </SummaryItem>
           ) : null}
           {props.showHash ? (
-            <SummaryItem marginTop={12}>
+            <SummaryItem>
               <SummaryDetailsField
                 fullWidth
                 label={t("transaction-review.summary.item.tx-hash.label")}
@@ -148,7 +148,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
               />
             </SummaryItem>
           ) : null}
-          <SummaryItem marginTop={12}>
+          <SummaryItem>
             <SummaryDetailsField
               label={t("transaction-review.summary.item.max-fee.label")}
               value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />}
