@@ -32,10 +32,12 @@ function CustomTrustlineDialog(props: Props) {
   const addCustomAsset = () => props.sendTransaction(createTransaction)
 
   return (
-    <DialogBody top={<MainTitle hideBackButton onBack={props.onClose} title={t("custom-trustline.title")} />}>
+    <DialogBody
+      top={<MainTitle hideBackButton onBack={props.onClose} title={t("account-settings.custom-trustline.title")} />}
+    >
       <form noValidate style={{ display: "block", width: "100%" }}>
         <TextField
-          label={t("custom-trustline.textfield.code.label")}
+          label={t("account-settings.custom-trustline.textfield.code.label")}
           placeholder="EURT, USDT, BTC, ..."
           autoFocus={process.env.PLATFORM !== "ios"}
           margin="dense"
@@ -45,8 +47,8 @@ function CustomTrustlineDialog(props: Props) {
         />
         <TextField
           fullWidth
-          label={t("custom-trustline.textfield.issuer.label")}
-          placeholder={t("custom-trustline.textfield.issuer.placeholder")}
+          label={t("account-settings.custom-trustline.textfield.issuer.label")}
+          placeholder={t("account-settings.custom-trustline.textfield.issuer.placeholder")}
           margin="dense"
           name="asset-issuer"
           value={issuerPublicKey}
@@ -58,8 +60,8 @@ function CustomTrustlineDialog(props: Props) {
             inputMode: "decimal"
           }}
           fullWidth
-          label={t("custom-trustline.textfield.limit.label")}
-          placeholder={t("custom-trustline.textfield.limit.placeholder")}
+          label={t("account-settings.custom-trustline.textfield.limit.label")}
+          placeholder={t("account-settings.custom-trustline.textfield.limit.placeholder")}
           margin="dense"
           name="trust-limit"
           value={limit}
@@ -68,14 +70,16 @@ function CustomTrustlineDialog(props: Props) {
         />
         {/* Not in the DialogBody's `actions` prop as it's not a fullscreen dialog */}
         <DialogActionsBox preventMobileActionsBox>
-          <ActionButton onClick={props.onClose}>{t("custom-trustline.action.cancel")}</ActionButton>
+          <ActionButton onClick={props.onClose}>{t("account-settings.custom-trustline.action.cancel")}</ActionButton>
           <ActionButton
             icon={<VerifiedUserIcon />}
             loading={props.txCreationPending}
             onClick={addCustomAsset}
             type="primary"
           >
-            {isWidthMax450 ? t("custom-trustline.action.trust.short") : t("custom-trustline.action.trust.long")}
+            {isWidthMax450
+              ? t("account-settings.custom-trustline.action.trust.short")
+              : t("account-settings.custom-trustline.action.trust.long")}
           </ActionButton>
         </DialogActionsBox>
       </form>

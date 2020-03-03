@@ -113,13 +113,13 @@ function AccountSettings(props: Props) {
           <ListItemText
             primary={
               props.account.requiresPassword
-                ? t("account-settings.set-password.text.primary.account-protected")
-                : t("account-settings.set-password.text.primary.account-not-protected")
+                ? t("account-settings.settings.set-password.text.primary.account-protected")
+                : t("account-settings.settings.set-password.text.primary.account-not-protected")
             }
             secondary={
               props.account.requiresPassword
-                ? t("account-settings.set-password.text.secondary.account-protected")
-                : t("account-settings.set-password.text.secondary.account-not-protected")
+                ? t("account-settings.settings.set-password.text.secondary.account-protected")
+                : t("account-settings.settings.set-password.text.secondary.account-not-protected")
             }
             style={listItemTextStyle}
           />
@@ -131,11 +131,11 @@ function AccountSettings(props: Props) {
             onClick={navigateTo.manageSigners}
           >
             <ListItemText
-              primary={t("account-settings.multi-sig.text.primary")}
+              primary={t("account-settings.settings.multi-sig.text.primary")}
               secondary={
                 isSmallScreen
-                  ? t("account-settings.multi-sig.text.secondary.short")
-                  : t("account-settings.multi-sig.text.secondary.long")
+                  ? t("account-settings.settings.multi-sig.text.secondary.short")
+                  : t("account-settings.settings.multi-sig.text.secondary.long")
               }
               style={listItemTextStyle}
             />
@@ -143,13 +143,16 @@ function AccountSettings(props: Props) {
         ) : null}
         <AccountSettingsItem icon={<EyeIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.exportSecretKey}>
           <ListItemText
-            primary={t("account-settings.export-secret-key.text.primary")}
-            secondary={t("account-settings.export-secret-key.text.secondary")}
+            primary={t("account-settings.settings.export-secret-key.text.primary")}
+            secondary={t("account-settings.settings.export-secret-key.text.secondary")}
             style={listItemTextStyle}
           />
         </AccountSettingsItem>
         <AccountSettingsItem icon={<DeleteIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.deleteAccount}>
-          <ListItemText primary={t("account-settings.delete-account.text.primary")} style={listItemTextStyle} />
+          <ListItemText
+            primary={t("account-settings.settings.delete-account.text.primary")}
+            style={listItemTextStyle}
+          />
         </AccountSettingsItem>
       </List>
       <SettingsDialogs account={props.account} />

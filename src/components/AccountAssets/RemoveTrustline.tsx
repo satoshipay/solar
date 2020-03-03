@@ -12,8 +12,6 @@ import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import TransactionSender from "../TransactionSender"
 
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
-
 interface Props {
   account: Account
   accountData: AccountData
@@ -48,22 +46,22 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
 
   return (
     <>
-      <DialogTitle>{t("remove-trustline.title")}</DialogTitle>
+      <DialogTitle>{t("account.remove-trustline.title")}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           {stillOwnsTokens ? (
-            <>{t("remove-trustline.text.warning")}</>
+            <>{t("account.remove-trustline.text.warning")}</>
           ) : (
-            <Trans i18nKey="remove-trustline.text.info">
-              You are about to remove the asset <b>{{ asset: props.asset.code }}</b> from account &ldquo;
-              {{ accountName: props.account.name }}&rdquo;.
+            <Trans i18nKey="account.remove-trustline.text.info">
+              You are about to remove the asset <b>{{ asset: props.asset.code }}</b> from account "
+              {{ accountName: props.account.name }}".
             </Trans>
           )}
         </DialogContentText>
         {/* Not in the DialogBody's `actions` prop as it's not a fullscreen dialog */}
         <DialogActionsBox preventMobileActionsBox>
           <ActionButton onClick={props.onClose} style={{ maxWidth: "none" }}>
-            {t("remove-trustline.action.cancel")}
+            {t("account.remove-trustline.action.cancel")}
           </ActionButton>
           {stillOwnsTokens ? null : (
             <ActionButton
@@ -74,7 +72,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
               style={{ maxWidth: "none" }}
               type="primary"
             >
-              {t("remove-trustline.action.remove")}
+              {t("account.remove-trustline.action.remove")}
             </ActionButton>
           )}
         </DialogActionsBox>

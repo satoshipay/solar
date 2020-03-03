@@ -1,0 +1,218 @@
+{
+  "add-asset": {
+    "button": {
+      "add-custom-asset": {
+        "label": "Add Custom Asset"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "One matching asset",
+          "more-than-one-asset": "{{amount}} matching assets"
+        }
+      },
+      "no-result": {
+        "primary": "No matching asset",
+        "secondary": "No asset or issuer matches your search"
+      }
+    },
+    "search-field": {
+      "placeholder": "Search assets by code or name…"
+    },
+    "title": "Add Asset"
+  },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "Description",
+        "text": "The native token of the Stellar network.\n\n Every account on the network has a lumens balance. Lumens are used to pay transaction fees."
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "Authorization by issuer required",
+        "auth-not-required": "No authorization required",
+        "auth-revocable": "Authorization revocable",
+        "auth-not-revocable": "Authorization not revocable",
+        "auth-immutable": "These flags are immutable",
+        "auth-mutable": "Issuer can change these flags",
+        "label": "Account flags"
+      },
+      "anchor-asset": {
+        "label": "Anchored to"
+      },
+      "conditions": {
+        "label": "Conditions"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "issuing-account": {
+        "label": "Issuing account"
+      },
+      "organisation": {
+        "address": {
+          "label": "Address"
+        },
+        "dba": {
+          "label": "Doing business as"
+        },
+        "description": {
+          "label": "Description"
+        },
+        "email": {
+          "label": "Email address"
+        },
+        "name": {
+          "label": "Organization name"
+        },
+        "phone-number": {
+          "label": "Phone number"
+        },
+        "website": {
+          "label": "Website"
+        }
+      },
+      "redemption-instructions": {
+        "label": "Redemption instructions"
+      }
+    }
+  },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "Add Asset To Your Account"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "Spendable balance"
+      }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "Base reserve",
+        "secondary": "Fixed base reserve"
+      },
+      "data-reserve": {
+        "primary": "Data fields reserve",
+        "secondary": "Account data fields"
+      },
+      "headline": "Amounts in XLM",
+      "open-orders-reserve": {
+        "primary": "Open orders reserve",
+        "secondary": "Open SDEX orders"
+      },
+      "selling-liabilities": {
+        "primary": "Selling liabilities",
+        "secondary": "Covers open orders"
+      },
+      "signers-reserve": {
+        "primary": "Account signers reserve",
+        "secondary": {
+          "single-key": "Single key reserve",
+          "multiple-keys": "Master key + co-signers"
+        }
+      },
+      "spendable-balance": {
+        "primary": "Spendable balance",
+        "secondary": "Freely usable amount"
+      },
+      "total-balance": {
+        "primary": "Total balance",
+        "secondary": "Your balance, incl. unspendable"
+      },
+      "trustline-reserve": {
+        "primary": "Trustlines reserve",
+        "secondary": "For each non-XLM balance"
+      }
+    }
+  },
+  "context-menu": {
+    "account-settings": {
+      "label": "Account Settings"
+    },
+    "assets-and-balances": {
+      "label": "Assets & Balances"
+    },
+    "deposit": {
+      "label": "Deposit"
+    },
+    "trade": {
+      "label": "Trade"
+    },
+    "transactions": {
+      "label": "Transactions"
+    },
+    "withdraw": {
+      "label": "Withdraw"
+    }
+  },
+  "remove-trustline": {
+    "action": {
+      "cancel": "Cancel",
+      "remove": "Remove"
+    },
+    "text": {
+      "warning": "You cannot remove this asset unless the asset's balance is zero.",
+      "info": "You are about to remove the asset <1>{{asset}}</1> from account \"{{accountName}}\"."
+    },
+    "title": "Confirm Removing Asset"
+  },
+  "transaction-list": {
+    "load-more": {
+      "label": "Load more"
+    },
+    "title": "Recent transactions"
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "Confirm",
+      "dismiss": "Dismiss",
+      "inspect": "Inspect",
+      "show-more": "Show more details"
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "Account"
+        },
+        "authenticating-account": {
+          "label": "Authenticating Account"
+        },
+        "expiry": {
+          "label": "Expiry"
+        },
+        "max-fee": {
+          "label": "Maximum fee"
+        },
+        "service": {
+          "label": "Service"
+        },
+        "submission": {
+          "label": "Submission"
+        },
+        "tx-hash": {
+          "label": "Transaction Hash"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "Password"
+      }
+    },
+    "title": {
+      "transaction": "Transaction",
+      "payment": "Payment",
+      "delete-orders-operation": "Delete Trading Orders",
+      "web-auth": "Web Authentication"
+    },
+    "validation": {
+      "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
+      "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
+      "password-required": "Password required"
+    }
+  }
+}

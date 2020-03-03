@@ -34,12 +34,14 @@ function useFormnValidation() {
     const errors: SignerFormErrors = {}
 
     if (!isPublicKey(values.publicKey) && !isStellarAddress(values.publicKey)) {
-      errors.publicKey = new Error(t("manage-signers.signers-editor.validation.invalid-stellar-address"))
+      errors.publicKey = new Error(
+        t("account-settings.manage-signers.signers-editor.validation.invalid-stellar-address")
+      )
     } else if (signers.find(existingSigner => existingSigner.key === values.publicKey)) {
-      errors.publicKey = new Error(t("manage-signers.signers-editor.validation.existing-signer"))
+      errors.publicKey = new Error(t("account-settings.manage-signers.signers-editor.validation.existing-signer"))
     }
     if (!values.weight.match(/^[0-9]+$/)) {
-      errors.weight = new Error(t("manage-signers.signers-editor.validation.integer-required"))
+      errors.weight = new Error(t("account-settings.manage-signers.signers-editor.validation.integer-required"))
     }
 
     return errors
@@ -117,11 +119,11 @@ function SignersEditor(props: SignersEditorProps) {
               <>
                 {props.showKeyWeights ? (
                   <span style={{ marginRight: 24 }}>
-                    {t("manage-signers.signers-editor.list.item.weight")}: {signer.weight}
+                    {t("account-settings.manage-signers.signers-editor.list.item.weight")}: {signer.weight}
                   </span>
                 ) : null}
                 {signer.key === props.localPublicKey ? (
-                  <span>{t("manage-signers.signers-editor.list.item.local-key")}</span>
+                  <span>{t("account-settings.manage-signers.signers-editor.list.item.local-key")}</span>
                 ) : null}
               </>
             }

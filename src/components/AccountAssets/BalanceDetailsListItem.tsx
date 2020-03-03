@@ -129,7 +129,9 @@ function BalanceListItem(props: BalanceListItemProps) {
             secondary: classes.mainListItemTextSecondaryTypography
           }}
           primary={
-            props.spendableBalance ? t("balance-details.item.spendable-balance.primary") : "Stellar Lumens (XLM)"
+            props.spendableBalance
+              ? t("account.balance-details.item.spendable-balance.primary")
+              : "Stellar Lumens (XLM)"
           }
           secondary={props.spendableBalance ? undefined : "stellar.org"}
         />

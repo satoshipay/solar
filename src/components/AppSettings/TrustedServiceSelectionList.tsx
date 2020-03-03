@@ -120,25 +120,25 @@ const TrustedServiceList = React.memo(function TrustedServiceList() {
       </List>
       {trustedServices.length === 0 ? (
         <Typography align="center" color="textSecondary">
-          ({t("manage-trusted-services.service-selection.no-services")})
+          ({t("app-settings.trusted-services.service-selection.no-services")})
         </Typography>
       ) : null}
       <ConfirmDialog
         cancelButton={
           <ActionButton onClick={() => setConfirmationPending(false)}>
-            {t("manage-trusted-services.service-selection.actions.cancel")}
+            {t("app-settings.trusted-services.service-selection.actions.cancel")}
           </ActionButton>
         }
         confirmButton={
           <ActionButton onClick={onConfirm} type="primary">
-            {t("manage-trusted-services.service-selection.actions.confirm")}
+            {t("app-settings.trusted-services.service-selection.actions.confirm")}
           </ActionButton>
         }
         open={confirmationPending}
         onClose={() => setConfirmationPending(false)}
-        title={t("manage-trusted-services.service-selection.confirm.title")}
+        title={t("app-settings.trusted-services.service-selection.confirm.title")}
       >
-        {t("manage-trusted-services.service-selection.confirm.text")}
+        {t("app-settings.trusted-services.service-selection.confirm.text")}
       </ConfirmDialog>
     </>
   )

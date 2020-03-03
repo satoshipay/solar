@@ -1,0 +1,114 @@
+{
+  "account-merge": {
+    "summary": {
+      "account": "Account",
+      "merge-into": "Merge into"
+    },
+    "title": "Merge Account"
+  },
+  "change-trust": {
+    "summary": {
+      "asset": "Asset",
+      "issued-by": "Issued by",
+      "limit": {
+        "label": "Limit",
+        "value": {
+          "unlimited": "Unlimited",
+          "limited-to": "Limited to {{limit}} {{code}}"
+        }
+      }
+    },
+    "title": {
+      "add-asset": "Add asset",
+      "remove-asset": "Remove asset"
+    }
+  },
+  "create-account": {
+    "summary": {
+      "account": "Account to create",
+      "funding-account": "Funding account",
+      "funding-amount": "Funding amount"
+    },
+    "title": "Create account"
+  },
+  "manage-buy-offer": {
+    "title": {
+      "create": "Create buy order",
+      "delete": "Delete buy order",
+      "update": "Update buy order"
+    }
+  },
+  "manage-data": {
+    "title": "Set account data"
+  },
+  "manage-offer": {
+    "summary": {
+      "buy": "Buy",
+      "sell": "Sell"
+    }
+  },
+  "manage-sell-offer": {
+    "title": {
+      "create": "Create sell order",
+      "delete": "Delete sell order",
+      "update": "Update sell order"
+    }
+  },
+  "offer-details": {
+    "string": "Buy {{price}} {{buyingCode}} for {{amount}} {{sellingCode}}"
+  },
+  "payment": {
+    "summary": {
+      "amount": "Amount",
+      "destination": "Destination",
+      "source": "Source"
+    },
+    "title": "Payment"
+  },
+  "set-options": {
+    "add-signer": {
+      "summary": {
+        "account": "Account to add signer to",
+        "key-weight": "Key weight",
+        "new-signer": "New signer"
+      },
+      "title": "Add signer"
+    },
+    "change-signature-setup": {
+      "summary": {
+        "key-thresholds": {
+          "label": "New key thresholds",
+          "value": {
+            "low": "Low threshold:    {{threshold}}",
+            "medium": "Medium threshold: {{threshold}}",
+            "high": "High threshold:   {{threshold}}"
+          }
+        },
+        "required-signatures": "Required signatures"
+      },
+      "title": "Change signature setup"
+    },
+    "remove-signer": {
+      "summary": {
+        "account": "Account to remove signer from",
+        "signer": "Signer"
+      },
+      "title": "Remove signer"
+    },
+    "set-account-options": {
+      "title": "Set account options"
+    },
+    "set-home-domain": {
+      "title": "Set home domain"
+    },
+    "set-inflation-destination": {
+      "summary": {
+        "new-destination": "New destination"
+      },
+      "title": "Set inflation destination"
+    },
+    "set-master-key-weight": {
+      "title": "Set master key weight"
+    }
+  }
+}

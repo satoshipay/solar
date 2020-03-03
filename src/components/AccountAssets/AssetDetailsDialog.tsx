@@ -72,9 +72,9 @@ const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
           <ReadOnlyTextfield
             disableUnderline
             fullWidth
-            label={t("asset-details.lumen.description.label")}
+            label={t("account.asset-details.lumen.description.label")}
             multiline
-            value={t("asset-details.lumen.description.text")}
+            value={t("account.asset-details.lumen.description.text")}
           />
         </CardContent>
       </Card>
@@ -114,7 +114,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             <ReadOnlyTextfield
               disableUnderline
               fullWidth
-              label={t("asset-details.general.description.label")}
+              label={t("account.asset-details.general.description.label")}
               margin="dense"
               multiline
               value={metadata.desc}
@@ -123,7 +123,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
           <ReadOnlyTextfield
             disableUnderline
             fullWidth
-            label={t("asset-details.general.issuing-account.label")}
+            label={t("account.asset-details.general.issuing-account.label")}
             margin="dense"
             onClick={copyIssuerToClipboard}
             value={asset.getIssuer()}
@@ -137,20 +137,20 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
           <ReadOnlyTextfield
             disableUnderline
             fullWidth
-            label={t("asset-details.general.account-flags.label")}
+            label={t("account.asset-details.general.account-flags.label")}
             margin="dense"
             multiline
             value={capitalize(
               [
                 issuingAccountData.flags.auth_required
-                  ? `• ${t("asset-details.general.account-flags.auth-required")}`
-                  : `• ${t("asset-details.general.account-flags.auth-not-required")}`,
+                  ? `• ${t("account.asset-details.general.account-flags.auth-required")}`
+                  : `• ${t("account.asset-details.general.account-flags.auth-not-required")}`,
                 issuingAccountData.flags.auth_revocable
-                  ? `• ${t("asset-details.general.account-flags.auth-revocable")}`
-                  : `• ${t("asset-details.general.account-flags.auth-not-revocable")}`,
+                  ? `• ${t("account.asset-details.general.account-flags.auth-revocable")}`
+                  : `• ${t("account.asset-details.general.account-flags.auth-not-revocable")}`,
                 issuingAccountData.flags.auth_immutable
-                  ? `• ${t("asset-details.general.account-flags.auth-immutable")}`
-                  : `• ${t("asset-details.general.account-flags.auth-mutable")}`
+                  ? `• ${t("account.asset-details.general.account-flags.auth-immutable")}`
+                  : `• ${t("account.asset-details.general.account-flags.auth-mutable")}`
               ].join("\n")
             )}
           />
@@ -158,7 +158,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             <ReadOnlyTextfield
               disableUnderline
               fullWidth
-              label={t("asset-details.general.conditions.label")}
+              label={t("account.asset-details.general.conditions.label")}
               margin="dense"
               multiline
               value={metadata.conditions}
@@ -168,7 +168,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             <ReadOnlyTextfield
               disableUnderline
               fullWidth
-              label={t("asset-details.general.anchor-asset.label")}
+              label={t("account.asset-details.general.anchor-asset.label")}
               margin="dense"
               multiline
               value={
@@ -182,7 +182,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             <ReadOnlyTextfield
               disableUnderline
               fullWidth
-              label={t("asset-details.general.redemption-instructions")}
+              label={t("account.asset-details.general.redemption-instructions")}
               margin="dense"
               multiline
               value={metadata.redemption_instructions}
@@ -206,7 +206,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               <ReadOnlyTextfield
                 disableUnderline
                 fullWidth
-                label={t("asset-details.general.organisation.name.label")}
+                label={t("account.asset-details.general.organisation.name.label")}
                 margin="dense"
                 value={stellarToml.DOCUMENTATION.ORG_NAME}
               />
@@ -215,7 +215,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               <ReadOnlyTextfield
                 disableUnderline
                 fullWidth
-                label={t("asset-details.general.organisation.dba.label")}
+                label={t("account.asset-details.general.organisation.dba.label")}
                 margin="dense"
                 value={stellarToml.DOCUMENTATION.ORG_DBA}
               />
@@ -224,7 +224,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               <ReadOnlyTextfield
                 disableUnderline
                 fullWidth
-                label={t("asset-details.general.organisation.website.label")}
+                label={t("account.asset-details.general.organisation.website.label")}
                 margin="dense"
                 onClick={() => openLink(stellarToml!.DOCUMENTATION!.ORG_URL!)}
                 value={stellarToml.DOCUMENTATION.ORG_URL}
@@ -240,7 +240,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               <ReadOnlyTextfield
                 disableUnderline
                 fullWidth
-                label={t("asset-details.general.organisation.description.label")}
+                label={t("account.asset-details.general.organisation.description.label")}
                 margin="dense"
                 multiline
                 value={stellarToml.DOCUMENTATION.ORG_DESCRIPTION}
@@ -250,7 +250,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               <ReadOnlyTextfield
                 disableUnderline
                 fullWidth
-                label={t("asset-details.general.organisation.address.label")}
+                label={t("account.asset-details.general.organisation.address.label")}
                 margin="dense"
                 multiline
                 value={stellarToml.DOCUMENTATION.ORG_PHYSICAL_ADDRESS}
@@ -265,7 +265,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               <ReadOnlyTextfield
                 disableUnderline
                 fullWidth
-                label={t("asset-details.general.organisation.email.label")}
+                label={t("account.asset-details.general.organisation.email.label")}
                 margin="dense"
                 multiline
                 onClick={() => openLink("mailto:" + stellarToml!.DOCUMENTATION!.ORG_OFFICIAL_EMAIL!)}
@@ -282,7 +282,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
               <ReadOnlyTextfield
                 disableUnderline
                 fullWidth
-                label={t("asset-details.general.organisation.phone-number.label")}
+                label={t("account.asset-details.general.organisation.phone-number.label")}
                 margin="dense"
                 multiline
                 value={stellarToml.DOCUMENTATION.ORG_PHONE_NUMBER}
