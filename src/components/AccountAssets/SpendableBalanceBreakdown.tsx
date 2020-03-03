@@ -159,29 +159,29 @@ function SpendableBalanceBreakdown(props: Props) {
 
   return (
     <List style={{ padding: 0 }}>
-      <BreakdownHeadline right={t("balance-details.spendable-balances.headline")} />
+      <BreakdownHeadline right={t("account.balance-details.spendable-balances.headline")} />
       <BreakdownItem
         amount={rawBalance.toFixed(1)}
-        primary={t("balance-details.spendable-balances.total-balance.primary")}
-        secondary={t("balance-details.spendable-balances.total-balance.secondary")}
+        primary={t("account.balance-details.spendable-balances.total-balance.primary")}
+        secondary={t("account.balance-details.spendable-balances.total-balance.secondary")}
         style={props.style}
         variant="gross"
       />
       <BreakdownItem
         amount={props.baseReserve.toFixed(1)}
         indent
-        primary={t("balance-details.spendable-balances.base-reserve.primary")}
-        secondary={t("balance-details.spendable-balances.base-reserve.secondary")}
+        primary={t("account.balance-details.spendable-balances.base-reserve.primary")}
+        secondary={t("account.balance-details.spendable-balances.base-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={signersReserve.toFixed(1)}
         indent
-        primary={t("balance-details.spendable-balances.signers-reserve.primary")}
+        primary={t("account.balance-details.spendable-balances.signers-reserve.primary")}
         secondary={
           props.accountData.signers.length === 1
-            ? t("balance-details.spendable-balances.signers-reserve.secondary.single-key")
-            : t("balance-details.spendable-balances.signers-reserve.secondary.multiple-keys")
+            ? t("account.balance-details.spendable-balances.signers-reserve.secondary.single-key")
+            : t("account.balance-details.spendable-balances.signers-reserve.secondary.multiple-keys")
         }
         style={props.style}
       />
@@ -189,38 +189,38 @@ function SpendableBalanceBreakdown(props: Props) {
         amount={trustlinesReserve.toFixed(1)}
         hide={trustlinesReserve === 0}
         indent
-        primary={t("balance-details.spendable-balances.trustline-reserve.primary")}
-        secondary={t("balance-details.spendable-balances.trustline-reserve.secondary")}
+        primary={t("account.balance-details.spendable-balances.trustline-reserve.primary")}
+        secondary={t("account.balance-details.spendable-balances.trustline-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={openOrdersReserve.toFixed(1)}
         hide={openOrdersReserve === 0}
         indent
-        primary={t("balance-details.spendable-balances.open-orders-reserve.primary")}
-        secondary={t("balance-details.spendable-balances.open-orders-reserve.secondary")}
+        primary={t("account.balance-details.spendable-balances.open-orders-reserve.primary")}
+        secondary={t("account.balance-details.spendable-balances.open-orders-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={dataReserve.toFixed(1)}
         hide={dataReserve === 0}
         indent
-        primary={t("balance-details.spendable-balances.data-reserve.primary")}
-        secondary={t("balance-details.spendable-balances.data-reserve.secondary")}
+        primary={t("account.balance-details.spendable-balances.data-reserve.primary")}
+        secondary={t("account.balance-details.spendable-balances.data-reserve.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={sellingLiabilities.toString()}
         hide={sellingLiabilities.eq(0)}
         indent
-        primary={t("balance-details.spendable-balances.selling-liabilities.primary")}
-        secondary={t("balance-details.spendable-balances.selling-liabilities.secondary")}
+        primary={t("account.balance-details.spendable-balances.selling-liabilities.primary")}
+        secondary={t("account.balance-details.spendable-balances.selling-liabilities.secondary")}
         style={props.style}
       />
       <BreakdownItem
         amount={spendableBalance.toString()}
-        primary={t("balance-details.spendable-balances.spendable-balance.primary")}
-        secondary={t("balance-details.spendable-balances.spendable-balance.secondary")}
+        primary={t("account.balance-details.spendable-balances.spendable-balance.primary")}
+        secondary={t("account.balance-details.spendable-balances.spendable-balance.secondary")}
         style={props.style}
         variant="total"
       />

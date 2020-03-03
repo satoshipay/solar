@@ -42,10 +42,10 @@ function PasswordSetting(props: PasswordSettingProps) {
             <TextField
               error={Boolean(props.error)}
               fullWidth
-              label={t("create-account.toggle.password.textfield.1.label")}
+              label={t("create-account.inputs.password.label")}
               margin="normal"
               onChange={event => props.onEnterPassword(event.target.value)}
-              placeholder={t("create-account.toggle.password.textfield.1.placeholder")}
+              placeholder={t("create-account.inputs.password.placeholder")}
               type="password"
               value={props.password}
             />
@@ -53,10 +53,10 @@ function PasswordSetting(props: PasswordSettingProps) {
               error={Boolean(props.error)}
               fullWidth
               helperText={props.error}
-              label={t("create-account.toggle.password.textfield.2.label")}
+              label={t("create-account.inputs.password.label")}
               margin="normal"
               onChange={event => props.onRepeatPassword(event.target.value)}
-              placeholder={t("create-account.toggle.password.textfield.2.placeholder")}
+              placeholder={t("create-account.inputs.password.placeholder")}
               type="password"
               value={props.repeatedPassword}
             />

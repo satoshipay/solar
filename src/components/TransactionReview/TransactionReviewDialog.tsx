@@ -33,17 +33,17 @@ function useTitle() {
 
   return function getTitle(transaction: Transaction | null): string {
     if (!transaction) {
-      return t("transaction-review.title.transaction")
+      return t("account.transaction-review.title.transaction")
     } else if (transaction.operations.length === 1) {
       return getOperationTitle(transaction.operations[0])
     } else if (transaction.operations.every(isPaymentOperation)) {
-      return t("transaction-review.title.payment")
+      return t("account.transaction-review.title.payment")
     } else if (transaction.operations.every(isOfferDeletionOperation)) {
-      return t("transaction-review.title.delete-orders-operation")
+      return t("account.transaction-review.title.delete-orders-operation")
     } else if (isStellarWebAuthTransaction(transaction)) {
-      return t("transaction-review.title.web-auth")
+      return t("account.transaction-review.title.web-auth")
     } else {
-      return t("transaction-review.title.transaction")
+      return t("account.transaction-review.title.transaction")
     }
   }
 }

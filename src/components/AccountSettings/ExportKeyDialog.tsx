@@ -38,7 +38,9 @@ function PromptToReveal(props: PromptToRevealProps) {
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
           <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} type="primary">
-            {isSmallScreen ? t("export-key.action.reveal.short") : t("export-key.action.reveal.long")}
+            {isSmallScreen
+              ? t("account-settings.export-key.action.reveal.short")
+              : t("account-settings.export-key.action.reveal.long")}
           </ActionButton>
         </DialogActionsBox>
       }
@@ -50,7 +52,11 @@ function PromptToReveal(props: PromptToRevealProps) {
             autoFocus={process.env.PLATFORM !== "ios"}
             fullWidth
             error={props.passwordError !== null}
-            label={props.passwordError ? props.passwordError.message : t("export-key.textfield.password.label")}
+            label={
+              props.passwordError
+                ? props.passwordError.message
+                : t("account-settings.export-key.textfield.password.label")
+            }
             margin="dense"
             type="password"
             value={props.password}
@@ -88,13 +94,18 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
         props.onConfirm ? (
           <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
             <ActionButton onClick={props.onConfirm} type="primary">
-              {t("export-key.action.confirm")}
+              {t("account-settings.export-key.action.confirm")}
             </ActionButton>
           </DialogActionsBox>
         ) : null
       }
     >
-      <Box padding="32px 0 0">
+      {props.variant === "initial-backup" ? (
+        <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 16 }}>
+          {t("account-settings.export-key.info.secret-key")}
+        </Typography>
+      ) : null}
+      <Box padding={"32px 0 0"}>
         <KeyExportBox export={props.export} hideTapToCopy={props.variant === "initial-backup"} size={192} />
       </Box>
     </DialogBody>
@@ -146,10 +157,14 @@ function ExportKeyDialog(props: Props) {
   )
 
   const titleContent = React.useMemo(
-    () =>
-      props.variant === "initial-backup" ? null : (
-        <MainTitle hideBackButton={!props.onClose} onBack={onBackButtonClick} title={t("export-key.title.default")} />
-      ),
+    () => props.variant === "initial-backup" ? null : (
+      <MainTitle
+        hideBackButton={!props.onClose}
+        onBack={onBackButtonClick}
+        style={{ marginBottom: 24 }}
+        title={t("account-settings.export-key.title.default")}
+      />
+    ),
     [props.onClose, props.variant, onBackButtonClick, t]
   )
 
@@ -157,13 +172,13 @@ function ExportKeyDialog(props: Props) {
     () => (
       <Box fontSize="18px" margin="24px 0 0">
         <Typography component="p" variant="h5">
-          {t("export-key.info.backup.title")}
+          {t("account-settings.export-key.info.backup.title")}
         </Typography>
         <Typography component="p" variant="body1" style={{ fontSize: "inherit", margin: "24px 0" }}>
-          {t("export-key.info.backup.paragraph-1")}
+          {t("account-settings.export-key.info.backup.paragraph-1")}
         </Typography>
         <Typography component="p" variant="body1" style={{ fontSize: "inherit", margin: "24px 0" }}>
-          {t("export-key.info.backup.paragraph-2")}
+          {t("account-settings.export-key.info.backup.paragraph-2")}
         </Typography>
       </Box>
     ),
@@ -174,10 +189,10 @@ function ExportKeyDialog(props: Props) {
     () => (
       <Box margin="24px 0 0">
         <Typography component="p" variant="body1">
-          {t("export-key.info.export.paragraph-1")}
+          {t("account-settings.export-key.info.export.paragraph-1")}
         </Typography>
         <Typography component="p" variant="body1" style={{ margin: "24px 0" }}>
-          {t("export-key.info.export.paragraph-2")}
+          {t("account-settings.export-key.info.export.paragraph-2")}
         </Typography>
       </Box>
     ),

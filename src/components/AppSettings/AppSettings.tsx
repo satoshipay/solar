@@ -93,15 +93,15 @@ function AppSettings() {
             onClick={settings.biometricAvailability.enrolled ? settings.toggleBiometricLock : undefined}
             primaryText={
               process.env.PLATFORM === "ios"
-                ? t("app-settings.biometric-lock.text.primary.ios")
-                : t("app-settings.biometric-lock.text.primary.default")
+                ? t("app-settings.settings.biometric-lock.text.primary.ios")
+                : t("app-settings.settings.biometric-lock.text.primary.default")
             }
             secondaryText={
               !settings.biometricAvailability.enrolled
-                ? t("app-settings.biometric-lock.text.secondary.not-enrolled")
+                ? t("app-settings.settings.biometric-lock.text.secondary.not-enrolled")
                 : settings.biometricLock
-                ? t("app-settings.biometric-lock.text.secondary.enabled")
-                : t("app-settings.biometric-lock.text.secondary.disabled")
+                ? t("app-settings.settings.biometric-lock.text.secondary.enabled")
+                : t("app-settings.settings.biometric-lock.text.secondary.disabled")
             }
           />
         ) : null}
@@ -118,32 +118,32 @@ function AppSettings() {
           primaryText="Show Testnet Accounts"
           secondaryText={
             hasTestnetAccount
-              ? t("app-settings.testnet.text.secondary.cannot-disable")
+              ? t("app-settings.settings.testnet.text.secondary.cannot-disable")
               : settings.showTestnet
-              ? t("app-settings.testnet.text.secondary.shown")
-              : t("app-settings.testnet.text.secondary.hidden")
+              ? t("app-settings.settings.testnet.text.secondary.shown")
+              : t("app-settings.settings.testnet.text.secondary.hidden")
           }
         />
         <AppSettingsItem
           actions={<SettingsToggle checked={!settings.hideMemos} onChange={settings.toggleHideMemos} />}
           icon={<MessageIcon className={classes.icon} />}
           onClick={settings.toggleHideMemos}
-          primaryText={t("app-settings.memo.text.primary")}
+          primaryText={t("app-settings.settings.memo.text.primary")}
           secondaryText={
             settings.hideMemos
-              ? t("app-settings.memo.text.secondary.hidden")
-              : t("app-settings.memo.text.secondary.shown")
+              ? t("app-settings.settings.memo.text.secondary.hidden")
+              : t("app-settings.settings.memo.text.secondary.shown")
           }
         />
         <AppSettingsItem
           actions={<SettingsToggle checked={settings.multiSignature} onChange={settings.toggleMultiSignature} />}
           icon={<GroupIcon className={classes.icon} />}
           onClick={settings.toggleMultiSignature}
-          primaryText={t("app-settings.multi-sig.text.primary")}
+          primaryText={t("app-settings.settings.multi-sig.text.primary")}
           secondaryText={
             settings.multiSignature
-              ? t("app-settings.multi-sig.text.secondary.enabled")
-              : t("app-settings.multi-sig.text.secondary.disabled")
+              ? t("app-settings.settings.multi-sig.text.secondary.enabled")
+              : t("app-settings.settings.multi-sig.text.secondary.disabled")
           }
         />
         {trustedServicesEnabled ? (
@@ -155,8 +155,8 @@ function AppSettings() {
             }
             icon={<TrustIcon className={classes.icon} />}
             onClick={navigateToTrustedServices}
-            primaryText={t("app-settings.trusted-services.text.primary")}
-            secondaryText={t("app-settings.trusted-services.text.secondary")}
+            primaryText={t("app-settings.settings.trusted-services.text.primary")}
+            secondaryText={t("app-settings.settings.trusted-services.text.secondary")}
           />
         ) : (
           undefined

@@ -93,7 +93,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
                 marginLeft: 8
               }}
             >
-              {t("account-deletion.remaining-funds.text")}
+              {t("account-settings.account-deletion.remaining-funds.text")}
             </Typography>
           </HorizontalLayout>
 
@@ -125,7 +125,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       top={
         <>
           <MainTitle
-            title={<span>{t("account-deletion.title")}</span>}
+            title={<span>{t("account-settings.account-deletion.title")}</span>}
             titleColor="inherit"
             onBack={props.onClose}
             style={{ marginTop: 0, marginLeft: 0 }}
@@ -143,11 +143,13 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
               onClick={() => setConfirmationPending(true)}
               type="primary"
             >
-              {isTinyScreen ? t("account-deletion.action.merge.short") : t("account-deletion.action.merge.long")}
+              {isTinyScreen
+                ? t("account-settings.account-deletion.action.merge.short")
+                : t("account-settings.account-deletion.action.merge.long")}
             </ActionButton>
           ) : (
             <ActionButton autoFocus icon={<DeleteIcon />} onClick={() => setConfirmationPending(true)} type="primary">
-              {t("account-deletion.action.delete")}
+              {t("account-settings.account-deletion.action.delete")}
             </ActionButton>
           )}
         </DialogActionsBox>
@@ -155,10 +157,10 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     >
       <DialogContent style={{ padding: 0 }}>
         <DialogContentText style={{ marginTop: 24 }}>
-          {t("account-deletion.text.1", { accountName: props.account.name })}
+          {t("account-settings.account-deletion.text.1", { accountName: props.account.name })}
         </DialogContentText>
         <DialogContentText style={{ display: accountData.balances.length > 0 ? undefined : "none", marginTop: 16 }}>
-          {t("account-deletion.text.2")}
+          {t("account-settings.account-deletion.text.2")}
         </DialogContentText>
 
         {remainingFundsContent}
@@ -166,21 +168,21 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
         <ConfirmDialog
           cancelButton={
             <ActionButton onClick={() => setConfirmationPending(false)}>
-              {t("account-deletion.action.cancel")}
+              {t("account-settings.account-deletion.action.cancel")}
             </ActionButton>
           }
           confirmButton={
             <ActionButton onClick={onConfirm} type="primary">
-              {t("account-deletion.action.confirm")}
+              {t("account-settings.account-deletion.action.confirm")}
             </ActionButton>
           }
           open={confirmationPending}
           onClose={() => setConfirmationPending(false)}
-          title={t("account-deletion.confirm.title")}
+          title={t("account-settings.account-deletion.confirm.title")}
         >
-          {t("account-deletion.confirm.text.delete")}
-          {mergeAccountEnabled ? ` ${t("account-deletion.confirm.text.merge")}. ` : ". "}
-          {t("account-deletion.confirm.text.confirm")}
+          {t("account-settings.account-deletion.confirm.text.delete")}
+          {mergeAccountEnabled ? ` ${t("account-settings.account-deletion.confirm.text.merge")}. ` : ". "}
+          {t("account-settings.account-deletion.confirm.text.confirm")}
         </ConfirmDialog>
       </DialogContent>
     </DialogBody>

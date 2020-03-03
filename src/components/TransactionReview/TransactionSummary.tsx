@@ -134,7 +134,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
             <SummaryItem>
               <SummaryDetailsField
                 fullWidth
-                label={t("transaction-review.summary.item.account.label")}
+                label={t("account.transaction-review.summary.item.account.label")}
                 value={<CopyableAddress address={props.transaction.source} variant="short" />}
               />
             </SummaryItem>
@@ -143,20 +143,20 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
             <SummaryItem>
               <SummaryDetailsField
                 fullWidth
-                label={t("transaction-review.summary.item.tx-hash.label")}
+                label={t("account.transaction-review.summary.item.tx-hash.label")}
                 value={<ClickableAddress address={transactionHash} variant="shorter" />}
               />
             </SummaryItem>
           ) : null}
           <SummaryItem>
             <SummaryDetailsField
-              label={t("transaction-review.summary.item.max-fee.label")}
+              label={t("account.transaction-review.summary.item.max-fee.label")}
               value={<SingleBalance assetCode="XLM" balance={fee.toString()} inline />}
             />
             {transaction.created_at ? (
               <SummaryDetailsField
                 fullWidth
-                label={t("transaction-review.summary.item.submission.label")}
+                label={t("account.transaction-review.summary.item.submission.label")}
                 value={getTime(transaction.created_at)}
               />
             ) : null}
@@ -183,24 +183,27 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
   const maxTime = timeBounds ? Math.round(Number.parseInt(timeBounds.maxTime, 10) * 1000) : 0
 
   if (!manageDataOperation) {
-    throw Error(t("transaction-review.validation.no-manage-data-operation"))
+    throw Error(t("account.transaction-review.validation.no-manage-data-operation"))
   }
 
   return (
     <VerticalLayout>
       <SummaryItem>
         <SummaryDetailsField
-          label={t("transaction-review.summary.item.service.label")}
+          label={t("account.transaction-review.summary.item.service.label")}
           value={domain ? domain : <AccountName publicKey={props.transaction.source} testnet={props.testnet} />}
         />
         <SummaryDetailsField
-          label={t("transaction-review.summary.item.authenticating-account.label")}
+          label={t("account.transaction-review.summary.item.authenticating-account.label")}
           value={<CopyableAddress address={manageDataOperation.source || ""} variant="short" />}
         />
       </SummaryItem>
       {maxTime ? (
         <SummaryItem>
-          <SummaryDetailsField label={t("transaction-review.summary.item.expiry.label")} value={getTime(maxTime)} />
+          <SummaryDetailsField
+            label={t("account.transaction-review.summary.item.expiry.label")}
+            value={getTime(maxTime)}
+          />
         </SummaryItem>
       ) : null}
     </VerticalLayout>
@@ -227,7 +230,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
   const showSigners = accountDataSet.some(someAccountData => someAccountData.signers.length > 1)
 
   if (!accountData) {
-    throw new Error(t("transaction-review.validation.no-account-data"))
+    throw new Error(t("account.transaction-review.validation.no-account-data"))
   }
 
   const isDangerousSignatureRequest = React.useMemo(() => {

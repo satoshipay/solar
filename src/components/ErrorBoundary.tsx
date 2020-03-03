@@ -53,7 +53,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
             {t => (
               <>
                 <Box textAlign="center">
-                  <Typography variant="h5">{t("error.boundary.header")}</Typography>
+                  <Typography variant="h5">{t("generic.error.boundary.header")}</Typography>
                   <Typography style={{ margin: "8px 0 24px", userSelect: "text" }} variant="body2">
                     {getErrorTranslation(error, t)}
                   </Typography>
@@ -63,7 +63,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
                 </Box>
                 <Box style={{ position: "absolute", bottom: 8, left: 0, width: "100%", opacity: 0.5 }}>
                   <Typography align="center" color="textPrimary">
-                    {t("error.boundary.contact-us")}{" "}
+                    {t("generic.error.boundary.contact-us")}{" "}
                     <a
                       href="mailto:hello@solarwallet.io"
                       style={{ color: "inherit" }}

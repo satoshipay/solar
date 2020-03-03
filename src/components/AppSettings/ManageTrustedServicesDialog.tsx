@@ -12,7 +12,7 @@ function ManageTrustedServicesDialog() {
     <DialogBody>
       <DialogContent style={{ flexGrow: 0, padding: 0 }}>
         <DialogContentText align="justify" style={{ marginTop: 8 }}>
-          {t("manage-trusted-services.info")}
+          {t("app-settings.trusted-services.info")}
         </DialogContentText>
 
         <TrustedServiceSelectionList />
