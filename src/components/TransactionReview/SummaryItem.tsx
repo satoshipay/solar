@@ -43,14 +43,21 @@ export const SummaryDetailsField = React.memo(function SummaryDetailsField(props
 
 interface SummaryDetailsLineProps {
   children: React.ReactNode
+  marginTop?: number | string
 }
 
 function SummaryDetailsLine(props: SummaryDetailsLineProps) {
-  return (
-    <HorizontalLayout style={{ flexWrap: "wrap", justifyContent: "space-between", marginTop: 24, width: "100%" }}>
-      {props.children}
-    </HorizontalLayout>
+  const style = React.useMemo<React.CSSProperties>(
+    () => ({
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+      marginTop: props.marginTop ?? 24,
+      width: "100%"
+    }),
+    [props.marginTop]
   )
+
+  return <HorizontalLayout style={style}>{props.children}</HorizontalLayout>
 }
 
 const useSummaryItemStyles = makeStyles({
@@ -78,6 +85,7 @@ const useSummaryItemStyles = makeStyles({
 interface SummaryItemProps {
   children: React.ReactNode
   heading?: React.ReactNode
+  marginTop?: number | string
 }
 
 export function SummaryItem(props: SummaryItemProps) {
@@ -89,7 +97,7 @@ export function SummaryItem(props: SummaryItemProps) {
           {props.heading}
         </Typography>
       ) : null}
-      <SummaryDetailsLine>{props.children}</SummaryDetailsLine>
+      <SummaryDetailsLine marginTop={props.marginTop}>{props.children}</SummaryDetailsLine>
     </ListItem>
   )
 }
