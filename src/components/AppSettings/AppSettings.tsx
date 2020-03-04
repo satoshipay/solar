@@ -91,7 +91,11 @@ function AppSettings() {
             }
             icon={<FingerprintIcon className={classes.icon} />}
             onClick={settings.biometricAvailability.enrolled ? settings.toggleBiometricLock : undefined}
-            primaryText={t("app-settings.biometric-lock.text.primary")}
+            primaryText={
+              process.env.PLATFORM === "ios"
+                ? t("app-settings.biometric-lock.text.primary.ios")
+                : t("app-settings.biometric-lock.text.primary.default")
+            }
             secondaryText={
               !settings.biometricAvailability.enrolled
                 ? t("app-settings.biometric-lock.text.secondary.not-enrolled")

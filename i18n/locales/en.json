@@ -106,7 +106,10 @@
   "app-settings": {
     "biometric-lock": {
       "text": {
-        "primary": "Biometric authentication",
+        "primary": {
+          "default": "Fingerprint lock",
+          "ios": "Face ID / Touch ID"
+        },
         "secondary": {
           "disabled": "Biometric authentication is disabled",
           "enabled": "Biometric authentication is enabled",
