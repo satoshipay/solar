@@ -1,0 +1,669 @@
+{
+  "accounts-context-menu": {
+    "account-settings": {
+      "label": "用户"
+    },
+    "assets-and-balances": {
+      "label": "钱包"
+    },
+    "deposit": {
+      "label": "存款"
+    },
+    "trade": {
+      "label": "交易"
+    },
+    "transactions": {
+      "label": "事件"
+    },
+    "withdraw": {
+      "label": "取款"
+    }
+  },
+  "account-deletion": {
+    "action": {
+      "cancel": "取消",
+      "confirm": "确认",
+      "delete": "删除",
+      "merge": {
+        "long": "合并 到",
+        "short": "合并"
+      }
+    },
+    "confirm": {
+      "title": "确认删除",
+      "text": {
+        "confirm": "你确定吗?",
+        "delete": "账户将要被删除",
+        "merge": "剩余资产将要被转移"
+      }
+    },
+    "remaining-funds": {
+      "text": "剩余资产转移给"
+    },
+    "text": {
+      "1": "确定删除账户 \"{{accountName}}吗?\"",
+      "2": " 确保备份您的私钥或将资金合并到您的另一个帐户，因为仍有资金剩余!"
+    },
+    "title": "确定删除账户"
+  },
+  "account-settings": {
+    "delete-account": {
+      "text": {
+        "primary": "合并或删除账户"
+      }
+    },
+    "export-secret-key": {
+      "text": {
+        "primary": "查看密钥",
+        "secondary": "解密并显示密钥"
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "多重签名",
+        "secondary": {
+          "short": "管理签名者",
+          "long": "实现账户多重签名并管理联合签名者"
+        }
+      }
+    },
+    "set-password": {
+      "text": {
+        "primary": {
+          "account-protected": "更改密码",
+          "account-not-protected": "设置密码"
+        },
+        "secondary": {
+          "account-protected": "您的帐户是安全的，受密码保护的",
+          "account-not-protected": "您的账户未受到保护"
+        }
+      }
+    }
+  },
+  "add-asset": {
+    "button": {
+      "add-custom-asset": {
+        "label": "添加自定义资产"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "一个匹配的资产",
+          "more-than-one-asset": "{{amount}} 匹配资产"
+        }
+      },
+      "no-result": {
+        "primary": "没有匹配的资产",
+        "secondary": "未找到匹配的资产或发行者"
+      }
+    },
+    "search-field": {
+      "placeholder": "搜索资产…"
+    },
+    "title": "添加资产"
+  },
+  "app-settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": "Biometric authentication",
+        "secondary": {
+          "disabled": "Biometric authentication is disabled",
+          "enabled": "Biometric authentication is enabled",
+          "not-enrolled": "Configure biometric authentication in your operating system settings"
+        }
+      },
+      "prompt": {
+        "enable": "Unlock your device once to enable the feature.",
+        "disable": "Unlock your device to disable the auto-lock."
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "Show Memos",
+        "secondary": {
+          "hidden": "Memos are hidden in the transaction overview",
+          "shown": "Memos are shown in the transaction overview"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "开户多重签名",
+        "secondary": {
+          "enabled": "启动已多重签名",
+          "disabled": "关闭已多重签名"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "显示测试网络",
+        "secondary": {
+          "cannot-disable": "已添加测试网络账户不能关闭",
+          "hidden": "测试网络已隐藏",
+          "shown": "测试网络已显示"
+        }
+      }
+    },
+    "trusted-services": {
+      "text": {
+        "primary": "管理授信服务",
+        "secondary": "删除授信服务"
+      }
+    }
+  },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "说明",
+        "text": "恒星区块链的原生资产.\n\n 每个账户都有可持有，用于支付网络费用."
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "需改行方授权",
+        "auth-not-required": "无需授权",
+        "auth-revocable": "可撤销授权",
+        "auth-not-revocable": "授权不可撤销",
+        "auth-immutable": "授权不可变",
+        "auth-mutable": "发行者可更改授权",
+        "label": "账户标志"
+      },
+      "anchor-asset": {
+        "label": "锚点"
+      },
+      "conditions": {
+        "label": "状态"
+      },
+      "description": {
+        "label": "说明"
+      },
+      "issuing-account": {
+        "label": "发行方账户"
+      },
+      "organisation": {
+        "address": {
+          "label": "地址"
+        },
+        "dba": {
+          "label": "做生意"
+        },
+        "description": {
+          "label": "说明"
+        },
+        "email": {
+          "label": "Email"
+        },
+        "name": {
+          "label": "机构"
+        },
+        "phone-number": {
+          "label": "电话"
+        },
+        "website": {
+          "label": "网站"
+        }
+      },
+      "redemption-instructions": {
+        "label": "取款说明"
+      }
+    }
+  },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "增加资产到您的账户"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "可用余额"
+      }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "基本费用",
+        "secondary": "固定基本费用"
+      },
+      "data-reserve": {
+        "primary": "数据字段费用",
+        "secondary": "帐户数据字段"
+      },
+      "headline": "XLM 数量",
+      "open-orders-reserve": {
+        "primary": "订单费用",
+        "secondary": "现存订单费用"
+      },
+      "selling-liabilities": {
+        "primary": "卖出负债",
+        "secondary": "包括未结订单"
+      },
+      "signers-reserve": {
+        "primary": "用户签名费用",
+        "secondary": {
+          "single-key": "签名 key 费用",
+          "multiple-keys": "主 key + 签名者"
+        }
+      },
+      "spendable-balance": {
+        "primary": "可用余额",
+        "secondary": "可用余额数量"
+      },
+      "total-balance": {
+        "primary": "总余额",
+        "secondary": "您的余额包括不可消费"
+      },
+      "trustline-reserve": {
+        "primary": "授信费用",
+        "secondary": "每个非XLM 余额"
+      }
+    }
+  },
+  "create-account": {
+    "actions": {
+      "cancel": "取消",
+      "confirm": "确认",
+      "create": {
+        "long": "创建账户",
+        "short": "创建"
+      },
+      "import": {
+        "long": "导入账户",
+        "short": "导入"
+      }
+    },
+    "base-name": {
+      "mainnet": "我的账户",
+      "testnet": "我的测试账户"
+    },
+    "confirm": {
+      "text": "You are about to create an account without password protection. Anyone that has access to your device will have access to your account funds. <1 /> <3 /> Are you sure you want to continue without setting up a password?",
+      "title": "确定不使用密码"
+    },
+    "header": {
+      "placeholder": {
+        "mainnet": "新账户",
+        "testnet": "新测试账户"
+      }
+    },
+    "toggle": {
+      "password": {
+        "textfield": {
+          "1": {
+            "label": "密码",
+            "placeholder": "输入密码"
+          },
+          "2": {
+            "label": "重复密码",
+            "placeholder": "重复输入密码"
+          }
+        },
+        "label": "输入密码",
+        "title": "密码保护"
+      },
+      "import": {
+        "textfield": {
+          "helper-text": "密钥以 S 开关",
+          "placeholder": "SABCDEFGH…",
+          "label": "密钥"
+        },
+        "title": "导入已有的"
+      }
+    },
+    "validation": {
+      "invalid-key": "密钥无效.",
+      "no-account-name": "未输入账户名.",
+      "no-password": "未输入密码.",
+      "password-no-match": "密码不匹配.",
+      "same-account": "已添加此帐户."
+    }
+  },
+  "custom-trustline": {
+    "action": {
+      "cancel": "取消",
+      "trust": {
+        "long": "授信资产",
+        "short": "授信"
+      }
+    },
+    "textfield": {
+      "code": {
+        "label": "代码"
+      },
+      "issuer": {
+        "label": "发行方",
+        "placeholder": "发行方账户"
+      },
+      "limit": {
+        "label": "限制 (可选)",
+        "placeholder": "限制对该资产的信任/持有的最大余额"
+      }
+    },
+    "title": "添加自定义资产"
+  },
+  "error": {
+    "unknown": "发生未知错误.",
+    "submission-error": {
+      "default": "事件被网络拒绝。错误代码: {{codes}}",
+      "op-result-code": {
+        "op-cross-self": "不能与自己交易.",
+        "op-has-sub-entries": "账户仍有托管（资产）或未结束交易指令.",
+        "op-immutable-set": "账户不可变 (已设置不可变).",
+        "op-line-full": "目标帐户的余额将超过目标对资产的授信最大限制.",
+        "op-low-reserve": "Transaction rejected by the network. Source or destination account balance would be below minimum balance.",
+        "op-no-account": "Destination account does not exist.",
+        "op-no-issuer": "Asset is invalid. Incorrect asset issuer.",
+        "op-no-trust": "Destination account does not trust the asset you are attempting to send.",
+        "op-underfunded": "Not enough funds to perform this operation."
+      },
+      "tx-result-code": {
+        "insufficient_fee": "Network demands higher fees than set in the transaction.",
+        "internal_error": "An unknown error occured on the Stellar server.",
+        "no_account": "Source account not found.",
+        "tx_bad_auth": "Too few valid signatures or wrong network.",
+        "tx_bad_auth_extra": "Unused signatures attached to transaction.",
+        "tx_bad_seq": "Sequence number mismatch. Please re-create the transaction.",
+        "tx_insufficient_balance": "Insufficient balance. Balance would fall below the minimum reserve.",
+        "tx_too_late": "Transaction draft has expired. Try again."
+      }
+    }
+  },
+  "export-key": {
+    "action": {
+      "confirm": "好",
+      "reveal": {
+        "long": "显示密钥",
+        "short": "点击显示密钥"
+      }
+    },
+    "info": {
+      "backup": {
+        "1": "Please back up your secret key now.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "export": {
+        "1": "Your secret key must be stored in a safe place and must not be shared with anyone.",
+        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+      },
+      "secret-key": "Write down the key on paper and store it in a safe place."
+    },
+    "textfield": {
+      "password": {
+        "label": "密码"
+      }
+    },
+    "title": {
+      "default": "显示密钥",
+      "initial-backup": "密钥备份"
+    }
+  },
+  "manage-signers": {
+    "action": {
+      "add-co-signer": {
+        "long": "增加签名者",
+        "short": "签名者"
+      },
+      "cancel": "取消",
+      "apply": {
+        "long": "确定更改",
+        "short": "确定"
+      }
+    },
+    "signers-editor": {
+      "list": {
+        "item": {
+          "weight": "值",
+          "local-key": "本地账户"
+        }
+      },
+      "validation": {
+        "existing-signer": "Cannot add existing signer.",
+        "integer-required": "Must be an integer.",
+        "invalid-stellar-address": "Expected a public key or stellar address."
+      }
+    },
+    "textfield": {
+      "weight-threshold": {
+        "explanation": {
+          "required-signatures": "Every transaction needs to be signed by {{amount}} signers",
+          "required-weight": "Every transaction needs to be signed by signers with a combined key weight of {{amount}}"
+        },
+        "label": {
+          "required-signatures": "Required signatures",
+          "required-weight": "Required key weight"
+        }
+      }
+    },
+    "title": {
+      "long": "管理签名者",
+      "short": "管理账户的签名者"
+    },
+    "validation": {
+      "no-signers": "No signers left. Don't lock yourself out!",
+      "invalid-weight-type": "Weight must be an integer",
+      "threshold-higher-than-weights": "Threshold higher than combined key weights",
+      "no-threshold": "Please set a threshold"
+    }
+  },
+  "manage-trusted-services": {
+    "info": "Trusted Services are web services that are allowed to interact with Solar wallet by requesting account data or proposing transactions. You can add a new service once it tries to interact with Solar.",
+    "service-selection": {
+      "actions": {
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "confirm": {
+        "title": "Confirm removal",
+        "text": "The service will be removed from your trust list. Are you sure?"
+      },
+      "no-services": "No trusted services"
+    }
+  },
+  "operations": {
+    "account-merge": {
+      "summary": {
+        "account": "账户·",
+        "merge-into": "合并到"
+      },
+      "title": "合并账户"
+    },
+    "change-trust": {
+      "summary": {
+        "asset": "资产",
+        "issued-by": "发行者",
+        "limit": {
+          "label": "限制",
+          "value": {
+            "unlimited": "无限",
+            "limited-to": "限制为 {{limit}} {{code}}"
+          }
+        }
+      },
+      "title": {
+        "add-asset": "添加资产",
+        "remove-asset": "移除资产"
+      }
+    },
+    "create-account": {
+      "summary": {
+        "account": "创建账户",
+        "funding-account": "来源账户",
+        "funding-amount": "来源数量"
+      },
+      "title": "创建账户"
+    },
+    "manage-buy-offer": {
+      "title": {
+        "create": "创建买单",
+        "delete": "删除买单",
+        "update": "更新买单"
+      }
+    },
+    "manage-data": {
+      "title": "设置账户数据字段"
+    },
+    "manage-offer": {
+      "summary": {
+        "buy": "买",
+        "sell": "卖"
+      }
+    },
+    "manage-sell-offer": {
+      "title": {
+        "create": "创建卖单",
+        "delete": "删除卖单",
+        "update": "更新卖单"
+      }
+    },
+    "offer-details": {
+      "string": "买 {{price}} {{buyingCode}} 付 {{amount}} {{sellingCode}}"
+    },
+    "payment": {
+      "summary": {
+        "amount": "数量",
+        "destination": "目标",
+        "source": "来源账户"
+      },
+      "title": "付款"
+    },
+    "set-options": {
+      "add-signer": {
+        "summary": {
+          "account": "签名账户",
+          "key-weight": "Key 值",
+          "new-signer": "新签名者"
+        },
+        "title": "添加签名者"
+      },
+      "change-signature-setup": {
+        "summary": {
+          "key-thresholds": {
+            "label": "新 key 权限",
+            "value": {
+              "low": "低权限:    {{threshold}}",
+              "medium": "中权限: {{threshold}}",
+              "high": "高权限:   {{threshold}}"
+            }
+          },
+          "required-signatures": "需要签名"
+        },
+        "title": "更改签名设置"
+      },
+      "remove-signer": {
+        "summary": {
+          "account": "删除签名者的帐户",
+          "signer": "签名者"
+        },
+        "title": "删除签名者"
+      },
+      "set-account-options": { "title": "用户设置" },
+      "set-home-domain": { "title": "设置域名" },
+      "set-inflation-destination": {
+        "summary": {
+          "new-destination": "新目标"
+        },
+        "title": "通胀目标（已不可用）"
+      },
+      "set-master-key-weight": { "title": "设置主key值" }
+    }
+  },
+  "remove-trustline": {
+    "action": {
+      "cancel": "取消",
+      "remove": "移除"
+    },
+    "text": {
+      "warning": "除非资产余额为零，否则无法删除此资产.",
+      "info": "将要删除 <1>{{asset}}</1>, 从账户 \"{{accountName}}\"."
+    },
+    "title": "确定移除资产"
+  },
+  "set-password": {
+    "action": {
+      "change-password": {
+        "long": "更改密码",
+        "short": "更改"
+      },
+      "remove-password": {
+        "long": "移除密码",
+        "short": "移除"
+      }
+    },
+    "notification": {
+      "password-changed": "密码已更改.",
+      "password-set": "密码设置.",
+      "password-removed": "密码已移除."
+    },
+    "textfield": {
+      "prev-password": {
+        "label": "原密码"
+      },
+      "next-password": {
+        "label": "新密码"
+      },
+      "next-password-repeat": {
+        "label": "重复新密码"
+      }
+    },
+    "title": {
+      "change-password": "修改密码",
+      "set-password": "设置密码"
+    },
+    "validation": {
+      "next-password-missing": "输入一个密码或 \"remove password\".",
+      "next-password-repeat-missing": "请重复密码.",
+      "passwords-no-match": "密码不匹配",
+      "previous-password-missing": "原密码已丢失."
+    }
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "确认",
+      "dismiss": "解除",
+      "inspect": "检查",
+      "show-more": "显示更多详情"
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "账户"
+        },
+        "authenticating-account": {
+          "label": "认证账户"
+        },
+        "expiry": {
+          "label": "到期"
+        },
+        "max-fee": {
+          "label": "最大费用"
+        },
+        "service": {
+          "label": "服务"
+        },
+        "submission": {
+          "label": "提交"
+        },
+        "tx-hash": {
+          "label": "事件 Hash"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "密码"
+      }
+    },
+    "title": {
+      "transaction": "事件",
+      "payment": "支付",
+      "delete-orders-operation": "删除交易单",
+      "web-auth": "身份验证"
+    },
+    "validation": {
+      "no-account-data": "错误: 不能找到账户相关数据.",
+      "no-manage-data-operation": "错误: 必须执行一个操作.",
+      "password-required": "需要密码"
+    }
+  }
+}
