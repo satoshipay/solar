@@ -97,7 +97,7 @@
     "big.js": "^5.2.2",
     "core-js": "^2.6.9",
     "cssnano": "^4.1.10",
-    "electron": "^5.0.10",
+    "electron": "^8.0.3",
     "electron-builder": "^22.3.6",
     "electron-builder-squirrel-windows": "^22.4.0",
     "electron-notarize": "^0.2.0",
