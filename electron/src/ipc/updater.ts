@@ -14,9 +14,6 @@ interface UpdateInfo {
   url: string
 }
 
-const showMessageBox = (options: Electron.MessageBoxOptions) =>
-  new Promise(resolve => dialog.showMessageBox(options, resolve))
-
 const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
 
 // tslint:disable-next-line: no-console
@@ -108,7 +105,7 @@ async function startUpdating(version: string) {
 
   progressNotification.close()
 
-  const response = await showMessageBox({
+  const response = dialog.showMessageBoxSync({
     type: "info",
     buttons: ["Restart", "Later"],
     cancelId: 1,
