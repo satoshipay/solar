@@ -96,7 +96,7 @@ export function useOperationTitle() {
     } else if (operation.type === "setOptions" && operation.homeDomain) {
       return t("operations.set-options.set-home-domain.title")
     } else if (operation.type === "setOptions" && operation.inflationDest) {
-      return t("operations.set-options.set-inflation.destination.title")
+      return t("operations.set-options.set-inflation-destination.title")
     } else if (operation.type === "setOptions") {
       return t("operations.set-options.set-account-options.title")
     } else {
@@ -420,7 +420,7 @@ function SetOptionsOperation(props: SetOptionsOperationProps) {
   } else if (props.operation.inflationDest) {
     return (
       <SummaryItem
-        heading={props.hideHeading ? undefined : t("operations.set-options.set-inflation.destination.title")}
+        heading={props.hideHeading ? undefined : t("operations.set-options.set-inflation-destination.title")}
       >
         <SummaryDetailsField
           fullWidth
