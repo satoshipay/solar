@@ -9,6 +9,7 @@ import ErrorBoundary from "../src/components/ErrorBoundary"
 import ViewLoading from "../src/components/ViewLoading"
 import { ContextProviders } from "../src/context"
 import theme from "../src/theme"
+import "../src/lib/i18n"
 
 const contextProviders = makeDecorator({
   wrapper: storyFn => React.createElement(Router, {}, React.createElement(ContextProviders, {}, storyFn()))
