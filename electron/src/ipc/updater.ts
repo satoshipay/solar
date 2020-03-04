@@ -95,7 +95,7 @@ async function startUpdatingWithoutInfo() {
 }
 
 async function startUpdating(version: string) {
-  const progressNotification = showProgressNotification(version)
+  const downloadingNotification = showDownloadingNotification(version)
   autoUpdater.checkForUpdates()
 
   await new Promise(resolve => {
@@ -103,7 +103,7 @@ async function startUpdating(version: string) {
     autoUpdater.once("update-downloaded", resolve)
   })
 
-  progressNotification.close()
+  downloadingNotification.close()
 
   const response = dialog.showMessageBoxSync({
     type: "info",
@@ -136,7 +136,7 @@ function showUpdateNotification(version: string) {
   })
 }
 
-function showProgressNotification(version: string) {
+function showDownloadingNotification(version: string) {
   const notification = new Notification({
     title: `Updating Solar…`,
     subtitle: `Download of ${version} in progress.`,
