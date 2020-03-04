@@ -23,6 +23,10 @@ publish:
 win:
   # Electron builder bug: Without this line the icon gets corrupted on Windows
   icon: ./electron/build/icon.png
+  target: squirrel
+
+squirrelWindows:
+  iconUrl: https://github.com/satoshipay/solar/blob/master/electron/build/icon.ico?raw=true
 
 mac:
   hardenedRuntime: true
