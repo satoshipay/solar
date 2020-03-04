@@ -6,6 +6,12 @@ import { createMainWindow, getOpenWindows, trackWindow } from "./window"
 import "./ipc/index"
 import "./ipc/updater"
 
+// returns true if installation-related stuff is happening (win only)
+// tslint:disable-next-line: no-var-requires
+if (require("electron-squirrel-startup")) {
+  app.quit()
+}
+
 // Enable opening dev tools in production using keyboard shortcut
 // tslint:disable-next-line: no-var-requires
 require("electron-debug")({
