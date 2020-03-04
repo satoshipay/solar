@@ -14,7 +14,13 @@ import ButtonIconLabel from "../ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
 
-function MaybeIcon(props: { icon?: React.ReactNode; label: React.ReactNode; loading?: boolean }) {
+interface MaybeIconProps {
+  icon?: React.ReactNode
+  label: React.ReactNode
+  loading?: boolean
+}
+
+function MaybeIcon(props: MaybeIconProps) {
   return (
     <>
       <ButtonIconLabel label={props.label} loading={props.loading}>

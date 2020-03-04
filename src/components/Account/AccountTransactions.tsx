@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import DoneAllIcon from "@material-ui/icons/DoneAll"
 import CreditCardIcon from "@material-ui/icons/CreditCard"
 import UpdateIcon from "@material-ui/icons/Update"
@@ -7,8 +8,9 @@ import { SettingsContext } from "../../context/settings"
 import { SignatureDelegationContext } from "../../context/signatureDelegation"
 import { hasSigned } from "../../lib/transaction"
 import { useHorizonURL } from "../../hooks/stellar"
-import { useLiveRecentTransactions, useLiveAccountData } from "../../hooks/stellar-subscriptions"
+import { useLiveRecentTransactions, useLiveAccountData, useOlderTransactions } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
+import { useLoadingState } from "../../hooks/util"
 import * as routes from "../../routes"
 import MainSelectionButton from "../Form/MainSelectionButton"
 import { VerticalLayout } from "../Layout/Box"
@@ -59,12 +61,20 @@ function PendingMultisigTransactions(props: { account: Account }) {
 
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
+  const { t } = useTranslation()
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
   const horizonURL = useHorizonURL(account.testnet)
   const isSmallScreen = useIsMobile()
+  const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
   const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
+  const fetchMoreTransactions = useOlderTransactions(account.publicKey, account.testnet)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
+
+  const handleFetchMoreTransactions = React.useCallback(() => handleMoreTxsFetch(fetchMoreTransactions()), [
+    fetchMoreTransactions,
+    handleMoreTxsFetch
+  ])
 
   const navigateToDeposit = React.useCallback(() => router.history.push(routes.depositAsset(account.id)), [
     account,
@@ -80,9 +90,12 @@ function AccountTransactions(props: { account: Account }) {
           <TransactionList
             account={account}
             background="transparent"
-            title="Recent transactions"
+            loadingMoreTransactions={moreTxsLoadingState.type === "pending"}
+            olderTransactionsAvailable={recentTxs.olderTransactionsAvailable}
+            onFetchMoreTransactions={handleFetchMoreTransactions}
+            title={t("transaction-list.title")}
             testnet={account.testnet}
-            transactions={recentTxs}
+            transactions={recentTxs.transactions}
           />
         </>
       ) : (
