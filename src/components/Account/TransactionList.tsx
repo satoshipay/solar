@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon, Networks, Operation, Transaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import Collapse from "@material-ui/core/Collapse"
@@ -22,6 +23,7 @@ import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import * as routes from "../../routes"
 import { getPaymentSummary, PaymentSummary } from "../../lib/paymentSummary"
 import { breakpoints } from "../../theme"
+import { ActionButton } from "../Dialog/Generic"
 import { PublicKey } from "../PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
 import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
@@ -416,6 +418,31 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
   )
 })
 
+interface LoadMoreTransactionsListItemProps {
+  onClick: () => void
+  pending?: boolean
+}
+
+const LoadMoreTransactionsListItem = React.memo(function LoadMoreTransactionsListItem(
+  props: LoadMoreTransactionsListItemProps
+) {
+  const { t } = useTranslation()
+  return (
+    <ListItem style={{ borderBottom: "none", height: 75 }}>
+      <ListItemText disableTypography style={{ textAlign: "center" }}>
+        <ActionButton
+          onClick={props.onClick}
+          loading={props.pending}
+          style={{ margin: "0 auto", paddingLeft: 16, paddingRight: 16 }}
+          variant="text"
+        >
+          {t("transaction-list.load-more.label")}
+        </ActionButton>
+      </ListItemText>
+    </ListItem>
+  )
+})
+
 const useTransactionListStyles = makeStyles({
   listItem: {
     padding: "8px 24px",
@@ -430,6 +457,9 @@ const useTransactionListStyles = makeStyles({
 interface TransactionListProps {
   account: Account
   background?: React.CSSProperties["background"]
+  loadingMoreTransactions?: boolean
+  olderTransactionsAvailable?: boolean
+  onFetchMoreTransactions: () => void
   testnet: boolean
   title: React.ReactNode
   transactions: Horizon.TransactionResponse[]
@@ -507,6 +537,9 @@ function TransactionList(props: TransactionListProps) {
         {props.title}
       </ListSubheader>
       {transactionListItems}
+      {props.olderTransactionsAvailable ? (
+        <LoadMoreTransactionsListItem pending={props.loadingMoreTransactions} onClick={props.onFetchMoreTransactions} />
+      ) : null}
       <TransactionReviewDialog
         open={openedTransaction !== null}
         account={props.account}

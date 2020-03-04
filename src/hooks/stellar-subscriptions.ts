@@ -8,15 +8,17 @@ import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { mapSuspendables } from "../lib/suspense"
+import { CollectionPage } from "../workers/net-worker/stellar-network"
 import {
   accountDataCache,
   accountOpenOrdersCache,
   accountTransactionsCache,
   orderbookCache,
-  resetNetworkCaches
+  resetNetworkCaches,
+  TransactionHistory
 } from "./_caches"
 import { useHorizonURL } from "./stellar"
-import { useDebouncedState } from "./util"
+import { useDebouncedState, useForceRerender } from "./util"
 import { useNetWorker } from "./workers"
 
 function useDataSubscriptions<DataT, UpdateT>(
@@ -193,24 +195,32 @@ export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean
   return useDataSubscription(applyOrderbookUpdate, get, set, observe)
 }
 
-function applyAccountTransactionsUpdate(prev: Horizon.TransactionResponse[], update: Horizon.TransactionResponse) {
-  if (
-    prev.some(
-      tx => tx.source_account === update.source_account && tx.source_account_sequence === update.source_account_sequence
-    )
-  ) {
+const txsMatch = (a: Horizon.TransactionResponse, b: Horizon.TransactionResponse): boolean => {
+  return a.source_account === b.source_account && a.source_account_sequence === b.source_account_sequence
+}
+
+function applyAccountTransactionsUpdate(
+  prev: TransactionHistory,
+  update: Horizon.TransactionResponse
+): TransactionHistory {
+  if (prev.transactions.some(tx => txsMatch(tx, update))) {
     return prev
   } else {
-    return [update, ...prev]
+    return {
+      ...prev,
+      transactions: [update, ...prev.transactions]
+    }
   }
 }
 
-export function useLiveRecentTransactions(accountID: string, testnet: boolean): Horizon.TransactionResponse[] {
+export function useLiveRecentTransactions(accountID: string, testnet: boolean): TransactionHistory {
   const horizonURL = useHorizonURL(testnet)
   const netWorker = useNetWorker()
 
   const { get, set, observe } = React.useMemo(() => {
+    const limit = 15
     const selector = [horizonURL, accountID] as const
+
     return {
       get() {
         return (
@@ -218,15 +228,20 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
           accountTransactionsCache.suspend(selector, async () => {
             const page = await netWorker.fetchAccountTransactions(horizonURL, accountID, {
               emptyOn404: true,
-              limit: 15,
+              limit,
               order: "desc"
             })
-            const txs = page._embedded.records
-            return txs
+
+            const transactions = page._embedded.records
+            return {
+              // not an accurate science right now…
+              olderTransactionsAvailable: transactions.length === limit,
+              transactions
+            }
           })
         )
       },
-      set(updated: Horizon.TransactionResponse[]) {
+      set(updated: TransactionHistory) {
         accountTransactionsCache.set(selector, updated)
       },
       observe() {
@@ -236,6 +251,60 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
   }, [accountID, horizonURL])
 
   return useDataSubscription(applyAccountTransactionsUpdate, get, set, observe)
+}
+
+export function useOlderTransactions(accountID: string, testnet: boolean) {
+  const forceRerender = useForceRerender()
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
+
+  const fetchMoreTransactions = React.useCallback(
+    async function fetchMoreTransactions() {
+      let fetched: CollectionPage<Horizon.TransactionResponse>
+
+      const selector = [horizonURL, accountID] as const
+      const history = accountTransactionsCache.get(selector)
+
+      const limit = 15
+      const prevTransactions = history?.transactions || []
+
+      if (prevTransactions.length > 0) {
+        fetched = await netWorker.fetchAccountTransactions(horizonURL, accountID, {
+          emptyOn404: true,
+          cursor: prevTransactions[prevTransactions.length - 1].paging_token,
+          limit: 15,
+          order: "desc"
+        })
+      } else {
+        fetched = await netWorker.fetchAccountTransactions(horizonURL, accountID, {
+          emptyOn404: true,
+          limit,
+          order: "desc"
+        })
+      }
+
+      const fetchedTransactions: Horizon.TransactionResponse[] = fetched._embedded.records
+
+      accountTransactionsCache.set(
+        selector,
+        {
+          // not an accurate science right now…
+          olderTransactionsAvailable: fetchedTransactions.length === limit,
+          transactions: [
+            ...(accountTransactionsCache.get(selector)?.transactions || []),
+            ...fetchedTransactions.filter(record => !prevTransactions.some(prevTx => txsMatch(prevTx, record)))
+          ]
+        },
+        true
+      )
+
+      // hacky…
+      forceRerender()
+    },
+    [forceRerender, horizonURL, netWorker]
+  )
+
+  return fetchMoreTransactions
 }
 
 export function useNetworkCacheReset() {

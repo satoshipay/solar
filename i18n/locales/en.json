@@ -617,6 +617,12 @@
       "previous-password-missing": "Current password is missing."
     }
   },
+  "transaction-list": {
+    "load-more": {
+      "label": "Load more"
+    },
+    "title": "Recent transactions"
+  },
   "transaction-review": {
     "action": {
       "confirm": "Confirm",

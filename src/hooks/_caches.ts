@@ -28,7 +28,7 @@ function createCache<SelectorT, DataT, UpdateT>(
     has(selector: SelectorT) {
       return values.has(createCacheKey(selector))
     },
-    set(selector: SelectorT, value: DataT) {
+    set(selector: SelectorT, value: DataT, force: boolean = false) {
       const cacheKey = createCacheKey(selector)
       const cached = values.get(cacheKey)
 
@@ -39,7 +39,7 @@ function createCache<SelectorT, DataT, UpdateT>(
         )
       }
 
-      if (!cached || isDataNewer(cached, value)) {
+      if (!cached || isDataNewer(cached, value) || force) {
         values.set(cacheKey, value)
       }
     },
@@ -98,9 +98,24 @@ function createAssetPairCacheKey([horizonURL, selling, buying]: readonly [string
   return `${horizonURL}:${stringifyAsset(selling)}:${stringifyAsset(buying)}`
 }
 
-function areTransactionsNewer(prev: Horizon.TransactionResponse[], next: Horizon.TransactionResponse[]) {
-  const prevMaxTimestamp = (prev ? max(prev.map(tx => tx.created_at), "0") : undefined) || ""
-  const nextMaxTimestamp = max(next.map(tx => tx.created_at), "0") || ""
+export interface TransactionHistory {
+  olderTransactionsAvailable: boolean
+  transactions: Horizon.TransactionResponse[]
+}
+
+function areTransactionsNewer(prev: TransactionHistory, next: TransactionHistory) {
+  const prevMaxTimestamp =
+    (prev
+      ? max(
+          prev.transactions.map(tx => tx.created_at),
+          "0"
+        )
+      : undefined) || ""
+  const nextMaxTimestamp =
+    max(
+      next.transactions.map(tx => tx.created_at),
+      "0"
+    ) || ""
 
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
@@ -119,7 +134,7 @@ export const accountOpenOrdersCache = createCache<
 
 export const accountTransactionsCache = createCache<
   readonly [string, string],
-  Horizon.TransactionResponse[],
+  TransactionHistory,
   Horizon.TransactionResponse
 >(createAccountCacheKey, areTransactionsNewer)
 

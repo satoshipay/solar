@@ -1,8 +1,9 @@
 import React from "react"
-import { Horizon } from "stellar-sdk"
+import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
 import { Account } from "../src/context/accounts"
 import TransactionList from "../src/components/Account/TransactionList"
+import { TransactionHistory } from "../src/hooks/_caches"
 import { useLiveRecentTransactions } from "../src/hooks/stellar-subscriptions"
 
 const account: Account = {
@@ -19,17 +20,21 @@ const account: Account = {
   }
 }
 
-function SampleTransactions(props: {
-  children: (transactions: Horizon.TransactionResponse[]) => React.ReactElement<any>
-}) {
-  const transactions = useLiveRecentTransactions(account.publicKey, account.testnet)
-  return props.children(transactions)
+function SampleTransactions(props: { children: (history: TransactionHistory) => React.ReactElement<any> }) {
+  const history = useLiveRecentTransactions(account.publicKey, account.testnet)
+  return props.children(history)
 }
 
 storiesOf("TransactionList", module).add("Recent transactions", () => (
   <SampleTransactions>
-    {transactions => (
-      <TransactionList account={account} testnet title="Recent transactions" transactions={transactions} />
+    {history => (
+      <TransactionList
+        account={account}
+        onFetchMoreTransactions={action("load more transactions")}
+        testnet
+        title="Recent transactions"
+        transactions={history.transactions}
+      />
     )}
   </SampleTransactions>
 ))
