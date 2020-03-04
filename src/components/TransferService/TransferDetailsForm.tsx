@@ -53,7 +53,7 @@ function postprocessFormValues(inputFormValues: FormValues, methodID: string): F
 
 interface ReadOnlyFieldProps {
   asset: Asset
-  metadata: AssetTransferInfo["withdraw"]
+  metadata: AssetTransferInfo["deposit"] | AssetTransferInfo["withdraw"]
 }
 
 const MinMaxAmount = React.memo(function MinMaxAmount(props: ReadOnlyFieldProps) {
@@ -92,6 +92,15 @@ const TransferFee = React.memo(function TransferFee(props: TransferFeeProps) {
   if (!props.metadata) {
     return null
   }
+
+  const formattedFee =
+    filterEmptyStrings([
+      typeof props.metadata.fee_fixed === "number"
+        ? `${props.metadata.fee_fixed} ${props.asset && props.asset.getCode()}`
+        : "",
+      typeof props.metadata.fee_percent === "number" ? `${props.metadata.fee_percent}%` : ""
+    ]).join(" + ") || "unknown"
+
   return (
     <ReadOnlyTextfield
       helperText={`As charged by ${props.domain}`}
@@ -103,12 +112,9 @@ const TransferFee = React.memo(function TransferFee(props: TransferFeeProps) {
       label={props.type === "deposit" ? "Deposit fee" : "Withdrawal fee"}
       style={{ marginTop: 24 }}
       value={
-        filterEmptyStrings([
-          typeof props.metadata.fee_fixed === "number"
-            ? `${props.metadata.fee_fixed} ${props.asset && props.asset.getCode()}`
-            : "",
-          typeof props.metadata.fee_percent === "number" ? `${props.metadata.fee_percent}%` : ""
-        ]).join(" + ") || "unknown"
+        props.metadata.fee_fixed === 0 && props.metadata.fee_percent === 0
+          ? `${props.metadata.fee_fixed} ${props.asset && props.asset.getCode()}`
+          : formattedFee
       }
     />
   )
@@ -231,7 +237,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
           <TransferFee
             asset={props.state.asset}
             domain={assetInfo ? assetInfo.transferServer.domain : ""}
-            metadata={assetInfo && assetInfo.withdraw}
+            metadata={assetInfo && (props.type === "deposit" ? assetInfo.deposit : assetInfo.withdraw)}
             type={props.type}
           />
         </FormLayout>
