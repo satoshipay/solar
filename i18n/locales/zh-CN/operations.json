@@ -1,0 +1,114 @@
+{
+  "account-merge": {
+    "summary": {
+      "account": "账户",
+      "merge-into": "合并到"
+    },
+    "title": "合并账户"
+  },
+  "change-trust": {
+    "summary": {
+      "asset": "资产",
+      "issued-by": "发行者",
+      "limit": {
+        "label": "限制",
+        "value": {
+          "unlimited": "无限",
+          "limited-to": "最多持有 {{limit}} {{code}}"
+        }
+      }
+    },
+    "title": {
+      "add-asset": "添加资产",
+      "remove-asset": "移除资产"
+    }
+  },
+  "create-account": {
+    "summary": {
+      "account": "要创建的帐户",
+      "funding-account": "资金提供账户",
+      "funding-amount": "数量"
+    },
+    "title": "创建账户"
+  },
+  "manage-buy-offer": {
+    "title": {
+      "create": "建立购买订单",
+      "delete": "删除购买订单",
+      "update": "更新购买订单"
+    }
+  },
+  "manage-data": {
+    "title": "设置账户字段"
+  },
+  "manage-offer": {
+    "summary": {
+      "buy": "买",
+      "sell": "卖"
+    }
+  },
+  "manage-sell-offer": {
+    "title": {
+      "create": "建立出售订单",
+      "delete": "删除出售订单",
+      "update": "更新出售订单"
+    }
+  },
+  "offer-details": {
+    "string": "买 {{price}} {{buyingCode}} 用 {{amount}} {{sellingCode}}"
+  },
+  "payment": {
+    "summary": {
+      "amount": "数量",
+      "destination": "目标",
+      "source": "源"
+    },
+    "title": "支付"
+  },
+  "set-options": {
+    "add-signer": {
+      "summary": {
+        "account": "增加签名者的账户",
+        "key-weight": "权重",
+        "new-signer": "新签名者"
+      },
+      "title": "增加签名者"
+    },
+    "change-signature-setup": {
+      "summary": {
+        "key-thresholds": {
+          "label": "New key thresholds",
+          "value": {
+            "low": "Low threshold:    {{threshold}}",
+            "medium": "Medium threshold: {{threshold}}",
+            "high": "High threshold:   {{threshold}}"
+          }
+        },
+        "required-signatures": "Required signatures"
+      },
+      "title": "Change signature setup"
+    },
+    "remove-signer": {
+      "summary": {
+        "account": "Account to remove signer from",
+        "signer": "Signer"
+      },
+      "title": "Remove signer"
+    },
+    "set-account-options": {
+      "title": "Set account options"
+    },
+    "set-home-domain": {
+      "title": "Set home domain"
+    },
+    "set-inflation-destination": {
+      "summary": {
+        "new-destination": "New destination"
+      },
+      "title": "Set inflation destination"
+    },
+    "set-master-key-weight": {
+      "title": "Set master key weight"
+    }
+  }
+}
