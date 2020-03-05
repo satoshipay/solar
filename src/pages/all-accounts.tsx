@@ -50,7 +50,7 @@ function AllAccountsPage() {
   const updater = getUpdater()
 
   const startUpdate = React.useCallback(async () => {
-    if (settings.updateAvailable && !updater.isUpdateStarted()) {
+    if (settings.updateAvailable && !updater.isUpdateStarted() && !updater.isUpdateDownloaded()) {
       try {
         showNotification("info", "Starting download of update...")
         setUpdateInProgress(true)
@@ -95,7 +95,12 @@ function AllAccountsPage() {
             {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
               ? networkSwitchButton
               : null}
-            {settings.updateAvailable && !isUpdateInProgress ? updateButton : null}
+            {settings.updateAvailable &&
+            !isUpdateInProgress &&
+            !updater.isUpdateStarted() &&
+            !updater.isUpdateDownloaded()
+              ? updateButton
+              : null}
             <IconButton
               onClick={() => router.history.push(routes.settings())}
               style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
@@ -113,7 +118,8 @@ function AllAccountsPage() {
       router,
       settings.showTestnet,
       settings.updateAvailable,
-      testnetAccounts
+      testnetAccounts,
+      updater
     ]
   )
 
