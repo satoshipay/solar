@@ -103,17 +103,10 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
 }
 
 const Time = React.memo(function Time(props: { time: string }) {
-  const { localeString, unixTime } = React.useMemo(() => {
-    // Turns out that this takes more time than expected
-    const date = new Date(props.time)
-    return {
-      localeString: date.toLocaleString(),
-      unixTime: date.getTime()
-    }
-  }, [props.time])
+  const date = new Date(props.time)
   return (
     <span style={{ whiteSpace: "nowrap" }}>
-      <HumanTime time={unixTime} />
+      <HumanTime time={date.getTime()} />
     </span>
   )
 })
