@@ -468,10 +468,14 @@ function TransactionList(props: TransactionListProps) {
     if (!openedTxHash) {
       return null
     }
+
     const txResponse = props.transactions.find(recentTx => recentTx.hash === openedTxHash)
-    return txResponse
+    const tx = txResponse
       ? new Transaction(txResponse.envelope_xdr, props.account.testnet ? Networks.TESTNET : Networks.PUBLIC)
       : null
+
+    // tslint:disable-next-line prefer-object-spread
+    return tx && txResponse ? Object.assign(tx, { created_at: txResponse.created_at }) : tx
   }, [openedTxHash, props.transactions])
 
   const openTransaction = React.useCallback(
