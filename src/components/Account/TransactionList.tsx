@@ -9,7 +9,6 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
-import Tooltip from "@material-ui/core/Tooltip"
 import { makeStyles } from "@material-ui/core/styles"
 import AddIcon from "@material-ui/icons/Add"
 import CallMadeIcon from "@material-ui/icons/CallMade"
@@ -103,7 +102,7 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
   }
 }
 
-function Time(props: { time: string }) {
+const Time = React.memo(function Time(props: { time: string }) {
   const { localeString, unixTime } = React.useMemo(() => {
     // Turns out that this takes more time than expected
     const date = new Date(props.time)
@@ -113,13 +112,11 @@ function Time(props: { time: string }) {
     }
   }, [props.time])
   return (
-    <Tooltip title={<span style={{ fontSize: "110%" }}>{localeString}</span>}>
-      <span style={{ whiteSpace: "nowrap" }}>
-        <HumanTime time={unixTime} />
-      </span>
-    </Tooltip>
+    <span style={{ whiteSpace: "nowrap" }}>
+      <HumanTime time={unixTime} />
+    </span>
   )
-}
+})
 
 function TransactionIcon(props: { paymentSummary: PaymentSummary; transaction: Transaction }) {
   if (
