@@ -1,0 +1,201 @@
+{
+  "account-deletion": {
+    "action": {
+      "cancel": "取消",
+      "confirm": "确定",
+      "delete": "删除",
+      "merge": {
+        "long": "合并到",
+        "short": "合并"
+      }
+    },
+    "confirm": {
+      "title": "确认删除",
+      "text": {
+        "confirm": "你确定吗?",
+        "delete": "账户将要被删除",
+        "merge": "剩余的资金"
+      }
+    },
+    "remaining-funds": {
+      "text": "将剩余资金发送到"
+    },
+    "text": {
+      "1": "您确定要删除账户 \"{{accountName}} 吗?\"",
+      "2": " 确保备份您的私钥或将资金合并到您的另一个帐户，因为仍有资金剩余!"
+    },
+    "title": "确认帐户删除"
+  },
+  "custom-trustline": {
+    "action": {
+      "cancel": "取消",
+      "trust": {
+        "long": "授信资产",
+        "short": "授信"
+      }
+    },
+    "textfield": {
+      "code": {
+        "label": "代码"
+      },
+      "issuer": {
+        "label": "发行者",
+        "placeholder": "发行者的账户（G开头）"
+      },
+      "limit": {
+        "label": "限制 (选填)",
+        "placeholder": "您最多可持有资产的数量（不填写为不限制数量）"
+      }
+    },
+    "title": "增加自定义资产"
+  },
+  "export-key": {
+    "action": {
+      "confirm": "完成",
+      "reveal": {
+        "long": "显示密钥",
+        "short": "点击显示密钥"
+      }
+    },
+    "info": {
+      "backup": {
+        "1": "现在请备份您的密钥.",
+        "2": "如果您忘记密码或无法再访问设备，密钥备份是恢复资金的唯一方法 ."
+      },
+      "export": {
+        "1": "请将您的密钥放在一个安全的地方同时不要与任何人分享.",
+        "2": "如果您忘记密码或无法再访问设备，密钥备份是恢复资金的唯一方法."
+      },
+      "secret-key": "把密钥写在纸上，放在安全的地方."
+    },
+    "textfield": {
+      "password": {
+        "label": "密码"
+      }
+    },
+    "title": {
+      "default": "显示密钥",
+      "initial-backup": "密钥备份"
+    }
+  },
+  "manage-signers": {
+    "action": {
+      "add-co-signer": {
+        "long": "添加签名者",
+        "short": "签名者"
+      },
+      "cancel": "取消",
+      "apply": {
+        "long": "应用更改",
+        "short": "应用"
+      }
+    },
+    "signers-editor": {
+      "list": {
+        "item": {
+          "weight": "值",
+          "local-key": "本地账户"
+        }
+      },
+      "validation": {
+        "existing-signer": "不能添加现有签名者.",
+        "integer-required": "必需是整数.",
+        "invalid-stellar-address": "输入一个账户（G开头）."
+      }
+    },
+    "textfield": {
+      "weight-threshold": {
+        "explanation": {
+          "required-signatures": "每个事务需要 {{amount}} 个签名者",
+          "required-weight": "每个事务都需要由签名者签名，签名者的组合密钥权重为 {{amount}}"
+        },
+        "label": {
+          "required-signatures": "要求签名",
+          "required-weight": "要求的值"
+        }
+      }
+    },
+    "title": {
+      "long": "管理签名者",
+      "short": "管理账户签名者"
+    },
+    "validation": {
+      "no-signers": "没有签名者，别让自己无法操作!",
+      "invalid-weight-type": "必须为整数",
+      "threshold-higher-than-weights": "权重高于共同签名的权重",
+      "no-threshold": "请设置一个权重"
+    }
+  },
+  "set-password": {
+    "action": {
+      "change-password": {
+        "long": "更改密码",
+        "short": "更改"
+      },
+      "remove-password": {
+        "long": "移除密码",
+        "short": "移除"
+      }
+    },
+    "notification": {
+      "password-changed": "密码已经更改.",
+      "password-set": "密码设置.",
+      "password-removed": "密码已经移除."
+    },
+    "textfield": {
+      "prev-password": {
+        "label": "原密码"
+      },
+      "next-password": {
+        "label": "新密码"
+      },
+      "next-password-repeat": {
+        "label": "重复新密码"
+      }
+    },
+    "title": {
+      "change-password": "修改密码",
+      "set-password": "设置密码"
+    },
+    "validation": {
+      "next-password-missing": "输入一个密码或 \"移除密码\".",
+      "next-password-repeat-missing": "重复密码.",
+      "passwords-no-match": "密码不同",
+      "previous-password-missing": "当时密码丢失."
+    }
+  },
+  "settings": {
+    "delete-account": {
+      "text": {
+        "primary": "合并或删除账户"
+      }
+    },
+    "export-secret-key": {
+      "text": {
+        "primary": "显示密钥",
+        "secondary": "解锁并显示密钥"
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "多重签名",
+        "secondary": {
+          "short": "管理签名者",
+          "long": "实现账户多重签名并管理签名者"
+        }
+      }
+    },
+    "set-password": {
+      "text": {
+        "primary": {
+          "account-protected": "更改密码",
+          "account-not-protected": "设置密码"
+        },
+        "secondary": {
+          "account-protected": "您的帐户是安全的，受密码保护",
+          "account-not-protected": "您的帐户不受保护"
+        }
+      }
+    }
+  }
+}
