@@ -4,6 +4,7 @@
   "description": "Wallet for the Stellar payment network by SatoshiPay.",
   "license": "MIT",
   "private": true,
+  "productName": "Solar Wallet",
   "author": {
     "name": "SatoshiPay Ltd",
     "email": "hello@solarwallet.io"
@@ -11,6 +12,9 @@
   "homepage": "https://solarwallet.io/",
   "repository": "github:satoshipay/solar",
   "main": "./electron/lib/index.prod.js",
+  "config": {
+    "forge": "./forge.config.js"
+  },
   "scripts": {
     "precommit": "lint-staged",
     "lint:fix": "tslint --fix '{src,stories}/**/*.{ts,tsx}'",
@@ -23,11 +27,9 @@
     "prebuild:electron:ts": "npm run clean:electron:ts && cd electron && tsc",
     "prebuild:electron:ts:watch": "npm run clean:electron:ts && cd electron && tsc -w",
     "prebuild:electron": "run-s prebuild:electron:ts clean:dist prebuild:electron:bundle",
-    "build:linux": "PLATFORM=linux npm run prebuild:electron && electron-builder --linux --x64 --config ./electron-build.yml",
-    "build:mac": "PLATFORM=darwin npm run prebuild:electron && electron-builder --mac --x64 --config ./electron-build.yml",
-    "build:mac:signed": "source ./scripts/signing-env.sh mac && NOTARIZE=true npm run build:mac -- -c.forceCodeSigning=true",
-    "build:win": "PLATFORM=win32 npm run prebuild:electron && electron-builder --win --ia32 --config ./electron-build.yml",
-    "build:win:signed": "source ./scripts/signing-env.sh win && npm run build:win -- -c.forceCodeSigning=true",
+    "build:linux": "PLATFORM=linux npm run prebuild:electron && electron-forge make --platform=linux",
+    "build:mac": "source ./scripts/signing-env.sh mac && PLATFORM=darwin npm run prebuild:electron && electron-forge make --platform=darwin",
+    "build:win": "source ./scripts/signing-env.sh win && PLATFORM=win npm run prebuild:electron && electron-forge make --platform=win",
     "dev": "run-p prebuild:electron:ts:watch dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development TS_NODE_PROJECT=./electron/tsconfig.json run-electron -r ts-node/register/transpile-only ./electron/src/index.dev",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
@@ -57,6 +59,12 @@
     "stellar-sdk": "^4.0.0"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.50",
+    "@electron-forge/maker-deb": "^6.0.0-beta.50",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.50",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.50",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.50",
+    "@electron-forge/maker-zip": "^6.0.0-beta.50",
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "@satoshipay/stellar-sep-10": "^0.2.0",
@@ -98,7 +106,6 @@
     "core-js": "^2.6.9",
     "cssnano": "^4.1.10",
     "electron": "^8.0.3",
-    "electron-builder": "^22.3.6",
     "electron-builder-squirrel-windows": "^22.4.0",
     "electron-notarize": "^0.2.0",
     "electron-reload": "^1.5.0",
