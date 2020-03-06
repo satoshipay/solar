@@ -7,7 +7,7 @@ export function createAppMenu() {
   }
 
   const macAppMenuItem: MenuItemConstructorOptions = {
-    label: app.getName(),
+    label: app.name,
     submenu: [{ label: "About", role: "about" }, { type: "separator" }, { label: "Quit", role: "quit" }]
   }
 
