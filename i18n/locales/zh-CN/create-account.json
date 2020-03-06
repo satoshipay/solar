@@ -1,0 +1,59 @@
+{
+  "actions": {
+    "cancel": "取消",
+    "confirm": "确认",
+    "create": {
+      "long": "创建账户",
+      "short": "创建"
+    },
+    "import": {
+      "long": "导入账户",
+      "short": "导入"
+    }
+  },
+  "base-name": {
+    "mainnet": "我的账户",
+    "testnet": "我的测试账户"
+  },
+  "confirm": {
+    "text": "您将要创建一个没有密码保护的帐户。任何可以访问您设备的人都可以访问您的帐户资金. <1 /> <3 /> 是否确实要在不设置密码的情况下继续?",
+    "title": "继续不用密码"
+  },
+  "header": {
+    "placeholder": {
+      "mainnet": "新账户",
+      "testnet": "新测试账户"
+    }
+  },
+  "toggle": {
+    "password": {
+      "textfield": {
+        "1": {
+          "label": "密码",
+          "placeholder": "输入一个密码"
+        },
+        "2": {
+          "label": "重复密码",
+          "placeholder": "重复你的密码"
+        }
+      },
+      "label": "输入一个密码",
+      "title": "密码保护"
+    },
+    "import": {
+      "textfield": {
+        "helper-text": "密钥通常以 S 开头",
+        "placeholder": "SABCDEFGH…",
+        "label": "密钥"
+      },
+      "title": "导入现有"
+    }
+  },
+  "validation": {
+    "invalid-key": "Invalid stellar private key.",
+    "no-account-name": "No account name has been entered.",
+    "no-password": "No password has been entered.",
+    "password-no-match": "Password does not match.",
+    "same-account": "Already added this account."
+  }
+}

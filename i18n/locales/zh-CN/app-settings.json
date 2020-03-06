@@ -1,0 +1,66 @@
+{
+  "settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": "指纹识别",
+        "secondary": {
+          "disabled": "指纹识别已经关闭",
+          "enabled": "指纹识别已经开启",
+          "not-enrolled": "在手机系统中设置指纹识别"
+        }
+      },
+      "prompt": {
+        "enable": "Unlock your device once to enable the feature.",
+        "disable": "Unlock your device to disable the auto-lock."
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "显示备忘录",
+        "secondary": {
+          "hidden": "备忘录显示已经关闭",
+          "shown": "备忘录显示已经开启"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "开启多重签名",
+        "secondary": {
+          "enabled": "多重签名已经开启",
+          "disabled": "多重签名已经关闭"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "显示测试账户",
+        "secondary": {
+          "cannot-disable": "已经拥有测试账户，不能关闭",
+          "hidden": "测试账户已经隐藏",
+          "shown": "测试账户已经显示"
+        }
+      }
+    },
+    "trusted-services": {
+      "text": {
+        "primary": "管理授信",
+        "secondary": "移除授信"
+      }
+    }
+  },
+  "trusted-services": {
+    "info": "Trusted Services are web services that are allowed to interact with Solar wallet by requesting account data or proposing transactions. You can add a new service once it tries to interact with Solar.",
+    "service-selection": {
+      "actions": {
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "confirm": {
+        "title": "Confirm removal",
+        "text": "The service will be removed from your trust list. Are you sure?"
+      },
+      "no-services": "No trusted services"
+    }
+  }
+}

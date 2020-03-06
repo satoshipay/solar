@@ -1,0 +1,212 @@
+{
+  "add-asset": {
+    "button": {
+      "add-custom-asset": {
+        "label": "添加自定义资产"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "一个匹配资产",
+          "more-than-one-asset": "{{amount}} 个匹配资产"
+        }
+      },
+      "no-result": {
+        "primary": "没有匹配资产",
+        "secondary": "未搜索到任何资产"
+      }
+    },
+    "search-field": {
+      "placeholder": "搜索资产…"
+    },
+    "title": "添加资产"
+  },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "说明",
+        "text": "网络的原生资产.\n\n 每一个账户都拥有，用于支付网络费用."
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "Authorization by issuer required",
+        "auth-not-required": "No authorization required",
+        "auth-revocable": "Authorization revocable",
+        "auth-not-revocable": "Authorization not revocable",
+        "auth-immutable": "These flags are immutable",
+        "auth-mutable": "Issuer can change these flags",
+        "label": "Account flags"
+      },
+      "anchor-asset": {
+        "label": "Anchored to"
+      },
+      "conditions": {
+        "label": "Conditions"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "issuing-account": {
+        "label": "Issuing account"
+      },
+      "organisation": {
+        "address": {
+          "label": "Address"
+        },
+        "dba": {
+          "label": "Doing business as"
+        },
+        "description": {
+          "label": "Description"
+        },
+        "email": {
+          "label": "Email address"
+        },
+        "name": {
+          "label": "Organization name"
+        },
+        "phone-number": {
+          "label": "Phone number"
+        },
+        "website": {
+          "label": "Website"
+        }
+      },
+      "redemption-instructions": {
+        "label": "Redemption instructions"
+      }
+    }
+  },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "Add Asset To Your Account"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "Spendable balance"
+      }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "Base reserve",
+        "secondary": "Fixed base reserve"
+      },
+      "data-reserve": {
+        "primary": "Data fields reserve",
+        "secondary": "Account data fields"
+      },
+      "headline": "Amounts in XLM",
+      "open-orders-reserve": {
+        "primary": "Open orders reserve",
+        "secondary": "Open SDEX orders"
+      },
+      "selling-liabilities": {
+        "primary": "Selling liabilities",
+        "secondary": "Covers open orders"
+      },
+      "signers-reserve": {
+        "primary": "Account signers reserve",
+        "secondary": {
+          "single-key": "Single key reserve",
+          "multiple-keys": "Master key + co-signers"
+        }
+      },
+      "spendable-balance": {
+        "primary": "Spendable balance",
+        "secondary": "Freely usable amount"
+      },
+      "total-balance": {
+        "primary": "Total balance",
+        "secondary": "Your balance, incl. unspendable"
+      },
+      "trustline-reserve": {
+        "primary": "Trustlines reserve",
+        "secondary": "For each non-XLM balance"
+      }
+    }
+  },
+  "context-menu": {
+    "account-settings": {
+      "label": "账户设置"
+    },
+    "assets-and-balances": {
+      "label": "资产&余额"
+    },
+    "deposit": {
+      "label": "存款"
+    },
+    "trade": {
+      "label": "交易"
+    },
+    "transactions": {
+      "label": "事务"
+    },
+    "withdraw": {
+      "label": "取款"
+    }
+  },
+  "remove-trustline": {
+    "action": {
+      "cancel": "取消",
+      "remove": "移除"
+    },
+    "text": {
+      "warning": "不能移除资产（当资产数量为 0 时才能移除）.",
+      "info": "您将要删除资产 <1>{{asset}}</1>, 从 \"{{accountName}}\"."
+    },
+    "title": "确定删除资产"
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "Confirm",
+      "dismiss": "Dismiss",
+      "inspect": "Inspect",
+      "show-more": "Show more details"
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "账户"
+        },
+        "authenticating-account": {
+          "label": "Authenticating Account"
+        },
+        "expiry": {
+          "label": "Expiry"
+        },
+        "max-fee": {
+          "label": "Maximum fee"
+        },
+        "service": {
+          "label": "Service"
+        },
+        "submission": {
+          "label": "Submission"
+        },
+        "tx-hash": {
+          "label": "事务 Hash 值"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "密码"
+      }
+    },
+    "title": {
+      "transaction": "Transaction",
+      "payment": "Payment",
+      "delete-orders-operation": "Delete Trading Orders",
+      "web-auth": "Web Authentication"
+    },
+    "validation": {
+      "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
+      "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
+      "password-required": "Password required"
+    }
+  }
+}
