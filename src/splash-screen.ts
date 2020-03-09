@@ -1,11 +1,13 @@
 import { Messages } from "./shared/ipc"
 
+const hideSplashScreenDelay = 500
+
 function handleSplashScreen() {
   if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {
     const listener = (event: Event) => {
       if (event instanceof MessageEvent && event.source === window.parent) {
         if (event.data === Messages.HideSplashScreen) {
-          hideSplashScreen()
+          setTimeout(() => hideSplashScreen(), hideSplashScreenDelay)
         } else if (event.data === Messages.ShowSplashScreen) {
           showSplashScreen()
         }
@@ -17,17 +19,17 @@ function handleSplashScreen() {
 }
 
 function hideSplashScreen() {
-  setTimeout(() => {
-    const splash = document.getElementById("splash")
-    if (splash) {
-      splash.style.opacity = "0"
-      splash.style.pointerEvents = "none"
+  const splash = document.getElementById("splash")
+  if (!splash) {
+    return
+  }
 
-      setTimeout(() => {
-        splash.style.display = "none"
-      }, 1000)
-    }
-  }, 500)
+  splash.style.opacity = "0"
+  splash.style.pointerEvents = "none"
+
+  setTimeout(() => {
+    splash.style.display = "none"
+  }, 1000)
 }
 
 function showSplashScreen() {
@@ -42,7 +44,14 @@ export default handleSplashScreen
 export function appIsLoaded() {
   if ((process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") && window.parent) {
     window.parent.postMessage("app:ready", "*")
+
+    // Make sure that we definitely hide the splash screen and re-send app:ready in case there is
+    // some race condition with the handler (Android users repeatedly reported eternal splash screens)
+    setTimeout(() => {
+      window.parent.postMessage("app:ready", "*")
+      hideSplashScreen()
+    }, 5000)
   } else {
-    hideSplashScreen()
+    setTimeout(() => hideSplashScreen(), hideSplashScreenDelay)
   }
 }
