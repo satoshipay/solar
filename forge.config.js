@@ -46,7 +46,10 @@ module.exports = {
     },
     {
       name: "@electron-forge/maker-squirrel",
-      config: {}
+      config: {
+        setupIcon: path.resolve(__dirname, "electron/build/icon.ico"),
+        loadingGif: path.resolve(__dirname, "electron/build/install-spinner.gif")
+      }
     },
     {
       name: "@electron-forge/maker-zip",
