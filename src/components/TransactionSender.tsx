@@ -40,8 +40,9 @@ function ConditionalSubmissionProgress(props: {
     width: "100%",
     height: "100%",
     alignItems: "center",
-    justifyContent: "center",
     background: "#fcfcfc",
+    flexGrow: 1,
+    justifyContent: "center",
     marginBottom: isSmallScreen ? undefined : 24,
     marginTop: isSmallScreen ? undefined : 24
   }
