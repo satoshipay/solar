@@ -29,7 +29,7 @@
     "prebuild:electron": "run-s prebuild:electron:ts clean:dist prebuild:electron:bundle",
     "build:linux": "PLATFORM=linux npm run prebuild:electron && electron-forge make --platform=linux",
     "build:mac": "source ./scripts/signing-env.sh mac && PLATFORM=darwin npm run prebuild:electron && electron-forge make --platform=darwin",
-    "build:win": "source ./scripts/signing-env.sh win && PLATFORM=win npm run prebuild:electron && electron-forge make --platform=win",
+    "build:win": "source ./scripts/signing-env.sh win && PLATFORM=win32 npm run prebuild:electron && electron-forge make --arch=ia32 --platform=win32",
     "dev": "run-p prebuild:electron:ts:watch dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development TS_NODE_PROJECT=./electron/tsconfig.json run-electron -r ts-node/register/transpile-only ./electron/src/index.dev",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
