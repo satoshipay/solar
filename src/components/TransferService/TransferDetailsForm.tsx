@@ -3,6 +3,7 @@ import nanoid from "nanoid"
 import React from "react"
 import { Asset } from "stellar-sdk"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
+import { useStellarToml } from "../../hooks/stellar"
 import { RefStateObject } from "../../hooks/userinterface"
 import { useLoadingState } from "../../hooks/util"
 import theme from "../../theme"
@@ -136,6 +137,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
   const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
 
   const assetInfo = props.assetTransferInfos.find(info => info.asset.equals(props.state.asset))
+  const stellarToml = useStellarToml(props.state.transferServer.domain)
 
   const [formValues, setFormValues] = React.useState<FormValues>(
     (props.state.formValues as Record<string, string>) || {}
@@ -173,7 +175,8 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
     }
   })()
 
-  const fields = methodMetadata && methodMetadata.fields ? methodMetadata.fields : {}
+  const isSEP24Anchor = Boolean(stellarToml && stellarToml.TRANSFER_SERVER_SEP0024)
+  const fields = methodMetadata && methodMetadata.fields && !isSEP24Anchor ? methodMetadata.fields : {}
 
   const automaticallySetValues = ["account", "asset_code", "type"]
   const emailField = fields.email || fields.email_address
