@@ -55,5 +55,7 @@ export type StellarToml = Partial<{
   DOCUMENTATION: StellarTomlIssuer
   PRINCIPALS: StellarTomlPrincipal[]
   SIGNING_KEY?: string
+  TRANSFER_SERVER?: string
+  TRANSFER_SERVER_SEP0024?: string
   URI_REQUEST_SIGNING_KEY?: string
 }>
