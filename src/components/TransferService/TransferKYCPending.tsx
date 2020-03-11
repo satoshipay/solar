@@ -1,3 +1,4 @@
+import nanoid from "nanoid"
 import React from "react"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
@@ -25,6 +26,8 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
   const { transferServer } = props.type === "deposit" ? props.state.deposit! : props.state.withdrawal!
   const { actions } = props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
+  const formID = React.useMemo(() => nanoid(), [])
+
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault()
     actions.didRedirectToKYC()
@@ -39,7 +42,7 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit}>
+    <form id={formID} noValidate onSubmit={handleSubmit}>
       <VerticalLayout grow>
         <VerticalLayout alignItems="center" margin="24px auto" textAlign="center">
           <Typography variant="h5">Additional information needed</Typography>
@@ -55,7 +58,9 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
           ) : null}
           <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
             <DialogActionsBox desktopStyle={{ justifyContent: "center", marginTop: 16 }}>
-              <ActionButton type="submit">{props.state.didRedirect ? "Open again" : "Continue"}</ActionButton>
+              <ActionButton form={formID} type="submit">
+                {props.state.didRedirect ? "Open again" : "Continue"}
+              </ActionButton>
             </DialogActionsBox>
           </Portal>
         </VerticalLayout>

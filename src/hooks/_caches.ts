@@ -104,18 +104,8 @@ export interface TransactionHistory {
 }
 
 function areTransactionsNewer(prev: TransactionHistory, next: TransactionHistory) {
-  const prevMaxTimestamp =
-    (prev
-      ? max(
-          prev.transactions.map(tx => tx.created_at),
-          "0"
-        )
-      : undefined) || ""
-  const nextMaxTimestamp =
-    max(
-      next.transactions.map(tx => tx.created_at),
-      "0"
-    ) || ""
+  const prevMaxTimestamp = (prev ? max(prev.transactions.map(tx => tx.created_at), "0") : undefined) || ""
+  const nextMaxTimestamp = max(next.transactions.map(tx => tx.created_at), "0") || ""
 
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
@@ -142,7 +132,10 @@ export const orderbookCache = createCache<readonly [string, Asset, Asset], Fixed
   createAssetPairCacheKey
 )
 
+// Storing the array [isPresent, stellarTomlData] is important for distinguishing between
+// "the data has not yet been fetched" and "we fetched, but the site doesn't provide any data"
 export const stellarTomlCache = createCache<string, [boolean, any], any>(domain => domain)
+
 export const transferInfosCache = createCache<string, [TransferServerInfo] | [], TransferServerInfo>(domain => domain)
 export const tickerAssetsCache = createCache<boolean, AssetRecord[], AssetRecord[]>(testnet =>
   testnet ? "testnet" : "pubnet"
