@@ -64,8 +64,11 @@ export function useTransferState(account: Account, closeDialog: () => void) {
   const initiateWebAuth = async (
     transferServer: TransferServer
   ): Promise<[undefined, undefined] | [WebauthData, string | undefined]> => {
+    const stellarTomlCacheItem = stellarTomlCache.get(transferServer.domain)
     const stellarTomlData =
-      stellarTomlCache.get(transferServer.domain) || (await netWorker.fetchStellarToml(transferServer.domain))
+      stellarTomlCacheItem && stellarTomlCacheItem[0]
+        ? stellarTomlCacheItem[1]
+        : await netWorker.fetchStellarToml(transferServer.domain)
 
     const endpointURL = getWebAuthEndpointURL(stellarTomlData)
 
@@ -81,10 +84,6 @@ export function useTransferState(account: Account, closeDialog: () => void) {
 
     if (webauthMetadata.signingKey) {
       signingKeys.store(webauthMetadata.signingKey, webauthMetadata.domain)
-    }
-
-    if (!webauthMetadata) {
-      return [undefined, undefined]
     }
 
     const cachedAuthToken = WebAuth.getCachedAuthToken(webauthMetadata.endpointURL, account.publicKey)
