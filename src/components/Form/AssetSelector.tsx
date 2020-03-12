@@ -75,9 +75,11 @@ interface AssetSelectorProps {
   disabledAssets?: Asset[]
   disableUnderline?: boolean
   helperText?: TextFieldProps["helperText"]
+  inputError?: string
   label?: TextFieldProps["label"]
   margin?: TextFieldProps["margin"]
   minWidth?: number | string
+  name?: string
   onChange: (asset: Asset) => void
   showXLM?: boolean
   style?: React.CSSProperties
@@ -119,10 +121,12 @@ function AssetSelector(props: AssetSelectorProps) {
     <TextField
       autoFocus={props.autoFocus}
       className={props.className}
+      error={Boolean(props.inputError)}
       helperText={props.helperText}
-      label={props.label}
+      label={props.inputError ? props.inputError : props.label}
       margin={props.margin}
       onChange={handleChange as any}
+      name={props.name}
       placeholder="Select an asset"
       select
       style={{ flexShrink: 0, ...props.style }}
