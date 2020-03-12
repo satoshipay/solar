@@ -1,6 +1,6 @@
 {
   "name": "io.solarwallet.app",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "Wallet for the Stellar payment network by SatoshiPay.",
   "license": "MIT",
   "private": true,
