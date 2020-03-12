@@ -296,23 +296,19 @@ function TradingForm(props: Props) {
       >
         <HorizontalLayout margin="8px 0">
           <Controller
-            as={
-              <AssetSelector
-                assets={assets}
-                autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
-                inputError={errors.primaryAsset && errors.primaryAsset.message}
-                label={props.primaryAction === "buy" ? "You buy" : "You sell"}
-                minWidth={75}
-                showXLM
-                onChange={() => undefined}
-                style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-                testnet={props.account.testnet}
-                value={primaryAsset}
-              />
-            }
+            as={AssetSelector}
+            assets={assets}
+            autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
             control={control}
+            inputError={errors.primaryAsset && errors.primaryAsset.message}
+            label={props.primaryAction === "buy" ? "You buy" : "You sell"}
+            minWidth={75}
             name="primaryAsset"
             rules={{ required: "No asset selected" }}
+            showXLM
+            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+            testnet={props.account.testnet}
+            value={primaryAsset}
           />
           <TextField
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
@@ -367,21 +363,17 @@ function TradingForm(props: Props) {
         </HorizontalLayout>
         <HorizontalLayout margin="8px 0 32px">
           <Controller
-            as={
-              <AssetSelector
-                assets={assets}
-                label={props.primaryAction === "buy" ? "Spend" : "Receive"}
-                minWidth={75}
-                showXLM
-                onChange={() => undefined}
-                style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-                testnet={props.account.testnet}
-                value={secondaryAsset}
-              />
-            }
+            as={AssetSelector}
+            assets={assets}
             control={control}
+            label={props.primaryAction === "buy" ? "Spend" : "Receive"}
+            minWidth={75}
             name="secondaryAsset"
             rules={{ required: "No asset selected." }}
+            showXLM
+            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+            testnet={props.account.testnet}
+            value={secondaryAsset}
           />
           <ReadOnlyTextfield
             disableUnderline
