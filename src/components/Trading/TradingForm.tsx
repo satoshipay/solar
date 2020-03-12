@@ -426,6 +426,7 @@ function TradingForm(props: Props) {
               primaryAsset={primaryAsset}
               rules={{ validate: value => isValidAmount(value) || "Invalid price" }}
               secondaryAsset={secondaryAsset}
+              selectOnFocus
               style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
               valueName="manualPrice"
             />

@@ -17,6 +17,7 @@ interface TradingPriceProps {
   priceDenotedIn: "primary" | "secondary"
   primaryAsset: Asset | undefined
   secondaryAsset: Asset | undefined
+  selectOnFocus?: boolean
   style?: React.CSSProperties
 }
 
@@ -55,6 +56,7 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
       label={props.inputError ? props.inputError.message : "Price (limit)"}
       onBlur={props.onBlur}
       onChange={props.onChange}
+      onFocus={props.selectOnFocus ? event => event.target.select() : undefined}
       style={props.style}
       type="number"
       value={props.defaultPrice ? props.defaultPrice : props.manualPrice}
