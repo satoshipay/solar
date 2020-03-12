@@ -38,7 +38,6 @@ function AllAccountsPage() {
   const settings = React.useContext(SettingsContext)
   const { showNotification } = React.useContext(NotificationsContext)
   const testnetAccounts = React.useMemo(() => accounts.filter(account => account.testnet), [accounts])
-  const [isUpdateAvailable, setUpdateAvailable] = React.useState(false)
   const [isUpdateInProgress, setUpdateInProgress] = React.useState(false)
 
   const styles = useStyles()
@@ -50,14 +49,8 @@ function AllAccountsPage() {
 
   const updater = getUpdater()
 
-  React.useEffect(() => {
-    updater.isUpdateAvailable().then(value => {
-      setUpdateAvailable(value)
-    })
-  }, [])
-
   const startUpdate = React.useCallback(async () => {
-    if (isUpdateAvailable && !updater.isUpdateStarted()) {
+    if (settings.updateAvailable && !updater.isUpdateStarted() && !updater.isUpdateDownloaded()) {
       try {
         showNotification("info", "Starting download of update...")
         setUpdateInProgress(true)
@@ -69,7 +62,7 @@ function AllAccountsPage() {
         setUpdateInProgress(false)
       }
     }
-  }, [updater, isUpdateAvailable])
+  }, [updater, settings.updateAvailable])
 
   const updateButton = (
     <Tooltip title="Update available">
@@ -102,7 +95,12 @@ function AllAccountsPage() {
             {settings.showTestnet || networkSwitch === "testnet" || testnetAccounts.length > 0
               ? networkSwitchButton
               : null}
-            {isUpdateAvailable && !isUpdateInProgress ? updateButton : null}
+            {settings.updateAvailable &&
+            !isUpdateInProgress &&
+            !updater.isUpdateStarted() &&
+            !updater.isUpdateDownloaded()
+              ? updateButton
+              : null}
             <IconButton
               onClick={() => router.history.push(routes.settings())}
               style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
@@ -113,7 +111,16 @@ function AllAccountsPage() {
         }
       />
     ),
-    [isWidthMax450, isUpdateAvailable, isUpdateInProgress, networkSwitch, router, settings.showTestnet, testnetAccounts]
+    [
+      isWidthMax450,
+      isUpdateInProgress,
+      networkSwitch,
+      router,
+      settings.showTestnet,
+      settings.updateAvailable,
+      testnetAccounts,
+      updater
+    ]
   )
 
   return (

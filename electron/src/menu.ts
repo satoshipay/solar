@@ -23,7 +23,7 @@ export function createAppMenu() {
         { role: "cut" },
         { role: "copy" },
         { role: "paste" },
-        { role: "selectall" }
+        { role: "selectAll" }
       ]
     }
   ])

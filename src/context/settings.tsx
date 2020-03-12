@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { testBiometricAuth, isBiometricAuthAvailable } from "../platform/bio-auth"
 import {
   loadIgnoredSignatureRequestHashes,
@@ -6,8 +7,8 @@ import {
   saveIgnoredSignatureRequestHashes,
   saveSettings
 } from "../platform/settings"
+import getUpdater from "../platform/updater"
 import { trackError } from "./notifications"
-import { useTranslation } from "react-i18next"
 
 interface Props {
   children: React.ReactNode
@@ -31,6 +32,7 @@ interface ContextType {
   toggleTestnet: () => void
   toggleHideMemos: () => void
   trustedServices: TrustedService[]
+  updateAvailable: boolean
 }
 
 interface SettingsState extends Platform.SettingsData {
@@ -68,12 +70,14 @@ const SettingsContext = React.createContext<ContextType>({
   toggleMultiSignature: () => undefined,
   toggleTestnet: () => undefined,
   toggleHideMemos: () => undefined,
-  trustedServices: initialSettings.trustedServices
+  trustedServices: initialSettings.trustedServices,
+  updateAvailable: false
 })
 
 export function SettingsProvider(props: Props) {
   const [ignoredSignatureRequests, setIgnoredSignatureRequests] = React.useState(initialIgnoredSignatureRequests)
   const [settings, setSettings] = React.useState<SettingsState>(initialSettings)
+  const [updateAvailable, setUpdateAvailable] = React.useState(false)
   const [biometricAvailability, setBiometricAvailability] = React.useState<BiometricAvailability>({
     available: false,
     enrolled: false
@@ -89,6 +93,9 @@ export function SettingsProvider(props: Props) {
       .catch(trackError)
 
     isBiometricAuthAvailable().then(setBiometricAvailability)
+    getUpdater()
+      .isUpdateAvailable()
+      .then(setUpdateAvailable)
 
     // Can't really cancel loading the settings
     const unsubscribe = () => undefined
@@ -154,7 +161,8 @@ export function SettingsProvider(props: Props) {
     toggleMultiSignature,
     toggleTestnet,
     toggleHideMemos,
-    trustedServices: settings.trustedServices
+    trustedServices: settings.trustedServices,
+    updateAvailable
   }
 
   return <SettingsContext.Provider value={contextValue}>{props.children}</SettingsContext.Provider>

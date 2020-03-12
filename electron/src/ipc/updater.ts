@@ -14,9 +14,6 @@ interface UpdateInfo {
   url: string
 }
 
-const showMessageBox = (options: Electron.MessageBoxOptions) =>
-  new Promise(resolve => dialog.showMessageBox(options, resolve))
-
 const updateEndpoint = !isDev ? "https://update.solarwallet.io/" : process.env.UPDATE_ENDPOINT
 
 // tslint:disable-next-line: no-console
@@ -98,7 +95,7 @@ async function startUpdatingWithoutInfo() {
 }
 
 async function startUpdating(version: string) {
-  const progressNotification = showProgressNotification(version)
+  const downloadingNotification = showDownloadingNotification(version)
   autoUpdater.checkForUpdates()
 
   await new Promise(resolve => {
@@ -106,9 +103,9 @@ async function startUpdating(version: string) {
     autoUpdater.once("update-downloaded", resolve)
   })
 
-  progressNotification.close()
+  downloadingNotification.close()
 
-  const response = await showMessageBox({
+  const response = dialog.showMessageBoxSync({
     type: "info",
     buttons: ["Restart", "Later"],
     cancelId: 1,
@@ -139,7 +136,7 @@ function showUpdateNotification(version: string) {
   })
 }
 
-function showProgressNotification(version: string) {
+function showDownloadingNotification(version: string) {
   const notification = new Notification({
     title: `Updating Solar…`,
     subtitle: `Download of ${version} in progress.`,

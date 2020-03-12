@@ -6,7 +6,7 @@ export function expose<Message extends keyof IPC.MessageType>(
     ...args: IPC.MessageArgs<Message>
   ) => IPC.MessageReturnType<Message> | Promise<IPC.MessageReturnType<Message>>
 ) {
-  ipcMain.on(messageType, async (event: Electron.Event, payload: ElectronIPCCallMessage<Message>) => {
+  ipcMain.on(messageType, async (event: Electron.IpcMainEvent, payload: ElectronIPCCallMessage<Message>) => {
     const { args, callID } = payload
     try {
       const result = await handler(...args)
