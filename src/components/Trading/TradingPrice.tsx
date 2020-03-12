@@ -7,10 +7,11 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 
 interface TradingPriceProps {
+  defaultPrice?: string
   inputError?: Error
   manualPrice?: string
   onBlur?: () => void
-  onChange: (priceString: string) => void
+  onChange: (event: React.ChangeEvent) => void
   onSetPriceDenotedIn: (denotedIn: "primary" | "secondary") => void
   price: BigNumber
   priceDenotedIn: "primary" | "secondary"
@@ -19,7 +20,7 @@ interface TradingPriceProps {
   style?: React.CSSProperties
 }
 
-function TradingPrice(props: TradingPriceProps) {
+const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceProps, ref: React.Ref<HTMLDivElement>) {
   const isDisabled = !props.primaryAsset || !props.secondaryAsset
 
   const endAdornment = (
@@ -49,15 +50,16 @@ function TradingPrice(props: TradingPriceProps) {
         min: "0.0000001"
       }}
       InputProps={{ endAdornment }}
+      inputRef={ref}
       error={Boolean(props.inputError)}
       label={props.inputError ? props.inputError.message : "Price (limit)"}
       onBlur={props.onBlur}
-      onChange={event => props.onChange(event.target.value)}
+      onChange={props.onChange}
       style={props.style}
       type="number"
-      value={props.manualPrice}
+      value={props.defaultPrice ? props.defaultPrice : props.manualPrice}
     />
   )
-}
+})
 
 export default React.memo(TradingPrice)
