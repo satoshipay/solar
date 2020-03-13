@@ -1,6 +1,7 @@
 import fetch from "isomorphic-fetch"
 import qs from "qs"
 import { Transaction, Networks } from "stellar-sdk"
+import { CustomError } from "./errors"
 import { signatureMatchesPublicKey } from "./stellar"
 import { joinURL } from "./url"
 
@@ -48,7 +49,7 @@ export interface TxParameters {
 
 function parseRequestURI(requestURI: string) {
   if (!requestURI.startsWith("web+stellar:")) {
-    throw new Error("Expected request to start with 'web+stellar:'")
+    throw CustomError("WrongRequestStartError", "Expected request to start with 'web+stellar:'")
   }
 
   const [operation, queryString] = requestURI.replace(/^web\+stellar:/, "").split("?", 2)
@@ -102,9 +103,16 @@ export async function submitNewSignatureRequest(serviceURL: string, signatureReq
     const contentType = response.headers.get("Content-Type")
     const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
 
-    throw new Error(
-      `Submitting transaction to multi-signature service failed with status ${response.status}: ` +
-        (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
+    const message =
+      responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+    throw CustomError(
+      "SubmissionFailedError",
+      `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
+      {
+        endpoint: "multi-signature service",
+        message,
+        status: String(response.status)
+      }
     )
   }
 
@@ -115,7 +123,10 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
   const collateEndpointURL = signatureRequest.meta.callbackURL
 
   if (!collateEndpointURL) {
-    throw new Error("Cannot submit back to multi-signature service. Signature request has no callback URL set.")
+    throw CustomError(
+      "NoCallbackUrlError",
+      "Cannot submit back to multi-signature service. Signature request has no callback URL set."
+    )
   }
 
   const response = await fetch(collateEndpointURL, {
@@ -139,9 +150,18 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
 
     if (horizonResponse && horizonResponse.type === "https://stellar.org/horizon-errors/transaction_failed") {
       // Throw something that can be handled by explainSubmissionError()
+
+      const message =
+        responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
       throw Object.assign(
-        new Error(
-          `Submitting transaction to multi-signature service failed with status ${response.status}: ${responseBodyObject.message}`
+        CustomError(
+          "SubmissionFailedError",
+          `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
+          {
+            endpoint: "multi-signature service",
+            message,
+            status: String(response.status)
+          }
         ),
         {
           response: {
@@ -151,9 +171,16 @@ export async function collateSignature(signatureRequest: SignatureRequest, signe
         }
       )
     } else {
-      throw new Error(
-        `Submitting transaction to multi-signature service failed with status ${response.status}: ` +
-          (responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text())
+      const message =
+        responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+      throw CustomError(
+        "SubmissionFailedError",
+        `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
+        {
+          endpoint: "multi-signature service",
+          message,
+          status: String(response.status)
+        }
       )
     }
   }

@@ -346,7 +346,26 @@
     "title": "Add Custom Asset"
   },
   "error": {
-    "unknown": "An unknown error occured.",
+    "boundary": {
+      "header": "Oops, something went wrong...",
+      "contact-us": "Contact us via"
+    },
+    "bad-response-error": "Bad response ({{status}}) from {{server}} server",
+    "bad-transaction-error": "Bad transaction given. Expected a Transaction or TransactionRecord, but got: {{transaction}}",
+    "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
+    "existing-account-error": "An account with that name does already exist.",
+    "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
+    "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
+    "no-callback-url-error": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
+    "non-existent-destination-error": "Cannot pay in {{assetCode}}, since the destination account does not exist yet. Account creations always need to be done via XLM.",
+    "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
+    "request-failed-error": "Request to {{target}} failed with status {{status}}: {{message}}",
+    "stellar-address-not-found-error": "Stellar address not found: {{address}}",
+    "stellar-address-request-failed-error": "Request for resolving the stellar address failed: {{address}}",
+    "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
+    "unknown-error": "An unknown error occured.",
+    "wrong-password-error": "Wrong password.",
+    "wrong-request-start-error": "Expected request to start with 'web+stellar:'",
     "submission-error": {
       "default": "Transaction rejected by the network. Error code(s): {{codes}}",
       "op-result-code": {

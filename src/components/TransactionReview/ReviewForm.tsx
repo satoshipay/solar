@@ -137,7 +137,7 @@ function TxConfirmationForm(props: Props) {
             autoFocus={process.env.PLATFORM !== "ios"}
             error={Boolean(passwordError)}
             label={
-              passwordError ? renderFormFieldError(passwordError) : t("transaction-review.textfield.password.label")
+              passwordError ? renderFormFieldError(passwordError, t) : t("transaction-review.textfield.password.label")
             }
             type="password"
             fullWidth

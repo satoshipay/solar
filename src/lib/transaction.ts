@@ -11,7 +11,7 @@ import {
   Networks
 } from "stellar-sdk"
 import { Account } from "../context/accounts"
-import { WrongPasswordError } from "../lib/errors"
+import { WrongPasswordError, CustomError } from "../lib/errors"
 import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
 
@@ -31,7 +31,11 @@ export function createCheapTxID(transaction: Transaction | ServerApi.Transaction
   const sequence = "sequence" in transaction ? transaction.sequence : transaction.source_account_sequence
 
   if (!source || !sequence) {
-    throw new Error(`Bad transaction given. Expected a Transaction or TransactionRecord, but got: ${transaction}`)
+    throw CustomError(
+      "BadTransactionError",
+      `Bad transaction given. Expected a Transaction or TransactionRecord, but got: ${transaction}`,
+      { transaction: transaction.hash.toString() }
+    )
   }
 
   return `${source}:${sequence}`
@@ -135,9 +139,10 @@ export async function createPaymentOperation(options: PaymentOperationBlueprint)
   const destinationAccountExists = await accountExists(horizon, destination)
 
   if (!destinationAccountExists && !Asset.native().equals(options.asset)) {
-    throw new Error(
-      `Cannot pay in ${asset.code}, since the destination account does not exist yet. ` +
-        `Account creations always need to be done via XLM.`
+    throw CustomError(
+      "NonExistentDestinationError",
+      `Cannot pay in ${asset.code}$, since the destination account does not exist yet. Account creations always need to be done via XLM.`,
+      { assetCode: asset.code }
     )
   }
 
@@ -150,7 +155,7 @@ export async function createPaymentOperation(options: PaymentOperationBlueprint)
 
 export async function signTransaction(transaction: Transaction, walletAccount: Account, password: string | null) {
   if (walletAccount.requiresPassword && !password) {
-    throw WrongPasswordError(`Account is password-protected, but no password has been provided.`)
+    throw WrongPasswordError()
   }
 
   const signedTransaction = walletAccount.signTransaction(transaction, password)

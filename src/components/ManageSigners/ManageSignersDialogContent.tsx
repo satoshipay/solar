@@ -176,7 +176,7 @@ function ManageSignersDialogContent(props: Props) {
           pattern: "[0-9]*",
           inputMode: "decimal"
         }}
-        label={weightThresholdError ? renderFormFieldError(weightThresholdError) : weightThresholdLabel}
+        label={weightThresholdError ? renderFormFieldError(weightThresholdError, t) : weightThresholdLabel}
         onChange={event => setWeightThreshold(event.target.value)}
         type="number"
         value={weightThreshold}

@@ -1,6 +1,7 @@
 import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -98,6 +99,8 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const formID = React.useMemo(() => nanoid(), [])
   const wellknownAccounts = useWellKnownAccounts(props.testnet)
 
+  const { t } = useTranslation()
+
   const [formValues, setFormValues] = React.useState<PaymentFormValues>({
     amount: "",
     asset: Asset.native(),
@@ -188,7 +191,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     () => (
       <TextField
         error={Boolean(errors.destination)}
-        label={errors.destination ? renderFormFieldError(errors.destination) : "Destination address"}
+        label={errors.destination ? renderFormFieldError(errors.destination, t) : "Destination address"}
         placeholder="GABCDEFGHIJK... or alice*example.org"
         fullWidth
         autoFocus={process.env.PLATFORM !== "ios"}
@@ -225,7 +228,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       <PriceInput
         assetCode={assetSelector}
         error={Boolean(errors.amount)}
-        label={errors.amount ? renderFormFieldError(errors.amount) : "Amount"}
+        label={errors.amount ? renderFormFieldError(errors.amount, t) : "Amount"}
         margin="normal"
         placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
         value={formValues.amount}
@@ -247,7 +250,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       <TextField
         inputProps={{ maxLength: 28 }}
         error={Boolean(errors.memoValue)}
-        label={errors.memoValue ? renderFormFieldError(errors.memoValue) : memoMetadata.label}
+        label={errors.memoValue ? renderFormFieldError(errors.memoValue, t) : memoMetadata.label}
         placeholder={memoMetadata.placeholder}
         margin="normal"
         onChange={event => {

@@ -1,8 +1,7 @@
-// tslint:disable:no-shadowed-variable
-
 import { FederationServer, StellarTomlResolver } from "stellar-sdk"
 import { AccountRecord } from "../../lib/stellar-expert"
 import { AssetRecord } from "../../lib/stellar-ticker"
+import { CustomError } from "../../lib/errors"
 
 export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
   const requestURL = testnet
@@ -12,7 +11,10 @@ export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountR
   const response = await fetch(requestURL)
 
   if (response.status >= 400) {
-    throw Error(`Bad response (${response.status}) from stellar.expert server`)
+    throw CustomError("BadResponseError", `Bad response (${response.status}) from stellar.expert server`, {
+      status: response.status,
+      server: "stellar.expert"
+    })
   }
 
   const json = await response.json()
@@ -45,7 +47,10 @@ export async function fetchAllAssets(tickerURL: string): Promise<AssetRecord[]> 
   const response = await fetch(String(requestURL))
 
   if (response.status >= 400) {
-    throw Error(`Bad response (${response.status}) from stellar.expert server`)
+    throw CustomError("BadResponseError", `Bad response (${response.status}) from stellar.expert server`, {
+      status: response.status,
+      server: "stellar.expert"
+    })
   }
 
   const json = await response.json()

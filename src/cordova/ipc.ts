@@ -1,4 +1,5 @@
 import { KeyStore } from "key-store"
+import pick from "lodash.pick"
 
 type CommandHandler<Message extends keyof IPC.MessageType> = (
   secureStorage: CordovaSecureStorage,
@@ -31,9 +32,12 @@ export async function handleMessageEvent<Message extends keyof IPC.MessageType>(
       const result = await messageHandler(secureStorage, keyStore, ...args)
       sendSuccessResponse(contentWindow, messageType, callID, result)
     } catch (error) {
+      const extras = pick(error, error.__extraProps || [])
       sendErrorResponse(contentWindow, messageType, callID, {
-        name: error.name || "Error",
+        ...extras,
+        __extraProps: error.__extraProps,
         message: error.message,
+        name: error.name || "Error",
         stack: error.stack
       })
     }

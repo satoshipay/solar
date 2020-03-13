@@ -1,3 +1,6 @@
+import pick from "lodash.pick"
+import { CustomError } from "../lib/errors"
+
 let nextCallID = 1
 
 export function call<Message extends keyof IPC.MessageType>(
@@ -21,7 +24,9 @@ export function call<Message extends keyof IPC.MessageType>(
       unsubscribe()
 
       if ("error" in message && message.error) {
-        reject(Object.assign(Error(message.error.message), { name: message.error.name }))
+        const error = message.error
+        const extra = error.__extraProps ? pick(error, error.__extraProps || []) : undefined
+        reject(CustomError(error.name, error.message, extra))
       } else {
         resolve((message as ElectronIPCCallResultMessage).result)
       }
