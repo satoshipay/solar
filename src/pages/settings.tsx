@@ -45,7 +45,7 @@ function SettingsPage() {
         </CardContent>
       </Card>
     ),
-    [isSmallScreen, router]
+    [isSmallScreen, navigateToAllAccounts, navigateToSettingsOverview, showSettingsOverview]
   )
 
   return (

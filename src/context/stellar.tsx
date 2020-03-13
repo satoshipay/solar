@@ -81,7 +81,7 @@ export function StellarProvider(props: Props) {
       cancelled = true
     }
     return unsubscribe
-  }, [])
+  }, [resetNetworkCaches])
 
   return <StellarContext.Provider value={contextValue}>{props.children}</StellarContext.Provider>
 }

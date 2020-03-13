@@ -74,7 +74,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const { t } = useTranslation()
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
-  const showAllMetadata = React.useCallback(() => setShowingAllMetadata(true), [])
+  const showAllMetadata = React.useCallback(() => setShowingAllMetadata(true), [setShowingAllMetadata])
 
   const fee = BigNumber(props.transaction.fee)
     .mul(props.transaction.operations.length)

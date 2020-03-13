@@ -59,27 +59,28 @@ interface SignatureRequestListProps {
 
 // tslint:disable-next-line no-shadowed-variable
 export const SignatureRequestList = React.memo(function SignatureRequestList(props: SignatureRequestListProps) {
+  const { sendTransaction } = props
   const router = useRouter()
 
-  const handleNavigation = (pathname: string) => {
-    if (matchesRoute(pathname, routes.showTransaction("*", "*"))) {
-      const [, , , hash] = pathname.replace(/^\//, "").split("/")
-      const signatureRequest = props.signatureRequests.find(sr => sr.hash === hash)
+  React.useEffect(() => {
+    const handleNavigation = (pathname: string) => {
+      if (matchesRoute(pathname, routes.showTransaction("*", "*"))) {
+        const [, , , hash] = pathname.replace(/^\//, "").split("/")
+        const signatureRequest = props.signatureRequests.find(sr => sr.hash === hash)
 
-      if (signatureRequest) {
-        props.sendTransaction(signatureRequest.meta.transaction, signatureRequest)
+        if (signatureRequest) {
+          sendTransaction(signatureRequest.meta.transaction, signatureRequest)
+        }
       }
     }
-  }
 
-  React.useEffect(() => {
     handleNavigation(router.location.pathname)
 
     const unsubscribe = router.history.listen(location => {
       handleNavigation(location.pathname)
     })
     return unsubscribe
-  }, [])
+  }, [router.history, router.location.pathname, sendTransaction, props.signatureRequests])
 
   const openSignatureRequest = (tx: Transaction, signatureRequest: SignatureRequest) => {
     router.history.push(routes.showTransaction(props.account.id, signatureRequest.hash))

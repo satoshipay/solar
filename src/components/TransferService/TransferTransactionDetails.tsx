@@ -35,7 +35,9 @@ interface TransferTransactionDetailsProps {
 }
 
 function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
+  const { sendTransaction } = props
   const { account, actions } =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
   const { asset } = (props.state.deposit || props.state.withdrawal) as Deposit | Withdrawal
 
@@ -81,13 +83,13 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
               props.state.response as WithdrawalInstructionsSuccess,
               amount
             )
-            await props.sendTransaction(tx)
+            await sendTransaction(tx)
             actions.afterSuccessfulExecution(amount)
           })()
         )
       }
     },
-    [actions, props.sendTransaction, props.state, amount]
+    [actions, amount, handleTxPreparation, props.state, props.type, sendTransaction]
   )
 
   const extraInfo =
@@ -135,8 +137,9 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
           value={amount.minus(fees).lte(0) ? "-" : formatBalance(amount.minus(fees))}
         />
         <ReadOnlyTextfield label="ETA" style={{ marginTop: 24 }} value={eta} />
-        {Object.keys(extraInfo).map(extraKey => (
+        {Object.keys(extraInfo).map((extraKey, index) => (
           <ReadOnlyTextfield
+            key={index}
             label={Object.keys(extraInfo).length === 1 ? "Information" : formatDescriptionText(extraKey)}
             style={{ marginTop: 24 }}
             value={extraInfo[extraKey]}

@@ -74,7 +74,7 @@ function ConnectionErrorListener() {
         recentErrors.track(error)
       })
     return () => subscription.unsubscribe()
-  }, [])
+  }, [Notifications, netWorker, recentErrors])
 
   return null
 }

@@ -86,19 +86,25 @@ interface AssetSelectorProps {
 }
 
 function AssetSelector(props: AssetSelectorProps) {
+  const { onChange } = props
   const classes = useAssetSelectorStyles()
 
-  const assets = React.useMemo(() => [
-    Asset.native(),
-    ...props.assets.map(asset => "code" in asset && "issuer" in asset ? asset as Asset : balancelineToAsset(asset))
-  ], [props.assets])
+  const assets = React.useMemo(
+    () => [
+      Asset.native(),
+      ...props.assets.map(asset =>
+        "code" in asset && "issuer" in asset ? (asset as Asset) : balancelineToAsset(asset)
+      )
+    ],
+    [props.assets]
+  )
 
-  const onChange = React.useCallback(
+  const handleChange = React.useCallback(
     (event: React.ChangeEvent<{ name?: any; value: any }>, child: React.ComponentElement<AssetItemProps, any>) => {
       const matchingAsset = assets.find(asset => asset.equals(child.props.asset))
 
       if (matchingAsset) {
-        props.onChange(matchingAsset)
+        onChange(matchingAsset)
       } else {
         // tslint:disable-next-line no-console
         console.error(
@@ -106,7 +112,7 @@ function AssetSelector(props: AssetSelectorProps) {
         )
       }
     },
-    [props.assets, props.onChange]
+    [assets, onChange]
   )
 
   return (
@@ -116,7 +122,7 @@ function AssetSelector(props: AssetSelectorProps) {
       helperText={props.helperText}
       label={props.label}
       margin={props.margin}
-      onChange={onChange as any}
+      onChange={handleChange as any}
       placeholder="Select an asset"
       select
       style={{ flexShrink: 0, ...props.style }}
@@ -166,8 +172,7 @@ function AssetSelector(props: AssetSelectorProps) {
             testnet={props.testnet}
             value={asset.getCode()}
           />
-        ))
-      }
+        ))}
     </TextField>
   )
 }

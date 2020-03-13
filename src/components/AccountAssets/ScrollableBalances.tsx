@@ -117,6 +117,7 @@ interface ScrollableBalancesProps {
 }
 
 function ScrollableBalances(props: ScrollableBalancesProps) {
+  const { onClick } = props
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const balanceItemsRef = React.useRef<Map<number, HTMLElement | null>>(new Map())
   const classes = useScrollableBalancesStyles()
@@ -188,10 +189,10 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
   const handleClick = React.useCallback(() => {
     const mouseDragJustHappened = Date.now() - mouseState.current.latestMouseMoveEndTime < 100
 
-    if (props.onClick && !mouseDragJustHappened) {
-      props.onClick()
+    if (onClick && !mouseDragJustHappened) {
+      onClick()
     }
-  }, [props.onClick])
+  }, [onClick])
 
   const canScrollLeft = currentStep > 0
   const canScrollRight = currentStep < stepCount - 1
@@ -231,7 +232,16 @@ function ScrollableBalances(props: ScrollableBalancesProps) {
         testnet={props.account.testnet}
       />
     ],
-    [accountData.balances, handleClick, nativeBalance, props.onClick, trustedAssets.map(stringifyAsset).join(",")]
+    [
+      accountData.balances,
+      handleClick,
+      isAccountActivated,
+      nativeBalance,
+      props.account.testnet,
+      props.compact,
+      props.onClick,
+      trustedAssets
+    ]
   )
 
   return (

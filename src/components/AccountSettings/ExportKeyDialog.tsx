@@ -155,7 +155,7 @@ function ExportKeyDialog(props: Props) {
         }
       />
     ),
-    [props.onClose, props.variant, onBackButtonClick]
+    [props.onClose, props.variant, onBackButtonClick, t]
   )
 
   const backupInfoContent = React.useMemo(
@@ -169,7 +169,7 @@ function ExportKeyDialog(props: Props) {
         </Typography>
       </Box>
     ),
-    []
+    [t]
   )
 
   const exportInfoContent = React.useMemo(
@@ -183,7 +183,7 @@ function ExportKeyDialog(props: Props) {
         </Typography>
       </>
     ),
-    []
+    [t]
   )
 
   return isRevealed && secretKey ? (

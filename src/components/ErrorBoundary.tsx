@@ -64,7 +64,12 @@ export default class ErrorBoundary extends React.Component<Props, State> {
                 <Box style={{ position: "absolute", bottom: 8, left: 0, width: "100%", opacity: 0.5 }}>
                   <Typography align="center" color="textPrimary">
                     {t("error.boundary.contact-us")}{" "}
-                    <a href="mailto:hello@solarwallet.io" style={{ color: "inherit" }} target="_blank">
+                    <a
+                      href="mailto:hello@solarwallet.io"
+                      style={{ color: "inherit" }}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       hello@solarwallet.io
                     </a>
                   </Typography>

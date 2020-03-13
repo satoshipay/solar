@@ -51,7 +51,7 @@ function TransferTransactionStatus(props: TransferTransactionStatusProps) {
               <Paragraph>
                 For more information, visit
                 <br />
-                <a href={props.transaction.more_info_url} target="_blank">
+                <a href={props.transaction.more_info_url} target="_blank" rel="noopener noreferrer">
                   {props.transaction.more_info_url}
                 </a>
               </Paragraph>

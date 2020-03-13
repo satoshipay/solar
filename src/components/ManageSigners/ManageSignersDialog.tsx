@@ -104,7 +104,7 @@ function ManageSignersDialog(props: Props) {
         style={{ marginBottom: 24 }}
       />
     ),
-    [props.onClose, isSmallScreen, isWidthMax450]
+    [isSmallScreen, t, isWidthMax450, props.onClose]
   )
 
   return (

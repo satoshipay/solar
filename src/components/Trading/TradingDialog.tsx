@@ -99,13 +99,22 @@ function TradingDialog(props: TradingDialogProps) {
         </React.Suspense>
       </Carousel>
     ),
-    [dialogActionsRef, primaryAction, selectPrimaryAction, trustlines]
+    [
+      accountData,
+      dialogActionsRef,
+      preselectedAsset,
+      primaryAction,
+      props.account,
+      props.sendTransaction,
+      selectPrimaryAction,
+      trustlines
+    ]
   )
 
   const LinkToManageAssets = React.useMemo(
     () => (
       <Box margin="32px 0 0" textAlign="center">
-        <Typography>This account doesn't use any assets other than Stellar Lumens yet.</Typography>
+        <Typography>This account does not use any assets other than Stellar Lumens yet.</Typography>
         <Portal target={dialogActionsRef.element}>
           <DialogActionsBox>
             <ActionButton

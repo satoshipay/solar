@@ -89,7 +89,19 @@ function AccountHeaderCard(props: Props) {
         </AccountContextMenu>
       </Box>
     ),
-    [props.account, props.onAccountSettings, props.onTrade, props.onWithdraw, settings, showingSettings]
+    [
+      classes.button,
+      classes.menuButton,
+      props.account,
+      props.onAccountSettings,
+      props.onAccountTransactions,
+      props.onDeposit,
+      props.onManageAssets,
+      props.onTrade,
+      props.onWithdraw,
+      settings,
+      showingSettings
+    ]
   )
 
   const badges = React.useMemo(

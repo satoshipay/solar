@@ -102,8 +102,8 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
   const { t } = useTranslation()
 
   const copyIssuerToClipboard = React.useCallback(() => clipboard.copyToClipboard(asset.getIssuer()), [
-    asset.getIssuer(),
-    clipboard.copyToClipboard
+    asset,
+    clipboard
   ])
 
   return (

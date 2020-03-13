@@ -107,7 +107,16 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           />
         </>
       ) : null,
-    [props.account, accounts, accountData, mergeAccountEnabled, setMergeAccountEnabled, setSelectedMergeAccount]
+    [
+      accountData.balances.length,
+      mergeAccountEnabled,
+      toggleMergeAccount,
+      isSmallScreen,
+      t,
+      accounts,
+      props.account.testnet,
+      props.account.publicKey
+    ]
   )
 
   return (

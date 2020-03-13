@@ -43,6 +43,7 @@ interface TransferInitialProps {
 
 function TransferInitial(props: TransferInitialProps) {
   const { account, actions } =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
   const formID = React.useMemo(() => nanoid(), [])
@@ -126,7 +127,7 @@ function TransferInitial(props: TransferInitialProps) {
         actions.submitTransferSelection(assetTransferInfo.transferServer, formValues.asset, formValues.methodID)
       )
     },
-    [actions.submitTransferSelection, assetTransferInfo, formValues]
+    [actions, assetTransferInfo, formValues.asset, formValues.methodID, handleSubmission, props.type]
   )
 
   return (

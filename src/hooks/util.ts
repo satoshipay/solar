@@ -22,30 +22,33 @@ export function useDebouncedState<T>(
   const updateQueueRef = React.useRef<Array<T | ((prev: T) => T)> | undefined>(undefined)
   const [state, setState] = React.useState(initial)
 
-  const debouncedSetState = React.useCallback((update: T | ((prev: T) => T)) => {
-    const applyUpdateQueue = (previous: T, queue: Array<T | ((prev: T) => T)>) => {
-      return queue.reduce<T>(
-        (intermediate, queuedUpdate) =>
-          typeof queuedUpdate === "function" ? (queuedUpdate as ((p: T) => T))(intermediate) : queuedUpdate,
-        previous
-      )
-    }
+  const debouncedSetState = React.useCallback(
+    (update: T | ((prev: T) => T)) => {
+      const applyUpdateQueue = (previous: T, queue: Array<T | ((prev: T) => T)>) => {
+        return queue.reduce<T>(
+          (intermediate, queuedUpdate) =>
+            typeof queuedUpdate === "function" ? (queuedUpdate as ((p: T) => T))(intermediate) : queuedUpdate,
+          previous
+        )
+      }
 
-    if (currentCallGroupTimeoutRef.current) {
-      updateQueueRef.current!.push(update)
-    } else {
-      currentCallGroupTimeoutRef.current = setTimeout(() => {
-        if (updateQueueRef.current) {
-          const queue = updateQueueRef.current
-          setState(prev => applyUpdateQueue(prev, queue))
-        }
-        currentCallGroupTimeoutRef.current = undefined
-        updateQueueRef.current = undefined
-      }, delay)
-      updateQueueRef.current = []
-      setState(update)
-    }
-  }, [])
+      if (currentCallGroupTimeoutRef.current) {
+        updateQueueRef.current!.push(update)
+      } else {
+        currentCallGroupTimeoutRef.current = setTimeout(() => {
+          if (updateQueueRef.current) {
+            const queue = updateQueueRef.current
+            setState(prev => applyUpdateQueue(prev, queue))
+          }
+          currentCallGroupTimeoutRef.current = undefined
+          updateQueueRef.current = undefined
+        }, delay)
+        updateQueueRef.current = []
+        setState(update)
+      }
+    },
+    [delay]
+  )
 
   React.useEffect(() => {
     const onUnmount = () => {
@@ -63,10 +66,13 @@ export function useDeferredState<T>(initial: T, delay: number) {
   const [deferredState, setDeferredState] = React.useState<T>(initial)
   const [state, setState] = React.useState<T>(initial)
 
-  const setDeferred = React.useCallback((update: React.SetStateAction<T>) => {
-    setState(update)
-    setTimeout(() => setDeferredState(update), delay)
-  }, [])
+  const setDeferred = React.useCallback(
+    (update: React.SetStateAction<T>) => {
+      setState(update)
+      setTimeout(() => setDeferredState(update), delay)
+    },
+    [delay]
+  )
 
   return [deferredState, state, setDeferred] as const
 }

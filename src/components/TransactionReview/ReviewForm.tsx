@@ -11,7 +11,6 @@ import { SettingsContext } from "../../context/settings"
 import { RefStateObject } from "../../hooks/userinterface"
 import { renderFormFieldError } from "../../lib/errors"
 import { SignatureRequest } from "../../lib/multisig-service"
-import { createCheapTxID } from "../../lib/transaction"
 import { openLink } from "../../platform/links"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
@@ -40,7 +39,7 @@ interface Props {
 }
 
 function TxConfirmationForm(props: Props) {
-  const { onConfirm = () => undefined } = props
+  const { onConfirm = () => undefined, onClose } = props
 
   const settings = React.useContext(SettingsContext)
   const formID = React.useMemo(() => nanoid(), [])
@@ -61,10 +60,10 @@ function TxConfirmationForm(props: Props) {
     settings.ignoreSignatureRequest(props.signatureRequest.hash)
     setDismissalConfirmationPending(false)
 
-    if (props.onClose) {
-      props.onClose()
+    if (onClose) {
+      onClose()
     }
-  }, [props.signatureRequest])
+  }, [onClose, props.signatureRequest, settings])
 
   const setFormValue = <Key extends keyof FormValues>(key: keyof FormValues, value: FormValues[Key]) => {
     setFormValues(prevValues => ({
@@ -79,7 +78,7 @@ function TxConfirmationForm(props: Props) {
         props.account.testnet ? "testnet" : "public"
       }/tx/${props.transaction.hash().toString("hex")}`
     )
-  }, [createCheapTxID(props.transaction)])
+  }, [props.account.testnet, props.transaction])
 
   const handleTextFieldChange = React.useCallback(event => setFormValue("password", event.target.value), [])
 
@@ -110,7 +109,7 @@ function TxConfirmationForm(props: Props) {
         setLoading(false)
       }
     },
-    [props.account, props.disabled, formValues, onConfirm]
+    [props.disabled, props.account.requiresPassword, formValues, errors, t, onConfirm]
   )
 
   const DismissIcon = React.useMemo(() => <CloseIcon style={{ fontSize: "140%" }} />, [])

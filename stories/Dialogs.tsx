@@ -36,7 +36,7 @@ function DialogContainer(props: DialogContainerProps) {
       )
     }
     createDemoTx().then(tx => setTransaction(tx))
-  }, [])
+  }, [accountData, props.account])
 
   return (
     <>

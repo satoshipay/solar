@@ -79,7 +79,7 @@ export function TransactionReviewDialogBody(props: TransactionReviewDialogBodyPr
         onBack={props.onClose}
       />
     ),
-    [props.account, props.disabled, props.onClose, props.transaction]
+    [getTitle, props.account.testnet, props.onClose, props.transaction]
   )
 
   return (

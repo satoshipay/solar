@@ -147,13 +147,13 @@ const AccountPageContent = React.memo(function AccountPageContent(props: { accou
       transactions: () => router.history.push(routes.account(props.account.id)),
       withdraw: () => router.history.push(routes.withdrawAsset(props.account.id))
     }),
-    [router.history.push, props.account.id]
+    [router.history, props.account.id]
   )
 
   const closeAssetDetails = React.useCallback(() => {
     // We might need to go back to either "balance details" or "add assets"
     router.history.goBack()
-  }, [navigateTo, router.history])
+  }, [router.history])
 
   // Let's memo the AccountHeaderCard as it's pretty expensive to re-render
   const headerCard = React.useMemo(

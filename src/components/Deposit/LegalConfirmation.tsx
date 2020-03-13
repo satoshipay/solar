@@ -46,7 +46,7 @@ function LegalConfirmation(props: Props) {
         </Fade>
       </DialogActionsBox>
     ),
-    [props.onConfirm, props.open]
+    [classes.root, isSmallScreen, props.onConfirm, props.open]
   )
 
   return (

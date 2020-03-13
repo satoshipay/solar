@@ -65,7 +65,7 @@ function SampleWebAuth(props: SampleWebAuthProps) {
         )
         return transaction
       })(),
-    []
+    [WebAuth, horizon, props.accountID, props.issuerID]
   )
 
   return <>{props.children(promise)}</>
