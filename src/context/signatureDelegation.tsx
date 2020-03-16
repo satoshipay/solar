@@ -22,7 +22,7 @@ const SignatureDelegationContext = React.createContext<ContextValue>({
 })
 
 function useSignatureRequestSubscription(multiSignatureServiceURL: string, accounts: Account[]) {
-  const accountIDs = accounts.map(account => account.publicKey)
+  const accountIDs = React.useMemo(() => accounts.map(account => account.publicKey), [accounts])
 
   const { ignoredSignatureRequests } = React.useContext(SettingsContext)
   const subscribersRef = React.useRef<SubscribersState>({ newRequestSubscribers: [] })
