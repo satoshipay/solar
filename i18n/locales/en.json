@@ -290,6 +290,17 @@
         "testnet": "New Testnet Account"
       }
     },
+    "options": {
+      "import": {
+        "label": "Import secret key",
+        "description": "Restore account from backup"
+      },
+      "password": {
+        "label": "Password protection",
+        "protected": "Your secret key will be encrypted",
+        "unprotected": "Your secret key will be unprotected"
+      }
+    },
     "toggle": {
       "password": {
         "textfield": {
@@ -401,14 +412,14 @@
     },
     "info": {
       "backup": {
-        "1": "Please back up your secret key now.",
-        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
+        "title": "Back up your secret key now",
+        "paragraph-1": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore.",
+        "paragraph-2": "Write down the key or print it. Keep it in a safe place and do not share it with anyone."
       },
       "export": {
-        "1": "Your secret key must be stored in a safe place and must not be shared with anyone.",
-        "2": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore."
-      },
-      "secret-key": "Write down the key on paper and store it in a safe place."
+        "paragraph-1": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore.",
+        "paragraph-2": "Write down the key or print it. Keep it in a safe place and do not share it with anyone."
+      }
     },
     "textfield": {
       "password": {

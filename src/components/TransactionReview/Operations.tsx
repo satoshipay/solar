@@ -206,7 +206,8 @@ export function OfferDetailsString(
   t: TFunction
 ) {
   const { amount, buying, price, selling } = props
-  return t("offer-details.string", {
+
+  return t("operations.offer-details.string", {
     amount: formatBalance(amount.toString()),
     buyingCode: buying.code,
     sellingCode: selling.code,

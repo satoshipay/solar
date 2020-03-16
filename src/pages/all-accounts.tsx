@@ -132,8 +132,8 @@ function AllAccountsPage() {
           <AccountList
             accounts={accounts}
             testnet={networkSwitch === "testnet"}
-            onCreatePubnetAccount={() => router.history.push(routes.createAccount(false))}
-            onCreateTestnetAccount={() => router.history.push(routes.createAccount(true))}
+            onCreatePubnetAccount={() => router.history.push(routes.newAccount(false))}
+            onCreateTestnetAccount={() => router.history.push(routes.newAccount(true))}
           />
           <AppNotificationPermission />
         </VerticalLayout>

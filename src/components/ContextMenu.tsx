@@ -6,7 +6,7 @@ export interface AnchorRenderProps {
 
 interface MenuRenderProps {
   anchorEl: HTMLElement | null
-  closeAndCall: (fn: () => void) => () => void
+  closeAndCall: (fn: (() => void) | undefined) => () => void
   open: boolean
   onClose: () => void
 }
@@ -26,10 +26,12 @@ function ContextMenu({ anchor, menu }: Props) {
   }
   const hide = () => setOpenState(false)
 
-  const closeAndCall = (fn: () => void) => {
+  const closeAndCall = (fn?: () => void) => {
     return () => {
       hide()
-      fn()
+      if (fn) {
+        fn()
+      }
     }
   }
 
