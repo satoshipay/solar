@@ -8,7 +8,7 @@ import TextField from "@material-ui/core/TextField"
 
 interface TradingPriceProps {
   defaultPrice?: string
-  inputError?: Error
+  inputError?: string
   manualPrice?: string
   onBlur?: () => void
   onChange: (event: React.ChangeEvent) => void
@@ -53,7 +53,7 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
       InputProps={{ endAdornment }}
       inputRef={ref}
       error={Boolean(props.inputError)}
-      label={props.inputError ? props.inputError.message : "Price (limit)"}
+      label={props.inputError ? props.inputError : "Price (limit)"}
       onBlur={props.onBlur}
       onChange={props.onChange}
       onFocus={props.selectOnFocus ? event => event.target.select() : undefined}

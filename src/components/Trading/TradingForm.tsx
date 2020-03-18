@@ -410,7 +410,7 @@ function TradingForm(props: Props) {
               as={TradingPrice}
               control={control}
               defaultPrice={!formState.touched.manualPrice ? defaultPrice : undefined}
-              inputError={errors.manualPrice && new Error(errors.manualPrice.message)}
+              inputError={errors.manualPrice && errors.manualPrice.message}
               name="manualPrice"
               onSetPriceDenotedIn={setPriceMode}
               price={effectivePrice}
