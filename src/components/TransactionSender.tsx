@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 import React from "react"
 import { Translation } from "react-i18next"
-import { Server, Transaction } from "stellar-sdk"
+import { Networks, Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "../context/accounts"
 import { SettingsContext, SettingsContextType } from "../context/settings"
@@ -206,16 +206,21 @@ class TransactionSender extends React.Component<Props, State> {
 
   submitTransactionToHorizon = async (signedTransaction: Transaction) => {
     const { netWorker } = await workers
+
+    const network = this.props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
     const txEnvelopeXdr = signedTransaction
       .toEnvelope()
       .toXDR()
       .toString("base64")
-    const promise = netWorker.submitTransaction(String(this.props.horizon.serverURL), txEnvelopeXdr).then(response => {
-      if (response.status !== 200) {
-        throw explainSubmissionErrorResponse(response, this.props.t)
-      }
-      return response
-    })
+
+    const promise = netWorker
+      .submitTransaction(String(this.props.horizon.serverURL), txEnvelopeXdr, network)
+      .then(response => {
+        if (response.status !== 200) {
+          throw explainSubmissionErrorResponse(response, this.props.t)
+        }
+        return response
+      })
 
     this.setSubmissionPromise(promise)
     this.setState({ submissionType: SubmissionType.default })

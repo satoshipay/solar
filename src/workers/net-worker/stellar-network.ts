@@ -1,14 +1,21 @@
 import "eventsource"
 import throttle from "lodash.throttle"
-import { flatMap, map, multicast, Observable } from "observable-fns"
+import { filter, flatMap, map, merge, multicast, Observable } from "observable-fns"
 import PromiseQueue from "p-queue"
 import qs from "qs"
-import { Asset, Horizon, ServerApi } from "stellar-sdk"
+import { Asset, Horizon, Networks, ServerApi, Transaction } from "stellar-sdk"
 import pkg from "../../../package.json"
 import { Cancellation, CustomError } from "../../lib/errors"
 import { parseAssetID } from "../../lib/stellar"
 import { max } from "../../lib/strings"
 import { createReconnectingSSE } from "../_util/event-source"
+import {
+  handleSubmittedTransaction,
+  newOptimisticAccountUpdates,
+  optimisticallyUpdateAccountData,
+  removeStaleOptimisticUpdates,
+  OptimisticAccountUpdate
+} from "./optimistic-updates/index"
 import { parseJSONResponse } from "../_util/rest"
 import { resetSubscriptions, subscribeToUpdatesAndPoll } from "../_util/subscription"
 import { ServiceID } from "./errors"
@@ -102,12 +109,16 @@ export function resetAllSubscriptions() {
   resetSubscriptions()
 }
 
-export async function submitTransaction(horizonURL: string, txEnvelopeXdr: string) {
+export async function submitTransaction(horizonURL: string, txEnvelopeXdr: string, network: Networks) {
   const url = new URL(`/transactions`, horizonURL)
 
   const response = await fetch(String(url) + "?" + qs.stringify({ tx: txEnvelopeXdr }), {
     method: "POST"
   })
+
+  if (response.status === 200) {
+    handleSubmittedTransaction(horizonURL, new Transaction(txEnvelopeXdr, network))
+  }
 
   return {
     status: response.status,
@@ -285,7 +296,22 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
         return Boolean(update && (!latestSnapshot || createSnapshot(update) !== latestSnapshot))
       },
       subscribeToUpdates() {
-        return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID)))
+        const handleNewOptimisticUpdate = (newOptimisticUpdate: OptimisticAccountUpdate) => {
+          const accountData = accountDataCache.get(cacheKey)
+
+          if (newOptimisticUpdate.effectsAccountID === accountID && newOptimisticUpdate.horizonURL === horizonURL) {
+            return accountData ? optimisticallyUpdateAccountData(horizonURL, accountData) : accountData
+          } else {
+            return accountData
+          }
+        }
+        return merge(
+          subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID))),
+          newOptimisticAccountUpdates().pipe(
+            map(handleNewOptimisticUpdate),
+            filter(accountData => Boolean(accountData))
+          )
+        )
       }
     },
     serviceID
@@ -503,7 +529,10 @@ export interface PaginationOptions {
   order?: "asc" | "desc"
 }
 
-export async function fetchAccountData(horizonURL: string, accountID: string) {
+export async function fetchAccountData(
+  horizonURL: string,
+  accountID: string
+): Promise<Horizon.AccountResponse & { home_domain: string | undefined } | null> {
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 0 })
 
@@ -511,7 +540,8 @@ export async function fetchAccountData(horizonURL: string, accountID: string) {
     return null
   }
 
-  return parseJSONResponse<Horizon.AccountResponse & { home_domain: string | undefined }>(response)
+  const accountData = await parseJSONResponse<Horizon.AccountResponse & { home_domain: string | undefined }>(response)
+  return optimisticallyUpdateAccountData(horizonURL, accountData)
 }
 
 export async function fetchLatestAccountEffect(horizonURL: string, accountID: string) {
@@ -570,7 +600,10 @@ export async function fetchAccountTransactions(
     }
   }
 
-  return parseJSONResponse<CollectionPage<Horizon.TransactionResponse>>(response)
+  const collection = await parseJSONResponse<CollectionPage<Horizon.TransactionResponse>>(response)
+
+  removeStaleOptimisticUpdates(horizonURL, collection._embedded.records.map(record => record.hash))
+  return collection
 }
 
 export async function fetchAccountOpenOrders(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
