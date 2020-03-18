@@ -88,7 +88,7 @@ export function SettingsProvider(props: Props) {
     Promise.all([loadIgnoredSignatureRequestHashes(), loadSettings()])
       .then(([loadedSignatureReqHashes, loadedSettings]) => {
         setIgnoredSignatureRequests(loadedSignatureReqHashes)
-        setSettings({ ...settings, ...loadedSettings, initialized: true })
+        setSettings(prev => ({ ...prev, ...loadedSettings, initialized: true }))
       })
       .catch(trackError)
 
@@ -100,7 +100,7 @@ export function SettingsProvider(props: Props) {
     // Can't really cancel loading the settings
     const unsubscribe = () => undefined
     return unsubscribe
-  }, [settings])
+  }, [])
 
   const ignoreSignatureRequest = (signatureRequestHash: string) => {
     if (ignoredSignatureRequests.indexOf(signatureRequestHash) === -1) {
