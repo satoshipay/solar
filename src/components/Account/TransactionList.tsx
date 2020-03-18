@@ -426,7 +426,7 @@ const LoadMoreTransactionsListItem = React.memo(function LoadMoreTransactionsLis
           style={{ margin: "0 auto", paddingLeft: 16, paddingRight: 16 }}
           variant="text"
         >
-          {t("transaction-list.load-more.label")}
+          {t("account.transaction-list.load-more.label")}
         </ActionButton>
       </ListItemText>
     </ListItem>

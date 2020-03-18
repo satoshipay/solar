@@ -93,7 +93,7 @@ function AccountTransactions(props: { account: Account }) {
             loadingMoreTransactions={moreTxsLoadingState.type === "pending"}
             olderTransactionsAvailable={recentTxs.olderTransactionsAvailable}
             onFetchMoreTransactions={handleFetchMoreTransactions}
-            title={t("transaction-list.title")}
+            title={t("account.transaction-list.title")}
             testnet={account.testnet}
             transactions={recentTxs.transactions}
           />
