@@ -38,7 +38,7 @@ const useAccountSettingsItemStyles = makeStyles({
     "&$button:hover": {
       backgroundColor: isMobileDevice ? "#FFFFFF" : "rgb(232, 232, 232)"
     },
-    "&:not(:first-child)": {
+    "&:not(:first-child):not($subItem)": {
       borderTop: "1px solid rgba(230, 230, 230, 1.0)"
     }
   },
@@ -47,6 +47,9 @@ const useAccountSettingsItemStyles = makeStyles({
   },
   rotateRight: {
     transform: "rotate(90deg)"
+  },
+  subItem: {
+    // only used in conjunction with settingsItem
   }
 })
 
@@ -56,6 +59,7 @@ interface AccountSettingsItemProps {
   disabled?: boolean
   icon: React.ReactElement | null | undefined
   onClick?: () => void
+  subItem?: boolean
 }
 
 const AccountSettingsItem = React.forwardRef(function AccountSettingsItem(
@@ -64,7 +68,9 @@ const AccountSettingsItem = React.forwardRef(function AccountSettingsItem(
 ) {
   const classes = useAccountSettingsItemStyles()
   const isButton = Boolean(props.onClick)
-  const className = `${classes.settingsItem} ${isButton ? classes.button : ""}`
+  const className = [classes.settingsItem, isButton ? classes.button : "", props.subItem ? classes.subItem : ""].join(
+    " "
+  )
 
   return (
     <ListItem
