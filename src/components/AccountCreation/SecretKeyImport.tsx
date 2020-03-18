@@ -51,7 +51,7 @@ function SecretKeyImport(props: SecretKeyImportProps) {
           style={{ marginLeft: 8 }}
         />
       </AccountSettingsItem>
-      <AccountSettingsItem caret="hide" icon={null}>
+      <AccountSettingsItem caret="hide" icon={null} subItem>
         <ListItemText style={{ marginLeft: 12, marginRight: 56, marginTop: -8 }}>
           <TextField
             error={Boolean(props.error)}
