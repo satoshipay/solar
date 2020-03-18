@@ -1,0 +1,50 @@
+{
+  "actions": {
+    "submit": "Place order"
+  },
+  "advanced": {
+    "header": "Advanced"
+  },
+  "header": "",
+  "inputs": {
+    "estimated-costs": {
+      "label": {
+        "buy": "Estimated costs",
+        "sell": "Estimated return"
+      }
+    },
+    "primary-amount": {
+      "label": {
+        "buy": "Amount to buy",
+        "sell": "Amount to sell"
+      },
+      "max-button": {
+        "label": "Max"
+      },
+      "placeholder": "Max. {{amount}}"
+    },
+    "primary-asset-selector": {
+      "label": {
+        "buy": "You buy",
+        "sell": "You sell"
+      }
+    },
+    "secondary-asset-selector": {
+      "label": {
+        "buy": "Spend",
+        "sell": "Receive"
+      }
+    }
+  },
+  "validation": {
+    "primary-amount-missing": "No amount specified.",
+    "primary-asset-missing": "No asset selected.",
+    "secondary-asset-missing": "No asset selected.",
+    "invalid-amount": "Invalid amount specified.",
+    "invalid-price": "Invalid price"
+  },
+  "warning": {
+    "title": "Warning",
+    "message": "The spread between buying and selling price is about {{spread}}%."
+  }
+}

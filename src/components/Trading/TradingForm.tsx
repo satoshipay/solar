@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useForm, Controller } from "react-hook-form"
 import { Asset, Horizon, Transaction, Operation } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
@@ -19,6 +20,7 @@ import { useHorizon } from "../../hooks/stellar"
 import { useLiveOrderbook } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
+import { CustomError } from "../../lib/errors"
 import { calculateSpread, FixedOrderbookRecord } from "../../lib/orderbook"
 import { createTransaction } from "../../lib/transaction"
 import { balancelineToAsset, getAccountMinimumBalance } from "../../lib/stellar"
@@ -179,6 +181,7 @@ function TradingForm(props: Props) {
   const isSmallScreen = useIsMobile()
   const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
   const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
+  const { t } = useTranslation()
 
   const [expanded, setExpanded] = React.useState(false)
   const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
@@ -229,7 +232,11 @@ function TradingForm(props: Props) {
   const submitForm = React.useCallback(async () => {
     try {
       if (!primaryAsset) {
-        throw Error("Invariant violation: Should not be able to submit form without having selected the primary asset.")
+        throw CustomError(
+          "InvariantViolationError",
+          "Invariant violation: Should not be able to submit form without having selected the primary asset.",
+          { message: "Should not be able to submit form without having selected the primary asset." }
+        )
       }
 
       const tx = await createTransaction(
@@ -301,10 +308,16 @@ function TradingForm(props: Props) {
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
             control={control}
             inputError={errors.primaryAsset && errors.primaryAsset.message}
-            label={props.primaryAction === "buy" ? "You buy" : "You sell"}
+            label={
+              props.primaryAction === "buy"
+                ? t("trading.inputs.primary-asset-selector.label.buy")
+                : t("trading.inputs.primary-asset-selector.label.sell")
+            }
             minWidth={75}
             name="primaryAsset"
-            rules={{ required: "No asset selected" }}
+            rules={{
+              required: t<string>("trading.validation.primary-asset-missing")
+            }}
             showXLM
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
             testnet={props.account.testnet}
@@ -314,14 +327,14 @@ function TradingForm(props: Props) {
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
             name="primaryAmountString"
             inputRef={register({
-              required: "No amount specified!",
+              required: t<string>("trading.validation.primary-amount-missing"),
               validate: value => {
                 const amountInvalid =
                   primaryAmount.lt(0) ||
                   (value.length > 0 && primaryAmount.eq(0)) ||
                   (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(spendablePrimaryBalance)) ||
                   (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(spendableSecondaryBalance))
-                return !amountInvalid || "Invalid amount specified!"
+                return !amountInvalid || t<string>("trading.validation.invalid-amount")
               }
             })}
             error={Boolean(errors.primaryAmountString)}
@@ -343,7 +356,7 @@ function TradingForm(props: Props) {
                       onClick={setPrimaryAmountToMax}
                       style={{ boxShadow: "none", fontWeight: 400 }}
                     >
-                      Max
+                      {t("trading.inputs.primary-amount.max-button.label")}
                     </Button>
                   </InputAdornment>
                 )
@@ -352,10 +365,16 @@ function TradingForm(props: Props) {
               errors.primaryAmountString && errors.primaryAmountString.message
                 ? errors.primaryAmountString.message
                 : props.primaryAction === "buy"
-                ? "Amount to buy"
-                : "Amount to sell"
+                ? t("trading.inputs.primary-amount.label.buy")
+                : t("trading.inputs.primary-amount.label.sell")
             }
-            placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
+            placeholder={t(
+              "trading.inputs.primary-amount.placeholder",
+              `Max. ${bigNumberToInputValue(maxPrimaryAmount)}`,
+              {
+                amount: bigNumberToInputValue(maxPrimaryAmount)
+              }
+            )}
             required
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
             type="number"
@@ -366,10 +385,14 @@ function TradingForm(props: Props) {
             as={AssetSelector}
             assets={assets}
             control={control}
-            label={props.primaryAction === "buy" ? "Spend" : "Receive"}
+            label={
+              props.primaryAction === "buy"
+                ? t("trading.inputs.secondary-asset-selector.label.buy")
+                : t("trading.inputs.secondary-asset-selector.label.sell")
+            }
             minWidth={75}
             name="secondaryAsset"
-            rules={{ required: "No asset selected." }}
+            rules={{ required: t<string>("trading.validation.secondary-asset-missing") }}
             showXLM
             style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
             testnet={props.account.testnet}
@@ -380,7 +403,11 @@ function TradingForm(props: Props) {
             inputProps={{
               style: { height: 27 }
             }}
-            label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
+            label={
+              props.primaryAction === "buy"
+                ? t("trading.inputs.estimated-costs.label.buy")
+                : t("trading.inputs.estimated-costs.label.sell")
+            }
             placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
             inputMode="decimal"
@@ -402,7 +429,7 @@ function TradingForm(props: Props) {
             expandIcon={<ExpandMoreIcon />}
           >
             <Typography align="center" style={{ flexGrow: 1 }}>
-              Advanced
+              {t("trading.advanced.header")}
             </Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.expansionPanelDetails}>
@@ -416,7 +443,7 @@ function TradingForm(props: Props) {
               price={effectivePrice}
               priceDenotedIn={priceMode}
               primaryAsset={primaryAsset}
-              rules={{ validate: value => isValidAmount(value) || "Invalid price" }}
+              rules={{ validate: value => isValidAmount(value) || t<string>("trading.validation.invalid-price") }}
               secondaryAsset={secondaryAsset}
               selectOnFocus
               style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
@@ -426,15 +453,19 @@ function TradingForm(props: Props) {
         </ExpansionPanel>
         {relativeSpread >= 0.015 ? (
           <Box margin="32px 0 0" padding="8px 12px" style={{ background: warningColor }}>
-            <b>Warning</b>
+            <b>{t("trading.warning.title")}</b>
             <br />
-            The spread between buying and selling price is about {(relativeSpread * 100).toFixed(1)}%.
+            {t(
+              "trading.warning.message",
+              `The spread between buying and selling price is about ${(relativeSpread * 100).toFixed(1)}%.`,
+              { spread: (relativeSpread * 100).toFixed(1) }
+            )}
           </Box>
         ) : null}
         <Portal target={props.dialogActionsRef.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
             <ActionButton icon={<GavelIcon />} onClick={handleSubmit(submitForm)} type="primary">
-              Place order
+              {t("trading.actions.submit")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>
