@@ -224,7 +224,7 @@ function TradingForm(props: Props) {
   }
 
   const setPrimaryAmountToMax = () => {
-    form.setValue("primaryAmount", maxPrimaryAmount.toFixed(7))
+    form.setValue("primaryAmountString", maxPrimaryAmount.toFixed(7))
   }
 
   const submitForm = React.useCallback(async () => {
