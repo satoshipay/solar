@@ -11,7 +11,7 @@ interface TradingPriceProps {
   inputError?: string
   manualPrice?: string
   onBlur?: () => void
-  onChange: (event: React.ChangeEvent) => void
+  onChange?: (event: React.ChangeEvent) => void
   onSetPriceDenotedIn: (denotedIn: "primary" | "secondary") => void
   price: BigNumber
   priceDenotedIn: "primary" | "secondary"

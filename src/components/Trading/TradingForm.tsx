@@ -438,19 +438,22 @@ function TradingForm(props: Props) {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.expansionPanelDetails}>
             <Controller
-              as={TradingPrice}
+              as={
+                <TradingPrice
+                  defaultPrice={!form.formState.touched.manualPrice ? defaultPrice : undefined}
+                  inputError={form.errors.manualPrice && form.errors.manualPrice.message}
+                  onSetPriceDenotedIn={setPriceMode}
+                  price={effectivePrice}
+                  priceDenotedIn={priceMode}
+                  primaryAsset={primaryAsset}
+                  secondaryAsset={secondaryAsset}
+                  selectOnFocus
+                  style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
+                />
+              }
               control={form.control}
-              defaultPrice={!form.formState.touched.manualPrice ? defaultPrice : undefined}
-              inputError={form.errors.manualPrice && form.errors.manualPrice.message}
               name="manualPrice"
-              onSetPriceDenotedIn={setPriceMode}
-              price={effectivePrice}
-              priceDenotedIn={priceMode}
-              primaryAsset={primaryAsset}
               rules={{ validate: value => isValidAmount(value) || t<string>("trading.validation.invalid-price") }}
-              secondaryAsset={secondaryAsset}
-              selectOnFocus
-              style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
               valueName="manualPrice"
             />
           </ExpansionPanelDetails>
