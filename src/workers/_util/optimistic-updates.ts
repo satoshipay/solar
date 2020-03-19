@@ -1,21 +1,25 @@
 // tslint:disable member-ordering
 import { Observable, Subject } from "observable-fns"
-import { Horizon } from "stellar-sdk"
+import { Horizon, ServerApi } from "stellar-sdk"
 
-export interface OptimisticUpdate<BaseDataT> {
-  apply<T extends BaseDataT>(base: T): T
+export interface OptimisticUpdate<T> {
+  apply(base: T): T
   effectsAccountID: string
   horizonURL: string
   title: string
   transactionHash: string
 }
 
-export type OptimisticAccountUpdate = OptimisticUpdate<Horizon.AccountResponse>
-export type OptimisticOfferUpdate = OptimisticUpdate<Horizon.ManageOfferOperationResponse>
+export type OptimisticAccountUpdate = OptimisticUpdate<Horizon.AccountResponse & { home_domain?: string }>
+export type OptimisticOfferUpdate = OptimisticUpdate<ServerApi.OfferRecord[]>
 
 const createAccountCacheKeyByFilter = (horizonURL: string, accountID: string) => `${horizonURL}/accounts/${accountID}`
 const createAccountCacheKey = (update: OptimisticAccountUpdate) =>
   createAccountCacheKeyByFilter(update.horizonURL, update.effectsAccountID)
+
+const createOfferCacheKeyByFilter = createAccountCacheKeyByFilter
+const createOfferCacheKey = (update: OptimisticOfferUpdate) =>
+  createOfferCacheKeyByFilter(update.horizonURL, update.effectsAccountID)
 
 function OptimisticUpdateCache<Update extends OptimisticUpdate<any>, FilterArgs extends any[]>(
   createCacheKey: (update: Update) => string,
@@ -59,3 +63,4 @@ function OptimisticUpdateCache<Update extends OptimisticUpdate<any>, FilterArgs 
 }
 
 export const accountDataUpdates = OptimisticUpdateCache(createAccountCacheKey, createAccountCacheKeyByFilter)
+export const offerUpdates = OptimisticUpdateCache(createOfferCacheKey, createOfferCacheKeyByFilter)
