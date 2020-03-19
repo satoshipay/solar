@@ -10,11 +10,14 @@ import { parseAssetID } from "../../lib/stellar"
 import { max } from "../../lib/strings"
 import { createReconnectingSSE } from "../_util/event-source"
 import {
+  accountDataUpdates,
+  offerUpdates,
   handleSubmittedTransaction,
-  newOptimisticAccountUpdates,
   optimisticallyUpdateAccountData,
+  optimisticallyUpdateOffers,
   removeStaleOptimisticUpdates,
-  OptimisticAccountUpdate
+  OptimisticAccountUpdate,
+  OptimisticOfferUpdate
 } from "./optimistic-updates/index"
 import { parseJSONResponse } from "../_util/rest"
 import { resetSubscriptions, subscribeToUpdatesAndPoll } from "../_util/subscription"
@@ -168,7 +171,10 @@ async function waitForAccountData(horizonURL: string, accountID: string, shouldC
   } else {
     const justStarted = waitForAccountDataUncached(horizonURL, accountID, shouldCancel)
     accountDataWaitingCache.set(cacheKey, justStarted)
-    justStarted.then(() => accountDataWaitingCache.delete(cacheKey), () => accountDataWaitingCache.delete(cacheKey))
+    justStarted.then(
+      () => accountDataWaitingCache.delete(cacheKey),
+      () => accountDataWaitingCache.delete(cacheKey)
+    )
     return justStarted
   }
 }
@@ -307,7 +313,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
         }
         return merge(
           subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID))),
-          newOptimisticAccountUpdates().pipe(
+          accountDataUpdates.observe().pipe(
             map(handleNewOptimisticUpdate),
             filter(accountData => Boolean(accountData))
           )
@@ -387,10 +393,12 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
   const serviceID = getServiceID(horizonURL)
 
   let latestCursor: string | undefined
-  let latestSetEmpty = false
+  let latestSet: ServerApi.OfferRecord[] = []
 
   const fetchUpdate = async () => {
-    const page = await fetchAccountOpenOrders(horizonURL, accountID, { cursor: latestCursor })
+    // Don't use latest cursor as we want to fetch all open orders
+    // (otherwise we could not handle order deletions)
+    const page = await fetchAccountOpenOrders(horizonURL, accountID)
     return page._embedded.records
   }
 
@@ -398,11 +406,14 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
     {
       async applyUpdate(update) {
         if (update.length > 0) {
-          const latestID = max(update.map(offer => String(offer.id)), "0")
+          const latestID = max(
+            update.map(offer => String(offer.id)),
+            "0"
+          )
           latestCursor = update.find(offer => String(offer.id) === latestID)!.paging_token
         }
 
-        latestSetEmpty = update.length === 0
+        latestSet = update
         return update
       },
       fetchUpdate,
@@ -413,15 +424,30 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
           latestCursor = records[0].paging_token
         }
 
+        latestSet = records
         return records
       },
       shouldApplyUpdate(update) {
-        const latestUpdateCursor = max(update.map(record => record.paging_token), "0")
+        const latestUpdateCursor = max(
+          update.map(record => record.paging_token),
+          "0"
+        )
         const emptySet = !latestUpdateCursor
+        const latestSetEmpty = latestSet.length === 0
         return emptySet !== latestSetEmpty || (!emptySet && latestUpdateCursor !== latestCursor)
       },
       subscribeToUpdates() {
-        return subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate()))
+        const handleNewOptimisticUpdate = (newOptimisticUpdate: OptimisticOfferUpdate) => {
+          if (newOptimisticUpdate.effectsAccountID === accountID && newOptimisticUpdate.horizonURL === horizonURL) {
+            return optimisticallyUpdateOffers(horizonURL, accountID, latestSet)
+          } else {
+            return latestSet
+          }
+        }
+        return merge(
+          subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate())),
+          offerUpdates.observe().pipe(map(handleNewOptimisticUpdate))
+        )
       }
     },
     serviceID
@@ -532,7 +558,7 @@ export interface PaginationOptions {
 export async function fetchAccountData(
   horizonURL: string,
   accountID: string
-): Promise<Horizon.AccountResponse & { home_domain: string | undefined } | null> {
+): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 0 })
 
@@ -602,7 +628,10 @@ export async function fetchAccountTransactions(
 
   const collection = await parseJSONResponse<CollectionPage<Horizon.TransactionResponse>>(response)
 
-  removeStaleOptimisticUpdates(horizonURL, collection._embedded.records.map(record => record.hash))
+  removeStaleOptimisticUpdates(
+    horizonURL,
+    collection._embedded.records.map(record => record.hash)
+  )
   return collection
 }
 

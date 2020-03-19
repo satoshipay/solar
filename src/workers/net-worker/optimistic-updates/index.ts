@@ -1,47 +1,51 @@
-import { Horizon, Operation, Transaction } from "stellar-sdk"
+import { Horizon, Operation, ServerApi, Transaction } from "stellar-sdk"
 import {
-  addAccountUpdates,
-  getAccountUpdates,
-  newOptimisticAccountUpdates,
-  removeStaleAccountUpdates,
+  accountDataUpdates,
+  offerUpdates,
   OptimisticAccountUpdate,
-  OptimisticUpdate
+  OptimisticOfferUpdate
 } from "../../_util/optimistic-updates"
 import handleChangeTrust from "./change-trust"
+import handleManageOffer from "./manage-offer"
 import handleSetOptions from "./set-options"
 
-export { OptimisticAccountUpdate, newOptimisticAccountUpdates }
+export { accountDataUpdates, offerUpdates, OptimisticAccountUpdate, OptimisticOfferUpdate }
 
-function fromOperation(
-  horizonURL: string,
-  operation: Operation,
-  transaction: Transaction
-): Array<OptimisticUpdate<Horizon.AccountResponse>> {
+function ingestOperation(horizonURL: string, operation: Operation, transaction: Transaction) {
   if (operation.type === "changeTrust") {
-    return handleChangeTrust(horizonURL, operation, transaction)
+    accountDataUpdates.addUpdates(handleChangeTrust(horizonURL, operation, transaction))
   } else if (operation.type === "setOptions") {
-    return handleSetOptions(horizonURL, operation, transaction)
-  } else {
-    return []
+    accountDataUpdates.addUpdates(handleSetOptions(horizonURL, operation, transaction))
+  } else if (operation.type === "manageBuyOffer" || operation.type === "manageSellOffer") {
+    offerUpdates.addUpdates(handleManageOffer(horizonURL, operation, transaction))
   }
 }
 
 export function handleSubmittedTransaction(horizonURL: string, transaction: Transaction) {
   for (const operation of transaction.operations) {
-    const optimisticUpdates = fromOperation(horizonURL, operation, transaction)
-    addAccountUpdates(optimisticUpdates)
+    ingestOperation(horizonURL, operation, transaction)
   }
 }
 
-export function optimisticallyUpdateAccountData<AccountData extends Horizon.AccountResponse>(
+export function optimisticallyUpdateAccountData(
   horizonURL: string,
-  accountData: AccountData
-): AccountData {
-  const optimisticUpdates = getAccountUpdates(horizonURL, accountData.account_id)
-
+  accountData: Horizon.AccountResponse
+): Horizon.AccountResponse {
+  const optimisticUpdates = accountDataUpdates.getUpdates(horizonURL, accountData.account_id)
   return optimisticUpdates.reduce((updatedAccountData, update) => update.apply(updatedAccountData), accountData)
 }
 
+export function optimisticallyUpdateOffers(
+  horizonURL: string,
+  accountID: string,
+  openOffers: ServerApi.OfferRecord[]
+): ServerApi.OfferRecord[] {
+  const optimisticUpdates = offerUpdates.getUpdates(horizonURL, accountID)
+  const updated = optimisticUpdates.reduce((updatedOffers, update) => update.apply(updatedOffers), openOffers)
+  return updated
+}
+
 export function removeStaleOptimisticUpdates(horizonURL: string, latestTransactionHashs: string[]) {
-  removeStaleAccountUpdates(horizonURL, latestTransactionHashs)
+  accountDataUpdates.removeStaleUpdates(horizonURL, latestTransactionHashs)
+  offerUpdates.removeStaleUpdates(horizonURL, latestTransactionHashs)
 }

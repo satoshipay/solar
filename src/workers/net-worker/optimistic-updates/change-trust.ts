@@ -1,15 +1,15 @@
 import BigNumber from "big.js"
 import { Horizon, Operation, Transaction } from "stellar-sdk"
 import { balancelineToAsset } from "../../../lib/stellar"
-import { OptimisticUpdate } from "../../_util/optimistic-updates"
+import { OptimisticAccountUpdate } from "../../_util/optimistic-updates"
 
 function addTrustline(
   horizonURL: string,
   operation: Operation.ChangeTrust,
   transaction: Transaction
-): OptimisticUpdate<Horizon.AccountResponse> {
+): OptimisticAccountUpdate {
   return {
-    apply<T extends Horizon.AccountResponse>(prevAccountData: T): T {
+    apply(prevAccountData) {
       const newBalance: Horizon.BalanceLineAsset = {
         asset_code: operation.line.code,
         asset_issuer: operation.line.issuer,
@@ -39,7 +39,7 @@ function removeTrustline(
   horizonURL: string,
   operation: Operation.ChangeTrust,
   transaction: Transaction
-): OptimisticUpdate<Horizon.AccountResponse> {
+): OptimisticAccountUpdate {
   return {
     apply(prevAccountData) {
       return {
@@ -58,7 +58,7 @@ function changeTrust(
   horizonURL: string,
   operation: Operation.ChangeTrust,
   transaction: Transaction
-): Array<OptimisticUpdate<Horizon.AccountResponse>> {
+): OptimisticAccountUpdate[] {
   if (BigNumber(operation.limit).eq(0)) {
     return [removeTrustline(horizonURL, operation, transaction)]
   } else {
