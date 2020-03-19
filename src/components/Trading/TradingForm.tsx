@@ -313,7 +313,6 @@ function TradingForm(props: Props) {
                 }
                 minWidth={75}
                 showXLM
-                onChange={() => undefined}
                 style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
                 testnet={props.account.testnet}
                 value={primaryAsset}
@@ -394,7 +393,6 @@ function TradingForm(props: Props) {
                 }
                 minWidth={75}
                 showXLM
-                onChange={() => undefined}
                 style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
                 testnet={props.account.testnet}
                 value={secondaryAsset}

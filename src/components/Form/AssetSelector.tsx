@@ -80,7 +80,7 @@ interface AssetSelectorProps {
   margin?: TextFieldProps["margin"]
   minWidth?: number | string
   name?: string
-  onChange: (asset: Asset) => void
+  onChange?: (asset: Asset) => void
   showXLM?: boolean
   style?: React.CSSProperties
   testnet: boolean
@@ -106,7 +106,9 @@ function AssetSelector(props: AssetSelectorProps) {
       const matchingAsset = assets.find(asset => asset.equals(child.props.asset))
 
       if (matchingAsset) {
-        onChange(matchingAsset)
+        if (onChange) {
+          onChange(matchingAsset)
+        }
       } else {
         // tslint:disable-next-line no-console
         console.error(
