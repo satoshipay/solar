@@ -73,7 +73,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     label: t("payment.memo-metadata.label.default"),
     placeholder: t("payment.memo-metadata.placeholder.optional")
   })
-  const { control, errors, getValues, handleSubmit, register, setValue, watch } = useForm<PaymentFormValues>({
+  const form = useForm<PaymentFormValues>({
     defaultValues: {
       amount: "",
       asset: Asset.native(),
@@ -83,7 +83,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     }
   })
 
-  const formValues = watch()
+  const formValues = form.watch()
 
   // FIXME: Pass no. of open offers to getAccountMinimumBalance()
   const spendableBalance = getSpendableBalance(
@@ -104,7 +104,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
 
     if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
       const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
-      setValue("memoType", acceptedMemoType === "MEMO_ID" ? "id" : "text")
+      form.setValue("memoType", acceptedMemoType === "MEMO_ID" ? "id" : "text")
       setMemoMetadata({
         label:
           acceptedMemoType === "MEMO_ID" ? t("payment.memo-metadata.label.id") : t("payment.memo-metadata.label.text"),
@@ -116,16 +116,16 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         placeholder: t("payment.memo-metadata.placeholder.optional")
       })
     }
-  }, [formValues.destination, formValues.memoType, matchingWellknownAccount, setValue, t, wellknownAccounts])
+  }, [form, formValues.destination, formValues.memoType, matchingWellknownAccount, t, wellknownAccounts])
 
   const handleFormSubmission = () => {
-    props.onSubmit(getValues(), spendableBalance, matchingWellknownAccount)
+    props.onSubmit(form.getValues(), spendableBalance, matchingWellknownAccount)
   }
 
   const handleQRScan = React.useCallback(
     (scanResult: string) => {
       const [destination, query] = scanResult.split("?")
-      setValue("destination", destination)
+      form.setValue("destination", destination)
 
       if (!query) {
         return
@@ -135,11 +135,11 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       const memoValue = searchParams.get("dt")
 
       if (memoValue) {
-        setValue("memoType", "id")
-        setValue("memoValue", memoValue)
+        form.setValue("memoType", "id")
+        form.setValue("memoValue", memoValue)
       }
     },
-    [setValue]
+    [form]
   )
 
   const qrReaderAdornment = React.useMemo(
@@ -155,7 +155,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     () => (
       <TextField
         autoFocus={process.env.PLATFORM !== "ios"}
-        error={Boolean(errors.destination)}
+        error={Boolean(form.errors.destination)}
         fullWidth
         inputProps={{
           style: { textOverflow: "ellipsis" }
@@ -163,19 +163,19 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         InputProps={{
           endAdornment: qrReaderAdornment
         }}
-        inputRef={register({
+        inputRef={form.register({
           required: t<string>("payment.validation.no-destination"),
           validate: value =>
             isPublicKey(value) || isStellarAddress(value) || t<string>("payment.validation.invalid-destination")
         })}
-        label={errors.destination ? errors.destination.message : t("payment.inputs.destination.label")}
+        label={form.errors.destination ? form.errors.destination.message : t("payment.inputs.destination.label")}
         margin="normal"
         name="destination"
-        onChange={event => setValue("destination", event.target.value.trim())}
+        onChange={event => form.setValue("destination", event.target.value.trim())}
         placeholder={t("payment.inputs.destination.placeholder")}
       />
     ),
-    [errors.destination, qrReaderAdornment, register, setValue, t]
+    [form, qrReaderAdornment, t]
   )
 
   const assetSelector = React.useMemo(
@@ -190,24 +190,24 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
             value={formValues.asset}
           />
         }
-        control={control}
+        control={form.control}
         name="asset"
       />
     ),
-    [control, formValues.asset, props.accountData.balances, props.testnet]
+    [form, formValues.asset, props.accountData.balances, props.testnet]
   )
 
   const priceInput = React.useMemo(
     () => (
       <PriceInput
         assetCode={assetSelector}
-        error={Boolean(errors.amount)}
-        inputRef={register({
+        error={Boolean(form.errors.amount)}
+        inputRef={form.register({
           required: t<string>("payment.validation.no-price"),
           pattern: { value: /^[0-9]+(\.[0-9]+)?$/, message: t<string>("payment.validation.invalid-price") },
           validate: value => BigNumber(value).lt(spendableBalance) || t<string>("payment.validation.not-enough-funds")
         })}
-        label={errors.amount ? errors.amount.message : "Amount"}
+        label={form.errors.amount ? form.errors.amount.message : "Amount"}
         margin="normal"
         name="amount"
         placeholder={t("payment.inputs.price.placeholder", `Max. ${formatBalance(spendableBalance.toString())}`, {
@@ -222,18 +222,18 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [assetSelector, errors.amount, isSmallScreen, spendableBalance, register, t]
+    [assetSelector, form, isSmallScreen, spendableBalance, t]
   )
 
   const memoInput = React.useMemo(
     () => (
       <TextField
-        error={Boolean(errors.memoValue)}
+        error={Boolean(form.errors.memoValue)}
         inputProps={{ maxLength: 28 }}
-        label={errors.memoValue ? errors.memoValue.message : memoMetadata.label}
+        label={form.errors.memoValue ? form.errors.memoValue.message : memoMetadata.label}
         margin="normal"
         name="memoValue"
-        inputRef={register({
+        inputRef={form.register({
           validate: {
             length: value => value.length <= 28 || t<string>("payment.validation.memo-too-long"),
             memoRequired: value =>
@@ -256,8 +256,8 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         onChange={event => {
           const { value } = event.target
           const memoType = value.length === 0 ? "none" : formValues.memoType === "none" ? "text" : formValues.memoType
-          setValue("memoValue", value)
-          setValue("memoType", memoType)
+          form.setValue("memoValue", value)
+          form.setValue("memoType", memoType)
         }}
         placeholder={memoMetadata.placeholder}
         style={{
@@ -268,16 +268,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [
-      errors.memoValue,
-      formValues.memoType,
-      matchingWellknownAccount,
-      memoMetadata.label,
-      memoMetadata.placeholder,
-      register,
-      setValue,
-      t
-    ]
+    [form, formValues.memoType, matchingWellknownAccount, memoMetadata.label, memoMetadata.placeholder, t]
   )
 
   const dialogActions = React.useMemo(
@@ -298,7 +289,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   )
 
   return (
-    <form id={formID} noValidate onSubmit={handleSubmit(handleFormSubmission)}>
+    <form id={formID} noValidate onSubmit={form.handleSubmit(handleFormSubmission)}>
       {destinationInput}
       <HorizontalLayout justifyContent="space-between" alignItems="center" margin="0 -24px" wrap="wrap">
         {priceInput}
