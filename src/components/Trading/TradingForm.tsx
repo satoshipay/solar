@@ -301,25 +301,29 @@ function TradingForm(props: Props) {
       >
         <HorizontalLayout margin="8px 0">
           <Controller
-            as={AssetSelector}
-            assets={assets}
-            autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
-            control={form.control}
-            inputError={form.errors.primaryAsset && form.errors.primaryAsset.message}
-            label={
-              props.primaryAction === "buy"
-                ? t("trading.inputs.primary-asset-selector.label.buy")
-                : t("trading.inputs.primary-asset-selector.label.sell")
+            as={
+              <AssetSelector
+                assets={assets}
+                autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
+                inputError={form.errors.primaryAsset && form.errors.primaryAsset.message}
+                label={
+                  props.primaryAction === "buy"
+                    ? t("trading.inputs.primary-asset-selector.label.buy")
+                    : t("trading.inputs.primary-asset-selector.label.sell")
+                }
+                minWidth={75}
+                showXLM
+                onChange={() => undefined}
+                style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+                testnet={props.account.testnet}
+                value={primaryAsset}
+              />
             }
-            minWidth={75}
+            control={form.control}
             name="primaryAsset"
             rules={{
               required: t<string>("trading.validation.primary-asset-missing")
             }}
-            showXLM
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-            testnet={props.account.testnet}
-            value={primaryAsset}
           />
           <TextField
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
@@ -380,21 +384,25 @@ function TradingForm(props: Props) {
         </HorizontalLayout>
         <HorizontalLayout margin="8px 0 32px">
           <Controller
-            as={AssetSelector}
-            assets={assets}
-            control={form.control}
-            label={
-              props.primaryAction === "buy"
-                ? t("trading.inputs.secondary-asset-selector.label.buy")
-                : t("trading.inputs.secondary-asset-selector.label.sell")
+            as={
+              <AssetSelector
+                assets={assets}
+                label={
+                  props.primaryAction === "buy"
+                    ? t("trading.inputs.secondary-asset-selector.label.buy")
+                    : t("trading.inputs.secondary-asset-selector.label.sell")
+                }
+                minWidth={75}
+                showXLM
+                onChange={() => undefined}
+                style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+                testnet={props.account.testnet}
+                value={secondaryAsset}
+              />
             }
-            minWidth={75}
+            control={form.control}
             name="secondaryAsset"
             rules={{ required: t<string>("trading.validation.secondary-asset-missing") }}
-            showXLM
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-            testnet={props.account.testnet}
-            value={secondaryAsset}
           />
           <ReadOnlyTextfield
             disableUnderline
