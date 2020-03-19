@@ -186,9 +186,7 @@ function TradingForm(props: Props) {
   const [expanded, setExpanded] = React.useState(false)
   const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
 
-  const { control, errors, formState, getValues, handleSubmit, register, setValue, triggerValidation, watch } = useForm<
-    TradingFormValues
-  >({
+  const form = useForm<TradingFormValues>({
     defaultValues: {
       primaryAsset: props.initialPrimaryAsset,
       primaryAmountString: "",
@@ -198,14 +196,14 @@ function TradingForm(props: Props) {
   })
 
   const sendTransaction = props.sendTransaction
-  const { primaryAsset, secondaryAsset } = watch()
+  const { primaryAsset, secondaryAsset } = form.watch()
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
 
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
 
-  const calculation = useCalculation(getValues(), tradePair, priceMode, props.accountData, props.primaryAction)
+  const calculation = useCalculation(form.getValues(), tradePair, priceMode, props.accountData, props.primaryAction)
 
   const {
     maxPrimaryAmount,
@@ -220,13 +218,13 @@ function TradingForm(props: Props) {
     spendableSecondaryBalance
   } = calculation
 
-  if (formState.touched.primaryAmountString) {
+  if (form.formState.touched.primaryAmountString) {
     // trigger delayed validation to make sure that primaryAmountString is validated with latest calculation results
-    setTimeout(() => triggerValidation("primaryAmountString"), 0)
+    setTimeout(() => form.triggerValidation("primaryAmountString"), 0)
   }
 
   const setPrimaryAmountToMax = () => {
-    setValue("primaryAmount", maxPrimaryAmount.toFixed(7))
+    form.setValue("primaryAmount", maxPrimaryAmount.toFixed(7))
   }
 
   const submitForm = React.useCallback(async () => {
@@ -306,8 +304,8 @@ function TradingForm(props: Props) {
             as={AssetSelector}
             assets={assets}
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
-            control={control}
-            inputError={errors.primaryAsset && errors.primaryAsset.message}
+            control={form.control}
+            inputError={form.errors.primaryAsset && form.errors.primaryAsset.message}
             label={
               props.primaryAction === "buy"
                 ? t("trading.inputs.primary-asset-selector.label.buy")
@@ -326,7 +324,7 @@ function TradingForm(props: Props) {
           <TextField
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
             name="primaryAmountString"
-            inputRef={register({
+            inputRef={form.register({
               required: t<string>("trading.validation.primary-amount-missing"),
               validate: value => {
                 const amountInvalid =
@@ -337,7 +335,7 @@ function TradingForm(props: Props) {
                 return !amountInvalid || t<string>("trading.validation.invalid-amount")
               }
             })}
-            error={Boolean(errors.primaryAmountString)}
+            error={Boolean(form.errors.primaryAmountString)}
             inputProps={{
               pattern: "[0-9]*",
               inputMode: "decimal",
@@ -362,8 +360,8 @@ function TradingForm(props: Props) {
                 )
             }}
             label={
-              errors.primaryAmountString && errors.primaryAmountString.message
-                ? errors.primaryAmountString.message
+              form.errors.primaryAmountString && form.errors.primaryAmountString.message
+                ? form.errors.primaryAmountString.message
                 : props.primaryAction === "buy"
                 ? t("trading.inputs.primary-amount.label.buy")
                 : t("trading.inputs.primary-amount.label.sell")
@@ -384,7 +382,7 @@ function TradingForm(props: Props) {
           <Controller
             as={AssetSelector}
             assets={assets}
-            control={control}
+            control={form.control}
             label={
               props.primaryAction === "buy"
                 ? t("trading.inputs.secondary-asset-selector.label.buy")
@@ -435,9 +433,9 @@ function TradingForm(props: Props) {
           <ExpansionPanelDetails className={classes.expansionPanelDetails}>
             <Controller
               as={TradingPrice}
-              control={control}
-              defaultPrice={!formState.touched.manualPrice ? defaultPrice : undefined}
-              inputError={errors.manualPrice && errors.manualPrice.message}
+              control={form.control}
+              defaultPrice={!form.formState.touched.manualPrice ? defaultPrice : undefined}
+              inputError={form.errors.manualPrice && form.errors.manualPrice.message}
               name="manualPrice"
               onSetPriceDenotedIn={setPriceMode}
               price={effectivePrice}
@@ -464,7 +462,7 @@ function TradingForm(props: Props) {
         ) : null}
         <Portal target={props.dialogActionsRef.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
-            <ActionButton icon={<GavelIcon />} onClick={handleSubmit(submitForm)} type="primary">
+            <ActionButton icon={<GavelIcon />} onClick={form.handleSubmit(submitForm)} type="primary">
               {t("trading.actions.submit")}
             </ActionButton>
           </DialogActionsBox>
