@@ -2,6 +2,7 @@ import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
@@ -11,6 +12,7 @@ import { AccountRecord, useWellKnownAccounts } from "~Generic/hooks/stellar-ecos
 import { useFederationLookup } from "~Generic/hooks/stellar"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
+import { CustomError } from "~Generic/lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance } from "~Generic/lib/stellar"
 import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "~Generic/lib/transaction"
@@ -63,12 +65,13 @@ interface PaymentFormProps {
 const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const isSmallScreen = useIsMobile()
   const formID = React.useMemo(() => nanoid(), [])
+  const { t } = useTranslation()
   const wellknownAccounts = useWellKnownAccounts(props.testnet)
 
   const [matchingWellknownAccount, setMatchingWellknownAccount] = React.useState<AccountRecord | undefined>(undefined)
   const [memoMetadata, setMemoMetadata] = React.useState({
-    label: "Memo",
-    placeholder: "Description (optional)"
+    label: t("payment.memo-metadata.label.default"),
+    placeholder: t("payment.memo-metadata.placeholder.optional")
   })
   const { control, errors, getValues, handleSubmit, register, setValue, watch } = useForm<PaymentFormValues>({
     defaultValues: {
@@ -103,16 +106,17 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
       setValue("memoType", acceptedMemoType === "MEMO_ID" ? "id" : "text")
       setMemoMetadata({
-        label: `Memo ${acceptedMemoType === "MEMO_ID" ? "(ID)" : "(Text)"}`,
-        placeholder: "Description (mandatory)"
+        label:
+          acceptedMemoType === "MEMO_ID" ? t("payment.memo-metadata.label.id") : t("payment.memo-metadata.label.text"),
+        placeholder: t("payment.memo-metadata.placeholder.mandatory")
       })
     } else {
       setMemoMetadata({
-        label: "Memo",
-        placeholder: "Description (optional)"
+        label: t("payment.memo-metadata.label.default"),
+        placeholder: t("payment.memo-metadata.placeholder.optional")
       })
     }
-  }, [formValues.destination, formValues.memoType, matchingWellknownAccount, setValue, wellknownAccounts])
+  }, [formValues.destination, formValues.memoType, matchingWellknownAccount, setValue, t, wellknownAccounts])
 
   const handleFormSubmission = () => {
     props.onSubmit(getValues(), spendableBalance, matchingWellknownAccount)
@@ -160,18 +164,18 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           endAdornment: qrReaderAdornment
         }}
         inputRef={register({
-          required: "No destination specified!",
+          required: t<string>("payment.validation.no-destination"),
           validate: value =>
-            isPublicKey(value) || isStellarAddress(value) || "Expected a public key or stellar address."
+            isPublicKey(value) || isStellarAddress(value) || t<string>("payment.validation.invalid-destination")
         })}
-        label={errors.destination ? errors.destination.message : "Destination address"}
+        label={errors.destination ? errors.destination.message : t("payment.inputs.destination.label")}
         margin="normal"
         name="destination"
         onChange={event => setValue("destination", event.target.value.trim())}
-        placeholder="GABCDEFGHIJK... or alice*example.org"
+        placeholder={t("payment.inputs.destination.placeholder")}
       />
     ),
-    [errors.destination, qrReaderAdornment, register, setValue]
+    [errors.destination, qrReaderAdornment, register, setValue, t]
   )
 
   const assetSelector = React.useMemo(
@@ -199,14 +203,16 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         assetCode={assetSelector}
         error={Boolean(errors.amount)}
         inputRef={register({
-          required: "No amount specified!",
-          pattern: { value: /^[0-9]+(\.[0-9]+)?$/, message: "Invalid amount." },
-          validate: value => BigNumber(value).lt(spendableBalance) || "Not enough funds."
+          required: t<string>("payment.validation.no-price"),
+          pattern: { value: /^[0-9]+(\.[0-9]+)?$/, message: t<string>("payment.validation.invalid-price") },
+          validate: value => BigNumber(value).lt(spendableBalance) || t<string>("payment.validation.not-enough-funds")
         })}
         label={errors.amount ? errors.amount.message : "Amount"}
         margin="normal"
         name="amount"
-        placeholder={`Max. ${formatBalance(spendableBalance.toString())}`}
+        placeholder={t("payment.inputs.price.placeholder", `Max. ${formatBalance(spendableBalance.toString())}`, {
+          amount: formatBalance(spendableBalance.toString())
+        })}
         style={{
           flexGrow: isSmallScreen ? 1 : undefined,
           marginLeft: 24,
@@ -216,7 +222,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [assetSelector, errors.amount, isSmallScreen, spendableBalance, register]
+    [assetSelector, errors.amount, isSmallScreen, spendableBalance, register, t]
   )
 
   const memoInput = React.useMemo(
@@ -229,13 +235,22 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         name="memoValue"
         inputRef={register({
           validate: {
-            length: value => value.length <= 28 || "Memo too long.",
+            length: value => value.length <= 28 || t<string>("payment.validation.memo-too-long"),
             memoRequired: value =>
               !matchingWellknownAccount ||
               matchingWellknownAccount.tags.indexOf("exchange") === -1 ||
               value.length > 0 ||
-              `Set a memo when sending funds to ${matchingWellknownAccount.name}`,
-            idPattern: value => formValues.memoType !== "id" || value.match(/^[0-9]+$/) || "Memo must be an integer"
+              t<string>(
+                "payment.validation.memo-required",
+                `Set a memo when sending funds to ${matchingWellknownAccount.name}`,
+                {
+                  destination: matchingWellknownAccount.name
+                }
+              ),
+            idPattern: value =>
+              formValues.memoType !== "id" ||
+              value.match(/^[0-9]+$/) ||
+              t<string>("payment.validation.integer-memo-required")
           }
         })}
         onChange={event => {
@@ -260,7 +275,8 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       memoMetadata.label,
       memoMetadata.placeholder,
       register,
-      setValue
+      setValue,
+      t
     ]
   )
 
@@ -274,11 +290,11 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           onClick={() => undefined}
           type="submit"
         >
-          Send now
+          {t("payment.actions.submit")}
         </ActionButton>
       </DialogActionsBox>
     ),
-    [formID, props.txCreationPending]
+    [formID, props.txCreationPending, t]
   )
 
   return (
@@ -319,8 +335,10 @@ function PaymentFormContainer(props: Props) {
         : Memo.none()
 
     if (userMemo.type !== "none" && federationMemo.type !== "none") {
-      throw new Error(
-        `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`
+      throw CustomError(
+        "MemoAlreadySpecifiedError",
+        `Cannot set a custom memo. Federation record of ${formValues.destination} already specifies memo.`,
+        { destination: formValues.destination }
       )
     }
 

@@ -9,6 +9,7 @@
     "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
     "existing-account-error": "An account with that name does already exist.",
     "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
+    "memo-already-specified-error": "Cannot set a custom memo. Federation record of {{destination}} already specifies memo.",
     "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
     "no-callback-url-error": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
     "non-existent-destination-error": "Cannot pay in {{assetCode}}, since the destination account does not exist yet. Account creations always need to be done via XLM.",
