@@ -1,11 +1,21 @@
 {
   "actions": {
+    "add-asset": "Add asset",
     "submit": "Place order"
+  },
+  "action-selection": {
+    "buy": {
+      "description": "Buy some amount of an asset on the distributed exchange",
+      "label": "Buy asset"
+    },
+    "sell": {
+      "description": "Trade some amount of an asset for another one",
+      "label": "Sell asset"
+    }
   },
   "advanced": {
     "header": "Advanced"
   },
-  "header": "",
   "inputs": {
     "estimated-costs": {
       "label": {
@@ -35,6 +45,11 @@
         "sell": "Receive"
       }
     }
+  },
+  "no-assets-info": "This account does not use any assets other than Stellar Lumens yet.",
+  "title": "Trade",
+  "trading-price": {
+    "label": "Price (limit)"
   },
   "validation": {
     "primary-amount-missing": "No amount specified.",

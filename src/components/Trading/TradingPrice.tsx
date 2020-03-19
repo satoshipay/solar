@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -23,6 +24,7 @@ interface TradingPriceProps {
 
 const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceProps, ref: React.Ref<HTMLDivElement>) {
   const isDisabled = !props.primaryAsset || !props.secondaryAsset
+  const { t } = useTranslation()
 
   const endAdornment = (
     <InputAdornment position="end">
@@ -53,7 +55,7 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
       InputProps={{ endAdornment }}
       inputRef={ref}
       error={Boolean(props.inputError)}
-      label={props.inputError ? props.inputError : "Price (limit)"}
+      label={props.inputError ? props.inputError : t("trading.trading-price.label")}
       onBlur={props.onBlur}
       onChange={props.onChange}
       onFocus={props.selectOnFocus ? event => event.target.select() : undefined}

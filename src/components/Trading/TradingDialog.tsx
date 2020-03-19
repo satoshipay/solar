@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon, Server, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
 import Typography from "@material-ui/core/Typography"
@@ -42,6 +43,7 @@ function TradingDialog(props: TradingDialogProps) {
   const dialogActionsRef = useDialogActions()
   const router = useRouter()
   const [preselectedAsset, setPreselectedAsset] = React.useState<Asset | undefined>()
+  const { t } = useTranslation()
 
   React.useEffect(() => {
     const asset = getAssetFromPath(router.location.pathname)
@@ -113,7 +115,7 @@ function TradingDialog(props: TradingDialogProps) {
   const LinkToManageAssets = React.useMemo(
     () => (
       <Box margin="32px 0 0" textAlign="center">
-        <Typography>This account does not use any assets other than Stellar Lumens yet.</Typography>
+        <Typography>{t("trading.no-assets-info")}</Typography>
         <Portal target={dialogActionsRef.element}>
           <DialogActionsBox>
             <ActionButton
@@ -121,20 +123,20 @@ function TradingDialog(props: TradingDialogProps) {
               onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
               type="primary"
             >
-              Add asset
+              {t("trading.actions.add-asset")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>
       </Box>
     ),
-    [dialogActionsRef, props.account, router]
+    [dialogActionsRef, props.account, router, t]
   )
 
   return (
     <DialogBody
       top={
         <>
-          <MainTitle title="Trade" onBack={primaryAction ? clearPrimaryAction : props.onClose} />
+          <MainTitle title={t("trading.title")} onBack={primaryAction ? clearPrimaryAction : props.onClose} />
           <ScrollableBalances account={props.account} compact />
         </>
       }
