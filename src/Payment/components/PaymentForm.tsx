@@ -185,6 +185,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           <AssetSelector
             assets={props.accountData.balances}
             disableUnderline
+            showXLM
             style={{ alignSelf: "center" }}
             testnet={props.testnet}
             value={formValues.asset}
