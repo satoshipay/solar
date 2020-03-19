@@ -10,8 +10,8 @@ import { parseAssetID } from "../../lib/stellar"
 import { max } from "../../lib/strings"
 import { createReconnectingSSE } from "../_util/event-source"
 import {
+  accountDataUpdates,
   handleSubmittedTransaction,
-  newOptimisticAccountUpdates,
   optimisticallyUpdateAccountData,
   removeStaleOptimisticUpdates,
   OptimisticAccountUpdate
@@ -168,7 +168,10 @@ async function waitForAccountData(horizonURL: string, accountID: string, shouldC
   } else {
     const justStarted = waitForAccountDataUncached(horizonURL, accountID, shouldCancel)
     accountDataWaitingCache.set(cacheKey, justStarted)
-    justStarted.then(() => accountDataWaitingCache.delete(cacheKey), () => accountDataWaitingCache.delete(cacheKey))
+    justStarted.then(
+      () => accountDataWaitingCache.delete(cacheKey),
+      () => accountDataWaitingCache.delete(cacheKey)
+    )
     return justStarted
   }
 }
@@ -307,7 +310,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
         }
         return merge(
           subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID))),
-          newOptimisticAccountUpdates().pipe(
+          accountDataUpdates.observe().pipe(
             map(handleNewOptimisticUpdate),
             filter(accountData => Boolean(accountData))
           )
@@ -398,7 +401,10 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
     {
       async applyUpdate(update) {
         if (update.length > 0) {
-          const latestID = max(update.map(offer => String(offer.id)), "0")
+          const latestID = max(
+            update.map(offer => String(offer.id)),
+            "0"
+          )
           latestCursor = update.find(offer => String(offer.id) === latestID)!.paging_token
         }
 
@@ -416,7 +422,10 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
         return records
       },
       shouldApplyUpdate(update) {
-        const latestUpdateCursor = max(update.map(record => record.paging_token), "0")
+        const latestUpdateCursor = max(
+          update.map(record => record.paging_token),
+          "0"
+        )
         const emptySet = !latestUpdateCursor
         return emptySet !== latestSetEmpty || (!emptySet && latestUpdateCursor !== latestCursor)
       },
@@ -532,7 +541,7 @@ export interface PaginationOptions {
 export async function fetchAccountData(
   horizonURL: string,
   accountID: string
-): Promise<Horizon.AccountResponse & { home_domain: string | undefined } | null> {
+): Promise<(Horizon.AccountResponse & { home_domain: string | undefined }) | null> {
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 0 })
 
@@ -602,7 +611,10 @@ export async function fetchAccountTransactions(
 
   const collection = await parseJSONResponse<CollectionPage<Horizon.TransactionResponse>>(response)
 
-  removeStaleOptimisticUpdates(horizonURL, collection._embedded.records.map(record => record.hash))
+  removeStaleOptimisticUpdates(
+    horizonURL,
+    collection._embedded.records.map(record => record.hash)
+  )
   return collection
 }
 

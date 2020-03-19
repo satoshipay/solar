@@ -1,16 +1,9 @@
 import { Horizon, Operation, Transaction } from "stellar-sdk"
-import {
-  addAccountUpdates,
-  getAccountUpdates,
-  newOptimisticAccountUpdates,
-  removeStaleAccountUpdates,
-  OptimisticAccountUpdate,
-  OptimisticUpdate
-} from "../../_util/optimistic-updates"
+import { accountDataUpdates, OptimisticAccountUpdate, OptimisticUpdate } from "../../_util/optimistic-updates"
 import handleChangeTrust from "./change-trust"
 import handleSetOptions from "./set-options"
 
-export { OptimisticAccountUpdate, newOptimisticAccountUpdates }
+export { accountDataUpdates, OptimisticAccountUpdate }
 
 function fromOperation(
   horizonURL: string,
@@ -29,7 +22,7 @@ function fromOperation(
 export function handleSubmittedTransaction(horizonURL: string, transaction: Transaction) {
   for (const operation of transaction.operations) {
     const optimisticUpdates = fromOperation(horizonURL, operation, transaction)
-    addAccountUpdates(optimisticUpdates)
+    accountDataUpdates.addUpdates(optimisticUpdates)
   }
 }
 
@@ -37,11 +30,10 @@ export function optimisticallyUpdateAccountData<AccountData extends Horizon.Acco
   horizonURL: string,
   accountData: AccountData
 ): AccountData {
-  const optimisticUpdates = getAccountUpdates(horizonURL, accountData.account_id)
-
+  const optimisticUpdates = accountDataUpdates.getUpdates(horizonURL, accountData.account_id)
   return optimisticUpdates.reduce((updatedAccountData, update) => update.apply(updatedAccountData), accountData)
 }
 
 export function removeStaleOptimisticUpdates(horizonURL: string, latestTransactionHashs: string[]) {
-  removeStaleAccountUpdates(horizonURL, latestTransactionHashs)
+  accountDataUpdates.removeStaleUpdates(horizonURL, latestTransactionHashs)
 }

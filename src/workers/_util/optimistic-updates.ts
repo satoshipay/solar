@@ -11,41 +11,51 @@ export interface OptimisticUpdate<BaseDataT> {
 }
 
 export type OptimisticAccountUpdate = OptimisticUpdate<Horizon.AccountResponse>
+export type OptimisticOfferUpdate = OptimisticUpdate<Horizon.ManageOfferOperationResponse>
 
-const createAccountCacheKey = (horizonURL: string, accountID: string) => `${horizonURL}/accounts/${accountID}`
+const createAccountCacheKeyByFilter = (horizonURL: string, accountID: string) => `${horizonURL}/accounts/${accountID}`
+const createAccountCacheKey = (update: OptimisticAccountUpdate) =>
+  createAccountCacheKeyByFilter(update.horizonURL, update.effectsAccountID)
 
-const optimisticAccountDataUpdates = new Map<string, OptimisticAccountUpdate[]>()
-const optimisticAccountDataSubject = new Subject<OptimisticUpdate<Horizon.AccountResponse>>()
+function OptimisticUpdateCache<Update extends OptimisticUpdate<any>, FilterArgs extends any[]>(
+  createCacheKey: (update: Update) => string,
+  createCacheKeyByFilter: (...filterArgs: FilterArgs) => string
+) {
+  const subject = new Subject<Update>()
+  const updates = new Map<string, Update[]>()
 
-export function addAccountUpdates(optimisticUpdates: OptimisticAccountUpdate[]) {
-  for (const optimisticUpdate of optimisticUpdates) {
-    const selector = createAccountCacheKey(optimisticUpdate.horizonURL, optimisticUpdate.effectsAccountID)
-    const prevUpdates = optimisticAccountDataUpdates.get(selector) || []
+  return {
+    addUpdates(optimisticUpdates: Update[]) {
+      for (const optimisticUpdate of optimisticUpdates) {
+        const selector = createCacheKey(optimisticUpdate)
+        const prevUpdates = updates.get(selector) || []
 
-    optimisticAccountDataUpdates.set(selector, [...prevUpdates, optimisticUpdate])
-    optimisticAccountDataSubject.next(optimisticUpdate)
+        updates.set(selector, [...prevUpdates, optimisticUpdate])
+        subject.next(optimisticUpdate)
+      }
+    },
+    getUpdates(...args: FilterArgs) {
+      const selector = createCacheKeyByFilter(...args)
+      return updates.get(selector) || []
+    },
+    observe() {
+      return Observable.from(subject)
+    },
+    removeStaleUpdates(horizonURL: string, latestTransactionHashs: string[]) {
+      for (const selector of updates.keys()) {
+        const prevOptimisticUpdates = updates.get(selector)!
+        const nextOptimisticUpdates = prevOptimisticUpdates.filter(
+          optUpdate =>
+            !(optUpdate.horizonURL === horizonURL && latestTransactionHashs.indexOf(optUpdate.transactionHash) > -1)
+        )
+
+        if (nextOptimisticUpdates.length !== prevOptimisticUpdates.length) {
+          updates.set(selector, nextOptimisticUpdates)
+        }
+      }
+    },
+    updates
   }
 }
 
-export function getAccountUpdates(horizonURL: string, accountID: string): OptimisticAccountUpdate[] {
-  const selector = createAccountCacheKey(horizonURL, accountID)
-  return optimisticAccountDataUpdates.get(selector) || []
-}
-
-export function newOptimisticAccountUpdates(): Observable<OptimisticAccountUpdate> {
-  return Observable.from(optimisticAccountDataSubject)
-}
-
-export function removeStaleAccountUpdates(horizonURL: string, latestTransactionHashs: string[]) {
-  for (const selector of optimisticAccountDataUpdates.keys()) {
-    const prevOptimisticUpdates = optimisticAccountDataUpdates.get(selector)!
-    const nextOptimisticUpdates = prevOptimisticUpdates.filter(
-      optUpdate =>
-        !(optUpdate.horizonURL === horizonURL && latestTransactionHashs.indexOf(optUpdate.transactionHash) > -1)
-    )
-
-    if (nextOptimisticUpdates.length !== prevOptimisticUpdates.length) {
-      optimisticAccountDataUpdates.set(selector, nextOptimisticUpdates)
-    }
-  }
-}
+export const accountDataUpdates = OptimisticUpdateCache(createAccountCacheKey, createAccountCacheKeyByFilter)
