@@ -15,7 +15,7 @@
     "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
     "request-failed-error": "Request to {{target}} failed with status {{status}}: {{message}}",
     "stellar-address-not-found-error": "Stellar address not found: {{address}}",
-    "stellar-address-request-failed-error": "Request for resolving the stellar address failed: {{address}}",
+    "stellar-address-request-failed-error": "Stellar address resolution of {{address}} failed.",
     "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
     "unknown-error": "An unknown error occured.",
     "wrong-password-error": "Wrong password.",
