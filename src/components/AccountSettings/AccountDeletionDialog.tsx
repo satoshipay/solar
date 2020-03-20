@@ -20,6 +20,71 @@ import MainTitle from "../MainTitle"
 import TransactionSender from "../TransactionSender"
 import { ActionButton, ConfirmDialog, DialogActionsBox } from "../Dialog/Generic"
 
+interface DeletionConfirmationDialogProps {
+  merging: boolean
+  onCancel: () => void
+  onClose: () => void
+  onConfirm: () => void
+  open: boolean
+}
+
+const DeletionConfirmationDialog = React.memo(function DeletionConfirmationDialog(
+  props: DeletionConfirmationDialogProps
+) {
+  const { t } = useTranslation()
+  return (
+    <ConfirmDialog
+      cancelButton={
+        <ActionButton onClick={props.onCancel}>{t("account-settings.account-deletion.action.cancel")}</ActionButton>
+      }
+      confirmButton={
+        <ActionButton onClick={props.onConfirm} type="primary">
+          {t("account-settings.account-deletion.action.confirm")}
+        </ActionButton>
+      }
+      open={props.open}
+      onClose={props.onClose}
+      title={t("account-settings.account-deletion.confirm.title")}
+    >
+      {t("account-settings.account-deletion.confirm.text.delete")}
+      {props.merging ? ` ${t("account-settings.account-deletion.confirm.text.merge")}. ` : ". "}
+      {t("account-settings.account-deletion.confirm.text.confirm")}
+    </ConfirmDialog>
+  )
+})
+
+interface WarningDialogProps {
+  onClose: () => void
+  open: boolean
+  title: string
+  warning: React.ReactNode
+}
+
+const WarningDialog = React.memo(function WarningDialog(props: WarningDialogProps) {
+  const { t } = useTranslation()
+  return (
+    <ConfirmDialog
+      cancelButton={null}
+      confirmButton={
+        <ActionButton onClick={props.onClose} type="primary">
+          {t("account-settings.account-deletion.warning-dialog.close.label")}
+        </ActionButton>
+      }
+      onClose={props.onClose}
+      open={props.open}
+      title={props.title}
+    >
+      {props.warning}
+    </ConfirmDialog>
+  )
+})
+
+interface Warning {
+  open: boolean
+  text: string
+  title: string
+}
+
 interface AccountDeletionDialogProps {
   account: Account
   horizon: Server
@@ -36,12 +101,18 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   const [mergeAccountEnabled, setMergeAccountEnabled] = React.useState(false)
   const [confirmationPending, setConfirmationPending] = React.useState(false)
   const [selectedMergeAccount, setSelectedMergeAccount] = React.useState<Account | null>(null)
+  const [warning, setWarning] = React.useState<Warning | undefined>()
 
   const { t } = useTranslation()
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
 
+  const cancelConfirmation = React.useCallback(() => setConfirmationPending(false), [setConfirmationPending])
   const toggleMergeAccount = React.useCallback(() => setMergeAccountEnabled(enabled => !enabled), [])
+
+  const closeWarning = React.useCallback(() => {
+    setWarning(prev => (prev ? { ...prev, open: false } : undefined))
+  }, [setWarning])
 
   const onDelete = () => {
     deleteAccount(props.account.id)
@@ -74,6 +145,18 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       onDelete()
     }
   }
+
+  const requestConfirmation = React.useCallback(() => {
+    if (accountData.subentry_count > 0) {
+      setWarning({
+        open: true,
+        text: t("account-settings.account-deletion.warnings.cannot-merge.text"),
+        title: t("account-settings.account-deletion.warnings.cannot-merge.title")
+      })
+    } else {
+      setConfirmationPending(true)
+    }
+  }, [accountData, setConfirmationPending, setWarning, t])
 
   const remainingFundsContent = React.useMemo(
     () =>
@@ -140,7 +223,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
               autoFocus
               disabled={!selectedMergeAccount}
               icon={<MergeIcon />}
-              onClick={() => setConfirmationPending(true)}
+              onClick={requestConfirmation}
               type="primary"
             >
               {isTinyScreen
@@ -148,7 +231,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
                 : t("account-settings.account-deletion.action.merge.long")}
             </ActionButton>
           ) : (
-            <ActionButton autoFocus icon={<DeleteIcon />} onClick={() => setConfirmationPending(true)} type="primary">
+            <ActionButton autoFocus icon={<DeleteIcon />} onClick={requestConfirmation} type="primary">
               {t("account-settings.account-deletion.action.delete")}
             </ActionButton>
           )}
@@ -165,25 +248,19 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
 
         {remainingFundsContent}
 
-        <ConfirmDialog
-          cancelButton={
-            <ActionButton onClick={() => setConfirmationPending(false)}>
-              {t("account-settings.account-deletion.action.cancel")}
-            </ActionButton>
-          }
-          confirmButton={
-            <ActionButton onClick={onConfirm} type="primary">
-              {t("account-settings.account-deletion.action.confirm")}
-            </ActionButton>
-          }
+        <DeletionConfirmationDialog
+          merging={mergeAccountEnabled}
+          onCancel={cancelConfirmation}
+          onClose={cancelConfirmation}
+          onConfirm={onConfirm}
           open={confirmationPending}
-          onClose={() => setConfirmationPending(false)}
-          title={t("account-settings.account-deletion.confirm.title")}
-        >
-          {t("account-settings.account-deletion.confirm.text.delete")}
-          {mergeAccountEnabled ? ` ${t("account-settings.account-deletion.confirm.text.merge")}. ` : ". "}
-          {t("account-settings.account-deletion.confirm.text.confirm")}
-        </ConfirmDialog>
+        />
+        <WarningDialog
+          onClose={closeWarning}
+          open={Boolean(warning?.open)}
+          title={warning?.title || ""}
+          warning={warning?.text}
+        />
       </DialogContent>
     </DialogBody>
   )

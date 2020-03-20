@@ -10,6 +10,7 @@ export interface AccountData {
   inflation_destination?: string
   paging_token: AccountResponse["paging_token"]
   signers: Horizon.AccountSigner[]
+  subentry_count: number
   thresholds: Horizon.AccountThresholds
 }
 
@@ -25,6 +26,7 @@ export const createEmptyAccountData = (accountID: string): AccountData => ({
   id: accountID,
   paging_token: "",
   signers: [],
+  subentry_count: 0,
   thresholds: {
     low_threshold: 0,
     med_threshold: 0,
