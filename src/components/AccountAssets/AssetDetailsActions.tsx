@@ -12,7 +12,7 @@ import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
 import { stringifyAsset } from "../../lib/stellar"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
-import TransactionSender from "../TransactionSender"
+import TransactionSender, { SendTransaction } from "../TransactionSender"
 import RemoveTrustlineDialog from "./RemoveTrustline"
 
 const dialogActionsBoxStyle: React.CSSProperties = {
@@ -23,7 +23,7 @@ interface Props {
   account: Account
   asset: Asset
   horizon: Server
-  sendTransaction: (transaction: Transaction, signatureRequest?: null) => void
+  sendTransaction: SendTransaction
 }
 
 function AssetDetailsActions(props: Props) {
@@ -47,6 +47,10 @@ function AssetDetailsActions(props: Props) {
     })
   }
 
+  const navigateBackDelayed = React.useCallback(() => {
+    setTimeout(() => router.history.push(routes.account(props.account.id)), 1300)
+  }, [props.account, router.history])
+
   const sendTransaction = async (createTransactionToSend: () => Promise<Transaction>) => {
     try {
       setTxCreationPending(true)
@@ -54,6 +58,7 @@ function AssetDetailsActions(props: Props) {
       setTxCreationPending(false)
       await props.sendTransaction(transaction)
       closeRemovalDialog()
+      navigateBackDelayed()
     } catch (error) {
       setTxCreationPending(false)
       trackError(error)
@@ -93,6 +98,7 @@ function AssetDetailsActions(props: Props) {
           accountData={accountData}
           asset={asset}
           onClose={closeRemovalDialog}
+          onRemoved={navigateBackDelayed}
         />
       </Dialog>
     </>

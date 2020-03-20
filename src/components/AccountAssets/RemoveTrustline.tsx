@@ -1,6 +1,6 @@
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
-import { Asset, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Operation, Server } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
@@ -10,7 +10,7 @@ import { trackError } from "../../context/notifications"
 import { AccountData } from "../../lib/account"
 import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import TransactionSender from "../TransactionSender"
+import TransactionSender, { SendTransaction } from "../TransactionSender"
 
 interface Props {
   account: Account
@@ -18,7 +18,8 @@ interface Props {
   asset: Asset
   horizon: Server
   onClose: () => void
-  sendTransaction: (transaction: Transaction) => void
+  onRemoved: () => void
+  sendTransaction: SendTransaction
 }
 
 // tslint:disable-next-line no-shadowed-variable
@@ -33,7 +34,8 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
         horizon: props.horizon,
         walletAccount: props.account
       })
-      props.sendTransaction(transaction)
+      await props.sendTransaction(transaction)
+      props.onRemoved()
     } catch (error) {
       trackError(error)
     }
@@ -53,7 +55,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
             <>{t("account.remove-trustline.text.warning")}</>
           ) : (
             <Trans i18nKey="account.remove-trustline.text.info">
-              You are about to remove the asset <b>{{ asset: props.asset.code }}</b> from account "
+              You are about to remove <b>{{ asset: props.asset.code }}</b> from account "
               {{ accountName: props.account.name }}".
             </Trans>
           )}
