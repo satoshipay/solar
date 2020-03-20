@@ -102,11 +102,11 @@
       "headline": "Amounts in XLM",
       "open-orders-reserve": {
         "primary": "Open orders reserve",
-        "secondary": "Open SDEX orders"
+        "secondary": "Reserve per order"
       },
       "selling-liabilities": {
-        "primary": "Selling liabilities",
-        "secondary": "Covers open orders"
+        "primary": "Amount to be sold",
+        "secondary": "Committed to open orders"
       },
       "signers-reserve": {
         "primary": "Account signers reserve",
@@ -156,7 +156,7 @@
     },
     "text": {
       "warning": "You cannot remove this asset unless the asset's balance is zero.",
-      "info": "You are about to remove the asset <1>{{asset}}</1> from account \"{{accountName}}\"."
+      "info": "You are about to remove <1>{{asset}}</1> from account \"{{accountName}}\"."
     },
     "title": "Confirm Removing Asset"
   },
