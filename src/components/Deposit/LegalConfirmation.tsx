@@ -7,7 +7,7 @@ import { useDialogActions, useIsMobile } from "../../hooks/userinterface"
 import { breakpoints, CompactDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import Portal from "../Portal"
+import Portal from "../Generic/Portal"
 
 const useLegalConfirmationStyles = makeStyles({
   root: {

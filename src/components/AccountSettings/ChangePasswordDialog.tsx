@@ -14,7 +14,7 @@ import { renderFormFieldError, isWrongPasswordError } from "../../lib/errors"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box } from "../Layout/Box"
 import DialogBody from "../Dialog/DialogBody"
-import MainTitle from "../MainTitle"
+import MainTitle from "../Generic/MainTitle"
 
 const adornmentLock = (
   <InputAdornment position="start">

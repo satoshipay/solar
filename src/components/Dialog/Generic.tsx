@@ -10,7 +10,7 @@ import CloseIcon from "@material-ui/icons/Close"
 import { useIsMobile } from "../../hooks/userinterface"
 import { breakpoints, MobileKeyboardOpenedSelector, CompactDialogTransition } from "../../theme"
 import { setupRerenderListener } from "../../platform/keyboard-hack"
-import ButtonIconLabel from "../ButtonIconLabel"
+import ButtonIconLabel from "../Generic/ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
 

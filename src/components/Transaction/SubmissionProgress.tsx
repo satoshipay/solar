@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next"
 import Async from "react-promise"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
-import { CloseButton, DialogActionsBox } from "./Dialog/Generic"
-import ErrorIcon from "./Icon/Error"
-import SuccessIcon from "./Icon/Success"
-import { Box, VerticalLayout } from "./Layout/Box"
-import { explainSubmissionErrorResponse } from "../lib/horizonErrors"
+import { CloseButton, DialogActionsBox } from "../Dialog/Generic"
+import ErrorIcon from "../Icon/Error"
+import SuccessIcon from "../Icon/Success"
+import { Box, VerticalLayout } from "../Layout/Box"
+import { explainSubmissionErrorResponse } from "../../lib/horizonErrors"
 
 function Container(props: { children: React.ReactNode }) {
   return (

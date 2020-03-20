@@ -1,7 +1,7 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
-import ErrorBoundary from "../src/components/ErrorBoundary"
+import ErrorBoundary from "../src/components/Generic/ErrorBoundary"
 import { VerticalLayout } from "../src/components/Layout/Box"
 
 function Failing() {

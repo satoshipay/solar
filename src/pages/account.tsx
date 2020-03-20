@@ -8,14 +8,14 @@ import { AccountCreation } from "../components/AccountCreation/types"
 import useAccountCreation from "../components/AccountCreation/useAccountCreation"
 import AccountHeaderCard from "../components/Account/AccountHeaderCard"
 import TransactionListPlaceholder from "../components/Account/TransactionListPlaceholder"
-import InlineLoader from "../components/InlineLoader"
+import InlineLoader from "../components/Generic/InlineLoader"
 import { VerticalLayout } from "../components/Layout/Box"
 import { Section } from "../components/Layout/Page"
 import ScrollableBalances from "../components/Lazy/ScrollableBalances"
 import withFallback from "../components/Lazy/withFallback"
 import PaymentDialog from "../components/Payment/PaymentDialog"
 import ReceivePaymentDialog from "../components/Payment/ReceivePaymentDialog"
-import ViewLoading from "../components/ViewLoading"
+import ViewLoading from "../components/Generic/ViewLoading"
 import { Account, AccountsContext } from "../context/accounts"
 import { trackError } from "../context/notifications"
 import { useIsMobile, useRouter } from "../hooks/userinterface"
@@ -154,12 +154,15 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     [props.account, renameAccount, setAccountCreation]
   )
 
-  const updateAccountCreation = React.useCallback((update: Partial<AccountCreation>) => {
-    setAccountCreation(prev => ({
-      ...prev,
-      ...update
-    }))
-  }, [setAccountCreation])
+  const updateAccountCreation = React.useCallback(
+    (update: Partial<AccountCreation>) => {
+      setAccountCreation(prev => ({
+        ...prev,
+        ...update
+      }))
+    },
+    [setAccountCreation]
+  )
 
   const createNewAccount = React.useCallback(() => {
     ;(async () => {

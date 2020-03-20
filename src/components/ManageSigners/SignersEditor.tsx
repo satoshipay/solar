@@ -12,7 +12,7 @@ import { trackError } from "../../context/notifications"
 import { useFederationLookup } from "../../hooks/stellar"
 import { isPublicKey, isStellarAddress } from "../../lib/stellar-address"
 import SpaciousList from "../List/SpaciousList"
-import { Address } from "../PublicKey"
+import { Address } from "../Generic/PublicKey"
 import NewSignerForm from "./NewSignerForm"
 
 interface SignerFormValues {

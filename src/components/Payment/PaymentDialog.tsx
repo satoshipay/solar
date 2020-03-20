@@ -10,8 +10,8 @@ import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
 import ScrollableBalances from "../Lazy/ScrollableBalances"
-import MainTitle from "../MainTitle"
-import TransactionSender from "../TransactionSender"
+import MainTitle from "../Generic/MainTitle"
+import TransactionSender from "../Transaction/TransactionSender"
 import PaymentForm from "./PaymentForm"
 
 interface Props {

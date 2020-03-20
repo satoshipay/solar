@@ -1,6 +1,6 @@
 import React from "react"
-import { Messages } from "../../shared/ipc"
-import { call } from "../platform/ipc"
+import { Messages } from "../../../shared/ipc"
+import { call } from "../../platform/ipc"
 
 function LinkHandler() {
   React.useEffect(() => {

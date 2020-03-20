@@ -6,9 +6,9 @@ import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import { Account } from "../../context/accounts"
 import { SignatureRequest } from "../../lib/multisig-service"
-import { List } from "../List"
+import { List } from "../Layout/List"
 import { TransactionListItem } from "./TransactionList"
-import TransactionSender from "../TransactionSender"
+import TransactionSender from "../Transaction/TransactionSender"
 
 interface SignatureRequestListItemProps {
   icon?: React.ReactElement<any>

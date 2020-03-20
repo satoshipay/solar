@@ -27,7 +27,7 @@ import { ReadOnlyTextfield } from "../Form/FormFields"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
 import { useConversionOffers } from "./hooks"
-import Portal from "../Portal"
+import Portal from "../Generic/Portal"
 import TradingPrice from "./TradingPrice"
 import { createTransaction } from "../../lib/transaction"
 

@@ -4,7 +4,7 @@ import { useIsMobile } from "../../hooks/userinterface"
 import { Box } from "../Layout/Box"
 import DialogBody from "../Dialog/DialogBody"
 import KeyExportBox from "../Account/KeyExportBox"
-import MainTitle from "../MainTitle"
+import MainTitle from "../Generic/MainTitle"
 
 interface Props {
   account: Account

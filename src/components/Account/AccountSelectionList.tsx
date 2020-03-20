@@ -7,7 +7,7 @@ import makeStyles from "@material-ui/core/styles/makeStyles"
 import Radio from "@material-ui/core/Radio"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "../../context/accounts"
-import InlineLoader from "../InlineLoader"
+import InlineLoader from "../Generic/InlineLoader"
 import AccountBalances from "./AccountBalances"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"

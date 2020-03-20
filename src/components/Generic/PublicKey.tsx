@@ -1,10 +1,10 @@
 import React from "react"
 import ButtonBase from "@material-ui/core/ButtonBase"
 import Typography from "@material-ui/core/Typography"
-import { AccountsContext } from "../context/accounts"
-import { useFederationLookup } from "../hooks/stellar"
-import { useClipboard } from "../hooks/userinterface"
-import { isPublicKey } from "../lib/stellar-address"
+import { AccountsContext } from "../../context/accounts"
+import { useFederationLookup } from "../../hooks/stellar"
+import { useClipboard } from "../../hooks/userinterface"
+import { isPublicKey } from "../../lib/stellar-address"
 
 type Variant = "full" | "short" | "shorter"
 

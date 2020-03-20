@@ -7,7 +7,7 @@ import { FullscreenDialogTransition } from "../../theme"
 import DialogBody from "../Dialog/DialogBody"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
 import { Box } from "../Layout/Box"
-import MainTitle from "../MainTitle"
+import MainTitle from "../Generic/MainTitle"
 import Notification from "./Notification"
 
 export const autoHideDuration = 5000

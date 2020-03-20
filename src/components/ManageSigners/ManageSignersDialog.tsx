@@ -10,9 +10,9 @@ import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { createTransaction } from "../../lib/transaction"
-import TransactionSender from "../TransactionSender"
-import ButtonIconLabel from "../ButtonIconLabel"
-import MainTitle from "../MainTitle"
+import TransactionSender from "../Transaction/TransactionSender"
+import ButtonIconLabel from "../Generic/ButtonIconLabel"
+import MainTitle from "../Generic/MainTitle"
 import ManageSignersDialogContent, { SignerUpdate } from "./ManageSignersDialogContent"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>

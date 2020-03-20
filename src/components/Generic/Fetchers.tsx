@@ -1,6 +1,6 @@
 import React from "react"
-import { useAccountHomeDomainSafe } from "../hooks/stellar"
-import { useWellKnownAccounts } from "../hooks/stellar-ecosystem"
+import { useAccountHomeDomainSafe } from "../../hooks/stellar"
+import { useWellKnownAccounts } from "../../hooks/stellar-ecosystem"
 import { Address } from "./PublicKey"
 
 interface AccountNameProps {

@@ -9,8 +9,8 @@
 
 import React from "react"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
-import TransactionSender from "../TransactionSender"
-import ViewLoading from "../ViewLoading"
+import TransactionSender from "../Transaction/TransactionSender"
+import ViewLoading from "../Generic/ViewLoading"
 import { TransferDialogProps } from "./TransferDialog"
 import TransferDialogLayout from "./TransferDialogLayout"
 

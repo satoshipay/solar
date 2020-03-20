@@ -10,7 +10,7 @@ import { useAssetMetadata } from "../../hooks/stellar"
 import { balancelineToAsset } from "../../lib/stellar"
 import { breakpoints } from "../../theme"
 import { SingleBalance } from "../Account/AccountBalances"
-import { AccountName } from "../Fetchers"
+import { AccountName } from "../Generic/Fetchers"
 import AssetLogo from "./AssetLogo"
 
 export const actionsSize = 36

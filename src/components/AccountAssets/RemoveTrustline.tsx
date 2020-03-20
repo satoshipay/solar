@@ -10,7 +10,7 @@ import { trackError } from "../../context/notifications"
 import { AccountData } from "../../lib/account"
 import { createTransaction } from "../../lib/transaction"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
-import TransactionSender, { SendTransaction } from "../TransactionSender"
+import TransactionSender, { SendTransaction } from "../Transaction/TransactionSender"
 
 interface Props {
   account: Account

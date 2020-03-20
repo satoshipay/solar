@@ -3,23 +3,23 @@ import React from "react"
 import { Translation } from "react-i18next"
 import { Networks, Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
-import { Account } from "../context/accounts"
-import { SettingsContext, SettingsContextType } from "../context/settings"
-import { useHorizon } from "../hooks/stellar"
-import { useIsMobile } from "../hooks/userinterface"
-import { isWrongPasswordError, getErrorTranslation } from "../lib/errors"
-import { explainSubmissionErrorResponse } from "../lib/horizonErrors"
+import { Account } from "../../context/accounts"
+import { SettingsContext, SettingsContextType } from "../../context/settings"
+import { useHorizon } from "../../hooks/stellar"
+import { useIsMobile } from "../../hooks/userinterface"
+import { isWrongPasswordError, getErrorTranslation } from "../../lib/errors"
+import { explainSubmissionErrorResponse } from "../../lib/horizonErrors"
 import {
   collateSignature,
   createSignatureRequestURI,
   submitNewSignatureRequest,
   SignatureRequest
-} from "../lib/multisig-service"
-import { networkPassphrases } from "../lib/stellar"
-import { hasSigned, requiresRemoteSignatures, signTransaction } from "../lib/transaction"
-import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../lib/stellar-guard"
-import { workers } from "../worker-controller"
-import TransactionReviewDialog from "./TransactionReview/TransactionReviewDialog"
+} from "../../lib/multisig-service"
+import { networkPassphrases } from "../../lib/stellar"
+import { hasSigned, requiresRemoteSignatures, signTransaction } from "../../lib/transaction"
+import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../../lib/stellar-guard"
+import { workers } from "../../worker-controller"
+import TransactionReviewDialog from "../TransactionReview/TransactionReviewDialog"
 import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>

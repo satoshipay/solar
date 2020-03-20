@@ -13,7 +13,7 @@ import { renderFormFieldError } from "../../lib/errors"
 import DialogBody from "../Dialog/DialogBody"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { HorizontalLayout, VerticalLayout } from "../Layout/Box"
-import Portal from "../Portal"
+import Portal from "../Generic/Portal"
 import SignersEditor from "./SignersEditor"
 
 const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
