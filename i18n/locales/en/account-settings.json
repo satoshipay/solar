@@ -24,7 +24,18 @@
       "1": "Are you sure you want to delete the account \"{{accountName}}?\"",
       "2": " Make sure to backup your private key or merge the funds into another account of yours, since there are still funds left!"
     },
-    "title": "Confirm Account Deletion"
+    "title": "Confirm Account Deletion",
+    "warning-dialog": {
+      "close": {
+        "label": "OK"
+      }
+    },
+    "warnings": {
+      "cannot-merge": {
+        "text": "Cannot merge account yet. First you need to cancel all open trading orders and remove all assets.",
+        "title": "Manual action required"
+      }
+    }
   },
   "custom-trustline": {
     "action": {
