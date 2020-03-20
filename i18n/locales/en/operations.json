@@ -1,114 +1,114 @@
 {
   "account-merge": {
     "summary": {
-      "account": "Account",
-      "merge-into": "Merge into"
+      "account": "帐户",
+      "merge-into": "合并"
     },
-    "title": "Merge Account"
+    "title": "合并帐户"
   },
   "change-trust": {
     "summary": {
-      "asset": "Asset",
-      "issued-by": "Issued by",
+      "asset": "资产",
+      "issued-by": "发行者为",
       "limit": {
-        "label": "Limit",
+        "label": "限额",
         "value": {
-          "unlimited": "Unlimited",
-          "limited-to": "Limited to {{limit}} {{code}}"
+          "unlimited": "无限",
+          "limited-to": "限额为 {{limit}} {{code}}"
         }
       }
     },
     "title": {
-      "add-asset": "Add asset",
-      "remove-asset": "Remove asset"
+      "add-asset": "添加资产",
+      "remove-asset": "移除资产"
     }
   },
   "create-account": {
     "summary": {
-      "account": "Account to create",
-      "funding-account": "Funding account",
-      "funding-amount": "Funding amount"
+      "account": "要创建的账户",
+      "funding-account": "提供资金的账户",
+      "funding-amount": "提供资金数目"
     },
-    "title": "Create account"
+    "title": "创建账户"
   },
   "manage-buy-offer": {
     "title": {
-      "create": "Create buy order",
-      "delete": "Delete buy order",
-      "update": "Update buy order"
+      "create": "创建买单",
+      "delete": "删除买单",
+      "update": "更新买单"
     }
   },
   "manage-data": {
-    "title": "Set account data"
+    "title": "设置账户数据字段"
   },
   "manage-offer": {
     "summary": {
-      "buy": "Buy",
-      "sell": "Sell"
+      "buy": "买",
+      "sell": "卖"
     }
   },
   "manage-sell-offer": {
     "title": {
-      "create": "Create sell order",
-      "delete": "Delete sell order",
-      "update": "Update sell order"
+      "create": "创建卖单",
+      "delete": "删除卖单",
+      "update": "更新卖单"
     }
   },
   "offer-details": {
-    "string": "Buy {{price}} {{buyingCode}} for {{amount}} {{sellingCode}}"
+    "string": "付 {{amount}} {{sellingCode}}以购入 {{price}} {{buyingCode}}"
   },
   "payment": {
     "summary": {
-      "amount": "Amount",
-      "destination": "Destination",
-      "source": "Source"
+      "amount": "数目",
+      "destination": "目标账户",
+      "source": "来源账户"
     },
-    "title": "Payment"
+    "title": "付款"
   },
   "set-options": {
     "add-signer": {
       "summary": {
-        "account": "Account to add signer to",
-        "key-weight": "Key weight",
-        "new-signer": "New signer"
+        "account": "要添加签名者的账户",
+        "key-weight": "签名值",
+        "new-signer": "新签名者"
       },
-      "title": "Add signer"
+      "title": "添加签名者"
     },
     "change-signature-setup": {
       "summary": {
         "key-thresholds": {
-          "label": "New key thresholds",
+          "label": "新的所需簽名值",
           "value": {
-            "low": "Low threshold:    {{threshold}}",
-            "medium": "Medium threshold: {{threshold}}",
-            "high": "High threshold:   {{threshold}}"
+            "low": "低所需签名值:    {{threshold}}",
+            "medium": "中等所需签名值: {{threshold}}",
+            "high": "高所需签名值:   {{threshold}}"
           }
         },
-        "required-signatures": "Required signatures"
+        "required-signatures": "需要签名数量"
       },
-      "title": "Change signature setup"
+      "title": "更改签名设置"
     },
     "remove-signer": {
       "summary": {
-        "account": "Account to remove signer from",
-        "signer": "Signer"
+        "account": "要移除签名者的账户",
+        "signer": "签名者"
       },
-      "title": "Remove signer"
+      "title": "移除签名者"
     },
     "set-account-options": {
-      "title": "Set account options"
+      "title": "设置帐户选项"
     },
     "set-home-domain": {
-      "title": "Set home domain"
+      "title": "设置网域"
     },
     "set-inflation-destination": {
       "summary": {
-        "new-destination": "New destination"
+        "new-destination": "新目标"
       },
-      "title": "Set inflation destination"
+      "title": "设置通胀目标帐户"
     },
     "set-master-key-weight": {
-      "title": "Set master key weight"
+      "title": "设置主帐户的签名值"
     }
   }
 }
