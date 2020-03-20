@@ -16,7 +16,7 @@ import { Account } from "../../context/accounts"
 import { SettingsContextType } from "../../context/settings"
 import { useLiveAccountData } from "../../hooks/stellar-subscriptions"
 import { useIsMobile } from "../../hooks/userinterface"
-import ContextMenu, { AnchorRenderProps } from "../ContextMenu"
+import ContextMenu, { AnchorRenderProps } from "../Generic/ContextMenu"
 
 const useContextMenuItemStyles = makeStyles({
   disabled: {

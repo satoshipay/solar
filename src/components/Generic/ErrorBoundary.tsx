@@ -2,11 +2,11 @@ import React from "react"
 import { Translation } from "react-i18next"
 import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
-import { getErrorTranslation } from "../lib/errors"
-import { Box, VerticalLayout } from "./Layout/Box"
+import { getErrorTranslation } from "../../lib/errors"
+import { Box, VerticalLayout } from "../Layout/Box"
 
 // tslint:disable-next-line
-const pkg = require("../../package.json")
+const pkg = require("../../../package.json")
 
 const buttonLabels = ["Oh no", "Drats!", "Nevermind", "Let's try this again", "Not my day"]
 

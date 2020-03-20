@@ -1,6 +1,6 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import { useIsMobile } from "../hooks/userinterface"
+import { useIsMobile } from "../../hooks/userinterface"
 
 interface Props {
   children: React.ReactElement

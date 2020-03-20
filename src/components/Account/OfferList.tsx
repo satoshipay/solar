@@ -16,8 +16,8 @@ import { AccountData } from "../../lib/account"
 import { offerAssetToAsset } from "../../lib/stellar"
 import { createTransaction } from "../../lib/transaction"
 import { HorizontalLayout } from "../Layout/Box"
-import { List } from "../List"
-import TransactionSender from "../TransactionSender"
+import { List } from "../Layout/List"
+import TransactionSender from "../Transaction/TransactionSender"
 import { SingleBalance } from "./AccountBalances"
 
 function createDismissalTransaction(

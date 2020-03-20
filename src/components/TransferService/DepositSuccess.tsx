@@ -4,7 +4,7 @@ import { Deposit } from "@satoshipay/stellar-transfer"
 import { RefStateObject } from "../../hooks/userinterface"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
-import Portal from "../Portal"
+import Portal from "../Generic/Portal"
 import { TransferStates } from "./statemachine"
 import { Paragraph, Summary } from "./Sidebar"
 

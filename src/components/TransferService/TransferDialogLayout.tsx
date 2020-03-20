@@ -4,9 +4,9 @@ import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import ScrollableBalances from "../AccountAssets/ScrollableBalances"
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
-import InlineLoader from "../InlineLoader"
+import InlineLoader from "../Generic/InlineLoader"
 import { VerticalLayout } from "../Layout/Box"
-import MainTitle from "../MainTitle"
+import MainTitle from "../Generic/MainTitle"
 
 interface TitleProps {
   account: Account

@@ -7,8 +7,8 @@ import { TransitionProps } from "@material-ui/core/transitions/transition"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import FormGroup from "@material-ui/core/FormGroup"
 import Typography from "@material-ui/core/Typography"
-import { VerticalLayout } from "./Layout/Box"
-import { Section } from "./Layout/Page"
+import { VerticalLayout } from "../Layout/Box"
+import { Section } from "../Layout/Page"
 
 const Transition = React.forwardRef((props: TransitionProps, ref) => <Fade ref={ref} {...props} appear={false} />)
 

@@ -1,7 +1,7 @@
 import React from "react"
 import Card, { CardProps } from "@material-ui/core/Card"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import { HorizontalLayout } from "./Layout/Box"
+import { HorizontalLayout } from "./Box"
 
 const useCardStyles = makeStyles({
   root: {

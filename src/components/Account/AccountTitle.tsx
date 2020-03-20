@@ -16,7 +16,7 @@ import { containsStellarGuardAsSigner } from "../../lib/stellar-guard"
 import { primaryBackgroundColor } from "../../theme"
 import StellarGuardIcon from "../Icon/StellarGuard"
 import { HorizontalLayout } from "../Layout/Box"
-import MainTitle from "../MainTitle"
+import MainTitle from "../Generic/MainTitle"
 
 function clearTextSelection() {
   const selection = window.getSelection()

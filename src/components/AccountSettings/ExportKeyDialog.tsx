@@ -15,7 +15,7 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box } from "../Layout/Box"
 import DialogBody from "../Dialog/DialogBody"
 import KeyExportBox from "../Account/KeyExportBox"
-import MainTitle from "../MainTitle"
+import MainTitle from "../Generic/MainTitle"
 
 interface PromptToRevealProps {
   children: React.ReactNode
@@ -157,14 +157,15 @@ function ExportKeyDialog(props: Props) {
   )
 
   const titleContent = React.useMemo(
-    () => props.variant === "initial-backup" ? null : (
-      <MainTitle
-        hideBackButton={!props.onClose}
-        onBack={onBackButtonClick}
-        style={{ marginBottom: 24 }}
-        title={t("account-settings.export-key.title.default")}
-      />
-    ),
+    () =>
+      props.variant === "initial-backup" ? null : (
+        <MainTitle
+          hideBackButton={!props.onClose}
+          onBack={onBackButtonClick}
+          style={{ marginBottom: 24 }}
+          title={t("account-settings.export-key.title.default")}
+        />
+      ),
     [props.onClose, props.variant, onBackButtonClick, t]
   )
 

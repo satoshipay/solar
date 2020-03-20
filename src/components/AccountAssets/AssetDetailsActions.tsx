@@ -12,7 +12,7 @@ import * as routes from "../../routes"
 import { CompactDialogTransition } from "../../theme"
 import { stringifyAsset } from "../../lib/stellar"
 import { DialogActionsBox, ActionButton } from "../Dialog/Generic"
-import TransactionSender, { SendTransaction } from "../TransactionSender"
+import TransactionSender, { SendTransaction } from "../Transaction/TransactionSender"
 import RemoveTrustlineDialog from "./RemoveTrustline"
 
 const dialogActionsBoxStyle: React.CSSProperties = {

@@ -13,7 +13,7 @@ import { breakpoints } from "../../theme"
 import { AccountCreation } from "../AccountCreation/types"
 import { Box } from "../Layout/Box"
 import withFallback from "../Lazy/withFallback"
-import ViewLoading from "../ViewLoading"
+import ViewLoading from "../Generic/ViewLoading"
 import AccountTitle, { Badges, StaticBadges } from "./AccountTitle"
 
 const AccountContextMenu = withFallback(

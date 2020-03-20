@@ -16,8 +16,8 @@ import DialogBody from "../Dialog/DialogBody"
 import MergeIcon from "../Icon/Merge"
 import { HorizontalLayout } from "../Layout/Box"
 import ScrollableBalances from "../Lazy/ScrollableBalances"
-import MainTitle from "../MainTitle"
-import TransactionSender from "../TransactionSender"
+import MainTitle from "../Generic/MainTitle"
+import TransactionSender from "../Transaction/TransactionSender"
 import { ActionButton, ConfirmDialog, DialogActionsBox } from "../Dialog/Generic"
 
 interface DeletionConfirmationDialogProps {

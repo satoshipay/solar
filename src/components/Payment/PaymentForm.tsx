@@ -20,7 +20,7 @@ import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import AssetSelector from "../Form/AssetSelector"
 import { PriceInput, QRReader } from "../Form/FormFields"
 import { HorizontalLayout } from "../Layout/Box"
-import Portal from "../Portal"
+import Portal from "../Generic/Portal"
 
 export interface PaymentFormValues {
   amount: string

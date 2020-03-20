@@ -5,7 +5,7 @@ import { useRouter, RefStateObject } from "../../hooks/userinterface"
 import * as routes from "../../routes"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { Box } from "../Layout/Box"
-import Portal from "../Portal"
+import Portal from "../Generic/Portal"
 
 interface Props {
   account: Account

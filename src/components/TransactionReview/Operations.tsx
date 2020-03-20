@@ -9,7 +9,7 @@ import { useAccountHomeDomainSafe } from "../../hooks/stellar"
 import { useIsSmallMobile } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "../../lib/stellar"
-import { CopyableAddress } from "../PublicKey"
+import { CopyableAddress } from "../Generic/PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
 
 const isUTF8 = (buffer: Buffer) => !buffer.toString("utf8").match(/[\x00-\x1F]/)

@@ -48,4 +48,4 @@ function ContextMenu({ anchor, menu }: Props) {
   )
 }
 
-export default ContextMenu
+export default React.memo(ContextMenu)

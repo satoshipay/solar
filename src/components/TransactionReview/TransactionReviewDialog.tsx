@@ -12,7 +12,7 @@ import { FullscreenDialogTransition, CompactDialogTransition } from "../../theme
 import DialogBody from "../Dialog/DialogBody"
 import TestnetBadge from "../Dialog/TestnetBadge"
 import { Box } from "../Layout/Box"
-import MainTitle from "../MainTitle"
+import MainTitle from "../Generic/MainTitle"
 import { useOperationTitle } from "./Operations"
 import ReviewForm from "./ReviewForm"
 

@@ -30,8 +30,8 @@ import AssetSelector from "../Form/AssetSelector"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
-import Portal from "../Portal"
 import { useConversionOffers } from "./hooks"
+import Portal from "../Generic/Portal"
 import TradingPrice from "./TradingPrice"
 
 const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>

@@ -14,7 +14,7 @@ import { SignatureRequest } from "../../lib/multisig-service"
 import { openLink } from "../../platform/links"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
 import { VerticalLayout } from "../Layout/Box"
-import Portal from "../Portal"
+import Portal from "../Generic/Portal"
 import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
 import TransactionSummary from "./TransactionSummary"
 

@@ -12,7 +12,7 @@ import { Account } from "../../context/accounts"
 import { AccountData } from "../../lib/account"
 import { signatureMatchesPublicKey } from "../../lib/stellar"
 import { warningColor } from "../../theme"
-import { Address } from "../PublicKey"
+import { Address } from "../Generic/PublicKey"
 import MemoMessage from "../Stellar/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 
