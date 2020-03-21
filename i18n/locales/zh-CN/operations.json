@@ -77,38 +77,38 @@
     "change-signature-setup": {
       "summary": {
         "key-thresholds": {
-          "label": "New key thresholds",
+          "label": "新密钥决阈值",
           "value": {
-            "low": "Low threshold:    {{threshold}}",
-            "medium": "Medium threshold: {{threshold}}",
-            "high": "High threshold:   {{threshold}}"
+            "low": "低阈值:    {{threshold}}",
+            "medium": "中阈值: {{threshold}}",
+            "high": "高阈值:   {{threshold}}"
           }
         },
-        "required-signatures": "Required signatures"
+        "required-signatures": "必须的签名"
       },
-      "title": "Change signature setup"
+      "title": "更改签名设置"
     },
     "remove-signer": {
       "summary": {
-        "account": "Account to remove signer from",
-        "signer": "Signer"
+        "account": "删除签名者从",
+        "signer": "签名者"
       },
-      "title": "Remove signer"
+      "title": "删除签名者"
     },
     "set-account-options": {
-      "title": "Set account options"
+      "title": "设置用户选项"
     },
     "set-home-domain": {
-      "title": "Set home domain"
+      "title": "设置主页"
     },
     "set-inflation-destination": {
       "summary": {
-        "new-destination": "New destination"
+        "new-destination": "新目标"
       },
-      "title": "Set inflation destination"
+      "title": "设置通胀目标"
     },
     "set-master-key-weight": {
-      "title": "Set master key weight"
+      "title": "设置主密钥权限"
     }
   }
 }
