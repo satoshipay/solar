@@ -50,10 +50,10 @@
     }
   },
   "validation": {
-    "invalid-key": "Invalid stellar private key.",
-    "no-account-name": "No account name has been entered.",
-    "no-password": "No password has been entered.",
-    "password-no-match": "Password does not match.",
-    "same-account": "Already added this account."
+    "invalid-key": "密钥无效.",
+    "no-account-name": "未输入账户名.",
+    "no-password": "没有输入密码.",
+    "password-no-match": "密码不匹配.",
+    "same-account": "已添加此帐户."
   }
 }
