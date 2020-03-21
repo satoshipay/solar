@@ -10,8 +10,8 @@
         }
       },
       "prompt": {
-        "enable": "Unlock your device once to enable the feature.",
-        "disable": "Unlock your device to disable the auto-lock."
+        "enable": "一次解锁您的设备以启用此功能.",
+        "disable": "锁定设备以禁用自动锁定."
       }
     },
     "memo": {
@@ -50,17 +50,17 @@
     }
   },
   "trusted-services": {
-    "info": "Trusted Services are web services that are allowed to interact with Solar wallet by requesting account data or proposing transactions. You can add a new service once it tries to interact with Solar.",
+    "info": "授信信服务是允许通过请求帐户数据或提出交易来与Solar钱包进行交互的Web服务。您可以在尝试与Solar互动后添加新服务.",
     "service-selection": {
       "actions": {
-        "cancel": "Cancel",
-        "confirm": "Confirm"
+        "cancel": "取消",
+        "confirm": "确认"
       },
       "confirm": {
-        "title": "Confirm removal",
-        "text": "The service will be removed from your trust list. Are you sure?"
+        "title": "确认移除",
+        "text": "您确认从授信列表中删除吗?"
       },
-      "no-services": "No trusted services"
+      "no-services": "没有相关服务"
     }
   }
 }
