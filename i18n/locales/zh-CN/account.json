@@ -31,101 +31,101 @@
     },
     "general": {
       "account-flags": {
-        "auth-required": "Authorization by issuer required",
-        "auth-not-required": "No authorization required",
-        "auth-revocable": "Authorization revocable",
-        "auth-not-revocable": "Authorization not revocable",
-        "auth-immutable": "These flags are immutable",
-        "auth-mutable": "Issuer can change these flags",
-        "label": "Account flags"
+        "auth-required": "需要发行方授权",
+        "auth-not-required": "无需授权",
+        "auth-revocable": "授权可撤销",
+        "auth-not-revocable": "授权不可撤销",
+        "auth-immutable": "标志不可改变",
+        "auth-mutable": "发行者可以更改这此标志",
+        "label": "账户标志"
       },
       "anchor-asset": {
-        "label": "Anchored to"
+        "label": "锚定到"
       },
       "conditions": {
-        "label": "Conditions"
+        "label": "条件"
       },
       "description": {
-        "label": "Description"
+        "label": "描述"
       },
       "issuing-account": {
-        "label": "Issuing account"
+        "label": "发行方"
       },
       "organisation": {
         "address": {
-          "label": "Address"
+          "label": "地址"
         },
         "dba": {
-          "label": "Doing business as"
+          "label": "生意"
         },
         "description": {
-          "label": "Description"
+          "label": "描述"
         },
         "email": {
-          "label": "Email address"
+          "label": "Email"
         },
         "name": {
-          "label": "Organization name"
+          "label": "组织名称"
         },
         "phone-number": {
-          "label": "Phone number"
+          "label": "电话"
         },
         "website": {
-          "label": "Website"
+          "label": "网站"
         }
       },
       "redemption-instructions": {
-        "label": "Redemption instructions"
+        "label": "赎回说明"
       }
     }
   },
   "balance-details": {
     "button": {
       "add-asset": {
-        "label": "Add Asset To Your Account"
+        "label": "添加资产到账户"
       }
     },
     "item": {
       "spendable-balance": {
-        "primary": "Spendable balance"
+        "primary": "可用余额"
       }
     },
     "spendable-balances": {
       "base-reserve": {
-        "primary": "Base reserve",
-        "secondary": "Fixed base reserve"
+        "primary": "基本保留",
+        "secondary": "固定准备金"
       },
       "data-reserve": {
-        "primary": "Data fields reserve",
-        "secondary": "Account data fields"
+        "primary": "数据字段",
+        "secondary": "账户数据字段"
       },
-      "headline": "Amounts in XLM",
+      "headline": "XLM 数量",
       "open-orders-reserve": {
-        "primary": "Open orders reserve",
-        "secondary": "Open SDEX orders"
+        "primary": "未结订单保留",
+        "secondary": "现在有未成交的交易订单"
       },
       "selling-liabilities": {
-        "primary": "Selling liabilities",
-        "secondary": "Covers open orders"
+        "primary": "出售负债",
+        "secondary": "包括未成交的现有订单"
       },
       "signers-reserve": {
-        "primary": "Account signers reserve",
+        "primary": "账户签名保留",
         "secondary": {
-          "single-key": "Single key reserve",
-          "multiple-keys": "Master key + co-signers"
+          "single-key": "单密钥保留",
+          "multiple-keys": "主密钥 + 多个签名者"
         }
       },
       "spendable-balance": {
-        "primary": "Spendable balance",
-        "secondary": "Freely usable amount"
+        "primary": "可用余额",
+        "secondary": "自由使用的数量"
       },
       "total-balance": {
-        "primary": "Total balance",
-        "secondary": "Your balance, incl. unspendable"
+        "primary": "总余额",
+        "secondary": "你的余额，包括已经保留的"
       },
       "trustline-reserve": {
-        "primary": "Trustlines reserve",
-        "secondary": "For each non-XLM balance"
+        "primary": "授信保留",
+        "secondary": "每一个非 XLM 资产"
       }
     }
   },
@@ -162,10 +162,10 @@
   },
   "transaction-review": {
     "action": {
-      "confirm": "Confirm",
-      "dismiss": "Dismiss",
-      "inspect": "Inspect",
-      "show-more": "Show more details"
+      "confirm": "确认",
+      "dismiss": "撤回",
+      "inspect": "查看",
+      "show-more": "更多"
     },
     "summary": {
       "item": {
@@ -173,19 +173,19 @@
           "label": "账户"
         },
         "authenticating-account": {
-          "label": "Authenticating Account"
+          "label": "验证账户"
         },
         "expiry": {
           "label": "Expiry"
         },
         "max-fee": {
-          "label": "Maximum fee"
+          "label": "最大费用"
         },
         "service": {
-          "label": "Service"
+          "label": "服务"
         },
         "submission": {
-          "label": "Submission"
+          "label": "提交"
         },
         "tx-hash": {
           "label": "事务 Hash 值"
@@ -198,15 +198,15 @@
       }
     },
     "title": {
-      "transaction": "Transaction",
-      "payment": "Payment",
-      "delete-orders-operation": "Delete Trading Orders",
-      "web-auth": "Web Authentication"
+      "transaction": "事务",
+      "payment": "支付",
+      "delete-orders-operation": "删除交易订单",
+      "web-auth": "网络身份难"
     },
     "validation": {
-      "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
-      "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
-      "password-required": "Password required"
+      "no-account-data": "固定冲突 ：在源账户的相关设置.",
+      "no-manage-data-operation": "固定冲突 ：事务必须包含相关数据 .",
+      "password-required": "需要密码"
     }
   }
 }
