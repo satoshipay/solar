@@ -1,0 +1,48 @@
+{
+  "error": {
+    "boundary": {
+      "header": "发生错误",
+      "contact-us": "请联系我们"
+    },
+    "bad-response-error": "来自{{server}}服务器的错误响应（{{status}}）",
+    "bad-transaction-error": "交易失败。 本预料会得到交易或交易纪录，但得到：{{transaction}}",
+    "expected-json-response-error": "本预期{{url}}会以JSON回应。内容类型却改为{{contentType}}。",
+    "existing-account-error": "具有该名称的帐户已经存在.",
+    "fetch-signature-requests-error": "提取签名请求失败: {{response}} \nService: {{service}}",
+    "multi-sig-event-stream-double-errored-error": "多重签名更新事件流双重错误: {{url}}",
+    "no-callback-url-error": "无法提交回多重签名服务。 签名请求未设置回调网域。",
+    "non-existent-destination-error": "由于目标帐户还没开启，未能支付 {{assetCode}}。 若要开启帐户，必须以XLM付款。",
+    "password-required-error": "帐户{{accountName}}受密码保护，但未传递密码.",
+    "request-failed-error": "对{{target}}的请求失败，状态为{{status}}：{{message}}",
+    "stellar-address-not-found-error": "找不到恒星地址：{{address}}",
+    "stellar-address-request-failed-error": "解决恒星地址的请求失败：{{address}}",
+    "submission-failed-error": "将交易提交到{{endpoint}}失败，状态为{{status}}：{{message}}",
+    "unknown-error": "发生不明错误。",
+    "wrong-password-error": "密码错误。",
+    "wrong-request-start-error": "请求的开首必须為'web+stellar:'",
+    "submission-error": {
+      "default": "交易被网络拒绝。错误代码: {{codes}}",
+      "op-result-code": {
+        "op-cross-self": "此交易跟你的一個未结订单有衝突。",
+        "op-has-sub-entries": "账户仍有托管服務（资产）或未结订单",
+        "op-immutable-set": "账户设置不可变。",
+        "op-line-full": "受款帐户的余额将超过它对該资产的授信最大限額.",
+        "op-low-reserve": "由于一方帐户的余额将跌至低于最低余额，交易被网络拒绝。",
+        "op-no-account": "目标帐户不存在。",
+        "op-no-issuer": "资产无效。资产发行者不正确。",
+        "op-no-trust": "目标帐户未有授权你正尝试支付的资产。",
+        "op-underfunded": "你没有足够的余额去进行这个操作。"
+      },
+      "tx-result-code": {
+        "insufficient_fee": "网络要求比本交易设置更高的收费。",
+        "internal_error": "恒星区块链出现不明错误。",
+        "no_account": "找不到来源帐号。",
+        "tx_bad_auth": "未有足够的有效签名或是网络不正确。",
+        "tx_bad_auth_extra": "该交易连系着未使用的签名。",
+        "tx_bad_seq": "数序不不相称，请重新交易。",
+        "tx_insufficient_balance": "余额不足. 余额将跌低于最低存款额。",
+        "tx_too_late": "交易汇票已经过期，请重新尝试。"
+      }
+    }
+  }
+}

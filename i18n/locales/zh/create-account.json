@@ -1,0 +1,62 @@
+{
+  "actions": {
+    "cancel": "取消",
+    "confirm": "确认",
+    "create": {
+      "long": "开启账户",
+      "short": "开启"
+    },
+    "import": {
+      "long": "导入账户",
+      "short": "导入"
+    }
+  },
+  "base-name": {
+    "mainnet": "我的账户",
+    "testnet": "我的测试账户"
+  },
+  "confirm": {
+    "text": "你将要开启一个没有密码保护的新帐户。所有能够打开你这个装置的人将可以使用这个帐户的款项。你确定不使用密码吗？",
+    "title": "确定不使用密码"
+  },
+  "header": {
+    "placeholder": {
+      "mainnet": "新账户",
+      "testnet": "新测试账户"
+    }
+  },
+  "inputs": {
+    "import": {
+      "helper-text": "私钥由56个字母组成，第一个字母必定是S",
+      "placeholder": "SABCDEFGH…",
+      "label": "私钥",
+      "title": "导入现存的钱包"
+    },
+    "password": {
+      "label": "密码",
+      "placeholder": "输入密码"
+    },
+    "password-repeat": {
+      "label": "重复密码",
+      "placeholder": "重复输入密码"
+    }
+  },
+  "options": {
+    "import": {
+      "label": "导入私钥",
+      "description": "从备份还原帐户"
+    },
+    "password": {
+      "label": "密码保护",
+      "protected": "您的私钥将被加密",
+      "unprotected": "您的私钥将不受保护"
+    }
+  },
+  "validation": {
+    "invalid-key": "密钥无效",
+    "no-account-name": "未输入账户名",
+    "no-password": "未输入密码",
+    "password-no-match": "密码不匹配",
+    "same-account": "已添加此帐户"
+  }
+}
