@@ -1,8 +1,8 @@
 // Global IPC.* types are defined in types/ipc.d.ts
 
 import React from "react"
-import { Messages } from "../shared/ipc"
-import { trackError } from "../context/notifications"
+import { Messages } from "../Shared/ipc"
+import { trackError } from "../App/context/notifications"
 import { call } from "./ipc"
 
 const isFullscreenQRPreview = true

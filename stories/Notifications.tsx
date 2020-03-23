@@ -1,8 +1,8 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
-import NotificationContainer from "../src/components/Toasts/NotificationContainer"
-import { NotificationsContext, NotificationsProvider } from "../src/context/notifications"
+import NotificationContainer from "../src/Toasts/components/NotificationContainer"
+import { NotificationsContext, NotificationsProvider } from "../src/App/context/notifications"
 
 function Buttons(props: { children: React.ReactNode }) {
   return (

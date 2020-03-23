@@ -13,12 +13,12 @@ import {
 } from "@satoshipay/stellar-transfer"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
-import { DesktopTwoColumns } from "../src/components/TransferService/Sidebar"
-import { TransferState } from "../src/components/TransferService/statemachine"
-import { useWithdrawalState } from "../src/components/TransferService/useWithdrawalState"
-import { TransferContent, TransferSidebar } from "../src/components/TransferService/TransferContent"
-import WithdrawalProvider from "../src/components/TransferService/WithdrawalProvider"
-import { Account } from "../src/context/accounts"
+import { DesktopTwoColumns } from "../src/TransferService/components/Sidebar"
+import { TransferState } from "../src/TransferService/util/statemachine"
+import { useWithdrawalState } from "../src/TransferService/hooks/useWithdrawalState"
+import { TransferContent, TransferSidebar } from "../src/TransferService/components/TransferContent"
+import WithdrawalProvider from "../src/TransferService/components/WithdrawalProvider"
+import { Account } from "../src/App/context/accounts"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")
 const demoAssets = [eurt]

@@ -1,6 +1,6 @@
 import React from "react"
 import { props as QRReaderProps } from "react-qr-reader"
-import ViewLoading from "../components/Generic/ViewLoading"
+import ViewLoading from "../Generic/components/ViewLoading"
 
 function patchComponentModule<T>(mod: T | { default: T }): { default: T } {
   if (mod && "default" in mod && mod.default) {

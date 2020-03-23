@@ -1,6 +1,6 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
-import SubmissionProgress, { SubmissionType } from "../src/components/Transaction/SubmissionProgress"
+import SubmissionProgress, { SubmissionType } from "../src/Transaction/components/SubmissionProgress"
 
 storiesOf("SubmissionProgress", module)
   .add("pending", () => (

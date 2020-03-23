@@ -6,15 +6,15 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; child-src 'self' blob: file://*; connect-src *; img-src *; script-src 'self' 'unsafe-eval' blob: file://*; style-src 'self' 'unsafe-inline'; worker-src 'self' blob: file://*;">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Solar Wallet</title>
-    <link href="./fonts.css" rel="stylesheet">
-    <link href="./base-styles.css" rel="stylesheet">
-    <link href="./splash.css" rel="stylesheet">
-    <link rel="prefetch" href="./workers/net-worker.ts" as="worker" />
+    <link href="./App/css/fonts.css" rel="stylesheet">
+    <link href="./App/css/base-styles.css" rel="stylesheet">
+    <link href="./SplashScreen/splash.css" rel="stylesheet">
+    <link rel="prefetch" href="./Workers/net-worker.ts" as="worker" />
   </head>
   <body>
     <div id="app"></div>
-    {% include "splash.html" %}
+    {% include "SplashScreen/splash.html" %}
     <script async nomodule src="./polyfills.ts"></script>
-    <script async src="./app.tsx"></script>
+    <script async src="./bootstrap.ts"></script>
   </body>
 </html>

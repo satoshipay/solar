@@ -5,10 +5,10 @@ import PromiseQueue from "p-queue"
 import qs from "qs"
 import { Asset, Horizon, Networks, ServerApi, Transaction } from "stellar-sdk"
 import pkg from "../../../package.json"
-import { Cancellation, CustomError } from "../../lib/errors"
-import { parseAssetID } from "../../lib/stellar"
-import { max } from "../../lib/strings"
-import { createReconnectingSSE } from "../_util/event-source"
+import { Cancellation, CustomError } from "../../Generic/lib/errors"
+import { parseAssetID } from "../../Generic/lib/stellar"
+import { max } from "../../Generic/lib/strings"
+import { createReconnectingSSE } from "../lib/event-source"
 import {
   accountDataUpdates,
   offerUpdates,
@@ -19,8 +19,8 @@ import {
   OptimisticAccountUpdate,
   OptimisticOfferUpdate
 } from "./optimistic-updates/index"
-import { parseJSONResponse } from "../_util/rest"
-import { resetSubscriptions, subscribeToUpdatesAndPoll } from "../_util/subscription"
+import { parseJSONResponse } from "../lib/rest"
+import { resetSubscriptions, subscribeToUpdatesAndPoll } from "../lib/subscription"
 import { ServiceID } from "./errors"
 
 export interface CollectionPage<T> {

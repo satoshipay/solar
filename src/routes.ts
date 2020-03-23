@@ -1,4 +1,4 @@
-import { matchesRoute } from "./lib/routes"
+import { matchesRoute } from "./Generic/lib/routes"
 
 export const allAccounts = () => "/"
 export const account = (accountID: string) => `/account/${accountID}`

@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import { Horizon, Operation, Transaction } from "stellar-sdk"
-import { balancelineToAsset } from "../../../lib/stellar"
-import { OptimisticAccountUpdate } from "../../_util/optimistic-updates"
+import { balancelineToAsset } from "../../../Generic/lib/stellar"
+import { OptimisticAccountUpdate } from "../../lib/optimistic-updates"
 
 function addTrustline(
   horizonURL: string,
