@@ -1,14 +1,18 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
+import MenuItem from "@material-ui/core/MenuItem"
+import Select from "@material-ui/core/Select"
 import Switch from "@material-ui/core/Switch"
 import { makeStyles } from "@material-ui/core/styles"
 import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
 import FingerprintIcon from "@material-ui/icons/Fingerprint"
 import GroupIcon from "@material-ui/icons/Group"
+import LanguageIcon from "@material-ui/icons/Language"
 import MessageIcon from "@material-ui/icons/Message"
 import TestnetIcon from "@material-ui/icons/MoneyOff"
 import TrustIcon from "@material-ui/icons/VerifiedUser"
+import { availableLanguages } from "../../../i18n/index"
 import AppSettingsItem from "./AppSettingsItem"
 
 interface SettingsToggleProps {
@@ -94,6 +98,42 @@ export const HideMemoSetting = React.memo(function HideMemoSetting(props: Settin
           ? t("app-settings.settings.memo.text.secondary.hidden")
           : t("app-settings.settings.memo.text.secondary.shown")
       }
+    />
+  )
+})
+
+interface LanguageSettingProps {
+  onSelect: (language: string | undefined) => void
+  value: string | null | undefined
+}
+
+export const LanguageSetting = React.memo(function LanguageSetting(props: LanguageSettingProps) {
+  const { onSelect } = props
+  const classes = useSettingsStyles(props)
+  const { t } = useTranslation()
+
+  const handleChange = React.useCallback(
+    (event: React.ChangeEvent<{ value: unknown }>) => {
+      onSelect(event.target.value !== "auto" ? (event.target.value as string) : undefined)
+    },
+    [onSelect]
+  )
+
+  return (
+    <AppSettingsItem
+      actions={
+        <Select onChange={handleChange} value={props.value || "auto"}>
+          <MenuItem value="auto">{t("app-settings.settings.language.auto-detect.label")}</MenuItem>
+          {[...availableLanguages].sort().map(lang => (
+            <MenuItem key={lang} value={lang}>
+              {lang}
+            </MenuItem>
+          ))}
+        </Select>
+      }
+      icon={<LanguageIcon className={classes.icon} />}
+      primaryText={t("app-settings.settings.language.text.primary")}
+      secondaryText={t("app-settings.settings.language.text.secondary")}
     />
   )
 })

@@ -1,5 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import { useForceRerender } from "../hooks/util"
 import { testBiometricAuth, isBiometricAuthAvailable } from "../platform/bio-auth"
 import {
   loadIgnoredSignatureRequestHashes,
@@ -23,8 +24,10 @@ interface ContextType {
   ignoreSignatureRequest: (signatureRequestHash: string) => void
   ignoredSignatureRequests: string[]
   initialized: boolean
+  language: string | undefined
   multiSignature: boolean
   multiSignatureServiceURL: string
+  setLanguage: (language: string | undefined) => void
   setSetting: (key: keyof Platform.SettingsData, value: any) => void
   showTestnet: boolean
   toggleBiometricLock: () => void
@@ -62,8 +65,10 @@ const SettingsContext = React.createContext<ContextType>({
   ignoreSignatureRequest: () => undefined,
   ignoredSignatureRequests: initialIgnoredSignatureRequests,
   initialized: false,
+  language: undefined,
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
+  setLanguage: () => undefined,
   setSetting: () => undefined,
   showTestnet: initialSettings.testnet,
   toggleBiometricLock: () => undefined,
@@ -82,6 +87,7 @@ export function SettingsProvider(props: Props) {
     available: false,
     enrolled: false
   })
+  const forceRerender = useForceRerender()
   const { t } = useTranslation()
 
   React.useEffect(() => {
@@ -128,6 +134,21 @@ export function SettingsProvider(props: Props) {
   const toggleTestnet = () => updateSettings({ testnet: !settings.testnet })
   const toggleHideMemos = () => updateSettings({ hideMemos: !settings.hideMemos })
 
+  const setLanguage = (language: string | undefined) => {
+    if (language) {
+      localStorage.setItem("i18nextLng", language)
+    } else {
+      localStorage.removeItem("i18nextLng")
+    }
+    forceRerender()
+  }
+
+  const setSetting = (key: keyof Platform.SettingsData, value: any) => {
+    const partial: Partial<Platform.SettingsData> = {}
+    partial[key] = value
+    updateSettings(partial)
+  }
+
   const toggleBiometricLock = () => {
     const message = settings.biometricLock
       ? t("app-settings.settings.biometric-lock.prompt.disable")
@@ -136,12 +157,6 @@ export function SettingsProvider(props: Props) {
     testBiometricAuth(message)
       .then(() => updateSettings({ biometricLock: !settings.biometricLock }))
       .catch(trackError)
-  }
-
-  const setSetting = (key: keyof Platform.SettingsData, value: any) => {
-    const partial: Partial<Platform.SettingsData> = {}
-    partial[key] = value
-    updateSettings(partial)
   }
 
   const contextValue: ContextType = {
@@ -153,8 +168,10 @@ export function SettingsProvider(props: Props) {
     ignoreSignatureRequest,
     ignoredSignatureRequests,
     initialized: settings.initialized,
+    language: localStorage.getItem("i18nextLng") || undefined,
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
+    setLanguage,
     setSetting,
     showTestnet: settings.testnet,
     toggleBiometricLock,
