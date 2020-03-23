@@ -102,11 +102,11 @@
       "headline": "XLM 数量",
       "open-orders-reserve": {
         "primary": "未结订单储备",
-        "secondary": "未结SDEX订单"
+        "secondary": "未结SDEX订单所需储备"
       },
       "selling-liabilities": {
         "primary": "未结订单总和",
-        "secondary": "未结订单所需余额"
+        "secondary": "未结订单所需余额总和"
       },
       "signers-reserve": {
         "primary": "用户签名储备",

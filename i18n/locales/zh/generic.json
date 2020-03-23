@@ -15,7 +15,7 @@
     "password-required-error": "帐户{{accountName}}受密码保护，但未传递密码.",
     "request-failed-error": "对{{target}}的请求失败，状态为{{status}}：{{message}}",
     "stellar-address-not-found-error": "找不到恒星地址：{{address}}",
-    "stellar-address-request-failed-error": "解决恒星地址的请求失败：{{address}}",
+    "stellar-address-request-failed-error": "解决恒星网址的请求失败：{{address}}",
     "submission-failed-error": "将交易提交到{{endpoint}}失败，状态为{{status}}：{{message}}",
     "unknown-error": "发生不明错误。",
     "wrong-password-error": "密码错误。",
