@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": {
+          "default": "指纹辨识",
+          "ios": "人面辨识 / 指纹辨识"
+        },
+        "secondary": {
+          "disabled": "关闭指纹或人面辨识",
+          "enabled": "开启指纹或人面辨识",
+          "not-enrolled": "在你的操作系统上启用指纹或人面辨识。"
+        }
+      },
+      "prompt": {
+        "enable": "请为你的装置解锁，以开启此功能。",
+        "disable": "请为你的装置解锁，以关闭自动锁定功能。"
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "显示备忘便条",
+        "secondary": {
+          "hidden": "备忘便条并未显示于交易纪录之中",
+          "shown": "备忘便条正显示于交易纪录之中"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "开户多重签名",
+        "secondary": {
+          "enabled": "已启动多重签名",
+          "disabled": "已关闭多重签名"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "显示测试帳號",
+        "secondary": {
+          "cannot-disable": "由于你已开启测试网络账户，故此未能关闭此功能。",
+          "hidden": "已隐藏测试帳戶",
+          "shown": "已显示测试网络"
+        }
+      }
+    },
+    "trusted-services": {
+      "text": {
+        "primary": "管理授信服务",
+        "secondary": "删除授信服务"
+      }
+    }
+  },
+  "trusted-services": {
+    "info": "授权服务是一种网络服务。它可以索取帐户资料或提出交易建议。当它开始跟Solar交流，你就可以增添新的服务。",
+    "service-selection": {
+      "actions": {
+        "cancel": "取消",
+        "confirm": "确认"
+      },
+      "confirm": {
+        "title": "确认移除",
+        "text": "你确定要从您的授权清单移除此服务吗？"
+      },
+      "no-services": "没有已授权的服务"
+    }
+  }
+}

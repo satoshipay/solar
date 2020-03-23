@@ -1,0 +1,114 @@
+{
+  "account-merge": {
+    "summary": {
+      "account": "帐户",
+      "merge-into": "合并"
+    },
+    "title": "合并帐户"
+  },
+  "change-trust": {
+    "summary": {
+      "asset": "资产",
+      "issued-by": "发行者为",
+      "limit": {
+        "label": "限额",
+        "value": {
+          "unlimited": "无限",
+          "limited-to": "限额为 {{limit}} {{code}}"
+        }
+      }
+    },
+    "title": {
+      "add-asset": "添加资产",
+      "remove-asset": "移除资产"
+    }
+  },
+  "create-account": {
+    "summary": {
+      "account": "要创建的账户",
+      "funding-account": "提供资金的账户",
+      "funding-amount": "提供资金数目"
+    },
+    "title": "创建账户"
+  },
+  "manage-buy-offer": {
+    "title": {
+      "create": "创建买单",
+      "delete": "删除买单",
+      "update": "更新买单"
+    }
+  },
+  "manage-data": {
+    "title": "设置账户数据字段"
+  },
+  "manage-offer": {
+    "summary": {
+      "buy": "买",
+      "sell": "卖"
+    }
+  },
+  "manage-sell-offer": {
+    "title": {
+      "create": "创建卖单",
+      "delete": "删除卖单",
+      "update": "更新卖单"
+    }
+  },
+  "offer-details": {
+    "string": "付 {{amount}} {{sellingCode}}以购入 {{price}} {{buyingCode}}"
+  },
+  "payment": {
+    "summary": {
+      "amount": "数目",
+      "destination": "目标账户",
+      "source": "来源账户"
+    },
+    "title": "付款"
+  },
+  "set-options": {
+    "add-signer": {
+      "summary": {
+        "account": "要添加签名者的账户",
+        "key-weight": "签名值",
+        "new-signer": "新签名者"
+      },
+      "title": "添加签名者"
+    },
+    "change-signature-setup": {
+      "summary": {
+        "key-thresholds": {
+          "label": "新的所需簽名值",
+          "value": {
+            "low": "低所需签名值:    {{threshold}}",
+            "medium": "中等所需签名值: {{threshold}}",
+            "high": "高所需签名值:   {{threshold}}"
+          }
+        },
+        "required-signatures": "需要签名数量"
+      },
+      "title": "更改签名设置"
+    },
+    "remove-signer": {
+      "summary": {
+        "account": "要移除签名者的账户",
+        "signer": "签名者"
+      },
+      "title": "移除签名者"
+    },
+    "set-account-options": {
+      "title": "设置帐户选项"
+    },
+    "set-home-domain": {
+      "title": "设置网域"
+    },
+    "set-inflation-destination": {
+      "summary": {
+        "new-destination": "新目标"
+      },
+      "title": "设置通胀目标帐户"
+    },
+    "set-master-key-weight": {
+      "title": "设置主帐户的签名值"
+    }
+  }
+}
