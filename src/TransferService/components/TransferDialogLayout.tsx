@@ -1,5 +1,5 @@
 import React from "react"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import ScrollableBalances from "~Assets/components/ScrollableBalances"
 import DialogBody from "~Dialog/components/DialogBody"

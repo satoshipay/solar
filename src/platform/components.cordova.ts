@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Messages } from "../Shared/ipc"
-import { trackError } from "../App/context/notifications"
+import { trackError } from "../App/contexts/notifications"
 import { call } from "./ipc"
 
 const isFullscreenQRPreview = true

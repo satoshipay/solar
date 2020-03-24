@@ -1,5 +1,5 @@
 import React from "react"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { Box } from "~Layout/components/Box"
 import DialogBody from "~Dialog/components/DialogBody"

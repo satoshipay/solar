@@ -1,7 +1,7 @@
 import React from "react"
 import RestoreIcon from "@material-ui/icons/SettingsBackupRestore"
 import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
 import * as routes from "../../routes"

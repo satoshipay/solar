@@ -1,7 +1,7 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import Typography from "@material-ui/core/Typography"
-import { Notification as NotificationType, NotificationsContext } from "~App/context/notifications"
+import { Notification as NotificationType, NotificationsContext } from "~App/contexts/notifications"
 import { useOnlineStatus } from "~Generic/hooks/util"
 import { FullscreenDialogTransition } from "~App/theme"
 import DialogBody from "~Dialog/components/DialogBody"

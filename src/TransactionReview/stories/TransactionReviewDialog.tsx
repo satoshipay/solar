@@ -3,7 +3,7 @@ import Async from "react-promise"
 import { xdr, AccountResponse, Asset, Memo, Networks, Operation, Server, TransactionBuilder } from "stellar-sdk"
 import { storiesOf } from "@storybook/react"
 import { TransactionReviewDialogBody } from "../components/TransactionReviewDialog"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { useWebAuth } from "~Generic/hooks/stellar"
 
 const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S")

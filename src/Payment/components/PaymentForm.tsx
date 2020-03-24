@@ -6,7 +6,7 @@ import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { AccountRecord, useWellKnownAccounts } from "~Generic/hooks/stellar-ecosystem"
 import { useFederationLookup } from "~Generic/hooks/stellar"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"

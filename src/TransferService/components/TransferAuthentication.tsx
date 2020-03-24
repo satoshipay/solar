@@ -1,7 +1,7 @@
 import React from "react"
 import { Transaction } from "stellar-sdk"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
 import { isWrongPasswordError } from "~Generic/lib/errors"

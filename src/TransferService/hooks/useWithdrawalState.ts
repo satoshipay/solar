@@ -11,7 +11,7 @@ import {
   WithdrawalSuccessResponse,
   WithdrawalTransaction
 } from "@satoshipay/stellar-transfer"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { useHorizonURL, useWebAuth } from "~Generic/hooks/stellar"
 import { useNetWorker } from "~Generic/hooks/workers"
 import { createTransaction } from "~Generic/lib/transaction"

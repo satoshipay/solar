@@ -1,7 +1,7 @@
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import React from "react"
 import { Asset, Transaction } from "stellar-sdk"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import DepositSuccess from "./DepositSuccess"
 import DepositXLM from "./DepositXLM"

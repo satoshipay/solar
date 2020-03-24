@@ -6,7 +6,7 @@ import ListItemText from "@material-ui/core/ListItemText"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import Radio from "@material-ui/core/Radio"
 import Typography from "@material-ui/core/Typography"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import InlineLoader from "~Generic/components/InlineLoader"
 import AccountBalances from "./AccountBalances"
 

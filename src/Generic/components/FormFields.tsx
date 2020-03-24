@@ -6,7 +6,7 @@ import TextField, { OutlinedTextFieldProps, TextFieldProps } from "@material-ui/
 import { makeStyles } from "@material-ui/core/styles"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import SearchIcon from "@material-ui/icons/Search"
-import { trackError } from "~App/context/notifications"
+import { trackError } from "~App/contexts/notifications"
 import QRImportDialog from "~Dialog/components/QRImport"
 import QRReaderIcon from "~Icons/components/QRReader"
 

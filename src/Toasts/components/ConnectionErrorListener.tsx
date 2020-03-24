@@ -1,5 +1,5 @@
 import React from "react"
-import { NotificationsContext } from "~App/context/notifications"
+import { NotificationsContext } from "~App/contexts/notifications"
 import { useNetWorker } from "~Generic/hooks/workers"
 import { ConnectionErrorEvent, Service } from "~Workers/net-worker"
 import { autoHideDuration } from "./NotificationContainer"

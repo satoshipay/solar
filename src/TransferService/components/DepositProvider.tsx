@@ -1,5 +1,5 @@
 import React from "react"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { TransferState } from "../util/statemachine"
 import { DepositActions } from "../hooks/useDepositState"
 

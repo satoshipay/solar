@@ -9,7 +9,7 @@ import OfflineBoltIcon from "@material-ui/icons/OfflineBolt"
 import blue from "@material-ui/core/colors/blue"
 import green from "@material-ui/core/colors/green"
 import grey from "@material-ui/core/colors/grey"
-import { Notification, NotificationType } from "~App/context/notifications"
+import { Notification, NotificationType } from "~App/contexts/notifications"
 import theme from "~App/theme"
 
 const icons: { [key in NotificationType]: React.ComponentType<any> } = {

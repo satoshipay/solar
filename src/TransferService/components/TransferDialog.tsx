@@ -1,6 +1,6 @@
 import React from "react"
 import { Asset, Server, Transaction } from "stellar-sdk"
-import { Account } from "~App/context/accounts"
+import { Account } from "~App/contexts/accounts"
 import { useTransferInfos } from "~Generic/hooks/transfer-server"
 import { useIsMobile, useDialogActions } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"

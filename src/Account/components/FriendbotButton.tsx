@@ -1,7 +1,7 @@
 import React from "react"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import ThumbUpIcon from "@material-ui/icons/ThumbUp"
-import { trackError } from "~App/context/notifications"
+import { trackError } from "~App/contexts/notifications"
 import { friendbotTopup } from "~Generic/lib/stellar"
 import MainSelectionButton from "~Generic/components/MainSelectionButton"
 
