@@ -33,13 +33,18 @@ declare namespace IPC {
     ReadIgnoredSignatureRequestHashes: "ReadIgnoredSignatureRequestHashes"
     StoreIgnoredSignatureRequestHashes: "StoreIgnoredSignatureRequestHashes"
 
+    CreateKey: "CreateKey"
+    GetAppKeyMetadata: "GetAppKeyMetadata"
     GetKeyIDs: "GetKeyIDs"
     GetPublicKeyData: "GetPublicKeyData"
-    GetPrivateKeyData: "GetPrivateKeyData"
-    SaveKey: "SaveKey"
-    SavePublicKeyData: "SavePublicKeyData"
-    SignTransaction: "SignTransaction"
+    GetPrivateKey: "GetPrivateKey"
+    HasSetAppPassword: "HasSetAppPassword"
     RemoveKey: "RemoveKey"
+    RenameKey: "RenameKey"
+    SetUpAppPassword: "SetUpAppPassword"
+    SignTransaction: "SignTransaction"
+    UpdateAppPassword: "UpdateAppPassword"
+    UpdateKeyTxAuth: "UpdateKeyTxAuth"
   }
 
   export type MessageType = typeof Messages
@@ -71,18 +76,31 @@ declare namespace IPC {
     [Messages.ReadIgnoredSignatureRequestHashes]: () => string[]
     [Messages.StoreIgnoredSignatureRequestHashes]: (updatedHashes: string[]) => boolean
 
-    [Messages.GetKeyIDs]: () => string[]
-    [Messages.GetPublicKeyData]: (keyID: string) => PublicKeyData
-    [Messages.GetPrivateKeyData]: (keyID: string, password: string) => PrivateKeyData
-    [Messages.SaveKey]: (
+    [Messages.CreateKey]: (
       keyID: string,
       password: string,
-      privateData: PrivateKeyData,
-      publicData: PublicKeyData | undefined
+      privateKey: string,
+      options: Pick<KeyStoreAccountV1.PublicKeyData, "name" | "publicKey" | "testnet" | "txAuth">
     ) => void
-    [Messages.SavePublicKeyData]: (keyID: string, publicData: PublicKeyData) => void
-    [Messages.SignTransaction]: (internalAccountID: string, transactionXDR: string, password: string) => string
+    [Messages.GetAppKeyMetadata]: () => KeyStoreAppKey.AppKeyData | null
+    [Messages.GetKeyIDs]: () => string[]
+    [Messages.GetPublicKeyData]: (keyID: string) => KeyStoreAccount.PublicKeyData
+    [Messages.GetPrivateKey]: (keyID: string, password: string) => string
+    [Messages.HasSetAppPassword]: () => boolean
     [Messages.RemoveKey]: (keyID: string) => void
+    [Messages.RenameKey]: (keyID: string, newName: string) => void
+    [Messages.SetUpAppPassword]: (
+      password: string,
+      privateKey: string,
+      authPolicy: KeyStoreAppKey.AppAuthPolicy
+    ) => void
+    [Messages.SignTransaction]: (internalAccountID: string, transactionXDR: string, password: string) => string
+    [Messages.UpdateAppPassword]: (
+      newPassword: string,
+      prevPassword: string,
+      policy: KeyStoreAppKey.AppAuthPolicy
+    ) => void
+    [Messages.UpdateKeyTxAuth]: (keyID: string, policy: KeyStoreAccount.TxAuthPolicy, password: string | null) => void
   }
 
   export type MessageArgs<Message extends keyof MessageType> = MessageSignatures[Message] extends () => any

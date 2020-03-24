@@ -25,11 +25,16 @@ export const Messages: IPC.MessageType = {
   ReadIgnoredSignatureRequestHashes: "ReadIgnoredSignatureRequestHashes",
   StoreIgnoredSignatureRequestHashes: "StoreIgnoredSignatureRequestHashes",
 
+  CreateKey: "CreateKey",
+  GetAppKeyMetadata: "GetAppKeyMetadata",
   GetKeyIDs: "GetKeyIDs",
   GetPublicKeyData: "GetPublicKeyData",
-  GetPrivateKeyData: "GetPrivateKeyData",
-  SaveKey: "SaveKey",
-  SavePublicKeyData: "SavePublicKeyData",
-  SignTransaction: "SignTransaction",
-  RemoveKey: "RemoveKey"
+  GetPrivateKey: "GetPrivateKey",
+  HasSetAppPassword: "HasSetAppPassword",
+  RemoveKey: "RemoveKey",
+  RenameKey: "RenameKey",
+  UpdateAppPassword: "UpdateAppPassword",
+  UpdateKeyTxAuth: "UpdateKeyTxAuth",
+  SetUpAppPassword: "SetUpAppPassword",
+  SignTransaction: "SignTransaction"
 } as const

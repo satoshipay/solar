@@ -1,6 +1,7 @@
 import "./bio-auth"
 import "./clipboard"
 import "./links"
+import "./key-store"
 import "./notifications"
-import "./storage"
+import "./settings"
 import "./updater"

@@ -63,17 +63,19 @@ callHandlers[Messages.ShowNotification] = (localNotification: LocalNotification)
   })
 }
 
-const defaultTestingKeys: KeysData<PublicKeyData> = {
+const defaultTestingKeys: KeysData<KeyStoreAccountV1.PublicKeyData> = {
   "1": {
     metadata: {
       nonce: "19sHNxecdiik6chwGFgZVk9UJoG2k8B+",
       iterations: 10000
     },
     public: {
+      keyVersion: 1,
       name: "Test account",
       password: false,
       publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
-      testnet: true
+      testnet: true,
+      txAuth: KeyStoreAccountV1.TxAuthPolicy.Unprotected
     },
     private:
       "F6SxXmjdLgxPI3msiNWZ7RGHoBwYEdFICLHJqzIZOADn71lfBYFD/qvQxcD9L1Wq495cDek0RlNLGF2fNK8P48A+B7Hfk8hWL+o5EbPd1ql20r7SfxVh9o0="
@@ -84,10 +86,12 @@ const defaultTestingKeys: KeysData<PublicKeyData> = {
       iterations: 10000
     },
     public: {
+      keyVersion: 1,
       name: "Test account with password",
       password: true,
       publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
-      testnet: true
+      testnet: true,
+      txAuth: KeyStoreAccountV1.TxAuthPolicy.AlwaysPassword
     },
     private:
       "5VzbN/Y5S1CfizJnnIejm8ku4KsG5cPvRht6BoZ8HalOOKdOt66Ra/rjoNlMbh45Et+25iGggzj+IlFvpepmuaEFcdqj5myEJspcy4GGwn+9TtA+KmUDcRI="
@@ -98,10 +102,12 @@ const defaultTestingKeys: KeysData<PublicKeyData> = {
       iterations: 10000
     },
     public: {
+      keyVersion: 1,
       name: "Multisig Account",
       password: false,
       publicKey: "GDNVDG37WMKPEIXSJRBAQAVPO5WGOPKZRZZBPLWXULSX6NQNLNQP6CFF",
-      testnet: true
+      testnet: true,
+      txAuth: KeyStoreAccountV1.TxAuthPolicy.Unprotected
     },
     private:
       "XFZM+iKm5YM6v2KdABGyczb9D51IdFPM3ibRhrVGfMonOKV8dVKvqC9JA1ylfcbEpzUaIUwPBjAxk7SIgcGhtjrqenp0Bj1QPqZwSWmAB5q5pfb5aLTdwVc="
@@ -115,17 +121,22 @@ function initKeyStore() {
   const keys = localStorage.getItem("solar:keys")
   const initialKeys = keys ? JSON.parse(keys) : defaultTestingKeys
 
-  function saveKeys(keysData: KeysData<PublicKeyData>) {
+  function saveKeys(keysData: KeysData<KeyStoreAccountV1.PublicKeyData>) {
     localStorage.setItem("solar:keys", JSON.stringify(keysData))
   }
-  const keyStore = createStore<PrivateKeyData, PublicKeyData>(saveKeys, initialKeys)
+  const keyStore = createStore<KeyStoreAccountV1.PrivateKeyData, KeyStoreAccountV1.PublicKeyData>(saveKeys, initialKeys)
 
   callHandlers[Messages.GetKeyIDs] = keyStore.getKeyIDs
+  callHandlers[Messages.GetKeyVersion] = getKeyVersion
   callHandlers[Messages.GetPublicKeyData] = keyStore.getPublicKeyData
   callHandlers[Messages.GetPrivateKeyData] = keyStore.getPrivateKeyData
+  callHandlers[Messages.HasSetAppPassword] = hasSetAppPassword
   callHandlers[Messages.RemoveKey] = keyStore.removeKey
   callHandlers[Messages.SaveKey] = keyStore.saveKey
   callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData
+  callHandlers[Messages.SetAccountTxAuthPolicy] = setAccountTxAuthPolicy
+  callHandlers[Messages.SetAppLaunchAuthPolicy] = setAppLaunchAuthPolicy
+  callHandlers[Messages.UpdateAppPassword] = updateAppPassword
 
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
