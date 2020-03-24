@@ -2,7 +2,7 @@ import React from "react"
 import { Account } from "~App/contexts/accounts"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { Box } from "~Layout/components/Box"
-import DialogBody from "~Dialog/components/DialogBody"
+import DialogBody from "~Layout/components/DialogBody"
 import KeyExportBox from "~Account/components/KeyExportBox"
 import MainTitle from "~Generic/components/MainTitle"
 

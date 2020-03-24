@@ -6,7 +6,7 @@ import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "~App/contexts/accounts"
 import { AccountData } from "~Generic/lib/account"
-import DialogBody from "~Dialog/components/DialogBody"
+import DialogBody from "~Layout/components/DialogBody"
 import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
 import MainTitle from "~Generic/components/MainTitle"
 

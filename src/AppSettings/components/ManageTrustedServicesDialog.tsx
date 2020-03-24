@@ -2,7 +2,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
-import DialogBody from "~Dialog/components/DialogBody"
+import DialogBody from "~Layout/components/DialogBody"
 import TrustedServiceSelectionList from "./TrustedServiceSelectionList"
 
 function ManageTrustedServicesDialog() {
