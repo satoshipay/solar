@@ -7,7 +7,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import SearchIcon from "@material-ui/icons/Search"
 import { trackError } from "~App/contexts/notifications"
-import QRImportDialog from "~Dialog/components/QRImport"
+import QRImportDialog from "~Generic/components/QRImport"
 import QRReaderIcon from "~Icons/components/QRReader"
 
 const desktopQRIconStyle: React.CSSProperties = { fontSize: 20 }

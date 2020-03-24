@@ -16,7 +16,7 @@ import { findMatchingBalanceLine, getAccountMinimumBalance } from "~Generic/lib/
 import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "~Generic/lib/transaction"
 import { formatBalance } from "~Account/components/AccountBalances"
-import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import AssetSelector from "~Generic/components/AssetSelector"
 import { PriceInput, QRReader } from "~Generic/components/FormFields"
 import { HorizontalLayout } from "~Layout/components/Box"

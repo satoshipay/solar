@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation, Trans } from "react-i18next"
-import { ActionButton, ConfirmDialog } from "~Dialog/components/Generic"
+import { ActionButton, ConfirmDialog } from "~Generic/components/DialogActions"
 
 interface NoPasswordConfirmationProps {
   onClose: () => void

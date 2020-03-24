@@ -5,7 +5,7 @@ import { Notification as NotificationType, NotificationsContext } from "~App/con
 import { useOnlineStatus } from "~Generic/hooks/util"
 import { FullscreenDialogTransition } from "~App/theme"
 import DialogBody from "~Layout/components/DialogBody"
-import { DialogActionsBox, ActionButton } from "~Dialog/components/Generic"
+import { DialogActionsBox, ActionButton } from "~Generic/components/DialogActions"
 import { Box } from "~Layout/components/Box"
 import MainTitle from "~Generic/components/MainTitle"
 import Notification from "./Notification"

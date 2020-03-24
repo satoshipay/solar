@@ -18,7 +18,7 @@ import { HorizontalLayout } from "~Layout/components/Box"
 import ScrollableBalances from "~Generic/components/ScrollableBalances"
 import MainTitle from "~Generic/components/MainTitle"
 import TransactionSender from "~Transaction/components/TransactionSender"
-import { ActionButton, ConfirmDialog, DialogActionsBox } from "~Dialog/components/Generic"
+import { ActionButton, ConfirmDialog, DialogActionsBox } from "~Generic/components/DialogActions"
 
 interface DeletionConfirmationDialogProps {
   merging: boolean

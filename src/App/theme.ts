@@ -4,7 +4,7 @@ import Fade from "@material-ui/core/Fade"
 import ArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
-import { SlideLeftTransition, SlideUpTransition } from "../Dialog/components/Transitions"
+import { SlideLeftTransition, SlideUpTransition } from "../Generic/components/Transitions"
 
 // TODO: The dark and light derivation of the brand color have not been design-reviewed!
 export const brandColor = {

@@ -6,7 +6,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import { useDialogActions, useIsMobile } from "~Generic/hooks/userinterface"
 import { breakpoints, CompactDialogTransition } from "~App/theme"
 import DialogBody from "~Layout/components/DialogBody"
-import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import Portal from "~Generic/components/Portal"
 
 const useLegalConfirmationStyles = makeStyles({

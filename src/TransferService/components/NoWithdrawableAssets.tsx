@@ -3,7 +3,7 @@ import Typography from "@material-ui/core/Typography"
 import { Account } from "~App/contexts/accounts"
 import { useRouter, RefStateObject } from "~Generic/hooks/userinterface"
 import * as routes from "../../routes"
-import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { Box } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
 

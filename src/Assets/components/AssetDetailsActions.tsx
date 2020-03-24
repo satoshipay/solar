@@ -11,7 +11,7 @@ import { createTransaction } from "~Generic/lib/transaction"
 import * as routes from "../../routes"
 import { CompactDialogTransition } from "~App/theme"
 import { stringifyAsset } from "~Generic/lib/stellar"
-import { DialogActionsBox, ActionButton } from "~Dialog/components/Generic"
+import { DialogActionsBox, ActionButton } from "~Generic/components/DialogActions"
 import TransactionSender, { SendTransaction } from "~Transaction/components/TransactionSender"
 import RemoveTrustlineDialog from "./RemoveTrustline"
 

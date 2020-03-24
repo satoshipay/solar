@@ -12,7 +12,7 @@ import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import { SettingsContext } from "~App/contexts/settings"
 import { useStellarToml } from "~Generic/hooks/stellar"
-import { ActionButton, ConfirmDialog } from "~Dialog/components/Generic"
+import { ActionButton, ConfirmDialog } from "~Generic/components/DialogActions"
 
 const useTrustedServiceListItemStyles = makeStyles({
   listItem: {

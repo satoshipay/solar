@@ -7,7 +7,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "~App/contexts/accounts"
 import { AccountData } from "~Generic/lib/account"
 import DialogBody from "~Layout/components/DialogBody"
-import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import MainTitle from "~Generic/components/MainTitle"
 
 interface Props {

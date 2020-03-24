@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "~App/contexts/accounts"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
-import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import QRCodeIcon from "~Icons/components/QRCode"
 
 export const useButtonStyles = makeStyles(theme => ({

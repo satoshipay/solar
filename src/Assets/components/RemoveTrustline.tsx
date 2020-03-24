@@ -9,7 +9,7 @@ import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
 import { AccountData } from "~Generic/lib/account"
 import { createTransaction } from "~Generic/lib/transaction"
-import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import TransactionSender, { SendTransaction } from "~Transaction/components/TransactionSender"
 
 interface Props {
