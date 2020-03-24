@@ -1,6 +1,6 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
-import AccountBalances from "../src/Account/components/AccountBalances"
+import AccountBalances from "../components/AccountBalances"
 
 storiesOf("Balance", module)
   .add("AccountBalance activated", () => (

@@ -1,10 +1,10 @@
 import React from "react"
 import { action } from "@storybook/addon-actions"
 import { storiesOf } from "@storybook/react"
-import { Account } from "../src/App/context/accounts"
-import TransactionList from "../src/Account/components/TransactionList"
-import { TransactionHistory } from "../src/Generic/hooks/_caches"
-import { useLiveRecentTransactions } from "../src/Generic/hooks/stellar-subscriptions"
+import { Account } from "../../App/context/accounts"
+import TransactionList from "../components/TransactionList"
+import { TransactionHistory } from "../../Generic/hooks/_caches"
+import { useLiveRecentTransactions } from "../../Generic/hooks/stellar-subscriptions"
 
 const account: Account = {
   id: "1",
