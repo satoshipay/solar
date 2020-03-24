@@ -5,11 +5,11 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
-import { Account } from "../../App/context/accounts"
-import { useLiveAccountOffers } from "../../Generic/hooks/stellar-subscriptions"
-import { AccountData } from "../../Generic/lib/account"
-import { breakpoints } from "../../App/theme"
-import { SingleBalance } from "../../Account/components/AccountBalances"
+import { Account } from "~App/context/accounts"
+import { useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
+import { AccountData } from "~Generic/lib/account"
+import { breakpoints } from "~App/theme"
+import { SingleBalance } from "~Account/components/AccountBalances"
 
 const useBreakdownItemStyles = makeStyles({
   root: {

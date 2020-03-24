@@ -2,9 +2,9 @@ import React from "react"
 import { Asset } from "stellar-sdk"
 import Avatar from "@material-ui/core/Avatar"
 import makeStyles from "@material-ui/core/styles/makeStyles"
-import { useAssetMetadata } from "../../Generic/hooks/stellar"
-import { brandColor } from "../../App/theme"
-import LumenIcon from "../../Icons/components/Lumen"
+import { useAssetMetadata } from "~Generic/hooks/stellar"
+import { brandColor } from "~App/theme"
+import LumenIcon from "~Icons/components/Lumen"
 
 const paddedAssetIconsRegex = /bitbondsto\.com/
 

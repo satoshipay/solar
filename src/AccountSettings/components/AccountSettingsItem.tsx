@@ -3,7 +3,7 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
-import { breakpoints } from "../../App/theme"
+import { breakpoints } from "~App/theme"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 

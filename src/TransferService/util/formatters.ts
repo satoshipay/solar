@@ -1,5 +1,5 @@
 import BigNumber from "big.js"
-import { formatBalance } from "../../Account/components/AccountBalances"
+import { formatBalance } from "~Account/components/AccountBalances"
 
 const isCommonAbbreviation = (str: string) => ["bic", "iban", "sepa", "swift"].indexOf(str) > -1
 

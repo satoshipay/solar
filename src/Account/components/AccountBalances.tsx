@@ -1,8 +1,8 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Horizon } from "stellar-sdk"
-import { useLiveAccountData } from "../../Generic/hooks/stellar-subscriptions"
-import { balancelineToAsset, stringifyAsset } from "../../Generic/lib/stellar"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
+import { balancelineToAsset, stringifyAsset } from "~Generic/lib/stellar"
 
 function addThousandsSeparators(digits: string, thousandsSeparator: string) {
   const digitGroups: string[] = []

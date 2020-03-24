@@ -10,7 +10,7 @@ import {
   xdr,
   Networks
 } from "stellar-sdk"
-import { Account } from "../../App/context/accounts"
+import { Account } from "~App/context/accounts"
 import { WrongPasswordError, CustomError } from "./errors"
 import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"

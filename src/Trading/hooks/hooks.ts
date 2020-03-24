@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { FixedOrderbookOffer } from "../../Generic/lib/orderbook"
+import { FixedOrderbookOffer } from "~Generic/lib/orderbook"
 
 const sum = (numbers: BigNumber[]) => numbers.reduce((total, no) => total.add(no), BigNumber(0))
 

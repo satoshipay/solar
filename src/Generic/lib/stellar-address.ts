@@ -1,6 +1,6 @@
 import LRUCache from "lru-cache"
 import { FederationServer } from "stellar-sdk"
-import { workers } from "../../Workers/worker-controller"
+import { workers } from "~Workers/worker-controller"
 import { CustomError } from "./errors"
 import { isNotFoundError } from "./stellar"
 

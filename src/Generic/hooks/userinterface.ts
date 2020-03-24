@@ -1,8 +1,8 @@
 import React from "react"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
-import { NotificationsContext } from "../../App/context/notifications"
-import * as Clipboard from "../../Platform/clipboard"
+import { NotificationsContext } from "~App/context/notifications"
+import * as Clipboard from "~Platform/clipboard"
 
 export const useIsMobile = () => useMediaQuery("(max-width:600px)")
 export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")

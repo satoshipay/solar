@@ -1,4 +1,4 @@
-import { workers } from "../../Workers/worker-controller"
+import { workers } from "~Workers/worker-controller"
 
 export interface AccountRecord {
   address: string

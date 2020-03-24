@@ -1,7 +1,7 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
 import AccountSelectionList from "../components/AccountSelectionList"
-import { Account } from "../../App/context/accounts"
+import { Account } from "~App/context/accounts"
 
 const accounts: Account[] = [
   {

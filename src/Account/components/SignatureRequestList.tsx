@@ -1,14 +1,14 @@
 import React from "react"
 import { Transaction } from "stellar-sdk"
 import ListSubheader from "@material-ui/core/ListSubheader"
-import { useRouter } from "../../Generic/hooks/userinterface"
-import { matchesRoute } from "../../Generic/lib/routes"
+import { useRouter } from "~Generic/hooks/userinterface"
+import { matchesRoute } from "~Generic/lib/routes"
 import * as routes from "../../routes"
-import { Account } from "../../App/context/accounts"
-import { SignatureRequest } from "../../Generic/lib/multisig-service"
-import { List } from "../../Layout/components/List"
+import { Account } from "~App/context/accounts"
+import { SignatureRequest } from "~Generic/lib/multisig-service"
+import { List } from "~Layout/components/List"
 import { TransactionListItem } from "./TransactionList"
-import TransactionSender from "../../Transaction/components/TransactionSender"
+import TransactionSender from "~Transaction/components/TransactionSender"
 
 interface SignatureRequestListItemProps {
   icon?: React.ReactElement<any>

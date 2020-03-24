@@ -4,7 +4,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 import { HashRouter as Router } from "react-router-dom"
 import { MuiThemeProvider } from "@material-ui/core/styles"
-import ViewLoading from "../../Generic/components/ViewLoading"
+import ViewLoading from "~Generic/components/ViewLoading"
 import { ContextProviders } from "./context"
 import theme from "../theme"
 

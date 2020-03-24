@@ -1,5 +1,5 @@
 import React from "react"
-import { VerticalLayout } from "../../Layout/components/Box"
+import { VerticalLayout } from "~Layout/components/Box"
 
 interface FormLayoutProps {
   children: React.ReactNode

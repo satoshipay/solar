@@ -7,8 +7,8 @@ import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
-import { useIsSmallMobile, useIsMobile } from "../../Generic/hooks/userinterface"
-import { HorizontalLayout } from "../../Layout/components/Box"
+import { useIsSmallMobile, useIsMobile } from "~Generic/hooks/userinterface"
+import { HorizontalLayout } from "~Layout/components/Box"
 
 interface FormValues {
   publicKey: string

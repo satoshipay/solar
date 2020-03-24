@@ -1,8 +1,8 @@
 import Typography from "@material-ui/core/Typography"
 import React from "react"
-import { useIsMobile } from "../../Generic/hooks/userinterface"
-import { HorizontalLayout, VerticalLayout } from "../../Layout/components/Box"
-import ViewLoading from "../../Generic/components/ViewLoading"
+import { useIsMobile } from "~Generic/hooks/userinterface"
+import { HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
+import ViewLoading from "~Generic/components/ViewLoading"
 
 export function DesktopTwoColumns(props: { children: React.ReactNode[] }) {
   const isSmallScreen = useIsMobile()

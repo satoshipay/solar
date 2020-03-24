@@ -1,5 +1,5 @@
 import React from "react"
-import { ActionButton, ConfirmDialog } from "../../Dialog/components/Generic"
+import { ActionButton, ConfirmDialog } from "~Dialog/components/Generic"
 
 interface Props {
   onCancel: () => void

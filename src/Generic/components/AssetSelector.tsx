@@ -6,7 +6,7 @@ import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
 import { balancelineToAsset, stringifyAsset } from "../lib/stellar"
-import AssetLogo from "../../Assets/components/AssetLogo"
+import AssetLogo from "~Assets/components/AssetLogo"
 
 const useAssetItemStyles = makeStyles(theme => ({
   icon: {

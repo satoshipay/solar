@@ -2,8 +2,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import AddIcon from "@material-ui/icons/Add"
 import RemoveIcon from "@material-ui/icons/Remove"
-import MainSelectionButton from "../../Generic/components/MainSelectionButton"
-import { HorizontalLayout } from "../../Layout/components/Box"
+import MainSelectionButton from "~Generic/components/MainSelectionButton"
+import { HorizontalLayout } from "~Layout/components/Box"
 
 interface Props {
   onSelectBuy: () => void

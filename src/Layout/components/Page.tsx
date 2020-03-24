@@ -1,7 +1,7 @@
 import React from "react"
 import { Box, BoxProps } from "./Box"
-import { useIsMobile } from "../../Generic/hooks/userinterface"
-import { primaryBackground } from "../../App/theme"
+import { useIsMobile } from "~Generic/hooks/userinterface"
+import { primaryBackground } from "~App/theme"
 
 // tslint:disable-next-line
 const platform = process.env.PLATFORM || require("os").platform()

@@ -3,8 +3,8 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import ListItemText from "@material-ui/core/ListItemText"
-import { useIsMobile } from "../../Generic/hooks/userinterface"
-import { breakpoints } from "../../App/theme"
+import { useIsMobile } from "~Generic/hooks/userinterface"
+import { breakpoints } from "~App/theme"
 
 const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFORM === "ios"
 

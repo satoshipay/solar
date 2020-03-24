@@ -1,7 +1,7 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
 import { DepositTransaction, TransferStatus, WithdrawalTransaction } from "@satoshipay/stellar-transfer"
-import { VerticalLayout } from "../../Layout/components/Box"
+import { VerticalLayout } from "~Layout/components/Box"
 import { formatDuration } from "../util/formatters"
 
 function Paragraph(props: { children: React.ReactNode }) {

@@ -2,7 +2,7 @@ import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
 import ErrorBoundary from "../components/ErrorBoundary"
-import { VerticalLayout } from "../../Layout/components/Box"
+import { VerticalLayout } from "~Layout/components/Box"
 
 function Failing() {
   const [failing, setFailing] = React.useState(false)

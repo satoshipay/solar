@@ -7,13 +7,13 @@ import {
   StellarAddressCacheContext,
   StellarAddressReverseCacheContext,
   WebAuthTokenCacheContext
-} from "../../App/context/caches"
-import { StellarContext } from "../../App/context/stellar"
+} from "~App/context/caches"
+import { StellarContext } from "~App/context/stellar"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import * as StellarAddresses from "../lib/stellar-address"
-import { StellarToml, StellarTomlCurrency } from "../../Shared/types/stellar-toml"
+import { StellarToml, StellarTomlCurrency } from "~Shared/types/stellar-toml"
 import { mapSuspendables } from "../lib/suspense"
-import { workers } from "../../Workers/worker-controller"
+import { workers } from "~Workers/worker-controller"
 import { accountDataCache, accountHomeDomainCache, stellarTomlCache } from "./_caches"
 import { useNetWorker } from "./workers"
 

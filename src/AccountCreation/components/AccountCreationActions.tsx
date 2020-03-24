@@ -1,11 +1,11 @@
 import React from "react"
 import { makeStyles } from "@material-ui/core/styles"
 import CheckIcon from "@material-ui/icons/Check"
-import { useRouter } from "../../Generic/hooks/userinterface"
-import { matchesRoute } from "../../Generic/lib/routes"
+import { useRouter } from "~Generic/hooks/userinterface"
+import { matchesRoute } from "~Generic/lib/routes"
 import * as routes from "../../routes"
-import { ActionButton, DialogActionsBox } from "../../Dialog/components/Generic"
-import { useButtonStyles } from "../../Account/components/AccountActions"
+import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { useButtonStyles } from "~Account/components/AccountActions"
 
 const useAccountCreationStyles = makeStyles({
   desktopBox: {

@@ -1,5 +1,5 @@
 import React from "react"
-import { useRouter } from "../../Generic/hooks/userinterface"
+import { useRouter } from "~Generic/hooks/userinterface"
 import { routeUp } from "../../routes"
 
 function AndroidBackButton() {

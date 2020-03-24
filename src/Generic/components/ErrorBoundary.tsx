@@ -3,7 +3,7 @@ import { Translation } from "react-i18next"
 import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
 import { getErrorTranslation } from "../lib/errors"
-import { Box, VerticalLayout } from "../../Layout/components/Box"
+import { Box, VerticalLayout } from "~Layout/components/Box"
 
 // tslint:disable-next-line
 const pkg = require("../../../package.json")

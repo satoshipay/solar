@@ -1,5 +1,5 @@
 import { multicast, Observable, Subject, Subscription } from "observable-fns"
-import { whenBackOnline } from "../../Generic/lib/stream"
+import { whenBackOnline } from "~Generic/lib/stream"
 import { raiseConnectionError, ServiceID } from "../net-worker/errors"
 import { createIntervalRunner } from "./connection"
 

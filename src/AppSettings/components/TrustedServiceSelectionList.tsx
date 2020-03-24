@@ -10,9 +10,9 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
-import { SettingsContext } from "../../App/context/settings"
-import { useStellarToml } from "../../Generic/hooks/stellar"
-import { ActionButton, ConfirmDialog } from "../../Dialog/components/Generic"
+import { SettingsContext } from "~App/context/settings"
+import { useStellarToml } from "~Generic/hooks/stellar"
+import { ActionButton, ConfirmDialog } from "~Dialog/components/Generic"
 
 const useTrustedServiceListItemStyles = makeStyles({
   listItem: {

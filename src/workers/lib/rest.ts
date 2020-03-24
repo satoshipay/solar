@@ -1,4 +1,4 @@
-import { CustomError } from "../../Generic/lib/errors"
+import { CustomError } from "~Generic/lib/errors"
 
 export async function parseJSONResponse<ResponseBody>(response: Response): Promise<ResponseBody> {
   const isJSON = /^application\/([a-z]+\+)?json/.test(response.headers.get("Content-Type") || "")

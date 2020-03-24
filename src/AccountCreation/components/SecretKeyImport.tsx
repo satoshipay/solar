@@ -4,8 +4,8 @@ import InputAdornment from "@material-ui/core/InputAdornment"
 import ListItemText from "@material-ui/core/ListItemText"
 import TextField from "@material-ui/core/TextField"
 import RestoreIcon from "@material-ui/icons/SettingsBackupRestore"
-import AccountSettingsItem from "../../AccountSettings/components/AccountSettingsItem"
-import { QRReader } from "../../Generic/components/FormFields"
+import AccountSettingsItem from "~AccountSettings/components/AccountSettingsItem"
+import { QRReader } from "~Generic/components/FormFields"
 
 interface SecretKeyImportProps {
   error?: string

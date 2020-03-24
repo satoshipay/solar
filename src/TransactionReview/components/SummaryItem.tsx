@@ -5,8 +5,8 @@ import ListItemText from "@material-ui/core/ListItemText"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import ExpandIcon from "@material-ui/icons/ExpandMore"
-import { HorizontalLayout } from "../../Layout/components/Box"
-import { ReadOnlyTextfield } from "../../Generic/components/FormFields"
+import { HorizontalLayout } from "~Layout/components/Box"
+import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 
 interface SummaryDetailsFieldProps {
   fullWidth?: boolean

@@ -3,23 +3,23 @@ import React from "react"
 import { Translation } from "react-i18next"
 import { Networks, Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
-import { Account } from "../../App/context/accounts"
-import { SettingsContext, SettingsContextType } from "../../App/context/settings"
-import { useHorizon } from "../../Generic/hooks/stellar"
-import { useIsMobile } from "../../Generic/hooks/userinterface"
-import { isWrongPasswordError, getErrorTranslation } from "../../Generic/lib/errors"
-import { explainSubmissionErrorResponse } from "../../Generic/lib/horizonErrors"
+import { Account } from "~App/context/accounts"
+import { SettingsContext, SettingsContextType } from "~App/context/settings"
+import { useHorizon } from "~Generic/hooks/stellar"
+import { useIsMobile } from "~Generic/hooks/userinterface"
+import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
+import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
 import {
   collateSignature,
   createSignatureRequestURI,
   submitNewSignatureRequest,
   SignatureRequest
-} from "../../Generic/lib/multisig-service"
-import { networkPassphrases } from "../../Generic/lib/stellar"
-import { hasSigned, requiresRemoteSignatures, signTransaction } from "../../Generic/lib/transaction"
-import { isStellarGuardProtected, submitTransactionToStellarGuard } from "../../Generic/lib/stellar-guard"
-import { workers } from "../../Workers/worker-controller"
-import TransactionReviewDialog from "../../TransactionReview/components/TransactionReviewDialog"
+} from "~Generic/lib/multisig-service"
+import { networkPassphrases } from "~Generic/lib/stellar"
+import { hasSigned, requiresRemoteSignatures, signTransaction } from "~Generic/lib/transaction"
+import { isStellarGuardProtected, submitTransactionToStellarGuard } from "~Generic/lib/stellar-guard"
+import { workers } from "~Workers/worker-controller"
+import TransactionReviewDialog from "~TransactionReview/components/TransactionReviewDialog"
 import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>

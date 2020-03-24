@@ -2,7 +2,7 @@ import debounce from "lodash.debounce"
 import LRUCache from "lru-cache"
 import React from "react"
 import { FederationServer } from "stellar-sdk"
-import { useSingleton } from "../../Generic/hooks/util"
+import { useSingleton } from "~Generic/hooks/util"
 
 // Just to make the cache types more readable
 type CacheKey = string

@@ -1,11 +1,11 @@
 import React from "react"
 import Typography from "@material-ui/core/Typography"
-import { Account } from "../../App/context/accounts"
-import { useRouter, RefStateObject } from "../../Generic/hooks/userinterface"
+import { Account } from "~App/context/accounts"
+import { useRouter, RefStateObject } from "~Generic/hooks/userinterface"
 import * as routes from "../../routes"
-import { ActionButton, DialogActionsBox } from "../../Dialog/components/Generic"
-import { Box } from "../../Layout/components/Box"
-import Portal from "../../Generic/components/Portal"
+import { ActionButton, DialogActionsBox } from "~Dialog/components/Generic"
+import { Box } from "~Layout/components/Box"
+import Portal from "~Generic/components/Portal"
 
 interface Props {
   account: Account

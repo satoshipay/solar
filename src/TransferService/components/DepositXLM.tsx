@@ -1,8 +1,8 @@
 import React from "react"
-import { VerticalLayout } from "../../Layout/components/Box"
+import { VerticalLayout } from "~Layout/components/Box"
 import { DepositContext } from "./DepositProvider"
 import { Paragraph, Summary } from "./Sidebar"
-import LumenDepositOptions from "../../LumenDeposit/components/LumenDepositOptions"
+import LumenDepositOptions from "~LumenDeposit/components/LumenDepositOptions"
 
 interface DepositXLMProps {
   onCloseDialog: () => void

@@ -5,8 +5,8 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
-import { Account } from "../../App/context/accounts"
-import { openLink } from "../../Platform/links"
+import { Account } from "~App/context/accounts"
+import { openLink } from "~Platform/links"
 import LegalConfirmation from "./LegalConfirmation"
 
 function createMoonPayURLForAccount(account: Account) {

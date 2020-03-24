@@ -7,10 +7,10 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import CloseIcon from "@material-ui/icons/Close"
-import { useIsMobile } from "../../Generic/hooks/userinterface"
-import { breakpoints, MobileKeyboardOpenedSelector, CompactDialogTransition } from "../../App/theme"
-import { setupRerenderListener } from "../../Platform/keyboard-hack"
-import ButtonIconLabel from "../../Generic/components/ButtonIconLabel"
+import { useIsMobile } from "~Generic/hooks/userinterface"
+import { breakpoints, MobileKeyboardOpenedSelector, CompactDialogTransition } from "~App/theme"
+import { setupRerenderListener } from "~Platform/keyboard-hack"
+import ButtonIconLabel from "~Generic/components/ButtonIconLabel"
 
 const closeIcon = <CloseIcon />
 

@@ -1,4 +1,4 @@
-import { workers, NetWorker } from "../../Workers/worker-controller"
+import { workers, NetWorker } from "~Workers/worker-controller"
 
 let netWorker: NetWorker | undefined
 

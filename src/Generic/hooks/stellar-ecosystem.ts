@@ -1,5 +1,5 @@
 import React from "react"
-import { trackError } from "../../App/context/notifications"
+import { trackError } from "~App/context/notifications"
 import { AccountRecord, fetchWellknownAccounts } from "../lib/stellar-expert"
 import { AssetRecord, fetchAllAssets } from "../lib/stellar-ticker"
 import { tickerAssetsCache, wellKnownAccountsCache } from "./_caches"

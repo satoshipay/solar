@@ -1,12 +1,12 @@
 import React from "react"
-import { Account } from "../../App/context/accounts"
-import { useIsMobile, RefStateObject } from "../../Generic/hooks/userinterface"
-import ScrollableBalances from "../../Assets/components/ScrollableBalances"
-import DialogBody from "../../Dialog/components/DialogBody"
-import TestnetBadge from "../../Dialog/components/TestnetBadge"
-import InlineLoader from "../../Generic/components/InlineLoader"
-import { VerticalLayout } from "../../Layout/components/Box"
-import MainTitle from "../../Generic/components/MainTitle"
+import { Account } from "~App/context/accounts"
+import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
+import ScrollableBalances from "~Assets/components/ScrollableBalances"
+import DialogBody from "~Dialog/components/DialogBody"
+import TestnetBadge from "~Dialog/components/TestnetBadge"
+import InlineLoader from "~Generic/components/InlineLoader"
+import { VerticalLayout } from "~Layout/components/Box"
+import MainTitle from "~Generic/components/MainTitle"
 
 interface TitleProps {
   account: Account

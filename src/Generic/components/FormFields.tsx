@@ -6,9 +6,9 @@ import TextField, { OutlinedTextFieldProps, TextFieldProps } from "@material-ui/
 import { makeStyles } from "@material-ui/core/styles"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import SearchIcon from "@material-ui/icons/Search"
-import { trackError } from "../../App/context/notifications"
-import QRImportDialog from "../../Dialog/components/QRImport"
-import QRReaderIcon from "../../Icons/components/QRReader"
+import { trackError } from "~App/context/notifications"
+import QRImportDialog from "~Dialog/components/QRImport"
+import QRReaderIcon from "~Icons/components/QRReader"
 
 const desktopQRIconStyle: React.CSSProperties = { fontSize: 20 }
 const mobileQRIconStyle: React.CSSProperties = {}

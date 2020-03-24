@@ -1,7 +1,7 @@
 import React from "react"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
-import { QRReader, isFullscreenQRPreview } from "../../Platform/components"
+import { QRReader, isFullscreenQRPreview } from "~Platform/components"
 import { ActionButton, DialogActionsBox } from "./Generic"
 
 interface Props {

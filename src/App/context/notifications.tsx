@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { getErrorTranslation } from "../../Generic/lib/errors"
+import { getErrorTranslation } from "~Generic/lib/errors"
 
 export type NotificationType = "connection" | "error" | "info" | "success"
 

@@ -1,6 +1,6 @@
 import React from "react"
-import { SignatureRequest, deserializeSignatureRequest } from "../../Generic/lib/multisig-service"
-import { workers } from "../../Workers/worker-controller"
+import { SignatureRequest, deserializeSignatureRequest } from "~Generic/lib/multisig-service"
+import { workers } from "~Workers/worker-controller"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
 import { SettingsContext } from "./settings"

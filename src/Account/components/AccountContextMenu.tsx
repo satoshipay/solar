@@ -12,11 +12,11 @@ import ListIcon from "@material-ui/icons/List"
 import MoneyIcon from "@material-ui/icons/AttachMoney"
 import SettingsIcon from "@material-ui/icons/Settings"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
-import { Account } from "../../App/context/accounts"
-import { SettingsContextType } from "../../App/context/settings"
-import { useLiveAccountData } from "../../Generic/hooks/stellar-subscriptions"
-import { useIsMobile } from "../../Generic/hooks/userinterface"
-import ContextMenu, { AnchorRenderProps } from "../../Generic/components/ContextMenu"
+import { Account } from "~App/context/accounts"
+import { SettingsContextType } from "~App/context/settings"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
+import { useIsMobile } from "~Generic/hooks/userinterface"
+import ContextMenu, { AnchorRenderProps } from "~Generic/components/ContextMenu"
 
 const useContextMenuItemStyles = makeStyles({
   disabled: {

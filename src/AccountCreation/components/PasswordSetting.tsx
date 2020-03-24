@@ -4,7 +4,7 @@ import Collapse from "@material-ui/core/Collapse"
 import ListItemText from "@material-ui/core/ListItemText"
 import Switch from "@material-ui/core/Switch"
 import TextField from "@material-ui/core/TextField"
-import AccountSettingsItem from "../../AccountSettings/components/AccountSettingsItem"
+import AccountSettingsItem from "~AccountSettings/components/AccountSettingsItem"
 
 interface PasswordSettingProps {
   error?: string

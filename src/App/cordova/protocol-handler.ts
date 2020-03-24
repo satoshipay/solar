@@ -1,4 +1,4 @@
-import { Messages } from "../../Shared/ipc"
+import { Messages } from "~Shared/ipc"
 
 export function registerURLHandler(contentWindow: Window, iframeReady: Promise<void>) {
   window.handleOpenURL = handleOpenURL(contentWindow, iframeReady)

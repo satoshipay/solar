@@ -1,6 +1,6 @@
 import React from "react"
 import List from "@material-ui/core/List"
-import { useIsMobile } from "../../Generic/hooks/userinterface"
+import { useIsMobile } from "~Generic/hooks/userinterface"
 import PasswordSetting from "./PasswordSetting"
 import SecretKeyImport from "./SecretKeyImport"
 import { AccountCreation, AccountCreationErrors } from "./types"

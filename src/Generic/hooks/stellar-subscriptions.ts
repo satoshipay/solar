@@ -3,12 +3,12 @@
 import { unsubscribe, ObservableLike } from "observable-fns"
 import React from "react"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
-import { Account } from "../../App/context/accounts"
+import { Account } from "~App/context/accounts"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { mapSuspendables } from "../lib/suspense"
-import { CollectionPage } from "../../Workers/net-worker/stellar-network"
+import { CollectionPage } from "~Workers/net-worker/stellar-network"
 import {
   accountDataCache,
   accountOpenOrdersCache,

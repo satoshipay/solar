@@ -3,13 +3,13 @@ import Grow from "@material-ui/core/Grow"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
 import { useTheme } from "@material-ui/core/styles"
 import NotificationsIcon from "@material-ui/icons/Notifications"
-import { NotificationsContext, trackError } from "../../App/context/notifications"
+import { NotificationsContext, trackError } from "~App/context/notifications"
 import {
   hasPermission as hasPermissionToNotify,
   requestPermission as requestPermissionToNotify,
   showNotification
-} from "../../Platform/notifications"
-import { HorizontalLayout } from "../../Layout/components/Box"
+} from "~Platform/notifications"
+import { HorizontalLayout } from "~Layout/components/Box"
 
 interface PermissionNotificationProps {
   onHide: () => void

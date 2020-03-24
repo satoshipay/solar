@@ -2,7 +2,7 @@ import React from "react"
 import { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { Keypair } from "stellar-sdk"
-import { Account, AccountsContext } from "../../App/context/accounts"
+import { Account, AccountsContext } from "~App/context/accounts"
 import { AccountCreation, AccountCreationErrors } from "./types"
 
 function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {

@@ -5,9 +5,9 @@ import PromiseQueue from "p-queue"
 import qs from "qs"
 import { Asset, Horizon, Networks, ServerApi, Transaction } from "stellar-sdk"
 import pkg from "../../../package.json"
-import { Cancellation, CustomError } from "../../Generic/lib/errors"
-import { parseAssetID } from "../../Generic/lib/stellar"
-import { max } from "../../Generic/lib/strings"
+import { Cancellation, CustomError } from "~Generic/lib/errors"
+import { parseAssetID } from "~Generic/lib/stellar"
+import { max } from "~Generic/lib/strings"
 import { createReconnectingSSE } from "../lib/event-source"
 import {
   accountDataUpdates,
