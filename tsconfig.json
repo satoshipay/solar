@@ -7,6 +7,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
+      "~*": ["./src/*"],
       "*": ["shared/types/*"]
     },
     "esModuleInterop": true,
