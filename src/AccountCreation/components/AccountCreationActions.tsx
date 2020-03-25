@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import CheckIcon from "@material-ui/icons/Check"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "~routes"
+import * as routes from "~App/routes"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { useButtonStyles } from "~Account/components/AccountActions"
 

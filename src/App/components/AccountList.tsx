@@ -15,10 +15,10 @@ import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { containsStellarGuardAsSigner } from "~Generic/lib/stellar-guard"
 import { SignatureRequest } from "~Generic/lib/multisig-service"
-import * as routes from "~routes"
-import StellarGuardIcon from "~Icons/components/StellarGuard"
 import InlineLoader from "~Generic/components/InlineLoader"
+import StellarGuardIcon from "~Icons/components/StellarGuard"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
+import * as routes from "../routes"
 
 const useCardStyles = makeStyles({
   cardActionArea: {

@@ -15,7 +15,7 @@ import {
 } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
-import * as routes from "~routes"
+import * as routes from "~App/routes"
 import MainSelectionButton from "~Generic/components/MainSelectionButton"
 import { VerticalLayout } from "~Layout/components/Box"
 import FriendbotButton from "./FriendbotButton"

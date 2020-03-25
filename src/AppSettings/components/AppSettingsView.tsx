@@ -2,13 +2,13 @@ import React from "react"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
+import * as routes from "~App/routes"
 import AppSettings from "~AppSettings/components/AppSettings"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import MainTitle from "~Generic/components/MainTitle"
-import { Section } from "~Layout/components/Page"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "~routes"
+import { Section } from "~Layout/components/Page"
 
 // tslint:disable-next-line
 const pkg = require("../../../package.json")
