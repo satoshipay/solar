@@ -1,7 +1,7 @@
 import { createStore, KeysData } from "key-store"
 import { Networks, Keypair, Transaction } from "stellar-sdk"
-import { Messages } from "../Shared/ipc"
-import { WrongPasswordError } from "../Generic/lib/errors"
+import { Messages } from "../../Shared/ipc"
+import { WrongPasswordError } from "../../Generic/lib/errors"
 
 type CallHandler = (...args: any) => any
 
