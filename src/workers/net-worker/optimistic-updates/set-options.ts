@@ -1,5 +1,5 @@
 import { Horizon, Operation, Signer, Transaction } from "stellar-sdk"
-import { OptimisticUpdate } from "../../_util/optimistic-updates"
+import { OptimisticUpdate } from "../../lib/optimistic-updates"
 
 function addSigner(
   horizonURL: string,

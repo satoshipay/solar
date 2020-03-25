@@ -1,7 +1,7 @@
 import { FederationServer, StellarTomlResolver } from "stellar-sdk"
-import { AccountRecord } from "../../lib/stellar-expert"
-import { AssetRecord } from "../../lib/stellar-ticker"
-import { CustomError } from "../../lib/errors"
+import { AccountRecord } from "~Generic/lib/stellar-expert"
+import { AssetRecord } from "~Generic/lib/stellar-ticker"
+import { CustomError } from "~Generic/lib/errors"
 
 export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
   const requestURL = testnet

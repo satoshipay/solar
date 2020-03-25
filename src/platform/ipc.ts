@@ -2,13 +2,13 @@
 
 function getImplementation() {
   if (window.electron) {
-    const impl = require("./ipc.electron")
+    const impl = require("./ipc/electron")
     return impl
   } else if (process.env.PLATFORM === "android" || process.env.PLATFORM === "ios") {
-    const impl = require("./ipc.cordova")
+    const impl = require("./ipc/cordova")
     return impl
   } else if (process.browser) {
-    const impl = require("./ipc.web")
+    const impl = require("./ipc/web")
     return impl
   } else {
     throw new Error("There is no IPC implementation for your platform.")

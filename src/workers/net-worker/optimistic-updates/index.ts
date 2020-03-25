@@ -4,7 +4,7 @@ import {
   offerUpdates,
   OptimisticAccountUpdate,
   OptimisticOfferUpdate
-} from "../../_util/optimistic-updates"
+} from "../../lib/optimistic-updates"
 import handleChangeTrust from "./change-trust"
 import handleManageOffer from "./manage-offer"
 import handleSetOptions from "./set-options"

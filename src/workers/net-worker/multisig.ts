@@ -1,8 +1,8 @@
 import { Observable } from "observable-fns"
-import { CustomError } from "../../lib/errors"
-import { ServerSentEvent, SignatureRequest } from "../../lib/multisig-service"
-import { manageStreamConnection, whenBackOnline } from "../../lib/stream"
-import { joinURL } from "../../lib/url"
+import { CustomError } from "~Generic/lib/errors"
+import { ServerSentEvent, SignatureRequest } from "~Generic/lib/multisig-service"
+import { manageStreamConnection, whenBackOnline } from "~Generic/lib/stream"
+import { joinURL } from "~Generic/lib/url"
 import { raiseConnectionError, ServiceID } from "./errors"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))

@@ -5,7 +5,7 @@
     "interface-name": [true, "never-prefix"],
     "member-access": [true, "no-public"],
     "no-duplicate-imports": false,
-    "no-implicit-dependencies": [true, "dev"],
+    "no-implicit-dependencies": false,
     "no-namespace": false,
     "no-shadowed-variable": [
       true,

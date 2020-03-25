@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import { Operation, ServerApi, Transaction } from "stellar-sdk"
-import { OptimisticOfferUpdate } from "../../_util/optimistic-updates"
+import { OptimisticOfferUpdate } from "../../lib/optimistic-updates"
 
 function createOffer(
   operation: Operation.ManageBuyOffer | Operation.ManageSellOffer,

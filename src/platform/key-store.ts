@@ -1,5 +1,5 @@
 import { Transaction } from "stellar-sdk"
-import { Messages } from "../shared/ipc"
+import { Messages } from "../Shared/ipc"
 import { call } from "./ipc"
 
 export interface KeyStoreAPI {

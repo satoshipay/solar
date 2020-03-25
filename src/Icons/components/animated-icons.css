@@ -1,0 +1,126 @@
+/* From <https://github.com/Kamonlojn/svg-icons-animate> */
+
+.svg-box-u5GqHV {
+  display: inline-block;
+  position: relative;
+  width: 150px;
+}
+
+.green-stroke-u5GqHV {
+  stroke: #7cb342;
+}
+
+.red-stroke-u5GqHV {
+  stroke: #ff6245;
+}
+
+.circular-u5GqHV {
+  stroke-dasharray: 330;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  opacity: 0.4;
+  animation: 0.7s draw-circle-u5GqHV ease-out;
+}
+
+/*------- Checkmark ---------*/
+
+.checkmark-u5GqHV {
+  position: absolute;
+  top: 0;
+  left: 0;
+  stroke-width: 6.25;
+  stroke-linecap: round;
+}
+
+.checkmark-check-u5GqHV {
+  animation: 1s draw-check-u5GqHV ease-out;
+}
+
+@keyframes draw-circle-u5GqHV {
+  0% {
+    stroke-dasharray: 0, 330;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  80% {
+    stroke-dasharray: 330, 330;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes draw-check-u5GqHV {
+  0% {
+    stroke-dasharray: 49, 80;
+    stroke-dashoffset: 48;
+    opacity: 0;
+  }
+
+  50% {
+    stroke-dasharray: 49, 80;
+    stroke-dashoffset: 48;
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dasharray: 130, 80;
+    stroke-dashoffset: 48;
+  }
+}
+
+/*---------- Cross ----------*/
+
+.cross-u5GqHV {
+  stroke-width: 6.25;
+  stroke-linecap: round;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.cross-first-line-u5GqHV {
+  animation: 0.7s draw-first-line-u5GqHV ease-out;
+}
+
+.cross-second-line-u5GqHV {
+  animation: 0.7s draw-second-line-u5GqHV ease-out;
+}
+
+@keyframes draw-first-line-u5GqHV {
+  0% {
+    stroke-dasharray: 0, 56;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: 0, 56;
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dasharray: 56, 330;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes draw-second-line-u5GqHV {
+  0% {
+    stroke-dasharray: 0, 55;
+    stroke-dashoffset: 1;
+  }
+
+  50% {
+    stroke-dasharray: 0, 55;
+    stroke-dashoffset: 1;
+  }
+
+  100% {
+    stroke-dasharray: 55, 0;
+    stroke-dashoffset: 70;
+  }
+}

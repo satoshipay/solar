@@ -1,5 +1,5 @@
 import { call } from "./ipc"
-import { Messages } from "../shared/ipc"
+import { Messages } from "../Shared/ipc"
 
 interface SettingsStore {
   biometricAuthAvailable(): Promise<BiometricAvailability>
