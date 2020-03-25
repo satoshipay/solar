@@ -24,10 +24,11 @@ import { getPaymentSummary, PaymentSummary } from "~Generic/lib/paymentSummary"
 import { breakpoints } from "~App/theme"
 import { ActionButton } from "~Generic/components/DialogActions"
 import { PublicKey } from "~Generic/components/PublicKey"
+import { formatBalance } from "~Generic/lib/balances"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import TransactionReviewDialog from "~TransactionReview/components/TransactionReviewDialog"
 import { useOperationTitle } from "~TransactionReview/components/Operations"
-import { formatBalance, SingleBalance } from "./AccountBalances"
+import { SingleBalance } from "./AccountBalances"
 import { matchesRoute } from "~Generic/lib/routes"
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))

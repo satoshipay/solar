@@ -10,8 +10,8 @@ import { Account } from "~App/contexts/accounts"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { stringifyAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
-import { sortBalances } from "~Account/components/AccountBalances"
 import InlineLoader from "~Generic/components/InlineLoader"
+import { sortBalances } from "~Generic/lib/balances"
 import ScrollableBalanceItem, { getBalanceItemMinMaxWidth } from "./ScrollableBalanceItem"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {

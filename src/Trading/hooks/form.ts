@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import { Asset, Horizon } from "stellar-sdk"
-import { formatBalance, BalanceFormattingOptions } from "~Account/components/AccountBalances"
 import { AccountData } from "~Generic/lib/account"
+import { formatBalance, BalanceFormattingOptions } from "~Generic/lib/balances"
 import { calculateSpread, FixedOrderbookRecord } from "~Generic/lib/orderbook"
 import { balancelineToAsset, getAccountMinimumBalance } from "~Generic/lib/stellar"
 import { useConversionOffers } from "./conversion"

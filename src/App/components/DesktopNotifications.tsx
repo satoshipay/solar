@@ -13,10 +13,10 @@ import { useSingleton } from "~Generic/hooks/util"
 import { useNetWorker } from "~Generic/hooks/workers"
 import { SignatureRequest } from "~Generic/lib/multisig-service"
 import { showNotification } from "~Platform/notifications"
-import * as routes from "~routes"
-import { NetWorker } from "~Workers/worker-controller"
-import { formatBalance } from "~Account/components/AccountBalances"
+import { formatBalance } from "~Generic/lib/balances"
 import { OfferDetailsString } from "~TransactionReview/components/Operations"
+import { NetWorker } from "~Workers/worker-controller"
+import * as routes from "~routes"
 
 type TradeEffect = ServerApi.EffectRecord & {
   id: string
