@@ -9,11 +9,11 @@ import {
   WebAuthTokenCacheContext
 } from "~App/contexts/caches"
 import { StellarContext } from "~App/contexts/stellar"
+import { workers } from "~Workers/worker-controller"
+import { StellarToml, StellarTomlCurrency } from "~shared/types/stellar-toml"
 import { createEmptyAccountData, AccountData } from "../lib/account"
 import * as StellarAddresses from "../lib/stellar-address"
-import { StellarToml, StellarTomlCurrency } from "~Shared/types/stellar-toml"
 import { mapSuspendables } from "../lib/suspense"
-import { workers } from "~Workers/worker-controller"
 import { accountDataCache, accountHomeDomainCache, stellarTomlCache } from "./_caches"
 import { useNetWorker } from "./workers"
 

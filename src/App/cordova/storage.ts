@@ -4,7 +4,7 @@
 
 import nanoid from "nanoid"
 import { createStore, KeysData, KeyStore } from "key-store"
-import { Messages } from "~Shared/ipc"
+import { Messages } from "~shared/ipc"
 import { expose } from "./ipc"
 import { registerKeyStoreCommandHandlers } from "./keystore"
 

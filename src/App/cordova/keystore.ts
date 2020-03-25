@@ -1,6 +1,6 @@
 import { KeyStore } from "key-store"
 import { Transaction, Keypair, Networks } from "stellar-sdk"
-import { Messages } from "~Shared/ipc"
+import { Messages } from "~shared/ipc"
 import { WrongPasswordError } from "~Generic/lib/errors"
 import { CommandHandlers, expose } from "./ipc"
 
