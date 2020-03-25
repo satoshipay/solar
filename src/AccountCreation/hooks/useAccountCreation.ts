@@ -3,7 +3,7 @@ import { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { Keypair } from "stellar-sdk"
 import { Account, AccountsContext } from "~App/contexts/accounts"
-import { AccountCreation, AccountCreationErrors } from "./types"
+import { AccountCreation, AccountCreationErrors } from "../types/types"
 
 function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
   const publicKey = Keypair.fromSecret(privateKey).publicKey()

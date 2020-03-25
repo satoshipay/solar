@@ -10,7 +10,7 @@ import MainSelectionButton from "~Generic/components/MainSelectionButton"
 import { VerticalLayout } from "~Layout/components/Box"
 import Carousel from "~Layout/components/Carousel"
 import NewAccountSettings from "./NewAccountSettings"
-import { AccountCreation, AccountCreationErrors } from "./types"
+import { AccountCreation, AccountCreationErrors } from "../types/types"
 
 interface InitialSelectionProps {
   onUpdateAccountCreation: (update: Partial<AccountCreation>) => void
