@@ -1,39 +1,22 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import List from "@material-ui/core/List"
-import ListItemIcon from "@material-ui/core/ListItemIcon"
-import { makeStyles } from "@material-ui/core"
-import Switch from "@material-ui/core/Switch"
-import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
-import FingerprintIcon from "@material-ui/icons/Fingerprint"
-import GroupIcon from "@material-ui/icons/Group"
-import MessageIcon from "@material-ui/icons/Message"
-import TestnetIcon from "@material-ui/icons/MoneyOff"
-import TrustIcon from "@material-ui/icons/VerifiedUser"
+import { availableLanguages } from "../../../i18n/index"
 import { AccountsContext } from "../../context/accounts"
 import { SettingsContext } from "../../context/settings"
 import { useIsMobile, useRouter } from "../../hooks/userinterface"
 import { matchesRoute } from "../../lib/routes"
 import * as routes from "../../routes"
 import Carousel from "../Layout/Carousel"
-import AppSettingsItem from "./AppSettingsItem"
 import ManageTrustedServicesDialog from "./ManageTrustedServicesDialog"
-
-interface SettingsToggleProps {
-  checked: boolean
-  disabled?: boolean
-  onChange: (checked: boolean) => void
-}
-
-function SettingsToggle(props: SettingsToggleProps) {
-  const { checked, disabled, onChange } = props
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.checked)
-  }
-
-  return <Switch checked={checked} color="primary" disabled={disabled} onChange={handleChange} />
-}
+import {
+  BiometricLockSetting,
+  HideMemoSetting,
+  LanguageSetting,
+  MultiSigSetting,
+  TestnetSetting,
+  TrustedServicesSetting
+} from "./Settings"
 
 const SettingsDialogs = React.memo(function SettingsDialogs() {
   const router = useRouter()
@@ -42,125 +25,55 @@ const SettingsDialogs = React.memo(function SettingsDialogs() {
   return showManageTrustedServices ? <ManageTrustedServicesDialog /> : <></>
 })
 
-const useAppSettingsStyles = makeStyles({
-  caret: {
-    color: "rgba(0, 0, 0, 0.35)",
-    fontSize: 48,
-    justifyContent: "center",
-    marginRight: -8,
-    width: 48
-  },
-  icon: {
-    fontSize: 28,
-    justifyContent: "center",
-    marginRight: 4,
-    width: 28
-  }
-})
-
 function AppSettings() {
-  const classes = useAppSettingsStyles()
-
   const isSmallScreen = useIsMobile()
-  const { t } = useTranslation()
   const router = useRouter()
+  const { i18n } = useTranslation()
 
   const showSettingsOverview = matchesRoute(router.location.pathname, routes.settings(), true)
 
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
+  const trustedServicesEnabled = process.env.TRUSTED_SERVICES && process.env.TRUSTED_SERVICES === "enabled"
+
+  const getEffectiveLanguage = <L extends string | undefined, F extends any>(lang: L, fallback: F) => {
+    return availableLanguages.indexOf(lang as any) > -1 ? lang : fallback
+  }
 
   const hasTestnetAccount = accounts.some(account => account.testnet)
   const navigateToTrustedServices = React.useCallback(() => router.history.push(routes.manageTrustedServices()), [
     router.history
   ])
 
-  const trustedServicesEnabled = process.env.TRUSTED_SERVICES && process.env.TRUSTED_SERVICES === "enabled"
+  const switchLanguage = React.useCallback(
+    (lang: string | undefined) => {
+      i18n.changeLanguage(getEffectiveLanguage(lang || navigator.language.substr(0, 2), "en"))
+      settings.setLanguage(lang)
+    },
+    [i18n, settings]
+  )
 
   return (
     <Carousel current={showSettingsOverview ? 0 : 1}>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
+        {availableLanguages.length > 1 ? (
+          <LanguageSetting onSelect={switchLanguage} value={getEffectiveLanguage(settings.language, undefined)} />
+        ) : null}
         {settings.biometricAvailability.available ? (
-          <AppSettingsItem
-            actions={
-              <SettingsToggle
-                checked={settings.biometricLock && settings.biometricAvailability.enrolled}
-                disabled={!settings.biometricAvailability.enrolled}
-                onChange={settings.toggleBiometricLock}
-              />
-            }
-            icon={<FingerprintIcon className={classes.icon} />}
-            onClick={settings.biometricAvailability.enrolled ? settings.toggleBiometricLock : undefined}
-            primaryText={
-              process.env.PLATFORM === "ios"
-                ? t("app-settings.settings.biometric-lock.text.primary.ios")
-                : t("app-settings.settings.biometric-lock.text.primary.default")
-            }
-            secondaryText={
-              !settings.biometricAvailability.enrolled
-                ? t("app-settings.settings.biometric-lock.text.secondary.not-enrolled")
-                : settings.biometricLock
-                ? t("app-settings.settings.biometric-lock.text.secondary.enabled")
-                : t("app-settings.settings.biometric-lock.text.secondary.disabled")
-            }
+          <BiometricLockSetting
+            enrolled={settings.biometricAvailability.enrolled}
+            onToggle={settings.toggleBiometricLock}
+            value={settings.biometricLock}
           />
         ) : null}
-        <AppSettingsItem
-          actions={
-            <SettingsToggle
-              checked={settings.showTestnet}
-              disabled={hasTestnetAccount}
-              onChange={settings.toggleTestnet}
-            />
-          }
-          icon={<TestnetIcon className={classes.icon} />}
-          onClick={hasTestnetAccount ? undefined : settings.toggleTestnet}
-          primaryText="Show Testnet Accounts"
-          secondaryText={
-            hasTestnetAccount
-              ? t("app-settings.settings.testnet.text.secondary.cannot-disable")
-              : settings.showTestnet
-              ? t("app-settings.settings.testnet.text.secondary.shown")
-              : t("app-settings.settings.testnet.text.secondary.hidden")
-          }
+        <TestnetSetting
+          hasTestnetAccount={hasTestnetAccount}
+          onToggle={settings.toggleTestnet}
+          value={settings.showTestnet || hasTestnetAccount}
         />
-        <AppSettingsItem
-          actions={<SettingsToggle checked={!settings.hideMemos} onChange={settings.toggleHideMemos} />}
-          icon={<MessageIcon className={classes.icon} />}
-          onClick={settings.toggleHideMemos}
-          primaryText={t("app-settings.settings.memo.text.primary")}
-          secondaryText={
-            settings.hideMemos
-              ? t("app-settings.settings.memo.text.secondary.hidden")
-              : t("app-settings.settings.memo.text.secondary.shown")
-          }
-        />
-        <AppSettingsItem
-          actions={<SettingsToggle checked={settings.multiSignature} onChange={settings.toggleMultiSignature} />}
-          icon={<GroupIcon className={classes.icon} />}
-          onClick={settings.toggleMultiSignature}
-          primaryText={t("app-settings.settings.multi-sig.text.primary")}
-          secondaryText={
-            settings.multiSignature
-              ? t("app-settings.settings.multi-sig.text.secondary.enabled")
-              : t("app-settings.settings.multi-sig.text.secondary.disabled")
-          }
-        />
-        {trustedServicesEnabled ? (
-          <AppSettingsItem
-            actions={
-              <ListItemIcon className={classes.caret}>
-                <ArrowRightIcon className={classes.caret} />
-              </ListItemIcon>
-            }
-            icon={<TrustIcon className={classes.icon} />}
-            onClick={navigateToTrustedServices}
-            primaryText={t("app-settings.settings.trusted-services.text.primary")}
-            secondaryText={t("app-settings.settings.trusted-services.text.secondary")}
-          />
-        ) : (
-          undefined
-        )}
+        <HideMemoSetting onToggle={settings.toggleHideMemos} value={settings.hideMemos} />
+        <MultiSigSetting onToggle={settings.toggleMultiSignature} value={settings.multiSignature} />
+        {trustedServicesEnabled ? <TrustedServicesSetting onClick={navigateToTrustedServices} /> : undefined}
       </List>
       <SettingsDialogs />
     </Carousel>

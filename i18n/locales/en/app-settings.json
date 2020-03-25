@@ -17,6 +17,15 @@
         "disable": "Unlock your device to disable the auto-lock."
       }
     },
+    "language": {
+      "auto-detect": {
+        "label": "auto"
+      },
+      "text": {
+        "primary": "Language",
+        "secondary": "Change the user interface language here"
+      }
+    },
     "memo": {
       "text": {
         "primary": "Show Memos",
