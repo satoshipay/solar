@@ -1,0 +1,65 @@
+{
+  "actions": {
+    "add-asset": "Add asset",
+    "submit": "Place order"
+  },
+  "action-selection": {
+    "buy": {
+      "description": "Buy some amount of an asset on the distributed exchange",
+      "label": "Buy asset"
+    },
+    "sell": {
+      "description": "Trade some amount of an asset for another one",
+      "label": "Sell asset"
+    }
+  },
+  "advanced": {
+    "header": "Advanced"
+  },
+  "inputs": {
+    "estimated-costs": {
+      "label": {
+        "buy": "Estimated costs",
+        "sell": "Estimated return"
+      }
+    },
+    "primary-amount": {
+      "label": {
+        "buy": "Amount to buy",
+        "sell": "Amount to sell"
+      },
+      "max-button": {
+        "label": "Max"
+      },
+      "placeholder": "Max. {{amount}}"
+    },
+    "primary-asset-selector": {
+      "label": {
+        "buy": "You buy",
+        "sell": "You sell"
+      }
+    },
+    "secondary-asset-selector": {
+      "label": {
+        "buy": "Spend",
+        "sell": "Receive"
+      }
+    }
+  },
+  "no-assets-info": "This account does not use any assets other than Stellar Lumens yet.",
+  "title": "Trade",
+  "trading-price": {
+    "label": "Price (limit)"
+  },
+  "validation": {
+    "primary-amount-missing": "No amount specified.",
+    "primary-asset-missing": "No asset selected.",
+    "secondary-asset-missing": "No asset selected.",
+    "invalid-amount": "Invalid amount specified.",
+    "invalid-price": "Invalid price"
+  },
+  "warning": {
+    "title": "Warning",
+    "message": "The spread between buying and selling price is about {{spread}}%."
+  }
+}

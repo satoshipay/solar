@@ -1,5 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
+import { useForm, Controller } from "react-hook-form"
 import { Asset, Horizon, Transaction, Operation } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ExpansionPanel from "@material-ui/core/ExpansionPanel"
@@ -18,7 +20,9 @@ import { useHorizon } from "../../hooks/stellar"
 import { useLiveOrderbook } from "../../hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "../../hooks/userinterface"
 import { AccountData } from "../../lib/account"
-import { calculateSpread } from "../../lib/orderbook"
+import { CustomError } from "../../lib/errors"
+import { calculateSpread, FixedOrderbookRecord } from "../../lib/orderbook"
+import { createTransaction } from "../../lib/transaction"
 import { balancelineToAsset, getAccountMinimumBalance } from "../../lib/stellar"
 import { formatBalance, BalanceFormattingOptions } from "../Account/AccountBalances"
 import { ActionButton, DialogActionsBox } from "../Dialog/Generic"
@@ -26,10 +30,9 @@ import AssetSelector from "../Form/AssetSelector"
 import { ReadOnlyTextfield } from "../Form/FormFields"
 import { Box, HorizontalLayout, VerticalLayout } from "../Layout/Box"
 import { warningColor } from "../../theme"
-import { useConversionOffers } from "./hooks"
 import Portal from "../Portal"
+import { useConversionOffers } from "./hooks"
 import TradingPrice from "./TradingPrice"
-import { createTransaction } from "../../lib/transaction"
 
 const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
   formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, ...overrides })
@@ -67,9 +70,98 @@ const useStyles = makeStyles({
   }
 })
 
-interface ManualPrice {
-  error?: Error
-  value?: string
+interface CalculationResults {
+  defaultPrice: string
+  effectivePrice: BigNumber
+  maxPrimaryAmount: BigNumber
+  minAccountBalance: BigNumber
+  primaryAmount: BigNumber
+  primaryBalance: Horizon.BalanceLine | undefined
+  relativeSpread: number
+  secondaryAmount: BigNumber
+  secondaryBalance: Horizon.BalanceLine | undefined
+  spendablePrimaryBalance: BigNumber
+  spendableSecondaryBalance: BigNumber
+}
+
+const useCalculation = (
+  values: TradingFormValues,
+  tradePair: FixedOrderbookRecord,
+  priceMode: "primary" | "secondary",
+  accountData: AccountData,
+  primaryAction: "buy" | "sell"
+): CalculationResults => {
+  const { manualPrice, primaryAmountString, primaryAsset, secondaryAsset } = values
+
+  const price =
+    manualPrice && isValidAmount(manualPrice)
+      ? priceMode === "secondary"
+        ? BigNumber(manualPrice)
+        : BigNumber(manualPrice).eq(0) // prevent division by zero
+        ? BigNumber(0)
+        : BigNumber(1).div(manualPrice)
+      : BigNumber(0)
+
+  const primaryAmount =
+    primaryAmountString && isValidAmount(primaryAmountString) ? BigNumber(primaryAmountString) : BigNumber(0)
+
+  const primaryBalance = primaryAsset ? findMatchingBalance(accountData.balances, primaryAsset) : undefined
+  const secondaryBalance = secondaryAsset ? findMatchingBalance(accountData.balances, secondaryAsset) : undefined
+
+  const { worstPriceOfBestMatches } = useConversionOffers(
+    primaryAction === "buy" ? tradePair.asks : tradePair.bids,
+    primaryAmount.gt(0) ? primaryAmount : BigNumber(0.01),
+    primaryAction === "sell"
+  )
+
+  const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
+  const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
+  const effectivePrice = price.gt(0) ? price : bestPrice || BigNumber(0)
+  const secondaryAmount = primaryAmount.mul(effectivePrice)
+
+  // prevent division by zero
+  const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
+  const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
+
+  const minAccountBalance = getAccountMinimumBalance(accountData)
+
+  const spendablePrimaryBalance = primaryBalance
+    ? BigNumber(primaryBalance.balance).sub(primaryBalance.asset_type === "native" ? minAccountBalance : 0)
+    : BigNumber(0)
+
+  const spendableSecondaryBalance = secondaryBalance
+    ? BigNumber(secondaryBalance.balance).sub(secondaryBalance.asset_type === "native" ? minAccountBalance : 0)
+    : BigNumber(0)
+
+  const maxPrimaryAmount =
+    primaryAction === "buy"
+      ? spendableSecondaryBalance.gt(0) && effectivePrice.gt(0)
+        ? BigNumber(spendableSecondaryBalance).div(effectivePrice)
+        : BigNumber(0)
+      : spendablePrimaryBalance.gt(0)
+      ? BigNumber(spendablePrimaryBalance)
+      : BigNumber(0)
+
+  return {
+    defaultPrice,
+    effectivePrice,
+    maxPrimaryAmount,
+    minAccountBalance,
+    primaryAmount,
+    primaryBalance,
+    relativeSpread,
+    secondaryAmount,
+    secondaryBalance,
+    spendablePrimaryBalance,
+    spendableSecondaryBalance
+  }
+}
+
+interface TradingFormValues {
+  primaryAsset: Asset | undefined
+  primaryAmountString: string
+  secondaryAsset: Asset
+  manualPrice: string
 }
 
 interface Props {
@@ -85,103 +177,64 @@ interface Props {
 }
 
 function TradingForm(props: Props) {
-  const { sendTransaction } = props
   const classes = useStyles()
   const isSmallScreen = useIsMobile()
   const isSmallHeightScreen = useMediaQuery("(max-height: 500px)")
   const isSmallScreenXY = isSmallScreen || isSmallHeightScreen
+  const { t } = useTranslation()
 
-  const [primaryAsset, setPrimaryAsset] = React.useState<Asset | undefined>(props.initialPrimaryAsset)
-  const [primaryAmountString, setPrimaryAmountString] = React.useState("")
-  const [secondaryAsset, setSecondaryAsset] = React.useState<Asset>(Asset.native())
-  const [manualPrice, setManualPrice] = React.useState<ManualPrice>({})
-  const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
   const [expanded, setExpanded] = React.useState(false)
+  const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
+
+  const form = useForm<TradingFormValues>({
+    defaultValues: {
+      primaryAsset: props.initialPrimaryAsset,
+      primaryAmountString: "",
+      secondaryAsset: Asset.native(),
+      manualPrice: "0"
+    }
+  })
+
+  const sendTransaction = props.sendTransaction
+  const { primaryAsset, secondaryAsset } = form.watch()
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
 
-  const price =
-    manualPrice.value && isValidAmount(manualPrice.value)
-      ? priceMode === "secondary"
-        ? BigNumber(manualPrice.value)
-        : BigNumber(manualPrice.value).eq(0) // prevent division by zero
-        ? BigNumber(0)
-        : BigNumber(1).div(manualPrice.value)
-      : BigNumber(0)
-
-  const primaryAmount =
-    primaryAmountString && isValidAmount(primaryAmountString) ? BigNumber(primaryAmountString) : BigNumber(0)
-
-  const primaryBalance = primaryAsset ? findMatchingBalance(props.accountData.balances, primaryAsset) : undefined
-  const secondaryBalance = secondaryAsset ? findMatchingBalance(props.accountData.balances, secondaryAsset) : undefined
-
-  const updatePrice = (newPriceAmount: string) => {
-    setManualPrice(prev => ({
-      error: isValidAmount(newPriceAmount) ? undefined : prev.error,
-      value: newPriceAmount
-    }))
-  }
-
-  const validatePrice = React.useCallback(() => {
-    setManualPrice(prev => ({
-      error: prev.value && !isValidAmount(prev.value) ? Error("Invalid price") : undefined,
-      value: prev.value
-    }))
-  }, [])
-
-  const { worstPriceOfBestMatches } = useConversionOffers(
-    props.primaryAction === "buy" ? tradePair.asks : tradePair.bids,
-    primaryAmount.gt(0) ? primaryAmount : BigNumber(0.01),
-    props.primaryAction === "sell"
-  )
-
-  const { relativeSpread } = calculateSpread(tradePair.asks, tradePair.bids)
-  const bestPrice = worstPriceOfBestMatches && worstPriceOfBestMatches.gt(0) ? worstPriceOfBestMatches : undefined
-  const effectivePrice = price.gt(0) ? price : bestPrice || BigNumber(0)
-  const secondaryAmount = primaryAmount.mul(effectivePrice)
-
-  // prevent division by zero
-  const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
-  const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
-
-  const sellingAmount = props.primaryAction === "sell" ? primaryAmount : secondaryAmount
-  const sellingBalance: { balance: string } = (props.primaryAction === "sell" ? primaryBalance : secondaryBalance) || {
-    balance: "0"
-  }
-
-  const minAccountBalance = getAccountMinimumBalance(props.accountData)
-
-  const spendablePrimaryBalance = primaryBalance
-    ? BigNumber(primaryBalance.balance).sub(primaryBalance.asset_type === "native" ? minAccountBalance : 0)
-    : BigNumber(0)
-
-  const spendableSecondaryBalance = secondaryBalance
-    ? BigNumber(secondaryBalance.balance).sub(secondaryBalance.asset_type === "native" ? minAccountBalance : 0)
-    : BigNumber(0)
-
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
 
-  const maxPrimaryAmount =
-    props.primaryAction === "buy"
-      ? spendableSecondaryBalance.gt(0) && effectivePrice.gt(0)
-        ? BigNumber(spendableSecondaryBalance).div(effectivePrice)
-        : BigNumber(0)
-      : spendablePrimaryBalance.gt(0)
-      ? BigNumber(spendablePrimaryBalance)
-      : BigNumber(0)
+  const calculation = useCalculation(form.getValues(), tradePair, priceMode, props.accountData, props.primaryAction)
 
-  const isDisabled =
-    !primaryAsset || primaryAmount.lte(0) || sellingAmount.gt(sellingBalance.balance) || effectivePrice.lte(0)
+  const {
+    maxPrimaryAmount,
+    primaryBalance,
+    defaultPrice,
+    effectivePrice,
+    primaryAmount,
+    relativeSpread,
+    secondaryAmount,
+    secondaryBalance,
+    spendablePrimaryBalance,
+    spendableSecondaryBalance
+  } = calculation
+
+  if (form.formState.touched.primaryAmountString) {
+    // trigger delayed validation to make sure that primaryAmountString is validated with latest calculation results
+    setTimeout(() => form.triggerValidation("primaryAmountString"), 0)
+  }
 
   const setPrimaryAmountToMax = () => {
-    setPrimaryAmountString(maxPrimaryAmount.toFixed(7))
+    form.setValue("primaryAmountString", maxPrimaryAmount.toFixed(7))
   }
 
   const submitForm = React.useCallback(async () => {
     try {
       if (!primaryAsset) {
-        throw Error("Invariant violation: Should not be able to submit form without having selected the primary asset.")
+        throw CustomError(
+          "InvariantViolationError",
+          "Invariant violation: Should not be able to submit form without having selected the primary asset.",
+          { message: "Should not be able to submit form without having selected the primary asset." }
+        )
       }
 
       const tx = await createTransaction(
@@ -247,25 +300,45 @@ function TradingForm(props: Props) {
         width="100%"
       >
         <HorizontalLayout margin="8px 0">
-          <AssetSelector
-            assets={assets}
-            autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
-            label={props.primaryAction === "buy" ? "You buy" : "You sell"}
-            onChange={setPrimaryAsset}
-            minWidth={75}
-            showXLM
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-            testnet={props.account.testnet}
-            value={primaryAsset}
+          <Controller
+            as={
+              <AssetSelector
+                assets={assets}
+                autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
+                inputError={form.errors.primaryAsset && form.errors.primaryAsset.message}
+                label={
+                  props.primaryAction === "buy"
+                    ? t("trading.inputs.primary-asset-selector.label.buy")
+                    : t("trading.inputs.primary-asset-selector.label.sell")
+                }
+                minWidth={75}
+                showXLM
+                style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+                testnet={props.account.testnet}
+                value={primaryAsset}
+              />
+            }
+            control={form.control}
+            name="primaryAsset"
+            rules={{
+              required: t<string>("trading.validation.primary-asset-missing")
+            }}
           />
           <TextField
             autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
-            error={
-              primaryAmount.lt(0) ||
-              (primaryAmountString.length > 0 && primaryAmount.eq(0)) ||
-              (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(spendablePrimaryBalance)) ||
-              (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(spendableSecondaryBalance))
-            }
+            name="primaryAmountString"
+            inputRef={form.register({
+              required: t<string>("trading.validation.primary-amount-missing"),
+              validate: value => {
+                const amountInvalid =
+                  primaryAmount.lt(0) ||
+                  (value.length > 0 && primaryAmount.eq(0)) ||
+                  (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(spendablePrimaryBalance)) ||
+                  (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(spendableSecondaryBalance))
+                return !amountInvalid || t<string>("trading.validation.invalid-amount")
+              }
+            })}
+            error={Boolean(form.errors.primaryAmountString)}
             inputProps={{
               pattern: "[0-9]*",
               inputMode: "decimal",
@@ -284,37 +357,61 @@ function TradingForm(props: Props) {
                       onClick={setPrimaryAmountToMax}
                       style={{ boxShadow: "none", fontWeight: 400 }}
                     >
-                      Max
+                      {t("trading.inputs.primary-amount.max-button.label")}
                     </Button>
                   </InputAdornment>
                 )
             }}
-            label={props.primaryAction === "buy" ? "Amount to buy" : "Amount to sell"}
-            onChange={event => setPrimaryAmountString(event.target.value)}
-            placeholder={`Max. ${bigNumberToInputValue(maxPrimaryAmount)}`}
+            label={
+              form.errors.primaryAmountString && form.errors.primaryAmountString.message
+                ? form.errors.primaryAmountString.message
+                : props.primaryAction === "buy"
+                ? t("trading.inputs.primary-amount.label.buy")
+                : t("trading.inputs.primary-amount.label.sell")
+            }
+            placeholder={t(
+              "trading.inputs.primary-amount.placeholder",
+              `Max. ${bigNumberToInputValue(maxPrimaryAmount)}`,
+              {
+                amount: bigNumberToInputValue(maxPrimaryAmount)
+              }
+            )}
             required
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
             type="number"
-            value={primaryAmountString}
           />
         </HorizontalLayout>
         <HorizontalLayout margin="8px 0 32px">
-          <AssetSelector
-            assets={assets}
-            label={props.primaryAction === "buy" ? "Spend" : "Receive"}
-            minWidth={75}
-            onChange={setSecondaryAsset}
-            showXLM
-            style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
-            testnet={props.account.testnet}
-            value={secondaryAsset}
+          <Controller
+            as={
+              <AssetSelector
+                assets={assets}
+                label={
+                  props.primaryAction === "buy"
+                    ? t("trading.inputs.secondary-asset-selector.label.buy")
+                    : t("trading.inputs.secondary-asset-selector.label.sell")
+                }
+                minWidth={75}
+                showXLM
+                style={{ flexGrow: 1, marginRight: 24, maxWidth: 150, width: "25%" }}
+                testnet={props.account.testnet}
+                value={secondaryAsset}
+              />
+            }
+            control={form.control}
+            name="secondaryAsset"
+            rules={{ required: t<string>("trading.validation.secondary-asset-missing") }}
           />
           <ReadOnlyTextfield
             disableUnderline
             inputProps={{
               style: { height: 27 }
             }}
-            label={props.primaryAction === "buy" ? "Estimated costs" : "Estimated return"}
+            label={
+              props.primaryAction === "buy"
+                ? t("trading.inputs.estimated-costs.label.buy")
+                : t("trading.inputs.estimated-costs.label.sell")
+            }
             placeholder={`Max. ${secondaryBalance ? secondaryBalance.balance : "0"}`}
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
             inputMode="decimal"
@@ -336,35 +433,46 @@ function TradingForm(props: Props) {
             expandIcon={<ExpandMoreIcon />}
           >
             <Typography align="center" style={{ flexGrow: 1 }}>
-              Advanced
+              {t("trading.advanced.header")}
             </Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.expansionPanelDetails}>
-            <TradingPrice
-              inputError={manualPrice.error}
-              manualPrice={manualPrice.value !== undefined ? manualPrice.value : defaultPrice}
-              onBlur={validatePrice}
-              onChange={updatePrice}
-              onSetPriceDenotedIn={setPriceMode}
-              price={effectivePrice}
-              priceDenotedIn={priceMode}
-              primaryAsset={primaryAsset}
-              secondaryAsset={secondaryAsset}
-              style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
+            <Controller
+              as={
+                <TradingPrice
+                  defaultPrice={!form.formState.touched.manualPrice ? defaultPrice : undefined}
+                  inputError={form.errors.manualPrice && form.errors.manualPrice.message}
+                  onSetPriceDenotedIn={setPriceMode}
+                  price={effectivePrice}
+                  priceDenotedIn={priceMode}
+                  primaryAsset={primaryAsset}
+                  secondaryAsset={secondaryAsset}
+                  selectOnFocus
+                  style={{ flexGrow: 1, maxWidth: 250, width: "55%" }}
+                />
+              }
+              control={form.control}
+              name="manualPrice"
+              rules={{ validate: value => isValidAmount(value) || t<string>("trading.validation.invalid-price") }}
+              valueName="manualPrice"
             />
           </ExpansionPanelDetails>
         </ExpansionPanel>
         {relativeSpread >= 0.015 ? (
           <Box margin="32px 0 0" padding="8px 12px" style={{ background: warningColor }}>
-            <b>Warning</b>
+            <b>{t("trading.warning.title")}</b>
             <br />
-            The spread between buying and selling price is about {(relativeSpread * 100).toFixed(1)}%.
+            {t(
+              "trading.warning.message",
+              `The spread between buying and selling price is about ${(relativeSpread * 100).toFixed(1)}%.`,
+              { spread: (relativeSpread * 100).toFixed(1) }
+            )}
           </Box>
         ) : null}
         <Portal target={props.dialogActionsRef.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
-            <ActionButton disabled={isDisabled} icon={<GavelIcon />} onClick={submitForm} type="primary">
-              Place order
+            <ActionButton icon={<GavelIcon />} onClick={form.handleSubmit(submitForm)} type="primary">
+              {t("trading.actions.submit")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>

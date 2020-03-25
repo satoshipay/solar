@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -7,20 +8,23 @@ import Select from "@material-ui/core/Select"
 import TextField from "@material-ui/core/TextField"
 
 interface TradingPriceProps {
-  inputError?: Error
+  defaultPrice?: string
+  inputError?: string
   manualPrice?: string
   onBlur?: () => void
-  onChange: (priceString: string) => void
+  onChange?: (event: React.ChangeEvent) => void
   onSetPriceDenotedIn: (denotedIn: "primary" | "secondary") => void
   price: BigNumber
   priceDenotedIn: "primary" | "secondary"
   primaryAsset: Asset | undefined
   secondaryAsset: Asset | undefined
+  selectOnFocus?: boolean
   style?: React.CSSProperties
 }
 
-function TradingPrice(props: TradingPriceProps) {
+const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceProps, ref: React.Ref<HTMLDivElement>) {
   const isDisabled = !props.primaryAsset || !props.secondaryAsset
+  const { t } = useTranslation()
 
   const endAdornment = (
     <InputAdornment position="end">
@@ -49,15 +53,17 @@ function TradingPrice(props: TradingPriceProps) {
         min: "0.0000001"
       }}
       InputProps={{ endAdornment }}
+      inputRef={ref}
       error={Boolean(props.inputError)}
-      label={props.inputError ? props.inputError.message : "Price (limit)"}
+      label={props.inputError ? props.inputError : t("trading.trading-price.label")}
       onBlur={props.onBlur}
-      onChange={event => props.onChange(event.target.value)}
+      onChange={props.onChange}
+      onFocus={props.selectOnFocus ? event => event.target.select() : undefined}
       style={props.style}
       type="number"
-      value={props.manualPrice}
+      value={props.defaultPrice ? props.defaultPrice : props.manualPrice}
     />
   )
-}
+})
 
 export default React.memo(TradingPrice)
