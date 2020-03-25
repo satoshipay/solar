@@ -6,7 +6,7 @@ import { AccountsContext } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "../../routes"
+import * as routes from "~routes"
 import Carousel from "~Layout/components/Carousel"
 import ManageTrustedServicesDialog from "./ManageTrustedServicesDialog"
 import {

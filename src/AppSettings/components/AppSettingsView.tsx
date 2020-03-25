@@ -8,7 +8,7 @@ import MainTitle from "~Generic/components/MainTitle"
 import { Section } from "~Layout/components/Page"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "../../routes"
+import * as routes from "~routes"
 
 // tslint:disable-next-line
 const pkg = require("../../../package.json")

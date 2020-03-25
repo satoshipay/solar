@@ -12,7 +12,7 @@ import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar
 import { AccountData } from "~Generic/lib/account"
 import { matchesRoute } from "~Generic/lib/routes"
 import { stringifyAsset, getAccountMinimumBalance } from "~Generic/lib/stellar"
-import * as routes from "../../routes"
+import * as routes from "~routes"
 import { FullscreenDialogTransition } from "~App/theme"
 import { sortBalances } from "~Account/components/AccountBalances"
 import DialogBody from "~Layout/components/DialogBody"

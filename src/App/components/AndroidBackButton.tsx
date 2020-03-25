@@ -1,6 +1,6 @@
 import React from "react"
 import { useRouter } from "~Generic/hooks/userinterface"
-import { routeUp } from "../../routes"
+import { routeUp } from "~routes"
 
 function AndroidBackButton() {
   const router = useRouter()

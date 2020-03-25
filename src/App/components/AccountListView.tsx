@@ -16,7 +16,7 @@ import AppNotificationPermission from "~Toasts/components/AppNotificationPermiss
 import { AccountsContext } from "../contexts/accounts"
 import { SettingsContext } from "../contexts/settings"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
-import * as routes from "../../routes"
+import * as routes from "~routes"
 import { NotificationsContext, trackError } from "../contexts/notifications"
 import getUpdater from "~Platform/updater"
 

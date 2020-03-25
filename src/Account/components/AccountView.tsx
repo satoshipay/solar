@@ -21,7 +21,7 @@ import { trackError } from "../../App/contexts/notifications"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { getLastArgumentFromURL } from "~Generic/lib/url"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "../../routes"
+import * as routes from "~routes"
 import { FullscreenDialogTransition } from "../../App/theme"
 
 const modules = {
