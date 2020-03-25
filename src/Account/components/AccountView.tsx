@@ -16,13 +16,13 @@ import withFallback from "~Generic/hocs/withFallback"
 import PaymentDialog from "~Payment/components/PaymentDialog"
 import ReceivePaymentDialog from "~Payment/components/ReceivePaymentDialog"
 import ViewLoading from "~Generic/components/ViewLoading"
-import { Account, AccountsContext } from "../contexts/accounts"
-import { trackError } from "../contexts/notifications"
+import { Account, AccountsContext } from "../../App/contexts/accounts"
+import { trackError } from "../../App/contexts/notifications"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { getLastArgumentFromURL } from "~Generic/lib/url"
 import { matchesRoute } from "~Generic/lib/routes"
 import * as routes from "../../routes"
-import { FullscreenDialogTransition } from "../theme"
+import { FullscreenDialogTransition } from "../../App/theme"
 
 const modules = {
   AssetDetailsDialog: import("../../Assets/components/AssetDetailsDialog"),
@@ -36,7 +36,7 @@ const AccountSettings = withFallback(
   <TransactionListPlaceholder />
 )
 const AccountTransactions = withFallback(
-  React.lazy(() => import("../../Account/components/AccountTransactions")),
+  React.lazy(() => import("./AccountTransactions")),
   <TransactionListPlaceholder />
 )
 const AccountCreationOptions = withFallback(

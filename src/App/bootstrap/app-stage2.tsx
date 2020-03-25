@@ -1,16 +1,16 @@
 import React from "react"
 import { Route, Switch } from "react-router-dom"
-import AndroidBackButton from "../components/AndroidBackButton"
-import DesktopNotifications from "../components/DesktopNotifications"
+import AccountPage from "~Account/components/AccountView"
+import SettingsPage from "~AppSettings/components/AppSettingsView"
 import ErrorBoundary from "~Generic/components/ErrorBoundary"
 import { VerticalLayout } from "~Layout/components/Box"
-import LinkHandler from "../components/LinkHandler"
+import { appIsLoaded } from "~SplashScreen/splash-screen"
 import ConnectionErrorListener from "~Toasts/components/ConnectionErrorListener"
 import NotificationContainer from "~Toasts/components/NotificationContainer"
-import AccountPage from "../pages/account"
-import AllAccountsPage from "../pages/all-accounts"
-import SettingsPage from "../pages/settings"
-import { appIsLoaded } from "~SplashScreen/splash-screen"
+import AllAccountsPage from "../components/AccountListView"
+import AndroidBackButton from "../components/AndroidBackButton"
+import DesktopNotifications from "../components/DesktopNotifications"
+import LinkHandler from "../components/LinkHandler"
 
 const CreateMainnetAccount = () => (
   <React.Suspense fallback={null}>
