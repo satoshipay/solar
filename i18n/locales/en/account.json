@@ -222,5 +222,17 @@
       "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
       "password-required": "Password required"
     }
+  },
+  "title": {
+    "password-status": {
+      "protected": "Password protected",
+      "unprotected": "No password"
+    },
+    "tooltip": {
+      "multi-sig-account": "Multi-Signature Account",
+      "stellarguard": "StellarGuard Protection"
+    },
+    "placeholder": "Account name…",
+    "testnet": "Testnet"
   }
 }

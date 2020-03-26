@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import IconButton from "@material-ui/core/IconButton"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
@@ -26,14 +27,18 @@ function clearTextSelection() {
 }
 
 function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
+  const { t } = useTranslation()
   return (
-    <Tooltip title={props.safe ? "Password protected" : "No password"}>
+    <Tooltip
+      title={props.safe ? t("account.title.password-status.protected") : t("account.title.password-status.unprotected")}
+    >
       <VerifiedUserIcon style={{ opacity: props.safe ? 1 : 0.5, ...props.style }} />
     </Tooltip>
   )
 }
 
 function TestnetBadge(props: { style?: React.CSSProperties }) {
+  const { t } = useTranslation()
   const style: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
@@ -47,7 +52,7 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
     textTransform: "uppercase",
     ...props.style
   }
-  return <span style={style}>Testnet</span>
+  return <span style={style}>{t("account.title.testnet")}</span>
 }
 
 interface StaticBadgesProps {
@@ -57,19 +62,20 @@ interface StaticBadgesProps {
 }
 
 export const StaticBadges = React.memo(function StaticBadges(props: StaticBadgesProps) {
+  const { t } = useTranslation()
   return (
     <HorizontalLayout display="inline-flex" alignItems="center" width="auto" fontSize="1.5rem">
       {props.testnet ? <TestnetBadge style={{ marginRight: 16 }} /> : null}
       {(() => {
         if (props.multisig === "generic") {
           return (
-            <Tooltip title="Multi-Signature Account">
+            <Tooltip title={t("account.title.tooltip.multi-sig-account")}>
               <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
             </Tooltip>
           )
         } else if (props.multisig === "stellar-guard") {
           return (
-            <Tooltip title="StellarGuard Protection">
+            <Tooltip title={t("account.title.tooltip.stellarguard")}>
               <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
             </Tooltip>
           )
@@ -196,6 +202,7 @@ function AccountTitle(props: AccountTitleProps) {
   const { onRename } = props
   const router = useRouter()
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
 
   const [rawMode, setMode] = React.useState<TitleTextFieldProps["mode"]>(
     props.permanentlyEditing ? "editing" : "readonly"
@@ -318,7 +325,7 @@ function AccountTitle(props: AccountTitleProps) {
           onChange={handleNameEditing}
           onClick={props.editable ? switchToEditMode : undefined}
           onKeyDown={handleKeyDown}
-          placeholder="Account name…"
+          placeholder={t("account.title.placeholder")}
           preventClicks={!props.editable}
           mode={mode}
           showEdit={props.editable || false}
