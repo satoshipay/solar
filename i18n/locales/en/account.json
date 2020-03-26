@@ -1,4 +1,8 @@
 {
+  "actions": {
+    "receive": "Receive",
+    "send": "Send"
+  },
   "add-asset": {
     "button": {
       "add-custom-asset": {
