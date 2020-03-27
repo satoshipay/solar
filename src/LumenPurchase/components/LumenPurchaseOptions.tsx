@@ -4,7 +4,6 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
-import ListSubheader from "@material-ui/core/ListSubheader"
 import { Account } from "~App/contexts/accounts"
 import { openLink } from "~Platform/links"
 import LegalConfirmation from "./LegalConfirmation"
@@ -19,7 +18,6 @@ function createMoonPayURLForAccount(account: Account) {
 
 interface LumenDepositOptionsProps {
   account: Account
-  heading?: string
   onCloseDialog: () => void
 }
 
@@ -37,7 +35,6 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
 
   return (
     <List style={{ margin: "16px auto", maxWidth: 600 }}>
-      {props.heading ? <ListSubheader style={{ background: "none" }}>{props.heading}</ListSubheader> : null}
       <ListItem button onClick={openLegalNote}>
         <ListItemText
           primary="MoonPay"

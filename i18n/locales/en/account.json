@@ -149,6 +149,9 @@
       "label": "Withdraw"
     }
   },
+  "purchase-lumens": {
+    "title": "Buy Stellar lumens"
+  },
   "remove-trustline": {
     "action": {
       "cancel": "Cancel",
