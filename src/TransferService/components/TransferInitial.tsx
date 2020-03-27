@@ -193,9 +193,10 @@ function TransferInitial(props: TransferInitialProps) {
 
 const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
   props.type === "deposit" ? (
-    <Summary headline="What to deposit">
+    <Summary headline="Fund your account">
       <Paragraph>
-        Deposit assets to fund your account. Send USD from your bank account or ETH from your Ethereum wallet.
+        Purchase Stellar lumens (XLM) or deposit assets to fund your account. Send USD from your bank account or ETH
+        from your Ethereum wallet.
       </Paragraph>
       <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
     </Summary>
