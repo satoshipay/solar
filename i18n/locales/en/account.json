@@ -137,7 +137,7 @@
       "label": "Assets & Balances"
     },
     "deposit": {
-      "label": "Deposit"
+      "label": "Add funds"
     },
     "trade": {
       "label": "Trade"
@@ -148,6 +148,9 @@
     "withdraw": {
       "label": "Withdraw"
     }
+  },
+  "purchase-lumens": {
+    "title": "Buy Stellar lumens"
   },
   "remove-trustline": {
     "action": {

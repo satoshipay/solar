@@ -19,7 +19,7 @@ const Title = React.memo(function Title(props: TitleProps) {
     <MainTitle
       title={
         <span>
-          {props.type === "deposit" ? "Deposit funds" : "Withdraw funds"}{" "}
+          {props.type === "deposit" ? "Add funds" : "Withdraw funds"}{" "}
           {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
         </span>
       }

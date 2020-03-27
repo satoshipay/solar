@@ -4,7 +4,7 @@ import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import DepositSuccess from "./DepositSuccess"
-import DepositXLM from "./DepositXLM"
+import PurchaseLumens from "./PurchaseLumens"
 import TransferAuthentication from "./TransferAuthentication"
 import TransferKYCDenied from "./TransferKYCDenied"
 import TransferKYCPending from "./TransferKYCPending"
@@ -52,7 +52,7 @@ export const TransferContent = React.memo(function TransferContent(props: Transf
       />
     )
   } else if (state.step === "xlm-deposit") {
-    return <DepositXLM onCloseDialog={props.onClose} />
+    return <PurchaseLumens onCloseDialog={props.onClose} />
   } else if (state.step === "auth-pending") {
     return (
       <TransferAuthentication
@@ -101,7 +101,7 @@ export const TransferSidebar = React.memo(function TransferSidebar(props: Transf
   } else if (state.step === "enter-values") {
     return <WithdrawalDetailsForm.Sidebar type={type} />
   } else if (state.step === "xlm-deposit") {
-    return <DepositXLM.Sidebar />
+    return <PurchaseLumens.Sidebar />
   } else if (state.step === "auth-pending") {
     return <TransferAuthentication.Sidebar />
   } else if (state.step === "kyc-pending") {
