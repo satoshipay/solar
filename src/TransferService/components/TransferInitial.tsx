@@ -136,7 +136,7 @@ function TransferInitial(props: TransferInitialProps) {
         <AssetSelector
           assets={props.trustedAssets}
           disabledAssets={nontransferableAssets}
-          label={isTinyScreen ? "Asset" : props.type === "deposit" ? "Asset to deposit" : "Asset to withdraw"}
+          label={isTinyScreen ? "Asset" : props.type === "deposit" ? "Asset" : "Asset to withdraw"}
           margin="normal"
           onChange={handleAssetSelection}
           showXLM={props.type === "deposit"}
@@ -195,8 +195,8 @@ const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
   props.type === "deposit" ? (
     <Summary headline="Fund your account">
       <Paragraph>
-        Purchase Stellar lumens (XLM) or deposit assets to fund your account. Send USD from your bank account or ETH
-        from your Ethereum wallet.
+        Purchase Stellar lumens (XLM) or deposit assets to fund your account. Send USD from your bank account, ETH from
+        your Ethereum wallet, etc.
       </Paragraph>
       <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
     </Summary>
