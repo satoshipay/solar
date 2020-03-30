@@ -44,6 +44,7 @@ declare namespace IPC {
     SetUpAppPassword: "SetUpAppPassword"
     SignTransaction: "SignTransaction"
     UpdateAppPassword: "UpdateAppPassword"
+    UpdateKeyPassword: "UpdateKeyPassword"
     UpdateKeyTxAuth: "UpdateKeyTxAuth"
   }
 
@@ -100,6 +101,8 @@ declare namespace IPC {
       prevPassword: string,
       policy: KeyStoreAppKey.AppAuthPolicy
     ) => void
+    /** @deprecated */
+    [Messages.UpdateKeyPassword]: (keyID: string, newPassword: string, prevPassword: string) => void
     [Messages.UpdateKeyTxAuth]: (keyID: string, policy: KeyStoreAccount.TxAuthPolicy, password: string | null) => void
   }
 

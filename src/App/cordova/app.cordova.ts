@@ -4,14 +4,14 @@
  */
 
 import { Messages } from "~shared/ipc"
+import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 import { trackError } from "./error"
 import { handleMessageEvent, expose } from "./ipc"
+import { registerNotificationHandler } from "./notifications"
+import { registerURLHandler } from "./protocol-handler"
 import initializeQRReader from "./qr-reader"
 import { getCurrentSettings, initSecureStorage, initKeyStore } from "./storage"
-import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
-import { registerURLHandler } from "./protocol-handler"
 import { registerUpdateHandler } from "./updater"
-import { registerNotificationHandler } from "./notifications"
 
 const iframe = document.getElementById("walletframe") as HTMLIFrameElement
 

@@ -1,15 +1,20 @@
+import { Buffer } from "buffer"
 import { createStore, KeysData } from "key-store"
 import { Networks, Keypair, Transaction } from "stellar-sdk"
-import { Messages } from "../../Shared/ipc"
-import { WrongPasswordError } from "../../Generic/lib/errors"
+import { WrongPasswordError } from "~Generic/lib/errors"
+import { Messages } from "~Shared/ipc"
 
-type CallHandler = (...args: any) => any
+type Depromisify<T> = T extends Promise<infer BaseT> ? BaseT : T
 
-interface CallHandlers {
-  [messageType: string]: CallHandler
+type CallHandlers = {
+  [messageType in keyof IPC.MessageType]: IPC.MessageSignatures[messageType] extends (
+    ...args: infer Args
+  ) => infer Return
+    ? (...args: Args) => Depromisify<Return> | Promise<Depromisify<Return>>
+    : never
 }
 
-const callHandlers: CallHandlers = {}
+const callHandlers = {} as CallHandlers
 
 export function call<Message extends keyof IPC.MessageType>(
   messageType: Message,
@@ -19,7 +24,7 @@ export function call<Message extends keyof IPC.MessageType>(
     try {
       const handler = callHandlers[messageType]
       if (handler) {
-        const result = handler(...args)
+        const result = (handler as any)(...(args as any))
         resolve(result)
       } else {
         reject(`No handler for ${messageType} found.`)
@@ -45,13 +50,14 @@ export function subscribeToMessages<Message extends keyof IPC.MessageType>(
 }
 
 callHandlers[Messages.CopyToClipboard] = (text: string) => (navigator as any).clipboard.writeText(text)
-callHandlers[Messages.OpenLink] = (href: string) => window.open(href, "_blank")
+callHandlers[Messages.OpenLink] = (href: string) => window.open(href, "_blank") as any
 
 callHandlers[Messages.CheckUpdateAvailability] = () => false
 callHandlers[Messages.StartUpdate] = () => undefined
 
 callHandlers[Messages.NotificationPermission] = () => window.Notification.permission
-callHandlers[Messages.RequestNotificationPermission] = window.Notification.requestPermission
+callHandlers[Messages.RequestNotificationPermission] = async () =>
+  Boolean(await window.Notification.requestPermission())
 callHandlers[Messages.ShowNotification] = (localNotification: LocalNotification) => {
   return new Promise<void>(resolve => {
     const notification = new Notification(localNotification.title, { body: localNotification.text })
@@ -70,7 +76,7 @@ const defaultTestingKeys: KeysData<KeyStoreAccountV1.PublicKeyData> = {
       iterations: 10000
     },
     public: {
-      keyVersion: 1,
+      version: 1,
       name: "Test account",
       password: false,
       publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
@@ -86,7 +92,7 @@ const defaultTestingKeys: KeysData<KeyStoreAccountV1.PublicKeyData> = {
       iterations: 10000
     },
     public: {
-      keyVersion: 1,
+      version: 1,
       name: "Test account with password",
       password: true,
       publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
@@ -102,7 +108,7 @@ const defaultTestingKeys: KeysData<KeyStoreAccountV1.PublicKeyData> = {
       iterations: 10000
     },
     public: {
-      keyVersion: 1,
+      version: 1,
       name: "Multisig Account",
       password: false,
       publicKey: "GDNVDG37WMKPEIXSJRBAQAVPO5WGOPKZRZZBPLWXULSX6NQNLNQP6CFF",
@@ -117,26 +123,122 @@ const defaultTestingKeys: KeysData<KeyStoreAccountV1.PublicKeyData> = {
 initKeyStore()
 initSettings()
 
+function createHexNonce() {
+  const nonceBuffer = Buffer.allocUnsafe(16)
+  crypto.getRandomValues(nonceBuffer)
+  return nonceBuffer.toString("hex")
+}
+
+async function hashAppPassword(password: string, hexNonce: string) {
+  const passwordHashArrayBuffer = await crypto.subtle.digest("SHA-256", Buffer.from(hexNonce + password, "utf-8"))
+  const passwordHashHex = new Buffer(passwordHashArrayBuffer).toString("hex")
+  return passwordHashHex
+}
+
 function initKeyStore() {
+  const appKeys = localStorage.getItem("solar:app-keys")
   const keys = localStorage.getItem("solar:keys")
+
+  const initialAppKeys = appKeys ? JSON.parse(appKeys) : {}
   const initialKeys = keys ? JSON.parse(keys) : defaultTestingKeys
 
+  function saveAppKeys(keysData: KeysData<KeyStoreAppKey.AppKeyData>) {
+    localStorage.setItem("solar:app-keys", JSON.stringify(keysData))
+  }
   function saveKeys(keysData: KeysData<KeyStoreAccountV1.PublicKeyData>) {
     localStorage.setItem("solar:keys", JSON.stringify(keysData))
   }
+
+  const appKeyID = "$app"
+
+  const appKeyStore = createStore<KeyStoreAccountV1.PrivateKeyData, KeyStoreAppKey.AppKeyData>(
+    saveAppKeys,
+    initialAppKeys
+  )
   const keyStore = createStore<KeyStoreAccountV1.PrivateKeyData, KeyStoreAccountV1.PublicKeyData>(saveKeys, initialKeys)
 
-  callHandlers[Messages.GetKeyIDs] = keyStore.getKeyIDs
-  callHandlers[Messages.GetKeyVersion] = getKeyVersion
-  callHandlers[Messages.GetPublicKeyData] = keyStore.getPublicKeyData
-  callHandlers[Messages.GetPrivateKeyData] = keyStore.getPrivateKeyData
-  callHandlers[Messages.HasSetAppPassword] = hasSetAppPassword
-  callHandlers[Messages.RemoveKey] = keyStore.removeKey
-  callHandlers[Messages.SaveKey] = keyStore.saveKey
-  callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData
-  callHandlers[Messages.SetAccountTxAuthPolicy] = setAccountTxAuthPolicy
-  callHandlers[Messages.SetAppLaunchAuthPolicy] = setAppLaunchAuthPolicy
-  callHandlers[Messages.UpdateAppPassword] = updateAppPassword
+  async function authorize(password: string) {
+    if (appKeyStore.getKeyIDs().indexOf(appKeyID) === -1) {
+      return
+    }
+
+    const publicData = appKeyStore.getPublicKeyData(appKeyID)
+    const hash = await hashAppPassword(password, publicData.nonce)
+
+    if (hash !== publicData.passwordHash) {
+      throw WrongPasswordError("Wrong password.")
+    }
+  }
+
+  callHandlers[Messages.CreateKey] = async (keyID, password, privateKey, options) => {
+    const publicData: KeyStoreAccountV1.PublicKeyData = {
+      ...options,
+      password: Boolean(password),
+      version: 1
+    }
+    await keyStore.saveKey(keyID, password, { privateKey }, publicData)
+  }
+  callHandlers[Messages.GetAppKeyMetadata] = () => appKeyStore.getPublicKeyData(appKeyID)
+  callHandlers[Messages.GetKeyIDs] = () => keyStore.getKeyIDs()
+  callHandlers[Messages.GetPublicKeyData] = keyID => keyStore.getPublicKeyData(keyID)
+  callHandlers[Messages.GetPrivateKey] = async (keyID, password) => {
+    await authorize(password)
+    return keyStore.getPrivateKeyData(keyID, password).privateKey
+  }
+  callHandlers[Messages.HasSetAppPassword] = () => appKeyStore.getKeyIDs().indexOf(appKeyID) > -1
+  callHandlers[Messages.RemoveKey] = keyID => keyStore.removeKey(keyID)
+  callHandlers[Messages.RenameKey] = async (keyID, newName) => {
+    const publicData = keyStore.getPublicKeyData(keyID)
+    await keyStore.savePublicKeyData(keyID, { ...publicData, name: newName })
+  }
+  callHandlers[Messages.SetUpAppPassword] = async (password, privateKey, authPolicy) => {
+    const nonce = createHexNonce()
+    const passwordHash = await hashAppPassword(password, nonce)
+
+    const publicData: KeyStoreAppKey.AppKeyData = {
+      authPolicy,
+      nonce,
+      passwordHash,
+      version: 1
+    }
+
+    await appKeyStore.saveKey(appKeyID, password, { privateKey }, publicData)
+  }
+  callHandlers[Messages.SignTransaction] = signTransaction
+  callHandlers[Messages.UpdateAppPassword] = async (newPassword, prevPassword, authPolicy) => {
+    await authorize(prevPassword)
+
+    const nonce = createHexNonce()
+    const passwordHash = await hashAppPassword(newPassword, nonce)
+
+    const publicData: KeyStoreAppKey.AppKeyData = {
+      authPolicy,
+      nonce,
+      passwordHash,
+      version: 1
+    }
+
+    const privateData = appKeyStore.getPrivateKeyData(appKeyID, prevPassword)
+    await appKeyStore.saveKey(appKeyID, newPassword, privateData, publicData)
+  }
+  callHandlers[Messages.UpdateKeyPassword] = async (keyID, newPassword, prevPassword) => {
+    const privateData = keyStore.getPrivateKeyData(keyID, prevPassword)
+    const publicData = keyStore.getPublicKeyData(keyID)
+
+    if ("version" in publicData && publicData.version >= 1) {
+      throw Error("Keys of v1+ accounts are not supposed to have distinct passwords.")
+    }
+
+    await keyStore.saveKey(keyID, newPassword, privateData, publicData)
+  }
+  callHandlers[Messages.UpdateKeyTxAuth] = async (keyID, authPolicy, password) => {
+    await authorize(password || "")
+
+    await keyStore.savePublicKeyData(keyID, {
+      ...keyStore.getPublicKeyData(keyID),
+      txAuth: authPolicy
+    })
+  }
 
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
@@ -156,8 +258,6 @@ function initKeyStore() {
       throw WrongPasswordError()
     }
   }
-
-  callHandlers[Messages.SignTransaction] = signTransaction
 }
 
 function initSettings() {
@@ -178,6 +278,7 @@ function initSettings() {
       ...settings,
       ...updatedSettings
     }
+    return true
   }
 
   callHandlers[Messages.ReadIgnoredSignatureRequestHashes] = () => {
@@ -190,6 +291,7 @@ function initSettings() {
       "wallet:storage:ignoredSignatureRequests",
       JSON.stringify(updatedSignatureRequestHashes)
     )
+    return true
   }
 }
 

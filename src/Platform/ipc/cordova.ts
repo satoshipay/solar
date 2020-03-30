@@ -1,5 +1,5 @@
-import { CustomError } from "../../Generic/lib/errors"
 import pick from "lodash.pick"
+import { CustomError } from "~Generic/lib/errors"
 
 let nextCallID = 1
 

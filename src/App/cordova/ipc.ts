@@ -1,14 +1,7 @@
-import { KeyStore } from "key-store"
 import pick from "lodash.pick"
 
-type CommandHandler<Message extends keyof IPC.MessageType> = (
-  secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
-  ...args: any
-) => IPC.MessageReturnType<Message> | Promise<IPC.MessageReturnType<Message>>
-
 export type CommandHandlers = {
-  [eventName in keyof IPC.MessageType]?: CommandHandler<keyof IPC.MessageType>
+  [eventName in keyof IPC.MessageType]?: IPC.MessageSignatures[eventName]
 }
 
 let commandHandlers: CommandHandlers = {}
@@ -16,9 +9,7 @@ let commandHandlers: CommandHandlers = {}
 export async function handleMessageEvent<Message extends keyof IPC.MessageType>(
   messageType: Message,
   payload: ElectronIPCCallMessage<Message>,
-  contentWindow: Window,
-  secureStorage: CordovaSecureStorage,
-  keyStore: KeyStore<PrivateKeyData, PublicKeyData>
+  contentWindow: Window
 ) {
   const { args, callID } = payload
 
@@ -29,7 +20,7 @@ export async function handleMessageEvent<Message extends keyof IPC.MessageType>(
   const messageHandler = commandHandlers[messageType]
   if (messageHandler) {
     try {
-      const result = await messageHandler(secureStorage, keyStore, ...args)
+      const result = await (messageHandler as any)(...args)
       sendSuccessResponse(contentWindow, messageType, callID, result)
     } catch (error) {
       const extras = pick(error, error.__extraProps || [])
@@ -49,8 +40,6 @@ export async function handleMessageEvent<Message extends keyof IPC.MessageType>(
 export function expose<Message extends keyof IPC.MessageType>(
   messageType: Message,
   handler: (
-    secureStorage: CordovaSecureStorage,
-    keyStore: KeyStore<PrivateKeyData, PublicKeyData>,
     ...args: IPC.MessageArgs<Message>
   ) => IPC.MessageReturnType<Message> | Promise<IPC.MessageReturnType<Message>>
 ) {

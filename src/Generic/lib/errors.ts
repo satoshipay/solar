@@ -83,11 +83,11 @@ export function isCancellation(thing: any) {
 }
 
 export function WrongPasswordError(message: string = "Wrong password.") {
-  return Object.assign(new Error(message), { name: "WrongPasswordError" })
+  return Object.assign(new Error(message), { name: "UnauthorizedError" })
 }
 
 export function isWrongPasswordError(error: any) {
-  return error && error.name === "WrongPasswordError"
+  return error && error.name === "UnauthorizedError"
 }
 
 function toKebabCase(value: string) {

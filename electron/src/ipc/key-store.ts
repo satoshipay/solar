@@ -1,7 +1,6 @@
 import { createHash, randomBytes } from "crypto"
 import { createStore } from "key-store"
-import { Keypair, Networks, Transaction } from "stellar-sdk"
-import { Messages } from "../shared/ipc"
+import { bootstrapKeyStore, AppKey, Crypto, Store } from "../shared/key-store"
 import { expose } from "./_ipc"
 import { mainStore } from "./storage"
 
@@ -24,13 +23,16 @@ const appKeyID = "$app"
 const appKeyStore = createStore<PrivateKeyData, AppKeyData>(updateAppKeys, readAppKeys())
 const keyStore = createStore<PrivateKeyData, PublicKeyData>(updateKeys, readKeys())
 
-function authorize(authPolicy: AppAuthPolicy | TxAuthPolicy, appPassword: string | null): void | never {
-  if (authPolicy === AppAuthPolicy.AlwaysPassword) {
+async function authorize(authPolicy: AppAuthPolicy | TxAuthPolicy, appPassword: string | null): Promise<void | never> {
+  if (authPolicy === AppAuthPolicy.AlwaysPassword || authPolicy === TxAuthPolicy.AlwaysPassword) {
     const appKeyMeta = appKeyStore.getPublicKeyData(appKeyID)
-    const hash = createPasswordHash(Buffer.from(appPassword || "", "utf-8"), Buffer.from(appKeyMeta.nonce, "base64"))
+    const hash = await createPasswordHash(
+      Buffer.from(appPassword || "", "utf-8"),
+      Buffer.from(appKeyMeta.nonce, "base64")
+    )
 
     if (hash.toString("base64") !== appKeyMeta.passwordHash) {
-      throw Object.assign(new Error("Wrong password."), { name: "WrongPasswordError" })
+      throw Object.assign(new Error("Wrong password."), { name: "UnauthorizedError" })
     }
   } else if (authPolicy === TxAuthPolicy.Unprotected) {
     // Do nothing
@@ -41,167 +43,74 @@ function authorize(authPolicy: AppAuthPolicy | TxAuthPolicy, appPassword: string
   }
 }
 
-function canEncryptKey(appAuthPolicy: AppAuthPolicy, keyTxAuth: TxAuthPolicy) {
-  return appAuthPolicy === AppAuthPolicy.AlwaysPassword || keyTxAuth === TxAuthPolicy.AlwaysPassword
-}
-
-function createPasswordHash(password: Buffer, nonce: Buffer) {
+async function createPasswordHash(password: Buffer, nonce: Buffer) {
   const hash = createHash("sha256")
   hash.update(Buffer.concat([nonce, password]))
   return hash.digest()
 }
 
-function getEffectivePassword(password: string, appAuthPolicy: AppAuthPolicy, keyTxAuth: TxAuthPolicy | null) {
-  return canEncryptKey(appAuthPolicy, keyTxAuth || TxAuthPolicy.Unprotected) ? password : ""
+const crypto: Crypto = {
+  createPasswordHash,
+  randomBytes: async size => randomBytes(size)
 }
 
-function hashPassword(password: string) {
-  const nonce = randomBytes(16)
-  const passwordHash = createPasswordHash(Buffer.from(password, "utf-8"), nonce)
-  return {
-    nonce: nonce.toString("base64"),
-    passwordHash: passwordHash.toString("base64")
+const appKey: AppKey = {
+  async decryptPrivateKey(password) {
+    const privateData = appKeyStore.getPrivateKeyData(appKeyID, password || "")
+    return privateData.privateKey
+  },
+  async getData() {
+    return appKeyStore.getPublicKeyData(appKeyID)
+  },
+  async hasBeenSet() {
+    const keyIDs = appKeyStore.getKeyIDs()
+    return keyIDs.indexOf(appKeyID) > -1
+  },
+  async reencryptKey(newPassword, prevPassword, publicData) {
+    const privateData = appKeyStore.getPrivateKeyData(appKeyID, prevPassword || "")
+    await appKeyStore.saveKey(appKeyID, newPassword || "", privateData, publicData)
+  },
+  async save(privateKey, publicData, password) {
+    await appKeyStore.saveKey(appKeyID, password || "", { privateKey }, publicData)
+  },
+  async updateData(updatedData) {
+    await appKeyStore.savePublicKeyData(appKeyID, updatedData)
   }
 }
 
-function reencryptKey(keyID: string, newPassword: string, prevPassword: string | null, encryptUsingPassword: boolean) {
-  const publicData = {
-    ...keyStore.getPublicKeyData(keyID),
-    password: encryptUsingPassword
-  }
-  const privateData = keyStore.getPrivateKeyData(keyID, prevPassword || "")
-  keyStore.saveKey(keyID, newPassword, privateData, publicData)
-}
-
-expose(Messages.CreateKey, function createKey(keyID, password, privateKey, options) {
-  const appKeyPublicData = appKeyStore.getPublicKeyData(appKeyID)
-  const publicData: KeyStoreAccountV1.PublicKeyData = {
-    ...options,
-    password: canEncryptKey(appKeyPublicData.authPolicy, options.txAuth),
-    version: 1
-  }
-  const privateData: KeyStoreAccount.PrivateKeyData = { privateKey }
-  return keyStore.saveKey(keyID, password, privateData, publicData)
-})
-
-expose(Messages.GetAppKeyMetadata, function getAppKeyMetadata() {
-  return appKeyStore.getKeyIDs().indexOf(appKeyID) > -1 ? appKeyStore.getPublicKeyData(appKeyID) : null
-})
-
-expose(Messages.GetKeyIDs, function getKeyIDs() {
-  return keyStore.getKeyIDs()
-})
-
-expose(Messages.GetPublicKeyData, function getPublicKeyData(keyID) {
-  return keyStore.getPublicKeyData(keyID)
-})
-
-expose(Messages.GetPrivateKey, function getPrivateKey(keyID, password) {
-  const privateData = keyStore.getPrivateKeyData(keyID, password)
-  return privateData.privateKey
-})
-
-expose(Messages.HasSetAppPassword, function hasSetAppPassword() {
-  return appKeyStore.getKeyIDs().indexOf(appKeyID) > -1
-})
-
-expose(Messages.RemoveKey, function removeKey(keyID) {
-  return keyStore.removeKey(keyID)
-})
-
-expose(Messages.RenameKey, function renameKey(keyID, newName) {
-  const publicData = keyStore.getPublicKeyData(keyID)
-  return keyStore.savePublicKeyData(keyID, { ...publicData, name: newName })
-})
-
-expose(Messages.SetUpAppPassword, function setUpAppPassword(password, privateKey, authPolicy) {
-  if (appKeyStore.getKeyIDs().indexOf(appKeyID) > -1) {
-    throw Error("App password has been set already.")
-  }
-  const publicData: AppKeyData = {
-    ...hashPassword(password),
-    authPolicy,
-    version: 1
-  }
-  return appKeyStore.saveKey(appKeyID, getEffectivePassword(password, authPolicy, null), { privateKey }, publicData)
-})
-
-expose(Messages.SignTransaction, function signTransaction(keyID, transactionXDR, password) {
-  try {
-    const account = keyStore.getPublicKeyData(keyID)
-    const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
-    const transaction = new Transaction(transactionXDR, networkPassphrase)
-
-    const privateKey = keyStore.getPrivateKeyData(keyID, password).privateKey
-
-    transaction.sign(Keypair.fromSecret(privateKey))
-
-    return transaction
-      .toEnvelope()
-      .toXDR()
-      .toString("base64")
-  } catch (error) {
-    throw Object.assign(new Error("Wrong password."), { name: "WrongPasswordError" })
-  }
-})
-
-expose(Messages.UpdateAppPassword, function updateAppPassword(
-  newPassword: string,
-  prevPassword: string,
-  authPolicy: AppAuthPolicy
-) {
-  const appKeyMeta = appKeyStore.getPublicKeyData(appKeyID)
-  authorize(appKeyMeta.authPolicy, prevPassword)
-
-  const appKeyPublicData: AppKeyData = {
-    ...appKeyMeta,
-    ...hashPassword(newPassword),
-    authPolicy,
-    version: 1
-  }
-  const appKeyPrivateData = appKeyStore.getPrivateKeyData(appKeyID, prevPassword || "")
-  appKeyStore.saveKey(
-    appKeyID,
-    getEffectivePassword(newPassword, authPolicy, null),
-    appKeyPrivateData,
-    appKeyPublicData
-  )
-
-  for (const keyID of keyStore.getKeyIDs()) {
-    const publicData = keyStore.getPublicKeyData(keyID)
-
-    if ("version" in publicData && publicData.version >= 1 && publicData.password) {
-      const encryptKey = canEncryptKey(appKeyPublicData.authPolicy, publicData.txAuth)
-      reencryptKey(keyID, newPassword, prevPassword, encryptKey)
+const store: Store<KeyStoreAccount.PublicKeyData> = {
+  async allKeyIDs() {
+    return keyStore.getKeyIDs()
+  },
+  async decryptKey(keyID, password) {
+    const privateData = keyStore.getPrivateKeyData(keyID, password || "")
+    return privateData.privateKey
+  },
+  async getPublicData(keyID) {
+    return keyStore.getPublicKeyData(keyID)
+  },
+  async reencryptKey(keyID, newPassword, prevPassword) {
+    const publicData = {
+      ...keyStore.getPublicKeyData(keyID),
+      password: Boolean(newPassword)
     }
+    const privateData = keyStore.getPrivateKeyData(keyID, prevPassword || "")
+    await keyStore.saveKey(keyID, newPassword || "", privateData, publicData)
+  },
+  async removeKey(keyID: string) {
+    await keyStore.removeKey(keyID)
+  },
+  async saveKey(keyID, password, privateKey, publicDataBlueprint) {
+    const publicData: KeyStoreAccount.PublicKeyData = {
+      ...publicDataBlueprint,
+      password: Boolean(password)
+    }
+    await keyStore.saveKey(keyID, password || "", { privateKey }, publicData)
+    return publicData
+  },
+  async updatePublicData(keyID, updatedData) {
+    await keyStore.savePublicKeyData(keyID, updatedData)
   }
-})
+}
 
-expose(Messages.UpdateKeyTxAuth, function updateKeyTxAuth(
-  keyID: string,
-  txAuth: KeyStoreAccount.TxAuthPolicy,
-  password: string | null
-) {
-  const appKeyMeta = appKeyStore.getPublicKeyData(appKeyID)
-  authorize(appKeyMeta.authPolicy, password)
-
-  const prevPublicData = keyStore.getPublicKeyData(keyID)
-  const nextPublicData: KeyStoreAccountV1.PublicKeyData = {
-    ...prevPublicData,
-    password: canEncryptKey(appKeyMeta.authPolicy, txAuth),
-    txAuth,
-    version: 1
-  }
-
-  if (nextPublicData.password && !password) {
-    throw Error("Password required.")
-  }
-
-  keyStore.savePublicKeyData(keyID, nextPublicData)
-  reencryptKey(
-    keyID,
-    nextPublicData.password ? password! : "",
-    prevPublicData.password ? password : "",
-    nextPublicData.password
-  )
-})
+bootstrapKeyStore(store, appKey, authorize, crypto, expose)

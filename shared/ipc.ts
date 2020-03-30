@@ -33,8 +33,9 @@ export const Messages: IPC.MessageType = {
   HasSetAppPassword: "HasSetAppPassword",
   RemoveKey: "RemoveKey",
   RenameKey: "RenameKey",
-  UpdateAppPassword: "UpdateAppPassword",
-  UpdateKeyTxAuth: "UpdateKeyTxAuth",
   SetUpAppPassword: "SetUpAppPassword",
-  SignTransaction: "SignTransaction"
+  SignTransaction: "SignTransaction",
+  UpdateAppPassword: "UpdateAppPassword",
+  UpdateKeyPassword: "UpdateKeyPassword",
+  UpdateKeyTxAuth: "UpdateKeyTxAuth"
 } as const
