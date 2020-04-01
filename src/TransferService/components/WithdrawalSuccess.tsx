@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Typography from "@material-ui/core/Typography"
 import { Withdrawal } from "@satoshipay/stellar-transfer"
 import { RefStateObject } from "~Generic/hooks/userinterface"
@@ -16,24 +17,28 @@ interface WithdrawalSuccessProps {
 
 function WithdrawalSuccess(props: WithdrawalSuccessProps) {
   const { transferServer } = props.state.withdrawal!
+  const { t } = useTranslation()
   return (
     <VerticalLayout grow>
       <VerticalLayout alignItems="center" margin="24px 0" textAlign="center">
-        <Typography variant="h5">Withdrawal in progress</Typography>
+        <Typography variant="h5">{t("transfer-service.withdrawal-success.body.withdrawal-in-progress")}</Typography>
         <Typography style={{ margin: "16px 0" }} variant="body2">
           <Typography style={{ margin: "8px 0" }} variant="body2">
-            {transferServer.domain} is conducting the withdrawal.
+            {t(
+              "transfer-service.withdrawal-success.body.info.1",
+              `${transferServer.domain} is conducting the withdrawal.`,
+              { domain: transferServer.domain }
+            )}
           </Typography>
           <Typography style={{ margin: "8px 0" }} variant="body2">
-            The funds have been deducted from your Stellar account and should be credited to the withdrawal destination
-            shortly.
+            {t("transfer-service.withdrawal-success.body.info.2")}
           </Typography>
           {/* TODO: Show nice summary */}
         </Typography>
         <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
           <DialogActionsBox>
             <ActionButton onClick={props.onClose} type="primary">
-              Close
+              {t("transfer-service.withdrawal-success.action.close")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>
@@ -42,11 +47,14 @@ function WithdrawalSuccess(props: WithdrawalSuccessProps) {
   )
 }
 
-const Sidebar = () => (
-  <Summary headline="Done">
-    <Paragraph>Your withdrawal has been accepted and will be processed by the asset issuer.</Paragraph>
-  </Summary>
-)
+const Sidebar = () => {
+  const { t } = useTranslation()
+  return (
+    <Summary headline={t("transfer-service.withdrawal-success.sidebar.headline")}>
+      <Paragraph>{t("transfer-service.withdrawal-success.sidebar.info")}</Paragraph>
+    </Summary>
+  )
+}
 
 const SuccessView = Object.assign(React.memo(WithdrawalSuccess), { Sidebar })
 

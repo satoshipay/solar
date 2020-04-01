@@ -1,0 +1,248 @@
+{
+  "authentication": {
+    "sidebar": {
+      "headline": "Authentication",
+      "info": {
+        "1": "The asset issuer requires you to log in to their service using your account.",
+        "2": "An authentication transaction will be signed to prove ownership of that account."
+      }
+    }
+  },
+  "deposit-success": {
+    "action": {
+      "close": "Close"
+    },
+    "body": {
+      "deposit-pending": "Deposit pending",
+      "info": {
+        "1": "{{domain}} is waiting for your deposit.",
+        "2": "The funds will be credited to your Stellar account when the deposit is credited to the asset issuer."
+      }
+    },
+    "sidebar": {
+      "headline": "Done",
+      "info": "Your deposit has been accepted and will be processed by the asset issuer when your payment arrives."
+    }
+  },
+  "form-builder": {
+    "placeholder": {
+      "optional": "(Optional) {{name}}"
+    }
+  },
+  "initial": {
+    "action": {
+      "proceed": "Proceed"
+    },
+    "body": {
+      "asset-selector": {
+        "label": {
+          "deposit": "Asset",
+          "short": "Asset",
+          "withdrawal": "Asset to withdraw"
+        },
+        "no-assets": "No withdrawable assets"
+      },
+      "method-selector": {
+        "info-item": {
+          "asset": "Please select a type",
+          "no-asset": "Select an asset first"
+        },
+        "label": {
+          "deposit": "Type of deposit",
+          "withdrawal": "Type of withdrawal"
+        }
+      }
+    },
+    "sidebar": {
+      "deposit": {
+        "headline": "Fund your account",
+        "info": {
+          "1": "Purchase Stellar lumens (XLM) or deposit assets to fund your account. Send USD from your bank account, ETH from your Ethereum wallet, etc.",
+          "2": "Solar acts as a client to the service offered by the asset issuer only."
+        }
+      },
+      "withdrawal": {
+        "headline": "What to withdraw",
+        "info": {
+          "1": "Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.",
+          "2": "Solar acts as a client to the service offered by the asset issuer only."
+        }
+      }
+    }
+  },
+  "kyc-denied": {
+    "sidebar": {
+      "headline": "Know Your Customer",
+      "info": "You have been rejected – the service is disabled for you. Please contact the asset issuer."
+    }
+  },
+  "kyc-pending": {
+    "action": {
+      "continue": "Continue",
+      "open-again": "Open again"
+    },
+    "body": {
+      "additional-info-needed": "Additional information needed"
+    },
+    "sidebar": {
+      "headline": "Know Your Customer",
+      "info": {
+        "1": "The service will only work if you provide personal information about you.",
+        "2": "This usually happens for legal reasons."
+      }
+    }
+  },
+  "no-withdrawable-assets": {
+    "action": {
+      "add-asset": "Add asset"
+    },
+    "body": {
+      "no-withdrawable-assets": "This account holds no withdrawable assets."
+    }
+  },
+  "purchase-lumens": {
+    "sidebar": {
+      "headline": "Buy Stellar lumens",
+      "info": {
+        "1": "We offer options to buy lumens that do not involve a Stellar asset issuer.",
+        "2": " Stellar lumens (XLM) are the native tokens on the Stellar network. They are used to pay transaction fees, among other things."
+      }
+    }
+  },
+  "title": {
+    "deposit": "Add funds",
+    "withdrawal": "Withdraw funds"
+  },
+  "transaction-details": {
+    "action": {
+      "done": "Done",
+      "withdraw": "Withdraw"
+    },
+    "body": {
+      "amount": {
+        "label": {
+          "deposit": "Amount to deposit",
+          "withdrawal": "Amount to withdraw"
+        }
+      },
+      "amount-to-receive": {
+        "label": "Amount to receive"
+      },
+      "deposit-instructions": {
+        "label": "Deposit instructions"
+      },
+      "eta": {
+        "label": "ETA",
+        "not-available": "N/A"
+      },
+      "fees": {
+        "label": "Fees",
+        "value": {
+          "unknown": "unknown"
+        }
+      },
+      "information": {
+        "label": "Information"
+      }
+    },
+    "sidebar": {
+      "deposit": {
+        "headline": "Deposit summary",
+        "info": {
+          "1": "Make sure that you send the funds to the right destination.",
+          "2": "The asset issuer will credit the tokens once your deposit is credited."
+        }
+      },
+      "withdrawal": {
+        "headline": "Almost done",
+        "info": {
+          "1": "Check the form and provide an amount to withdraw if necessary.",
+          "2": "The withdrawal is almost ready."
+        }
+      }
+    }
+  },
+  "transaction-status": {
+    "error": {
+      "rejected": {
+        "deposit": "Deposit rejected",
+        "withdrawal": "Withdrawal rejected"
+      },
+      "contact": "Please contact {{domain}}."
+    },
+    "incomplete": {
+      "already-redirected": {
+        "info": {
+          "1": "{{domain}} is checking your personal information. Please try again later.",
+          "2": "Estimated time to completion: {{eta}}"
+        }
+      },
+      "not-redirected": {
+        "info": "{{domain}} requires you to provide additional information."
+      }
+    },
+    "more-info-url": {
+      "info": "For more information, visit"
+    },
+    "pending-user-transfer-start": {
+      "info": "{{domain}} requires further information from you."
+    }
+  },
+  "withdrawal-success": {
+    "action": {
+      "close": "Close"
+    },
+    "body": {
+      "withdrawal-in-progress": "Withdrawal in progress",
+      "info": {
+        "1": "{{domain}} is conducting the withdrawal.",
+        "2": "The funds have been deducted from your Stellar account and should be credited to the withdrawal destination shortly."
+      }
+    },
+    "sidebar": {
+      "headline": "Done",
+      "info": "Your withdrawal has been accepted and will be processed by the asset issuer."
+    }
+  },
+  "transfer-details": {
+    "action": {
+      "proceed": "Proceed"
+    },
+    "body": {
+      "destination": {
+        "name": "Destination account"
+      },
+      "dest_extra": {
+        "name": "Extra destination data (no description)"
+      },
+      "min-max-amount": {
+        "label": "Amount",
+        "max-amount": "Max. {{amount}} {{assetCode}}",
+        "min-amount": "Min. {{amount}} {{assetCode}}"
+      },
+      "fee": {
+        "helper-text": "As charged by {{domain}}",
+        "label": {
+          "deposit": "Deposit fee",
+          "withdrawal": "Withdrawal fee"
+        }
+      }
+    },
+    "sidebar": {
+      "deposit": {
+        "headline": "Deposit details",
+        "info": {
+          "1": "Further details about your intended deposit.",
+          "2": "Depending on what the asset issuer requests you may have to enter additional information here."
+        }
+      },
+      "withdrawal": {
+        "headline": "Withdrawal details",
+        "info": {
+          "1": "Further details about your intended deposit.",
+          "2": "Depending on what the asset issuer requests you may have to enter additional information here."
+        }
+      }
+    }
+  }
+}

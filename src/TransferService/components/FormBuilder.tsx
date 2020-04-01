@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField from "@material-ui/core/TextField"
 import { TransferInfoFields } from "@satoshipay/stellar-transfer"
@@ -16,10 +17,13 @@ interface FormBuilderFieldProps {
 
 export function FormBuilderField(props: FormBuilderFieldProps) {
   const { description, choices, optional = false } = props.descriptor
+  const { t } = useTranslation()
 
   const formattedDescription = formatDescriptionText(description)
   const formattedName = formatIdentifier(props.name)
-  const placeholder = `${optional ? "(Optional) " : ""}${formattedName}`
+  const placeholder = optional
+    ? t("transfer-service.form-builder.placeholder.optional", `(Optional) ${formattedName}`, { name: formattedName })
+    : formattedName
 
   if (choices) {
     return (

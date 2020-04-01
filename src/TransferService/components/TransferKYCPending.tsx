@@ -1,5 +1,6 @@
 import nanoid from "nanoid"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
 import { Withdrawal } from "@satoshipay/stellar-transfer"
@@ -7,6 +8,7 @@ import { trackError } from "~App/contexts/notifications"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { openLink } from "~Platform/links"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
+import { CustomError } from "~Generic/lib/errors"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
 import { TransferStates } from "../util/statemachine"
@@ -26,6 +28,7 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
   const { transferServer } = props.type === "deposit" ? props.state.deposit! : props.state.withdrawal!
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { actions } = props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
+  const { t } = useTranslation()
 
   const formID = React.useMemo(() => nanoid(), [])
 
@@ -38,7 +41,7 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
       console.debug(`Opening anchor KYC page: ${response.data.url}`)
       openLink(response.data.url)
     } else {
-      trackError(Error("Only interactive KYCs are supported."))
+      trackError(CustomError("OnlyInteractiveKycSupportedError", "Only interactive KYCs are supported."))
     }
   }
 
@@ -46,7 +49,7 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
     <form id={formID} noValidate onSubmit={handleSubmit}>
       <VerticalLayout grow>
         <VerticalLayout alignItems="center" margin="24px auto" textAlign="center">
-          <Typography variant="h5">Additional information needed</Typography>
+          <Typography variant="h5">{t("transfer-service.kyc-pending.body.additional-info-needed")}</Typography>
           <TransferTransactionStatus
             domain={transferServer.domain}
             transaction={props.state.transfer}
@@ -60,7 +63,9 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
           <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
             <DialogActionsBox desktopStyle={{ justifyContent: "center", marginTop: 16 }}>
               <ActionButton form={formID} type="submit">
-                {props.state.didRedirect ? "Open again" : "Continue"}
+                {props.state.didRedirect
+                  ? t("transfer-service.kyc-pending.action.open-again")
+                  : t("transfer-service.kyc-pending.action.continue")}
               </ActionButton>
             </DialogActionsBox>
           </Portal>
@@ -70,12 +75,15 @@ function TransferKYCPending(props: TransferKYCPendingProps) {
   )
 }
 
-const Sidebar = () => (
-  <Summary headline="Know Your Customer">
-    <Paragraph>The service will only work if you provide personal information about you.</Paragraph>
-    <Paragraph>This usually happens for legal reasons.</Paragraph>
-  </Summary>
-)
+const Sidebar = () => {
+  const { t } = useTranslation()
+  return (
+    <Summary headline={t("transfer-service.kyc-pending.sidebar.headline")}>
+      <Paragraph>{t("transfer-service.kyc-pending.sidebar.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.kyc-pending.sidebar.info.2")}</Paragraph>
+    </Summary>
+  )
+}
 
 const KYCPendingView = Object.assign(React.memo(TransferKYCPending), { Sidebar })
 

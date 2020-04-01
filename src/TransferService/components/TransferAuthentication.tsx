@@ -1,10 +1,11 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Transaction } from "stellar-sdk"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import { Account } from "~App/contexts/accounts"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
-import { isWrongPasswordError } from "~Generic/lib/errors"
+import { isWrongPasswordError, CustomError } from "~Generic/lib/errors"
 import { VerticalLayout } from "~Layout/components/Box"
 import ReviewForm from "~TransactionReview/components/ReviewForm"
 import { TransferState } from "../util/statemachine"
@@ -36,7 +37,9 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
     (options: { password: string | null }) =>
       handleSubmission(async () => {
         if (state.step !== "auth-pending") {
-          throw Error(`Encountered unexpected state: ${state.step}`)
+          throw CustomError("UnexpectedStateError", `Encountered unexpected state: ${state.step}`, {
+            state: state.step
+          })
         }
         try {
           return await (actions.performWebAuth as DepositActions["performWebAuth"] &
@@ -77,12 +80,15 @@ function WithdrawalAuthentication(props: WithdrawalAuthenticationProps) {
   )
 }
 
-const Sidebar = () => (
-  <Summary headline="Authentication">
-    <Paragraph>The asset issuer requires you to log in to their service using your account.</Paragraph>
-    <Paragraph>An authentication transaction will be signed to prove ownership of that account.</Paragraph>
-  </Summary>
-)
+const Sidebar = () => {
+  const { t } = useTranslation()
+  return (
+    <Summary headline={t("transfer-service.authentication.sidebar.headline")}>
+      <Paragraph>{t("transfer-service.authentication.sidebar.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.authentication.sidebar.info.2")}</Paragraph>
+    </Summary>
+  )
+}
 
 const AuthenticationView = Object.assign(React.memo(WithdrawalAuthentication), { Sidebar })
 
