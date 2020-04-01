@@ -1,5 +1,5 @@
 {
-  "actions": {
+  "action": {
     "cancel": "Cancel",
     "confirm": "Confirm",
     "create": {

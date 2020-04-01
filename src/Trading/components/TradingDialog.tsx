@@ -123,7 +123,7 @@ function TradingDialog(props: TradingDialogProps) {
               onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
               type="primary"
             >
-              {t("trading.actions.add-asset")}
+              {t("trading.action.add-asset")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>

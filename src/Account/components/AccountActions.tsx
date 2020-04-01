@@ -60,7 +60,7 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onReceivePayment}
         variant="contained"
       >
-        {t("account.actions.receive")}
+        {t("account.action.receive")}
       </ActionButton>
       <ActionButton
         className={classes.button}
@@ -69,7 +69,7 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onCreatePayment}
         type="primary"
       >
-        {t("account.actions.send")}
+        {t("account.action.send")}
       </ActionButton>
     </DialogActionsBox>
   )

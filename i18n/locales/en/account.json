@@ -1,5 +1,5 @@
 {
-  "actions": {
+  "action": {
     "receive": "Receive",
     "send": "Send"
   },

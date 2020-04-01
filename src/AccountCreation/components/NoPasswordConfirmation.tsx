@@ -12,10 +12,10 @@ function NoPasswordConfirmation(props: NoPasswordConfirmationProps) {
   const { t } = useTranslation()
   return (
     <ConfirmDialog
-      cancelButton={<ActionButton onClick={props.onClose}>{t("create-account.actions.cancel")}</ActionButton>}
+      cancelButton={<ActionButton onClick={props.onClose}>{t("create-account.action.cancel")}</ActionButton>}
       confirmButton={
         <ActionButton onClick={props.onConfirm} type="primary">
-          {t("create-account.actions.confirm")}
+          {t("create-account.action.confirm")}
         </ActionButton>
       }
       onClose={props.onClose}
