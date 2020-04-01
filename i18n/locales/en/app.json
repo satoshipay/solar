@@ -1,0 +1,15 @@
+{
+  "notification": {
+    "new-signature-request": {
+      "title": "New transaction to co-sign",
+      "body": "From {{signersHavingSigned}}"
+    },
+    "received-payment": {
+      "title": "Received payment | {{account}}",
+      "body": "Received {{amount}} {{assetCode}}"
+    },
+    "trade-completed": {
+      "title": "Trade completed | {{account}}"
+    }
+  }
+}

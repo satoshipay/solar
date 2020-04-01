@@ -68,7 +68,9 @@ function createEffectHandlers(
         return
       }
 
-      const title = `Trade completed | ${account.name}`
+      const title = t("app.notification.trade-completed.title", `Trade completed | ${account.name}`, {
+        account: account.name
+      })
       const notificationBody = OfferDetailsString(
         {
           amount: BigNumber(effect.sold_amount),
@@ -83,8 +85,17 @@ function createEffectHandlers(
     },
     async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
       if (effect.type === "account_credited" && effect.account === account.publicKey) {
-        const title = `Received payment | ${account.name}`
-        const notificationBody = `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`
+        const title = t("app.notification.received-payment.title", `Received payment | ${account.name}`, {
+          account: account.name
+        })
+        const notificationBody = t(
+          "app.notification.received-payment.body",
+          `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`,
+          {
+            amount: formatBalance(effect.amount),
+            assetCode: effect.asset_code || "XLM"
+          }
+        )
 
         showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
       }
@@ -112,13 +123,17 @@ function DesktopNotifications() {
 
       showNotification(
         {
-          title: "New transaction to co-sign",
-          text: `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`
+          title: t("app.notification.new-signature-request.title"),
+          text: t(
+            "app.notification.new-signature-request.title",
+            `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`,
+            { signersHavingSigned: signersHavingSigned.map(signer => signer.account_id).join(", ") }
+          )
         },
         () => router.history.push(routes.allAccounts())
       )
     },
-    [router.history]
+    [router.history, t]
   )
 
   React.useEffect(() => {
