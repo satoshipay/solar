@@ -54,6 +54,7 @@
         }
       }
     },
+    "title": "Settings",
     "trusted-services": {
       "text": {
         "primary": "Manage Trusted Services",
