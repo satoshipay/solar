@@ -57,5 +57,8 @@
     "action": {
       "cancel": "Cancel"
     }
+  },
+  "testnet-badge": {
+    "label": "Testnet"
   }
 }
