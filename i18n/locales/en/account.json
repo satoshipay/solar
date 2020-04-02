@@ -243,6 +243,14 @@
       "inspect": "Inspect",
       "show-more": "Show more details"
     },
+    "account-creation-warning": {
+      "primary": "Funding a new account",
+      "secondary": "Funding an empty account. Make sure that the destination is correct."
+    },
+    "dangerous-transaction-warning": {
+      "primary": "Transaction initiated by unrecognized account",
+      "secondary": "Please review carefully. In case of doubt, prefer dismissing."
+    },
     "dismissal": {
       "action": {
         "cancel": "Cancel",
@@ -250,6 +258,20 @@
       },
       "header": "Dismiss pending multi-signature transaction?",
       "title": "Confirm"
+    },
+    "signers": {
+      "heading-details": {
+        "single-signature": "Single signature",
+        "default-signatures": "{{threshold}} of {{length}} multi-signature",
+        "custom-consensus": "Custom consensus multi-signature"
+      },
+      "label": "Signers {{details}}"
+    },
+    "signer-status": {
+      "tooltip": {
+        "has-signed": "Has signed the transaction",
+        "has-not-signed": "Awaiting their signature"
+      }
     },
     "summary": {
       "item": {
@@ -286,6 +308,9 @@
       "payment": "Payment",
       "delete-orders-operation": "Delete Trading Orders",
       "web-auth": "Web Authentication"
+    },
+    "transaction-memo": {
+      "label": "{{type}} Memo"
     },
     "validation": {
       "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",

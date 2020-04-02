@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Horizon, Memo, Transaction } from "stellar-sdk"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -34,27 +35,36 @@ const Warning = React.memo(function Warning(props: WarningProps) {
 })
 
 export function DangerousTransactionWarning() {
+  const { t } = useTranslation()
   return (
     <Warning
-      primary="Transaction initiated by unrecognized account"
-      secondary="Please review carefully. In case of doubt, prefer dismissing."
+      primary={t("account.transaction-review.dangerous-transaction-warning.primary")}
+      secondary={t("account.transaction-review.dangerous-transaction-warning.secondary")}
     />
   )
 }
 
 export function AccountCreationWarning() {
+  const { t } = useTranslation()
   return (
     <Warning
-      primary="Funding a new account"
-      secondary="Funding an empty account. Make sure that the destination is correct."
+      primary={t("account.transaction-review.account-creation-warning.primary")}
+      secondary={t("account.transaction-review.account-creation-warning.secondary")}
     />
   )
 }
 
 function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }) {
+  const { t } = useTranslation()
   const Icon = props.hasSigned ? CheckIcon : UpdateIcon
   return (
-    <Tooltip title={props.hasSigned ? "Has signed the transaction" : "Awaiting their signature"}>
+    <Tooltip
+      title={
+        props.hasSigned
+          ? t("account.transaction-review.signer-status.tooltip.has-signed")
+          : t("account.transaction-review.signer-status.tooltip.has-not-signed")
+      }
+    >
       <Icon style={{ opacity: props.hasSigned ? 1 : 0.5, ...props.style }} />
     </Tooltip>
   )
@@ -90,23 +100,34 @@ export function Signers(props: {
   style?: React.CSSProperties
 }) {
   const threshold = props.accountData.thresholds.high_threshold || 1
+  const { t } = useTranslation()
 
   // TODO: We should not get the signers from the source account data, but either
   //       a) from the signature request or
   //       b) by taking the tx source and all operation source accounts into account
   const headingDetails =
     props.accountData.signers.length === 1
-      ? "Single signature"
+      ? t("account.transaction-review.signers.heading-details.single-signature")
       : props.accountData.signers.every(signer => signer.weight === 1)
-      ? `${threshold} of ${props.accountData.signers.length} multi-signature`
-      : `Custom consensus multi-signature`
+      ? t(
+          "account.transaction-review.signers.heading-details.default-signatures",
+          `${threshold} of ${props.accountData.signers.length} multi-signature`,
+          { threshold, length: props.accountData.signers.length }
+        )
+      : t("account.transaction-review.signers.heading-details.custom-consensus")
 
   return (
     <SummaryItem>
       {props.accountData.signers.map((signer, index) => (
         <SummaryDetailsField
           key={signer.key}
-          label={index === 0 ? `Signers (${headingDetails})` : undefined}
+          label={
+            index === 0
+              ? t("account.transaction-review.signers.label", `Signers (${headingDetails})`, {
+                  details: headingDetails
+                })
+              : undefined
+          }
           value={
             <Signer
               hasSigned={props.transaction.signatures.some(signature =>
@@ -123,13 +144,18 @@ export function Signers(props: {
 }
 
 export function TransactionMemo(props: { memo: Memo; style?: React.CSSProperties }) {
+  const { t } = useTranslation()
   if (props.memo.type === "none" || !props.memo.value) return null
 
   const typeLabel = props.memo.type.substr(0, 1).toUpperCase() + props.memo.type.substr(1)
 
   return (
     <SummaryItem>
-      <SummaryDetailsField fullWidth label={`${typeLabel} Memo`} value={<MemoMessage memo={props.memo} />} />
+      <SummaryDetailsField
+        fullWidth
+        label={t("account.transaction-review.transaction-memo.label", `${typeLabel} Memo`, { type: typeLabel })}
+        value={<MemoMessage memo={props.memo} />}
+      />
     </SummaryItem>
   )
 }
