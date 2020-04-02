@@ -167,11 +167,57 @@
     },
     "title": "Confirm Removing Asset"
   },
-  "transaction-list": {
-    "load-more": {
-      "label": "Load more"
+  "transactions": {
+    "action": {
+      "friendbot": {
+        "description": "Get some free testnet lumens",
+        "label": "Ask the friendbot"
+      },
+      "navigate-to-deposit": {
+        "description": "Via credit card, bank transfer, etc.",
+        "label": "Deposit funds"
+      }
     },
-    "title": "Recent transactions"
+    "offer-list": {
+      "text": {
+        "sell": "Sell",
+        "for": "for"
+      },
+      "title": "Open orders"
+    },
+    "transaction-list": {
+      "offer-description": {
+        "prefix": {
+          "default": "Order",
+          "cancel": "Cancel order",
+          "update": "Update order"
+        },
+        "buy": "Buy {{buyingAmount}} {{buyingCode}} for {{sellingAmount}} {{sellingCode}} ",
+        "sell": "Sell {{sellingAmount}} {{sellingCode}} for {{buyingAmount}} {{buyingCode}}"
+      },
+      "item": {
+        "from": "From",
+        "to": "To",
+        "memo": "Memo",
+        "remote-public-keys": {
+          "more": "more"
+        },
+        "trust": {
+          "add-trust": "Trust asset {{asset}}",
+          "remove-trust": "Remove trust in asset {{asset}}"
+        }
+      },
+      "load-more": {
+        "label": "Load more"
+      },
+      "title": "Recent transactions"
+    },
+    "signature-request-list": {
+      "title": {
+        "requests-to-cosign": "Transactions to co-sign",
+        "requests-waiting-for-others": "Awaiting additional signatures"
+      }
+    }
   },
   "transaction-review": {
     "action": {
