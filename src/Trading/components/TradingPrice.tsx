@@ -26,6 +26,12 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
   const isDisabled = !props.primaryAsset || !props.secondaryAsset
   const { t } = useTranslation()
 
+  const priceUnit = props.priceDenotedIn === "primary" ? props.secondaryAsset?.getCode() : props.primaryAsset?.getCode()
+
+  const label = priceUnit
+    ? t("trading.trading-price.label", { unit: priceUnit })
+    : t("trading.trading-price.default-label")
+
   const endAdornment = (
     <InputAdornment position="end">
       <Select
@@ -55,7 +61,7 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
       InputProps={{ endAdornment }}
       inputRef={ref}
       error={Boolean(props.inputError)}
-      label={props.inputError ? props.inputError : t("trading.trading-price.label")}
+      label={props.inputError || label}
       onBlur={props.onBlur}
       onChange={props.onChange}
       onFocus={props.selectOnFocus ? event => event.target.select() : undefined}

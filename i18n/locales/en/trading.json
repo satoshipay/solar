@@ -49,7 +49,8 @@
   "no-assets-info": "This account does not use any assets other than Stellar Lumens yet.",
   "title": "Trade",
   "trading-price": {
-    "label": "Price (limit)"
+    "default-label": "Price (limit)",
+    "label": "Price per {{unit}} (limit)"
   },
   "validation": {
     "primary-amount-missing": "No amount specified.",
