@@ -1,15 +1,25 @@
 {
   "notification": {
-    "new-signature-request": {
-      "title": "New transaction to co-sign",
-      "body": "From {{signersHavingSigned}}"
+    "desktop": {
+      "new-signature-request": {
+        "title": "New transaction to co-sign",
+        "body": "From {{signersHavingSigned}}"
+      },
+      "received-payment": {
+        "title": "Received payment | {{account}}",
+        "body": "Received {{amount}} {{assetCode}}"
+      },
+      "trade-completed": {
+        "title": "Trade completed | {{account}}"
+      }
     },
-    "received-payment": {
-      "title": "Received payment | {{account}}",
-      "body": "Received {{amount}} {{assetCode}}"
-    },
-    "trade-completed": {
-      "title": "Trade completed | {{account}}"
+    "details": {
+      "action": {
+        "dismiss": "Dismiss"
+      },
+      "support": "Having an issue with the app? <1/> Contact us via",
+      "title": "Error",
+      "offline": "Offline"
     }
   },
   "terms-and-conditions": {

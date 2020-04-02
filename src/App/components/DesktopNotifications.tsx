@@ -68,7 +68,7 @@ function createEffectHandlers(
         return
       }
 
-      const title = t("app.notification.trade-completed.title", `Trade completed | ${account.name}`, {
+      const title = t("app.notification.desktop.trade-completed.title", `Trade completed | ${account.name}`, {
         account: account.name
       })
       const notificationBody = OfferDetailsString(
@@ -85,11 +85,11 @@ function createEffectHandlers(
     },
     async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
       if (effect.type === "account_credited" && effect.account === account.publicKey) {
-        const title = t("app.notification.received-payment.title", `Received payment | ${account.name}`, {
+        const title = t("app.notification.desktop.received-payment.title", `Received payment | ${account.name}`, {
           account: account.name
         })
         const notificationBody = t(
-          "app.notification.received-payment.body",
+          "app.notification.desktop.received-payment.body",
           `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`,
           {
             amount: formatBalance(effect.amount),
@@ -123,9 +123,9 @@ function DesktopNotifications() {
 
       showNotification(
         {
-          title: t("app.notification.new-signature-request.title"),
+          title: t("app.notification.desktop.new-signature-request.title"),
           text: t(
-            "app.notification.new-signature-request.title",
+            "app.notification.desktop.new-signature-request.title",
             `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`,
             { signersHavingSigned: signersHavingSigned.map(signer => signer.account_id).join(", ") }
           )
