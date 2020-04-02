@@ -231,6 +231,14 @@
       "inspect": "Inspect",
       "show-more": "Show more details"
     },
+    "dismissal": {
+      "action": {
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "header": "Dismiss pending multi-signature transaction?",
+      "title": "Confirm"
+    },
     "summary": {
       "item": {
         "account": {

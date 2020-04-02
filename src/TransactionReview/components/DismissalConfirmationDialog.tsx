@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { ActionButton, ConfirmDialog } from "~Generic/components/DialogActions"
 
 interface Props {
@@ -8,19 +9,22 @@ interface Props {
 }
 
 function DismissalConfirmationDialog(props: Props) {
+  const { t } = useTranslation()
   return (
     <ConfirmDialog
-      cancelButton={<ActionButton onClick={props.onCancel}>Cancel</ActionButton>}
+      cancelButton={
+        <ActionButton onClick={props.onCancel}>{t("account.transaction-review.dismissal.action.cancel")}</ActionButton>
+      }
       confirmButton={
         <ActionButton onClick={props.onConfirm} type="primary">
-          Confirm
+          {t("account.transaction-review.dismissal.action.confirm")}
         </ActionButton>
       }
       onClose={props.onCancel}
       open={props.open}
-      title="Confirm"
+      title={t("account.transaction-review.dismissal.title")}
     >
-      Dismiss pending multi-signature transaction?
+      {t("account.transaction-review.dismissal.header")}
     </ConfirmDialog>
   )
 }
