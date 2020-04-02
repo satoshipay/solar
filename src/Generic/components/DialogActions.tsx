@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Button, { ButtonProps } from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
@@ -142,9 +143,10 @@ export function ActionButton(props: ActionButtonProps) {
 }
 
 export function CloseButton(props: { form?: string; onClick?: (event: React.SyntheticEvent) => void }) {
+  const { t } = useTranslation()
   return (
     <ActionButton form={props.form} icon={closeIcon} onClick={props.onClick} type="secondary">
-      Close
+      {t("generic.dialog-actions.close.label")}
     </ActionButton>
   )
 }

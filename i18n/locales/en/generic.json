@@ -1,4 +1,9 @@
 {
+  "dialog-actions": {
+    "close": {
+      "label": "Close"
+    }
+  },
   "error": {
     "boundary": {
       "header": "Oops, something went wrong...",
