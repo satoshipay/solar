@@ -1,4 +1,38 @@
 {
+  "account-list": {
+    "add-account-card": {
+      "label": "Add account"
+    },
+    "badges": {
+      "tooltip": {
+        "stellar-guard": "StellarGuard Protection",
+        "multi-sig": "Multi-Signature Account"
+      }
+    }
+  },
+  "all-accounts": {
+    "switch": {
+      "to-mainnet": {
+        "short": "Mainnet",
+        "long": "Switch To Mainnet"
+      },
+      "to-testnet": {
+        "short": "Testnet",
+        "long": "Switch To Testnet"
+      }
+    },
+    "update": {
+      "notification": {
+        "start": "Starting download of update...",
+        "success": "Download is ready and will be installed on next restart!"
+      },
+      "tooltip": "Update available"
+    },
+    "title": {
+      "testnet": "Testnet Accounts",
+      "mainnet": "My Accounts"
+    }
+  },
   "notification": {
     "desktop": {
       "new-signature-request": {

@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Badge, { BadgeProps } from "@material-ui/core/Badge"
 import CardActionArea from "@material-ui/core/CardActionArea"
 import CardContent from "@material-ui/core/CardContent"
@@ -68,13 +69,14 @@ const StyledBadge = (props: BadgeProps) => {
 }
 
 function Badges(props: { account: Account }) {
+  const { t } = useTranslation()
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
-    <Tooltip title="StellarGuard Protection">
+    <Tooltip title={t("app.account-list.badges.tooltip.stellar-guard")}>
       <StellarGuardIcon style={{ marginTop: 6 }} />
     </Tooltip>
   ) : (
-    <Tooltip title="Multi-Signature Account">
+    <Tooltip title={t("app.account-list.badges.tooltip.multi-sig")}>
       <GroupIcon style={{ marginTop: 6 }} />
     </Tooltip>
   )
@@ -129,13 +131,14 @@ function AddAccountCard(props: { onClick: () => any; style?: React.CSSProperties
     boxShadow: "none",
     color: "white"
   }
+  const { t } = useTranslation()
   return (
     <StyledCard onClick={props.onClick} style={style}>
       <VerticalLayout height="100px" justifyContent="center" fontSize="1.3rem" textAlign="center">
         <div>
           <AddIcon style={{ fontSize: "200%" }} />
         </div>
-        <div>Add account</div>
+        <div>{t("app.account-list.add-account-card.label")}</div>
       </VerticalLayout>
     </StyledCard>
   )
