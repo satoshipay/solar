@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import RestoreIcon from "@material-ui/icons/SettingsBackupRestore"
 import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
 import { Account } from "~App/contexts/accounts"
@@ -21,6 +22,7 @@ const InitialSelection = React.memo(
   React.forwardRef(function InitialSelection(props: InitialSelectionProps, ref: React.Ref<HTMLDivElement>) {
     const { onUpdateAccountCreation } = props
     const router = useRouter()
+    const { t } = useTranslation()
 
     const createAccount = React.useCallback(() => {
       onUpdateAccountCreation({ import: false })
@@ -37,8 +39,8 @@ const InitialSelection = React.memo(
         <VerticalLayout alignItems="stretch" margin="0 auto">
           <MainSelectionButton
             dense
-            label="Create account"
-            description="Create a new empty account"
+            label={t("create-account.action-selection.create.label")}
+            description={t("create-account.action-selection.create.description")}
             gutterBottom
             onClick={createAccount}
             variant="primary"
@@ -46,8 +48,8 @@ const InitialSelection = React.memo(
           />
           <MainSelectionButton
             dense
-            label="Import account"
-            description="Restore account from backup"
+            label={t("create-account.action-selection.import.label")}
+            description={t("create-account.action-selection.import.description")}
             gutterBottom
             onClick={importAccount}
             Icon={RestoreIcon}

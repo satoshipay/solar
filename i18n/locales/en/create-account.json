@@ -2,13 +2,17 @@
   "action": {
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "create": "Create Account",
+    "import": "Import Account"
+  },
+  "action-selection": {
     "create": {
-      "long": "Create Account",
-      "short": "Create"
+      "description": "Create a new empty account",
+      "label": "Create Account"
     },
     "import": {
-      "long": "Import Account",
-      "short": "Import"
+      "description": "Restore account from backup",
+      "label": "Import Account"
     }
   },
   "base-name": {

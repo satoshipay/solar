@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { makeStyles } from "@material-ui/core/styles"
 import CheckIcon from "@material-ui/icons/Check"
 import { useRouter } from "~Generic/hooks/userinterface"
@@ -28,6 +29,7 @@ interface AccountCreationActionsProps {
 function AccountCreationActions(props: AccountCreationActionsProps) {
   const defaultClasses = useButtonStyles()
   const customClasses = useAccountCreationStyles()
+  const { t } = useTranslation()
 
   const classes = { ...defaultClasses, ...customClasses }
   const router = useRouter()
@@ -46,7 +48,7 @@ function AccountCreationActions(props: AccountCreationActionsProps) {
               onClick={props.onActionButtonClick}
               type="primary"
             >
-              Create Account
+              {t("create-account.action.create")}
             </ActionButton>
           )
         } else if (matchesRoute(router.location.pathname, routes.importAccount(props.testnet))) {
@@ -57,7 +59,7 @@ function AccountCreationActions(props: AccountCreationActionsProps) {
               onClick={props.onActionButtonClick}
               type="primary"
             >
-              Import Account
+              {t("create-account.action.import")}
             </ActionButton>
           )
         } else {
