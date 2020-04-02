@@ -4,6 +4,10 @@
     "send": "Send"
   },
   "add-asset": {
+    "action": {
+      "remove": "Remove",
+      "trade": "Trade"
+    },
     "button": {
       "add-custom-asset": {
         "label": "Add Custom Asset"
