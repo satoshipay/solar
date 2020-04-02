@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation, Trans } from "react-i18next"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -24,6 +25,7 @@ interface LumenDepositOptionsProps {
 function LumenDepositOptions(props: LumenDepositOptionsProps) {
   const { account, onCloseDialog } = props
   const [isLegalNoteOpen, setIsLegalNoteOpen] = React.useState(false)
+  const { t } = useTranslation()
 
   const closeLegalNote = React.useCallback(() => setIsLegalNoteOpen(false), [])
   const openLegalNote = React.useCallback(() => setIsLegalNoteOpen(true), [])
@@ -37,8 +39,8 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
     <List style={{ margin: "16px auto", maxWidth: 600 }}>
       <ListItem button onClick={openLegalNote}>
         <ListItemText
-          primary="MoonPay"
-          secondary="Buy Stellar Lumens instantly using your debit/credit card or Apple Pay"
+          primary={t("account.purchase-lumens.moonpay.text.primary")}
+          secondary={t("account.purchase-lumens.moonpay.text.secondary")}
         />
         <ListItemIcon style={{ minWidth: 24, marginLeft: 12 }}>
           <OpenInNewIcon />
@@ -46,13 +48,13 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
       </ListItem>
       <LegalConfirmation
         message={
-          <>
+          <Trans i18nKey="account.purchase-lumens.moonpay.legal-confirmation">
             You will be redirected to moonpay.io, a third-party service. The depositing process is operated by Moon Pay
             Ltd, not by Solar or SatoshiPay Ltd.
             <br />
             <br />
             Please contact the moonpay.io support for inquiries related to your deposit.
-          </>
+          </Trans>
         }
         onClose={closeLegalNote}
         open={isLegalNoteOpen}

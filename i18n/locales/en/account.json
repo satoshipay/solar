@@ -158,6 +158,18 @@
     }
   },
   "purchase-lumens": {
+    "legal-confirmation": {
+      "action": {
+        "confirm": "I understand"
+      }
+    },
+    "moonpay": {
+      "text": {
+        "primary": "MoonPay",
+        "secondary": "Buy Stellar Lumens instantly using your debit/credit card or Apple Pay"
+      },
+      "legal-confirmation": " You will be redirected to moonpay.io, a third-party service. The depositing process is operated by Moon Pay Ltd, not by Solar or SatoshiPay Ltd. <1 /> <2 /> Please contact the moonpay.io support for inquiries related to your deposit."
+    },
     "title": "Buy Stellar lumens"
   },
   "remove-trustline": {
