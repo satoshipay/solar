@@ -52,5 +52,10 @@
         "tx_too_late": "Transaction draft has expired. Try again."
       }
     }
+  },
+  "qr-reader": {
+    "action": {
+      "cancel": "Cancel"
+    }
   }
 }
