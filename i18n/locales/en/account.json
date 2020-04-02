@@ -172,6 +172,7 @@
   "transaction-review": {
     "action": {
       "confirm": "Confirm",
+      "cancel-order": "Cancel order",
       "dismiss": "Dismiss",
       "inspect": "Inspect",
       "show-more": "Show more details"
