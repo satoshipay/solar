@@ -109,7 +109,11 @@ function AccountSettings(props: Props) {
   return (
     <>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
-        <AccountSettingsItem icon={<KeyIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.changePassword}>
+        <AccountSettingsItem
+          caret="right"
+          icon={<KeyIcon style={{ fontSize: "100%" }} />}
+          onClick={navigateTo.changePassword}
+        >
           <ListItemText
             primary={
               props.account.requiresPassword
@@ -126,6 +130,7 @@ function AccountSettings(props: Props) {
         </AccountSettingsItem>
         {settings.multiSignature ? (
           <AccountSettingsItem
+            caret="right"
             disabled={accountData.balances.length === 0}
             icon={<GroupIcon style={{ fontSize: "100%" }} />}
             onClick={navigateTo.manageSigners}
@@ -141,14 +146,22 @@ function AccountSettings(props: Props) {
             />
           </AccountSettingsItem>
         ) : null}
-        <AccountSettingsItem icon={<EyeIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.exportSecretKey}>
+        <AccountSettingsItem
+          caret="right"
+          icon={<EyeIcon style={{ fontSize: "100%" }} />}
+          onClick={navigateTo.exportSecretKey}
+        >
           <ListItemText
             primary={t("account-settings.settings.export-secret-key.text.primary")}
             secondary={t("account-settings.settings.export-secret-key.text.secondary")}
             style={listItemTextStyle}
           />
         </AccountSettingsItem>
-        <AccountSettingsItem icon={<DeleteIcon style={{ fontSize: "100%" }} />} onClick={navigateTo.deleteAccount}>
+        <AccountSettingsItem
+          caret="right"
+          icon={<DeleteIcon style={{ fontSize: "100%" }} />}
+          onClick={navigateTo.deleteAccount}
+        >
           <ListItemText
             primary={t("account-settings.settings.delete-account.text.primary")}
             style={listItemTextStyle}

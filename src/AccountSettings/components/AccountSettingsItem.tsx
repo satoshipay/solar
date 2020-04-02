@@ -55,7 +55,7 @@ const useAccountSettingsItemStyles = makeStyles({
 
 interface AccountSettingsItemProps {
   children: React.ReactNode
-  caret?: "show" | "hide" | "rotate-right"
+  caret?: "down" | "hide" | "right"
   disabled?: boolean
   icon: React.ReactElement | null | undefined
   onClick?: () => void
@@ -82,8 +82,8 @@ const AccountSettingsItem = React.forwardRef(function AccountSettingsItem(
     >
       <ListItemIcon className={classes.icon}>{props.icon || <div />}</ListItemIcon>
       {props.children}
-      {props.caret !== "hide" ? (
-        <ListItemIcon className={`${classes.caret} ${props.caret === "rotate-right" ? classes.rotateRight : ""}`}>
+      {props.caret && props.caret !== "hide" ? (
+        <ListItemIcon className={`${classes.caret} ${props.caret === "down" ? classes.rotateRight : ""}`}>
           <KeyboardArrowRightIcon className={classes.caret} />
         </ListItemIcon>
       ) : null}
