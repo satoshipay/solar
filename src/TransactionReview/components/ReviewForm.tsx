@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -115,6 +116,12 @@ function TxConfirmationForm(props: Props) {
   const DismissIcon = React.useMemo(() => <CloseIcon style={{ fontSize: "140%" }} />, [])
   const ConfirmIcon = React.useMemo(() => <CheckIcon />, [])
 
+  const isOrderCancellation = props.transaction.operations.every(
+    op =>
+      (op.type === "manageBuyOffer" && BigNumber(op.buyAmount).eq(0)) ||
+      (op.type === "manageSellOffer" && BigNumber(op.amount).eq(0))
+  )
+
   const showLoadingIndicator = React.useCallback(() => {
     setLoading(true)
   }, [])
@@ -164,7 +171,9 @@ function TxConfirmationForm(props: Props) {
               onClick={showLoadingIndicator}
               type="submit"
             >
-              {t("account.transaction-review.action.confirm")}
+              {isOrderCancellation
+                ? t("account.transaction-review.action.cancel-order")
+                : t("account.transaction-review.action.confirm")}
             </ActionButton>
           )}
           {props.disabled && !props.signatureRequest ? (
