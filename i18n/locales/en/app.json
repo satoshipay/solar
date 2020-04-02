@@ -11,5 +11,19 @@
     "trade-completed": {
       "title": "Trade completed | {{account}}"
     }
+  },
+  "terms-and-conditions": {
+    "action": {
+      "confirm": "Confirm"
+    },
+    "header": "Welcome to Solar",
+    "checkbox": {
+      "1": {
+        "label": "I understand that I am responsible for the safety of my funds and that Solar is not able to recover my funds in case of data loss or if I lose my credentials."
+      },
+      "2": {
+        "label": "I have read, understood and agree to the <1>Terms and Conditions</1> <2>&amp;</2> <3>Privacy policy</3> of Solar."
+      }
+    }
   }
 }
