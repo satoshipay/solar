@@ -44,7 +44,7 @@ function SecretKeyImport(props: SecretKeyImportProps) {
 
   return (
     <>
-      <AccountSettingsItem caret="down" icon={<RestoreIcon />}>
+      <AccountSettingsItem icon={<RestoreIcon />}>
         <ListItemText
           primary={t("create-account.options.import.label")}
           secondary={t("create-account.options.import.description")}
