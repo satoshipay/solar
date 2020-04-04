@@ -1,0 +1,66 @@
+{
+  "actions": {
+    "add-asset": "添加资产",
+    "submit": "下订单"
+  },
+  "action-selection": {
+    "buy": {
+      "description": "在分布式交易所购买一定数量的资产",
+      "label": "购买资产"
+    },
+    "sell": {
+      "description": "用一种资产兑换另一种资产",
+      "label": "出售资产"
+    }
+  },
+  "advanced": {
+    "header": "高级"
+  },
+  "inputs": {
+    "estimated-costs": {
+      "label": {
+        "buy": "估计价格",
+        "sell": "预计收益"
+      }
+    },
+    "primary-amount": {
+      "label": {
+        "buy": "购买的数量",
+        "sell": "出售的数量"
+      },
+      "max-button": {
+        "label": "最多"
+      },
+      "placeholder": "最多. {{amount}}"
+    },
+    "primary-asset-selector": {
+      "label": {
+        "buy": "购买",
+        "sell": "出售"
+      }
+    },
+    "secondary-asset-selector": {
+      "label": {
+        "buy": "花费",
+        "sell": "收到"
+      }
+    }
+  },
+  "no-assets-info": "这个帐户还没有使用除XLM以外的任何资产.",
+  "title": "Trade",
+  "trading-price": {
+    "default-label": "价格 (limit)",
+    "label": "价格 {{unit}} (limit)"
+  },
+  "validation": {
+    "primary-amount-missing": "未指定金额.",
+    "primary-asset-missing": "未选择资产.",
+    "secondary-asset-missing": "未选择资产.",
+    "invalid-amount": "指定的数量无效.",
+    "invalid-price": "价格无效"
+  },
+  "warning": {
+    "title": "警告",
+    "message": "买卖差价现在大约是 {{spread}}%."
+  }
+}
