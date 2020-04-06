@@ -191,7 +191,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
     (amountOptional || isFormValueSet(formValues.amount)) && /^([0-9]+(\.[0-9]+)?)?$/.test(formValues.amount || "")
 
   const validEmail =
-    (emailOptional || isFormValueSet(formValues.email) || isFormValueSet(formValues.email_address)) &&
+    (emailOptional === false || isFormValueSet(formValues.email) || isFormValueSet(formValues.email_address)) &&
     /^([^@]+@[^@]+\.[^@]+)?$/.test(formValues.email || formValues.email_address || "")
 
   const isDisabled = hasEmptyMandatoryFields || !validAmount || !validEmail
