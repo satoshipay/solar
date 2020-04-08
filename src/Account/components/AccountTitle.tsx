@@ -13,9 +13,8 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
 import { Account } from "~App/contexts/accounts"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
-import { containsStellarGuardAsSigner } from "~Generic/lib/stellar-guard"
+import { containsThirdPartySigner, ThirdPartySecurityService } from "~Generic/lib/third-party-security"
 import { primaryBackgroundColor } from "~App/theme"
-import StellarGuardIcon from "~Icons/components/StellarGuard"
 import { HorizontalLayout } from "~Layout/components/Box"
 import MainTitle from "~Generic/components/MainTitle"
 
@@ -56,7 +55,7 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
 }
 
 interface StaticBadgesProps {
-  multisig: "generic" | "stellar-guard" | undefined
+  multisig: "generic" | ThirdPartySecurityService | undefined
   password: boolean
   testnet: boolean
 }
@@ -73,10 +72,14 @@ export const StaticBadges = React.memo(function StaticBadges(props: StaticBadges
               <GroupIcon style={{ fontSize: "120%", marginRight: 8 }} />
             </Tooltip>
           )
-        } else if (props.multisig === "stellar-guard") {
+        } else if (props.multisig) {
           return (
-            <Tooltip title={t("account.title.tooltip.stellarguard")}>
-              <StellarGuardIcon style={{ fontSize: "80%", marginRight: 8 }} />
+            <Tooltip
+              title={t("account.title.tooltip.security-service", `${props.multisig.name} Protection`, {
+                service: props.multisig.name
+              })}
+            >
+              {props.multisig.icon({ style: { fontSize: "80%", marginRight: 8 } })}
             </Tooltip>
           )
         } else {
@@ -95,19 +98,10 @@ interface BadgesProps {
 export const Badges = React.memo(function Badges(props: BadgesProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
 
-  return (
-    <StaticBadges
-      multisig={
-        accountData.signers.length > 1
-          ? containsStellarGuardAsSigner(accountData.signers)
-            ? "stellar-guard"
-            : "generic"
-          : undefined
-      }
-      password={props.account.requiresPassword}
-      testnet={props.account.testnet}
-    />
-  )
+  const securityService = containsThirdPartySigner(accountData.signers)
+  const multisig = accountData.signers.length > 1 ? (securityService ? securityService : "generic") : undefined
+
+  return <StaticBadges multisig={multisig} password={props.account.requiresPassword} testnet={props.account.testnet} />
 })
 
 const useTitleTextfieldStyles = makeStyles({

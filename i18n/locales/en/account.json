@@ -326,7 +326,7 @@
     },
     "tooltip": {
       "multi-sig-account": "Multi-Signature Account",
-      "stellarguard": "StellarGuard Protection"
+      "security-service": "{{service}} Protection"
     },
     "placeholder": "Account name…",
     "testnet": "Testnet"
