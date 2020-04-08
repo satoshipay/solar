@@ -60,5 +60,8 @@
   },
   "testnet-badge": {
     "label": "Testnet"
+  },
+  "user-interface": {
+    "copied-to-clipboard": "Copied to clipboard."
   }
 }
