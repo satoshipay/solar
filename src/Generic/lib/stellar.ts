@@ -4,6 +4,7 @@ import { xdr, Asset, Horizon, Keypair, NotFoundError, Server, ServerApi, Transac
 import { AssetRecord } from "../hooks/stellar-ecosystem"
 import { AccountData } from "./account"
 import { joinURL } from "./url"
+import { CustomError } from "./errors"
 
 export interface SmartFeePreset {
   capacityTrigger: number
@@ -86,7 +87,10 @@ async function fetchFeeStats(horizon: Server): Promise<FeeStats> {
   const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error(`Request to ${url} failed with status code ${response.status}`)
+    throw CustomError("RequestFailedError", `Request to ${url} failed with status code ${response.status}`, {
+      target: url,
+      status: response.status
+    })
   }
   return response.json()
 }

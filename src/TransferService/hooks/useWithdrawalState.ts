@@ -13,6 +13,7 @@ import {
 } from "@satoshipay/stellar-transfer"
 import { Account } from "~App/contexts/accounts"
 import { useHorizonURL, useWebAuth } from "~Generic/hooks/stellar"
+import { CustomError } from "~Generic/lib/errors"
 import { useNetWorker } from "~Generic/hooks/workers"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Action, TransferStates } from "../util/statemachine"
@@ -98,7 +99,11 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
         pollKYCStatus(withdrawal, transactionID, authToken)
       }
     } else {
-      throw Error(`Unexpected response type: ${instructions.type} / ${instructions.data.type}`)
+      throw CustomError(
+        "UnexpectedResponseTypeError",
+        `Unexpected response type: ${instructions.type} / ${instructions.data.type}`,
+        { type: instructions.type, dataType: instructions.data.type }
+      )
     }
 
     return instructions
@@ -123,7 +128,11 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     const withdraw = assetInfo && assetInfo.withdraw
 
     if (!withdraw || !withdraw.enabled) {
-      throw Error(`Asset ${details.asset.code} seems to not be withdrawable via ${details.transferServer.domain}`)
+      throw CustomError(
+        "AssetNotWithdrawableError",
+        `Asset ${details.asset.code} seems to not be withdrawable via ${details.transferServer.domain}`,
+        { asset: details.asset.code, domain: details.transferServer.domain }
+      )
     }
 
     const withdrawal = createWithdrawal(details)
@@ -155,7 +164,11 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     const accountData = await netWorker.fetchAccountData(horizonURL, account.publicKey)
 
     if (!accountData) {
-      throw Error(`Cannot fetch account data of ${account.publicKey} from ${horizonURL}`)
+      throw CustomError(
+        "FetchAccountDataError",
+        `Cannot fetch account data of ${account.publicKey} from ${horizonURL}`,
+        { account: account.publicKey, horizon: horizonURL }
+      )
     }
 
     return createWithdrawalTransaction(account, accountData, amount, new Server(horizonURL), instructions, withdrawal)

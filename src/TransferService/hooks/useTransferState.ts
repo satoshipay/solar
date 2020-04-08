@@ -9,6 +9,7 @@ import { trackError } from "~App/contexts/notifications"
 import { stellarTomlCache } from "~Generic/hooks/_caches"
 import { useWebAuth } from "~Generic/hooks/stellar"
 import { useNetWorker } from "~Generic/hooks/workers"
+import { CustomError } from "~Generic/lib/errors"
 import { signTransaction } from "~Generic/lib/transaction"
 import { initialState, stateMachine, Action, TransferAction, TransferState, TransferStates } from "../util/statemachine"
 import { usePolling } from "../util/util"
@@ -106,7 +107,11 @@ export function useTransferState(account: Account, closeDialog: () => void) {
     const withdraw = assetInfo && assetInfo.withdraw
 
     if (!withdraw || !withdraw.enabled) {
-      throw Error(`Asset ${details.asset.code} seems to not be withdrawable via ${details.transferServer.domain}`)
+      throw CustomError(
+        "AssetNotWithdrawableError",
+        `Asset ${details.asset.code} seems to not be withdrawable via ${details.transferServer.domain}`,
+        { asset: details.asset.code, domain: details.transferServer.domain }
+      )
     }
 
     const [webauth, cachedAuthToken] = await initiateWebAuth(details.transferServer)

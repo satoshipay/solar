@@ -5,6 +5,8 @@
     }
   },
   "error": {
+    "asset-not-depositable-error": "Asset {{asset}} seems to not be depositable via {{domain}}",
+    "asset-not-withdrawable-error": "Asset {{asset}} seems to not be withdrawable via {{domain}}",
     "boundary": {
       "header": "Oops, something went wrong...",
       "contact-us": "Contact us via"
@@ -13,6 +15,7 @@
     "bad-transaction-error": "Bad transaction given. Expected a Transaction or TransactionRecord, but got: {{transaction}}",
     "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
     "existing-account-error": "An account with that name does already exist.",
+    "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",
     "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
     "invariant-violation-error": "Invariant violation: {{message}}",
     "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
@@ -20,11 +23,14 @@
     "non-existent-destination-error": "Cannot pay in {{assetCode}}, since the destination account does not exist yet. Account creations always need to be done via XLM.",
     "only-interactive-kyc-supported-error": "Only interactive KYCs are supported.",
     "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
+    "promise-timeout-error": "Promise timed out after {{timeout}}ms",
     "request-failed-error": "Request to {{target}} failed with status {{status}}: {{message}}",
     "stellar-address-not-found-error": "Stellar address not found: {{address}}",
     "stellar-address-request-failed-error": "Stellar address resolution of {{address}} failed.",
     "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
+    "unexpected-action-error": "Unexpected action: {{action}}",
     "unexpected-state-error": "Encountered unexpected state: {{state}}",
+    "unexpected-response-type-error": "Unexpected response type: {{type}} / ${dataType}",
     "unknown-error": "An unknown error occured.",
     "wrong-password-error": "Wrong password.",
     "wrong-request-start-error": "Expected request to start with 'web+stellar:'",
