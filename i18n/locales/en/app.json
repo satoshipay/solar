@@ -5,8 +5,8 @@
     },
     "badges": {
       "tooltip": {
-        "stellar-guard": "StellarGuard Protection",
-        "multi-sig": "Multi-Signature Account"
+        "multi-sig": "Multi-Signature Account",
+        "security-service": "{{service}} Protection"
       }
     }
   },
