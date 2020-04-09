@@ -5,8 +5,9 @@ import { createStore } from "key-store"
 import generateID from "nanoid/generate"
 import * as path from "path"
 import { Keypair, Networks, Transaction } from "stellar-sdk"
-import { expose } from "./_ipc"
 import { Messages } from "../shared/ipc"
+import { hasLedgerHardwareWallet, signTransactionWithLedger, getLedgerPublicKey } from "../ledger"
+import { expose } from "./_ipc"
 
 // Use legacy path to not break backwards-compatibility
 const storeDirectoryPath = path.join(app.getPath("appData"), "satoshipay-stellar-wallet")
@@ -68,7 +69,6 @@ expose(Messages.SignTransaction, function signTransaction(internalAccountID, tra
     const transaction = new Transaction(transactionXDR, networkPassphrase)
 
     const privateKey = keystore.getPrivateKeyData(internalAccountID, password).privateKey
-
     transaction.sign(Keypair.fromSecret(privateKey))
 
     return transaction
@@ -77,6 +77,29 @@ expose(Messages.SignTransaction, function signTransaction(internalAccountID, tra
       .toString("base64")
   } catch (error) {
     throw Object.assign(new Error("Wrong password."), { name: "WrongPasswordError" })
+  }
+})
+
+expose(Messages.SignTransactionWithHardwareWallet, async function signTransaction(accountIndex, transactionXDR) {
+  try {
+    const networkPassphrase = Networks.PUBLIC
+    const transaction = new Transaction(transactionXDR, networkPassphrase)
+
+    if (await hasLedgerHardwareWallet()) {
+      await signTransactionWithLedger(accountIndex, transaction)
+    } else {
+      throw Error("Could not find a supported hardware wallet")
+    }
+
+    return transaction
+      .toEnvelope()
+      .toXDR()
+      .toString("base64")
+  } catch (error) {
+    throw Object.assign(new Error(`Could not sign transaction with hardware wallet: ${error.message}`), {
+      name: "SignWithHardwareWalletError",
+      message: error.message
+    })
   }
 })
 
@@ -105,4 +128,29 @@ expose(Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatu
 ) {
   mainStore.set("ignoredSignatureRequests", updatedHashes)
   return true
+})
+
+////////////////////
+// Hardware wallets:
+
+expose(Messages.GetHardwareWalletAccounts, async function getHardwareWallets() {
+  const hardwareWallets: HardwareWalletAccount[] = []
+
+  if (await hasLedgerHardwareWallet()) {
+    const ledgerWallets = (await Promise.all(
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(async accountIndex =>
+        getLedgerPublicKey(accountIndex)
+          .then(publicKey => ({
+            accountIndex,
+            name: `Ledger Wallet #${accountIndex + 1}`,
+            publicKey
+          }))
+          .catch(() => undefined)
+      )
+    ).then(values => values.filter(value => value))) as HardwareWalletAccount[]
+
+    hardwareWallets.push(...ledgerWallets)
+  }
+
+  return hardwareWallets
 })

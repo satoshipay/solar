@@ -29,6 +29,7 @@
     "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
     "promise-timeout-error": "Promise timed out after {{timeout}}ms",
     "request-failed-error": "Request to {{target}} failed with status {{status}}: {{message}}",
+    "sign-with-hardware-wallet-error": "Could not sign transaction with hardware wallet: {{message}}",
     "stellar-address-not-found-error": "Stellar address not found: {{address}}",
     "stellar-address-request-failed-error": "Stellar address resolution of {{address}} failed.",
     "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
