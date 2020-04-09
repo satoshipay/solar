@@ -45,3 +45,17 @@ declare module "electron-reload" {
     options?: { electron?: string; argv?: string[]; hardResetMethod?: "exit"; forceHardReset?: boolean }
   ): void
 }
+
+declare module "@ledgerhq/hw-app-str" {
+  export default class Str {
+    constructor(transport: Transport<*>, scrambleKey: string = "l0v")
+    getAppConfiguration: () => Promise<{ version: string }>
+    getPublicKey: (
+      path: string,
+      boolValidate?: boolean,
+      boolDisplay?: boolean
+    ) => Promise<{ publicKey: string; raw: Buffer }>
+    signTransaction: (path: string, transaction: Buffer) => Promise<{ signature: Buffer }>
+    signHash: (path: string, hash: Buffer) => Promise<{ signature: Buffer }>
+  }
+}
