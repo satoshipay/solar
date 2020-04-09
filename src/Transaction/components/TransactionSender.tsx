@@ -261,7 +261,7 @@ class TransactionSender extends React.Component<Props, State> {
       const promise = submitTransactionToThirdPartyService(signedTransaction, service, this.props.account.testnet)
 
       this.setSubmissionPromise(promise)
-      this.setState({ submissionType: SubmissionType.stellarguard })
+      this.setState({ submissionType: SubmissionType.thirdParty })
       return await promise
     } catch (error) {
       throw explainSubmissionErrorResponse(error, this.props.t)
