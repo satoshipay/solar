@@ -18,6 +18,7 @@
     "existing-account-error": "An account with that name does already exist.",
     "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",
     "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
+    "hardware-wallet-access-private-key-error": "You cannot access the private key of a hardware wallet account.",
     "invariant-violation-error": "Invariant violation: {{message}}",
     "low-reserve-order-error": "Cannot place order because spendable XLM balance is too low.",
     "memo-already-specified-error": "Cannot set a custom memo. Federation record of {{destination}} already specifies memo.",
