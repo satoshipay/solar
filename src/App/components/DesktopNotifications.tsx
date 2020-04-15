@@ -138,7 +138,7 @@ function DesktopNotifications() {
         )
       }
     },
-    [accounts, router.history]
+    [accounts, router.history, t]
   )
 
   React.useEffect(() => {
