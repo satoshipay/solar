@@ -120,20 +120,25 @@ function DesktopNotifications() {
   const handleNewSignatureRequest = React.useCallback(
     (signatureRequest: SignatureRequest) => {
       const signersHavingSigned = signatureRequest._embedded.signers.filter(signer => signer.has_signed)
+      const signersNotHavingSigned = signatureRequest._embedded.signers.filter(signer => !signer.has_signed)
+      const accountPublicKeys = accounts.map(account => account.publicKey)
 
-      showNotification(
-        {
-          title: t("app.notification.desktop.new-signature-request.title"),
-          text: t(
-            "app.notification.desktop.new-signature-request.title",
-            `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`,
-            { signersHavingSigned: signersHavingSigned.map(signer => signer.account_id).join(", ") }
-          )
-        },
-        () => router.history.push(routes.allAccounts())
-      )
+      // only show notification when a local account has to co-sign
+      if (signersNotHavingSigned.some(signer => accountPublicKeys.includes(signer.account_id))) {
+        showNotification(
+          {
+            title: t("app.notification.desktop.new-signature-request.title"),
+            text: t(
+              "app.notification.desktop.new-signature-request.title",
+              `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`,
+              { signersHavingSigned: signersHavingSigned.map(signer => signer.account_id).join(", ") }
+            )
+          },
+          () => router.history.push(routes.allAccounts())
+        )
+      }
     },
-    [router.history, t]
+    [accounts, router.history]
   )
 
   React.useEffect(() => {
