@@ -3,16 +3,19 @@ import { Messages } from "../shared/ipc"
 import { call } from "./ipc"
 
 export interface KeyStoreAPI {
+  getHardwareWallets(): Promise<HardwareWalletAccount[]>
   getKeyIDs(): Promise<string[]>
   getPublicKeyData(keyID: string): Promise<PublicKeyData>
   getPrivateKeyData(keyID: string, password: string): Promise<PrivateKeyData>
   saveKey(keyID: string, password: string, privateData: PrivateKeyData, publicData?: PublicKeyData): Promise<void>
   savePublicKeyData(keyID: string, publicData: PublicKeyData): Promise<void>
   signTransaction(internalAccountID: string, transaction: Transaction, password: string): Promise<Transaction>
+  signTransactionWithHardwareWallet(accountIndex: number, transaction: Transaction): Promise<Transaction>
   removeKey(keyID: string): Promise<void>
 }
 
 const keyStore: KeyStoreAPI = {
+  getHardwareWallets: () => call(Messages.GetHardwareWalletAccounts),
   getKeyIDs: () => call(Messages.GetKeyIDs),
   getPublicKeyData: keyID => call(Messages.GetPublicKeyData, keyID),
   getPrivateKeyData: (keyID, password) => call(Messages.GetPrivateKeyData, keyID, password),
@@ -20,6 +23,14 @@ const keyStore: KeyStoreAPI = {
     const txXDR = transaction.toEnvelope().toXDR("base64")
     const signedXDR = await call(Messages.SignTransaction, accountID, txXDR, password)
     return new Transaction(signedXDR, transaction.networkPassphrase)
+  },
+  signTransactionWithHardwareWallet: async (accountIndex, transaction) => {
+    const txXDR = transaction
+      .toEnvelope()
+      .toXDR("base64")
+      .toString("base64")
+    const signedXDR = await call(Messages.SignTransactionWithHardwareWallet, accountIndex, txXDR)
+    return new Transaction(signedXDR)
   },
   saveKey: (keyID, password, privateData, publicData) =>
     call(Messages.SaveKey, keyID, password, privateData, publicData),
