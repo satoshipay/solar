@@ -148,12 +148,17 @@ function AccountSettings(props: Props) {
         ) : null}
         <AccountSettingsItem
           caret="right"
+          disabled={props.account.isHardwareWalletAccount}
           icon={<EyeIcon style={{ fontSize: "100%" }} />}
           onClick={navigateTo.exportSecretKey}
         >
           <ListItemText
             primary={t("account-settings.settings.export-secret-key.text.primary")}
-            secondary={t("account-settings.settings.export-secret-key.text.secondary")}
+            secondary={
+              props.account.isHardwareWalletAccount
+                ? t("account-settings.settings.export-secret-key.text.secondary.hardware-wallet-account")
+                : t("account-settings.settings.export-secret-key.text.secondary.local-account")
+            }
             style={listItemTextStyle}
           />
         </AccountSettingsItem>

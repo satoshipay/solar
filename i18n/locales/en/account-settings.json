@@ -186,7 +186,10 @@
     "export-secret-key": {
       "text": {
         "primary": "Export Secret Key",
-        "secondary": "Decrypt and show private key"
+        "secondary": {
+          "hardware-wallet-account": "You cannot export the secret key of a hardware wallet account",
+          "local-account": "Decrypt and show private key"
+        }
       }
     },
     "multi-sig": {
