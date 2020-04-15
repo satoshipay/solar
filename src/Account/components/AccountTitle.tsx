@@ -10,6 +10,7 @@ import ClearIcon from "@material-ui/icons/Clear"
 import EditIcon from "@material-ui/icons/Edit"
 import GroupIcon from "@material-ui/icons/Group"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
+import HardwareAccountIcon from "@material-ui/icons/Memory"
 import { Account } from "~App/contexts/accounts"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
@@ -36,6 +37,14 @@ function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
   )
 }
 
+function HardwareStatus(props: { style?: React.CSSProperties }) {
+  return (
+    <Tooltip title="Hardware Wallet Account">
+      <HardwareAccountIcon style={{ ...props.style }} />
+    </Tooltip>
+  )
+}
+
 function TestnetBadge(props: { style?: React.CSSProperties }) {
   const { t } = useTranslation()
   const style: React.CSSProperties = {
@@ -58,6 +67,7 @@ interface StaticBadgesProps {
   multisig: "generic" | ThirdPartySecurityService | undefined
   password: boolean
   testnet: boolean
+  hardware: boolean
 }
 
 export const StaticBadges = React.memo(function StaticBadges(props: StaticBadgesProps) {
@@ -86,7 +96,12 @@ export const StaticBadges = React.memo(function StaticBadges(props: StaticBadges
           return null
         }
       })()}
-      <PasswordStatus safe={props.password} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
+
+      {props.hardware ? (
+        <HardwareStatus style={{ fontSize: "90%", marginTop: "-0.05em" }} />
+      ) : (
+        <PasswordStatus safe={props.password} style={{ fontSize: "90%", marginTop: "-0.05em" }} />
+      )}
     </HorizontalLayout>
   )
 })
@@ -101,7 +116,14 @@ export const Badges = React.memo(function Badges(props: BadgesProps) {
   const securityService = containsThirdPartySigner(accountData.signers)
   const multisig = accountData.signers.length > 1 ? (securityService ? securityService : "generic") : undefined
 
-  return <StaticBadges multisig={multisig} password={props.account.requiresPassword} testnet={props.account.testnet} />
+  return (
+    <StaticBadges
+      hardware={props.account.isHardwareWalletAccount}
+      multisig={multisig}
+      password={props.account.requiresPassword}
+      testnet={props.account.testnet}
+    />
+  )
 })
 
 const useTitleTextfieldStyles = makeStyles({

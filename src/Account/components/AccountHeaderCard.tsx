@@ -117,6 +117,7 @@ function AccountHeaderCard(props: Props) {
             <Badges account={meta.account} />
           ) : (
             <StaticBadges
+              hardware={false}
               multisig={meta.accountCreation.multisig ? "generic" : undefined}
               password={meta.accountCreation.requiresPassword}
               testnet={meta.accountCreation.testnet}
