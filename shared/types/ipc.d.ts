@@ -40,6 +40,9 @@ declare namespace IPC {
     SavePublicKeyData: "SavePublicKeyData"
     SignTransaction: "SignTransaction"
     RemoveKey: "RemoveKey"
+
+    GetHardwareWalletAccounts: "GetHardwareWalletAccounts"
+    SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet"
   }
 
   export type MessageType = typeof Messages
@@ -83,6 +86,9 @@ declare namespace IPC {
     [Messages.SavePublicKeyData]: (keyID: string, publicData: PublicKeyData) => void
     [Messages.SignTransaction]: (internalAccountID: string, transactionXDR: string, password: string) => string
     [Messages.RemoveKey]: (keyID: string) => void
+
+    [Messages.GetHardwareWalletAccounts]: () => HardwareWalletAccount[]
+    [Messages.SignTransactionWithHardwareWallet]: (accountIndex: number, transactionXDR: string) => string
   }
 
   export type MessageArgs<Message extends keyof MessageType> = MessageSignatures[Message] extends () => any

@@ -31,5 +31,8 @@ export const Messages: IPC.MessageType = {
   SaveKey: "SaveKey",
   SavePublicKeyData: "SavePublicKeyData",
   SignTransaction: "SignTransaction",
-  RemoveKey: "RemoveKey"
+  RemoveKey: "RemoveKey",
+
+  GetHardwareWalletAccounts: "GetHardwareWalletAccounts",
+  SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet"
 } as const

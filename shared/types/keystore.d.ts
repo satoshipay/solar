@@ -8,3 +8,9 @@ declare interface PublicKeyData {
 declare interface PrivateKeyData {
   privateKey: string
 }
+
+declare interface HardwareWalletAccount {
+  accountIndex: number
+  name: string
+  publicKey: string
+}
