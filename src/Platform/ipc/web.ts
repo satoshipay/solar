@@ -108,6 +108,10 @@ const defaultTestingKeys: KeysData<PublicKeyData> = {
   }
 }
 
+const hardwareWalletTestingKeys: HardwareWalletAccount[] = [
+  { accountIndex: 0, name: "Ledger Account #1", publicKey: "GAP4SFKVFVKENJ7B7VORAYKPB3CJIAJ2LMKDJ22ZFHIAIVYQOR6W3CXF" }
+]
+
 initKeyStore()
 initSettings()
 
@@ -126,6 +130,8 @@ function initKeyStore() {
   callHandlers[Messages.RemoveKey] = keyStore.removeKey
   callHandlers[Messages.SaveKey] = keyStore.saveKey
   callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData
+
+  callHandlers[Messages.GetHardwareWalletAccounts] = () => hardwareWalletTestingKeys
 
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
@@ -147,6 +153,8 @@ function initKeyStore() {
   }
 
   callHandlers[Messages.SignTransaction] = signTransaction
+  callHandlers[Messages.SignTransactionWithHardwareWallet] = () =>
+    Promise.reject("Cannot sign transaction of hardware wallet account in web build.")
 }
 
 function initSettings() {
