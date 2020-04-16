@@ -235,7 +235,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           showAccountCreationOptions ? { ...accountCreation, name: creationTitle } : props.account || accountCreation
         }
         editableAccountName={
-          showAccountSettings || (showAccountCreation && !showAccountCreationOptions && !accountToBackup)
+          (showAccountSettings && !props.account?.isHardwareWalletAccount) ||
+          (showAccountCreation && !showAccountCreationOptions && !accountToBackup)
         }
         onAccountSettings={navigateTo.accountSettings}
         onAccountTransactions={navigateTo.transactions}
