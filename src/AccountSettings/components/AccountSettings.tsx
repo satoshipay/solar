@@ -168,7 +168,11 @@ function AccountSettings(props: Props) {
           onClick={navigateTo.deleteAccount}
         >
           <ListItemText
-            primary={t("account-settings.settings.delete-account.text.primary")}
+            primary={
+              props.account.isHardwareWalletAccount
+                ? t("account-settings.settings.delete-account.text.primary.hardware-wallet-account")
+                : t("account-settings.settings.delete-account.text.primary.local-account")
+            }
             style={listItemTextStyle}
           />
         </AccountSettingsItem>
