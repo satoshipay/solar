@@ -25,11 +25,11 @@ import { breakpoints } from "~App/theme"
 import { ActionButton } from "~Generic/components/DialogActions"
 import { PublicKey } from "~Generic/components/PublicKey"
 import { formatBalance } from "~Generic/lib/balances"
+import { matchesRoute } from "~Generic/lib/routes"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import TransactionReviewDialog from "~TransactionReview/components/TransactionReviewDialog"
 import { useOperationTitle } from "~TransactionReview/components/Operations"
 import { SingleBalance } from "./AccountBalances"
-import { matchesRoute } from "~Generic/lib/routes"
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
 const doNothing = () => undefined
@@ -57,6 +57,7 @@ function OfferDescription(props: {
   type: Operation.ManageBuyOffer["type"] | Operation.ManageSellOffer["type"]
 }) {
   const { amount, buying, offerId, price, selling } = props
+  const { t } = useTranslation()
   let prefix: string
 
   if (amount.eq(0)) {
@@ -68,28 +69,47 @@ function OfferDescription(props: {
   }
 
   if (offerId === "0") {
-    prefix = "Order: "
+    prefix = `${t("account.transactions.transaction-list.offer-description.prefix.default")}: `
   } else if (amount.eq(0)) {
-    prefix = "Cancel order: "
+    prefix = `${t("account.transactions.transaction-list.offer-description.prefix.cancel")}: `
   } else {
-    prefix = "Update order: "
+    prefix = `${t("account.transactions.transaction-list.offer-description.prefix.update")}: `
   }
 
   return (
     <>
       {prefix}
       {props.type === "manageBuyOffer"
-        ? `Buy ${formatBalance(amount.toString())} ${buying.code} for ${formatBalance(amount.mul(price).toString())} ${
-            selling.code
-          }`
-        : `Sell ${formatBalance(amount.toString())} ${selling.code} for ${formatBalance(
-            amount.mul(price).toString()
-          )} ${buying.code}`}
+        ? t(
+            "account.transactions.transaction-list.offer-description.buy",
+            `Buy ${formatBalance(amount.toString())} ${buying.code} for ${formatBalance(
+              amount.mul(price).toString()
+            )} ${selling.code}`,
+            {
+              buyingAmount: formatBalance(amount.toString()),
+              buyingCode: buying.code,
+              sellingAmount: formatBalance(amount.mul(price).toString()),
+              sellingCode: selling.code
+            }
+          )
+        : t(
+            "account.transactions.transaction-list.offer-description.sell",
+            `Sell ${formatBalance(amount.toString())} ${selling.code} for ${formatBalance(
+              amount.mul(price).toString()
+            )} ${buying.code}`,
+            {
+              buyingAmount: formatBalance(amount.mul(price).toString()),
+              buyingCode: buying.code,
+              sellingAmount: formatBalance(amount.toString()),
+              sellingCode: selling.code
+            }
+          )}
     </>
   )
 }
 
 function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
+  const { t } = useTranslation()
   if (props.publicKeys.length === 0) {
     return <>-</>
   } else if (props.publicKeys.length === 1) {
@@ -97,7 +117,10 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
   } else {
     return (
       <>
-        <PublicKey publicKey={props.publicKeys[0]} variant="short" /> <i>+ {props.publicKeys.length - 1} more</i>
+        <PublicKey publicKey={props.publicKeys[0]} variant="short" />{" "}
+        <i>
+          + {props.publicKeys.length - 1} {t("account.transactions.transaction-list.item.remote-public-keys.more")}
+        </i>
       </>
     )
   }
@@ -147,6 +170,7 @@ interface TitleTextProps {
 // tslint:disable-next-line no-shadowed-variable
 const TransactionItemText = React.memo(function TransactionItemText(props: TitleTextProps) {
   const getOperationTitle = useOperationTitle()
+  const { t } = useTranslation()
   const remotePublicKeys = props.paymentSummary.reduce(
     (pubKeys, summaryItem) => pubKeys.concat(summaryItem.publicKeys),
     [] as string[]
@@ -159,12 +183,15 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
         {props.showMemo && props.transaction.memo.type !== "none" ? (
           <>
             &nbsp;&nbsp;|&nbsp;&nbsp;
-            <MemoMessage prefix={<>Memo:&nbsp;</>} memo={props.transaction.memo} />
+            <MemoMessage
+              prefix={<>{t("account.transactions.transaction-list.item.memo")}:&nbsp;</>}
+              memo={props.transaction.memo}
+            />
           </>
         ) : null}
       </span>
     ),
-    [props.createdAt, props.showMemo, props.transaction]
+    [props.createdAt, props.showMemo, props.transaction, t]
   )
 
   if (remotePublicKeys.length > 0 && props.paymentSummary.every(summaryItem => summaryItem.balanceChange.gt(0))) {
@@ -172,7 +199,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
       <ListItemText
         primary={
           <span>
-            From&nbsp;
+            {t("account.transactions.transaction-list.item.from")}&nbsp;
             <RemotePublicKeys publicKeys={remotePublicKeys} short />
           </span>
         }
@@ -189,11 +216,11 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
       <ListItemText
         primary={
           <span>
-            To&nbsp;
+            {t("account.transactions.transaction-list.item.to")}&nbsp;
             <RemotePublicKeys publicKeys={remotePublicKeys} short />
             {props.alwaysShowSource ? (
               <span>
-                &nbsp;from&nbsp;
+                &nbsp;{t("account.transactions.transaction-list.item.from")}&nbsp;
                 <PublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
               </span>
             ) : null}
@@ -211,7 +238,11 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
       <ListItemText
         primary={
           <span>
-            Remove trust in asset {operation.line.code}
+            {t(
+              "account.transactions.transaction-list.item.trust.remove-trust",
+              `Remove trust in asset ${operation.line.code}`,
+              { asset: operation.line.code }
+            )}
             {props.alwaysShowSource ? (
               <>
                 {" "}
@@ -228,7 +259,9 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
       <ListItemText
         primary={
           <span>
-            Trust asset {operation.line.code}
+            {t("account.transactions.transaction-list.item.trust.add-trust", `Trust asset ${operation.line.code}`, {
+              asset: operation.line.code
+            })}
             {props.alwaysShowSource ? (
               <>
                 {" "}
@@ -427,7 +460,7 @@ const LoadMoreTransactionsListItem = React.memo(function LoadMoreTransactionsLis
           style={{ margin: "0 auto", paddingLeft: 16, paddingRight: 16 }}
           variant="text"
         >
-          {t("account.transaction-list.load-more.label")}
+          {t("account.transactions.transaction-list.load-more.label")}
         </ActionButton>
       </ListItemText>
     </ListItem>

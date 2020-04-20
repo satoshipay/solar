@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation, Trans } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import Typography from "@material-ui/core/Typography"
 import { Notification as NotificationType, NotificationsContext } from "~App/contexts/notifications"
@@ -20,13 +21,14 @@ interface NotificationDetailsProps {
 
 const NotificationDetails = React.memo(function NotificationDetails(props: NotificationDetailsProps) {
   const { message = "" } = props.notification || {}
+  const { t } = useTranslation()
   return (
     <DialogBody
-      top={<MainTitle onBack={props.onClose} title="Error" />}
+      top={<MainTitle onBack={props.onClose} title={t("app.notification.details.title")} />}
       actions={
         <DialogActionsBox>
           <ActionButton autoFocus onClick={props.onClose} type="primary">
-            Dismiss
+            {t("app.notification.details.action.dismiss")}
           </ActionButton>
         </DialogActionsBox>
       }
@@ -37,9 +39,11 @@ const NotificationDetails = React.memo(function NotificationDetails(props: Notif
       {props.showSupportEmail ? (
         <Box alignSelf="center" margin="36px auto 0" width="100%">
           <Typography align="center" color="textSecondary">
-            Having an issue with the app?
-            <br />
-            Contact us via{" "}
+            <Trans i18nKey="app.notification.details.support">
+              Having an issue with the app?
+              <br />
+              Contact us via
+            </Trans>{" "}
             <a
               href="mailto:hello@solarwallet.io"
               style={{ color: "inherit" }}
@@ -86,6 +90,7 @@ function NotificationsContainer() {
   const [lastClosedNotificationID, setLastClosedNotificationID] = React.useState(0)
   const [notificationInDialog, setNotificationInDialog] = React.useState<NotificationType | undefined>()
   const lastShownNotification = React.useRef<NotificationType | null>(null)
+  const { t } = useTranslation()
 
   const latestNotificationItem = notifications[notifications.length - 1] || null
   const open = latestNotificationItem && latestNotificationItem.id !== lastClosedNotificationID
@@ -130,7 +135,7 @@ function NotificationsContainer() {
         onClick={onNotificationClick}
         onClose={closeNotification}
       />
-      <OfflineNotification message="Offline" open={!isOnline} />
+      <OfflineNotification message={t("app.notification.details.offline")} open={!isOnline} />
       <Dialog
         fullScreen
         open={Boolean(notificationInDialog)}

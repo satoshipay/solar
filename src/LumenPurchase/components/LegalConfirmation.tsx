@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import Fade from "@material-ui/core/Fade"
 import Typography from "@material-ui/core/Typography"
@@ -35,18 +36,19 @@ function LegalConfirmation(props: Props) {
   const classes = useLegalConfirmationStyles()
   const dialogActionsRef = useDialogActions()
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
 
   const actions = React.useMemo(
     () => (
       <DialogActionsBox className={classes.root} smallDialog transparent>
         <Fade enter={isSmallScreen} exit={isSmallScreen} in={props.open}>
           <ActionButton onClick={props.onConfirm} type="primary">
-            I understand
+            {t("account.purchase-lumens.legal-confirmation.action.confirm")}
           </ActionButton>
         </Fade>
       </DialogActionsBox>
     ),
-    [classes.root, isSmallScreen, props.onConfirm, props.open]
+    [classes.root, isSmallScreen, props.onConfirm, props.open, t]
   )
 
   return (

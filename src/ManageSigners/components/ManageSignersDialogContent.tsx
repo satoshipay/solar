@@ -71,7 +71,7 @@ function useFormValidation() {
     const weightThresholdInteger = Number.parseInt(weightThreshold, 10)
 
     if (weightThresholdInteger > allKeysCombinedWeight) {
-      return new Error(t("account-settings.manage-signers.validation.threshold-higher-than-weight"))
+      return new Error(t("account-settings.manage-signers.validation.threshold-higher-than-weights"))
     }
     if (updatedSigners.length > 1 && weightThresholdInteger === 0) {
       return new Error(t("account-settings.manage-signers.validation.no-threshold"))

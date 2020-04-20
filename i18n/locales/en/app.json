@@ -1,0 +1,73 @@
+{
+  "account-list": {
+    "add-account-card": {
+      "label": "Add account"
+    },
+    "badges": {
+      "tooltip": {
+        "stellar-guard": "StellarGuard Protection",
+        "multi-sig": "Multi-Signature Account"
+      }
+    }
+  },
+  "all-accounts": {
+    "switch": {
+      "to-mainnet": {
+        "short": "Mainnet",
+        "long": "Switch To Mainnet"
+      },
+      "to-testnet": {
+        "short": "Testnet",
+        "long": "Switch To Testnet"
+      }
+    },
+    "update": {
+      "notification": {
+        "start": "Starting download of update...",
+        "success": "Download is ready and will be installed on next restart!"
+      },
+      "tooltip": "Update available"
+    },
+    "title": {
+      "testnet": "Testnet Accounts",
+      "mainnet": "My Accounts"
+    }
+  },
+  "notification": {
+    "desktop": {
+      "new-signature-request": {
+        "title": "New transaction to co-sign",
+        "body": "From {{signersHavingSigned}}"
+      },
+      "received-payment": {
+        "title": "Received payment | {{account}}",
+        "body": "Received {{amount}} {{assetCode}}"
+      },
+      "trade-completed": {
+        "title": "Trade completed | {{account}}"
+      }
+    },
+    "details": {
+      "action": {
+        "dismiss": "Dismiss"
+      },
+      "support": "Having an issue with the app? <1/> Contact us via",
+      "title": "Error",
+      "offline": "Offline"
+    }
+  },
+  "terms-and-conditions": {
+    "action": {
+      "confirm": "Confirm"
+    },
+    "header": "Welcome to Solar",
+    "checkbox": {
+      "1": {
+        "label": "I understand that I am responsible for the safety of my funds and that Solar is not able to recover my funds in case of data loss or if I lose my credentials."
+      },
+      "2": {
+        "label": "I have read, understood and agree to the <1>Terms and Conditions</1> <2>&amp;</2> <3>Privacy policy</3> of Solar."
+      }
+    }
+  }
+}

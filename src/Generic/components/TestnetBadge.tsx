@@ -1,7 +1,10 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import grey from "@material-ui/core/colors/grey"
 
 const TestnetBadge = (props: { style?: React.CSSProperties }) => {
+  const { t } = useTranslation()
+
   const style: React.CSSProperties = {
     position: "relative",
     display: "inline-block",
@@ -15,7 +18,7 @@ const TestnetBadge = (props: { style?: React.CSSProperties }) => {
     textTransform: "uppercase",
     ...props.style
   }
-  return <div style={style}>Testnet</div>
+  return <div style={style}>{t("generic.testnet-badge.label")}</div>
 }
 
 export default TestnetBadge

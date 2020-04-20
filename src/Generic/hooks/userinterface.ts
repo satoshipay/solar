@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { __RouterContext, RouteComponentProps } from "react-router"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import { NotificationsContext } from "~App/contexts/notifications"
@@ -9,19 +10,21 @@ export const useIsSmallMobile = () => useMediaQuery("(max-width:400px)")
 
 export function useClipboard() {
   const { showError, showNotification } = React.useContext(NotificationsContext)
+  const { t } = useTranslation()
 
   return React.useMemo(
     () => ({
-      async copyToClipboard(value: string, notificationMessage: string = "Copied to clipboard.") {
+      async copyToClipboard(value: string, notificationMessage?: string) {
         try {
           await Clipboard.copyToClipboard(value)
-          showNotification("info", notificationMessage)
+          const message = notificationMessage ? notificationMessage : t("generic.user-interface.copied-to-clipboard")
+          showNotification("info", message)
         } catch (error) {
           showError(error)
         }
       }
     }),
-    [showError, showNotification]
+    [showError, showNotification, t]
   )
 }
 

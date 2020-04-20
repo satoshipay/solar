@@ -15,6 +15,7 @@ import {
 } from "@satoshipay/stellar-transfer"
 import BigNumber from "big.js"
 import { Asset, Transaction } from "stellar-sdk"
+import { CustomError } from "~Generic/lib/errors"
 
 export namespace TransferStates {
   export interface SelectType {
@@ -302,6 +303,8 @@ export function stateMachine(state: TransferState, action: TransferAction): Tran
         withdrawal: (state as TransferStates.KYCPending<Deposit | Withdrawal>).withdrawal
       }
     default:
-      throw Error(`Unexpected action: ${(action as TransferAction).type}`)
+      throw CustomError("UnexpectedActionError", `Unexpected action: ${(action as TransferAction).type}`, {
+        action: (action as TransferAction).type
+      })
   }
 }

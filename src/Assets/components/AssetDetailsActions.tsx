@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import ClearIcon from "@material-ui/icons/Clear"
@@ -31,6 +32,7 @@ function AssetDetailsActions(props: Props) {
   const [removalDialogOpen, setRemovalDialogOpen] = React.useState(false)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
   const router = useRouter()
+  const { t } = useTranslation()
 
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
 
@@ -80,10 +82,10 @@ function AssetDetailsActions(props: Props) {
         {balance ? (
           <>
             <ActionButton icon={<ClearIcon />} onClick={removeThisAsset} type="secondary">
-              Remove
+              {t("account.add-asset.action.remove")}
             </ActionButton>
             <ActionButton icon={<SwapHorizIcon />} onClick={tradeThisAsset} type="primary">
-              Trade
+              {t("account.add-asset.action.trade")}
             </ActionButton>
           </>
         ) : (

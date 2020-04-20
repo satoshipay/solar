@@ -373,7 +373,7 @@ function SetOptionsOperation(props: SetOptionsOperationProps) {
       )
     } else if (props.operation.signer.weight === 0) {
       return (
-        <SummaryItem heading={props.hideHeading ? undefined : t("operations.payment.set-options.remove-signer.title")}>
+        <SummaryItem heading={props.hideHeading ? undefined : t("operations.set-options.remove-signer.title")}>
           <SummaryDetailsField
             label={t("operations.set-options.remove-signer.summary.signer")}
             value={<CopyableAddress address={signerPublicKey} variant="short" />}

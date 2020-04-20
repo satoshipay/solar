@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import Typography from "@material-ui/core/Typography"
@@ -16,6 +17,7 @@ const pkg = require("../../../package.json")
 function SettingsPage() {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
+  const { t } = useTranslation()
 
   const showSettingsOverview = matchesRoute(router.location.pathname, routes.settings(), true)
 
@@ -38,14 +40,14 @@ function SettingsPage() {
         <CardContent style={{ padding: isSmallScreen ? 8 : undefined, paddingBottom: 8 }}>
           <MainTitle
             onBack={showSettingsOverview ? navigateToAllAccounts : navigateToSettingsOverview}
-            title="Settings"
+            title={t("app-settings.settings.title")}
             titleColor="inherit"
             style={{ marginTop: -12, marginLeft: 0 }}
           />
         </CardContent>
       </Card>
     ),
-    [isSmallScreen, navigateToAllAccounts, navigateToSettingsOverview, showSettingsOverview]
+    [isSmallScreen, navigateToAllAccounts, navigateToSettingsOverview, showSettingsOverview, t]
   )
 
   return (

@@ -170,7 +170,7 @@ export const TestnetSetting = React.memo(function TestnetSetting(props: TestnetS
       actions={<SettingsToggle checked={props.value} disabled={props.hasTestnetAccount} onChange={props.onToggle} />}
       icon={<TestnetIcon className={classes.icon} />}
       onClick={props.hasTestnetAccount ? undefined : props.onToggle}
-      primaryText="Show Testnet Accounts"
+      primaryText={t("app-settings.settings.testnet.text.primary")}
       secondaryText={
         props.hasTestnetAccount
           ? t("app-settings.settings.testnet.text.secondary.cannot-disable")

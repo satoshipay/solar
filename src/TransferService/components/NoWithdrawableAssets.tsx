@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "~App/contexts/accounts"
 import * as routes from "~App/routes"
@@ -15,9 +16,10 @@ interface Props {
 
 function NoWithdrawableAssets(props: Props) {
   const router = useRouter()
+  const { t } = useTranslation()
   return (
     <Box margin={props.margin} textAlign="center">
-      <Typography>This account holds no withdrawable assets.</Typography>
+      <Typography>{t("transfer-service.no-withdrawable-assets.body.no-withdrawable-assets")}</Typography>
       <Portal desktop="inline" target={props.actionsRef.element}>
         <DialogActionsBox>
           <ActionButton
@@ -25,7 +27,7 @@ function NoWithdrawableAssets(props: Props) {
             onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
             type="primary"
           >
-            Add asset
+            {t("transfer-service.no-withdrawable-assets.action.add-asset")}
           </ActionButton>
         </DialogActionsBox>
       </Portal>

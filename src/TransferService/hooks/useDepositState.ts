@@ -11,6 +11,7 @@ import {
   TransferStatus
 } from "@satoshipay/stellar-transfer"
 import { Account } from "~App/contexts/accounts"
+import { CustomError } from "~Generic/lib/errors"
 import { useWebAuth } from "~Generic/hooks/stellar"
 import { Action, TransferStates } from "../util/statemachine"
 import { useTransferState } from "./useTransferState"
@@ -58,7 +59,14 @@ export function useDepositState(account: Account, closeDialog: () => void) {
         pollKYCStatus(deposit, transactionID, authToken)
       }
     } else {
-      throw Error(`Unexpected response type: ${instructions.type} / ${instructions.data.type}`)
+      throw CustomError(
+        "UnexpectedResponseTypeError",
+        `Unexpected response type: ${instructions.type} / ${instructions.data.type}`,
+        {
+          type: instructions.type,
+          dataType: instructions.data.type
+        }
+      )
     }
 
     return instructions
@@ -82,7 +90,11 @@ export function useDepositState(account: Account, closeDialog: () => void) {
     const assetInfo = infos.assets.find(info => info.asset.equals(details.asset))
 
     if (!assetInfo || !assetInfo.deposit || !assetInfo.deposit.enabled) {
-      throw Error(`Asset ${details.asset.code} seems to not be depositable via ${details.transferServer.domain}`)
+      throw CustomError(
+        "AssetNotDepositableError",
+        `Asset ${details.asset.code} seems to not be depositable via ${details.transferServer.domain}`,
+        { asset: details.asset.code, domain: details.transferServer.domain }
+      )
     }
 
     const deposit = createDeposit(account, details)

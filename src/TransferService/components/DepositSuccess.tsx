@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Typography from "@material-ui/core/Typography"
 import { Deposit } from "@satoshipay/stellar-transfer"
 import { RefStateObject } from "~Generic/hooks/userinterface"
@@ -16,23 +17,28 @@ interface DepositSuccessProps {
 
 function DepositSuccess(props: DepositSuccessProps) {
   const { transferServer } = props.state.deposit!
+  const { t } = useTranslation()
   return (
     <VerticalLayout grow>
       <VerticalLayout alignItems="center" margin="24px 0" textAlign="center">
-        <Typography variant="h5">Deposit pending</Typography>
+        <Typography variant="h5">{t("transfer-service.deposit-success.body.deposit-pending")}</Typography>
         <Typography style={{ margin: "16px 0" }} variant="body2">
           <Typography style={{ margin: "8px 0" }} variant="body2">
-            {transferServer.domain} is waiting for your deposit.
+            {t(
+              "transfer-service.deposit-success.body.info.1",
+              `${transferServer.domain} is waiting for your deposit.`,
+              { domain: transferServer.domain }
+            )}
           </Typography>
           <Typography style={{ margin: "8px 0" }} variant="body2">
-            The funds will be credited to your Stellar account when the deposit is credited to the asset issuer.
+            {t("transfer-service.deposit-success.body.info.2")}
           </Typography>
           {/* TODO: Show nice summary */}
         </Typography>
         <Portal desktop="inline" target={props.dialogActionsRef && props.dialogActionsRef.element}>
           <DialogActionsBox>
             <ActionButton onClick={props.onClose} type="primary">
-              Close
+              {t("transfer-service.deposit-success.action.close")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>
@@ -41,13 +47,14 @@ function DepositSuccess(props: DepositSuccessProps) {
   )
 }
 
-const Sidebar = () => (
-  <Summary headline="Done">
-    <Paragraph>
-      Your deposit has been accepted and will be processed by the asset issuer when your payment arrives.
-    </Paragraph>
-  </Summary>
-)
+const Sidebar = () => {
+  const { t } = useTranslation()
+  return (
+    <Summary headline={t("transfer-service.deposit-success.sidebar.headline")}>
+      <Paragraph>{t("transfer-service.deposit-success.sidebar.info")}</Paragraph>
+    </Summary>
+  )
+}
 
 const SuccessView = Object.assign(React.memo(DepositSuccess), { Sidebar })
 

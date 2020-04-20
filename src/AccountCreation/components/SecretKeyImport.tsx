@@ -44,14 +44,14 @@ function SecretKeyImport(props: SecretKeyImportProps) {
 
   return (
     <>
-      <AccountSettingsItem caret="rotate-right" icon={<RestoreIcon />}>
+      <AccountSettingsItem icon={<RestoreIcon />}>
         <ListItemText
           primary={t("create-account.options.import.label")}
           secondary={t("create-account.options.import.description")}
           style={{ marginLeft: 8 }}
         />
       </AccountSettingsItem>
-      <AccountSettingsItem caret="hide" icon={null} subItem>
+      <AccountSettingsItem icon={null} subItem>
         <ListItemText style={{ marginLeft: 12, marginRight: 56, marginTop: -8 }}>
           <TextField
             error={Boolean(props.error)}

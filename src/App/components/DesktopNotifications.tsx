@@ -68,7 +68,9 @@ function createEffectHandlers(
         return
       }
 
-      const title = `Trade completed | ${account.name}`
+      const title = t("app.notification.desktop.trade-completed.title", `Trade completed | ${account.name}`, {
+        account: account.name
+      })
       const notificationBody = OfferDetailsString(
         {
           amount: BigNumber(effect.sold_amount),
@@ -83,8 +85,17 @@ function createEffectHandlers(
     },
     async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
       if (effect.type === "account_credited" && effect.account === account.publicKey) {
-        const title = `Received payment | ${account.name}`
-        const notificationBody = `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`
+        const title = t("app.notification.desktop.received-payment.title", `Received payment | ${account.name}`, {
+          account: account.name
+        })
+        const notificationBody = t(
+          "app.notification.desktop.received-payment.body",
+          `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`,
+          {
+            amount: formatBalance(effect.amount),
+            assetCode: effect.asset_code || "XLM"
+          }
+        )
 
         showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
       }
@@ -109,16 +120,25 @@ function DesktopNotifications() {
   const handleNewSignatureRequest = React.useCallback(
     (signatureRequest: SignatureRequest) => {
       const signersHavingSigned = signatureRequest._embedded.signers.filter(signer => signer.has_signed)
+      const signersNotHavingSigned = signatureRequest._embedded.signers.filter(signer => !signer.has_signed)
+      const accountPublicKeys = accounts.map(account => account.publicKey)
 
-      showNotification(
-        {
-          title: "New transaction to co-sign",
-          text: `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`
-        },
-        () => router.history.push(routes.allAccounts())
-      )
+      // only show notification when a local account has to co-sign
+      if (signersNotHavingSigned.some(signer => accountPublicKeys.includes(signer.account_id))) {
+        showNotification(
+          {
+            title: t("app.notification.desktop.new-signature-request.title"),
+            text: t(
+              "app.notification.desktop.new-signature-request.title",
+              `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`,
+              { signersHavingSigned: signersHavingSigned.map(signer => signer.account_id).join(", ") }
+            )
+          },
+          () => router.history.push(routes.allAccounts())
+        )
+      }
     },
-    [router.history]
+    [accounts, router.history, t]
   )
 
   React.useEffect(() => {

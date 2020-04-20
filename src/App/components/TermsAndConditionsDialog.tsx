@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation, Trans } from "react-i18next"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import Checkbox from "@material-ui/core/Checkbox"
@@ -37,6 +38,7 @@ interface Props {
 function TermsAndConditions(props: Props) {
   const [checkedNotes, setCheckedNotes] = React.useState([false, false])
   const allConfirmed = checkedNotes.every(isChecked => isChecked)
+  const { t } = useTranslation()
 
   const toggleNoteChecked = (index: number) => {
     const updatedNoteChecks = [...checkedNotes]
@@ -48,7 +50,7 @@ function TermsAndConditions(props: Props) {
     <Section brandColored top bottom style={{ display: "flex", flexDirection: "column" }}>
       <VerticalLayout grow={1} justifyContent="center" margin="0 auto" padding="3vh 4vw" maxWidth={800}>
         <Typography color="inherit" variant="h4">
-          Welcome to Solar
+          {t("app.terms-and-conditions.header")}
         </Typography>
         <FormGroup style={{ margin: "3em 0" }}>
           <FormControlLabel
@@ -59,12 +61,7 @@ function TermsAndConditions(props: Props) {
                 style={{ alignSelf: "flex-start", color: "inherit", marginTop: -7 }}
               />
             }
-            label={
-              <CheckboxLabel>
-                I understand that I am responsible for the safety of my funds and that Solar is not able to recover my
-                funds in case of data loss or if I lose my credentials.
-              </CheckboxLabel>
-            }
+            label={<CheckboxLabel>{t("app.terms-and-conditions.checkbox.1.label")}</CheckboxLabel>}
           />
           <FormControlLabel
             control={
@@ -76,9 +73,11 @@ function TermsAndConditions(props: Props) {
             }
             label={
               <CheckboxLabel>
-                I have read, understood and agree to the{" "}
-                <ExternalLink href="https://solarwallet.io/terms.html">Terms and Conditions</ExternalLink> &amp;{" "}
-                <ExternalLink href="https://solarwallet.io/privacy.html">Privacy policy</ExternalLink> of Solar.
+                <Trans i18nKey="app.terms-and-conditions.checkbox.2.label">
+                  I have read, understood and agree to the
+                  <ExternalLink href="https://solarwallet.io/terms.html">Terms and Conditions</ExternalLink> &amp;
+                  <ExternalLink href="https://solarwallet.io/privacy.html">Privacy policy</ExternalLink> of Solar.
+                </Trans>
               </CheckboxLabel>
             }
             style={{
@@ -93,7 +92,7 @@ function TermsAndConditions(props: Props) {
           style={{ alignSelf: "center" }}
           variant="contained"
         >
-          Confirm
+          {t("app.terms-and-conditions.action.confirm")}
         </Button>
       </VerticalLayout>
     </Section>

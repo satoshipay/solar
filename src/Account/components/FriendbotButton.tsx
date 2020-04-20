@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import ThumbUpIcon from "@material-ui/icons/ThumbUp"
 import { trackError } from "~App/contexts/notifications"
@@ -14,6 +15,7 @@ interface Props {
 
 function FriendbotButton(props: Props) {
   const [isPending, setPending] = React.useState(false)
+  const { t } = useTranslation()
 
   const topup = async () => {
     try {
@@ -33,8 +35,8 @@ function FriendbotButton(props: Props) {
     <MainSelectionButton
       Icon={isPending ? CircularProgress : ThumbUpIcon}
       className={props.className}
-      description="Get some free testnet lumens"
-      label="Ask the friendbot"
+      description={t("account.transactions.action.friendbot.description")}
+      label={t("account.transactions.action.friendbot.label")}
       onClick={topup}
       style={props.style}
     />
