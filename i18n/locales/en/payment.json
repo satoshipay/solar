@@ -1,0 +1,37 @@
+{
+  "actions": {
+    "submit": "Send now"
+  },
+  "memo-metadata": {
+    "label": {
+      "default": "Memo",
+      "id": "Memo (ID)",
+      "text": "Memo (Text)"
+    },
+    "placeholder": {
+      "optional": "Description (optional)",
+      "mandatory": "Description (mandatory)"
+    }
+  },
+  "inputs": {
+    "destination": {
+      "label": "Destination address",
+      "placeholder": "GABCDEFGHIJK... or alice*example.org"
+    },
+    "price": {
+      "label": "Amount",
+      "placeholder": "Max. {{amount}}"
+    }
+  },
+  "title": "Send funds",
+  "validation": {
+    "memo-required": "Set a memo when sending funds to {{destination}}",
+    "memo-too-long": "Memo too long.",
+    "no-destination": "No destination specified.",
+    "no-price": "No amount specified.",
+    "not-enough-funds": "Not enough funds.",
+    "invalid-destination": "Expected a public key or stellar address.",
+    "invalid-price": "Invalid amount.",
+    "integer-memo-required": "Memo must be an integer."
+  }
+}

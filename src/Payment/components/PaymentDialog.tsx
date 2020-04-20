@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
@@ -25,6 +26,7 @@ interface Props {
 function PaymentDialog(props: Props) {
   const { sendTransaction } = props
   const dialogActionsRef = useDialogActions()
+  const { t } = useTranslation()
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const handleSubmit = React.useCallback(
@@ -52,7 +54,12 @@ function PaymentDialog(props: Props) {
       top={
         <>
           <MainTitle
-            title={<span>Send funds {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}</span>}
+            title={
+              <span>
+                {t("payment.title")}
+                {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+              </span>
+            }
             onBack={props.onClose}
           />
           <ScrollableBalances account={props.account} compact />
