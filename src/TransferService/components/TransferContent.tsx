@@ -2,6 +2,7 @@ import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import React from "react"
 import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
+import { CustomError } from "~Generic/lib/errors"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import DepositSuccess from "./DepositSuccess"
 import PurchaseLumens from "./PurchaseLumens"
@@ -84,7 +85,9 @@ export const TransferContent = React.memo(function TransferContent(props: Transf
       <WithdrawalSuccess dialogActionsRef={props.dialogActionsRef} onClose={props.onClose} state={state} />
     )
   } else {
-    throw Error(`Reached unexpected state: ${(state as TransferState).step}`)
+    throw CustomError("UnexpectedStateError", `Encountered unexpected state: ${(state as TransferState).step}`, {
+      state: (state as TransferState).step
+    })
   }
 })
 
@@ -113,6 +116,8 @@ export const TransferSidebar = React.memo(function TransferSidebar(props: Transf
   } else if (state.step === "completed") {
     return type === "deposit" ? <DepositSuccess.Sidebar /> : <WithdrawalSuccess.Sidebar />
   } else {
-    throw Error(`Reached unexpected state: ${(state as TransferState).step}`)
+    throw CustomError("UnexpectedStateError", `Encountered unexpected state: ${(state as TransferState).step}`, {
+      state: (state as TransferState).step
+    })
   }
 })

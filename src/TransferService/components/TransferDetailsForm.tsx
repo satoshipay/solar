@@ -1,5 +1,6 @@
 import nanoid from "nanoid"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import { useStellarToml } from "~Generic/hooks/stellar"
@@ -57,8 +58,9 @@ interface ReadOnlyFieldProps {
 }
 
 const MinMaxAmount = React.memo(function MinMaxAmount(props: ReadOnlyFieldProps) {
-  const assetCode = props.asset ? props.asset.getCode() : ""
+  const { t } = useTranslation()
 
+  const assetCode = props.asset ? props.asset.getCode() : ""
   if (!props.metadata || (!props.metadata.min_amount && !props.metadata.max_amount)) {
     return null
   }
@@ -69,11 +71,23 @@ const MinMaxAmount = React.memo(function MinMaxAmount(props: ReadOnlyFieldProps)
           color: theme.palette.text.secondary
         }
       }}
-      label="Amount"
+      label={t("transfer-service.transfer-details.body.min-max-amount.label")}
       style={{ marginTop: 24 }}
       value={[
-        props.metadata.min_amount ? `Min. ${props.metadata.min_amount} ${assetCode}`.trim() : null,
-        props.metadata.max_amount ? `Max. ${props.metadata.max_amount} ${assetCode}`.trim() : null
+        props.metadata.min_amount
+          ? t(
+              "transfer-service.transfer-details.body.min-max-amount.min-amount",
+              `Min. ${props.metadata.min_amount} ${assetCode}`.trim(),
+              { amount: props.metadata.min_amount, assetCode }
+            )
+          : null,
+        props.metadata.max_amount
+          ? t(
+              "transfer-service.transfer-details.body.min-max-amount.max-amount",
+              `Max. ${props.metadata.max_amount} ${assetCode}`.trim(),
+              { amount: props.metadata.max_amount, assetCode }
+            )
+          : null
       ]
         .filter(str => Boolean(str))
         .join(" / ")}
@@ -89,6 +103,8 @@ interface TransferFeeProps extends ReadOnlyFieldProps {
 }
 
 const TransferFee = React.memo(function TransferFee(props: TransferFeeProps) {
+  const { t } = useTranslation()
+
   if (!props.metadata) {
     return null
   }
@@ -103,13 +119,19 @@ const TransferFee = React.memo(function TransferFee(props: TransferFeeProps) {
 
   return (
     <ReadOnlyTextfield
-      helperText={`As charged by ${props.domain}`}
+      helperText={t("transfer-service.transfer-details.body.fee.helper-text", `As charged by ${props.domain}`, {
+        domain: props.domain
+      })}
       inputProps={{
         style: {
           color: theme.palette.text.secondary
         }
       }}
-      label={props.type === "deposit" ? "Deposit fee" : "Withdrawal fee"}
+      label={
+        props.type === "deposit"
+          ? t("transfer-service.transfer-details.body.fee.label.deposit")
+          : t("transfer-service.transfer-details.body.fee.label.withdrawal")
+      }
       style={{ marginTop: 24 }}
       value={
         props.metadata.fee_fixed === 0 && props.metadata.fee_percent === 0
@@ -135,6 +157,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
 
   const formID = React.useMemo(() => nanoid(), [])
   const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
+  const { t } = useTranslation()
 
   const assetInfo = props.assetTransferInfos.find(info => info.asset.equals(props.state.asset))
   const stellarToml = useStellarToml(props.state.transferServer.domain)
@@ -203,7 +226,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
           {fields.dest ? (
             <FormBuilderField
               autoFocus={process.env.PLATFORM !== "ios" && props.active}
-              name="Destination account"
+              name={t("transfer-service.transfer-details.body.destination.name")}
               descriptor={fields.dest || {}}
               onChange={event => setFormValue("dest", event.target.value)}
               style={{ marginTop: 24 }}
@@ -215,7 +238,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
               name={
                 fields.dest_extra.description
                   ? formatDescriptionText(fields.dest_extra.description)
-                  : "Extra destination data (no description)"
+                  : t("transfer-service.transfer-details.body.dest_extra.name")
               }
               descriptor={fields.dest_extra}
               onChange={event => setFormValue("dest_extra", event.target.value)}
@@ -251,7 +274,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
               onClick={() => undefined}
               type="submit"
             >
-              Proceed
+              {t("transfer-service.transfer-details.action.proceed")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>
@@ -260,22 +283,20 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
   )
 }
 
-const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
-  props.type === "deposit" ? (
-    <Summary headline="Deposit details">
-      <Paragraph>Further details about your intended deposit.</Paragraph>
-      <Paragraph>
-        Depending on what the asset issuer requests you may have to enter additional information here.
-      </Paragraph>
+const Sidebar = (props: { type: "deposit" | "withdrawal" }) => {
+  const { t } = useTranslation()
+  return props.type === "deposit" ? (
+    <Summary headline={t("transfer-service.transfer-details.sidebar.deposit.headline")}>
+      <Paragraph>{t("transfer-service.transfer-details.sidebar.deposit.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.transfer-details.sidebar.deposit.info.2")}</Paragraph>
     </Summary>
   ) : (
-    <Summary headline="Withdrawal details">
-      <Paragraph>Further details about your intended withdrawal.</Paragraph>
-      <Paragraph>
-        Depending on what the asset issuer requests you may have to enter additional information here.
-      </Paragraph>
+    <Summary headline={t("transfer-service.transfer-details.sidebar.withdrawal.headline")}>
+      <Paragraph>{t("transfer-service.transfer-details.sidebar.withdrawal.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.transfer-details.sidebar.withdrawal.info.2")}</Paragraph>
     </Summary>
   )
+}
 
 const DetailsFormView = Object.assign(React.memo(TransferDetailsForm), { Sidebar })
 

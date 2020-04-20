@@ -1,5 +1,5 @@
 {
-  "actions": {
+  "action": {
     "add-asset": "Add asset",
     "submit": "Place order"
   },

@@ -25,6 +25,7 @@ import TransactionList from "./TransactionList"
 
 function PendingMultisigTransactions(props: { account: Account }) {
   const { pendingSignatureRequests } = React.useContext(SignatureDelegationContext)
+  const { t } = useTranslation()
 
   const cosignIcon = React.useMemo(() => <DoneAllIcon />, [])
   const waitingIcon = React.useMemo(() => <UpdateIcon style={{ opacity: 0.5 }} />, [])
@@ -51,13 +52,13 @@ function PendingMultisigTransactions(props: { account: Account }) {
         account={props.account}
         icon={cosignIcon}
         signatureRequests={pendingRequestsToCosign}
-        title="Transactions to co-sign"
+        title={t("account.transactions.signature-request-list.title.requests-to-cosign")}
       />
       <InteractiveSignatureRequestList
         account={props.account}
         icon={waitingIcon}
         signatureRequests={pendingRequestsWaitingForOthers}
-        title="Awaiting additional signatures"
+        title={t("account.transactions.signature-request-list.title.requests-waiting-for-others")}
       />
     </>
   )
@@ -90,14 +91,14 @@ function AccountTransactions(props: { account: Account }) {
       {accountData.balances.length > 0 ? (
         <>
           {settings.multiSignature ? <PendingMultisigTransactions account={account} /> : null}
-          <OfferList account={account} title="Open orders" />
+          <OfferList account={account} title={t("account.transactions.offer-list.title")} />
           <TransactionList
             account={account}
             background="transparent"
             loadingMoreTransactions={moreTxsLoadingState.type === "pending"}
             olderTransactionsAvailable={recentTxs.olderTransactionsAvailable}
             onFetchMoreTransactions={handleFetchMoreTransactions}
-            title={t("account.transaction-list.title")}
+            title={t("account.transactions.transaction-list.title")}
             testnet={account.testnet}
             transactions={recentTxs.transactions}
           />
@@ -118,8 +119,8 @@ function AccountTransactions(props: { account: Account }) {
             ) : null}
             <MainSelectionButton
               Icon={CreditCardIcon}
-              description="Via credit card, bank transfer, etc."
-              label="Deposit funds"
+              description={t("account.transactions.action.navigate-to-deposit.description")}
+              label={t("account.transactions.action.navigate-to-deposit.label")}
               onClick={navigateToDeposit}
             />
           </VerticalLayout>

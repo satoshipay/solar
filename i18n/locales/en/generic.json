@@ -1,5 +1,12 @@
 {
+  "dialog-actions": {
+    "close": {
+      "label": "Close"
+    }
+  },
   "error": {
+    "asset-not-depositable-error": "Asset {{asset}} seems to not be depositable via {{domain}}",
+    "asset-not-withdrawable-error": "Asset {{asset}} seems to not be withdrawable via {{domain}}",
     "boundary": {
       "header": "Oops, something went wrong...",
       "contact-us": "Contact us via"
@@ -8,30 +15,37 @@
     "bad-transaction-error": "Bad transaction given. Expected a Transaction or TransactionRecord, but got: {{transaction}}",
     "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
     "existing-account-error": "An account with that name does already exist.",
+    "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",
     "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
+    "invariant-violation-error": "Invariant violation: {{message}}",
     "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
     "no-callback-url-error": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",
     "non-existent-destination-error": "Cannot pay in {{assetCode}}, since the destination account does not exist yet. Account creations always need to be done via XLM.",
+    "only-interactive-kyc-supported-error": "Only interactive KYCs are supported.",
     "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
+    "promise-timeout-error": "Promise timed out after {{timeout}}ms",
     "request-failed-error": "Request to {{target}} failed with status {{status}}: {{message}}",
     "stellar-address-not-found-error": "Stellar address not found: {{address}}",
     "stellar-address-request-failed-error": "Stellar address resolution of {{address}} failed.",
     "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
+    "unexpected-action-error": "Unexpected action: {{action}}",
+    "unexpected-state-error": "Encountered unexpected state: {{state}}",
+    "unexpected-response-type-error": "Unexpected response type: {{type}} / ${dataType}",
     "unknown-error": "An unknown error occured.",
     "wrong-password-error": "Wrong password.",
     "wrong-request-start-error": "Expected request to start with 'web+stellar:'",
     "submission-error": {
       "default": "Transaction rejected by the network. Error code(s): {{codes}}",
       "op-result-code": {
-        "op-cross-self": "The order would counter an open order of yours.",
-        "op-has-sub-entries": "Account still has trustlines (assets) or open trading orders.",
-        "op-immutable-set": "Account is immutable (AUTH_IMMUTABLE flag set).",
-        "op-line-full": "The destination account's balance would exceed the destination's trust in the asset.",
-        "op-low-reserve": "Transaction rejected by the network. Source or destination account balance would be below minimum balance.",
-        "op-no-account": "Destination account does not exist.",
-        "op-no-issuer": "Asset is invalid. Incorrect asset issuer.",
-        "op-no-trust": "Destination account does not trust the asset you are attempting to send.",
-        "op-underfunded": "Not enough funds to perform this operation."
+        "op_cross_self": "The order would counter an open order of yours.",
+        "op_has_sub_entries": "Account still has trustlines (assets) or open trading orders.",
+        "op_immutable_set": "Account is immutable (AUTH_IMMUTABLE flag set).",
+        "op_line_full": "The destination account's balance would exceed the destination's trust in the asset.",
+        "op_low_reserve": "Transaction rejected by the network. Source or destination account balance would be below minimum balance.",
+        "op_no_account": "Destination account does not exist.",
+        "op_no_issuer": "Asset is invalid. Incorrect asset issuer.",
+        "op_no_trust": "Destination account does not trust the asset you are attempting to send.",
+        "op_underfunded": "Not enough funds to perform this operation."
       },
       "tx-result-code": {
         "insufficient_fee": "Network demands higher fees than set in the transaction.",
@@ -44,5 +58,16 @@
         "tx_too_late": "Transaction draft has expired. Try again."
       }
     }
+  },
+  "qr-reader": {
+    "action": {
+      "cancel": "Cancel"
+    }
+  },
+  "testnet-badge": {
+    "label": "Testnet"
+  },
+  "user-interface": {
+    "copied-to-clipboard": "Copied to clipboard."
   }
 }

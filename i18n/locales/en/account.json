@@ -1,5 +1,13 @@
 {
+  "action": {
+    "receive": "Receive",
+    "send": "Send"
+  },
   "add-asset": {
+    "action": {
+      "remove": "Remove",
+      "trade": "Trade"
+    },
     "button": {
       "add-custom-asset": {
         "label": "Add Custom Asset"
@@ -150,6 +158,18 @@
     }
   },
   "purchase-lumens": {
+    "legal-confirmation": {
+      "action": {
+        "confirm": "I understand"
+      }
+    },
+    "moonpay": {
+      "text": {
+        "primary": "MoonPay",
+        "secondary": "Buy Stellar Lumens instantly using your debit/credit card or Apple Pay"
+      },
+      "legal-confirmation": " You will be redirected to moonpay.io, a third-party service. The depositing process is operated by Moon Pay Ltd, not by Solar or SatoshiPay Ltd. <1 /> <2 /> Please contact the moonpay.io support for inquiries related to your deposit."
+    },
     "title": "Buy Stellar lumens"
   },
   "remove-trustline": {
@@ -163,11 +183,57 @@
     },
     "title": "Confirm Removing Asset"
   },
-  "transaction-list": {
-    "load-more": {
-      "label": "Load more"
+  "transactions": {
+    "action": {
+      "friendbot": {
+        "description": "Get some free testnet lumens",
+        "label": "Ask the friendbot"
+      },
+      "navigate-to-deposit": {
+        "description": "Via credit card, bank transfer, etc.",
+        "label": "Deposit funds"
+      }
     },
-    "title": "Recent transactions"
+    "offer-list": {
+      "text": {
+        "sell": "Sell",
+        "for": "for"
+      },
+      "title": "Open orders"
+    },
+    "transaction-list": {
+      "offer-description": {
+        "prefix": {
+          "default": "Order",
+          "cancel": "Cancel order",
+          "update": "Update order"
+        },
+        "buy": "Buy {{buyingAmount}} {{buyingCode}} for {{sellingAmount}} {{sellingCode}} ",
+        "sell": "Sell {{sellingAmount}} {{sellingCode}} for {{buyingAmount}} {{buyingCode}}"
+      },
+      "item": {
+        "from": "From",
+        "to": "To",
+        "memo": "Memo",
+        "remote-public-keys": {
+          "more": "more"
+        },
+        "trust": {
+          "add-trust": "Trust asset {{asset}}",
+          "remove-trust": "Remove trust in asset {{asset}}"
+        }
+      },
+      "load-more": {
+        "label": "Load more"
+      },
+      "title": "Recent transactions"
+    },
+    "signature-request-list": {
+      "title": {
+        "requests-to-cosign": "Transactions to co-sign",
+        "requests-waiting-for-others": "Awaiting additional signatures"
+      }
+    }
   },
   "transaction-review": {
     "action": {
@@ -176,6 +242,36 @@
       "dismiss": "Dismiss",
       "inspect": "Inspect",
       "show-more": "Show more details"
+    },
+    "account-creation-warning": {
+      "primary": "Funding a new account",
+      "secondary": "Funding an empty account. Make sure that the destination is correct."
+    },
+    "dangerous-transaction-warning": {
+      "primary": "Transaction initiated by unrecognized account",
+      "secondary": "Please review carefully. In case of doubt, prefer dismissing."
+    },
+    "dismissal": {
+      "action": {
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "header": "Dismiss pending multi-signature transaction?",
+      "title": "Confirm"
+    },
+    "signers": {
+      "heading-details": {
+        "single-signature": "Single signature",
+        "default-signatures": "{{threshold}} of {{length}} multi-signature",
+        "custom-consensus": "Custom consensus multi-signature"
+      },
+      "label": "Signers {{details}}"
+    },
+    "signer-status": {
+      "tooltip": {
+        "has-signed": "Has signed the transaction",
+        "has-not-signed": "Awaiting their signature"
+      }
     },
     "summary": {
       "item": {
@@ -213,10 +309,25 @@
       "delete-orders-operation": "Delete Trading Orders",
       "web-auth": "Web Authentication"
     },
+    "transaction-memo": {
+      "label": "{{type}} Memo"
+    },
     "validation": {
       "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
       "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
       "password-required": "Password required"
     }
+  },
+  "title": {
+    "password-status": {
+      "protected": "Password protected",
+      "unprotected": "No password"
+    },
+    "tooltip": {
+      "multi-sig-account": "Multi-Signature Account",
+      "stellarguard": "StellarGuard Protection"
+    },
+    "placeholder": "Account name…",
+    "testnet": "Testnet"
   }
 }

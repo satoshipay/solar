@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Account } from "~App/contexts/accounts"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import ScrollableBalances from "~Assets/components/ScrollableBalances"
@@ -15,11 +16,12 @@ interface TitleProps {
 }
 
 const Title = React.memo(function Title(props: TitleProps) {
+  const { t } = useTranslation()
   return (
     <MainTitle
       title={
         <span>
-          {props.type === "deposit" ? "Add funds" : "Withdraw funds"}{" "}
+          {props.type === "deposit" ? t("transfer-service.title.deposit") : t("transfer-service.title.withdrawal")}{" "}
           {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
         </span>
       }

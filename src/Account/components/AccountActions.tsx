@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { makeStyles } from "@material-ui/core/styles"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "~App/contexts/accounts"
@@ -50,6 +51,7 @@ function AccountActions(props: AccountActionsProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useButtonStyles()
   const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
+  const { t } = useTranslation()
   return (
     <DialogActionsBox className={className} hidden={props.hidden}>
       <ActionButton
@@ -58,7 +60,7 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onReceivePayment}
         variant="contained"
       >
-        Receive
+        {t("account.action.receive")}
       </ActionButton>
       <ActionButton
         className={classes.button}
@@ -67,7 +69,7 @@ function AccountActions(props: AccountActionsProps) {
         onClick={props.onCreatePayment}
         type="primary"
       >
-        Send
+        {t("account.action.send")}
       </ActionButton>
     </DialogActionsBox>
   )

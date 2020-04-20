@@ -54,6 +54,7 @@
         }
       }
     },
+    "title": "Settings",
     "trusted-services": {
       "text": {
         "primary": "Manage Trusted Services",
@@ -64,7 +65,7 @@
   "trusted-services": {
     "info": "Trusted Services are web services that are allowed to interact with Solar wallet by requesting account data or proposing transactions. You can add a new service once it tries to interact with Solar.",
     "service-selection": {
-      "actions": {
+      "action": {
         "cancel": "Cancel",
         "confirm": "Confirm"
       },

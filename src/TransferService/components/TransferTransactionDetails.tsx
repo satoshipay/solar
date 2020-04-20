@@ -1,6 +1,7 @@
 import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Transaction } from "stellar-sdk"
 import SendIcon from "@material-ui/icons/Send"
 import {
@@ -40,6 +41,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
   const { asset } = (props.state.deposit || props.state.withdrawal) as Deposit | Withdrawal
+  const { t } = useTranslation()
 
   const formID = React.useMemo(() => nanoid(), [])
   const accountData = useLiveAccountData(account.publicKey, account.testnet)
@@ -56,7 +58,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
   const maxAmount = data.max_amount ? BigNumber(data.max_amount) : balance
 
   const amount = amountString.match(/^[0-9]+(\.[0-9]+)?$/) ? BigNumber(amountString) : BigNumber(0)
-  const eta = data.eta ? formatDuration(data.eta) : "N/A"
+  const eta = data.eta ? formatDuration(data.eta) : t("transfer-service.transaction-details.body.eta.not-available")
 
   const isAmountOutOfBounds = (minAmount && amount.lt(minAmount)) || (maxAmount && amount.gt(maxAmount))
   const isDisabled = !amount.gt(0) || amount.gt(balance) || isAmountOutOfBounds
@@ -102,7 +104,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
       <FormLayout wrap>
         {props.type === "deposit" && (props.state.response as DepositInstructionsSuccess).data.how ? (
           <ReadOnlyTextfield
-            label="Deposit instructions"
+            label={t("transfer-service.transaction-details.body.deposit-instructions.label")}
             multiline
             value={(props.state.response as DepositInstructionsSuccess).data.how}
           />
@@ -112,7 +114,11 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
           autoFocus
           disabled={minAmount && minAmount.gt(balance)}
           error={minAmount && minAmount.gt(balance)}
-          label={props.type === "deposit" ? "Amount to deposit" : "Amount to withdraw"}
+          label={
+            props.type === "deposit"
+              ? t("transfer-service.transaction-details.body.amount.label.deposit")
+              : t("transfer-service.transaction-details.body.amount.label.withdrawal")
+          }
           margin="normal"
           onChange={event => setAmountString(event.target.value)}
           placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
@@ -122,25 +128,37 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
         <PriceInput
           assetCode={asset.getCode()}
           disabled
-          label="Fees"
+          label={t("transfer-service.transaction-details.body.fees.label")}
           margin="normal"
           readOnly
           style={{ marginTop: 24 }}
-          value={feesUnknown ? "unknown" : `- ${formatBalance(fees, { maximumDecimals: feeMaxDecimals })}`}
+          value={
+            feesUnknown
+              ? t("transfer-service.transaction-details.body.fees.value.unknown")
+              : `- ${formatBalance(fees, { maximumDecimals: feeMaxDecimals })}`
+          }
         />
         <PriceInput
           assetCode={asset.getCode()}
           disabled
-          label="Amount to receive"
+          label={t("transfer-service.transaction-details.body.amount-to-receive.label")}
           readOnly
           style={{ marginTop: 24 }}
           value={amount.minus(fees).lte(0) ? "-" : formatBalance(amount.minus(fees))}
         />
-        <ReadOnlyTextfield label="ETA" style={{ marginTop: 24 }} value={eta} />
+        <ReadOnlyTextfield
+          label={t("transfer-service.transaction-details.body.eta.label")}
+          style={{ marginTop: 24 }}
+          value={eta}
+        />
         {Object.keys(extraInfo).map((extraKey, index) => (
           <ReadOnlyTextfield
             key={index}
-            label={Object.keys(extraInfo).length === 1 ? "Information" : formatDescriptionText(extraKey)}
+            label={
+              Object.keys(extraInfo).length === 1
+                ? t("transfer-service.transaction-details.body.information.label")
+                : formatDescriptionText(extraKey)
+            }
             style={{ marginTop: 24 }}
             value={extraInfo[extraKey]}
           />
@@ -155,7 +173,9 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
               onClick={() => undefined}
               type="submit"
             >
-              {props.type === "deposit" ? "Done" : "Withdraw"}
+              {props.type === "deposit"
+                ? t("transfer-service.transaction-details.action.done")
+                : t("transfer-service.transaction-details.action.withdraw")}
             </ActionButton>
           </DialogActionsBox>
         </Portal>
@@ -164,18 +184,20 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
   )
 }
 
-const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
-  props.type === "deposit" ? (
-    <Summary headline="Deposit summary">
-      <Paragraph>Make sure that you send the funds to the right destination.</Paragraph>
-      <Paragraph>The asset issuer will credit the tokens once your deposit is credited.</Paragraph>
+const Sidebar = (props: { type: "deposit" | "withdrawal" }) => {
+  const { t } = useTranslation()
+  return props.type === "deposit" ? (
+    <Summary headline={t("transfer-service.transaction-details.sidebar.deposit.headline")}>
+      <Paragraph>{t("transfer-service.transaction-details.sidebar.deposit.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.transaction-details.sidebar.deposit.info.2")}</Paragraph>
     </Summary>
   ) : (
-    <Summary headline="Almost done">
-      <Paragraph>Check the form and provide an amount to withdraw if necessary.</Paragraph>
-      <Paragraph>The withdrawal is almost ready.</Paragraph>
+    <Summary headline={t("transfer-service.transaction-details.sidebar.withdrawal.headline")}>
+      <Paragraph>{t("transfer-service.transaction-details.sidebar.withdrawal.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.transaction-details.sidebar.withdrawal.info.2")}</Paragraph>
     </Summary>
   )
+}
 
 const TransactionDetailsView = Object.assign(React.memo(TransferTransactionDetails), { Sidebar })
 

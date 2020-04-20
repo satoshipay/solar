@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
 import DialogContent from "@material-ui/core/DialogContent"
 import { QRReader, isFullscreenQRPreview } from "~Platform/components"
@@ -12,6 +13,7 @@ interface Props {
 }
 
 function QRImportDialog(props: Props) {
+  const { t } = useTranslation()
   if (isFullscreenQRPreview) {
     // Don't show the Dialog component if this QR reader implementation shows the scanner fullscreen
     if (props.open) {
@@ -29,7 +31,7 @@ function QRImportDialog(props: Props) {
           <QRReader onError={props.onError} onScan={props.onScan} style={{ width: 256, height: 256 }} />
         ) : null}
         <DialogActionsBox>
-          <ActionButton onClick={props.onClose}>Cancel</ActionButton>
+          <ActionButton onClick={props.onClose}>{t("generic.qr-reader.action.cancel")}</ActionButton>
         </DialogActionsBox>
       </DialogContent>
     </Dialog>

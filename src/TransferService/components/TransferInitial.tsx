@@ -1,5 +1,6 @@
 import nanoid from "nanoid"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
 import Collapse from "@material-ui/core/Collapse"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -7,6 +8,7 @@ import TextField from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
 import { trackError } from "~App/contexts/notifications"
+import { CustomError } from "~Generic/lib/errors"
 import { useIsSmallMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
@@ -50,6 +52,7 @@ function TransferInitial(props: TransferInitialProps) {
   const classes = useFormStyles()
   const isTinyScreen = useIsSmallMobile()
   const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
+  const { t } = useTranslation()
 
   const getAssetInfo = (asset: Asset | null): AssetTransferInfo | undefined => {
     return asset ? props.assetTransferInfos.find(assetInfo => assetInfo.asset.equals(asset)) : undefined
@@ -117,10 +120,22 @@ function TransferInitial(props: TransferInitialProps) {
       }
 
       if (!formValues.asset) {
-        return trackError(Error("Invariant violation: Form submission without selected asset"))
+        return trackError(
+          CustomError("InvariantViolationError", "Invariant violation: Form submission without selected asset", {
+            message: "Form submission without selected asset"
+          })
+        )
       }
       if (!assetTransferInfo) {
-        return trackError(Error("Invariant violation: Form submission without asset transfer information"))
+        return trackError(
+          CustomError(
+            "InvariantViolationError",
+            "Invariant violation: Form submission without asset transfer information",
+            {
+              message: " Form submission without asset transfer information"
+            }
+          )
+        )
       }
 
       handleSubmission(
@@ -136,7 +151,13 @@ function TransferInitial(props: TransferInitialProps) {
         <AssetSelector
           assets={props.trustedAssets}
           disabledAssets={nontransferableAssets}
-          label={isTinyScreen ? "Asset" : props.type === "deposit" ? "Asset" : "Asset to withdraw"}
+          label={
+            isTinyScreen
+              ? t("transfer-service.initial.body.asset-selector.label.short")
+              : props.type === "deposit"
+              ? t("transfer-service.initial.body.asset-selector.label.deposit")
+              : t("transfer-service.initial.body.asset-selector.label.withdrawal")
+          }
           margin="normal"
           onChange={handleAssetSelection}
           showXLM={props.type === "deposit"}
@@ -145,14 +166,18 @@ function TransferInitial(props: TransferInitialProps) {
         >
           {props.transferableAssets.length === 0 ? (
             <MenuItem disabled value="">
-              No withdrawable assets
+              {t("transfer-service.initial.body.asset-selector.no-assets")}
             </MenuItem>
           ) : null}
         </AssetSelector>
         <Collapse in={showMethods}>
           <TextField
             fullWidth
-            label={props.type === "deposit" ? "Type of deposit" : "Type of withdrawal"}
+            label={
+              props.type === "deposit"
+                ? t("transfer-service.initial.body.method-selector.label.deposit")
+                : t("transfer-service.initial.body.method-selector.label.withdrawal")
+            }
             margin="normal"
             onChange={setFormValue("methodID")}
             select
@@ -164,7 +189,9 @@ function TransferInitial(props: TransferInitialProps) {
             value={formValues.methodID || ""}
           >
             <MenuItem disabled value="">
-              {formValues.asset ? "Please select a type" : "Select an asset first"}
+              {formValues.asset
+                ? t("transfer-service.initial.body.method-selector.info-item.asset")
+                : t("transfer-service.initial.body.method-selector.info-item.no-asset")}
             </MenuItem>
             {methodNames.map(methodName => (
               <MenuItem key={methodName} value={methodName}>
@@ -183,7 +210,7 @@ function TransferInitial(props: TransferInitialProps) {
             onClick={() => undefined}
             type="submit"
           >
-            Proceed
+            {t("transfer-service.initial.action.proceed")}
           </ActionButton>
         </DialogActionsBox>
       </Portal>
@@ -191,23 +218,20 @@ function TransferInitial(props: TransferInitialProps) {
   )
 }
 
-const Sidebar = (props: { type: "deposit" | "withdrawal" }) =>
-  props.type === "deposit" ? (
-    <Summary headline="Fund your account">
-      <Paragraph>
-        Purchase Stellar lumens (XLM) or deposit assets to fund your account. Send USD from your bank account, ETH from
-        your Ethereum wallet, etc.
-      </Paragraph>
-      <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
+const Sidebar = (props: { type: "deposit" | "withdrawal" }) => {
+  const { t } = useTranslation()
+  return props.type === "deposit" ? (
+    <Summary headline={t("transfer-service.initial.sidebar.deposit.headline")}>
+      <Paragraph>{t("transfer-service.initial.sidebar.deposit.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.initial.sidebar.deposit.info.2")}</Paragraph>
     </Summary>
   ) : (
-    <Summary headline="What to withdraw">
-      <Paragraph>
-        Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.
-      </Paragraph>
-      <Paragraph>Solar acts as a client to the service offered by the asset issuer only.</Paragraph>
+    <Summary headline={t("transfer-service.initial.sidebar.withdrawal.headline")}>
+      <Paragraph>{t("transfer-service.initial.sidebar.withdrawal.info.1")}</Paragraph>
+      <Paragraph>{t("transfer-service.initial.sidebar.withdrawal.info.2")}</Paragraph>
     </Summary>
   )
+}
 
 const InitialView = Object.assign(React.memo(TransferInitial), { Sidebar })
 
