@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation, Trans } from "react-i18next"
 import { Operation, Server, ServerApi, Transaction } from "stellar-sdk"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -48,56 +48,85 @@ interface OfferListItemProps {
   style?: React.CSSProperties
 }
 
-const OfferListItem = React.memo(
-  // tslint:disable-next-line no-shadowed-variable
-  function OfferListItem(props: OfferListItemProps) {
-    const buying = offerAssetToAsset(props.offer.buying)
-    const selling = offerAssetToAsset(props.offer.selling)
-    const isSmallScreen = useIsMobile()
-    const { t } = useTranslation()
-    return (
-      <ListItem
-        button={Boolean(props.onCancel) as any}
-        onClick={props.onCancel}
-        style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
-      >
-        <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
-          <BarChartIcon />
-        </ListItemIcon>
-        <ListItemText
-          primary={
+const OfferListItem = React.memo(function OfferListItem(props: OfferListItemProps) {
+  const buying = offerAssetToAsset(props.offer.buying)
+  const selling = offerAssetToAsset(props.offer.selling)
+  const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+  return (
+    <ListItem
+      button={Boolean(props.onCancel) as any}
+      onClick={props.onCancel}
+      style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
+    >
+      <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
+        <BarChartIcon />
+      </ListItemIcon>
+      <ListItemText
+        primary={
+          // Horizon seems to always returns open offers in the format of us
+          // on the seller side, no matter if we submitted a buy or sell order,
+          // so we use the philosophy "i never 'sell XLM', 'i buy the <other asset>'"
+          props.offer.seller === props.accountPublicKey && !selling.isNative() ? (
             <span style={{ fontWeight: "bold" }}>
-              {t("account.transactions.offer-list.text.sell")}&nbsp;&nbsp;
-              <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
-              &nbsp;&nbsp;{t("account.transactions.offer-list.text.for")}&nbsp;&nbsp;
-              <SingleBalance
-                assetCode={buying.getCode()}
-                balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
-                inline
-              />
+              <Trans i18nKey="account.transactions.offer-list.text.sell">
+                Sell
+                <SingleBalance
+                  assetCode={selling.getCode()}
+                  balance={props.offer.amount}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+                for
+                <SingleBalance
+                  assetCode={buying.getCode()}
+                  balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+              </Trans>
             </span>
-          }
-          primaryTypographyProps={{
-            style: { overflow: "hidden", textOverflow: "ellipsis" }
-          }}
-          style={{ paddingRight: isSmallScreen ? 0 : undefined }}
-        />
-        <ListItemText
-          primaryTypographyProps={{ align: "right" }}
-          style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0, paddingRight: 0 }}
-        >
-          <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.4rem" }}>
-            <b>{selling.getCode()}</b>
-            &nbsp;
-            <ArrowRightIcon style={{ fontSize: "150%" }} />
-            &nbsp;
-            <b>{buying.getCode()}</b>
-          </HorizontalLayout>
-        </ListItemText>
-      </ListItem>
-    )
-  }
-)
+          ) : (
+            <span style={{ fontWeight: "bold" }}>
+              <Trans i18nKey="account.transactions.offer-list.text.buy">
+                Buy
+                <SingleBalance
+                  assetCode={buying.getCode()}
+                  balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+                for
+                <SingleBalance
+                  assetCode={selling.getCode()}
+                  balance={props.offer.amount}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+              </Trans>
+            </span>
+          )
+        }
+        primaryTypographyProps={{
+          style: { overflow: "hidden", textOverflow: "ellipsis" }
+        }}
+        style={{ paddingRight: isSmallScreen ? 0 : undefined }}
+      />
+      <ListItemText
+        primaryTypographyProps={{ align: "right" }}
+        style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0, paddingRight: 0 }}
+      >
+        <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.4rem" }}>
+          <b>{selling.getCode()}</b>
+          &nbsp;
+          <ArrowRightIcon style={{ fontSize: "150%" }} />
+          &nbsp;
+          <b>{buying.getCode()}</b>
+        </HorizontalLayout>
+      </ListItemText>
+    </ListItem>
+  )
+})
 
 interface Props {
   account: Account

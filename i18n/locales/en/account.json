@@ -196,7 +196,8 @@
     },
     "offer-list": {
       "text": {
-        "sell": "Sell",
+        "buy": "Buy <1 /> for <3 />",
+        "sell": "Sell <1 /> for <3 />",
         "for": "for"
       },
       "title": "Open orders"
