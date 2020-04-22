@@ -64,7 +64,10 @@ const OfferListItem = React.memo(function OfferListItem(props: OfferListItemProp
       </ListItemIcon>
       <ListItemText
         primary={
-          props.offer.seller === props.accountPublicKey ? (
+          // Horizon seems to always returns open offers in the format of us
+          // on the seller side, no matter if we submitted a buy or sell order,
+          // so we use the philosophy "i never 'sell XLM', 'i buy the <other asset>'"
+          props.offer.seller === props.accountPublicKey && !selling.isNative() ? (
             <span style={{ fontWeight: "bold" }}>
               <Trans i18nKey="account.transactions.offer-list.text.sell">
                 Sell
