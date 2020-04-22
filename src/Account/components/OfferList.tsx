@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation, Trans } from "react-i18next"
 import { Operation, Server, ServerApi, Transaction } from "stellar-sdk"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -66,25 +66,41 @@ const OfferListItem = React.memo(function OfferListItem(props: OfferListItemProp
         primary={
           props.offer.seller === props.accountPublicKey ? (
             <span style={{ fontWeight: "bold" }}>
-              {t("account.transactions.offer-list.text.sell")}&nbsp;&nbsp;
-              <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
-              &nbsp;&nbsp;{t("account.transactions.offer-list.text.for")}&nbsp;&nbsp;
-              <SingleBalance
-                assetCode={buying.getCode()}
-                balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
-                inline
-              />
+              <Trans i18nKey="account.transactions.offer-list.text.sell">
+                Sell
+                <SingleBalance
+                  assetCode={selling.getCode()}
+                  balance={props.offer.amount}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+                for
+                <SingleBalance
+                  assetCode={buying.getCode()}
+                  balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+              </Trans>
             </span>
           ) : (
             <span style={{ fontWeight: "bold" }}>
-              {t("account.transactions.offer-list.text.buy")}&nbsp;&nbsp;
-              <SingleBalance
-                assetCode={buying.getCode()}
-                balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
-                inline
-              />
-              &nbsp;&nbsp;{t("account.transactions.offer-list.text.for")}&nbsp;&nbsp;
-              <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
+              <Trans i18nKey="account.transactions.offer-list.text.buy">
+                Buy
+                <SingleBalance
+                  assetCode={buying.getCode()}
+                  balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+                for
+                <SingleBalance
+                  assetCode={selling.getCode()}
+                  balance={props.offer.amount}
+                  inline
+                  style={{ marginLeft: "0.35em", marginRight: "0.35em" }}
+                />
+              </Trans>
             </span>
           )
         }
