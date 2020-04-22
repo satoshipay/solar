@@ -233,7 +233,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
         account={
           showAccountCreationOptions ? { ...accountCreation, name: creationTitle } : props.account || accountCreation
         }
-        editableAccountName={showAccountSettings || (showAccountCreation && !showAccountCreationOptions)}
+        editableAccountName={
+          showAccountSettings || (showAccountCreation && !showAccountCreationOptions && !accountToBackup)
+        }
         onAccountSettings={navigateTo.accountSettings}
         onAccountTransactions={navigateTo.transactions}
         onClose={handleBackNavigation}
@@ -261,6 +263,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     ),
     [
       accountCreation,
+      accountToBackup,
       creationTitle,
       handleBackNavigation,
       isSmallScreen,
