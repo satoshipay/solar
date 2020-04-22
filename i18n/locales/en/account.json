@@ -196,6 +196,7 @@
     },
     "offer-list": {
       "text": {
+        "buy": "Buy",
         "sell": "Sell",
         "for": "for"
       },

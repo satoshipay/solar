@@ -48,24 +48,23 @@ interface OfferListItemProps {
   style?: React.CSSProperties
 }
 
-const OfferListItem = React.memo(
-  // tslint:disable-next-line no-shadowed-variable
-  function OfferListItem(props: OfferListItemProps) {
-    const buying = offerAssetToAsset(props.offer.buying)
-    const selling = offerAssetToAsset(props.offer.selling)
-    const isSmallScreen = useIsMobile()
-    const { t } = useTranslation()
-    return (
-      <ListItem
-        button={Boolean(props.onCancel) as any}
-        onClick={props.onCancel}
-        style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
-      >
-        <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
-          <BarChartIcon />
-        </ListItemIcon>
-        <ListItemText
-          primary={
+const OfferListItem = React.memo(function OfferListItem(props: OfferListItemProps) {
+  const buying = offerAssetToAsset(props.offer.buying)
+  const selling = offerAssetToAsset(props.offer.selling)
+  const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+  return (
+    <ListItem
+      button={Boolean(props.onCancel) as any}
+      onClick={props.onCancel}
+      style={{ minHeight: isSmallScreen ? 58 : 72, ...props.style }}
+    >
+      <ListItemIcon style={{ marginRight: isSmallScreen ? 0 : undefined }}>
+        <BarChartIcon />
+      </ListItemIcon>
+      <ListItemText
+        primary={
+          props.offer.seller === props.accountPublicKey ? (
             <span style={{ fontWeight: "bold" }}>
               {t("account.transactions.offer-list.text.sell")}&nbsp;&nbsp;
               <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
@@ -76,28 +75,39 @@ const OfferListItem = React.memo(
                 inline
               />
             </span>
-          }
-          primaryTypographyProps={{
-            style: { overflow: "hidden", textOverflow: "ellipsis" }
-          }}
-          style={{ paddingRight: isSmallScreen ? 0 : undefined }}
-        />
-        <ListItemText
-          primaryTypographyProps={{ align: "right" }}
-          style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0, paddingRight: 0 }}
-        >
-          <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.4rem" }}>
-            <b>{selling.getCode()}</b>
-            &nbsp;
-            <ArrowRightIcon style={{ fontSize: "150%" }} />
-            &nbsp;
-            <b>{buying.getCode()}</b>
-          </HorizontalLayout>
-        </ListItemText>
-      </ListItem>
-    )
-  }
-)
+          ) : (
+            <span style={{ fontWeight: "bold" }}>
+              {t("account.transactions.offer-list.text.buy")}&nbsp;&nbsp;
+              <SingleBalance
+                assetCode={buying.getCode()}
+                balance={String(BigNumber(props.offer.amount).mul(props.offer.price))}
+                inline
+              />
+              &nbsp;&nbsp;{t("account.transactions.offer-list.text.for")}&nbsp;&nbsp;
+              <SingleBalance assetCode={selling.getCode()} balance={props.offer.amount} inline />
+            </span>
+          )
+        }
+        primaryTypographyProps={{
+          style: { overflow: "hidden", textOverflow: "ellipsis" }
+        }}
+        style={{ paddingRight: isSmallScreen ? 0 : undefined }}
+      />
+      <ListItemText
+        primaryTypographyProps={{ align: "right" }}
+        style={{ display: isSmallScreen ? "none" : undefined, flexShrink: 0, paddingRight: 0 }}
+      >
+        <HorizontalLayout alignItems="center" inline style={{ fontSize: "1.4rem" }}>
+          <b>{selling.getCode()}</b>
+          &nbsp;
+          <ArrowRightIcon style={{ fontSize: "150%" }} />
+          &nbsp;
+          <b>{buying.getCode()}</b>
+        </HorizontalLayout>
+      </ListItemText>
+    </ListItem>
+  )
+})
 
 interface Props {
   account: Account
