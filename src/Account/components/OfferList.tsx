@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { useTranslation, Trans } from "react-i18next"
+import { Trans } from "react-i18next"
 import { Operation, Server, ServerApi, Transaction } from "stellar-sdk"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -52,7 +52,6 @@ const OfferListItem = React.memo(function OfferListItem(props: OfferListItemProp
   const buying = offerAssetToAsset(props.offer.buying)
   const selling = offerAssetToAsset(props.offer.selling)
   const isSmallScreen = useIsMobile()
-  const { t } = useTranslation()
   return (
     <ListItem
       button={Boolean(props.onCancel) as any}
