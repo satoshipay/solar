@@ -1,4 +1,5 @@
 import { workers } from "~Workers/worker-controller"
+import { createPersistentCache } from "./persistent-cache"
 
 export interface AccountRecord {
   address: string
@@ -11,22 +12,20 @@ export interface AccountRecord {
   }
 }
 
-export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
-  const cacheKey = testnet ? "known-accounts:testnet" : "known-accounts:mainnet"
+const wellKnownAccountsCache = createPersistentCache<AccountRecord[]>("known-accounts", { expiresIn: 24 * 60 * 60_000 })
 
-  const cachedAccountsString = localStorage.getItem(cacheKey)
-  const timestamp = localStorage.getItem("known-accounts:timestamp")
+export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
+  const cacheKey = testnet ? "testnet" : "pubnet"
+  const cachedAccounts = wellKnownAccountsCache.read(cacheKey)
 
   const { netWorker } = await workers
 
-  if (cachedAccountsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
-    // use cached accounts if they are not older than 24h
-    return JSON.parse(cachedAccountsString)
+  if (cachedAccounts) {
+    return cachedAccounts
   } else {
     const knownAccounts = await netWorker.fetchWellknownAccounts(testnet)
 
-    localStorage.setItem(cacheKey, JSON.stringify(knownAccounts))
-    localStorage.setItem("known-accounts:timestamp", Date.now().toString())
+    wellKnownAccountsCache.save(cacheKey, knownAccounts)
     return knownAccounts
   }
 }

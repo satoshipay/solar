@@ -1,4 +1,5 @@
 import { workers } from "~Workers/worker-controller"
+import { createPersistentCache } from "./persistent-cache"
 
 export interface AssetRecord {
   code: string
@@ -14,24 +15,21 @@ export interface AssetRecord {
   type: string
 }
 
-export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
-  const storageKey = testnet ? "known-assets:testnet" : "known-assets:mainnet"
+const assetsCache = createPersistentCache<AssetRecord[]>("known-accounts", { expiresIn: 60 * 60_000 })
 
+export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
+  const cacheKey = testnet ? "testnet" : "mainnet"
   const tickerURL = testnet ? "https://ticker-testnet.stellar.org" : "https://ticker.stellar.org"
 
-  const cachedAssetsString = localStorage.getItem(storageKey)
-  const timestamp = localStorage.getItem("known-assets:timestamp")
+  const cachedAssets = assetsCache.read(cacheKey)
 
-  if (cachedAssetsString && timestamp && +timestamp > Date.now() - 24 * 60 * 60 * 1000) {
-    // use cached assets if they are not older than 24h
-    return JSON.parse(cachedAssetsString)
+  if (cachedAssets) {
+    return cachedAssets
   } else {
     const { netWorker } = await workers
     const allAssets = await netWorker.fetchAllAssets(tickerURL)
 
-    localStorage.setItem(storageKey, JSON.stringify(allAssets))
-    localStorage.setItem("known-assets:timestamp", Date.now().toString())
-
+    assetsCache.save(cacheKey, allAssets)
     return allAssets
   }
 }

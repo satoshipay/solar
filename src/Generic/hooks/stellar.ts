@@ -12,6 +12,7 @@ import { StellarContext } from "~App/contexts/stellar"
 import { workers } from "~Workers/worker-controller"
 import { StellarToml, StellarTomlCurrency } from "~shared/types/stellar-toml"
 import { createEmptyAccountData, AccountData } from "../lib/account"
+import { createPersistentCache } from "../lib/persistent-cache"
 import * as StellarAddresses from "../lib/stellar-address"
 import { mapSuspendables } from "../lib/suspense"
 import { accountDataCache, accountHomeDomainCache, stellarTomlCache } from "./_caches"
@@ -99,27 +100,21 @@ export function useWebAuth() {
   }
 }
 
-const createStellarTomlCacheKey = (domain: string) => `cache:stellar.toml:${domain}`
+const stellarTomlPersistentCache = createPersistentCache<StellarToml>("stellar.toml", {
+  expiresIn: 24 * 60 * 60_000,
+  maxItems: 50
+})
 
 export function useStellarToml(domain: string | undefined): StellarToml | undefined {
   if (!domain) {
     return undefined
   }
 
-  const loadFromLocalStorage = () => {
-    const cachedData = localStorage.getItem(createStellarTomlCacheKey(domain))
-    return cachedData ? JSON.parse(cachedData) : undefined
-  }
-
-  const saveToLocalStorage = (data: any) => {
-    localStorage.setItem(createStellarTomlCacheKey(domain), JSON.stringify(data || null))
-  }
-
   const fetchStellarTomlData = async (): Promise<[true, any]> => {
     const { netWorker } = await workers
     const stellarTomlData = await netWorker.fetchStellarToml(domain)
 
-    saveToLocalStorage(stellarTomlData)
+    stellarTomlPersistentCache.save(domain, stellarTomlData || null)
     return [true, stellarTomlData]
   }
 
@@ -129,7 +124,7 @@ export function useStellarToml(domain: string | undefined): StellarToml | undefi
     return cached[1]
   }
 
-  return loadFromLocalStorage() || stellarTomlCache.suspend(domain, fetchStellarTomlData)
+  return stellarTomlPersistentCache.read(domain) || stellarTomlCache.suspend(domain, fetchStellarTomlData)
 }
 
 export function useAccountData(accountID: string, testnet: boolean) {
@@ -148,6 +143,9 @@ export function useAccountData(accountID: string, testnet: boolean) {
   return cached || createEmptyAccountData(accountID)
 }
 
+const homeDomainCachePubnet = createPersistentCache<string>("home_domain:pubnet", { expiresIn: 24 * 60 * 60_000 })
+const homeDomainCacheTestnet = createPersistentCache<string>("home_domain:testnet", { expiresIn: 24 * 60 * 60_000 })
+
 export function useAccountHomeDomains(
   accountIDs: string[],
   testnet: boolean,
@@ -163,7 +161,7 @@ export function useAccountHomeDomains(
     const accountData = await netWorker.fetchAccountData(horizonURL, accountID)
     const homeDomain = accountData ? (accountData as any).home_domain : undefined
     if (homeDomain) {
-      localStorage.setItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`, homeDomain)
+      ;(testnet ? homeDomainCacheTestnet : homeDomainCachePubnet).save(accountID, homeDomain || null)
     }
     if (allowIncompleteResult) {
       forceRerender()
@@ -180,7 +178,7 @@ export function useAccountHomeDomains(
   } catch (thrown) {
     if (allowIncompleteResult && thrown && typeof thrown.then === "function") {
       const persistentlyCached = accountIDs.map(accountID =>
-        localStorage.getItem(`home_domain:${testnet ? "testnet" : "pubnet"}:${accountID}`)
+        (testnet ? homeDomainCacheTestnet : homeDomainCachePubnet).read(accountID)
       )
 
       if (persistentlyCached.every(element => typeof element === "string" && element)) {
