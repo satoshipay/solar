@@ -432,7 +432,7 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
           update.map(record => record.paging_token),
           "0"
         )
-        const emptySet = !latestUpdateCursor
+        const emptySet = update.length === 0
         const latestSetEmpty = latestSet.length === 0
         return emptySet !== latestSetEmpty || (!emptySet && latestUpdateCursor !== latestCursor)
       },
@@ -444,6 +444,10 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
             return latestSet
           }
         }
+        // We somewhat rely on the optimistic updates as a trigger to fetch
+        // actual on-ledger data as the open orders SSE stream turns out to be
+        // unreliable and the account effects stream only indicates a trade
+        // happening, not the creation/cancellation of one
         return merge(
           subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate())),
           offerUpdates.observe().pipe(map(handleNewOptimisticUpdate))
