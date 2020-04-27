@@ -23,7 +23,7 @@
       "placeholder": "Max. {{amount}}"
     }
   },
-  "title": "Send funds",
+  "title": { "send": "Send funds", "receive": "Receive Funds" },
   "validation": {
     "memo-required": "Set a memo when sending funds to {{destination}}",
     "memo-too-long": "Memo too long.",

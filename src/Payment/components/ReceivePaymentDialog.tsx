@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Account } from "~App/contexts/accounts"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { Box } from "~Layout/components/Box"
@@ -13,8 +14,10 @@ interface Props {
 
 function ReceivePaymentDialog(props: Props) {
   const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
   return (
-    <DialogBody top={<MainTitle onBack={props.onClose} title="Receive Funds" />}>
+    <DialogBody top={<MainTitle onBack={props.onClose} title={t("payment.title.receive")} />}>
       <Box width="100%" margin="32px auto">
         <KeyExportBox export={props.account.publicKey} size={isSmallScreen ? 192 : 256} />
       </Box>

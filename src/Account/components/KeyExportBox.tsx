@@ -1,5 +1,6 @@
 import QRCode from "qrcode.react"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Typography from "@material-ui/core/Typography"
 import { useClipboard } from "~Generic/hooks/userinterface"
 import { Box, VerticalLayout } from "~Layout/components/Box"
@@ -13,6 +14,7 @@ interface Props {
 function KeyExportBox(props: Props) {
   const clipboard = useClipboard()
   const copyToClipboard = React.useCallback(() => clipboard.copyToClipboard(props.export), [clipboard, props.export])
+  const { t } = useTranslation()
 
   return (
     <VerticalLayout alignItems="center" justifyContent="center">
@@ -22,7 +24,7 @@ function KeyExportBox(props: Props) {
         </Box>
         <Box margin="16px auto">
           <Typography align="center" style={{ display: props.hideTapToCopy ? "none" : undefined, marginBottom: 12 }}>
-            Tap to copy:
+            {t("account-settings.export-key.info.tap-to-copy")}:
           </Typography>
           <Typography
             align="center"

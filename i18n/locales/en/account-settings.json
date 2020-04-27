@@ -78,7 +78,8 @@
         "paragraph-1": "The secret key backup is the only way to recover your funds if you forget your password or cannot access your device anymore.",
         "paragraph-2": "Write down the key or print it. Keep it in a safe place and do not share it with anyone."
       },
-      "secret-key": "Write down the key on paper and store it in a safe place."
+      "secret-key": "Write down the key on paper and store it in a safe place.",
+      "tap-to-copy": "Tap to copy"
     },
     "textfield": {
       "password": {
