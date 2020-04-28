@@ -41,7 +41,8 @@ declare namespace IPC {
     SignTransaction: "SignTransaction"
     RemoveKey: "RemoveKey"
 
-    GetHardwareWalletAccounts: "GetHardwareWalletAccounts"
+    HardwareWalletAccountAdded: "HardwareWalletAccountAdded"
+    HardwareWalletAccountRemoved: "HardwareWalletAccountRemoved"
     SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet"
   }
 
@@ -87,8 +88,13 @@ declare namespace IPC {
     [Messages.SignTransaction]: (internalAccountID: string, transactionXDR: string, password: string) => string
     [Messages.RemoveKey]: (keyID: string) => void
 
-    [Messages.GetHardwareWalletAccounts]: () => HardwareWalletAccount[]
-    [Messages.SignTransactionWithHardwareWallet]: (accountIndex: number, transactionXDR: string) => string
+    [Messages.HardwareWalletAccountAdded]: () => HardwareWalletAccount
+    [Messages.HardwareWalletAccountRemoved]: () => HardwareWalletAccount
+    [Messages.SignTransactionWithHardwareWallet]: (
+      walletID: string,
+      accountIndex: number,
+      transactionXDR: string
+    ) => string
   }
 
   export type MessageArgs<Message extends keyof MessageType> = MessageSignatures[Message] extends () => any

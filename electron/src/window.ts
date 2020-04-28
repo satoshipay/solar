@@ -8,6 +8,7 @@ let openWindows: BrowserWindow[] = []
 // start protocol handler
 import * as protocolHandler from "./protocol-handler"
 import { Messages } from "./shared/ipc"
+import { subscribeHardwareWalletChange } from "./ipc/storage"
 
 export function createMainWindow() {
   if (process.platform !== "darwin") {
@@ -55,7 +56,7 @@ export function createMainWindow() {
   })
 
   // subscribe this window to deeplink urls
-  const unsubscribe = protocolHandler.subscribe(url => {
+  const unsubscribeProtocolHandler = protocolHandler.subscribe(url => {
     window.webContents.send(Messages.DeepLinkURL, url)
     if (process.platform === "linux") {
       // needed for minimized windows to come to the foreground
@@ -66,10 +67,19 @@ export function createMainWindow() {
     window.show()
   })
 
+  const unsubscribeHardwareWalletChange = subscribeHardwareWalletChange(event => {
+    if (event.type === "add") {
+      window.webContents.send(Messages.HardwareWalletAccountAdded, event.account)
+    } else if (event.type === "remove") {
+      window.webContents.send(Messages.HardwareWalletAccountRemoved, event.account)
+    }
+  })
+
   // unsubscribe on window close
   window.on("closed", () => {
     protocolHandler.windowDestroyed()
-    unsubscribe()
+    unsubscribeProtocolHandler()
+    unsubscribeHardwareWalletChange()
   })
 
   window.webContents.on("did-finish-load", () => {
