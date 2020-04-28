@@ -39,6 +39,10 @@ export function subscribeToMessages<Message extends keyof IPC.MessageType>(
   // subscribing to deep link urls is the only use case right now
   if (messageType === Messages.DeepLinkURL) {
     return subscribeToDeepLinkURLs(callback)
+  } else if (messageType === Messages.HardwareWalletAccountAdded) {
+    return subscribeToHardwareAccountAdded(callback)
+  } else if (messageType === Messages.HardwareWalletAccountRemoved) {
+    return subscribeToHardwareAccountRemoved(callback)
   } else {
     return () => undefined
   }
@@ -109,7 +113,12 @@ const defaultTestingKeys: KeysData<PublicKeyData> = {
 }
 
 const hardwareWalletTestingKeys: HardwareWalletAccount[] = [
-  { accountIndex: 0, name: "Ledger Account #1", publicKey: "GAP4SFKVFVKENJ7B7VORAYKPB3CJIAJ2LMKDJ22ZFHIAIVYQOR6W3CXF" }
+  {
+    accountIndex: 0,
+    name: "Ledger Account #1",
+    publicKey: "GAP4SFKVFVKENJ7B7VORAYKPB3CJIAJ2LMKDJ22ZFHIAIVYQOR6W3CXF",
+    walletID: "ledger-0"
+  }
 ]
 
 initKeyStore()
@@ -130,8 +139,6 @@ function initKeyStore() {
   callHandlers[Messages.RemoveKey] = keyStore.removeKey
   callHandlers[Messages.SaveKey] = keyStore.saveKey
   callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData
-
-  callHandlers[Messages.GetHardwareWalletAccounts] = () => hardwareWalletTestingKeys
 
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
@@ -204,5 +211,22 @@ function subscribeToDeepLinkURLs(callback: (url: string) => void) {
   }
 
   // no way to unsubscribe
+  return () => undefined
+}
+
+function subscribeToHardwareAccountAdded(callback: (account: HardwareWalletAccount) => void) {
+  for (const account of hardwareWalletTestingKeys) {
+    callback(account)
+  }
+  return () => undefined
+}
+
+function subscribeToHardwareAccountRemoved(callback: (account: HardwareWalletAccount) => void) {
+  // Remove accounts after delay (for testing purposes only)
+  for (const account of hardwareWalletTestingKeys) {
+    setTimeout(() => {
+      callback(account)
+    }, 1000 * 60)
+  }
   return () => undefined
 }
