@@ -2,6 +2,8 @@ import React from "react"
 import { Keypair, Transaction } from "stellar-sdk"
 import { WrongPasswordError, CustomError } from "~Generic/lib/errors"
 import getKeyStore, { KeyStoreAPI } from "~Platform/key-store"
+import { subscribeToMessages } from "~Platform/ipc"
+import { Messages } from "~shared/ipc"
 import { trackError } from "./notifications"
 
 export interface Account {
@@ -91,7 +93,7 @@ async function createHardwareWalletAccountInstance(
   hardwareWalletAccount: HardwareWalletAccount
 ) {
   const account: Account = {
-    id: `hardware-${hardwareWalletAccount.accountIndex}`,
+    id: `hardware-${hardwareWalletAccount.walletID}-${hardwareWalletAccount.accountIndex}`,
     isHardwareWalletAccount: true,
     name: hardwareWalletAccount.name,
     publicKey: hardwareWalletAccount.publicKey,
@@ -106,7 +108,11 @@ async function createHardwareWalletAccountInstance(
     },
 
     async signTransaction(transaction: Transaction) {
-      return keyStore.signTransactionWithHardwareWallet(Number(this.id), transaction)
+      return keyStore.signTransactionWithHardwareWallet(
+        hardwareWalletAccount.walletID,
+        hardwareWalletAccount.accountIndex,
+        transaction
+      )
     }
   }
   return account
@@ -177,29 +183,36 @@ export function AccountsProvider(props: Props) {
     const keyStore = getKeyStore()
 
     try {
-      keyStore
-        .getKeyIDs()
-        .then(async keyIDs => {
-          const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
-          setNetworkSwitch(getInitialNetwork(loadedAccounts))
-          return loadedAccounts
-        })
-        .then(localAccounts => {
-          keyStore
-            .getHardwareWallets()
-            .then(async walletAccounts => {
-              const hwAccounts = await Promise.all(
-                walletAccounts.map(account => createHardwareWalletAccountInstance(keyStore, account))
-              )
-              setAccounts(localAccounts.concat(...hwAccounts))
-            })
-            .catch(trackError)
-        })
+      keyStore.getKeyIDs().then(async keyIDs => {
+        const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
+        setAccounts(prevAccounts => [...prevAccounts, ...loadedAccounts])
+        setNetworkSwitch(getInitialNetwork(loadedAccounts))
+      })
     } catch (error) {
       trackError(error)
     }
 
-    const unsubscribe = () => undefined
+    const unsubscribeAddAccountEvents = subscribeToMessages(
+      Messages.HardwareWalletAccountAdded,
+      async (account: HardwareWalletAccount) => {
+        const initializedAccount = await createHardwareWalletAccountInstance(keyStore, account)
+        setAccounts(prevAccounts => [...prevAccounts, initializedAccount])
+      }
+    )
+
+    const unsubscribeRemoveAccountEvents = subscribeToMessages(
+      Messages.HardwareWalletAccountRemoved,
+      (account: HardwareWalletAccount) => {
+        const removedAccountID = `hardware-${account.walletID}-${account.accountIndex}`
+        setAccounts(prevAccounts => prevAccounts.filter(acc => acc.id !== removedAccountID))
+      }
+    )
+
+    const unsubscribe = () => {
+      unsubscribeAddAccountEvents()
+      unsubscribeRemoveAccountEvents()
+    }
+
     return unsubscribe
   }, [])
 
