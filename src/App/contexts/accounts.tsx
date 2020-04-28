@@ -183,11 +183,24 @@ export function AccountsProvider(props: Props) {
     const keyStore = getKeyStore()
 
     try {
-      keyStore.getKeyIDs().then(async keyIDs => {
-        const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
-        setAccounts(prevAccounts => [...prevAccounts, ...loadedAccounts])
-        setNetworkSwitch(getInitialNetwork(loadedAccounts))
-      })
+      keyStore
+        .getKeyIDs()
+        .then(async keyIDs => {
+          const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
+          setNetworkSwitch(getInitialNetwork(loadedAccounts))
+          return loadedAccounts
+        })
+        .then(localAccounts => {
+          keyStore
+            .getHardwareWalletAccounts()
+            .then(async walletAccounts => {
+              const hwAccounts = await Promise.all(
+                walletAccounts.map(account => createHardwareWalletAccountInstance(keyStore, account))
+              )
+              setAccounts(localAccounts.concat(...hwAccounts))
+            })
+            .catch(trackError)
+        })
     } catch (error) {
       trackError(error)
     }
@@ -195,8 +208,14 @@ export function AccountsProvider(props: Props) {
     const unsubscribeAddAccountEvents = subscribeToMessages(
       Messages.HardwareWalletAccountAdded,
       async (account: HardwareWalletAccount) => {
-        const initializedAccount = await createHardwareWalletAccountInstance(keyStore, account)
-        setAccounts(prevAccounts => [...prevAccounts, initializedAccount])
+        const initializedAccountInstance = await createHardwareWalletAccountInstance(keyStore, account)
+        setAccounts(prevAccounts => {
+          if (!prevAccounts.includes(initializedAccountInstance)) {
+            return [...prevAccounts, initializedAccountInstance]
+          } else {
+            return prevAccounts
+          }
+        })
       }
     )
 

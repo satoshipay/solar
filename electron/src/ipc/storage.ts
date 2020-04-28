@@ -200,3 +200,13 @@ subscribeLedgerDeviceConnectionChanges({
   // tslint:disable-next-line: no-console
   error: console.error
 })
+
+expose(Messages.GetHardwareWalletAccounts, function getHardwareWalletAccounts() {
+  const allAccounts: HardwareWalletAccount[] = []
+
+  for (const [, value] of Object.entries(hardwareWalletAccounts)) {
+    allAccounts.push(...value)
+  }
+
+  return allAccounts
+})

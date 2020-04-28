@@ -140,6 +140,8 @@ function initKeyStore() {
   callHandlers[Messages.SaveKey] = keyStore.saveKey
   callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData
 
+  callHandlers[Messages.GetHardwareWalletAccounts] = () => hardwareWalletTestingKeys
+
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
       const account = keyStore.getPublicKeyData(internalAccountID)
