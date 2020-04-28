@@ -1,12 +1,18 @@
 import { app } from "electron"
 import isDev from "electron-is-dev"
 import Store from "electron-store"
+import events from "events"
 import { createStore } from "key-store"
 import generateID from "nanoid/generate"
 import * as path from "path"
 import { Keypair, Networks, Transaction } from "stellar-sdk"
 import { Messages } from "../shared/ipc"
-import { hasLedgerHardwareWallet, signTransactionWithLedger, getLedgerPublicKey } from "../ledger"
+import {
+  getLedgerPublicKey,
+  signTransactionWithLedger,
+  subscribeLedgerDeviceConnectionChanges,
+  LedgerWallet
+} from "../ledger"
 import { expose } from "./_ipc"
 
 // Use legacy path to not break backwards-compatibility
@@ -80,15 +86,20 @@ expose(Messages.SignTransaction, function signTransaction(internalAccountID, tra
   }
 })
 
-expose(Messages.SignTransactionWithHardwareWallet, async function signTransaction(accountIndex, transactionXDR) {
+expose(Messages.SignTransactionWithHardwareWallet, async function signTransaction(
+  walletID,
+  accountIndex,
+  transactionXDR
+) {
   try {
     const networkPassphrase = Networks.PUBLIC
     const transaction = new Transaction(transactionXDR, networkPassphrase)
 
-    if (await hasLedgerHardwareWallet()) {
-      await signTransactionWithLedger(accountIndex, transaction)
+    const wallet = ledgerWallets.find(w => w.id === walletID)
+    if (wallet) {
+      await signTransactionWithLedger(wallet.transport, accountIndex, transaction)
     } else {
-      throw Error("Could not find a supported hardware wallet")
+      throw Error("Could not find hardware wallet with ID:" + walletID)
     }
 
     return transaction
@@ -133,24 +144,59 @@ expose(Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatu
 ////////////////////
 // Hardware wallets:
 
-expose(Messages.GetHardwareWalletAccounts, async function getHardwareWallets() {
-  const hardwareWallets: HardwareWalletAccount[] = []
+let ledgerWallets: LedgerWallet[] = []
+const hardwareWalletAccounts: { [walletId: string]: HardwareWalletAccount[] } = {}
 
-  if (await hasLedgerHardwareWallet()) {
-    const ledgerWallets = (await Promise.all(
+const accountEventEmitter = new events.EventEmitter()
+const accountEventChannel = "hw-wallet:change"
+
+interface WalletChangeEvent {
+  type: "add" | "remove"
+  account: HardwareWalletAccount
+}
+
+export function subscribeHardwareWalletChange(subscribeCallback: (event: WalletChangeEvent) => void) {
+  accountEventEmitter.on(accountEventChannel, subscribeCallback)
+  const unsubscribe = () => accountEventEmitter.removeListener(accountEventChannel, subscribeCallback)
+  return unsubscribe
+}
+
+subscribeLedgerDeviceConnectionChanges({
+  add: async ledgerWallet => {
+    ledgerWallets.push(ledgerWallet)
+
+    const ledgerWalletAccounts = (await Promise.all(
+      // look for up to 10 accounts on the ledger device
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(async accountIndex =>
-        getLedgerPublicKey(accountIndex)
-          .then(publicKey => ({
-            accountIndex,
-            name: `Ledger Wallet #${accountIndex + 1}`,
-            publicKey
-          }))
+        getLedgerPublicKey(ledgerWallet.transport, accountIndex)
+          .then(publicKey => {
+            const account: HardwareWalletAccount = {
+              accountIndex,
+              name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${accountIndex + 1}`,
+              publicKey,
+              walletID: ledgerWallet.id
+            }
+            return account
+          })
           .catch(() => undefined)
       )
     ).then(values => values.filter(value => value))) as HardwareWalletAccount[]
 
-    hardwareWallets.push(...ledgerWallets)
-  }
+    hardwareWalletAccounts[ledgerWallet.id] = ledgerWalletAccounts
 
-  return hardwareWallets
+    for (const account of ledgerWalletAccounts) {
+      accountEventEmitter.emit(accountEventChannel, { type: "add", account })
+    }
+  },
+  remove: wallet => {
+    ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
+    const removedAccounts = hardwareWalletAccounts[wallet.id]
+    delete hardwareWalletAccounts[wallet.id]
+
+    for (const account of removedAccounts) {
+      accountEventEmitter.emit(accountEventChannel, { type: "remove", account })
+    }
+  },
+  // tslint:disable-next-line: no-console
+  error: console.error
 })
