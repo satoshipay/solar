@@ -13,4 +13,5 @@ declare interface HardwareWalletAccount {
   accountIndex: number
   name: string
   publicKey: string
+  walletID: string
 }
