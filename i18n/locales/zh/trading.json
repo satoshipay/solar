@@ -14,7 +14,7 @@
     }
   },
   "advanced": {
-    "header": "高级"
+    "header": "进阶"
   },
   "inputs": {
     "estimated-costs": {
@@ -49,11 +49,11 @@
   "no-assets-info": "这个帐户还没有使用除XLM以外的任何资产.",
   "title": "Trade",
   "trading-price": {
-    "default-label": "价格 (limit)",
-    "label": "价格 {{unit}} (limit)"
+    "default-label": "(最高)价格",
+    "label": "每个{{unit}}的(最高)价格"
   },
   "validation": {
-    "primary-amount-missing": "未指定金额.",
+    "primary-amount-missing": "未指定数量.",
     "primary-asset-missing": "未选择资产.",
     "secondary-asset-missing": "未选择资产.",
     "invalid-amount": "指定的数量无效.",
