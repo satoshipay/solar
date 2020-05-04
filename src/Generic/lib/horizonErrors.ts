@@ -44,6 +44,8 @@ export function explainSubmissionErrorResponse(response: TxSubmissionResponse | 
       )
     }
     // TODO: Handle more result codes
+  } else if (response.status === 500) {
+    return augment(Error(t("generic.error.submission-error.internal-server-error")))
   } else if (response.status === 504) {
     return augment(Error(t("generic.error.submission-error.timeout")))
   }
