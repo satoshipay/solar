@@ -182,7 +182,7 @@ const AssetDetails = React.memo(function AssetDetails({ account, asset, metadata
             <ReadOnlyTextfield
               disableUnderline
               fullWidth
-              label={t("account.asset-details.general.redemption-instructions")}
+              label={t("account.asset-details.general.redemption-instructions.label")}
               margin="dense"
               multiline
               value={metadata.redemption_instructions}

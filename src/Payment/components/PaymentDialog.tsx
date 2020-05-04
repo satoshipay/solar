@@ -56,7 +56,7 @@ function PaymentDialog(props: Props) {
           <MainTitle
             title={
               <span>
-                {t("payment.title")}
+                {t("payment.title.send")}
                 {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
               </span>
             }
