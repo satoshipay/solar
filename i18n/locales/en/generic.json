@@ -57,7 +57,8 @@
         "tx_bad_seq": "Sequence number mismatch. Please re-create the transaction.",
         "tx_insufficient_balance": "Insufficient balance. Balance would fall below the minimum reserve.",
         "tx_too_late": "Transaction draft has expired. Try again."
-      }
+      },
+      "timeout": "The server did not respond. Please try again."
     }
   },
   "qr-reader": {
