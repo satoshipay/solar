@@ -21,7 +21,7 @@ import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import Portal from "~Generic/components/Portal"
 import { useHorizon } from "~Generic/hooks/stellar"
-import { useLiveOrderbook } from "~Generic/hooks/stellar-subscriptions"
+import { useLiveOrderbook, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
@@ -94,10 +94,18 @@ function TradingForm(props: Props) {
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
 
-  const calculation = useCalculation(form.getValues(), tradePair, priceMode, props.accountData, props.primaryAction)
+  const calculation = useCalculation(
+    form.getValues(),
+    tradePair,
+    priceMode,
+    props.accountData,
+    props.primaryAction,
+    openOrders.length
+  )
 
   const {
     maxPrimaryAmount,
