@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
-import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
+import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
 import { useDialogActions } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { getAssetsFromBalances } from "~Generic/lib/stellar"
@@ -20,6 +20,7 @@ interface Props {
   accountData: AccountData
   horizon: Server
   onClose: () => void
+  openOrdersCount: number
   sendTransaction: (transaction: Transaction) => Promise<any>
 }
 
@@ -73,6 +74,7 @@ function PaymentDialog(props: Props) {
         actionsRef={dialogActionsRef}
         onCancel={props.onClose}
         onSubmit={handleSubmit}
+        openOrdersCount={props.openOrdersCount}
         testnet={props.account.testnet}
         trustedAssets={trustedAssets}
         txCreationPending={txCreationPending}
@@ -83,6 +85,8 @@ function PaymentDialog(props: Props) {
 
 function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+
   const closeAfterTimeout = () => {
     // Close automatically a second after successful submission
     setTimeout(() => props.onClose(), 1000)
@@ -90,7 +94,13 @@ function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
       {({ horizon, sendTransaction }) => (
-        <PaymentDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
+        <PaymentDialog
+          {...props}
+          accountData={accountData}
+          horizon={horizon}
+          openOrdersCount={openOrders.length}
+          sendTransaction={sendTransaction}
+        />
       )}
     </TransactionSender>
   )

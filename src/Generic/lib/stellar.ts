@@ -133,6 +133,17 @@ export function getAccountMinimumBalance(
     .mul(baseReserve)
 }
 
+export function getSpendableBalance(accountMinimumBalance: BigNumber, balanceLine?: Horizon.BalanceLine) {
+  if (balanceLine !== undefined) {
+    const fullBalance = BigNumber(balanceLine.balance)
+    return balanceLine.asset_type === "native"
+      ? fullBalance.minus(accountMinimumBalance).minus(balanceLine.selling_liabilities)
+      : fullBalance.minus(balanceLine.selling_liabilities)
+  } else {
+    return BigNumber(0)
+  }
+}
+
 export function getAssetsFromBalances(balances: Horizon.BalanceLine[]) {
   return balances.map(balance =>
     balance.asset_type === "native"

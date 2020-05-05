@@ -13,7 +13,7 @@ import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
 import { AccountData } from "~Generic/lib/account"
 import { matchesRoute } from "~Generic/lib/routes"
-import { stringifyAsset, getAccountMinimumBalance } from "~Generic/lib/stellar"
+import { stringifyAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
 import { sortBalances } from "~Generic/lib/balances"
 import MainTitle from "~Generic/components/MainTitle"
 import ViewLoading from "~Generic/components/ViewLoading"
@@ -101,9 +101,10 @@ const NativeBalanceItems = React.memo(function NativeBalanceItems(props: NativeB
           ...props.balance,
           balance: BigNumber(props.balance.balance).eq(0)
             ? "0"
-            : BigNumber(props.balance.balance)
-                .minus(getAccountMinimumBalance(props.accountData, props.openOffers.length))
-                .toString()
+            : getSpendableBalance(
+                getAccountMinimumBalance(props.accountData, props.openOffers.length),
+                props.balance
+              ).toString()
         }}
         hideLogo
         onClick={() => props.onOpenAssetDetails(Asset.native())}
