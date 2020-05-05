@@ -190,7 +190,8 @@ export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean
         return netWorker.subscribeToOrderbook(horizonURL, stringifyAsset(selling), stringifyAsset(buying))
       }
     }
-  }, [buying, horizonURL, netWorker, selling])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stringifyAsset(buying), horizonURL, netWorker, stringifyAsset(selling)])
 
   return useDataSubscription(applyOrderbookUpdate, get, set, observe)
 }
