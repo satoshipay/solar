@@ -223,7 +223,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         inputRef={form.register({
           required: t<string>("payment.validation.no-price"),
           pattern: { value: /^[0-9]+(\.[0-9]+)?$/, message: t<string>("payment.validation.invalid-price") },
-          validate: value => BigNumber(value).lt(spendableBalance) || t<string>("payment.validation.not-enough-funds")
+          validate: value => BigNumber(value).lte(spendableBalance) || t<string>("payment.validation.not-enough-funds")
         })}
         label={form.errors.amount ? form.errors.amount.message : "Amount"}
         margin="normal"
