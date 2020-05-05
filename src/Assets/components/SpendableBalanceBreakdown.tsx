@@ -161,7 +161,7 @@ function SpendableBalanceBreakdown(props: Props) {
     <List style={{ padding: 0 }}>
       <BreakdownHeadline right={t("account.balance-details.spendable-balances.headline")} />
       <BreakdownItem
-        amount={rawBalance.toFixed(1)}
+        amount={rawBalance.toFixed(4)}
         primary={t("account.balance-details.spendable-balances.total-balance.primary")}
         secondary={t("account.balance-details.spendable-balances.total-balance.secondary")}
         style={props.style}
