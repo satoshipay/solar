@@ -3,7 +3,7 @@ import nanoid from "nanoid"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { Asset, Horizon, Memo, MemoType, Server, Transaction } from "stellar-sdk"
+import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
@@ -13,7 +13,7 @@ import { useFederationLookup } from "~Generic/hooks/stellar"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
-import { findMatchingBalanceLine, getAccountMinimumBalance } from "~Generic/lib/stellar"
+import { findMatchingBalanceLine, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
 import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "~Generic/lib/transaction"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
@@ -49,17 +49,6 @@ function createMemo(memoType: MemoType, memoValue: string) {
   }
 }
 
-function getSpendableBalance(accountMinimumBalance: BigNumber, balanceLine?: Horizon.BalanceLine) {
-  if (balanceLine !== undefined) {
-    const fullBalance = BigNumber(balanceLine.balance)
-    return balanceLine.asset_type === "native"
-      ? fullBalance.minus(accountMinimumBalance).minus(balanceLine.selling_liabilities)
-      : fullBalance.minus(balanceLine.selling_liabilities)
-  } else {
-    return BigNumber(0)
-  }
-}
-
 interface PaymentFormProps {
   accountData: AccountData
   actionsRef: RefStateObject
@@ -68,6 +57,7 @@ interface PaymentFormProps {
     spendableBalance: BigNumber,
     wellknownAccount?: AccountRecord
   ) => void
+  openOrdersCount: number
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
@@ -98,9 +88,8 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const formValues = form.watch()
   const { setValue } = form
 
-  // FIXME: Pass no. of open offers to getAccountMinimumBalance()
   const spendableBalance = getSpendableBalance(
-    getAccountMinimumBalance(props.accountData),
+    getAccountMinimumBalance(props.accountData, props.openOrdersCount),
     findMatchingBalanceLine(props.accountData.balances, formValues.asset)
   )
 
@@ -331,6 +320,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
 interface Props {
   accountData: AccountData
   actionsRef: RefStateObject
+  openOrdersCount: number
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
