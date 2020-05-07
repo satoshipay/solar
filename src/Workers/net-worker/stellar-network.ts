@@ -293,7 +293,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
           const { accountData: initialAccountData } = await waitForAccountData(horizonURL, accountID)
 
           accountDataCache.set(cacheKey, initialAccountData)
-          latestSnapshot = createSnapshot(initialAccountData)
+          // Don't set `latestSnapshot` yet or the value will initially not be emitted
 
           return initialAccountData
         }
@@ -312,10 +312,21 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
           }
         }
         return merge(
-          subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID))),
+          // Update whenever we receive an account effect push notification
+          subscribeToAccountEffects(horizonURL, accountID).pipe(
+            map(() => fetchAccountData(horizonURL, accountID))
+          ),
+          // Update on new optimistic updates
           accountDataUpdates.observe().pipe(
             map(handleNewOptimisticUpdate),
             filter(accountData => Boolean(accountData))
+          ),
+          // Initially fetch data with a delay to make sure we don't miss anything
+          Observable.from([0]).pipe(
+            map(async () => {
+              await delay(1000)
+              return fetchAccountData(horizonURL, accountID)
+            })
           )
         )
       }
