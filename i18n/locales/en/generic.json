@@ -47,6 +47,8 @@
         "op_no_account": "Destination account does not exist.",
         "op_no_issuer": "Asset is invalid. Incorrect asset issuer.",
         "op_no_trust": "Destination account does not trust the asset you are attempting to send.",
+        "op_offer_not_found": "Offer does not exist.",
+        "op_self_not_allowed": "Account cannot trust assets issued by itself.",
         "op_underfunded": "Not enough funds to perform this operation."
       },
       "tx-result-code": {
