@@ -103,14 +103,14 @@ function TradingForm(props: Props) {
 
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
 
-  const calculation = useCalculation(
-    form.getValues(),
-    tradePair,
+  const calculation = useCalculation({
+    accountData: props.accountData,
+    openOrdersCount: openOrders.length,
     priceMode,
-    props.accountData,
-    props.primaryAction,
-    openOrders.length
-  )
+    primaryAction: props.primaryAction,
+    tradePair,
+    values: form.getValues()
+  })
 
   const {
     maxPrimaryAmount,
