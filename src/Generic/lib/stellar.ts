@@ -36,6 +36,9 @@ const MAX_INT64 = "9223372036854775807"
 
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
+// FIXME: Needs to be queried from horizon
+export const BASE_RESERVE = 0.5
+
 export const networkPassphrases = {
   mainnet: "Public Global Stellar Network ; September 2015",
   testnet: "Test SDF Network ; September 2015"
@@ -120,9 +123,6 @@ export function getAccountMinimumBalance(
   accountData: Pick<AccountData, "balances" | "data_attr" | "signers">,
   openOfferCount: number = 0
 ) {
-  // FIXME: Needs to be queried from horizon
-  const baseReserve = BigNumber(0.5)
-
   const trustlineCount = accountData.balances.filter(balance => balance.asset_type !== "native").length
 
   return BigNumber(1)
@@ -130,7 +130,7 @@ export function getAccountMinimumBalance(
     .add(Object.keys(accountData.data_attr).length)
     .add(openOfferCount)
     .add(trustlineCount)
-    .mul(baseReserve)
+    .mul(BASE_RESERVE)
 }
 
 export function getSpendableBalance(accountMinimumBalance: BigNumber, balanceLine?: Horizon.BalanceLine) {

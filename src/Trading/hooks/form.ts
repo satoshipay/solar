@@ -3,7 +3,7 @@ import { Asset, Horizon } from "stellar-sdk"
 import { AccountData } from "~Generic/lib/account"
 import { formatBalance, BalanceFormattingOptions } from "~Generic/lib/balances"
 import { calculateSpread, FixedOrderbookRecord } from "~Generic/lib/orderbook"
-import { balancelineToAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
+import { BASE_RESERVE, balancelineToAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
 import { useConversionOffers } from "./conversion"
 
 export const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
@@ -15,12 +15,10 @@ function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
-const baseReserve = BigNumber(0.5)
-
 function getSpendableBalanceWithoutBaseReserve(accountMinimumBalance: BigNumber, balanceLine: Horizon.BalanceLine) {
   const spendableBalance = getSpendableBalance(accountMinimumBalance, balanceLine).minus(
     // subtract base-reserve when asset_type is native because placing a new order requires 1 * base-reserve XLM
-    BigNumber(balanceLine.asset_type === "native" ? baseReserve : BigNumber(0))
+    BigNumber(balanceLine.asset_type === "native" ? BASE_RESERVE : BigNumber(0))
   )
 
   // return 0 if calculated balance is negative
