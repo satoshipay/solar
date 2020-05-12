@@ -53,10 +53,10 @@ function PasswordSetting(props: PasswordSettingProps) {
               error={Boolean(props.error)}
               fullWidth
               helperText={props.error}
-              label={t("create-account.inputs.password.label")}
+              label={t("create-account.inputs.password-repeat.label")}
               margin="normal"
               onChange={event => props.onRepeatPassword(event.target.value)}
-              placeholder={t("create-account.inputs.password.placeholder")}
+              placeholder={t("create-account.inputs.password-repeat.placeholder")}
               type="password"
               value={props.repeatedPassword}
             />
