@@ -43,7 +43,11 @@ function NewAccountSettings(props: NewAccountSettingsProps) {
   return (
     <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
       {props.accountCreation.import ? (
-        <SecretKeyImport onEnterSecretKey={updateSecretKey} secretKey={props.accountCreation.secretKey || ""} />
+        <SecretKeyImport
+          error={props.errors.secretKey}
+          onEnterSecretKey={updateSecretKey}
+          secretKey={props.accountCreation.secretKey || ""}
+        />
       ) : null}
       <PasswordSetting
         error={props.errors.password}
