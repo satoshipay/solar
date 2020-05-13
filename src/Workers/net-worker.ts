@@ -1,3 +1,4 @@
+import DebugLogger from "debug"
 import { expose, registerSerializer } from "threads"
 import { CustomErrorSerializer } from "../Generic/lib/errors"
 import { ConnectionErrorDescription, ConnectionErrorEvent, Exposed as Errors, ServiceID } from "./net-worker/errors"
@@ -9,9 +10,16 @@ import * as Network from "./net-worker/stellar-network"
 // TODO: resetAllSubscriptions() if a different horizon server has been selected
 // TODO: selectTransactionFeeWithFallback(), horizon.fetchTimebounds() (see createTransaction())
 
+const Logging = {
+  enableLogging(namespaces: string) {
+    DebugLogger.enable(namespaces)
+  }
+}
+
 const netWorker = {
   ...Ecosystem,
   ...Errors,
+  ...Logging,
   ...Multisig,
   ...Network,
   ...SEP10

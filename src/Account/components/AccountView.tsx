@@ -86,6 +86,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const showAccountCreation =
     matchesRoute(router.location.pathname, routes.createAccount(props.testnet), false) ||
     matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false) ||
+    matchesRoute(router.location.pathname, routes.joinSharedAccount(props.testnet), false) ||
     matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
 
   const showAccountCreationOptions = matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
@@ -111,6 +112,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     setAccountCreation,
     validateAccountCreation
   } = useAccountCreation({
+    cosigner: matchesRoute(router.location.pathname, routes.joinSharedAccount(props.testnet), false),
     import: matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false),
     testnet: props.testnet
   })

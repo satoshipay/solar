@@ -213,10 +213,6 @@ const theme = createMuiTheme({
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8
         },
-        "*:not($root):not(hr) + &": {
-          borderTopLeftRadius: 8,
-          borderTopRightRadius: 8
-        },
         "&:last-child": {
           borderBottomLeftRadius: 8,
           borderBottomRightRadius: 8

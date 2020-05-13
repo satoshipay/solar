@@ -37,12 +37,22 @@ function Stage2() {
               <Route exact path="/" component={AllAccountsPage} />
               <Route
                 exact
-                path={["/account/create/mainnet", "/account/import/mainnet", "/account/new/mainnet"]}
+                path={[
+                  "/account/create/mainnet",
+                  "/account/import/mainnet",
+                  "/account/join/mainnet",
+                  "/account/new/mainnet"
+                ]}
                 component={CreateMainnetAccount}
               />
               <Route
                 exact
-                path={["/account/create/testnet", "/account/import/testnet", "/account/new/testnet"]}
+                path={[
+                  "/account/create/testnet",
+                  "/account/import/testnet",
+                  "/account/join/testnet",
+                  "/account/new/testnet"
+                ]}
                 component={CreateTestnetAccount}
               />
               <Route
