@@ -22,7 +22,7 @@ const keyStore: KeyStoreAPI = {
       .toXDR("base64")
       .toString("base64")
     const signedXDR = await call(Messages.SignTransaction, accountID, txXDR, password)
-    return new Transaction(signedXDR)
+    return new Transaction(signedXDR, transaction.networkPassphrase)
   },
   saveKey: (keyID, password, privateData, publicData) =>
     call(Messages.SaveKey, keyID, password, privateData, publicData),
