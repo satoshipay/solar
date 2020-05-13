@@ -1,6 +1,7 @@
 export interface AccountCreation {
+  cosigner: boolean
+  cosignerOf?: string
   import: boolean
-  multisig: boolean
   name: string
   password: string
   repeatedPassword: string

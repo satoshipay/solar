@@ -1,10 +1,12 @@
 import React from "react"
 import { Keypair, Transaction } from "stellar-sdk"
-import { WrongPasswordError, CustomError } from "~Generic/lib/errors"
+import { CustomError, WrongPasswordError } from "~Generic/lib/errors"
 import getKeyStore, { KeyStoreAPI } from "~Platform/key-store"
 import { trackError } from "./notifications"
 
 export interface Account {
+  accountID: string // is either `cosignerOf` or `publicKey`
+  cosignerOf?: string
   id: string
   name: string
   publicKey: string
@@ -17,6 +19,7 @@ export interface Account {
 export type NetworkID = "mainnet" | "testnet"
 
 interface NewAccountData {
+  cosignerOf?: string
   id?: string
   name: string
   keypair: Keypair
@@ -42,11 +45,16 @@ interface ContextValue {
 async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
   const publicData = await keyStore.getPublicKeyData(keyID)
   const account: Account = {
+    cosignerOf: publicData.cosignerOf,
     id: keyID,
     name: publicData.name,
     publicKey: publicData.publicKey,
     requiresPassword: publicData.password,
     testnet: publicData.testnet,
+
+    get accountID() {
+      return account.cosignerOf || account.publicKey
+    },
 
     async getPrivateKey(password: string | null) {
       const requiresPassword = publicData.password
@@ -98,6 +106,7 @@ async function createAccountInKeyStore(accounts: Account[], accountData: NewAcco
     accountData.password || "",
     { privateKey: accountData.keypair.secret() },
     {
+      cosignerOf: accountData.cosignerOf,
       name: accountData.name,
       password: accountData.password !== null,
       publicKey: accountData.keypair.publicKey(),

@@ -3,6 +3,7 @@ import { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { Keypair } from "stellar-sdk"
 import { Account, AccountsContext } from "~App/contexts/accounts"
+import { CustomError } from "~Generic/lib/errors"
 import { AccountCreation, AccountCreationErrors } from "../types/types"
 
 function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
@@ -46,6 +47,7 @@ function validateAccountCreation(t: TFunction, accounts: Account[], accountCreat
 }
 
 interface UseAccountCreationOptions {
+  cosigner: boolean
   import: boolean
   testnet: boolean
 }
@@ -56,8 +58,8 @@ function useAccountCreation(options: UseAccountCreationOptions) {
   const [accountCreationErrors, setAccountCreationErrors] = React.useState<AccountCreationErrors>({})
 
   const [currentAccountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
+    cosigner: options.cosigner,
     import: options.import,
-    multisig: false,
     name: getNewAccountName(t, accounts, options.testnet),
     password: "",
     repeatedPassword: "",
@@ -66,9 +68,17 @@ function useAccountCreation(options: UseAccountCreationOptions) {
   }))
 
   const createNewAccount = async (accountCreation: AccountCreation) => {
+    if (accountCreation.cosigner && !accountCreation.cosignerOf) {
+      throw CustomError(
+        "CosignerLackingKeyError",
+        "Cannot add key pair as co-signer of an account, since no public key for the account to co-sign has been provided"
+      )
+    }
+
     const keypair = accountCreation.import ? Keypair.fromSecret(accountCreation.secretKey!) : Keypair.random()
 
     const account = await createAccount({
+      cosignerOf: accountCreation.cosignerOf,
       name: accountCreation.name,
       keypair,
       password: accountCreation.requiresPassword ? accountCreation.password : null,

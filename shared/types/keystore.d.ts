@@ -1,4 +1,5 @@
 declare interface PublicKeyData {
+  cosignerOf?: string
   name: string
   password: boolean
   publicKey: string

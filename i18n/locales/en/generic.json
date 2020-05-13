@@ -13,6 +13,7 @@
     },
     "bad-response-error": "Bad response ({{status}}) from {{server}} server",
     "bad-transaction-error": "Bad transaction given. Expected a Transaction or TransactionRecord, but got: {{transaction}}",
+    "cosigner-lacking-key": "Cannot add key pair as co-signer of an account, since no public key for the account to co-sign has been provided",
     "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
     "existing-account-error": "An account with that name does already exist.",
     "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",

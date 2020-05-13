@@ -8,14 +8,17 @@ const netWorker = new Worker("./net-worker.ts")
 
 registerSerializer(CustomErrorSerializer)
 
-function spawnNetWorker() {
+async function spawnNetWorker() {
   window.addEventListener("message", event => {
     if (event.data && ["app:pause", "app:resume"].indexOf(event.data) > -1) {
       netWorker.postMessage(event.data)
     }
   })
 
-  return spawn<NetWorker>(netWorker)
+  const worker = await spawn<NetWorker>(netWorker)
+  await worker.enableLogging(localStorage.getItem("debug") || "")
+
+  return worker
 }
 
 async function spawnWorkers() {

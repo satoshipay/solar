@@ -1,3 +1,8 @@
+/**
+ * Contains the action buttons for the account creation flow.
+ * It needs to be mounted outside of the actual account creation view.
+ */
+
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { makeStyles } from "@material-ui/core/styles"
@@ -60,6 +65,17 @@ function AccountCreationActions(props: AccountCreationActionsProps) {
               type="primary"
             >
               {t("create-account.action.import")}
+            </ActionButton>
+          )
+        } else if (matchesRoute(router.location.pathname, routes.joinSharedAccount(props.testnet))) {
+          return (
+            <ActionButton
+              className={buttonClassName}
+              icon={<CheckIcon style={{ fontSize: "120%" }} />}
+              onClick={props.onActionButtonClick}
+              type="primary"
+            >
+              {t("create-account.action.join-shared")}
             </ActionButton>
           )
         } else {
