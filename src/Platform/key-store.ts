@@ -17,10 +17,7 @@ const keyStore: KeyStoreAPI = {
   getPublicKeyData: keyID => call(Messages.GetPublicKeyData, keyID),
   getPrivateKeyData: (keyID, password) => call(Messages.GetPrivateKeyData, keyID, password),
   signTransaction: async (accountID, transaction, password) => {
-    const txXDR = transaction
-      .toEnvelope()
-      .toXDR("base64")
-      .toString("base64")
+    const txXDR = transaction.toEnvelope().toXDR("base64")
     const signedXDR = await call(Messages.SignTransaction, accountID, txXDR, password)
     return new Transaction(signedXDR, transaction.networkPassphrase)
   },

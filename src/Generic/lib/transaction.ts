@@ -113,7 +113,7 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   const txFee = Math.max(smartTxFee, options.minTransactionFee || 0)
 
   const builder = new TransactionBuilder(account, {
-    fee: txFee,
+    fee: String(txFee),
     memo: options.memo || undefined,
     timebounds,
     networkPassphrase
