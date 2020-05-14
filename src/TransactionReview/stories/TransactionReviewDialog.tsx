@@ -30,7 +30,7 @@ function buildTransaction(
   operations: xdr.Operation[],
   options?: Partial<TransactionBuilder.TransactionBuilderOptions>
 ) {
-  const builder = new TransactionBuilder(account, { fee: 100, ...options })
+  const builder = new TransactionBuilder(account, { fee: "100", ...options })
 
   for (const operation of operations) {
     builder.addOperation(operation)

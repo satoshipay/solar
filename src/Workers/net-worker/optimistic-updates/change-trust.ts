@@ -17,6 +17,7 @@ function addTrustline(
         balance: "0",
         buying_liabilities: "0",
         is_authorized: false,
+        is_authorized_to_maintain_liabilities: false,
         last_modified_ledger: 0,
         limit: operation.limit,
         selling_liabilities: "0"
