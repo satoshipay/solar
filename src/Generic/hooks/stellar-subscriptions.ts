@@ -1,6 +1,6 @@
 // tslint:disable:no-shadowed-variable
 
-import { unsubscribe, ObservableLike } from "observable-fns"
+import { ObservableLike } from "observable-fns"
 import React from "react"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
@@ -35,7 +35,7 @@ function useDataSubscriptions<DataT, UpdateT>(
   }
 
   React.useEffect(() => {
-    const subscriptions = items.map(item => {
+    items.map(item => {
       return item.observe().subscribe({
         next(update) {
           item.set(reducer(item.get(), update))
@@ -48,7 +48,10 @@ function useDataSubscriptions<DataT, UpdateT>(
       })
     })
 
-    return () => subscriptions.forEach(subscription => unsubscribe(subscription))
+    return () => {
+      // Don't unsubscribe to prevent missing updates (related to #1088)
+      // subscriptions.forEach(subscription => unsubscribe(subscription))
+    }
   }, [reducer, items, setRefreshCounter])
 
   return currentDataSets as DataT[]
