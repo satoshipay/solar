@@ -61,7 +61,7 @@ interface LumenDetailProps {
 }
 
 const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useAccountData(props.account.accountID, props.account.testnet)
   const classes = useDetailContentStyles()
   const { t } = useTranslation()
 
@@ -329,7 +329,7 @@ interface Props {
 }
 
 function AssetDetailsDialog(props: Props) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useAccountData(props.account.accountID, props.account.testnet)
   const asset = React.useMemo(() => parseAssetID(props.assetID), [props.assetID])
   const classes = useAssetDetailStyles()
   const isSmallScreen = useIsMobile()

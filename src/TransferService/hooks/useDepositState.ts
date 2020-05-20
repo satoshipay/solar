@@ -22,7 +22,7 @@ function createDeposit(account: Account, state: Omit<TransferStates.EnterBasics,
     ...(state.formValues as Record<string, string>),
     type: state.method
   }
-  return Deposit(state.transferServer, state.asset, account.publicKey, fields)
+  return Deposit(state.transferServer, state.asset, account.accountID, fields)
 }
 
 export function useDepositState(account: Account, closeDialog: () => void) {

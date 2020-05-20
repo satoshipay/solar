@@ -58,7 +58,7 @@ function createEffectHandlers(
           : Asset.native()
 
       const horizonURL = account.testnet ? testnetHorizonURL : mainnetHorizonURL
-      const openOffers = await netWorker.fetchAccountOpenOrders(horizonURL, account.publicKey)
+      const openOffers = await netWorker.fetchAccountOpenOrders(horizonURL, account.accountID)
 
       const orderOnlyPartiallyExecuted = openOffers._embedded.records.find(
         offer => String(offer.id) === String(effect.offer_id)
@@ -84,7 +84,7 @@ function createEffectHandlers(
       showNotification({ title, text: notificationBody }, () => router.history.push(routes.account(account.id)))
     },
     async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
-      if (effect.type === "account_credited" && effect.account === account.publicKey) {
+      if (effect.type === "account_credited" && effect.account === account.accountID) {
         const title = t("app.notification.desktop.received-payment.title", `Received payment | ${account.name}`, {
           account: account.name
         })

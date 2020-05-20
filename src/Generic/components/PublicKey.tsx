@@ -51,7 +51,7 @@ export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   const { accounts } = React.useContext(AccountsContext)
 
   const matchingLocalAccount = accounts.find(
-    account => account.publicKey === props.publicKey && account.testnet === props.testnet
+    account => account.accountID === props.publicKey && account.testnet === props.testnet
   )
 
   const style: React.CSSProperties = {

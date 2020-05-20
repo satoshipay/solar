@@ -70,8 +70,7 @@ const StyledBadge = (props: BadgeProps) => {
 
 function Badges(props: { account: Account }) {
   const { t } = useTranslation()
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const securityService = containsThirdPartySigner(accountData.signers)
 
   const multiSigIcon = securityService ? (

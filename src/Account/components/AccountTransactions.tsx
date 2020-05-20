@@ -67,12 +67,12 @@ function PendingMultisigTransactions(props: { account: Account }) {
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const { t } = useTranslation()
-  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const accountData = useLiveAccountData(account.accountID, account.testnet)
   const horizonURL = useHorizonURL(account.testnet)
   const isSmallScreen = useIsMobile()
   const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
-  const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
-  const fetchMoreTransactions = useOlderTransactions(account.publicKey, account.testnet)
+  const recentTxs = useLiveRecentTransactions(account.accountID, account.testnet)
+  const fetchMoreTransactions = useOlderTransactions(account.accountID, account.testnet)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
 

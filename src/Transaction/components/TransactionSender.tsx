@@ -208,7 +208,7 @@ class TransactionSender extends React.Component<Props, State> {
       onSubmissionFailure
     } = this.props
     try {
-      const thirdPartySecurityService = await isThirdPartyProtected(horizon, account.publicKey)
+      const thirdPartySecurityService = await isThirdPartyProtected(horizon, account.accountID)
       if (thirdPartySecurityService) {
         await this.submitTransactionToThirdPartyService(signedTx, thirdPartySecurityService)
       } else if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {

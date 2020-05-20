@@ -91,7 +91,7 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   const timeout = selectTransactionTimeout(options.accountData)
 
   const [accountMetadata, timebounds] = await Promise.all([
-    applyTimeout(netWorker.fetchAccountData(horizonURL, walletAccount.publicKey), 10000, () =>
+    applyTimeout(netWorker.fetchAccountData(horizonURL, walletAccount.accountID), 10000, () =>
       fail(`Fetching source account data timed out`)
     ),
     applyTimeout(netWorker.fetchTimebounds(horizonURL, timeout), 10000, () =>

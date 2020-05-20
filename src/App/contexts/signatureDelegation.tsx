@@ -22,7 +22,7 @@ const SignatureDelegationContext = React.createContext<ContextValue>({
 })
 
 function useSignatureRequestSubscription(multiSignatureServiceURL: string, accounts: Account[]) {
-  const accountIDs = React.useMemo(() => accounts.map(account => account.publicKey), [accounts])
+  const accountPubKeys = React.useMemo(() => accounts.map(account => account.publicKey), [accounts])
 
   const { ignoredSignatureRequests } = React.useContext(SettingsContext)
   const subscribersRef = React.useRef<SubscribersState>({ newRequestSubscribers: [] })
@@ -43,7 +43,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
       const { netWorker } = await workers
 
       netWorker
-        .fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
+        .fetchSignatureRequests(multiSignatureServiceURL, accountPubKeys)
         .then(requests => setPendingSignatureRequests(requests.reverse().map(deserializeSignatureRequest)))
         .catch(trackError)
 
@@ -51,7 +51,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
         return
       }
 
-      const signatureRequests = netWorker.subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs)
+      const signatureRequests = netWorker.subscribeToSignatureRequests(multiSignatureServiceURL, accountPubKeys)
 
       const subscription = signatureRequests.subscribe(event => {
         if (event.type === "NewSignatureRequest") {
@@ -77,7 +77,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 
     // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
     return () => unsubscribe()
-  }, [accountIDs, accounts.length, multiSignatureServiceURL])
+  }, [accountPubKeys, accounts.length, multiSignatureServiceURL])
 
   const subscribeToNewSignatureRequests = (callback: SignatureRequestCallback) => {
     subscribersRef.current.newRequestSubscribers.push(callback)

@@ -7,6 +7,7 @@ import { TransactionHistory } from "~Generic/hooks/_caches"
 import { useLiveRecentTransactions } from "~Generic/hooks/stellar-subscriptions"
 
 const account: Account = {
+  accountID: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
   id: "1",
   name: "Test account",
   publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
@@ -21,7 +22,7 @@ const account: Account = {
 }
 
 function SampleTransactions(props: { children: (history: TransactionHistory) => React.ReactElement<any> }) {
-  const history = useLiveRecentTransactions(account.publicKey, account.testnet)
+  const history = useLiveRecentTransactions(account.accountID, account.testnet)
   return props.children(history)
 }
 

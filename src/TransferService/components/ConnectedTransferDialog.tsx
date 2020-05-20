@@ -17,7 +17,7 @@ import TransferDialogLayout from "./TransferDialogLayout"
 const TransferDialog = React.lazy(() => import("./TransferDialog"))
 
 function ConnectedTransferDialog(props: Pick<TransferDialogProps, "account" | "onClose" | "type">) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
 
   return (
     <TransactionSender account={props.account}>

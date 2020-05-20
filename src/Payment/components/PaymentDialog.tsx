@@ -84,8 +84,8 @@ function PaymentDialog(props: Props) {
 }
 
 function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const { offers: openOrders } = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
+  const { offers: openOrders } = useLiveAccountOffers(props.account.accountID, props.account.testnet)
 
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>

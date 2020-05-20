@@ -186,12 +186,12 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
           formValues: {
             ...props.state.formValues,
             ...postprocessFormValues(formValues, props.state.method),
-            account: account.publicKey
+            account: account.accountID
           }
         })
       )
     },
-    [account.publicKey, actions, formValues, handleSubmission, props.state]
+    [account.accountID, actions, formValues, handleSubmission, props.state]
   )
 
   const methodMetadata = (() => {

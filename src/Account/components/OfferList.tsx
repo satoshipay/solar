@@ -214,7 +214,7 @@ const useStyles = makeStyles({
 })
 
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const classes = useStyles()
   const horizon = useHorizon(props.account.testnet)
   const offerHistory = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
@@ -264,7 +264,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
             {offerHistory.offers.map(offer => (
               <OfferListItem
                 key={offer.id}
-                accountPublicKey={props.account.publicKey}
+                accountPublicKey={props.account.accountID}
                 offer={offer}
                 onCancel={() => onCancel(offer)}
               />

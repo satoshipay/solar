@@ -96,7 +96,7 @@ interface BadgesProps {
 }
 
 export const Badges = React.memo(function Badges(props: BadgesProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
 
   const securityService = containsThirdPartySigner(accountData.signers)
   const multisig = accountData.signers.length > 1 ? (securityService ? securityService : "generic") : undefined
