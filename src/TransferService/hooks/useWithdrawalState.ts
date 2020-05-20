@@ -161,13 +161,13 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     instructions: WithdrawalInstructionsSuccess,
     amount: BigNumber
   ) => {
-    const accountData = await netWorker.fetchAccountData(horizonURL, account.publicKey)
+    const accountData = await netWorker.fetchAccountData(horizonURL, account.accountID)
 
     if (!accountData) {
       throw CustomError(
         "FetchAccountDataError",
-        `Cannot fetch account data of ${account.publicKey} from ${horizonURL}`,
-        { account: account.publicKey, horizon: horizonURL }
+        `Cannot fetch account data of ${account.accountID} from ${horizonURL}`,
+        { account: account.accountID, horizon: horizonURL }
       )
     }
 

@@ -102,7 +102,7 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   const timeout = selectTransactionTimeout(options.accountData)
 
   const [account, smartTxFee, timebounds] = await Promise.all([
-    applyTimeout(horizon.loadAccount(walletAccount.publicKey), 10000, () =>
+    applyTimeout(horizon.loadAccount(walletAccount.accountID), 10000, () =>
       fail(`Fetching source account data timed out`)
     ),
     applyTimeout(selectTransactionFeeWithFallback(horizon, fallbackFee), 5000, () => fallbackFee),

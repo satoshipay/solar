@@ -34,7 +34,7 @@ function AssetDetailsActions(props: Props) {
   const router = useRouter()
   const { t } = useTranslation()
 
-  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const accountData = useLiveAccountData(account.accountID, account.testnet)
 
   const balance = accountData.balances.find(
     bal => bal.asset_type !== "native" && bal.asset_issuer === asset.issuer && bal.asset_code === asset.code

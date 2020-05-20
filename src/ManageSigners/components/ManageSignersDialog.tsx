@@ -124,7 +124,7 @@ function ManageSignersDialog(props: Props) {
 }
 
 function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   return (
     <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (

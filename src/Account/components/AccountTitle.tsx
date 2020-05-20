@@ -93,7 +93,7 @@ interface BadgesProps {
 }
 
 export const Badges = React.memo(function Badges(props: BadgesProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
 
   return (
     <StaticBadges

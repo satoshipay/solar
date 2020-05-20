@@ -157,7 +157,7 @@ export function useLiveAccountEffects(accounts: Account[], handler: EffectHandle
   React.useEffect(() => {
     const subscriptions = accounts.map(account => {
       const horizonURL = account.testnet ? testnetHorizonURL : mainnetHorizonURL
-      const observable = netWorker.subscribeToAccountEffects(horizonURL, account.publicKey)
+      const observable = netWorker.subscribeToAccountEffects(horizonURL, account.accountID)
       const subscription = observable.subscribe(effect => effect && handler(account, effect))
       return subscription
     })

@@ -128,8 +128,8 @@ interface BalanceDetailsProps {
 }
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.accountID, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const { t } = useTranslation()

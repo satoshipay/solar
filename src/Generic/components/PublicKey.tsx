@@ -49,7 +49,7 @@ export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   const digits = getDigitCounts(props.variant)
   const { accounts } = React.useContext(AccountsContext)
 
-  const matchingLocalAccount = accounts.find(account => account.publicKey === props.publicKey)
+  const matchingLocalAccount = accounts.find(account => account.accountID === props.publicKey)
 
   const style: React.CSSProperties = {
     display: "inline",

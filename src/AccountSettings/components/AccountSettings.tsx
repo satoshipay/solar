@@ -83,7 +83,7 @@ interface Props {
 }
 
 function AccountSettings(props: Props) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const { t } = useTranslation()

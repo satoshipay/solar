@@ -94,7 +94,7 @@ interface AccountDeletionDialogProps {
 }
 
 function AccountDeletionDialog(props: AccountDeletionDialogProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const horizon = props.horizon
 
   const { accounts, deleteAccount } = React.useContext(AccountsContext)
@@ -125,7 +125,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       const transaction = await createTransaction(
         [
           Operation.accountMerge({
-            source: props.account.publicKey,
+            source: props.account.accountID,
             destination: selectedMergeAccount.publicKey
           })
         ],
@@ -183,7 +183,10 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           <AccountSelectionList
             disabled={!mergeAccountEnabled}
             accounts={accounts.filter(
-              account => account.publicKey !== props.account.publicKey && account.testnet === props.account.testnet
+              account =>
+                account.accountID !== props.account.accountID &&
+                account.publicKey !== props.account.publicKey &&
+                account.testnet === props.account.testnet
             )}
             testnet={props.account.testnet}
             onChange={setSelectedMergeAccount}
@@ -197,8 +200,9 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       isSmallScreen,
       t,
       accounts,
-      props.account.testnet,
-      props.account.publicKey
+      props.account.accountID,
+      props.account.publicKey,
+      props.account.testnet
     ]
   )
 

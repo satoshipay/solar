@@ -136,7 +136,7 @@ interface Props {
 }
 
 function SpendableBalanceBreakdown(props: Props) {
-  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.accountID, props.account.testnet)
   const { t } = useTranslation()
 
   const nativeBalance = props.accountData.balances.find(balance => balance.asset_type === "native")
