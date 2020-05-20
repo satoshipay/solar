@@ -1,6 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import Dialog from "@material-ui/core/Dialog"
+import Typography from "@material-ui/core/Typography"
 import AccountActions from "~Account/components/AccountActions"
 import AccountCreationActions from "~AccountCreation/components/AccountCreationActions"
 import NoPasswordConfirmation from "~AccountCreation/components/NoPasswordConfirmation"
@@ -16,13 +17,15 @@ import withFallback from "~Generic/hocs/withFallback"
 import PaymentDialog from "~Payment/components/PaymentDialog"
 import ReceivePaymentDialog from "~Payment/components/ReceivePaymentDialog"
 import ViewLoading from "~Generic/components/ViewLoading"
-import { Account, AccountsContext } from "../../App/contexts/accounts"
-import { trackError } from "../../App/contexts/notifications"
+import { Account, AccountsContext } from "~App/contexts/accounts"
+import { trackError } from "~App/contexts/notifications"
+import * as routes from "~App/routes"
+import { warningColor, FullscreenDialogTransition } from "~App/theme"
+import { ClickableAddress } from "~Generic/components/PublicKey"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { getLastArgumentFromURL } from "~Generic/lib/url"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "~App/routes"
-import { FullscreenDialogTransition } from "../../App/theme"
 import { InlineErrorBoundary, HideOnError } from "~Generic/components/ErrorBoundaries"
 
 const modules = {
@@ -69,6 +72,26 @@ const TransferDialog = withFallback(
   React.lazy(() => modules.TransferDialog),
   <ViewLoading />
 )
+
+const NotCosignerOnLedgerWarning = React.memo(function NotCosignerOnLedgerWarning(props: { account: Account }) {
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
+  const { t } = useTranslation()
+
+  if (!props.account || !accountData || accountData.signers.some(signer => signer.key === props.account?.publicKey)) {
+    // We are still waiting for the data or this key is in fact co-signer of the account
+    return null
+  }
+
+  return (
+    <VerticalLayout padding="16px" style={{ backgroundColor: warningColor, textAlign: "center" }}>
+      <Typography gutterBottom>{t("account.cosigner.not-cosigner-yet.note")}</Typography>
+      <Typography gutterBottom>{t("account.cosigner.not-cosigner-yet.label")}</Typography>
+      <Typography align="center" style={{ overflow: "hidden", textDecoration: "underline", textOverflow: "ellipsis" }}>
+        <ClickableAddress address={props.account.publicKey} testnet={props.account.testnet} />
+      </Typography>
+    </VerticalLayout>
+  )
+})
 
 interface AccountPageContentProps {
   account: Account | undefined
@@ -293,6 +316,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       <Section top brandColored grow={0} minHeight={headerHeight} shrink={0}>
         <React.Suspense fallback={<ViewLoading />}>{headerCard}</React.Suspense>
       </Section>
+      {props.account?.cosignerOf ? <NotCosignerOnLedgerWarning account={props.account} /> : null}
       <Section
         bottom={!isSmallScreen}
         style={{

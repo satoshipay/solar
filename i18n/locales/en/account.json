@@ -158,6 +158,12 @@
       "label": "Withdraw"
     }
   },
+  "cosigner": {
+    "not-cosigner-yet": {
+      "label": "Your public key:",
+      "note": "Your key is not yet a signer of the account. Please ask the account owner to add you."
+    }
+  },
   "purchase-lumens": {
     "legal-confirmation": {
       "action": {
