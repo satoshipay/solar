@@ -60,14 +60,6 @@ function OfferDescription(props: {
   const { t } = useTranslation()
   let prefix: string
 
-  if (amount.eq(0)) {
-    return (
-      <>
-        Delete offer: Sell {selling.code} for {buying.code}
-      </>
-    )
-  }
-
   if (offerId === "0") {
     prefix = `${t("account.transactions.transaction-list.offer-description.prefix.default")}: `
   } else if (amount.eq(0)) {
@@ -82,25 +74,25 @@ function OfferDescription(props: {
       {props.type === "manageBuyOffer"
         ? t(
             "account.transactions.transaction-list.offer-description.buy",
-            `Buy ${formatBalance(amount.toString())} ${buying.code} for ${formatBalance(
-              amount.mul(price).toString()
-            )} ${selling.code}`,
+            `Buy ${amount.eq(0) ? "" : formatBalance(amount.toString())} ${buying.code} for ${
+              amount.eq(0) ? "" : formatBalance(amount.mul(price).toString())
+            } ${selling.code}`,
             {
-              buyingAmount: formatBalance(amount.toString()),
+              buyingAmount: amount.eq(0) ? "" : formatBalance(amount.toString()),
               buyingCode: buying.code,
-              sellingAmount: formatBalance(amount.mul(price).toString()),
+              sellingAmount: amount.eq(0) ? "" : formatBalance(amount.mul(price).toString()),
               sellingCode: selling.code
             }
           )
         : t(
             "account.transactions.transaction-list.offer-description.sell",
-            `Sell ${formatBalance(amount.toString())} ${selling.code} for ${formatBalance(
-              amount.mul(price).toString()
-            )} ${buying.code}`,
+            `Sell ${amount.eq(0) ? "" : formatBalance(amount.toString())} ${selling.code} for ${
+              amount.eq(0) ? "" : formatBalance(amount.mul(price).toString())
+            } ${buying.code}`,
             {
-              buyingAmount: formatBalance(amount.mul(price).toString()),
+              buyingAmount: amount.eq(0) ? "" : formatBalance(amount.mul(price).toString()),
               buyingCode: buying.code,
-              sellingAmount: formatBalance(amount.toString()),
+              sellingAmount: amount.eq(0) ? "" : formatBalance(amount.toString()),
               sellingCode: selling.code
             }
           )}
