@@ -92,6 +92,12 @@ function TradingForm(props: Props) {
   const sendTransaction = props.sendTransaction
   const { primaryAsset, secondaryAsset } = form.watch()
 
+  React.useEffect(() => {
+    if (!primaryAsset && props.initialPrimaryAsset) {
+      form.setValue("primaryAsset", props.initialPrimaryAsset)
+    }
+  }, [form, primaryAsset, props.initialPrimaryAsset])
+
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
 
