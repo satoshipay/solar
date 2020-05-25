@@ -81,8 +81,9 @@ function TransferDialog(props: TransferDialogProps) {
           : assetInfo.withdraw && assetInfo.withdraw.enabled
       )
       .map(assetInfo => assetInfo.asset)
+      .filter(asset => trustedAssets.some(trustedAsset => trustedAsset.equals(asset)))
       .concat(props.type === "deposit" ? [Asset.native()] : [])
-  }, [assetTransferInfos, props.type])
+  }, [assetTransferInfos, props.type, trustedAssets])
 
   const contentProps = {
     ...props,
