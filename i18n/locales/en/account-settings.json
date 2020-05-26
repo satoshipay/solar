@@ -93,10 +93,7 @@
   },
   "manage-signers": {
     "action": {
-      "add-co-signer": {
-        "long": "Add Co-Signer",
-        "short": "Signer"
-      },
+      "add-signer": "Add Signer",
       "cancel": "Cancel",
       "apply": {
         "long": "Apply changes",
