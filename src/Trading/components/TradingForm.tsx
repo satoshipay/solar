@@ -204,7 +204,6 @@ function TradingForm(props: Props) {
             as={
               <AssetSelector
                 assets={assets}
-                autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
                 inputError={form.errors.primaryAsset && form.errors.primaryAsset.message}
                 label={
                   props.primaryAction === "buy"
@@ -225,7 +224,6 @@ function TradingForm(props: Props) {
             }}
           />
           <TextField
-            autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
             name="primaryAmountString"
             inputRef={form.register({
               required: t<string>("trading.validation.primary-amount-missing"),
