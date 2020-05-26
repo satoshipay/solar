@@ -14,16 +14,11 @@ import DialogBody from "~Layout/components/DialogBody"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
+import { MultisigEditorContext, SignersUpdate } from "./MultisigEditorContext"
 import SignersEditor from "./SignersEditor"
 
 const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
 const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
-
-export interface SignerUpdate {
-  signersToAdd: Horizon.AccountSigner[]
-  signersToRemove: Horizon.AccountSigner[]
-  weightThreshold: number
-}
 
 function getEffectiveWeightThreshold(accountData: AccountData) {
   const weightThresholdOnLedger = max([
@@ -51,8 +46,8 @@ function getUpdatedSigners(
   const updatedSigners = [...accountData.signers.filter(isNotToBeAdded).filter(isNotToBeRemoved), ...signersToAdd]
 
   return [
-    ...updatedSigners.filter(signer => signer.key === accountData.id),
-    ...updatedSigners.filter(signer => signer.key !== accountData.id)
+    ...updatedSigners.filter(signer => signer.key !== accountData.id).reverse(),
+    ...updatedSigners.filter(signer => signer.key === accountData.id)
   ]
 }
 
@@ -90,17 +85,12 @@ function KeyWeightThresholdInfoAdornment(props: { text: string }) {
 }
 
 interface Props {
-  accountData: AccountData
-  isEditingNewSigner: boolean
-  setIsEditingNewSigner: (isEditingNewSigner: boolean) => void
   onCancel: () => void
-  onSubmit: (values: SignerUpdate) => void
-  style?: React.CSSProperties
   title: React.ReactNode
 }
 
 function ManageSignersDialogContent(props: Props) {
-  const { accountData } = props
+  const { accountData, applyUpdate } = React.useContext(MultisigEditorContext)
 
   const actionsRef = useDialogActions()
   const isSmallScreen = useIsMobile()
@@ -132,7 +122,7 @@ function ManageSignersDialogContent(props: Props) {
 
       setWeightThresholdError(undefined)
 
-      await props.onSubmit({
+      await applyUpdate({
         signersToAdd,
         signersToRemove,
         weightThreshold: Number.parseInt(weightThreshold, 10)
@@ -211,15 +201,8 @@ function ManageSignersDialogContent(props: Props) {
 
   return (
     <DialogBody top={props.title} actions={isSmallScreen ? actionsRef : undefined}>
-      <VerticalLayout
-        justifyContent="space-between"
-        margin="8px 0 0"
-        minHeight={isSmallScreen ? undefined : "40vh"}
-        style={props.style}
-      >
+      <VerticalLayout justifyContent="space-between" margin="8px 0 0" minHeight={isSmallScreen ? undefined : "40vh"}>
         <SignersEditor
-          isEditingNewSigner={props.isEditingNewSigner}
-          setIsEditingNewSigner={props.setIsEditingNewSigner}
           addSigner={addSigner}
           removeSigner={removeSigner}
           localPublicKey={accountData.id}

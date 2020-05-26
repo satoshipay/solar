@@ -26,7 +26,7 @@ import MainTitle from "~Generic/components/MainTitle"
 import TransactionSender from "~Transaction/components/TransactionSender"
 import ViewLoading from "~Generic/components/ViewLoading"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
-import ButtonListItem from "./ButtonListItem"
+import ButtonListItem from "../../Generic/components/ButtonListItem"
 import CustomTrustlineDialog from "./CustomTrustline"
 
 function assetRecordMatches(assetRecord: AssetRecord, search: string) {

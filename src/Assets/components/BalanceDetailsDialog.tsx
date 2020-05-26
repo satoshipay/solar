@@ -20,7 +20,7 @@ import ViewLoading from "~Generic/components/ViewLoading"
 import DialogBody from "~Layout/components/DialogBody"
 import AddAssetDialog from "./AddAssetDialog"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
-import ButtonListItem from "./ButtonListItem"
+import ButtonListItem from "../../Generic/components/ButtonListItem"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
   if (balance.asset_type === "native") {

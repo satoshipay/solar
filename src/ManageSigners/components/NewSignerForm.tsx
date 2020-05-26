@@ -26,6 +26,7 @@ interface Props {
   onCancel: () => void
   onSubmit: () => void
   onUpdate: (values: Partial<FormValues>) => void
+  style?: React.CSSProperties
 }
 
 function NewSignerForm(props: Props) {
@@ -33,7 +34,7 @@ function NewSignerForm(props: Props) {
   const isTinyScreen = useIsSmallMobile()
 
   return (
-    <ListItem>
+    <ListItem style={props.style}>
       <ListItemIcon>
         <PersonAddIcon style={{ fontSize: "2rem" }} />
       </ListItemIcon>
@@ -51,16 +52,13 @@ function NewSignerForm(props: Props) {
           />
         </HorizontalLayout>
       </ListItemText>
-      <ListItemIcon style={isTinyScreen ? { padding: 0, margin: 0 } : { marginRight: 8 }}>
+      <ListItemIcon style={{ marginLeft: 8, minWidth: 0 }}>
         <IconButton onClick={props.onSubmit}>
           <CheckIcon />
         </IconButton>
       </ListItemIcon>
-      <ListItemIcon>
-        <IconButton
-          onClick={props.onCancel}
-          style={isTinyScreen ? { padding: 0, marginRight: -24 } : { marginRight: -24 }}
-        >
+      <ListItemIcon style={{ minWidth: 0 }}>
+        <IconButton onClick={props.onCancel}>
           <CloseIcon />
         </IconButton>
       </ListItemIcon>

@@ -2,18 +2,21 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
+import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction"
 import ListItemText from "@material-ui/core/ListItemText"
+import AddIcon from "@material-ui/icons/Add"
 import PersonIcon from "@material-ui/icons/Person"
-import RemoveIcon from "@material-ui/icons/Close"
+import RemoveIcon from "@material-ui/icons/RemoveCircle"
 import { trackError } from "~App/contexts/notifications"
 import { useFederationLookup } from "~Generic/hooks/stellar"
+import { useIsMobile } from "~Generic/hooks/userinterface"
 import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
-import SpaciousList from "~Generic/components/SpaciousList"
 import { Address } from "~Generic/components/PublicKey"
 import NewSignerForm from "./NewSignerForm"
+import ButtonListItem from "~Generic/components/ButtonListItem"
 
 interface SignerFormValues {
   publicKey: string
@@ -25,7 +28,7 @@ interface SignerFormErrors {
   weight?: Error
 }
 
-function useFormnValidation() {
+function useFormValidation() {
   const { t } = useTranslation()
   return function validateNewSignerValues(
     values: SignerFormValues,
@@ -48,9 +51,12 @@ function useFormnValidation() {
   }
 }
 
+const listItemStyles: React.CSSProperties = {
+  background: "white",
+  boxShadow: "0 8px 12px 0 rgba(0, 0, 0, 0.1)"
+}
+
 interface SignersEditorProps {
-  isEditingNewSigner: boolean
-  setIsEditingNewSigner: (isEditingNewSigner: boolean) => void
   localPublicKey: string
   signers: Horizon.AccountSigner[]
   addSigner: (signer: Horizon.AccountSigner) => void
@@ -59,16 +65,19 @@ interface SignersEditorProps {
 }
 
 function SignersEditor(props: SignersEditorProps) {
-  const { isEditingNewSigner, setIsEditingNewSigner } = props
-
   const { lookupFederationRecord } = useFederationLookup()
-  const validateNewSignerValues = useFormnValidation()
+  const isSmallScreen = useIsMobile()
+  const validateNewSignerValues = useFormValidation()
   const { t } = useTranslation()
+
+  const [isEditingNewSigner, setIsEditingNewSigner] = React.useState(false)
   const [newSignerErrors, setNewSignerErrors] = React.useState<SignerFormErrors>({})
   const [newSignerValues, setNewSignerValues] = React.useState<SignerFormValues>({
     publicKey: "",
     weight: "1"
   })
+
+  const editNewSigner = React.useCallback(() => setIsEditingNewSigner(true), [setIsEditingNewSigner])
 
   const createCosigner = async () => {
     try {
@@ -107,9 +116,25 @@ function SignersEditor(props: SignersEditorProps) {
   }
 
   return (
-    <SpaciousList fitHorizontal>
+    <List disablePadding={isSmallScreen}>
+      {isEditingNewSigner ? (
+        <NewSignerForm
+          errors={newSignerErrors}
+          onCancel={() => setIsEditingNewSigner(false)}
+          onSubmit={createCosigner}
+          onUpdate={updateNewSignerValues}
+          style={listItemStyles}
+          values={newSignerValues}
+        />
+      ) : (
+        <ButtonListItem gutterBottom onClick={editNewSigner}>
+          <AddIcon />
+          &nbsp;&nbsp;
+          {t("account-settings.manage-signers.action.add-signer")}
+        </ButtonListItem>
+      )}
       {props.signers.map(signer => (
-        <ListItem key={signer.key}>
+        <ListItem key={signer.key} style={listItemStyles}>
           <ListItemIcon>
             <PersonIcon style={{ fontSize: "2rem" }} />
           </ListItemIcon>
@@ -139,16 +164,7 @@ function SignersEditor(props: SignersEditorProps) {
           </ListItemSecondaryAction>
         </ListItem>
       ))}
-      {isEditingNewSigner ? (
-        <NewSignerForm
-          errors={newSignerErrors}
-          onCancel={() => setIsEditingNewSigner(false)}
-          onSubmit={createCosigner}
-          onUpdate={updateNewSignerValues}
-          values={newSignerValues}
-        />
-      ) : null}
-    </SpaciousList>
+    </List>
   )
 }
 
