@@ -1,58 +1,16 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Horizon, Memo, Transaction } from "stellar-sdk"
-import ListItem from "@material-ui/core/ListItem"
-import ListItemIcon from "@material-ui/core/ListItemIcon"
-import ListItemText from "@material-ui/core/ListItemText"
 import Tooltip from "@material-ui/core/Tooltip"
 import CheckIcon from "@material-ui/icons/Check"
 import UpdateIcon from "@material-ui/icons/Update"
-import WarningIcon from "@material-ui/icons/Warning"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { Account } from "~App/contexts/accounts"
 import { AccountData } from "~Generic/lib/account"
 import { signatureMatchesPublicKey } from "~Generic/lib/stellar"
-import { warningColor } from "~App/theme"
 import { Address } from "~Generic/components/PublicKey"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
-
-interface WarningProps {
-  primary: React.ReactNode
-  secondary?: React.ReactNode
-  style?: React.CSSProperties
-}
-
-const Warning = React.memo(function Warning(props: WarningProps) {
-  return (
-    <ListItem component="div" style={{ background: warningColor, marginBottom: 16, ...props.style }}>
-      <ListItemIcon style={{ minWidth: 40 }}>
-        <WarningIcon />
-      </ListItemIcon>
-      <ListItemText primary={props.primary} secondary={props.secondary} />
-    </ListItem>
-  )
-})
-
-export function DangerousTransactionWarning() {
-  const { t } = useTranslation()
-  return (
-    <Warning
-      primary={t("account.transaction-review.dangerous-transaction-warning.primary")}
-      secondary={t("account.transaction-review.dangerous-transaction-warning.secondary")}
-    />
-  )
-}
-
-export function AccountCreationWarning() {
-  const { t } = useTranslation()
-  return (
-    <Warning
-      primary={t("account.transaction-review.account-creation-warning.primary")}
-      secondary={t("account.transaction-review.account-creation-warning.secondary")}
-    />
-  )
-}
 
 function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }) {
   const { t } = useTranslation()

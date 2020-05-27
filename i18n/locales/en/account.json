@@ -254,6 +254,10 @@
       "primary": "Funding a new account",
       "secondary": "Funding an empty account. Make sure that the destination is correct."
     },
+    "add-signer-warning": {
+      "primary": "Adding another signer",
+      "secondary": "Make sure you are adding the right co-signer. Adding a wrong one might effectively lock your account forever."
+    },
     "dangerous-transaction-warning": {
       "primary": "Transaction initiated by unrecognized account",
       "secondary": "Please review carefully. In case of doubt, prefer dismissing."
