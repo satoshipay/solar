@@ -20,7 +20,8 @@ import { VerticalLayout } from "~Layout/components/Box"
 import { ClickableAddress, CopyableAddress } from "~Generic/components/PublicKey"
 import { ShowMoreItem, SummaryDetailsField, SummaryItem } from "./SummaryItem"
 import OperationListItem from "./Operations"
-import { AccountCreationWarning, DangerousTransactionWarning, Signers, TransactionMemo } from "./Transaction"
+import { Signers, TransactionMemo } from "./Transaction"
+import { AccountCreationWarning, AddingSignerWarning, DangerousTransactionWarning } from "./Warnings"
 
 type TransactionWithUndocumentedProps = Transaction & {
   created_at: string
@@ -88,6 +89,9 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
 
   const isAccountCreation = props.transaction.operations.some(op => op.type === "createAccount")
+  const isAddingSigner = props.transaction.operations.some(
+    op => op.type === "setOptions" && (op.signer?.weight || 0) > 0
+  )
 
   const isWideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 400 } : { minWidth: "66vw" }
@@ -101,6 +105,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
     <VerticalLayout style={widthStyling}>
       {isDangerousSignatureRequest ? <DangerousTransactionWarning /> : null}
       {isAccountCreation && props.canSubmit ? <AccountCreationWarning /> : null}
+      {isAddingSigner && props.canSubmit ? <AddingSignerWarning /> : null}
       {props.transaction.operations.map((operation, index) => (
         <OperationListItem
           key={index}
