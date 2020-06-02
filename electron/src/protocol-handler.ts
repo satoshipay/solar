@@ -1,12 +1,27 @@
 import { app } from "electron"
 import events from "events"
 import { createMainWindow, getOpenWindows, trackWindow } from "./window"
+import { expose } from "./ipc/_ipc"
+import { Messages } from "./shared/ipc"
 
 const urlEventEmitter = new events.EventEmitter()
 const urlEventChannel = "deeplink:url"
 
 let urlEventQueue: string[] = []
 let isWindowReady = false
+
+expose(Messages.IsDefaultProtocolClient, () => {
+  return app.isDefaultProtocolClient("web+stellar")
+})
+
+expose(Messages.IsDifferentHandlerInstalled, () => {
+  const name = app.getApplicationNameForProtocol("web+stellar://") // '://' is needed here
+  return Boolean(name)
+})
+
+expose(Messages.SetAsDefaultProtocolClient, () => {
+  return app.setAsDefaultProtocolClient("web+stellar")
+})
 
 export function subscribe(subscribeCallback: (...args: any[]) => void) {
   urlEventEmitter.on(urlEventChannel, subscribeCallback)
