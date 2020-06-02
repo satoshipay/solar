@@ -203,3 +203,27 @@ export const TrustedServicesSetting = React.memo(function TrustedServicesSetting
     />
   )
 })
+
+interface ProtocolHandlerSettingProps {
+  onClick: () => void
+  isDefaultHandler: boolean
+}
+
+export const ProtocolHandlerSetting = React.memo(function ProtocolHandlerSetting(props: ProtocolHandlerSettingProps) {
+  const classes = useSettingsStyles(props)
+  const { t } = useTranslation()
+
+  return (
+    <AppSettingsItem
+      disabled={props.isDefaultHandler}
+      icon={<TestnetIcon className={classes.icon} />}
+      onClick={props.onClick}
+      primaryText={
+        props.isDefaultHandler ? "Solar is handling all Stellar links" : "Make Solar handle all Stellar URIs"
+      }
+      secondaryText={
+        props.isDefaultHandler ? "" : "Click to make Solar the default handler for Stellar requests on this computer"
+      }
+    />
+  )
+})

@@ -8,6 +8,7 @@ import * as routes from "~App/routes"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
 import Carousel from "~Layout/components/Carousel"
+import { isDefaultProtocolClient, setAsDefaultProtocolClient } from "~platform/protocol-handler"
 import ManageTrustedServicesDialog from "./ManageTrustedServicesDialog"
 import {
   BiometricLockSetting,
@@ -15,7 +16,8 @@ import {
   LanguageSetting,
   MultiSigSetting,
   TestnetSetting,
-  TrustedServicesSetting
+  TrustedServicesSetting,
+  ProtocolHandlerSetting
 } from "./Settings"
 
 const SettingsDialogs = React.memo(function SettingsDialogs() {
@@ -29,6 +31,8 @@ function AppSettings() {
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const { i18n } = useTranslation()
+
+  const [isDefaultHandler, setIsDefaultHandler] = React.useState<boolean>(false)
 
   const showSettingsOverview = matchesRoute(router.location.pathname, routes.settings(), true)
 
@@ -53,6 +57,12 @@ function AppSettings() {
     [i18n, settings]
   )
 
+  isDefaultProtocolClient().then(setIsDefaultHandler)
+
+  const setDefaultClient = React.useCallback(() => {
+    setAsDefaultProtocolClient().then(success => setIsDefaultHandler(success))
+  }, [setIsDefaultHandler])
+
   return (
     <Carousel current={showSettingsOverview ? 0 : 1}>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
@@ -73,6 +83,7 @@ function AppSettings() {
         />
         <HideMemoSetting onToggle={settings.toggleHideMemos} value={settings.hideMemos} />
         <MultiSigSetting onToggle={settings.toggleMultiSignature} value={settings.multiSignature} />
+        <ProtocolHandlerSetting isDefaultHandler={isDefaultHandler} onClick={setDefaultClient} />
         {trustedServicesEnabled ? <TrustedServicesSetting onClick={navigateToTrustedServices} /> : undefined}
       </List>
       <SettingsDialogs />
