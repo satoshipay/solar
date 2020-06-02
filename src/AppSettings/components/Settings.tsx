@@ -8,6 +8,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
 import FingerprintIcon from "@material-ui/icons/Fingerprint"
 import GroupIcon from "@material-ui/icons/Group"
+import ProtocolHandlerIcon from "@material-ui/icons/AddCircleOutline"
 import LanguageIcon from "@material-ui/icons/Language"
 import MessageIcon from "@material-ui/icons/Message"
 import TestnetIcon from "@material-ui/icons/MoneyOff"
@@ -216,13 +217,13 @@ export const ProtocolHandlerSetting = React.memo(function ProtocolHandlerSetting
   return (
     <AppSettingsItem
       disabled={props.isDefaultHandler}
-      icon={<TestnetIcon className={classes.icon} />}
+      icon={<ProtocolHandlerIcon className={classes.icon} />}
       onClick={props.onClick}
-      primaryText={
-        props.isDefaultHandler ? "Solar is handling all Stellar links" : "Make Solar handle all Stellar URIs"
-      }
+      primaryText={t("app-settings.settings.protocol-handler.text.primary")}
       secondaryText={
-        props.isDefaultHandler ? "" : "Click to make Solar the default handler for Stellar requests on this computer"
+        props.isDefaultHandler
+          ? t("app-settings.settings.protocol-handler.text.secondary.default")
+          : t("app-settings.settings.protocol-handler.text.secondary.non-default")
       }
     />
   )

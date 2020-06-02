@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import IconButton from "@material-ui/core/IconButton"
 import Grow from "@material-ui/core/Grow"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
@@ -31,17 +32,18 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
   const { onHide } = props
   const { showNotification } = React.useContext(NotificationsContext)
   const theme = useTheme()
+  const { t } = useTranslation()
 
   const requestPermission = React.useCallback(() => {
     setAsDefaultProtocolClient().then(success => {
       if (success) {
-        showNotification("success", "Successfully registered Solar as default handler.")
+        showNotification("success", t("app.notification.permission.protocol-handler.success"))
       } else {
-        showNotification("error", "Could not register Solar as default handler.")
+        showNotification("error", t("app.notification.permission.protocol-handler.error"))
       }
       onHide()
     })
-  }, [showNotification, onHide])
+  }, [onHide, showNotification, t])
 
   const dismiss = React.useCallback(() => {
     setNotificationDismissed()
@@ -54,14 +56,14 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
         message={
           <HorizontalLayout alignItems="center">
             <span style={{ ...theme.typography.button, marginLeft: 8 }}>
-              Do you want Solar to handle interactive Stellar links on this computer (recommended)?
+              {t("app.notification.permission.protocol-handler.message")}
             </span>
-            <Tooltip title="Install">
+            <Tooltip title={t("app.notification.permission.protocol-handler.tooltip.install")}>
               <IconButton onClick={requestPermission} style={{ color: "inherit" }}>
                 <CheckIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Dismiss">
+            <Tooltip title={t("app.notification.permission.protocol-handler.tooltip.dismiss")}>
               <IconButton onClick={dismiss} style={{ color: "inherit" }}>
                 <CloseIcon />
               </IconButton>
