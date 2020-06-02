@@ -54,6 +54,16 @@
       "support": "Having an issue with the app? <1/> Contact us via",
       "title": "Error",
       "offline": "Offline"
+    },
+    "permission": {
+      "app-notification": {
+        "error": "Enable in operating system settings",
+        "granted": {
+          "title": "Notifications enabled",
+          "text": "Solar will now show notifications"
+        },
+        "message": "Enable app notifications"
+      }
     }
   },
   "terms-and-conditions": {
