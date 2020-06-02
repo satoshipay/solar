@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import Grow from "@material-ui/core/Grow"
 import SnackbarContent from "@material-ui/core/SnackbarContent"
 import { useTheme } from "@material-ui/core/styles"
@@ -20,6 +21,7 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
   const { onHide } = props
   const Notifications = React.useContext(NotificationsContext)
   const theme = useTheme()
+  const { t } = useTranslation()
 
   const requestPermission = React.useCallback(() => {
     ;(async () => {
@@ -28,14 +30,14 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
 
       if (granted) {
         showNotification({
-          title: "Notifications enabled",
-          text: "Solar will now show notifications"
+          title: t("app.notification.permission.app-notification.granted.title"),
+          text: t("app.notification.permission.app-notification.granted.text")
         })
       } else {
-        Notifications.showNotification("error", "Enable in operating system settings.")
+        Notifications.showNotification("error", t("app.notification.permission.app-notification.error"))
       }
     })().catch(trackError)
-  }, [Notifications, onHide])
+  }, [Notifications, onHide, t])
 
   return (
     <Grow in={props.open}>
@@ -43,7 +45,9 @@ const PermissionNotification = React.memo(function PermissionNotification(props:
         message={
           <HorizontalLayout alignItems="center">
             <NotificationsIcon />
-            <span style={{ ...theme.typography.button, marginLeft: 8 }}>Enable app notifications</span>
+            <span style={{ ...theme.typography.button, marginLeft: 8 }}>
+              {t("app.notification.permission.app-notification.message")}
+            </span>
           </HorizontalLayout>
         }
         onClick={requestPermission}
