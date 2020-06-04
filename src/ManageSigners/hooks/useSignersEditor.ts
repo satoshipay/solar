@@ -2,12 +2,13 @@ import React from "react"
 import { Horizon, Operation, Server, Transaction, xdr } from "stellar-sdk"
 import { trackError } from "~App/contexts/notifications"
 import { Account } from "~App/contexts/accounts"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { AccountData } from "~Generic/lib/account"
 import { createTransaction } from "~Generic/lib/transaction"
+import { initializeEditorState, SignersEditorState } from "../lib/editor"
 
 export interface SignersEditorOptions {
   account: Account
-  accountData: AccountData
   horizon: Server
   sendTransaction: (tx: Transaction) => void
 }
@@ -18,7 +19,7 @@ export interface SignersUpdate {
   weightThreshold: number
 }
 
-function createTxOperations(options: SignersEditorOptions, update: SignersUpdate): xdr.Operation[] {
+function createTxOperations(accountData: AccountData, update: SignersUpdate): xdr.Operation[] {
   const operations: xdr.Operation[] = [
     // signer removals before adding, so you can remove and immediately re-add signer
     ...update.signersToRemove.map(signer =>
@@ -34,9 +35,9 @@ function createTxOperations(options: SignersEditorOptions, update: SignersUpdate
   ]
 
   if (
-    update.weightThreshold !== options.accountData.thresholds.low_threshold &&
-    update.weightThreshold !== options.accountData.thresholds.med_threshold &&
-    update.weightThreshold !== options.accountData.thresholds.high_threshold
+    update.weightThreshold !== accountData.thresholds.low_threshold &&
+    update.weightThreshold !== accountData.thresholds.med_threshold &&
+    update.weightThreshold !== accountData.thresholds.high_threshold
   ) {
     operations.push(
       Operation.setOptions({
@@ -51,15 +52,31 @@ function createTxOperations(options: SignersEditorOptions, update: SignersUpdate
 }
 
 export function useSignersEditor(options: SignersEditorOptions) {
+  const accountData = useLiveAccountData(options.account.accountID, options.account.testnet)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
+  const [_editorState, _setEditorState] = React.useState<SignersEditorState>()
+
+  const initialEditorState = React.useMemo(() => initializeEditorState(accountData), [accountData])
+  const editorState = _editorState || initialEditorState
+
+  const setEditorState = React.useCallback(
+    (update: SignersEditorState | React.SetStateAction<SignersEditorState>) => {
+      if (typeof update === "function") {
+        _setEditorState(prev => update(prev || initialEditorState))
+      } else {
+        _setEditorState(update)
+      }
+    },
+    [_setEditorState, initialEditorState]
+  )
 
   const applyUpdate = async (update: SignersUpdate) => {
     try {
       setTxCreationPending(true)
-      const operations = createTxOperations(options, update)
+      const operations = createTxOperations(accountData, update)
 
       const tx = await createTransaction(operations, {
-        accountData: options.accountData,
+        accountData,
         horizon: options.horizon,
         walletAccount: options.account
       })
@@ -76,6 +93,8 @@ export function useSignersEditor(options: SignersEditorOptions) {
 
   return {
     applyUpdate,
+    editorState,
+    setEditorState: setEditorState as React.Dispatch<React.SetStateAction<SignersEditorState>>,
     txCreationPending
   }
 }

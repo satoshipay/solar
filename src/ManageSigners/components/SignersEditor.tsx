@@ -2,6 +2,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
 import IconButton from "@material-ui/core/IconButton"
+import Divider from "@material-ui/core/Divider"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -10,13 +11,17 @@ import ListItemText from "@material-ui/core/ListItemText"
 import AddIcon from "@material-ui/icons/Add"
 import PersonIcon from "@material-ui/icons/Person"
 import RemoveIcon from "@material-ui/icons/RemoveCircle"
+import { AccountsContext } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
+import ButtonListItem from "~Generic/components/ButtonListItem"
+import { Address } from "~Generic/components/PublicKey"
 import { useFederationLookup } from "~Generic/hooks/stellar"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
-import { Address } from "~Generic/components/PublicKey"
+import { requiresSignatureThreshold } from "../lib/editor"
+import { MultisigEditorContext } from "./MultisigEditorContext"
 import NewSignerForm from "./NewSignerForm"
-import ButtonListItem from "~Generic/components/ButtonListItem"
+import ThresholdInput from "./ThresholdInput"
 
 interface SignerFormValues {
   publicKey: string
@@ -57,18 +62,19 @@ const listItemStyles: React.CSSProperties = {
 }
 
 interface SignersEditorProps {
-  localPublicKey: string
   signers: Horizon.AccountSigner[]
-  addSigner: (signer: Horizon.AccountSigner) => void
-  removeSigner: (signer: Horizon.AccountSigner) => void
   showKeyWeights?: boolean
 }
 
 function SignersEditor(props: SignersEditorProps) {
+  const { accounts } = React.useContext(AccountsContext)
+  const { editorState, setEditorState, testnet } = React.useContext(MultisigEditorContext)
   const { lookupFederationRecord } = useFederationLookup()
   const isSmallScreen = useIsMobile()
   const validateNewSignerValues = useFormValidation()
+
   const { t } = useTranslation()
+  const { preset } = editorState
 
   const [isEditingNewSigner, setIsEditingNewSigner] = React.useState(false)
   const [newSignerErrors, setNewSignerErrors] = React.useState<SignerFormErrors>({})
@@ -78,6 +84,19 @@ function SignersEditor(props: SignersEditorProps) {
   })
 
   const editNewSigner = React.useCallback(() => setIsEditingNewSigner(true), [setIsEditingNewSigner])
+
+  const addSigner = (signer: Horizon.AccountSigner) =>
+    setEditorState(prev => ({
+      ...prev,
+      signersToAdd: [...prev.signersToAdd, signer]
+    }))
+
+  const removeSigner = (signer: Horizon.AccountSigner) =>
+    setEditorState(prev => ({
+      ...prev,
+      signersToAdd: prev.signersToAdd.filter(someSignerToBeAddd => someSignerToBeAddd.key !== signer.key),
+      signersToRemove: [...prev.signersToRemove, signer]
+    }))
 
   const createCosigner = async () => {
     try {
@@ -91,7 +110,7 @@ function SignersEditor(props: SignersEditorProps) {
         return setNewSignerErrors(errors)
       }
 
-      props.addSigner({
+      addSigner({
         key: cosignerPublicKey,
         type: "ed25519_public_key",
         weight: parseInt(newSignerValues.weight, 10)
@@ -147,23 +166,37 @@ function SignersEditor(props: SignersEditorProps) {
                     {t("account-settings.manage-signers.signers-editor.list.item.weight")}: {signer.weight}
                   </span>
                 ) : null}
-                {signer.key === props.localPublicKey ? (
+                {accounts.some(account => account.publicKey === signer.key && account.testnet === testnet) ? (
                   <span>{t("account-settings.manage-signers.signers-editor.list.item.local-key")}</span>
                 ) : null}
               </>
             }
           />
           <ListItemSecondaryAction>
-            <IconButton
-              aria-label="Remove"
-              disabled={props.signers.length === 1}
-              onClick={() => props.removeSigner(signer)}
-            >
+            <IconButton aria-label="Remove" disabled={props.signers.length === 1} onClick={() => removeSigner(signer)}>
               <RemoveIcon />
             </IconButton>
           </ListItemSecondaryAction>
         </ListItem>
       ))}
+      {requiresSignatureThreshold(preset) ? (
+        <>
+          <ListItem style={listItemStyles}>
+            <ListItemIcon>
+              <div />
+            </ListItemIcon>
+            <ListItemText
+              primary={t("account-settings.manage-signers.signers-editor.threshold.primary")}
+              secondary={t("account-settings.manage-signers.signers-editor.threshold.secondary")}
+              style={{ flexGrow: 0, marginRight: 32 }}
+            />
+            <ListItemText>
+              <ThresholdInput />
+            </ListItemText>
+          </ListItem>
+          <Divider />
+        </>
+      ) : null}
     </List>
   )
 }
