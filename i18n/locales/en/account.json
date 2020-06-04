@@ -257,7 +257,7 @@
     },
     "add-signer-warning": {
       "primary": "Adding another signer",
-      "secondary": "Make sure you are adding the right co-signer. Adding a wrong one might effectively lock your account forever."
+      "secondary": "Make sure you are adding the right co-signer. Adding an unknown key might lock your account forever."
     },
     "dangerous-transaction-warning": {
       "primary": "Transaction initiated by unrecognized account",
