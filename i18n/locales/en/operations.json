@@ -84,7 +84,7 @@
             "high": "High threshold:   {{threshold}}"
           }
         },
-        "required-signatures": "Required signatures"
+        "required-signatures": "Key weight threshold"
       },
       "title": "Change signature setup"
     },

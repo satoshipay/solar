@@ -44,7 +44,7 @@ export const SummaryDetailsField = React.memo(function SummaryDetailsField(props
 const summaryDetailsLineStyle: React.CSSProperties = {
   flexWrap: "wrap",
   justifyContent: "space-between",
-  marginTop: 12,
+  marginBottom: 8,
   width: "100%"
 }
 
