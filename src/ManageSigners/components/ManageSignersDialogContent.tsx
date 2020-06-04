@@ -1,36 +1,18 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
-import InputAdornment from "@material-ui/core/InputAdornment"
-import TextField from "@material-ui/core/TextField"
-import Tooltip from "@material-ui/core/Tooltip"
-import CheckIcon from "@material-ui/icons/Check"
-import InfoIcon from "@material-ui/icons/Info"
 import { trackError } from "~App/contexts/notifications"
+import MainTitle from "~Generic/components/MainTitle"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useDialogActions, useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
-import { renderFormFieldError } from "~Generic/lib/errors"
+import { CustomError } from "~Generic/lib/errors"
+import Carousel from "~Layout/components/Carousel"
 import DialogBody from "~Layout/components/DialogBody"
-import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
-import { HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
-import Portal from "~Generic/components/Portal"
-import { MultisigEditorContext } from "./MultisigEditorContext"
-import SignersEditor from "./SignersEditor"
-
-const max = (numbers: number[]) => numbers.reduce((prevMax, no) => (no > prevMax ? no : prevMax), 0)
-const sum = (numbers: number[]) => numbers.reduce((total, no) => total + no, 0)
-
-function getEffectiveWeightThreshold(accountData: AccountData) {
-  const weightThresholdOnLedger = max([
-    accountData.thresholds.low_threshold,
-    accountData.thresholds.med_threshold,
-    accountData.thresholds.high_threshold
-  ])
-
-  // Turn 0 values (which is the default) to 1, since the network will require
-  // every tx to have at least one signature
-  return weightThresholdOnLedger || 1
-}
+import { MultisigPresets, MultisigPreset } from "~ManageSigners/lib/editor"
+import { MultisigEditorContext, Step } from "./MultisigEditorContext"
+import PresetSelector from "./PresetSelector"
+import DetailsEditor from "./DetailsEditor"
 
 function getUpdatedSigners(
   accountData: AccountData,
@@ -51,168 +33,106 @@ function getUpdatedSigners(
   ]
 }
 
-function useFormValidation() {
-  const { t } = useTranslation()
-
-  return function validate(weightThreshold: string, updatedSigners: Horizon.AccountSigner[]): Error | undefined {
-    if (updatedSigners.length === 0) {
-      return new Error(t("account-settings.manage-signers.validation.no-signers"))
-    }
-    if (!weightThreshold.match(/^[0-9]+$/)) {
-      return new Error(t("account-settings.manage-signers.validation.invalid-weight-type"))
-    }
-
-    const allKeysCombinedWeight = sum(updatedSigners.map(signer => signer.weight))
-    const weightThresholdInteger = Number.parseInt(weightThreshold, 10)
-
-    if (weightThresholdInteger > allKeysCombinedWeight) {
-      return new Error(t("account-settings.manage-signers.validation.threshold-higher-than-weights"))
-    }
-    if (updatedSigners.length > 1 && weightThresholdInteger === 0) {
-      return new Error(t("account-settings.manage-signers.validation.no-threshold"))
-    }
+function getWeightThreshold(preset: MultisigPreset, signers: Horizon.AccountSigner[]): number {
+  if (preset.type === MultisigPresets.Type.SingleSignature) {
+    return 0
+  } else if (preset.type === MultisigPresets.Type.OneOutOfN) {
+    return Math.min(...signers.map(signer => signer.weight))
+  } else if (preset.type === MultisigPresets.Type.MOutOfN) {
+    return preset.requiredKeyWeight
+  } else {
+    return preset.thresholds.high_threshold
   }
 }
 
-function KeyWeightThresholdInfoAdornment(props: { text: string }) {
-  return (
-    <InputAdornment position="end" style={{ color: "rgba(0, 0, 0, 0.54)", cursor: "default" }}>
-      <Tooltip placement="right" title={props.text}>
-        <InfoIcon />
-      </Tooltip>
-    </InputAdornment>
-  )
+function validate(updatedSigners: Horizon.AccountSigner[], weightThreshold: number) {
+  const totalKeyWeight = updatedSigners.reduce((total, signer) => total + signer.weight, 0)
+
+  if (weightThreshold < 0 || (weightThreshold < 1 && updatedSigners.length > 1)) {
+    throw CustomError("MultisigConfigThresholdTooLowError", `Signature threshold too low.`)
+  } else if (weightThreshold > totalKeyWeight) {
+    throw CustomError("MultisigConfigThresholdLockError", `Signature threshold too high. You would lock your account.`)
+  }
 }
 
 interface Props {
   onCancel: () => void
   testnet: boolean
-  title: React.ReactNode
 }
 
 function ManageSignersDialogContent(props: Props) {
-  const { accountData, applyUpdate } = React.useContext(MultisigEditorContext)
-
-  const actionsRef = useDialogActions()
-  const isSmallScreen = useIsMobile()
+  const { accountID, applyUpdate, currentStep, editorState, setEditorState, switchToStep, testnet } = React.useContext(
+    MultisigEditorContext
+  )
   const { t } = useTranslation()
-  const validate = useFormValidation()
+  const accountData = useLiveAccountData(accountID, testnet)
+  const isSmallScreen = useIsMobile()
+  const dialogActionsRef = useDialogActions()
 
-  const [signersToAdd, setSignersToAdd] = React.useState<Horizon.AccountSigner[]>([])
-  const [signersToRemove, setSignersToRemove] = React.useState<Horizon.AccountSigner[]>([])
-  const [weightThresholdError, setWeightThresholdError] = React.useState<Error | undefined>(undefined)
-  const [weightThreshold, setWeightThreshold] = React.useState(getEffectiveWeightThreshold(accountData).toString())
-
-  const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
+  const updatedSigners = getUpdatedSigners(accountData, editorState.signersToAdd, editorState.signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
 
-  const addSigner = (signer: Horizon.AccountSigner) => setSignersToAdd([...signersToAdd, signer])
-
-  const removeSigner = (signer: Horizon.AccountSigner) => {
-    setSignersToAdd(signersToAdd.filter(someSignerToBeAddd => someSignerToBeAddd.key !== signer.key))
-    setSignersToRemove([...signersToRemove, signer])
-  }
+  const proceedToSigners = React.useCallback(() => switchToStep(Step.Signers), [switchToStep])
+  const switchBackToPresets = React.useCallback(() => switchToStep(Step.Presets), [switchToStep])
 
   const submit = async () => {
     try {
-      const validationError = validate(weightThreshold, updatedSigners)
+      const updatedSigners: Horizon.AccountSigner[] = getUpdatedSigners(
+        accountData,
+        editorState.signersToAdd,
+        editorState.signersToRemove
+      )
+      const weightThreshold = getWeightThreshold(editorState.preset, updatedSigners)
 
-      if (validationError) {
-        return setWeightThresholdError(validationError)
-      }
-
-      setWeightThresholdError(undefined)
+      validate(updatedSigners, weightThreshold)
 
       await applyUpdate({
-        signersToAdd,
-        signersToRemove,
-        weightThreshold: Number.parseInt(weightThreshold, 10)
+        signersToAdd: editorState.signersToAdd,
+        signersToRemove: editorState.signersToRemove,
+        weightThreshold
       })
 
-      setSignersToAdd([])
-      setSignersToRemove([])
+      setEditorState(prev => ({
+        ...prev,
+        signersToAdd: [],
+        signersToRemove: []
+      }))
     } catch (error) {
       trackError(error)
     }
   }
 
-  const weightThresholdUnchanged =
-    parseInt(weightThreshold, 10) === accountData.thresholds.high_threshold ||
-    parseInt(weightThreshold, 10) === getEffectiveWeightThreshold(accountData)
-
-  const nothingEdited = weightThresholdUnchanged && signersToAdd.length === 0 && signersToRemove.length === 0
-
-  const weightThresholdLabel = allDefaultKeyweights
-    ? t("account-settings.manage-signers.textfield.weight-threshold.label.required-signatures")
-    : t("account-settings.manage-signers.textfield.weight-threshold.label.required-weight")
-
-  const sanitizedKeyWeight = weightThreshold.match(/^[0-9]+$/) ? String(weightThreshold) : "X"
-  const weightThresholdExplanation = allDefaultKeyweights
-    ? t("account-settings.manage-signers.textfield.weight-threshold.explanation.required-signatures", {
-        amount: sanitizedKeyWeight
-      })
-    : t("account-settings.manage-signers.textfield.weight-threshold.explanation.required-weight", {
-        amount: sanitizedKeyWeight
-      })
-
-  const DialogActionsPortal = isSmallScreen
-    ? (subprops: { children: React.ReactNode }) => (
-        <Portal target={actionsRef.element}>
-          <>{subprops.children}</>
-        </Portal>
-      )
-    : (subprops: { children: React.ReactNode }) => <>{subprops.children}</>
-
-  const actionsContent = (
-    <HorizontalLayout justifyContent="space-between" alignItems="center" margin="48px 0 0" wrap="wrap">
-      <TextField
-        error={!!weightThresholdError}
-        inputProps={{
-          pattern: "[0-9]*",
-          inputMode: "decimal"
-        }}
-        label={weightThresholdError ? renderFormFieldError(weightThresholdError, t) : weightThresholdLabel}
-        onChange={event => setWeightThreshold(event.target.value)}
-        type="number"
-        value={weightThreshold}
-        variant="outlined"
-        InputProps={{
-          endAdornment: <KeyWeightThresholdInfoAdornment text={weightThresholdExplanation} />
-        }}
+  const title = React.useMemo(
+    () => (
+      <MainTitle
+        title={
+          isSmallScreen
+            ? t("account-settings.manage-signers.title.short")
+            : t("account-settings.manage-signers.title.long")
+        }
+        onBack={currentStep === Step.Presets ? props.onCancel : switchBackToPresets}
+        style={{ marginBottom: 24 }}
       />
-      <HorizontalLayout
-        alignItems="center"
-        justifyContent={isSmallScreen ? "center" : "end"}
-        margin="20px 0px"
-        style={{ marginLeft: "auto" }}
-        width={isSmallScreen ? "100%" : "auto"}
-      >
-        <DialogActionsPortal>
-          <DialogActionsBox desktopStyle={{ margin: 0 }}>
-            <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
-              {isSmallScreen
-                ? t("account-settings.manage-signers.action.apply.short")
-                : t("account-settings.manage-signers.action.apply.long")}
-            </ActionButton>
-          </DialogActionsBox>
-        </DialogActionsPortal>
-      </HorizontalLayout>
-    </HorizontalLayout>
+    ),
+    [currentStep, isSmallScreen, switchBackToPresets, t, props.onCancel]
   )
 
   return (
-    <DialogBody noMaxWidth top={props.title} preventNotchSpacing actions={isSmallScreen ? actionsRef : undefined}>
-      <VerticalLayout justifyContent="space-between" margin="8px 0 0" minHeight={isSmallScreen ? undefined : "40vh"}>
-        <SignersEditor
-          addSigner={addSigner}
-          removeSigner={removeSigner}
-          localPublicKey={accountData.id}
+    <DialogBody noMaxWidth top={title} preventNotchSpacing actions={isSmallScreen ? dialogActionsRef : undefined}>
+      <Carousel current={currentStep === Step.Signers ? 1 : 0}>
+        <PresetSelector
+          actionsRef={currentStep === Step.Presets ? dialogActionsRef : undefined}
+          onProceed={proceedToSigners}
+          style={{ marginBottom: 24 }}
+        />
+        <DetailsEditor
+          actionsRef={currentStep === Step.Signers ? dialogActionsRef : undefined}
+          onSubmit={submit}
           signers={updatedSigners}
           showKeyWeights={!allDefaultKeyweights}
           testnet={props.testnet}
         />
-      </VerticalLayout>
-      {actionsContent}
+      </Carousel>
     </DialogBody>
   )
 }
