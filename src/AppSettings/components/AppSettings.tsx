@@ -39,6 +39,7 @@ function AppSettings() {
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
   const trustedServicesEnabled = process.env.TRUSTED_SERVICES && process.env.TRUSTED_SERVICES === "enabled"
+  const protocolHandlerEnabled = process.env.REQUEST_HANDLER && process.env.REQUEST_HANDLER === "enabled"
 
   const getEffectiveLanguage = <L extends string | undefined, F extends any>(lang: L, fallback: F) => {
     return availableLanguages.indexOf(lang as any) > -1 ? lang : fallback
@@ -83,7 +84,11 @@ function AppSettings() {
         />
         <HideMemoSetting onToggle={settings.toggleHideMemos} value={settings.hideMemos} />
         <MultiSigSetting onToggle={settings.toggleMultiSignature} value={settings.multiSignature} />
-        <ProtocolHandlerSetting isDefaultHandler={isDefaultHandler} onClick={setDefaultClient} />
+        {protocolHandlerEnabled ? (
+          <ProtocolHandlerSetting isDefaultHandler={isDefaultHandler} onClick={setDefaultClient} />
+        ) : (
+          undefined
+        )}
         {trustedServicesEnabled ? <TrustedServicesSetting onClick={navigateToTrustedServices} /> : undefined}
       </List>
       <SettingsDialogs />
