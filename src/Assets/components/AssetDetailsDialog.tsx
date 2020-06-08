@@ -9,7 +9,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "~App/contexts/accounts"
 import { useAccountData, useAssetMetadata, useStellarToml } from "~Generic/hooks/stellar"
 import { useClipboard, useIsMobile } from "~Generic/hooks/userinterface"
-import { parseAssetID } from "~Generic/lib/stellar"
+import { BASE_RESERVE, parseAssetID } from "~Generic/lib/stellar"
 import { openLink } from "~Platform/links"
 import { breakpoints } from "~App/theme"
 import { StellarTomlCurrency } from "~shared/types/stellar-toml"
@@ -80,7 +80,7 @@ const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
       </Card>
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
-          <SpendableBalanceBreakdown account={props.account} accountData={accountData} baseReserve={0.5} />
+          <SpendableBalanceBreakdown account={props.account} accountData={accountData} baseReserve={BASE_RESERVE} />
         </CardContent>
       </Card>
     </>

@@ -18,6 +18,7 @@
     "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",
     "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
     "invariant-violation-error": "Invariant violation: {{message}}",
+    "low-reserve-order-error": "Cannot place order because spendable XLM balance is too low.",
     "memo-already-specified-error": "Cannot set a custom memo. Federation record of {{destination}} already specifies memo.",
     "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
     "no-callback-url-error": "Cannot submit back to multi-signature service. Signature request has no callback URL set.",

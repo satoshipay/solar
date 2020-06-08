@@ -21,11 +21,16 @@ import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import Portal from "~Generic/components/Portal"
 import { useHorizon } from "~Generic/hooks/stellar"
-import { useLiveOrderbook } from "~Generic/hooks/stellar-subscriptions"
+import { useLiveOrderbook, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
-import { balancelineToAsset } from "~Generic/lib/stellar"
+import {
+  balancelineToAsset,
+  getSpendableBalance,
+  getAccountMinimumBalance,
+  findMatchingBalanceLine
+} from "~Generic/lib/stellar"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 import { bigNumberToInputValue, isValidAmount, useCalculation, TradingFormValues } from "../hooks/form"
@@ -94,10 +99,18 @@ function TradingForm(props: Props) {
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
+  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
 
-  const calculation = useCalculation(form.getValues(), tradePair, priceMode, props.accountData, props.primaryAction)
+  const calculation = useCalculation({
+    accountData: props.accountData,
+    openOrdersCount: openOrders.length,
+    priceMode,
+    primaryAction: props.primaryAction,
+    tradePair,
+    values: form.getValues()
+  })
 
   const {
     maxPrimaryAmount,
@@ -131,6 +144,14 @@ function TradingForm(props: Props) {
         )
       }
 
+      const spendableXLMBalance = getSpendableBalance(
+        getAccountMinimumBalance(props.accountData, openOrders.length),
+        findMatchingBalanceLine(props.accountData.balances, Asset.native())
+      )
+      if (spendableXLMBalance.minus(0.5).cmp(0) <= 0) {
+        throw CustomError("LowReserveOrderError", "Cannot place order because spendable XLM balance is too low.")
+      }
+
       const tx = await createTransaction(
         [
           props.primaryAction === "buy"
@@ -162,6 +183,7 @@ function TradingForm(props: Props) {
   }, [
     effectivePrice,
     horizon,
+    openOrders.length,
     primaryAsset,
     props.account,
     props.accountData,

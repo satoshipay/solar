@@ -3,7 +3,7 @@ import { Asset, Horizon } from "stellar-sdk"
 import { AccountData } from "~Generic/lib/account"
 import { formatBalance, BalanceFormattingOptions } from "~Generic/lib/balances"
 import { calculateSpread, FixedOrderbookRecord } from "~Generic/lib/orderbook"
-import { balancelineToAsset, getAccountMinimumBalance } from "~Generic/lib/stellar"
+import { BASE_RESERVE, balancelineToAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
 import { useConversionOffers } from "./conversion"
 
 export const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
@@ -15,11 +15,30 @@ function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
 }
 
+function getSpendableBalanceWithoutBaseReserve(accountMinimumBalance: BigNumber, balanceLine: Horizon.BalanceLine) {
+  const spendableBalance = getSpendableBalance(accountMinimumBalance, balanceLine).minus(
+    // subtract base-reserve when asset_type is native because placing a new order requires 1 * base-reserve XLM
+    BigNumber(balanceLine.asset_type === "native" ? BASE_RESERVE : BigNumber(0))
+  )
+
+  // return 0 if calculated balance is negative
+  return spendableBalance.cmp(BigNumber(0)) < 0 ? BigNumber(0) : spendableBalance
+}
+
 export interface TradingFormValues {
   primaryAsset: Asset | undefined
   primaryAmountString: string
   secondaryAsset: Asset
   manualPrice: string
+}
+
+interface CalculationParameters {
+  accountData: AccountData
+  openOrdersCount: number
+  priceMode: "primary" | "secondary"
+  primaryAction: "buy" | "sell"
+  tradePair: FixedOrderbookRecord
+  values: TradingFormValues
 }
 
 interface CalculationResults {
@@ -36,14 +55,9 @@ interface CalculationResults {
   spendableSecondaryBalance: BigNumber
 }
 
-export function useCalculation(
-  values: TradingFormValues,
-  tradePair: FixedOrderbookRecord,
-  priceMode: "primary" | "secondary",
-  accountData: AccountData,
-  primaryAction: "buy" | "sell"
-): CalculationResults {
-  const { manualPrice, primaryAmountString, primaryAsset, secondaryAsset } = values
+export function useCalculation(parameters: CalculationParameters): CalculationResults {
+  const { accountData, openOrdersCount, priceMode, primaryAction, tradePair } = parameters
+  const { manualPrice, primaryAmountString, primaryAsset, secondaryAsset } = parameters.values
 
   const price =
     manualPrice && isValidAmount(manualPrice)
@@ -75,14 +89,18 @@ export function useCalculation(
   const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
   const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
 
-  const minAccountBalance = getAccountMinimumBalance(accountData)
+  const minAccountBalance = getAccountMinimumBalance(accountData, openOrdersCount)
 
   const spendablePrimaryBalance = primaryBalance
-    ? BigNumber(primaryBalance.balance).sub(primaryBalance.asset_type === "native" ? minAccountBalance : 0)
+    ? primaryAction === "sell"
+      ? getSpendableBalanceWithoutBaseReserve(minAccountBalance, primaryBalance)
+      : getSpendableBalance(minAccountBalance, primaryBalance)
     : BigNumber(0)
 
   const spendableSecondaryBalance = secondaryBalance
-    ? BigNumber(secondaryBalance.balance).sub(secondaryBalance.asset_type === "native" ? minAccountBalance : 0)
+    ? primaryAction === "buy"
+      ? getSpendableBalanceWithoutBaseReserve(minAccountBalance, secondaryBalance)
+      : getSpendableBalance(minAccountBalance, secondaryBalance)
     : BigNumber(0)
 
   const maxPrimaryAmount =
