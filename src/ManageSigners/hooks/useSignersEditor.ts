@@ -54,20 +54,20 @@ function createTxOperations(accountData: AccountData, update: SignersUpdate): xd
 export function useSignersEditor(options: SignersEditorOptions) {
   const accountData = useLiveAccountData(options.account.accountID, options.account.testnet)
   const [txCreationPending, setTxCreationPending] = React.useState(false)
-  const [_editorState, _setEditorState] = React.useState<SignersEditorState>()
+  const [rawEditorState, setRawEditorState] = React.useState<SignersEditorState>()
 
   const initialEditorState = React.useMemo(() => initializeEditorState(accountData), [accountData])
-  const editorState = _editorState || initialEditorState
+  const editorState = rawEditorState || initialEditorState
 
   const setEditorState = React.useCallback(
     (update: SignersEditorState | React.SetStateAction<SignersEditorState>) => {
       if (typeof update === "function") {
-        _setEditorState(prev => update(prev || initialEditorState))
+        setRawEditorState(prev => update(prev || initialEditorState))
       } else {
-        _setEditorState(update)
+        setRawEditorState(update)
       }
     },
-    [_setEditorState, initialEditorState]
+    [setRawEditorState, initialEditorState]
   )
 
   const applyUpdate = async (update: SignersUpdate) => {

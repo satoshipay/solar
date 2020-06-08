@@ -11,13 +11,13 @@ export enum Step {
 
 interface MultisigEditorContextType {
   accountID: string
-  applyUpdate(update: SignersUpdate): any
   currentStep: Step
   editorState: SignersEditorState
   setEditorState: React.Dispatch<React.SetStateAction<SignersEditorState>>
   switchToStep: React.Dispatch<React.SetStateAction<Step>>
   testnet: boolean
   txCreationPending: boolean
+  applyUpdate(update: SignersUpdate): any
 }
 
 export const MultisigEditorContext = React.createContext<MultisigEditorContextType>({

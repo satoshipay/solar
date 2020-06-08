@@ -58,7 +58,7 @@ function DetailsEditor(props: DetailsEditorProps) {
         signersToRemove: accountData.signers.filter(signer => signer.key !== newlySelectedSigner.key)
       }))
     },
-    [accountData]
+    [accountData, setEditorState]
   )
 
   return (
