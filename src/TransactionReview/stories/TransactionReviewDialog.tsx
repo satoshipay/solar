@@ -12,6 +12,7 @@ const testnetHorizon = new Server("https://horizon-testnet.stellar.org")
 const doNothing = () => undefined
 
 const accountStub: Account = {
+  accountID: "1",
   id: "1",
   name: "Testnet account",
   publicKey: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",
