@@ -111,7 +111,6 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
         ) : null}
         <PriceInput
           assetCode={asset.getCode()}
-          autoFocus
           disabled={minAmount && minAmount.gt(balance)}
           error={minAmount && minAmount.gt(balance)}
           label={

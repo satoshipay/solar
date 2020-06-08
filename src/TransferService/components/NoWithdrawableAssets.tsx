@@ -23,7 +23,6 @@ function NoWithdrawableAssets(props: Props) {
       <Portal desktop="inline" target={props.actionsRef.element}>
         <DialogActionsBox>
           <ActionButton
-            autoFocus
             onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
             type="primary"
           >

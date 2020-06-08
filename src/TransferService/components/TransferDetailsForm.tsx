@@ -225,7 +225,6 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
         <FormLayout>
           {fields.dest ? (
             <FormBuilderField
-              autoFocus={process.env.PLATFORM !== "ios" && props.active}
               name={t("transfer-service.transfer-details.body.destination.name")}
               descriptor={fields.dest || {}}
               onChange={event => setFormValue("dest", event.target.value)}
