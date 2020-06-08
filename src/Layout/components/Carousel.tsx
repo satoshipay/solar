@@ -36,8 +36,12 @@ export interface CarouselProps {
   current: number
 }
 
-// You must NOT use the autoFocus prop in children of the Carousel as this
-// might cause unexpected behaviour (see https://github.com/satoshipay/solar/issues/1069)
+/**
+ * IMPORTANT:
+ * You must NOT use the `autoFocus` prop in children of the Carousel as this
+ * might cause the Carousel to get stuck in an invalid scroll position (see
+ * https://github.com/satoshipay/solar/issues/1069)
+ */
 function Carousel(props: CarouselProps) {
   const classes = useCarouselStyles(props)
 
