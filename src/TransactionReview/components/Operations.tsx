@@ -309,19 +309,48 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
         : t("operations.manage-sell-offer.title.update")
 
     return offer ? (
+      props.operation.type === "manageBuyOffer" ? (
+        <SummaryItem heading={props.hideHeading ? undefined : heading}>
+          <SummaryDetailsField
+            label={t("operations.manage-offer.summary.buy")}
+            value={
+              <SingleBalance
+                assetCode={offerAssetToAsset(offer.buying).getCode()}
+                balance={String(BigNumber(offer.amount).mul(offer.price))}
+              />
+            }
+          />
+          <SummaryDetailsField
+            label={t("operations.manage-offer.summary.sell")}
+            value={<SingleBalance assetCode={offerAssetToAsset(offer.selling).getCode()} balance={offer.amount} />}
+          />
+        </SummaryItem>
+      ) : (
+        <SummaryItem heading={props.hideHeading ? undefined : heading}>
+          <SummaryDetailsField
+            label={t("operations.manage-offer.summary.sell")}
+            value={<SingleBalance assetCode={offerAssetToAsset(offer.selling).getCode()} balance={offer.amount} />}
+          />
+          <SummaryDetailsField
+            label={t("operations.manage-offer.summary.buy")}
+            value={
+              <SingleBalance
+                assetCode={offerAssetToAsset(offer.buying).getCode()}
+                balance={String(BigNumber(offer.amount).mul(offer.price))}
+              />
+            }
+          />
+        </SummaryItem>
+      )
+    ) : props.operation.type === "manageBuyOffer" ? (
       <SummaryItem heading={props.hideHeading ? undefined : heading}>
         <SummaryDetailsField
-          label={t("operations.manage-offer.summary.sell")}
-          value={<SingleBalance assetCode={offerAssetToAsset(offer.selling).getCode()} balance={offer.amount} />}
+          label={t("operations.manage-offer.summary.buy")}
+          value={<SingleBalance assetCode={buying.code} balance={String(buyAmount)} />}
         />
         <SummaryDetailsField
-          label={t("operations.manage-offer.summary.buy")}
-          value={
-            <SingleBalance
-              assetCode={offerAssetToAsset(offer.buying).getCode()}
-              balance={String(BigNumber(offer.amount).mul(offer.price))}
-            />
-          }
+          label={t("operations.manage-offer.summary.sell")}
+          value={<SingleBalance assetCode={selling.code} balance={String(sellAmount)} />}
         />
       </SummaryItem>
     ) : (

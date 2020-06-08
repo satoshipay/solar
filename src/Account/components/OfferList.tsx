@@ -27,18 +27,36 @@ function createDismissalTransaction(
   accountData: AccountData,
   offer: ServerApi.OfferRecord
 ): Promise<Transaction> {
-  return createTransaction(
-    [
-      Operation.manageSellOffer({
-        offerId: offer.id,
-        amount: "0",
-        buying: offerAssetToAsset(offer.buying),
-        price: offer.price,
-        selling: offerAssetToAsset(offer.selling)
-      })
-    ],
-    { accountData, horizon, walletAccount: account }
-  )
+  const buying = offerAssetToAsset(offer.buying)
+  const selling = offerAssetToAsset(offer.selling)
+
+  if (selling.isNative()) {
+    return createTransaction(
+      [
+        Operation.manageBuyOffer({
+          offerId: offer.id,
+          buyAmount: "0",
+          buying,
+          price: offer.price,
+          selling
+        })
+      ],
+      { accountData, horizon, walletAccount: account }
+    )
+  } else {
+    return createTransaction(
+      [
+        Operation.manageSellOffer({
+          offerId: offer.id,
+          amount: "0",
+          buying,
+          price: offer.price,
+          selling
+        })
+      ],
+      { accountData, horizon, walletAccount: account }
+    )
+  }
 }
 
 interface OfferListItemProps {
