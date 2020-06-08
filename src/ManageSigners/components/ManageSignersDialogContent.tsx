@@ -77,11 +77,6 @@ function ManageSignersDialogContent(props: Props) {
 
   const submit = async () => {
     try {
-      const updatedSigners: Horizon.AccountSigner[] = getUpdatedSigners(
-        accountData,
-        editorState.signersToAdd,
-        editorState.signersToRemove
-      )
       const weightThreshold = getWeightThreshold(editorState.preset, updatedSigners)
 
       validate(updatedSigners, weightThreshold)
