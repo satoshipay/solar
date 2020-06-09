@@ -147,7 +147,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   }
 
   const requestConfirmation = React.useCallback(() => {
-    if (accountData.subentry_count > 0) {
+    if (mergeAccountEnabled && accountData.subentry_count > 0) {
       setWarning({
         open: true,
         text: t("account-settings.account-deletion.warnings.cannot-merge.text"),
@@ -156,7 +156,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     } else {
       setConfirmationPending(true)
     }
-  }, [accountData, setConfirmationPending, setWarning, t])
+  }, [accountData, mergeAccountEnabled, setConfirmationPending, setWarning, t])
 
   const remainingFundsContent = React.useMemo(
     () =>
