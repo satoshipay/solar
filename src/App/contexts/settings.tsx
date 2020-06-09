@@ -26,7 +26,7 @@ interface ContextType {
   initialized: boolean
   language: string | undefined
   multiSignature: boolean
-  multiSignatureServiceURL: string
+  multiSignatureCoordinator: string
   setLanguage: (language: string | undefined) => void
   setSetting: (key: keyof Platform.SettingsData, value: any) => void
   showTestnet: boolean
@@ -54,7 +54,7 @@ const initialSettings: SettingsState = {
 
 const initialIgnoredSignatureRequests: string[] = []
 
-const multiSignatureServiceURL = process.env.MULTISIG_SERVICE || "https://multisig.satoshipay.io/"
+const multiSignatureCoordinator = process.env.MULTISIG_SERVICE || "multisig.satoshipay.io"
 
 const SettingsContext = React.createContext<ContextType>({
   agreedToTermsAt: initialSettings.agreedToTermsAt,
@@ -67,7 +67,7 @@ const SettingsContext = React.createContext<ContextType>({
   initialized: false,
   language: undefined,
   multiSignature: initialSettings.multisignature,
-  multiSignatureServiceURL,
+  multiSignatureCoordinator,
   setLanguage: () => undefined,
   setSetting: () => undefined,
   showTestnet: initialSettings.testnet,
@@ -170,7 +170,7 @@ export function SettingsProvider(props: Props) {
     initialized: settings.initialized,
     language: localStorage.getItem("i18nextLng") || undefined,
     multiSignature: settings.multisignature,
-    multiSignatureServiceURL,
+    multiSignatureCoordinator,
     setLanguage,
     setSetting,
     showTestnet: settings.testnet,

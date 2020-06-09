@@ -2,6 +2,7 @@ import React from "react"
 import { Horizon, Operation, Server, Transaction, xdr } from "stellar-sdk"
 import { trackError } from "~App/contexts/notifications"
 import { Account } from "~App/contexts/accounts"
+import { SettingsContext, SettingsContextType } from "~App/contexts/settings"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { AccountData } from "~Generic/lib/account"
 import { createTransaction } from "~Generic/lib/transaction"
@@ -19,7 +20,11 @@ export interface SignersUpdate {
   weightThreshold: number
 }
 
-function createTxOperations(accountData: AccountData, update: SignersUpdate): xdr.Operation[] {
+function createTxOperations(
+  accountData: AccountData,
+  settings: SettingsContextType,
+  update: SignersUpdate
+): xdr.Operation[] {
   const operations: xdr.Operation[] = [
     // signer removals before adding, so you can remove and immediately re-add signer
     ...update.signersToRemove.map(signer =>
@@ -33,6 +38,15 @@ function createTxOperations(accountData: AccountData, update: SignersUpdate): xd
       })
     )
   ]
+
+  if (!accountData.data_attr["config.multisig.coordinator"]) {
+    operations.push(
+      Operation.manageData({
+        name: "config.multisig.coordinator",
+        value: settings.multiSignatureCoordinator
+      })
+    )
+  }
 
   if (
     update.weightThreshold !== accountData.thresholds.low_threshold &&
@@ -53,6 +67,8 @@ function createTxOperations(accountData: AccountData, update: SignersUpdate): xd
 
 export function useSignersEditor(options: SignersEditorOptions) {
   const accountData = useLiveAccountData(options.account.accountID, options.account.testnet)
+  const settings = React.useContext(SettingsContext)
+
   const [txCreationPending, setTxCreationPending] = React.useState(false)
   const [rawEditorState, setRawEditorState] = React.useState<SignersEditorState>()
 
@@ -73,7 +89,7 @@ export function useSignersEditor(options: SignersEditorOptions) {
   const applyUpdate = async (update: SignersUpdate) => {
     try {
       setTxCreationPending(true)
-      const operations = createTxOperations(accountData, update)
+      const operations = createTxOperations(accountData, settings, update)
 
       const tx = await createTransaction(operations, {
         accountData,

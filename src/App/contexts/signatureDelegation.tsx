@@ -1,5 +1,9 @@
 import React from "react"
-import { SignatureRequest, deserializeSignatureRequest } from "~Generic/lib/multisig-service"
+import {
+  deserializeSignatureRequest,
+  resolveMultiSignatureCoordinator,
+  SignatureRequest
+} from "~Generic/lib/multisig-service"
 import { workers } from "~Workers/worker-controller"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
@@ -21,7 +25,7 @@ const SignatureDelegationContext = React.createContext<ContextValue>({
   subscribeToNewSignatureRequests: () => () => undefined
 })
 
-function useSignatureRequestSubscription(multiSignatureServiceURL: string, accounts: Account[]) {
+function useSignatureRequestSubscription(multiSignatureCoordinator: string, accounts: Account[]) {
   const accountPubKeys = React.useMemo(() => accounts.map(account => account.publicKey), [accounts])
 
   const { ignoredSignatureRequests } = React.useContext(SettingsContext)
@@ -41,6 +45,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 
     const setup = async () => {
       const { netWorker } = await workers
+      const multiSignatureServiceURL = await resolveMultiSignatureCoordinator(multiSignatureCoordinator)
 
       netWorker
         .fetchSignatureRequests(multiSignatureServiceURL, accountPubKeys)
@@ -51,7 +56,10 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
         return
       }
 
-      const signatureRequests = netWorker.subscribeToSignatureRequests(multiSignatureServiceURL, accountPubKeys)
+      const signatureRequests = netWorker.subscribeToSignatureRequests(
+        `https://${multiSignatureCoordinator}/`,
+        accountPubKeys
+      )
 
       const subscription = signatureRequests.subscribe(event => {
         if (event.type === "NewSignatureRequest") {
@@ -77,7 +85,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 
     // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
     return () => unsubscribe()
-  }, [accountPubKeys, accounts.length, multiSignatureServiceURL])
+  }, [accountPubKeys, accounts.length, multiSignatureCoordinator])
 
   const subscribeToNewSignatureRequests = (callback: SignatureRequestCallback) => {
     subscribersRef.current.newRequestSubscribers.push(callback)
@@ -107,7 +115,7 @@ interface Props {
 function SignatureDelegationProvider(props: Props) {
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
-  const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureServiceURL, accounts)
+  const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureCoordinator, accounts)
 
   return (
     <SignatureDelegationContext.Provider value={contextValue}>{props.children}</SignatureDelegationContext.Provider>

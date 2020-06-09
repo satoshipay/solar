@@ -12,6 +12,7 @@ import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
 import {
   collateSignature,
   createSignatureRequestURI,
+  resolveMultiSignatureCoordinator,
   submitNewSignatureRequest,
   SignatureRequest
 } from "~Generic/lib/multisig-service"
@@ -265,9 +266,16 @@ class TransactionSender extends React.Component<Props, State> {
       : createSignatureRequestURI(signedTransaction, creationOptions)
 
     try {
-      const promise = this.state.signatureRequest
-        ? collateSignature(this.state.signatureRequest, signedTransaction)
-        : submitNewSignatureRequest(this.props.settings.multiSignatureServiceURL, signatureRequestURI)
+      let promise: Promise<Response>
+      const multiSignatureServiceURL = await resolveMultiSignatureCoordinator(
+        this.props.settings.multiSignatureCoordinator
+      )
+
+      if (this.state.signatureRequest) {
+        promise = collateSignature(this.state.signatureRequest, signedTransaction)
+      } else {
+        promise = submitNewSignatureRequest(multiSignatureServiceURL, signatureRequestURI)
+      }
 
       this.setSubmissionPromise(promise)
       this.setState({ submissionType: SubmissionType.multisig })

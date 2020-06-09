@@ -5,8 +5,6 @@ import { CustomError } from "./errors"
 import { signatureMatchesPublicKey } from "./stellar"
 import { joinURL } from "./url"
 
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
-
 export interface ServerSentEvent {
   data: string | string[]
   event?: string
@@ -88,8 +86,13 @@ export function createSignatureRequestURI(transaction: Transaction, options: TxP
   return "web+stellar:tx?" + qs.stringify(query)
 }
 
-export async function submitNewSignatureRequest(serviceURL: string, signatureRequestURI: string) {
-  const submissionEndpoint = joinURL(serviceURL, "/submit")
+export async function resolveMultiSignatureCoordinator(domain: string): Promise<string> {
+  // TODO: Resolve stellar.toml, use its `MULTISIG_ENDPOINT`
+  return `https://${domain}/`
+}
+
+export async function submitNewSignatureRequest(multiSignatureServiceURL: string, signatureRequestURI: string) {
+  const submissionEndpoint = joinURL(multiSignatureServiceURL, "/submit")
 
   const response = await fetch(submissionEndpoint, {
     method: "POST",
