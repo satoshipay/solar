@@ -1,4 +1,4 @@
-import { Transaction } from "stellar-sdk"
+import { Transaction, Networks } from "stellar-sdk"
 import { Messages } from "../shared/ipc"
 import { call } from "./ipc"
 
@@ -29,12 +29,9 @@ const keyStore: KeyStoreAPI = {
     return new Transaction(signedXDR, transaction.networkPassphrase)
   },
   signTransactionWithHardwareWallet: async (walletID, accountIndex, transaction) => {
-    const txXDR = transaction
-      .toEnvelope()
-      .toXDR("base64")
-      .toString("base64")
+    const txXDR = transaction.toEnvelope().toXDR("base64")
     const signedXDR = await call(Messages.SignTransactionWithHardwareWallet, walletID, accountIndex, txXDR)
-    return new Transaction(signedXDR)
+    return new Transaction(signedXDR, Networks.PUBLIC)
   },
   saveKey: (keyID, password, privateData, publicData) =>
     call(Messages.SaveKey, keyID, password, privateData, publicData),
