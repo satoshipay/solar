@@ -23,9 +23,8 @@ export function subscribeLedgerDeviceConnectionChanges(observer: LedgerObserver)
   const sub = Transport.listen({
     next: async e => {
       if (e.type === "add") {
-        sub.unsubscribe()
         const transport = await Transport.open(e.descriptor)
-        const ledgerWallet = { id: `ledger-${idCounter++}`, transport, deviceModel: (e as any).deviceModel }
+        const ledgerWallet = { id: `ledger-${idCounter++}`, transport, deviceModel: (e as any).deviceModel.productName }
         transports[e.descriptor] = ledgerWallet
         observer.add(ledgerWallet)
       } else if (e.type === "remove") {
