@@ -146,6 +146,7 @@ expose(Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatu
 
 let ledgerWallets: LedgerWallet[] = []
 const hardwareWalletAccounts: { [walletId: string]: HardwareWalletAccount[] } = {}
+const hardwareWalletPollIntervals: { [walletId: string]: NodeJS.Timeout } = {}
 
 const accountEventEmitter = new events.EventEmitter()
 const accountEventChannel = "hw-wallet:change"
@@ -165,34 +166,45 @@ subscribeLedgerDeviceConnectionChanges({
   add: async ledgerWallet => {
     ledgerWallets.push(ledgerWallet)
 
-    const ledgerWalletAccounts: HardwareWalletAccount[] = []
-    const possibleAccountIDs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    possibleAccountIDs.reduce((previousPromise, nextIndex) => {
-      return previousPromise.then(() => {
-        return getLedgerPublicKey(ledgerWallet.transport, nextIndex)
-          .then(publicKey => {
-            const account: HardwareWalletAccount = {
-              accountIndex: nextIndex,
-              name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
-              publicKey,
-              walletID: ledgerWallet.id
-            }
-            ledgerWalletAccounts.push(account)
-          })
-          .catch(() => undefined)
-      })
-    }, Promise.resolve())
+    hardwareWalletAccounts[ledgerWallet.id] = []
 
-    hardwareWalletAccounts[ledgerWallet.id] = ledgerWalletAccounts
+    const interval = setInterval(async () => {
+      const ledgerWalletAccounts: HardwareWalletAccount[] = []
+      const possibleAccountIDs = [0, 1, 2, 3, 4]
 
-    for (const account of ledgerWalletAccounts) {
-      accountEventEmitter.emit(accountEventChannel, { type: "add", account })
-    }
+      await possibleAccountIDs.reduce((previousPromise, nextIndex) => {
+        return previousPromise.then(() => {
+          return getLedgerPublicKey(ledgerWallet.transport, nextIndex)
+            .then(publicKey => {
+              const account: HardwareWalletAccount = {
+                accountIndex: nextIndex,
+                name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
+                publicKey,
+                walletID: ledgerWallet.id
+              }
+              ledgerWalletAccounts.push(account)
+            })
+            .catch(() => undefined)
+        })
+      }, Promise.resolve())
+
+      if (hardwareWalletAccounts[ledgerWallet.id].length !== ledgerWalletAccounts.length) {
+        hardwareWalletAccounts[ledgerWallet.id] = ledgerWalletAccounts
+
+        for (const account of ledgerWalletAccounts) {
+          accountEventEmitter.emit(accountEventChannel, { type: "add", account })
+        }
+      }
+    }, 5000)
+
+    hardwareWalletPollIntervals[ledgerWallet.id] = interval
   },
   remove: wallet => {
     ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
     const removedAccounts = hardwareWalletAccounts[wallet.id]
     delete hardwareWalletAccounts[wallet.id]
+    clearInterval(hardwareWalletPollIntervals[wallet.id])
+    delete hardwareWalletPollIntervals[wallet.id]
 
     for (const account of removedAccounts) {
       accountEventEmitter.emit(accountEventChannel, { type: "remove", account })
