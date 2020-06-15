@@ -165,22 +165,23 @@ subscribeLedgerDeviceConnectionChanges({
   add: async ledgerWallet => {
     ledgerWallets.push(ledgerWallet)
 
-    const ledgerWalletAccounts = (await Promise.all(
-      // look for up to 10 accounts on the ledger device
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(async accountIndex =>
-        getLedgerPublicKey(ledgerWallet.transport, accountIndex)
+    const ledgerWalletAccounts: HardwareWalletAccount[] = []
+    const possibleAccountIDs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    possibleAccountIDs.reduce((previousPromise, nextIndex) => {
+      return previousPromise.then(() => {
+        return getLedgerPublicKey(ledgerWallet.transport, nextIndex)
           .then(publicKey => {
             const account: HardwareWalletAccount = {
-              accountIndex,
-              name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${accountIndex + 1}`,
+              accountIndex: nextIndex,
+              name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
               publicKey,
               walletID: ledgerWallet.id
             }
-            return account
+            ledgerWalletAccounts.push(account)
           })
           .catch(() => undefined)
-      )
-    ).then(values => values.filter(value => value))) as HardwareWalletAccount[]
+      })
+    }, Promise.resolve())
 
     hardwareWalletAccounts[ledgerWallet.id] = ledgerWalletAccounts
 
