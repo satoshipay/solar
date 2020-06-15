@@ -99,10 +99,10 @@ function toKebabCase(value: string) {
 }
 
 export function getErrorTranslation(error: Error, t: TFunction): string {
-  const key = `generic.error.${toKebabCase(error.name)}`
+  const key = error.name ? `generic.error.${toKebabCase(error.name)}` : "generic.error.unknown-error"
   const params = CustomError.isCustomError(error) ? pick(error, error.__extraProps || []) : undefined
 
-  const fallback = error.message
+  const fallback = error.message ? error.message : "generic.error.unknown-error"
   return t([key, fallback], params)
 }
 
