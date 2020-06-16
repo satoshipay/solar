@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@ledgerhq/hw-app-str": "^5.13.0",
-    "@ledgerhq/hw-transport-node-hid": "^5.13.0",
+    "@ledgerhq/hw-transport-node-ble": "^5.16.0",
     "electron-context-menu": "^0.15.0",
     "electron-debug": "^3.0.1",
     "electron-is-dev": "^1.1.0",
@@ -75,7 +75,6 @@
     "@types/history": "^4.7.3",
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jsonwebtoken": "^8.3.3",
-    "@types/ledgerhq__hw-transport-node-hid": "^4.22.1",
     "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.pick": "^4.4.6",
     "@types/lodash.throttle": "^4.1.6",

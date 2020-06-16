@@ -1,4 +1,4 @@
-import Transport from "@ledgerhq/hw-transport-node-hid"
+import Transport from "@ledgerhq/hw-transport-node-ble"
 import Str from "@ledgerhq/hw-app-str"
 import StellarSdk, { Transaction } from "stellar-sdk"
 

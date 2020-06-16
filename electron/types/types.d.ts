@@ -59,3 +59,27 @@ declare module "@ledgerhq/hw-app-str" {
     signHash: (path: string, hash: Buffer) => Promise<{ signature: Buffer }>
   }
 }
+
+declare module "@ledgerhq/hw-transport-node-ble" {
+  /// <reference types = "node"/>
+import HID = require("node-hid");
+import Transport from "@ledgerhq/hw-transport";
+
+declare class TransportNodeBLE extends Transport {
+    constructor(
+        device: HID.HID,
+        ledgerTransport?: boolean,
+        timeout?: number
+    );
+    static open(path: string): Promise<TransportNodeBLE>;
+    setScrambleKey(): void;
+
+    device: HID.HID;
+    id: string;
+    ledgerTransport: boolean;
+    timeout: number;
+    exchangeStack: any[];
+}
+
+export default TransportNodeBLE;
+}
