@@ -16,21 +16,30 @@ export interface LedgerWallet {
 
 let idCounter = 0
 
-const transports: { [descriptor: string]: LedgerWallet } = {}
+let ledgerWallets: LedgerWallet[] = []
 
 // according to docs of Transport: 'each listen() call will first emit all potential device already connected'
 export function subscribeLedgerDeviceConnectionChanges(observer: LedgerObserver) {
   const sub = Transport.listen({
     next: async e => {
-      if (e.type === "add") {
-        const transport = await Transport.open(e.descriptor)
-        const ledgerWallet = { id: `ledger-${idCounter++}`, transport, deviceModel: (e as any).deviceModel.productName }
-        transports[e.descriptor] = ledgerWallet
-        observer.add(ledgerWallet)
+      const descriptor = e.descriptor as any
+
+      if (e.type === "add" && descriptor.state === "disconnected") {
+        const transport = await Transport.open(descriptor)
+        const existingWallet = ledgerWallets.find(wallet => wallet.transport.id === transport.id)
+        if (existingWallet) {
+          existingWallet.transport = transport
+        } else {
+          const ledgerWallet = { id: `ledger-${idCounter++}`, transport, deviceModel: e.device.name }
+          ledgerWallets.push(ledgerWallet)
+          observer.add(ledgerWallet)
+        }
       } else if (e.type === "remove") {
-        const ledgerWallet = transports[e.descriptor]
-        delete transports[e.descriptor]
-        observer.remove(ledgerWallet)
+        const removedWallet = ledgerWallets.find(wallet => wallet.transport.id === descriptor.id)
+        if (removedWallet) {
+          ledgerWallets = ledgerWallets.filter(wallet => wallet !== removedWallet)
+          observer.remove(removedWallet)
+        }
       }
     },
     error: observer.error,
