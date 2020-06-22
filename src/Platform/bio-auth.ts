@@ -1,3 +1,4 @@
+import { CustomError } from "~Generic/lib/errors"
 import { Messages } from "../shared/ipc"
 import { call } from "./ipc"
 
@@ -15,7 +16,7 @@ export function testBiometricAuth(message: string) {
         resolve()
       }
     } else {
-      reject("Confirmation dismissed by user.")
+      reject(CustomError("BioAuthTestCanceledError", "Biometric authentication canceled"))
     }
   })
 }

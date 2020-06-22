@@ -64,7 +64,8 @@ export const BiometricLockSetting = React.memo(function BiometricLockSetting(pro
   return (
     <AppSettingsItem
       actions={
-        <SettingsToggle checked={props.enrolled && props.value} disabled={!props.enrolled} onChange={props.onToggle} />
+        // pass empty onChange handler to prevent calling onToggle twice
+        <SettingsToggle checked={props.enrolled && props.value} disabled={!props.enrolled} onChange={() => undefined} />
       }
       icon={<FingerprintIcon className={classes.icon} />}
       onClick={props.enrolled ? props.onToggle : undefined}
