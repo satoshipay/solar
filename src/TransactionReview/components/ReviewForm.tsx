@@ -3,6 +3,7 @@ import nanoid from "nanoid"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Transaction } from "stellar-sdk"
+import Typography from "@material-ui/core/Typography"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
@@ -48,6 +49,7 @@ function TxConfirmationForm(props: Props) {
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
   const [loading, setLoading] = React.useState<boolean>(false)
+  const [hardwareVerificationPending, setHardwareVerificationPending] = React.useState<boolean>(false)
   const { t } = useTranslation()
 
   const passwordError = props.passwordError || errors.password
@@ -124,7 +126,11 @@ function TxConfirmationForm(props: Props) {
 
   const showLoadingIndicator = React.useCallback(() => {
     setLoading(true)
-  }, [])
+
+    if (props.account.isHardwareWalletAccount) {
+      setHardwareVerificationPending(true)
+    }
+  }, [props.account.isHardwareWalletAccount])
 
   return (
     <form id={formID} noValidate onSubmit={handleFormSubmission}>
@@ -153,6 +159,11 @@ function TxConfirmationForm(props: Props) {
             onChange={handleTextFieldChange}
             style={{ margin: "32px auto 0", maxWidth: 300 }}
           />
+        ) : null}
+        {hardwareVerificationPending ? (
+          <Typography variant="body1" style={{ margin: "32px auto 0" }}>
+            Review and verify the transaction on your hardware wallet
+          </Typography>
         ) : null}
       </VerticalLayout>
       <Portal desktop="inline" target={props.actionsRef && props.actionsRef.element}>
