@@ -36,5 +36,9 @@ export const Messages: IPC.MessageType = {
   GetHardwareWalletAccounts: "GetHardwareWalletAccounts",
   HardwareWalletAccountAdded: "HardwareWalletAccountAdded",
   HardwareWalletAccountRemoved: "HardwareWalletAccountRemoved",
-  SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet"
+  SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet",
+
+  IsBluetoothAvailable: "IsBluetoothAvailable",
+  StartBluetoothDiscovery: "StartBluetoothDiscovery",
+  StopBluetoothDiscovery: "StopBluetoothDiscovery"
 } as const
