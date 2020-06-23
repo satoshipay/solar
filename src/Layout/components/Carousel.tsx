@@ -36,42 +36,20 @@ export interface CarouselProps {
   current: number
 }
 
+/**
+ * IMPORTANT:
+ * You must NOT use the `autoFocus` prop in children of the Carousel as this
+ * might cause the Carousel to get stuck in an invalid scroll position (see
+ * https://github.com/satoshipay/solar/issues/1069)
+ */
 function Carousel(props: CarouselProps) {
-  const { current } = props
   const classes = useCarouselStyles(props)
-
-  // workaround to prevent misalignment of children on initial render
-  const refs: Array<React.RefObject<HTMLDivElement>> = props.children.map(() => React.createRef<HTMLDivElement>())
-  React.useEffect(() => {
-    refs.forEach((ref, index) => {
-      if (ref.current) {
-        ref.current.style.visibility = index === current ? "visible" : "hidden"
-      }
-    })
-
-    setTimeout(() => {
-      refs.forEach(ref => {
-        if (ref.current) {
-          ref.current.style.visibility = "visible"
-        }
-      })
-    }, 0)
-
-    setTimeout(() => {
-      refs.forEach(ref => {
-        if (ref.current) {
-          ref.current.style.visibility = "visible"
-        }
-      })
-    }, 500)
-  }, [current, refs])
 
   return (
     <div className={classes.root}>
       <div className={classes.sledge}>
         {props.children.map((content, index) => (
           <div
-            ref={refs[index]}
             key={index}
             className={[classes.slide, index === props.current ? classes.active : ""].join(" ")}
             style={{

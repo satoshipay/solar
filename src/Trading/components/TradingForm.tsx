@@ -97,6 +97,12 @@ function TradingForm(props: Props) {
   const sendTransaction = props.sendTransaction
   const { primaryAsset, secondaryAsset } = form.watch()
 
+  React.useEffect(() => {
+    if (!primaryAsset && props.initialPrimaryAsset) {
+      form.setValue("primaryAsset", props.initialPrimaryAsset)
+    }
+  }, [form, primaryAsset, props.initialPrimaryAsset])
+
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
   const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
@@ -220,7 +226,6 @@ function TradingForm(props: Props) {
             as={
               <AssetSelector
                 assets={assets}
-                autoFocus={Boolean(process.env.PLATFORM !== "ios" && !props.initialPrimaryAsset)}
                 inputError={form.errors.primaryAsset && form.errors.primaryAsset.message}
                 label={
                   props.primaryAction === "buy"
@@ -241,7 +246,6 @@ function TradingForm(props: Props) {
             }}
           />
           <TextField
-            autoFocus={Boolean(process.env.PLATFORM !== "ios" && props.initialPrimaryAsset)}
             name="primaryAmountString"
             inputRef={form.register({
               required: t<string>("trading.validation.primary-amount-missing"),

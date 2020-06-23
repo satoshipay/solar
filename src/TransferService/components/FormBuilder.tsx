@@ -7,7 +7,6 @@ import { formatDescriptionText, formatIdentifier } from "../util/formatters"
 import FormLayout from "./FormLayout"
 
 interface FormBuilderFieldProps {
-  autoFocus?: boolean
   descriptor: TransferInfoFields[""]
   name: string
   onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
@@ -28,7 +27,6 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
   if (choices) {
     return (
       <TextField
-        autoFocus={props.autoFocus}
         helperText={formattedDescription}
         label={formattedName}
         onChange={props.onChange}
@@ -47,7 +45,6 @@ export function FormBuilderField(props: FormBuilderFieldProps) {
   } else {
     return (
       <TextField
-        autoFocus={props.autoFocus}
         helperText={formattedDescription}
         label={formattedName}
         onChange={props.onChange}
