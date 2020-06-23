@@ -62,7 +62,7 @@ export function useWebAuth() {
       network: Networks
     ) {
       const { netWorker } = await workers
-      const challenge = await netWorker.fetchWebAuthChallenge(endpointURL, serviceSigningKey, localPublicKey)
+      const challenge = await netWorker.fetchWebAuthChallenge(endpointURL, serviceSigningKey, localPublicKey, network)
       return new Transaction(challenge, network)
     },
 
@@ -89,6 +89,7 @@ export function useWebAuth() {
         .toEnvelope()
         .toXDR()
         .toString("base64")
+
       const { authToken, decoded } = await netWorker.postWebAuthResponse(endpointURL, txXdr, network)
 
       if (localPublicKey) {
