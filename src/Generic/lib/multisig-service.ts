@@ -1,9 +1,34 @@
 import fetch from "isomorphic-fetch"
 import qs from "qs"
-import { Transaction, Networks } from "stellar-sdk"
+import { Networks, Transaction } from "stellar-sdk"
 import { CustomError } from "./errors"
 import { signatureMatchesPublicKey } from "./stellar"
 import { joinURL } from "./url"
+
+export interface MultisigServerInfo {
+  capabilities: string[]
+}
+
+export enum MultisigTransactionStatus {
+  failed = "failed",
+  pending = "pending",
+  ready = "ready",
+  submitted = "submitted"
+}
+
+export interface MultisigTransactionResponse {
+  created_at: string
+  cursor: string
+  error?: {
+    message: string
+    details: any
+  }
+  hash: string
+  req: string
+  status: MultisigTransactionStatus
+  signed_by: string[]
+  updated_at: string
+}
 
 export interface ServerSentEvent {
   data: string | string[]
@@ -84,11 +109,6 @@ export function createSignatureRequestURI(transaction: Transaction, options: TxP
     xdr
   }
   return "web+stellar:tx?" + qs.stringify(query)
-}
-
-export async function resolveMultiSignatureCoordinator(domain: string): Promise<string> {
-  // TODO: Resolve stellar.toml, use its `MULTISIG_ENDPOINT`
-  return `https://${domain}/`
 }
 
 export async function submitNewSignatureRequest(multiSignatureServiceURL: string, signatureRequestURI: string) {

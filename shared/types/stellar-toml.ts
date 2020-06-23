@@ -53,6 +53,7 @@ export type StellarTomlCurrency = Partial<{
 export type StellarToml = Partial<{
   CURRENCIES: StellarTomlCurrency[]
   DOCUMENTATION: StellarTomlIssuer
+  MULTISIG_ENDPOINT: string
   PRINCIPALS: StellarTomlPrincipal[]
   SIGNING_KEY?: string
   TRANSFER_SERVER?: string

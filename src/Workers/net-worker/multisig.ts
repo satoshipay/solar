@@ -1,6 +1,13 @@
 import { Observable } from "observable-fns"
+import { Networks, Transaction } from "stellar-sdk"
 import { CustomError } from "~Generic/lib/errors"
-import { ServerSentEvent, SignatureRequest } from "~Generic/lib/multisig-service"
+import {
+  createSignatureRequestURI,
+  MultisigServerInfo,
+  MultisigTransactionResponse,
+  ServerSentEvent,
+  SignatureRequest
+} from "~Generic/lib/multisig-service"
 import { manageStreamConnection, whenBackOnline } from "~Generic/lib/stream"
 import { joinURL } from "~Generic/lib/url"
 import { raiseConnectionError, ServiceID } from "./errors"
@@ -8,8 +15,23 @@ import { raiseConnectionError, ServiceID } from "./errors"
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 const toArray = <T>(thing: T | T[]) => (Array.isArray(thing) ? thing : [thing])
 
-export async function fetchSignatureRequests(serviceURL: string, accountIDs: string[]) {
-  const url = joinURL(serviceURL, `/requests/${dedupe(accountIDs).join(",")}`)
+export async function fetchServerInfo(serviceURL: string) {
+  const url = joinURL(serviceURL, "/capabilities")
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    const responseText = await response.text()
+    throw CustomError("HttpRequestError", `HTTP fetch failed: ${responseText} \nService: ${serviceURL}`, {
+      response: responseText,
+      service: serviceURL
+    })
+  }
+
+  return (await response.json()) as MultisigServerInfo
+}
+
+export async function fetchTransactions(serviceURL: string, accountIDs: string[]) {
+  const url = joinURL(serviceURL, `/transactions/${dedupe(accountIDs).join(",")}`)
   const response = await fetch(url)
 
   if (!response.ok) {
@@ -24,32 +46,27 @@ export async function fetchSignatureRequests(serviceURL: string, accountIDs: str
     )
   }
 
-  return (await response.json()) as Array<Omit<SignatureRequest, "meta">>
+  return (await response.json()) as MultisigTransactionResponse[]
 }
 
 interface NewSignatureRequest {
-  type: "NewSignatureRequest"
-  signatureRequest: SignatureRequest
+  type: "transaction:added"
+  transaction: SignatureRequest
 }
 
 interface SignatureRequestUpdate {
-  type: "SignatureRequestUpdate"
-  signatureRequest: SignatureRequest
+  type: "transaction:updated"
+  transaction: SignatureRequest
 }
 
-interface SignatureRequestSubmitted {
-  type: "SignatureRequestSubmitted"
-  signatureRequest: SignatureRequest
-}
+type SignatureRequestEvent = NewSignatureRequest | SignatureRequestUpdate
 
-type SignatureRequestEvent = NewSignatureRequest | SignatureRequestUpdate | SignatureRequestSubmitted
-
-export function subscribeToSignatureRequests(serviceURL: string, accountIDs: string[]) {
+export function subscribeToTransactions(serviceURL: string, accountIDs: string[]) {
   if (accountIDs.length === 0) {
     return new Observable<SignatureRequestEvent>(() => undefined)
   }
 
-  const url = joinURL(serviceURL, `/stream/${dedupe(accountIDs).join(",")}`)
+  const url = joinURL(serviceURL, `/accounts/${dedupe(accountIDs).join(",")}/transactions`)
 
   return new Observable<SignatureRequestEvent>(observer => {
     let eventSource: EventSource
@@ -63,12 +80,12 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
       })
 
       eventSource.addEventListener(
-        "signature-request",
+        "transaction:added",
         ((message: ServerSentEvent) => {
-          for (const signatureRequest of toArray(message.data).map(data => JSON.parse(data))) {
+          for (const transaction of toArray(message.data).map(data => JSON.parse(data))) {
             observer.next({
-              type: "NewSignatureRequest",
-              signatureRequest
+              type: "transaction:added",
+              transaction
             })
           }
         }) as any,
@@ -76,25 +93,12 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
       )
 
       eventSource.addEventListener(
-        "signature-request:updated",
+        "transaction:updated",
         ((message: ServerSentEvent) => {
-          for (const signatureRequest of toArray(message.data).map(data => JSON.parse(data))) {
+          for (const transaction of toArray(message.data).map(data => JSON.parse(data))) {
             observer.next({
-              type: "SignatureRequestUpdate",
-              signatureRequest
-            })
-          }
-        }) as any,
-        false
-      )
-
-      eventSource.addEventListener(
-        "signature-request:submitted",
-        ((message: ServerSentEvent) => {
-          for (const signatureRequest of toArray(message.data).map(data => JSON.parse(data))) {
-            observer.next({
-              type: "SignatureRequestSubmitted",
-              signatureRequest
+              type: "transaction:updated",
+              transaction
             })
           }
         }) as any,
@@ -138,4 +142,41 @@ export function subscribeToSignatureRequests(serviceURL: string, accountIDs: str
 
     return () => eventSource.close()
   })
+}
+
+async function shareTransaction(
+  serviceURL: string,
+  accountID: string,
+  testnet: boolean,
+  transactionXdr: string,
+  signatureXdr: string
+) {
+  const transaction = new Transaction(transactionXdr, testnet ? Networks.TESTNET : Networks.PUBLIC)
+  const url = joinURL(serviceURL, "/transactions")
+
+  const req = createSignatureRequestURI(transaction, {
+    network_passphrase: testnet ? Networks.TESTNET : undefined
+  })
+
+  const response = await fetch(url, {
+    body: JSON.stringify({
+      pubkey: accountID,
+      req,
+      signature: signatureXdr
+    }),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST"
+  })
+
+  if (!response.ok) {
+    const responseText = await response.text()
+    throw CustomError("HttpRequestError", `HTTP fetch failed: ${responseText} \nService: ${serviceURL}`, {
+      response: responseText,
+      service: serviceURL
+    })
+  }
+
+  return response.json()
 }

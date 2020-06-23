@@ -9,10 +9,10 @@ import { useHorizon } from "~Generic/hooks/stellar"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
 import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
+import { resolveMultiSignatureCoordinator } from "~Generic/lib/multisig-discovery"
 import {
   collateSignature,
   createSignatureRequestURI,
-  resolveMultiSignatureCoordinator,
   submitNewSignatureRequest,
   SignatureRequest
 } from "~Generic/lib/multisig-service"
