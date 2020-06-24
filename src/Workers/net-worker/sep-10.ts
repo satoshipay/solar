@@ -5,9 +5,10 @@ import * as WebAuth from "@satoshipay/stellar-sep-10"
 export async function fetchWebAuthChallenge(
   endpointURL: string,
   serviceSigningKey: string | null,
-  localPublicKey: string
+  localPublicKey: string,
+  network: Networks
 ) {
-  const challenge = await WebAuth.fetchChallenge(endpointURL, serviceSigningKey, localPublicKey)
+  const challenge = await WebAuth.fetchChallenge(endpointURL, serviceSigningKey, localPublicKey, network)
   return challenge
     .toEnvelope()
     .toXDR()
