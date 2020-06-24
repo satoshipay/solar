@@ -31,6 +31,7 @@
     "stellar-address-not-found-error": "Stellar address not found: {{address}}",
     "stellar-address-request-failed-error": "Stellar address resolution of {{address}} failed.",
     "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
+    "testnet-endpoint-not-available-error": "{{service}} does not provide a testnet endpoint.",
     "unexpected-action-error": "Unexpected action: {{action}}",
     "unexpected-state-error": "Encountered unexpected state: {{state}}",
     "unexpected-response-type-error": "Unexpected response type: {{type}} / ${dataType}",

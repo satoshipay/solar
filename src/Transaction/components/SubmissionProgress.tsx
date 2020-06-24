@@ -30,13 +30,13 @@ function Heading(props: { children: React.ReactNode }) {
 export enum SubmissionType {
   default,
   multisig,
-  stellarguard
+  thirdParty
 }
 
 const successMessages: { [type: number]: string } = {
   [SubmissionType.default]: "Successful",
   [SubmissionType.multisig]: "Waiting for missing signatures",
-  [SubmissionType.stellarguard]: "Waiting for StellarGuard authorization"
+  [SubmissionType.thirdParty]: "Waiting for authorization of third-party service"
 }
 
 interface SubmissionProgressProps {

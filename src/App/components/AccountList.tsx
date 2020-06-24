@@ -14,10 +14,9 @@ import { Account } from "../contexts/accounts"
 import { SignatureDelegationContext } from "../contexts/signatureDelegation"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
-import { containsStellarGuardAsSigner } from "~Generic/lib/stellar-guard"
+import { containsThirdPartySigner } from "~Generic/lib/third-party-security"
 import { SignatureRequest } from "~Generic/lib/multisig-service"
 import InlineLoader from "~Generic/components/InlineLoader"
-import StellarGuardIcon from "~Icons/components/StellarGuard"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 import * as routes from "../routes"
 
@@ -71,9 +70,16 @@ const StyledBadge = (props: BadgeProps) => {
 function Badges(props: { account: Account }) {
   const { t } = useTranslation()
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const multiSigIcon = containsStellarGuardAsSigner(accountData.signers) ? (
-    <Tooltip title={t("app.account-list.badges.tooltip.stellar-guard")}>
-      <StellarGuardIcon style={{ marginTop: 6 }} />
+
+  const securityService = containsThirdPartySigner(accountData.signers)
+
+  const multiSigIcon = securityService ? (
+    <Tooltip
+      title={t("app.account-list.badges.tooltip.security-service", `${securityService.name} Protection`, {
+        service: securityService.name
+      })}
+    >
+      {securityService.icon({ style: { marginTop: 6 } })}
     </Tooltip>
   ) : (
     <Tooltip title={t("app.account-list.badges.tooltip.multi-sig")}>

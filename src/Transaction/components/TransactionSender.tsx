@@ -17,7 +17,11 @@ import {
 } from "~Generic/lib/multisig-service"
 import { networkPassphrases } from "~Generic/lib/stellar"
 import { hasSigned, requiresRemoteSignatures, signTransaction } from "~Generic/lib/transaction"
-import { isStellarGuardProtected, submitTransactionToStellarGuard } from "~Generic/lib/stellar-guard"
+import {
+  isThirdPartyProtected,
+  submitTransactionToThirdPartyService,
+  ThirdPartySecurityService
+} from "~Generic/lib/third-party-security"
 import { workers } from "~Workers/worker-controller"
 import TransactionReviewDialog from "~TransactionReview/components/TransactionReviewDialog"
 import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
@@ -186,8 +190,9 @@ class TransactionSender extends React.Component<Props, State> {
     }
 
     try {
-      if (await isStellarGuardProtected(horizon, account.publicKey)) {
-        await this.submitTransactionToStellarGuard(signedTx)
+      const thirdPartySecurityService = await isThirdPartyProtected(horizon, account.publicKey)
+      if (thirdPartySecurityService) {
+        await this.submitTransactionToThirdPartyService(signedTx, thirdPartySecurityService)
       } else if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
         await this.submitTransactionToMultisigService(signedTx)
       } else {
@@ -251,12 +256,12 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  submitTransactionToStellarGuard = async (signedTransaction: Transaction) => {
+  submitTransactionToThirdPartyService = async (signedTransaction: Transaction, service: ThirdPartySecurityService) => {
     try {
-      const promise = submitTransactionToStellarGuard(signedTransaction, this.props.account.testnet)
+      const promise = submitTransactionToThirdPartyService(signedTransaction, service, this.props.account.testnet)
 
       this.setSubmissionPromise(promise)
-      this.setState({ submissionType: SubmissionType.stellarguard })
+      this.setState({ submissionType: SubmissionType.thirdParty })
       return await promise
     } catch (error) {
       throw explainSubmissionErrorResponse(error, this.props.t)
