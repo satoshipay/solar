@@ -11,7 +11,7 @@ import { DialogActionsBox, ActionButton } from "~Generic/components/DialogAction
 import { useHorizonURL } from "~Generic/hooks/stellar"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { useNetWorker } from "~Generic/hooks/workers"
-import { requestHardwareAccounts, addWallet, getConnectedWallets, removeWallet } from "~Platform/hardware-wallet"
+import { requestHardwareAccounts, getConnectedWallets } from "~Platform/hardware-wallet"
 import { subscribeToMessages } from "~Platform/ipc"
 import { Messages } from "~shared/ipc"
 
@@ -41,7 +41,7 @@ function BluetoothOnboardingDialog(props: Props) {
   const { createHardwareAccount, deleteAccount } = React.useContext(AccountsContext)
 
   const [hardwareWalletAccounts, setHardwareWalletAccounts] = React.useState<Account[]>([])
-  const [walletConnected, setWalletConnected] = React.useState<boolean>(() => getConnectedWallets().length > 0)
+  const [walletConnected, setWalletConnected] = React.useState<boolean>(false)
 
   const netWorker = useNetWorker()
   const horizonURL = useHorizonURL(false)
@@ -75,29 +75,40 @@ function BluetoothOnboardingDialog(props: Props) {
     [createHardwareAccount, horizonURL, netWorker]
   )
 
+  const addWallet = React.useCallback(
+    async (wallet: HardwareWallet) => {
+      setWalletConnected(true)
+      const indices = [0, 1, 2, 3, 4]
+      let fetchMore = true
+      let fetchCounter = 0
+      do {
+        fetchMore = await requestAccounts(
+          wallet.id,
+          indices.map(index => index + fetchCounter * indices.length)
+        )
+        fetchCounter++
+      } while (fetchMore)
+    },
+    [requestAccounts]
+  )
+
   React.useEffect(() => {
-    const unsubscribeWalletAddEvents = subscribeToMessages(
-      Messages.HardwareWalletAdded,
-      async (wallet: HardwareWallet) => {
-        addWallet(wallet)
+    getConnectedWallets().then(wallets => {
+      if (wallets.length) {
         setWalletConnected(true)
-        const indices = [0, 1, 2, 3, 4]
-        let fetchMore = true
-        let fetchCounter = 0
-        do {
-          fetchMore = await requestAccounts(
-            wallet.id,
-            indices.map(index => index + fetchCounter * indices.length)
-          )
-          fetchCounter++
-        } while (fetchMore)
       }
-    )
+      for (const wallet of wallets) {
+        addWallet(wallet)
+      }
+    })
+  }, [addWallet])
+
+  React.useEffect(() => {
+    const unsubscribeWalletAddEvents = subscribeToMessages(Messages.HardwareWalletAdded, addWallet)
 
     const unsubscribeWalletRemoveEvents = subscribeToMessages(
       Messages.HardwareWalletRemoved,
       (wallet: HardwareWallet) => {
-        removeWallet(wallet)
         const removedAccounts = hardwareWalletAccounts.filter(account => account.id.includes(wallet.id))
 
         if (removedAccounts) {
@@ -114,7 +125,7 @@ function BluetoothOnboardingDialog(props: Props) {
     }
 
     return unsubscribe
-  }, [createHardwareAccount, deleteAccount, hardwareWalletAccounts, horizonURL, netWorker, requestAccounts])
+  }, [addWallet, createHardwareAccount, deleteAccount, hardwareWalletAccounts, horizonURL, netWorker, requestAccounts])
 
   React.useEffect(() => {
     if (hardwareWalletAccounts.length > 0) {

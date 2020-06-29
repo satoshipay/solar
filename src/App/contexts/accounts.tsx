@@ -208,12 +208,19 @@ export function AccountsProvider(props: Props) {
     return account
   }
 
-  const createHardwareAccount = async (account: HardwareWalletAccount) => {
+  const createHardwareAccount = React.useCallback(async (account: HardwareWalletAccount) => {
     const keyStore = getKeyStore()
     const accountInstance = await createHardwareWalletAccountInstance(keyStore, account)
-    setAccounts(prevAccounts => [...prevAccounts, accountInstance])
+    setAccounts(prevAccounts => {
+      if (!prevAccounts.find(acc => acc.id === accountInstance.id)) {
+        return [...prevAccounts, accountInstance]
+      } else {
+        return prevAccounts
+      }
+    })
+
     return accountInstance
-  }
+  }, [])
 
   const updateAccountInStore = (updatedAccount: Account) => {
     setAccounts(prevAccounts =>

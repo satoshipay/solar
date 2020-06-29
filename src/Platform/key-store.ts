@@ -3,7 +3,6 @@ import { Messages } from "../shared/ipc"
 import { call } from "./ipc"
 
 export interface KeyStoreAPI {
-  getHardwareWalletAccounts: () => Promise<HardwareWalletAccount[]>
   getKeyIDs(): Promise<string[]>
   getPublicKeyData(keyID: string): Promise<PublicKeyData>
   getPrivateKeyData(keyID: string, password: string): Promise<PrivateKeyData>
@@ -19,7 +18,6 @@ export interface KeyStoreAPI {
 }
 
 const keyStore: KeyStoreAPI = {
-  getHardwareWalletAccounts: () => call(Messages.GetHardwareWalletAccounts),
   getKeyIDs: () => call(Messages.GetKeyIDs),
   getPublicKeyData: keyID => call(Messages.GetPublicKeyData, keyID),
   getPrivateKeyData: (keyID, password) => call(Messages.GetPrivateKeyData, keyID, password),

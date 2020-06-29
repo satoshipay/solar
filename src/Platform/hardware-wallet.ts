@@ -2,7 +2,6 @@ import { Messages } from "~shared/ipc"
 import { call } from "./ipc"
 
 let discoveryRunning = false
-let connectedWallets: HardwareWallet[] = []
 
 export function isDiscoveryRunning() {
   return discoveryRunning
@@ -22,16 +21,8 @@ export function isBluetoothAvailable() {
   return call(Messages.IsBluetoothAvailable)
 }
 
-export function addWallet(wallet: HardwareWallet) {
-  connectedWallets.push(wallet)
-}
-
-export function removeWallet(wallet: HardwareWallet) {
-  connectedWallets = connectedWallets.filter(w => w.id !== wallet.id)
-}
-
 export function getConnectedWallets() {
-  return connectedWallets
+  return call(Messages.GetHardwareWallets)
 }
 
 export function requestHardwareAccounts(walletID: string, accountIndices: number[]) {

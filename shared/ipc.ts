@@ -33,6 +33,7 @@ export const Messages: IPC.MessageType = {
   SignTransaction: "SignTransaction",
   RemoveKey: "RemoveKey",
 
+  GetHardwareWallets: "GetHardwareWallets",
   GetHardwareWalletAccounts: "GetHardwareWalletAccounts",
   HardwareWalletAdded: "HardwareWalletAdded",
   HardwareWalletRemoved: "HardwareWalletRemoved",

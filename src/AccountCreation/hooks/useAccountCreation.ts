@@ -79,8 +79,16 @@ function useAccountCreation(options: UseAccountCreationOptions) {
       }
 
       const walletRelatedAccounts = accounts.filter(acc => acc.id.includes(walletID))
-      const walletAccountsIDs = walletRelatedAccounts.map(wallAcc => Number(wallAcc.id.split("-")[2]))
-      const nextAccountID = Math.max.apply(null, walletAccountsIDs) + 1
+      const walletAccountsIDs = walletRelatedAccounts.map(wallAcc => Number(wallAcc.id.split("-")[2])).sort()
+
+      let nextAccountID = walletAccountsIDs.length
+      // check for missing account lower than the highest id
+      for (let i = 0; i < walletAccountsIDs.length; i++) {
+        if (walletAccountsIDs[i] !== i) {
+          nextAccountID = i
+        }
+      }
+
       const newAccount = await requestHardwareAccount(walletID, nextAccountID)
       const accountInstance = await createHardwareAccount(newAccount)
       return accountInstance

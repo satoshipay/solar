@@ -182,6 +182,13 @@ expose(Messages.StopBluetoothDiscovery, () => {
   bluetoothSubscription.unsubscribe()
 })
 
+expose(Messages.GetHardwareWallets, function getHardwareWallets() {
+  return ledgerWallets.map(ledgerWallet => ({
+    id: ledgerWallet.id,
+    deviceModel: ledgerWallet.deviceModel
+  }))
+})
+
 expose(Messages.GetHardwareWalletAccounts, async function getHardwareWalletAccounts(
   walletID: string,
   accountIndices: number[]

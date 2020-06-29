@@ -41,6 +41,7 @@ declare namespace IPC {
     SignTransaction: "SignTransaction"
     RemoveKey: "RemoveKey"
 
+    GetHardwareWallets: "GetHardwareWallets"
     GetHardwareWalletAccounts: "GetHardwareWalletAccounts"
     HardwareWalletAdded: "HardwareWalletAdded"
     HardwareWalletRemoved: "HardwareWalletRemoved"
@@ -93,6 +94,7 @@ declare namespace IPC {
     [Messages.SignTransaction]: (internalAccountID: string, transactionXDR: string, password: string) => string
     [Messages.RemoveKey]: (keyID: string) => void
 
+    [Messages.GetHardwareWallets]: () => HardwareWallet[]
     [Messages.GetHardwareWalletAccounts]: (walletID: string, accountIndices: number[]) => HardwareWalletAccount[]
     [Messages.HardwareWalletAdded]: () => HardwareWalletAccount
     [Messages.HardwareWalletRemoved]: () => HardwareWalletAccount

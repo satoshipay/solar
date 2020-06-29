@@ -18,11 +18,11 @@ function HardwareWalletSelection(props: HardwareWalletSelectionProps) {
   const { onUpdateAccountCreation } = props
 
   const [selectedWalletID, setSelectedWalletID] = React.useState<string>("")
+  const [connectedWallets, setConnectedWallets] = React.useState<HardwareWallet[]>([])
+  getConnectedWallets().then(setConnectedWallets)
 
   const isSmallScreen = useIsMobile()
   const { t } = useTranslation()
-
-  const connectedWallets = getConnectedWallets()
 
   const onSelectWallet = React.useCallback(
     (walletID: string) => {
@@ -43,7 +43,7 @@ function HardwareWalletSelection(props: HardwareWalletSelectionProps) {
             onClick={() => onSelectWallet(wallet.id)}
             selected={wallet.id === selectedWalletID}
           >
-            <ListItemText primary={wallet.id} secondary={wallet.deviceModel} />
+            <ListItemText primary={wallet.deviceModel ? wallet.deviceModel : wallet.id} secondary={wallet.id} />
           </ListItem>
         ))}
       </List>
