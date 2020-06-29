@@ -34,8 +34,8 @@ export const Messages: IPC.MessageType = {
   RemoveKey: "RemoveKey",
 
   GetHardwareWalletAccounts: "GetHardwareWalletAccounts",
-  HardwareWalletAccountAdded: "HardwareWalletAccountAdded",
-  HardwareWalletAccountRemoved: "HardwareWalletAccountRemoved",
+  HardwareWalletAdded: "HardwareWalletAdded",
+  HardwareWalletRemoved: "HardwareWalletRemoved",
   SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet",
 
   IsBluetoothAvailable: "IsBluetoothAvailable",

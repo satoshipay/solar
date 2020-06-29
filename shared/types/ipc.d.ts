@@ -42,9 +42,13 @@ declare namespace IPC {
     RemoveKey: "RemoveKey"
 
     GetHardwareWalletAccounts: "GetHardwareWalletAccounts"
-    HardwareWalletAccountAdded: "HardwareWalletAccountAdded"
-    HardwareWalletAccountRemoved: "HardwareWalletAccountRemoved"
+    HardwareWalletAdded: "HardwareWalletAdded"
+    HardwareWalletRemoved: "HardwareWalletRemoved"
     SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet"
+
+    IsBluetoothAvailable: "IsBluetoothAvailable"
+    StartBluetoothDiscovery: "StartBluetoothDiscovery"
+    StopBluetoothDiscovery: "StopBluetoothDiscovery"
   }
 
   export type MessageType = typeof Messages
@@ -89,14 +93,18 @@ declare namespace IPC {
     [Messages.SignTransaction]: (internalAccountID: string, transactionXDR: string, password: string) => string
     [Messages.RemoveKey]: (keyID: string) => void
 
-    [Messages.GetHardwareWalletAccounts]: () => HardwareWalletAccount[]
-    [Messages.HardwareWalletAccountAdded]: () => HardwareWalletAccount
-    [Messages.HardwareWalletAccountRemoved]: () => HardwareWalletAccount
+    [Messages.GetHardwareWalletAccounts]: (walletID: string, accountIndices: number[]) => HardwareWalletAccount[]
+    [Messages.HardwareWalletAdded]: () => HardwareWalletAccount
+    [Messages.HardwareWalletRemoved]: () => HardwareWalletAccount
     [Messages.SignTransactionWithHardwareWallet]: (
       walletID: string,
       accountIndex: number,
       transactionXDR: string
     ) => string
+
+    [Messages.IsBluetoothAvailable]: () => boolean
+    [Messages.StartBluetoothDiscovery]: () => void
+    [Messages.StopBluetoothDiscovery]: () => void
   }
 
   export type MessageArgs<Message extends keyof MessageType> = MessageSignatures[Message] extends () => any
