@@ -47,8 +47,8 @@ declare module "electron-reload" {
 }
 
 declare module "@ledgerhq/hw-app-str" {
-  export default class Str {
-    constructor(transport: Transport<*>, scrambleKey: string = "l0v")
+  declare class Str {
+    constructor(transport: any, scrambleKey: string = "l0v")
     getAppConfiguration: () => Promise<{ version: string }>
     getPublicKey: (
       path: string,
@@ -58,28 +58,42 @@ declare module "@ledgerhq/hw-app-str" {
     signTransaction: (path: string, transaction: Buffer) => Promise<{ signature: Buffer }>
     signHash: (path: string, hash: Buffer) => Promise<{ signature: Buffer }>
   }
+
+  export default Str
 }
 
 declare module "@ledgerhq/hw-transport-node-ble" {
-  /// <reference types = "node"/>
-import HID = require("node-hid");
-import Transport from "@ledgerhq/hw-transport";
+  import Observable from "zen-observable"
 
-declare class TransportNodeBLE extends Transport {
-    constructor(
-        device: HID.HID,
-        ledgerTransport?: boolean,
-        timeout?: number
-    );
-    static open(path: string): Promise<TransportNodeBLE>;
-    setScrambleKey(): void;
+  declare class TransportNodeBLE {
+    constructor(device: any, ledgerTransport?: boolean, timeout?: number)
+    static availability: Observable<boolean>
+    static open(path: string): Promise<TransportNodeBLE>
+    setScrambleKey(): void
+    static listen(observer: Observer<DescriptorEvent<Descriptor>>): Subscription
 
-    device: HID.HID;
-    id: string;
-    ledgerTransport: boolean;
-    timeout: number;
-    exchangeStack: any[];
-}
+    device: HID.HID
+    id: string
+    ledgerTransport: boolean
+    timeout: number
+    exchangeStack: any[]
+  }
 
-export default TransportNodeBLE;
+  type Device = any
+  type Descriptor = string
+  interface DescriptorEvent<Descriptor> {
+    type: "add" | "remove"
+    descriptor: Descriptor
+    device?: Device
+  }
+  interface Observer<Ev> {
+    readonly next: (event: Ev) => any
+    readonly error: (e: any) => any
+    readonly complete: () => any
+  }
+  interface Subscription {
+    readonly unsubscribe: () => void
+  }
+
+  export default TransportNodeBLE
 }
