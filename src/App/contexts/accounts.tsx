@@ -2,8 +2,6 @@ import React from "react"
 import { Keypair, Transaction } from "stellar-sdk"
 import { WrongPasswordError, CustomError } from "~Generic/lib/errors"
 import getKeyStore, { KeyStoreAPI } from "~Platform/key-store"
-import { subscribeToMessages } from "~Platform/ipc"
-import { Messages } from "~shared/ipc"
 import { trackError } from "./notifications"
 
 export interface Account {
@@ -32,6 +30,7 @@ interface ContextValue {
   networkSwitch: NetworkID
   changePassword(accountID: string, prevPassword: string, nextPassword: string): Promise<any>
   createAccount(accountData: NewAccountData): Promise<Account>
+  createHardwareAccount(account: HardwareWalletAccount): Promise<Account>
   deleteAccount(accountID: string): Promise<any>
   removePassword(accountID: string, prevPassword: string): Promise<any>
   renameAccount(accountID: string, newName: string): Promise<any>
@@ -165,6 +164,9 @@ const AccountsContext = React.createContext<ContextValue>({
   createAccount: () => {
     throw new Error("AccountsProvider not yet ready.")
   },
+  createHardwareAccount: () => {
+    throw new Error("AccountsProvider not yet ready.")
+  },
   deleteAccount: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
   removePassword: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
   renameAccount: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
@@ -188,49 +190,14 @@ export function AccountsProvider(props: Props) {
         .then(async keyIDs => {
           const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
           setNetworkSwitch(getInitialNetwork(loadedAccounts))
-          return loadedAccounts
+          setAccounts(loadedAccounts)
         })
-        .then(localAccounts => {
-          keyStore
-            .getHardwareWalletAccounts()
-            .then(async walletAccounts => {
-              const hwAccounts = await Promise.all(
-                walletAccounts.map(account => createHardwareWalletAccountInstance(keyStore, account))
-              )
-              setAccounts(localAccounts.concat(...hwAccounts))
-            })
-            .catch(trackError)
-        })
+        .catch(trackError)
     } catch (error) {
       trackError(error)
     }
 
-    const unsubscribeAddAccountEvents = subscribeToMessages(
-      Messages.HardwareWalletAccountAdded,
-      async (account: HardwareWalletAccount) => {
-        const initializedAccountInstance = await createHardwareWalletAccountInstance(keyStore, account)
-        setAccounts(prevAccounts => {
-          if (!prevAccounts.includes(initializedAccountInstance)) {
-            return [...prevAccounts, initializedAccountInstance]
-          } else {
-            return prevAccounts
-          }
-        })
-      }
-    )
-
-    const unsubscribeRemoveAccountEvents = subscribeToMessages(
-      Messages.HardwareWalletAccountRemoved,
-      (account: HardwareWalletAccount) => {
-        const removedAccountID = `hardware-${account.walletID}-${account.accountIndex}`
-        setAccounts(prevAccounts => prevAccounts.filter(acc => acc.id !== removedAccountID))
-      }
-    )
-
-    const unsubscribe = () => {
-      unsubscribeAddAccountEvents()
-      unsubscribeRemoveAccountEvents()
-    }
+    const unsubscribe = () => undefined
 
     return unsubscribe
   }, [])
@@ -239,6 +206,13 @@ export function AccountsProvider(props: Props) {
     const account = await createAccountInKeyStore(accounts, accountData)
     setAccounts(prevAccounts => [...prevAccounts, account])
     return account
+  }
+
+  const createHardwareAccount = async (account: HardwareWalletAccount) => {
+    const keyStore = getKeyStore()
+    const accountInstance = await createHardwareWalletAccountInstance(keyStore, account)
+    setAccounts(prevAccounts => [...prevAccounts, accountInstance])
+    return accountInstance
   }
 
   const updateAccountInStore = (updatedAccount: Account) => {
@@ -277,7 +251,10 @@ export function AccountsProvider(props: Props) {
     }
 
     // Setting `password: true` explicitly, in case there was no password set before
-    await keyStore.saveKey(accountID, nextPassword, privateKeyData, { ...publicKeyData, password: true })
+    await keyStore.saveKey(accountID, nextPassword, privateKeyData, {
+      ...publicKeyData,
+      password: true
+    })
 
     updateAccountInStore(await createAccountInstance(keyStore, accountID))
   }
@@ -296,7 +273,10 @@ export function AccountsProvider(props: Props) {
       throw WrongPasswordError()
     }
 
-    await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })
+    await keyStore.saveKey(accountID, "", privateKeyData, {
+      ...publicKeyData,
+      password: false
+    })
     updateAccountInStore(await createAccountInstance(keyStore, accountID))
   }
 
@@ -309,6 +289,7 @@ export function AccountsProvider(props: Props) {
     networkSwitch,
     changePassword,
     createAccount,
+    createHardwareAccount,
     deleteAccount,
     removePassword,
     renameAccount,
