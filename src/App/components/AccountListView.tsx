@@ -70,6 +70,8 @@ function AllAccountsPage() {
   const [bluetoothDiscoveryRunning, setBluetoothDiscoveryRunning] = React.useState(isDiscoveryRunning)
   const [bluetoothOnboarding, setBluetoothOnboarding] = React.useState(false)
 
+  const isDesktopApplication = process.env.PLATFORM !== "ios" && process.env.PLATFORM !== "android"
+
   const classes = useStyles()
   const isSmallScreen = useIsMobile()
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
@@ -192,7 +194,7 @@ function AllAccountsPage() {
             !updater.isUpdateDownloaded()
               ? updateButton
               : null}
-            {bluetoothButton}
+            {isDesktopApplication ? bluetoothButton : undefined}
             <IconButton
               onClick={() => router.history.push(routes.settings())}
               style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
@@ -205,6 +207,7 @@ function AllAccountsPage() {
     ),
     [
       bluetoothButton,
+      isDesktopApplication,
       isUpdateInProgress,
       isWidthMax450,
       networkSwitch,
@@ -237,7 +240,11 @@ function AllAccountsPage() {
         open={settings.initialized && !settings.agreedToTermsAt}
         onConfirm={settings.confirmToC}
       />
-      <BluetoothOnboardingDialog showOnboarding={bluetoothOnboarding} onClose={() => setBluetoothOnboarding(false)} />
+      {isDesktopApplication ? (
+        <BluetoothOnboardingDialog showOnboarding={bluetoothOnboarding} onClose={() => setBluetoothOnboarding(false)} />
+      ) : (
+        undefined
+      )}
     </Section>
   )
 }
