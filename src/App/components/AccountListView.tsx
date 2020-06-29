@@ -10,13 +10,19 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import UpdateIcon from "@material-ui/icons/SystemUpdateAlt"
 import EnableBluetoothIcon from "@material-ui/icons/Bluetooth"
 import DisableBluetoothIcon from "@material-ui/icons/BluetoothDisabled"
+import BluetoothOnboardingDialog from "~Account/components/BluetoothOnboardingDialog"
 import DialogBody from "~Layout/components/DialogBody"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { Section } from "~Layout/components/Page"
 import MainTitle from "~Generic/components/MainTitle"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import getUpdater from "~Platform/updater"
-import { stopBluetoothDiscovery, startBluetoothDiscovery, isBluetoothAvailable } from "~Platform/hardware-wallet"
+import {
+  isBluetoothAvailable,
+  isDiscoveryRunning,
+  stopBluetoothDiscovery,
+  startBluetoothDiscovery
+} from "~Platform/hardware-wallet"
 import AppNotificationPermission from "~Toasts/components/AppNotificationPermission"
 import { AccountsContext } from "../contexts/accounts"
 import { NotificationsContext, trackError } from "../contexts/notifications"
@@ -61,7 +67,8 @@ function AllAccountsPage() {
   const { t } = useTranslation()
 
   const [bluetoothAvailable, setBluetoothAvailable] = React.useState(false)
-  const [bluetoothDiscoveryRunning, setBluetoothDiscoveryRunning] = React.useState(false)
+  const [bluetoothDiscoveryRunning, setBluetoothDiscoveryRunning] = React.useState(isDiscoveryRunning)
+  const [bluetoothOnboarding, setBluetoothOnboarding] = React.useState(false)
 
   const classes = useStyles()
   const isSmallScreen = useIsMobile()
@@ -117,7 +124,10 @@ function AllAccountsPage() {
   const toggleBluetoothDiscovery = React.useCallback(async () => {
     try {
       if (!bluetoothDiscoveryRunning) {
-        startBluetoothDiscovery().then(() => setBluetoothDiscoveryRunning(true))
+        startBluetoothDiscovery().then(() => {
+          setBluetoothOnboarding(true)
+          setBluetoothDiscoveryRunning(true)
+        })
       } else {
         stopBluetoothDiscovery().then(() => setBluetoothDiscoveryRunning(false))
       }
@@ -143,7 +153,7 @@ function AllAccountsPage() {
             onClick={toggleBluetoothDiscovery}
             color="secondary"
             style={{
-              marginLeft: isWidthMax450 ? 0 : 8,
+              marginLeft: 8,
               marginRight: -12,
               color: "inherit",
               opacity: !bluetoothAvailable ? 0.5 : undefined
@@ -227,6 +237,7 @@ function AllAccountsPage() {
         open={settings.initialized && !settings.agreedToTermsAt}
         onConfirm={settings.confirmToC}
       />
+      <BluetoothOnboardingDialog showOnboarding={bluetoothOnboarding} onClose={() => setBluetoothOnboarding(false)} />
     </Section>
   )
 }
