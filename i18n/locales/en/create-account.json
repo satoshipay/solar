@@ -3,16 +3,21 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "create": "Create Account",
-    "import": "Import Account"
+    "import-standard-account": "Import Account",
+    "import-hardware-account": "Open Hardware Account"
   },
   "action-selection": {
     "create": {
       "description": "Create a new empty account",
       "label": "Create Account"
     },
-    "import": {
+    "import-standard-account": {
       "description": "Restore account from backup",
       "label": "Import Account"
+    },
+    "import-hardware-account": {
+      "description": "Import account from hardware wallet",
+      "label": "Import Hardware Account"
     }
   },
   "base-name": {
@@ -61,6 +66,10 @@
     "no-account-name": "No account name has been entered.",
     "no-password": "No password has been entered.",
     "password-no-match": "Password does not match.",
-    "same-account": "Already added this account."
+    "same-account": "Already added this account.",
+    "no-wallet": "No wallet selected."
+  },
+  "hardware-wallet-selection": {
+    "header": "Select the hardware wallet of which you want to open a new account"
   }
 }

@@ -1,5 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import HardwareAccountIcon from "@material-ui/icons/Memory"
 import RestoreIcon from "@material-ui/icons/SettingsBackupRestore"
 import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
 import { Account } from "~App/contexts/accounts"
@@ -10,6 +11,7 @@ import ExportKeyDialog from "~AccountSettings/components/ExportKeyDialog"
 import MainSelectionButton from "~Generic/components/MainSelectionButton"
 import { VerticalLayout } from "~Layout/components/Box"
 import Carousel from "~Layout/components/Carousel"
+import { getConnectedWallets } from "~Platform/hardware-wallet"
 import NewAccountSettings from "./NewAccountSettings"
 import { AccountCreation, AccountCreationErrors } from "../types/types"
 
@@ -34,6 +36,13 @@ const InitialSelection = React.memo(
       router.history.push(routes.importAccount(props.testnet))
     }, [onUpdateAccountCreation, props.testnet, router.history])
 
+    const importHardwareAccount = React.useCallback(() => {
+      onUpdateAccountCreation({ requiresPassword: false, importHardware: true })
+      router.history.push(routes.importHardwareAccount())
+    }, [onUpdateAccountCreation, router.history])
+
+    const connectedWallets = getConnectedWallets()
+
     return (
       <VerticalLayout ref={ref} alignItems="center" margin="48px 0 24px" padding="0 8px">
         <VerticalLayout alignItems="stretch" margin="0 auto">
@@ -48,12 +57,24 @@ const InitialSelection = React.memo(
           />
           <MainSelectionButton
             dense
-            label={t("create-account.action-selection.import.label")}
-            description={t("create-account.action-selection.import.description")}
+            label={t("create-account.action-selection.import-standard-account.label")}
+            description={t("create-account.action-selection.import-standard-account.description")}
             gutterBottom
             onClick={importAccount}
             Icon={RestoreIcon}
           />
+          {!props.testnet && connectedWallets.length > 0 ? (
+            <MainSelectionButton
+              dense
+              label={t("create-account.action-selection.import-hardware-account.label")}
+              description={t("create-account.action-selection.import-hardware-account.description")}
+              gutterBottom
+              onClick={importHardwareAccount}
+              Icon={HardwareAccountIcon}
+            />
+          ) : (
+            undefined
+          )}
         </VerticalLayout>
       </VerticalLayout>
     )
