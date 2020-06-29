@@ -145,81 +145,73 @@ expose(Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatu
 // Hardware wallets:
 
 let ledgerWallets: LedgerWallet[] = []
-const hardwareWalletAccounts: { [walletId: string]: HardwareWalletAccount[] } = {}
-const hardwareWalletPollIntervals: { [walletId: string]: NodeJS.Timeout } = {}
 
-const accountEventEmitter = new events.EventEmitter()
-const accountEventChannel = "hw-wallet:change"
+const walletEventEmitter = new events.EventEmitter()
+const walletEventChannel = "hw-wallet:change"
+
+let bluetoothSubscription: { unsubscribe: () => void } = { unsubscribe: () => undefined }
 
 interface WalletChangeEvent {
   type: "add" | "remove"
-  account: HardwareWalletAccount
+  wallet: LedgerWallet
 }
 
 export function subscribeHardwareWalletChange(subscribeCallback: (event: WalletChangeEvent) => void) {
-  accountEventEmitter.on(accountEventChannel, subscribeCallback)
-  const unsubscribe = () => accountEventEmitter.removeListener(accountEventChannel, subscribeCallback)
+  walletEventEmitter.on(walletEventChannel, subscribeCallback)
+  const unsubscribe = () => walletEventEmitter.removeListener(walletEventChannel, subscribeCallback)
   return unsubscribe
 }
 
-subscribeLedgerDeviceConnectionChanges({
-  add: async ledgerWallet => {
-    ledgerWallets.push(ledgerWallet)
-
-    hardwareWalletAccounts[ledgerWallet.id] = []
-
-    const interval = setInterval(async () => {
-      const ledgerWalletAccounts: HardwareWalletAccount[] = []
-      const possibleAccountIDs = [0, 1, 2, 3, 4]
-
-      await possibleAccountIDs.reduce((previousPromise, nextIndex) => {
-        return previousPromise.then(() => {
-          return getLedgerPublicKey(ledgerWallet.transport, nextIndex)
-            .then(publicKey => {
-              const account: HardwareWalletAccount = {
-                accountIndex: nextIndex,
-                name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
-                publicKey,
-                walletID: ledgerWallet.id
-              }
-              ledgerWalletAccounts.push(account)
-            })
-            .catch(() => undefined)
-        })
-      }, Promise.resolve())
-
-      if (hardwareWalletAccounts[ledgerWallet.id].length !== ledgerWalletAccounts.length) {
-        hardwareWalletAccounts[ledgerWallet.id] = ledgerWalletAccounts
-
-        for (const account of ledgerWalletAccounts) {
-          accountEventEmitter.emit(accountEventChannel, { type: "add", account })
-        }
-      }
-    }, 5000)
-
-    hardwareWalletPollIntervals[ledgerWallet.id] = interval
-  },
-  remove: wallet => {
-    ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
-    const removedAccounts = hardwareWalletAccounts[wallet.id]
-    delete hardwareWalletAccounts[wallet.id]
-    clearInterval(hardwareWalletPollIntervals[wallet.id])
-    delete hardwareWalletPollIntervals[wallet.id]
-
-    for (const account of removedAccounts) {
-      accountEventEmitter.emit(accountEventChannel, { type: "remove", account })
-    }
-  },
-  // tslint:disable-next-line: no-console
-  error: console.error
+expose(Messages.StartBluetoothDiscovery, () => {
+  bluetoothSubscription = subscribeLedgerDeviceConnectionChanges({
+    add: async ledgerWallet => {
+      ledgerWallets.push(ledgerWallet)
+      walletEventEmitter.emit(walletEventChannel, { type: "add", wallet: ledgerWallet })
+    },
+    remove: wallet => {
+      walletEventEmitter.emit(walletEventChannel, { type: "remove", wallet })
+      ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
+    },
+    // tslint:disable-next-line: no-console
+    error: console.error
+  })
 })
 
-expose(Messages.GetHardwareWalletAccounts, function getHardwareWalletAccounts() {
+// this will only stop listening for new devices and not close existing connections
+expose(Messages.StopBluetoothDiscovery, () => {
+  bluetoothSubscription.unsubscribe()
+})
+
+expose(Messages.GetHardwareWalletAccounts, async function getHardwareWalletAccounts(
+  walletID: string,
+  accountIndices: number[]
+) {
   const allAccounts: HardwareWalletAccount[] = []
 
-  for (const [, value] of Object.entries(hardwareWalletAccounts)) {
-    allAccounts.push(...value)
+  const ledgerWallet = ledgerWallets.find(wallet => (wallet.id = walletID))
+  if (!ledgerWallet) {
+    return allAccounts
   }
+
+  const ledgerWalletAccounts: HardwareWalletAccount[] = []
+
+  await accountIndices.reduce((previousPromise, nextIndex) => {
+    return previousPromise.then(() => {
+      return getLedgerPublicKey(ledgerWallet.transport, nextIndex)
+        .then(publicKey => {
+          const account: HardwareWalletAccount = {
+            accountIndex: nextIndex,
+            name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
+            publicKey,
+            walletID: ledgerWallet.id
+          }
+          ledgerWalletAccounts.push(account)
+        })
+        .catch(() => undefined)
+    })
+  }, Promise.resolve())
+
+  allAccounts.push(...ledgerWalletAccounts)
 
   return allAccounts
 })

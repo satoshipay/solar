@@ -1,6 +1,8 @@
 import Transport from "@ledgerhq/hw-transport-node-ble"
 import Str from "@ledgerhq/hw-app-str"
 import StellarSdk, { Transaction } from "stellar-sdk"
+import { expose } from "./ipc/_ipc"
+import { Messages } from "./shared/ipc"
 
 export interface LedgerObserver {
   add: (device: LedgerWallet) => void
@@ -14,9 +16,13 @@ export interface LedgerWallet {
   deviceModel?: string
 }
 
-let idCounter = 0
-
 let ledgerWallets: LedgerWallet[] = []
+
+expose(Messages.IsBluetoothAvailable, function isBluetoothAvailable() {
+  return new Promise<boolean>(resolve => {
+    Transport.availability.subscribe({ next: resolve })
+  })
+})
 
 // according to docs of Transport: 'each listen() call will first emit all potential device already connected'
 export function subscribeLedgerDeviceConnectionChanges(observer: LedgerObserver) {
@@ -30,7 +36,7 @@ export function subscribeLedgerDeviceConnectionChanges(observer: LedgerObserver)
         if (existingWallet) {
           existingWallet.transport = transport
         } else {
-          const ledgerWallet = { id: `ledger-${idCounter++}`, transport, deviceModel: e.device.name }
+          const ledgerWallet = { id: descriptor.id, transport, deviceModel: (transport as any).deviceModel.productName }
           ledgerWallets.push(ledgerWallet)
           observer.add(ledgerWallet)
         }
@@ -45,16 +51,29 @@ export function subscribeLedgerDeviceConnectionChanges(observer: LedgerObserver)
     error: observer.error,
     complete: () => undefined
   })
-
   return sub
 }
 
 // For info about the derivation of paths
 // see 'https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0005.md#multi-account-hierarchy-for-deterministic-wallets'
-export async function getLedgerPublicKey(transport: Transport, account: number = 0) {
-  const str = new Str(transport)
-  const result = await str.getPublicKey(`44'/148'/${account}'`)
-  return result.publicKey
+export async function getLedgerPublicKey(transport: Transport, account: number = 0): Promise<string> {
+  const timeout = new Promise<string>((_, reject) => {
+    const id = setTimeout(() => {
+      clearTimeout(id)
+      reject("Timed out.")
+    }, 1000)
+  })
+
+  const publicKeyPromise = new Promise<string>(async (resolve, reject) => {
+    const str = new Str(transport)
+    str
+      .getPublicKey(`44'/148'/${account}'`)
+      .then(result => resolve(result.publicKey))
+      .catch(reject)
+  })
+
+  // create a timeout because str.getPublicKey will not resolve sometimes
+  return Promise.race([timeout, publicKeyPromise])
 }
 
 export async function signTransactionWithLedger(transport: Transport, account: number = 0, transaction: Transaction) {

@@ -69,9 +69,9 @@ export function createMainWindow() {
 
   const unsubscribeHardwareWalletChange = subscribeHardwareWalletChange(event => {
     if (event.type === "add") {
-      window.webContents.send(Messages.HardwareWalletAccountAdded, event.account)
+      window.webContents.send(Messages.HardwareWalletAdded, event.wallet)
     } else if (event.type === "remove") {
-      window.webContents.send(Messages.HardwareWalletAccountRemoved, event.account)
+      window.webContents.send(Messages.HardwareWalletRemoved, event.wallet)
     }
   })
 
