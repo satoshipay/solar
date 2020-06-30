@@ -444,9 +444,11 @@ function AccountPage(props: AccountPageProps) {
   const { accounts } = React.useContext(AccountsContext)
   const account = props.accountID ? accounts.find(someAccount => someAccount.id === props.accountID) : undefined
 
+  const router = useRouter()
+
   if (props.accountID && !account) {
-    // FIXME: Use error boundaries
-    return <div>Wallet account not found. ID: {props.accountID}</div>
+    // navigate to all-accounts page if account is missing
+    router.history.push(routes.allAccounts())
   }
 
   return (
