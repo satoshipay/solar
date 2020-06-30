@@ -10,7 +10,7 @@ import { Messages } from "../shared/ipc"
 import {
   getLedgerPublicKey,
   signTransactionWithLedger,
-  subscribeLedgerDeviceConnectionChanges,
+  subscribeBluetoothConnectionChanges,
   LedgerWallet
 } from "../ledger"
 import { expose } from "./_ipc"
@@ -144,12 +144,8 @@ expose(Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatu
 ////////////////////
 // Hardware wallets:
 
-let ledgerWallets: LedgerWallet[] = []
-
 const walletEventEmitter = new events.EventEmitter()
 const walletEventChannel = "hw-wallet:change"
-
-let bluetoothSubscription: { unsubscribe: () => void } = { unsubscribe: () => undefined }
 
 interface WalletChangeEvent {
   type: "add" | "remove"
@@ -162,24 +158,32 @@ export function subscribeHardwareWalletChange(subscribeCallback: (event: WalletC
   return unsubscribe
 }
 
+let ledgerWallets: LedgerWallet[] = []
+let bluetoothSubscription: { unsubscribe: () => void } | null = null
+
 expose(Messages.StartBluetoothDiscovery, () => {
-  bluetoothSubscription = subscribeLedgerDeviceConnectionChanges({
-    add: async ledgerWallet => {
-      ledgerWallets.push(ledgerWallet)
-      walletEventEmitter.emit(walletEventChannel, { type: "add", wallet: ledgerWallet })
-    },
-    remove: wallet => {
-      walletEventEmitter.emit(walletEventChannel, { type: "remove", wallet })
-      ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
-    },
-    // tslint:disable-next-line: no-console
-    error: console.error
-  })
+  if (!bluetoothSubscription) {
+    bluetoothSubscription = subscribeBluetoothConnectionChanges({
+      add: async ledgerWallet => {
+        ledgerWallets.push(ledgerWallet)
+        walletEventEmitter.emit(walletEventChannel, { type: "add", wallet: ledgerWallet })
+      },
+      remove: wallet => {
+        walletEventEmitter.emit(walletEventChannel, { type: "remove", wallet })
+        ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
+      },
+      // tslint:disable-next-line: no-console
+      error: console.error
+    })
+  }
 })
 
 // this will only stop listening for new devices and not close existing connections
 expose(Messages.StopBluetoothDiscovery, () => {
-  bluetoothSubscription.unsubscribe()
+  if (bluetoothSubscription) {
+    bluetoothSubscription.unsubscribe()
+    bluetoothSubscription = null
+  }
 })
 
 expose(Messages.GetHardwareWallets, function getHardwareWallets() {
