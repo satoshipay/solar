@@ -13,10 +13,10 @@ export interface LedgerObserver {
 export interface LedgerWallet {
   id: string
   transport: Transport
-  deviceModel?: string
+  deviceModel: string
 }
 
-let ledgerWallets: LedgerWallet[] = []
+const ledgerWallets: LedgerWallet[] = []
 
 expose(Messages.IsBluetoothAvailable, function isBluetoothAvailable() {
   return new Promise<boolean>(resolve => {
@@ -24,27 +24,30 @@ expose(Messages.IsBluetoothAvailable, function isBluetoothAvailable() {
   })
 })
 
-// according to docs of Transport: 'each listen() call will first emit all potential device already connected'
-export function subscribeLedgerDeviceConnectionChanges(observer: LedgerObserver) {
+// starts bluetooth discovery and pairs with available ledger devices
+export function subscribeBluetoothConnectionChanges(observer: LedgerObserver) {
   const sub = Transport.listen({
     next: async e => {
       const descriptor = e.descriptor as any
 
+      // only process 'add' events for disconnected devices (i.e. connect to it)
+      // there are multiple 'add' events fired for the same device e.g. 'connecting' and 'connected' but we don't handle those
       if (e.type === "add" && descriptor.state === "disconnected") {
         const transport = await Transport.open(descriptor)
         const existingWallet = ledgerWallets.find(wallet => wallet.transport.id === transport.id)
         if (existingWallet) {
+          // replace the (probably closed) transport of an existing wallet with the newly opened one
           existingWallet.transport = transport
         } else {
-          const ledgerWallet = { id: descriptor.id, transport, deviceModel: (transport as any).deviceModel.productName }
+          const t = transport as any
+          const deviceModel = t.device.advertisement.localName
+            ? t.device.advertisement.localName
+            : t.deviceModel.productName
+            ? t.deviceModel.productName
+            : "Ledger Wallet"
+          const ledgerWallet = { id: descriptor.id, transport, deviceModel }
           ledgerWallets.push(ledgerWallet)
           observer.add(ledgerWallet)
-        }
-      } else if (e.type === "remove") {
-        const removedWallet = ledgerWallets.find(wallet => wallet.transport.id === descriptor.id)
-        if (removedWallet) {
-          ledgerWallets = ledgerWallets.filter(wallet => wallet !== removedWallet)
-          observer.remove(removedWallet)
         }
       }
     },
@@ -54,8 +57,6 @@ export function subscribeLedgerDeviceConnectionChanges(observer: LedgerObserver)
   return sub
 }
 
-// For info about the derivation of paths
-// see 'https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0005.md#multi-account-hierarchy-for-deterministic-wallets'
 export async function getLedgerPublicKey(transport: Transport, account: number = 0): Promise<string> {
   const timeout = new Promise<string>((_, reject) => {
     const id = setTimeout(() => {
@@ -66,13 +67,15 @@ export async function getLedgerPublicKey(transport: Transport, account: number =
 
   const publicKeyPromise = new Promise<string>(async (resolve, reject) => {
     const str = new Str(transport)
+    // For info about the derivation of paths
+    // see 'https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0005.md#multi-account-hierarchy-for-deterministic-wallets'
     str
       .getPublicKey(`44'/148'/${account}'`)
       .then(result => resolve(result.publicKey))
       .catch(reject)
   })
 
-  // create a timeout because str.getPublicKey will not resolve sometimes
+  // create a timeout because `str.getPublicKey()` does not resolve sometimes
   return Promise.race([timeout, publicKeyPromise])
 }
 
