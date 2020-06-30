@@ -20,7 +20,7 @@ import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
 import TransactionSummary from "./TransactionSummary"
 import PasswordField from "~Generic/components/PasswordField"
 
-type FormErrors = { [formField in keyof FormValues]: Error | null }
+type FormErrors = { [formField in keyof FormValues]: Error | null } & { signing: Error }
 
 interface FormValues {
   password: string | null
@@ -106,8 +106,15 @@ function TxConfirmationForm(props: Props) {
       try {
         await onConfirm(formValues)
       } catch (error) {
-        // re-throw error
-        throw error
+        if (error.name === "SignWithHardwareWalletError") {
+          setErrors({
+            ...errors,
+            signing: new Error(t("account.transaction-review.validation.signing-failed"))
+          })
+        } else {
+          // re-throw error
+          throw error
+        }
       } finally {
         setLoading(false)
       }
@@ -162,7 +169,7 @@ function TxConfirmationForm(props: Props) {
         ) : null}
         {hardwareVerificationPending ? (
           <Typography variant="body1" style={{ margin: "32px auto 0" }}>
-            Review and verify the transaction on your hardware wallet
+            {errors.signing ? errors.signing.message : t("account.transaction-review.hardware-verification-pending")}
           </Typography>
         ) : null}
       </VerticalLayout>

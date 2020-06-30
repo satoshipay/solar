@@ -273,6 +273,7 @@
       "header": "Dismiss pending multi-signature transaction?",
       "title": "Confirm"
     },
+    "hardware-verification-pending": "Review and verify the transaction on your hardware wallet",
     "signers": {
       "heading-details": {
         "single-signature": "Single signature",
@@ -329,7 +330,8 @@
     "validation": {
       "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
       "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
-      "password-required": "Password required"
+      "password-required": "Password required",
+      "signing-failed": "Signing failed. Make sure your hardware wallet is connected and the Stellar application stays selected."
     }
   },
   "title": {
