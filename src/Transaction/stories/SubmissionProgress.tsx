@@ -9,7 +9,7 @@ storiesOf("SubmissionProgress", module)
   .add("success", () => <SubmissionProgress type={SubmissionType.default} promise={Promise.resolve()} />)
   .add("success-multi-sig", () => <SubmissionProgress type={SubmissionType.multisig} promise={Promise.resolve()} />)
   .add("success-stellarguard", () => (
-    <SubmissionProgress type={SubmissionType.stellarguard} promise={Promise.resolve()} />
+    <SubmissionProgress type={SubmissionType.thirdParty} promise={Promise.resolve()} />
   ))
   .add("failed", () => (
     <SubmissionProgress type={SubmissionType.default} promise={Promise.reject(new Error("Test error"))} />
