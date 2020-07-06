@@ -5,13 +5,6 @@ stages:
   - build
   - release
 
-before_script:
-  - apt-get update
-  - apt-get install build-essential git -y
-  - apt-get install gcc-4.8 g++-4.8 -y && export CXX=g++-4.8
-  - apt-get install libusb-1.0-0 libusb-1.0-0-dev -y
-  - apt-get install libudev-dev -y
-
 test:
   stage: test
   cache:
