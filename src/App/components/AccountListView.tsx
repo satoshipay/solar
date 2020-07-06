@@ -10,7 +10,6 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import UpdateIcon from "@material-ui/icons/SystemUpdateAlt"
 import EnableBluetoothIcon from "@material-ui/icons/Bluetooth"
 import DisableBluetoothIcon from "@material-ui/icons/BluetoothDisabled"
-import BluetoothOnboardingDialog from "~Account/components/BluetoothOnboardingDialog"
 import DialogBody from "~Layout/components/DialogBody"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { Section } from "~Layout/components/Page"
@@ -30,6 +29,11 @@ import { SettingsContext } from "../contexts/settings"
 import * as routes from "../routes"
 import AccountList from "./AccountList"
 import TermsAndConditions from "./TermsAndConditionsDialog"
+
+const isDesktopApplication = process.env.PLATFORM !== "ios" && process.env.PLATFORM !== "android"
+const BluetoothOnboardingDialog = isDesktopApplication
+  ? React.lazy(() => import("~Account/components/BluetoothOnboardingDialog"))
+  : undefined
 
 const useStyles = makeStyles({
   "@keyframes glowing": {
@@ -69,8 +73,6 @@ function AllAccountsPage() {
   const [bluetoothAvailable, setBluetoothAvailable] = React.useState(false)
   const [bluetoothDiscoveryRunning, setBluetoothDiscoveryRunning] = React.useState(isDiscoveryRunning)
   const [bluetoothOnboarding, setBluetoothOnboarding] = React.useState(false)
-
-  const isDesktopApplication = process.env.PLATFORM !== "ios" && process.env.PLATFORM !== "android"
 
   const classes = useStyles()
   const isSmallScreen = useIsMobile()
@@ -207,7 +209,6 @@ function AllAccountsPage() {
     ),
     [
       bluetoothButton,
-      isDesktopApplication,
       isUpdateInProgress,
       isWidthMax450,
       networkSwitch,
@@ -240,10 +241,8 @@ function AllAccountsPage() {
         open={settings.initialized && !settings.agreedToTermsAt}
         onConfirm={settings.confirmToC}
       />
-      {isDesktopApplication ? (
+      {BluetoothOnboardingDialog && (
         <BluetoothOnboardingDialog showOnboarding={bluetoothOnboarding} onClose={() => setBluetoothOnboarding(false)} />
-      ) : (
-        undefined
       )}
     </Section>
   )
