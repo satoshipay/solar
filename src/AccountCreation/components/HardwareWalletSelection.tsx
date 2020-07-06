@@ -4,7 +4,6 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import Typography from "@material-ui/core/Typography"
-import { useIsMobile } from "~Generic/hooks/userinterface"
 import { Box } from "~Layout/components/Box"
 import { getConnectedWallets } from "~Platform/hardware-wallet"
 import { AccountCreation, AccountCreationErrors } from "../types/types"
@@ -21,7 +20,6 @@ function HardwareWalletSelection(props: HardwareWalletSelectionProps) {
   const [connectedWallets, setConnectedWallets] = React.useState<HardwareWallet[]>([])
   getConnectedWallets().then(setConnectedWallets)
 
-  const isSmallScreen = useIsMobile()
   const { t } = useTranslation()
 
   const onSelectWallet = React.useCallback(
@@ -34,8 +32,7 @@ function HardwareWalletSelection(props: HardwareWalletSelectionProps) {
 
   return (
     <Box padding="24px 16px">
-      <Typography color="textPrimary">{t("create-account.hardware-wallet-selection.header")}</Typography>
-      <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
+      <List style={{ padding: "24px 16px" }}>
         {connectedWallets.map(wallet => (
           <ListItem
             key={wallet.id}
@@ -43,10 +40,16 @@ function HardwareWalletSelection(props: HardwareWalletSelectionProps) {
             onClick={() => onSelectWallet(wallet.id)}
             selected={wallet.id === selectedWalletID}
           >
-            <ListItemText primary={wallet.deviceModel ? wallet.deviceModel : wallet.id} secondary={wallet.id} />
+            <ListItemText
+              primary={wallet.deviceModel ? wallet.deviceModel : wallet.id}
+              style={{ textAlign: "center" }}
+            />
           </ListItem>
         ))}
       </List>
+      <Typography align="center" color="textSecondary">
+        {t("create-account.hardware-wallet-selection.header")}
+      </Typography>
     </Box>
   )
 }
