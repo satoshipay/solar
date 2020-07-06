@@ -25,6 +25,7 @@ const demoAssets = [eurt]
 
 const account: Account = {
   id: "1",
+  isHardwareWalletAccount: false,
   name: "Mainnet account",
   publicKey: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",
   requiresPassword: false,

@@ -13,6 +13,7 @@ const doNothing = () => undefined
 
 const accountStub: Account = {
   id: "1",
+  isHardwareWalletAccount: false,
   name: "Testnet account",
   publicKey: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",
   requiresPassword: false,
