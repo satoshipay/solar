@@ -169,9 +169,11 @@ function AccountSettings(props: Props) {
         >
           <ListItemText
             primary={
-              props.account.isHardwareWalletAccount
-                ? t("account-settings.settings.delete-account.text.primary.hardware-wallet-account")
-                : t("account-settings.settings.delete-account.text.primary.local-account")
+              props.account.isHardwareWalletAccount && accountData.balances.length > 0
+                ? t("account-settings.settings.delete-account.text.primary.merge")
+                : props.account.isHardwareWalletAccount && accountData.balances.length === 0
+                ? t("account-settings.settings.delete-account.text.primary.delete")
+                : t("account-settings.settings.delete-account.text.primary.merge-or-delete")
             }
             style={listItemTextStyle}
           />

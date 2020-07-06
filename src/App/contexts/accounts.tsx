@@ -238,9 +238,12 @@ export function AccountsProvider(props: Props) {
   }
 
   const deleteAccount = async (accountID: string) => {
-    const keyStore = await getKeyStore()
-    await keyStore.removeKey(accountID)
-    setAccounts(prevAccounts => prevAccounts.filter(account => account.id !== accountID))
+    const account = accounts.find(acc => acc.id === accountID)
+    if (account && !account.isHardwareWalletAccount) {
+      const keyStore = await getKeyStore()
+      await keyStore.removeKey(accountID)
+    }
+    setAccounts(prevAccounts => prevAccounts.filter(acc => acc.id !== accountID))
   }
 
   const changePassword = async (accountID: string, prevPassword: string, nextPassword: string) => {

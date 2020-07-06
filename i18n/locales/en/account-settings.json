@@ -21,18 +21,14 @@
       "text": "Send remaining funds to"
     },
     "text": {
-      "local-account": {
-        "1": "Are you sure you want to delete the account \"{{accountName}}?\"",
-        "2": "Make sure to backup your private key or merge the funds into another account of yours, since there are still funds left!"
-      },
-      "hardware-wallet-account": {
-        "1": "You can merge this account into an existing one.",
-        "2": "The remaining funds of this account will be transferred to the selected account."
-      }
+      "confirm-deletion": "Are you sure you want to delete the account \"{{accountName}}?\"",
+      "backup-info": "Make sure to backup your private key or merge the funds into another account of yours, since there are still funds left!",
+      "merge-info": "You can merge this account into an existing one.",
+      "transfer-info": "The remaining funds of this account will be transferred to the selected account."
     },
     "title": {
-      "hardware-wallet-account": "Confirm Account Merge",
-      "local-account": "Confirm Account Deletion"
+      "merge": "Confirm Account Merge",
+      "delete": "Confirm Account Deletion"
     },
     "warning-dialog": {
       "close": {
@@ -190,8 +186,9 @@
     "delete-account": {
       "text": {
         "primary": {
-          "hardware-wallet-account": "Merge Account",
-          "local-account": "Merge or Delete Account"
+          "merge": "Merge Account",
+          "merge-or-delete": "Merge or Delete Account",
+          "delete": "Delete Account"
         }
       }
     },
