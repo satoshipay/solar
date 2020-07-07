@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, Horizon, Networks, Operation, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Networks, Operation, Transaction, TransactionBuilder, FeeBumpTransaction } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import Collapse from "@material-ui/core/Collapse"
 import List from "@material-ui/core/List"
@@ -399,10 +399,16 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
   const isSmallScreen = useIsMobile()
 
   const { onOpenTransaction } = props
-  const transaction = new Transaction(props.transactionEnvelopeXdr, props.testnet ? Networks.TESTNET : Networks.PUBLIC)
+  const restoredTransaction = TransactionBuilder.fromXDR(
+    props.transactionEnvelopeXdr,
+    props.testnet ? Networks.TESTNET : Networks.PUBLIC
+  )
+
+  const transaction =
+    restoredTransaction instanceof FeeBumpTransaction ? restoredTransaction.innerTransaction : restoredTransaction
 
   const paymentSummary = getPaymentSummary(props.accountPublicKey, transaction)
-  const onOpen = onOpenTransaction ? () => onOpenTransaction(transaction.hash().toString("hex")) : undefined
+  const onOpen = onOpenTransaction ? () => onOpenTransaction(restoredTransaction.hash().toString("hex")) : undefined
 
   return (
     <ListItem button={Boolean(onOpen) as any} className={props.className || ""} onClick={onOpen} style={props.style}>
@@ -496,9 +502,13 @@ function TransactionList(props: TransactionListProps) {
     }
 
     const txResponse = props.transactions.find(recentTx => recentTx.hash === openedTxHash)
-    const tx = txResponse
-      ? new Transaction(txResponse.envelope_xdr, props.account.testnet ? Networks.TESTNET : Networks.PUBLIC)
+    let tx = txResponse
+      ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, props.account.testnet ? Networks.TESTNET : Networks.PUBLIC)
       : null
+
+    if (tx instanceof FeeBumpTransaction) {
+      tx = tx.innerTransaction
+    }
 
     // tslint:disable-next-line prefer-object-spread
     return tx && txResponse ? Object.assign(tx, { created_at: txResponse.created_at }) : tx
