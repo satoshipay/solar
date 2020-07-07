@@ -38,8 +38,10 @@ function PasswordStatus(props: { safe: boolean; style?: React.CSSProperties }) {
 }
 
 function HardwareStatus(props: { style?: React.CSSProperties }) {
+  const { t } = useTranslation()
+
   return (
-    <Tooltip title="Hardware Wallet Account">
+    <Tooltip title={t("account.title.tooltip.hardware-account")}>
       <HardwareAccountIcon style={{ ...props.style }} />
     </Tooltip>
   )

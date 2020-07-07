@@ -11,7 +11,7 @@ declare interface PrivateKeyData {
 
 declare interface HardwareWallet {
   id: string
-  deviceModel?: string
+  deviceModel: string
 }
 
 declare interface HardwareWalletAccount {

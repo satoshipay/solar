@@ -170,7 +170,7 @@ function BluetoothOnboardingDialog(props: Props) {
           </Trans>
         </Typography>
         <DialogActionsBox preventMobileActionsBox smallDialog>
-          <ActionButton onClick={props.onClose}>Dismiss</ActionButton>
+          <ActionButton onClick={props.onClose}>{t("account.bluetooth-onboarding.action.dismiss")}</ActionButton>
         </DialogActionsBox>
       </DialogContent>
     </Dialog>

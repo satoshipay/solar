@@ -341,7 +341,8 @@
     },
     "tooltip": {
       "multi-sig-account": "Multi-Signature Account",
-      "security-service": "{{service}} Protection"
+      "security-service": "{{service}} Protection",
+      "hardware-account": "Hardware Wallet Account"
     },
     "placeholder": "Account name…",
     "testnet": "Testnet"
