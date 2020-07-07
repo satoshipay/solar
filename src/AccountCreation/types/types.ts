@@ -8,11 +8,9 @@ export interface AccountCreation {
   requiresPassword: boolean
   secretKey?: string
   testnet: boolean
-  walletID?: string
 }
 
 export interface AccountCreationErrors {
   password?: string
   secretKey?: string
-  walletID?: string
 }

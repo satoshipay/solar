@@ -177,7 +177,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     ;(async () => {
       const account = await createAccount(accountCreation)
 
-      if (!accountCreation.import && !accountCreation.importHardware && !props.testnet) {
+      if (!accountCreation.import && !props.testnet) {
         setAccountToBackup(account)
       } else {
         router.history.push(routes.account(account.id))
@@ -190,7 +190,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       return
     }
 
-    if (!accountCreation.requiresPassword && !accountCreation.importHardware && !props.testnet) {
+    if (!accountCreation.requiresPassword && !props.testnet) {
       setNoPasswordDialogOpen(true)
     } else {
       createNewAccount()

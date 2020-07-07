@@ -42,7 +42,7 @@ function NewAccountSettings(props: NewAccountSettingsProps) {
   )
 
   return props.accountCreation.importHardware ? (
-    <HardwareWalletSelection errors={props.errors} onUpdateAccountCreation={onUpdateAccountCreation} />
+    <HardwareWalletSelection />
   ) : (
     <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
       {props.accountCreation.import ? (

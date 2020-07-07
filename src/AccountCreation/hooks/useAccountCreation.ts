@@ -3,7 +3,6 @@ import { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { Keypair } from "stellar-sdk"
 import { Account, AccountsContext } from "~App/contexts/accounts"
-import { requestHardwareAccount } from "~Platform/hardware-wallet"
 import { AccountCreation, AccountCreationErrors } from "../types/types"
 
 function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
@@ -27,10 +26,6 @@ function getNewAccountName(t: TFunction, accounts: Account[], testnet: boolean) 
 
 function validateAccountCreation(t: TFunction, accounts: Account[], accountCreation: AccountCreation) {
   const errors: AccountCreationErrors = {}
-
-  if (accountCreation.importHardware && !accountCreation.walletID) {
-    errors.walletID = t("create-account.validation.no-wallet")
-  }
 
   if (accountCreation.requiresPassword && !accountCreation.password) {
     errors.password = t("create-account.validation.no-password")
@@ -57,7 +52,7 @@ interface UseAccountCreationOptions {
 
 function useAccountCreation(options: UseAccountCreationOptions) {
   const { t } = useTranslation()
-  const { accounts, createAccount, createHardwareAccount } = React.useContext(AccountsContext)
+  const { accounts, createAccount } = React.useContext(AccountsContext)
   const [accountCreationErrors, setAccountCreationErrors] = React.useState<AccountCreationErrors>({})
 
   const [currentAccountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
@@ -72,38 +67,16 @@ function useAccountCreation(options: UseAccountCreationOptions) {
   }))
 
   const createNewAccount = async (accountCreation: AccountCreation) => {
-    if (accountCreation.importHardware) {
-      const walletID = accountCreation.walletID
-      if (!walletID) {
-        throw Error("No walletID provided for importing hardware account!")
-      }
+    const keypair = accountCreation.import ? Keypair.fromSecret(accountCreation.secretKey!) : Keypair.random()
 
-      const walletRelatedAccounts = accounts.filter(acc => acc.id.includes(walletID))
-      const walletAccountsIDs = walletRelatedAccounts.map(wallAcc => Number(wallAcc.id.split("-")[2])).sort()
+    const account = await createAccount({
+      name: accountCreation.name,
+      keypair,
+      password: accountCreation.requiresPassword ? accountCreation.password : null,
+      testnet: options.testnet
+    })
 
-      let nextAccountID = walletAccountsIDs.length
-      // check for missing account lower than the highest id
-      for (let i = 0; i < walletAccountsIDs.length; i++) {
-        if (walletAccountsIDs[i] !== i) {
-          nextAccountID = i
-        }
-      }
-
-      const newAccount = await requestHardwareAccount(walletID, nextAccountID)
-      const accountInstance = await createHardwareAccount(newAccount)
-      return accountInstance
-    } else {
-      const keypair = accountCreation.import ? Keypair.fromSecret(accountCreation.secretKey!) : Keypair.random()
-
-      const account = await createAccount({
-        name: accountCreation.name,
-        keypair,
-        password: accountCreation.requiresPassword ? accountCreation.password : null,
-        testnet: options.testnet
-      })
-
-      return account
-    }
+    return account
   }
 
   return {
