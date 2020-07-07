@@ -208,17 +208,20 @@ expose(Messages.GetHardwareWalletAccounts, async function getHardwareWalletAccou
 
   await accountIndices.reduce((previousPromise, nextIndex) => {
     return previousPromise.then(() => {
-      return getLedgerPublicKey(ledgerWallet.transport, nextIndex)
-        .then(publicKey => {
-          const account: HardwareWalletAccount = {
-            accountIndex: nextIndex,
-            name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
-            publicKey,
-            walletID: ledgerWallet.id
-          }
-          ledgerWalletAccounts.push(account)
-        })
-        .catch(() => undefined)
+      return (
+        getLedgerPublicKey(ledgerWallet.transport, nextIndex)
+          .then(publicKey => {
+            const account: HardwareWalletAccount = {
+              accountIndex: nextIndex,
+              name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
+              publicKey,
+              walletID: ledgerWallet.id
+            }
+            ledgerWalletAccounts.push(account)
+          })
+          // tslint:disable-next-line: no-console
+          .catch(error => console.error(error.message))
+      )
     })
   }, Promise.resolve())
 

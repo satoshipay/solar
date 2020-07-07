@@ -16,7 +16,7 @@ export interface LedgerWallet {
   deviceModel: string
 }
 
-const ledgerWallets: LedgerWallet[] = []
+let ledgerWallets: LedgerWallet[] = []
 
 expose(Messages.IsBluetoothAvailable, function isBluetoothAvailable() {
   return new Promise<boolean>(resolve => {
@@ -26,6 +26,7 @@ expose(Messages.IsBluetoothAvailable, function isBluetoothAvailable() {
 
 // starts bluetooth discovery and pairs with available ledger devices
 export function subscribeBluetoothConnectionChanges(observer: LedgerObserver) {
+  // listen will only fire 'add' events and no 'remove' events
   const sub = Transport.listen({
     next: async e => {
       const descriptor = e.descriptor as any
@@ -54,7 +55,23 @@ export function subscribeBluetoothConnectionChanges(observer: LedgerObserver) {
     error: observer.error,
     complete: () => undefined
   })
-  return sub
+
+  const interval = setInterval(() => {
+    // check if existing wallets disconnected
+    for (const wallet of ledgerWallets) {
+      if (wallet.transport.device.state === "disconnected") {
+        ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
+        observer.remove(wallet)
+      }
+    }
+  }, 5000)
+
+  return {
+    unsubscribe: () => {
+      sub.unsubscribe()
+      clearInterval(interval)
+    }
+  }
 }
 
 export async function getLedgerPublicKey(transport: Transport, account: number = 0): Promise<string> {
