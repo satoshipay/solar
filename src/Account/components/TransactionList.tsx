@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, Horizon, Networks, Operation, Transaction, TransactionBuilder, FeeBumpTransaction } from "stellar-sdk"
+import { Asset, FeeBumpTransaction, Horizon, Networks, Operation, Transaction, TransactionBuilder } from "stellar-sdk"
 import HumanTime from "react-human-time"
 import Collapse from "@material-ui/core/Collapse"
 import List from "@material-ui/core/List"
@@ -501,9 +501,11 @@ function TransactionList(props: TransactionListProps) {
       return null
     }
 
+    const network = props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
     const txResponse = props.transactions.find(recentTx => recentTx.hash === openedTxHash)
+
     let tx = txResponse
-      ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, props.account.testnet ? Networks.TESTNET : Networks.PUBLIC)
+      ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, network)
       : null
 
     if (tx instanceof FeeBumpTransaction) {
