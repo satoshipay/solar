@@ -95,11 +95,20 @@ async function startUpdatingWithoutInfo() {
 }
 
 async function startUpdating(version: string) {
-  const downloadingNotification = showDownloadingNotification(version)
+  autoUpdater.on("error", error => {
+    if (error.message.includes("already running")) {
+      throw Object.assign(new Error("Update is already running!"), { name: "UpdateAlreadyRunningError" })
+    } else {
+      // re-throw
+      throw error
+    }
+  })
+
   autoUpdater.checkForUpdates()
+  const downloadingNotification = showDownloadingNotification(version)
 
   await new Promise(resolve => {
-    // will only be called on signed mac applications
+    // will not be called on unsigned mac applications
     autoUpdater.once("update-downloaded", resolve)
   })
 
