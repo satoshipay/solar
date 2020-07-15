@@ -4,10 +4,11 @@ import { Horizon, Memo, Transaction, Networks } from "stellar-sdk"
 import Tooltip from "@material-ui/core/Tooltip"
 import CheckIcon from "@material-ui/icons/Check"
 import UpdateIcon from "@material-ui/icons/Update"
-import { useIsMobile } from "~Generic/hooks/userinterface"
 import { Account } from "~App/contexts/accounts"
+import { useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
-import { signatureMatchesPublicKey } from "~Generic/lib/stellar"
+import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
+import { hasSigned } from "~Generic/lib/transaction"
 import { Address } from "~Generic/components/PublicKey"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
@@ -56,6 +57,7 @@ const Signer = React.memo(function Signer(props: {
 export function Signers(props: {
   accounts: Account[]
   accountData: AccountData
+  signatureRequest?: MultisigTransactionResponse
   transaction: Transaction
   style?: React.CSSProperties
 }) {
@@ -78,27 +80,24 @@ export function Signers(props: {
 
   return (
     <SummaryItem>
-      {props.accountData.signers.map((signer, index) => (
-        <SummaryDetailsField
-          key={signer.key}
-          label={
-            index === 0
-              ? t("account.transaction-review.signers.label", `Signers (${headingDetails})`, {
-                  details: headingDetails
-                })
-              : undefined
-          }
-          value={
-            <Signer
-              hasSigned={props.transaction.signatures.some(signature =>
-                signatureMatchesPublicKey(signature, signer.key)
-              )}
-              signer={signer}
-              transaction={props.transaction}
-            />
-          }
-        />
-      ))}
+      <SummaryDetailsField
+        label={t("account.transaction-review.signers.label", `Signers (${headingDetails})`, {
+          details: headingDetails
+        })}
+        style={{
+          alignItems: "flex-start",
+          display: "flex",
+          flexDirection: "column"
+        }}
+        value={props.accountData.signers.map((signer, index) => (
+          <Signer
+            hasSigned={hasSigned(props.transaction, signer.key, props.signatureRequest)}
+            key={index}
+            signer={signer}
+            transaction={props.transaction}
+          />
+        ))}
+      />
     </SummaryItem>
   )
 }

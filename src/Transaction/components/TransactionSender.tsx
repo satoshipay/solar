@@ -10,13 +10,7 @@ import { useIsMobile } from "~Generic/hooks/userinterface"
 import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
 import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
 import { resolveMultiSignatureCoordinator } from "~Generic/lib/multisig-discovery"
-import {
-  collateSignature,
-  createSignatureRequestURI,
-  submitNewSignatureRequest,
-  SignatureRequest
-} from "~Generic/lib/multisig-service"
-import { networkPassphrases } from "~Generic/lib/stellar"
+import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
 import { hasSigned, requiresRemoteSignatures, signTransaction } from "~Generic/lib/transaction"
 import {
   isThirdPartyProtected,
@@ -77,7 +71,10 @@ function ConditionalSubmissionProgress(props: {
   )
 }
 
-export type SendTransaction = (transaction: Transaction, signatureRequest?: SignatureRequest | null) => Promise<any>
+export type SendTransaction = (
+  transaction: Transaction,
+  signatureRequest?: MultisigTransactionResponse | null
+) => Promise<any>
 
 interface RenderFunctionProps {
   horizon: Server
@@ -100,7 +97,7 @@ interface Props {
 interface State {
   confirmationDialogOpen: boolean
   passwordError: Error | null
-  signatureRequest: SignatureRequest | null
+  signatureRequest: MultisigTransactionResponse | null
   submissionStatus: "before" | "pending" | "fulfilled" | "rejected"
   submissionType: SubmissionType
   submissionPromise: Promise<any> | null
@@ -130,7 +127,7 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  setTransaction = (transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
+  setTransaction = (transaction: Transaction, signatureRequest: MultisigTransactionResponse | null = null) => {
     this.setState({ confirmationDialogOpen: true, signatureRequest, transaction })
     return new Promise(resolve => {
       this.setState(state => ({
@@ -186,6 +183,9 @@ class TransactionSender extends React.Component<Props, State> {
   submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
     let signedTx: Transaction
 
+    const network = this.props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
+    const unsignedTx = new Transaction(transaction.toEnvelope().toXDR("base64"), network)
+
     try {
       signedTx = await signTransaction(transaction, this.props.account, formValues.password)
       this.setState({ passwordError: null, signedTransaction: signedTx })
@@ -212,8 +212,13 @@ class TransactionSender extends React.Component<Props, State> {
       const thirdPartySecurityService = await isThirdPartyProtected(horizon, account.accountID)
       if (thirdPartySecurityService) {
         await this.submitTransactionToThirdPartyService(signedTx, thirdPartySecurityService)
+      } else if (
+        this.state.signatureRequest &&
+        (this.state.signatureRequest.status === "ready" || this.state.signatureRequest.status === "failed")
+      ) {
+        await this.submitMultisigTransactionToStellarNetwork(this.state.signatureRequest)
       } else if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
-        await this.submitTransactionToMultisigService(signedTx)
+        await this.submitTransactionToMultisigService(signedTx, unsignedTx)
       } else {
         await this.submitTransactionToHorizon(signedTx)
       }
@@ -230,6 +235,21 @@ class TransactionSender extends React.Component<Props, State> {
         onSubmissionFailure(error, signedTx)
       }
     }
+  }
+
+  submitMultisigTransactionToStellarNetwork = async (signatureRequest: MultisigTransactionResponse) => {
+    const { netWorker } = await workers
+    const promise = netWorker.submitMultisigTransactionToStellarNetwork(signatureRequest).then(response => {
+      if (response.status !== 200) {
+        throw explainSubmissionErrorResponse(response, this.props.t)
+      }
+      return response
+    })
+
+    this.setSubmissionPromise(promise)
+    this.setState({ submissionType: SubmissionType.default })
+
+    return promise
   }
 
   submitTransactionToHorizon = async (signedTransaction: Transaction) => {
@@ -256,30 +276,43 @@ class TransactionSender extends React.Component<Props, State> {
     return promise
   }
 
-  submitTransactionToMultisigService = async (signedTransaction: Transaction) => {
-    const creationOptions = {
-      network_passphrase: this.props.account.testnet ? networkPassphrases.testnet : networkPassphrases.mainnet
-    }
-
-    const signatureRequestURI = this.state.signatureRequest
-      ? this.state.signatureRequest.request_uri
-      : createSignatureRequestURI(signedTransaction, creationOptions)
+  submitTransactionToMultisigService = async (signedTransaction: Transaction, unsignedTransaction: Transaction) => {
+    const { netWorker } = await workers
 
     try {
-      let promise: Promise<Response>
+      let promise: ReturnType<typeof netWorker.submitSignature>
       const multiSignatureServiceURL = await resolveMultiSignatureCoordinator(
         this.props.settings.multiSignatureCoordinator
       )
 
       if (this.state.signatureRequest) {
-        promise = collateSignature(this.state.signatureRequest, signedTransaction)
+        promise = netWorker.submitSignature(this.state.signatureRequest, signedTransaction.toEnvelope().toXDR("base64"))
       } else {
-        promise = submitNewSignatureRequest(multiSignatureServiceURL, signatureRequestURI)
+        if (signedTransaction.signatures.length !== 1) {
+          throw Error(
+            `Internal error: Expected exactly one signature on new multi-sig transaction. Got ${signedTransaction.signatures.length}.`
+          )
+        }
+        const signatureXDR = signedTransaction.signatures[0].signature().toString("base64")
+        promise = netWorker.shareTransaction(
+          multiSignatureServiceURL,
+          this.props.account.accountID,
+          this.props.account.testnet,
+          unsignedTransaction.toEnvelope().toXDR("base64"),
+          signatureXDR
+        )
       }
 
       this.setSubmissionPromise(promise)
       this.setState({ submissionType: SubmissionType.multisig })
-      return await promise
+
+      const result = await promise
+
+      if (result.submittedToStellarNetwork) {
+        this.setState({ submissionType: SubmissionType.default })
+      }
+
+      return result
     } catch (error) {
       // re-throw refined error
       throw explainSubmissionErrorResponse(error, this.props.t)
@@ -318,7 +351,12 @@ class TransactionSender extends React.Component<Props, State> {
         <TransactionReviewDialog
           open={confirmationDialogOpen && !this.props.forceClose}
           account={this.props.account}
-          disabled={!transaction || hasSigned(transaction, this.props.account.publicKey)}
+          disabled={
+            !transaction ||
+            (hasSigned(transaction, this.props.account.publicKey, signatureRequest) &&
+              signatureRequest?.status !== "ready" &&
+              signatureRequest?.status !== "failed")
+          }
           passwordError={passwordError ? new Error(getErrorTranslation(passwordError, this.props.t)) : undefined}
           showHash={false}
           showSource={transaction ? this.props.account.publicKey !== transaction.source : undefined}

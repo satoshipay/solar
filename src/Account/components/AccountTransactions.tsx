@@ -6,7 +6,6 @@ import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import { SignatureDelegationContext } from "~App/contexts/signatureDelegation"
-import { hasSigned } from "~Generic/lib/transaction"
 import { useHorizonURL } from "~Generic/hooks/stellar"
 import {
   useLiveRecentTransactions,
@@ -33,16 +32,18 @@ function PendingMultisigTransactions(props: { account: Account }) {
   const pendingRequestsToCosign = React.useMemo(() => {
     return pendingSignatureRequests.filter(
       request =>
-        request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-        !hasSigned(request.meta.transaction, props.account.publicKey)
+        request.status !== "submitted" &&
+        request.signers.some(signer => signer === props.account.publicKey) &&
+        request.signed_by.indexOf(props.account.publicKey) === -1
     )
   }, [props.account, pendingSignatureRequests])
 
   const pendingRequestsWaitingForOthers = React.useMemo(() => {
     return pendingSignatureRequests.filter(
       request =>
-        request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-        hasSigned(request.meta.transaction, props.account.publicKey)
+        request.status !== "submitted" &&
+        request.signers.some(signer => signer === props.account.publicKey) &&
+        request.signed_by.indexOf(props.account.publicKey) > -1
     )
   }, [props.account, pendingSignatureRequests])
 

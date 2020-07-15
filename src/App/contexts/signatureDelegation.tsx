@@ -1,17 +1,17 @@
 import React from "react"
 import { resolveMultiSignatureCoordinator } from "~Generic/lib/multisig-discovery"
-import { deserializeSignatureRequest, SignatureRequest } from "~Generic/lib/multisig-service"
+import { MultisigTransactionResponse, MultisigTransactionStatus } from "~Generic/lib/multisig-service"
 import { workers } from "~Workers/worker-controller"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
 import { SettingsContext } from "./settings"
 
 interface ContextValue {
-  pendingSignatureRequests: SignatureRequest[]
-  subscribeToNewSignatureRequests: (subscriber: (signatureRequest: SignatureRequest) => void) => () => void
+  pendingSignatureRequests: MultisigTransactionResponse[]
+  subscribeToNewSignatureRequests: (subscriber: (signatureRequest: MultisigTransactionResponse) => void) => () => void
 }
 
-type SignatureRequestCallback = (signatureRequest: SignatureRequest) => void
+type SignatureRequestCallback = (signatureRequest: MultisigTransactionResponse) => void
 
 interface SubscribersState {
   newRequestSubscribers: SignatureRequestCallback[]
@@ -27,7 +27,7 @@ function useSignatureRequestSubscription(multiSignatureCoordinator: string, acco
 
   const { ignoredSignatureRequests } = React.useContext(SettingsContext)
   const subscribersRef = React.useRef<SubscribersState>({ newRequestSubscribers: [] })
-  const [pendingSignatureRequests, setPendingSignatureRequests] = React.useState<SignatureRequest[]>([])
+  const [pendingTransactions, setPendingTransactions] = React.useState<MultisigTransactionResponse[]>([])
 
   React.useEffect(() => {
     if (accounts.length === 0) {
@@ -45,33 +45,29 @@ function useSignatureRequestSubscription(multiSignatureCoordinator: string, acco
       const multiSignatureServiceURL = await resolveMultiSignatureCoordinator(multiSignatureCoordinator)
 
       netWorker
-        .fetchSignatureRequests(multiSignatureServiceURL, accountPubKeys)
-        .then(requests => setPendingSignatureRequests(requests.reverse().map(deserializeSignatureRequest)))
+        .fetchTransactions(multiSignatureServiceURL, accountPubKeys)
+        .then(requests => setPendingTransactions(requests.reverse()))
         .catch(trackError)
 
       if (cancelled) {
         return
       }
 
-      const signatureRequests = netWorker.subscribeToSignatureRequests(
-        `https://${multiSignatureCoordinator}/`,
-        accountPubKeys
-      )
+      const signatureRequests = netWorker.subscribeToTransactions(multiSignatureServiceURL, accountPubKeys)
 
       const subscription = signatureRequests.subscribe(event => {
-        if (event.type === "NewSignatureRequest") {
-          setPendingSignatureRequests(prevPending => [
-            deserializeSignatureRequest(event.signatureRequest),
-            ...prevPending
-          ])
-          subscribersRef.current.newRequestSubscribers.forEach(subscriber =>
-            subscriber(deserializeSignatureRequest(event.signatureRequest))
-          )
+        if (event.type === "transaction:added") {
+          setPendingTransactions(prevPending => [event.transaction, ...prevPending])
+          subscribersRef.current.newRequestSubscribers.forEach(subscriber => subscriber(event.transaction))
         }
-        if (event.type === "SignatureRequestSubmitted") {
-          setPendingSignatureRequests(prevPending =>
-            prevPending.filter(request => request.hash !== event.signatureRequest.hash)
-          )
+        if (event.type === "transaction:updated" && event.transaction.status === MultisigTransactionStatus.submitted) {
+          setPendingTransactions(prevPending => {
+            // Hacky: Also mutate existing multisig tx to make double sure everyone gets the update
+            const prev = prevPending.find(request => request.hash !== event.transaction.hash)
+            Object.assign(prev, event.transaction)
+
+            return prevPending.map(request => (request.hash === event.transaction.hash ? event.transaction : request))
+          })
         }
       })
 
@@ -95,7 +91,7 @@ function useSignatureRequestSubscription(multiSignatureCoordinator: string, acco
     return unsubscribe
   }
 
-  const filteredPendingSignatureRequests = pendingSignatureRequests.filter(
+  const filteredPendingSignatureRequests = pendingTransactions.filter(
     signatureRequest => ignoredSignatureRequests.indexOf(signatureRequest.hash) === -1
   )
 

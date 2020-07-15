@@ -12,7 +12,9 @@ export async function resolveMultiSignatureCoordinator(domain: string): Promise<
     return multisigCoordinatorResolutionPending.get(domain)!
   } else {
     const { netWorker } = await workers
-    const pending = netWorker.fetchStellarToml(domain).then(
+    const allowHttp = domain.startsWith("localhost:") && process.env.NODE_ENV !== "production"
+
+    const pending = netWorker.fetchStellarToml(domain, { allowHttp }).then(
       (toml: StellarToml | undefined) => {
         const resolved = toml?.MULTISIG_ENDPOINT
         if (!resolved) {

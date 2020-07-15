@@ -11,7 +11,7 @@ import { SigningKeyCacheContext } from "~App/contexts/caches"
 import { useLiveAccountDataSet } from "~Generic/hooks/stellar-subscriptions"
 import { useDeferredState } from "~Generic/hooks/util"
 import { AccountData } from "~Generic/lib/account"
-import { SignatureRequest } from "~Generic/lib/multisig-service"
+import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
 import { getAllSources } from "~Generic/lib/stellar"
 import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction } from "~Generic/lib/transaction"
 import { SingleBalance } from "~Account/components/AccountBalances"
@@ -58,21 +58,20 @@ interface DefaultTransactionSummaryProps {
   showHash?: boolean
   showSigners?: boolean
   showSource?: boolean
-  signatureRequest?: SignatureRequest
+  signatureRequest?: MultisigTransactionResponse
   testnet: boolean
   transaction: Transaction
 }
 
 function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
-  const allTxSources = getAllSources(props.transaction)
   const { accounts } = React.useContext(AccountsContext)
+  const { t } = useTranslation()
   const theme = useTheme()
+
   const [showingAllMetadataDeferred, showingAllMetadata, setShowingAllMetadata] = useDeferredState(
     false,
     theme.transitions.duration.shortest
   )
-  const accountDataSet = useLiveAccountDataSet(allTxSources, props.testnet)
-  const { t } = useTranslation()
 
   const localAccountPublicKey = props.account ? props.account.publicKey : undefined
   const showAllMetadata = React.useCallback(() => setShowingAllMetadata(true), [setShowingAllMetadata])
@@ -82,11 +81,18 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
     .div(1e7)
 
   const isDangerousSignatureRequest = React.useMemo(() => {
-    const localAccounts = accountDataSet.filter(someAccountData =>
-      accounts.some(account => account.publicKey === someAccountData.id)
+    const trustedKeys = accounts.reduce<string[]>(
+      (trusted, account) =>
+        account.accountID !== account.publicKey
+          ? [...trusted, account.accountID, account.publicKey]
+          : [...trusted, account.accountID],
+      []
     )
-    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
-  }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
+    return (
+      props.signatureRequest &&
+      isPotentiallyDangerousTransaction(props.transaction, props.signatureRequest.signed_by, trustedKeys)
+    )
+  }, [accounts, props.signatureRequest, props.transaction])
 
   const isAccountCreation = props.transaction.operations.some(op => op.type === "createAccount")
   const isAddingSigner = props.transaction.operations.some(
@@ -126,8 +132,9 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
         <Signers
           accounts={accounts}
           accountData={props.accountData}
-          transaction={props.transaction}
+          signatureRequest={props.signatureRequest}
           style={noHPaddingStyle}
+          transaction={props.transaction}
         />
       ) : null}
       <Collapse in={!showingAllMetadata}>
@@ -220,7 +227,7 @@ interface TransactionSummaryProps {
   canSubmit: boolean
   showHash?: boolean
   showSource?: boolean
-  signatureRequest?: SignatureRequest
+  signatureRequest?: MultisigTransactionResponse
   testnet: boolean
   transaction: Transaction
 }
@@ -239,11 +246,18 @@ function TransactionSummary(props: TransactionSummaryProps) {
   }
 
   const isDangerousSignatureRequest = React.useMemo(() => {
-    const localAccounts = accountDataSet.filter(someAccountData =>
-      accounts.some(account => account.publicKey === someAccountData.id)
+    const trustedKeys = accounts.reduce<string[]>(
+      (trusted, account) =>
+        account.accountID !== account.publicKey
+          ? [...trusted, account.accountID, account.publicKey]
+          : [...trusted, account.accountID],
+      []
     )
-    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, localAccounts)
-  }, [accountDataSet, accounts, props.signatureRequest, props.transaction])
+    return (
+      props.signatureRequest &&
+      isPotentiallyDangerousTransaction(props.transaction, props.signatureRequest.signed_by, trustedKeys)
+    )
+  }, [accounts, props.signatureRequest, props.transaction])
 
   const wideScreen = useMediaQuery("(min-width:900px)")
   const widthStyling = wideScreen ? { maxWidth: 700, minWidth: 320 } : { minWidth: "66vw" }

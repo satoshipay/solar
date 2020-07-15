@@ -12,6 +12,7 @@ interface SummaryDetailsFieldProps {
   fullWidth?: boolean
   helperText?: React.ReactNode
   label: React.ReactNode
+  style?: React.CSSProperties
   value: React.ReactNode
 }
 
@@ -29,7 +30,8 @@ export const SummaryDetailsField = React.memo(function SummaryDetailsField(props
         style: {
           maxWidth: "100%",
           overflow: "hidden",
-          wordBreak: "break-word"
+          wordBreak: "break-word",
+          ...props.style
         }
       }}
       InputLabelProps={{

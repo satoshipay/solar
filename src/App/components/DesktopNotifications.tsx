@@ -8,7 +8,7 @@ import { useLiveAccountEffects } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { useSingleton } from "~Generic/hooks/util"
 import { useNetWorker } from "~Generic/hooks/workers"
-import { SignatureRequest } from "~Generic/lib/multisig-service"
+import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
 import { showNotification } from "~Platform/notifications"
 import { formatBalance } from "~Generic/lib/balances"
 import { OfferDetailsString } from "~TransactionReview/components/Operations"
@@ -118,20 +118,21 @@ function DesktopNotifications() {
   )
 
   const handleNewSignatureRequest = React.useCallback(
-    (signatureRequest: SignatureRequest) => {
-      const signersHavingSigned = signatureRequest._embedded.signers.filter(signer => signer.has_signed)
-      const signersNotHavingSigned = signatureRequest._embedded.signers.filter(signer => !signer.has_signed)
+    (signatureRequest: MultisigTransactionResponse) => {
+      const signersNotHavingSigned = signatureRequest.signers.filter(
+        signer => signatureRequest.signed_by.indexOf(signer) === -1
+      )
       const accountPublicKeys = accounts.map(account => account.publicKey)
 
       // only show notification when a local account has to co-sign
-      if (signersNotHavingSigned.some(signer => accountPublicKeys.includes(signer.account_id))) {
+      if (signersNotHavingSigned.some(signer => accountPublicKeys.includes(signer))) {
         showNotification(
           {
             title: t("app.notification.desktop.new-signature-request.title"),
             text: t(
               "app.notification.desktop.new-signature-request.title",
-              `From ${signersHavingSigned.map(signer => signer.account_id).join(", ")}`,
-              { signersHavingSigned: signersHavingSigned.map(signer => signer.account_id).join(", ") }
+              `From ${signatureRequest.signed_by.join(", ")}`,
+              { signersHavingSigned: signatureRequest.signed_by.join(", ") }
             )
           },
           () => router.history.push(routes.allAccounts())

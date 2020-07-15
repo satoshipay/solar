@@ -1,19 +1,53 @@
-import { Observable } from "observable-fns"
+import { Observable, Subject } from "observable-fns"
+import qs from "qs"
 import { Networks, Transaction } from "stellar-sdk"
 import { CustomError } from "~Generic/lib/errors"
 import {
   createSignatureRequestURI,
   MultisigServerInfo,
-  MultisigTransactionResponse,
-  ServerSentEvent,
-  SignatureRequest
+  MultisigTransactionResponse
 } from "~Generic/lib/multisig-service"
 import { manageStreamConnection, whenBackOnline } from "~Generic/lib/stream"
 import { joinURL } from "~Generic/lib/url"
 import { raiseConnectionError, ServiceID } from "./errors"
 
+interface ServerSentEvent {
+  data: string | string[]
+  event?: string
+  id?: string
+  retry?: number
+}
+
+interface NewSignatureRequest {
+  type: "transaction:added"
+  transaction: MultisigTransactionResponse
+}
+
+interface SignatureRequestUpdate {
+  type: "transaction:updated"
+  transaction: MultisigTransactionResponse
+}
+
+type SignatureRequestEvent = NewSignatureRequest | SignatureRequestUpdate
+
+const returnedMultisigTxUpdates = new Subject<SignatureRequestUpdate>()
+
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 const toArray = <T>(thing: T | T[]) => (Array.isArray(thing) ? thing : [thing])
+
+function parseRequestURI(requestURI: string) {
+  if (!requestURI.startsWith("web+stellar:")) {
+    throw CustomError("WrongRequestStartError", "Expected request to start with 'web+stellar:'")
+  }
+
+  const [operation, queryString] = requestURI.replace(/^web\+stellar:/, "").split("?", 2)
+  const parameters = qs.parse(queryString)
+
+  return {
+    operation,
+    parameters
+  }
+}
 
 export async function fetchServerInfo(serviceURL: string) {
   const url = joinURL(serviceURL, "/capabilities")
@@ -31,7 +65,7 @@ export async function fetchServerInfo(serviceURL: string) {
 }
 
 export async function fetchTransactions(serviceURL: string, accountIDs: string[]) {
-  const url = joinURL(serviceURL, `/transactions/${dedupe(accountIDs).join(",")}`)
+  const url = joinURL(serviceURL, `/accounts/${dedupe(accountIDs).join(",")}/transactions`)
   const response = await fetch(url)
 
   if (!response.ok) {
@@ -48,18 +82,6 @@ export async function fetchTransactions(serviceURL: string, accountIDs: string[]
 
   return (await response.json()) as MultisigTransactionResponse[]
 }
-
-interface NewSignatureRequest {
-  type: "transaction:added"
-  transaction: SignatureRequest
-}
-
-interface SignatureRequestUpdate {
-  type: "transaction:updated"
-  transaction: SignatureRequest
-}
-
-type SignatureRequestEvent = NewSignatureRequest | SignatureRequestUpdate
 
 export function subscribeToTransactions(serviceURL: string, accountIDs: string[]) {
   if (accountIDs.length === 0) {
@@ -138,13 +160,14 @@ export function subscribeToTransactions(serviceURL: string, accountIDs: string[]
       }
     }
 
+    returnedMultisigTxUpdates.subscribe(observer)
     init()
 
     return () => eventSource.close()
   })
 }
 
-async function shareTransaction(
+export async function shareTransaction(
   serviceURL: string,
   accountID: string,
   testnet: boolean,
@@ -171,12 +194,138 @@ async function shareTransaction(
   })
 
   if (!response.ok) {
-    const responseText = await response.text()
-    throw CustomError("HttpRequestError", `HTTP fetch failed: ${responseText} \nService: ${serviceURL}`, {
-      response: responseText,
-      service: serviceURL
-    })
+    const contentType = response.headers.get("Content-Type")
+    const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
+
+    const message = responseBodyObject
+      ? responseBodyObject.message || JSON.stringify(responseBodyObject)
+      : await response.text()
+
+    throw CustomError(
+      "SubmissionFailedError",
+      `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
+      {
+        endpoint: "multi-signature service",
+        message,
+        status: String(response.status)
+      }
+    )
   }
 
   return response.json()
+}
+
+export async function submitSignature(multisigTx: MultisigTransactionResponse, signedTxXdr: string) {
+  const collateEndpointURL = parseRequestURI(multisigTx.req).parameters.callback.replace(/^url:/, "")
+
+  if (!collateEndpointURL) {
+    throw CustomError(
+      "NoCallbackUrlError",
+      "Cannot submit back to multi-signature service. Signature request has no callback URL set."
+    )
+  }
+
+  const response = await fetch(collateEndpointURL, {
+    method: "POST",
+    body: qs.stringify({
+      xdr: signedTxXdr
+    }),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    }
+  })
+
+  const contentType = response.headers.get("Content-Type")
+  const responseData = contentType?.startsWith("application/json") ? await response.json() : null
+
+  if (response.ok) {
+    returnedMultisigTxUpdates.next({
+      type: "transaction:updated",
+      transaction: responseData
+    })
+  } else {
+    await handleServerError(response, responseData)
+  }
+
+  if (responseData.status === "ready") {
+    // Transaction is now sufficiently signed to be submitted to the Stellar network
+    const txSubmissionResponse = await submitMultisigTransactionToStellarNetwork(multisigTx)
+
+    return {
+      ...txSubmissionResponse,
+      submittedToStellarNetwork: true
+    }
+  } else {
+    return {
+      data: responseData,
+      status: response.status,
+      submittedToStellarNetwork: false
+    }
+  }
+}
+
+export async function submitMultisigTransactionToStellarNetwork(multisigTx: MultisigTransactionResponse) {
+  const collateEndpointURL = parseRequestURI(multisigTx.req).parameters.callback.replace(/^url:/, "")
+  const submissionEndpointURL = collateEndpointURL.replace(
+    `/transactions/${multisigTx.hash}/signatures`,
+    `/transactions/${multisigTx.hash}/submit`
+  )
+
+  const response = await fetch(submissionEndpointURL, {
+    method: "POST"
+  })
+
+  const contentType = response.headers.get("Content-Type")
+  const responseData = contentType?.startsWith("application/json") ? await response.json() : null
+
+  if (!response.ok) {
+    await handleServerError(response, responseData)
+  }
+
+  return {
+    status: response.status,
+    data: responseData
+  }
+}
+
+async function handleServerError(response: Response, responseBodyObject: any) {
+  const horizonResponse = responseBodyObject && responseBodyObject.data ? responseBodyObject.data.response : null
+
+  if (horizonResponse && horizonResponse.type === "https://stellar.org/horizon-errors/transaction_failed") {
+    // Throw something that can be handled by explainSubmissionError()
+
+    const message =
+      responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+
+    throw Object.assign(
+      CustomError(
+        "SubmissionFailedError",
+        `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
+        {
+          endpoint: "multi-signature service",
+          message,
+          status: String(response.status)
+        }
+      ),
+      {
+        response: {
+          status: horizonResponse.status,
+          data: horizonResponse
+        }
+      }
+    )
+  } else {
+    const message =
+      responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+
+    throw CustomError(
+      "SubmissionFailedError",
+      `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
+      {
+        endpoint: "multi-signature service",
+        message,
+        status: String(response.status)
+      }
+    )
+  }
 }
