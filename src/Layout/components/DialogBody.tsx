@@ -3,7 +3,7 @@ import CircularProgress from "@material-ui/core/CircularProgress"
 import { makeStyles } from "@material-ui/core/styles"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { MobileKeyboardOpenedSelector } from "~App/theme"
-import ErrorBoundary from "~Generic/components/ErrorBoundary"
+import ErrorBoundary from "~Generic/components/ErrorBoundaryView"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { Section } from "~Layout/components/Page"
 

@@ -2,8 +2,8 @@ import React from "react"
 import { Translation } from "react-i18next"
 import Button from "@material-ui/core/Button"
 import Typography from "@material-ui/core/Typography"
-import { getErrorTranslation } from "../lib/errors"
 import { Box, VerticalLayout } from "~Layout/components/Box"
+import { getErrorTranslation } from "../lib/errors"
 
 // tslint:disable-next-line
 const pkg = require("../../../package.json")
@@ -18,7 +18,7 @@ interface State {
   error: Error | null
 }
 
-export default class ErrorBoundary extends React.Component<Props, State> {
+export default class ErrorBoundaryView extends React.Component<Props, State> {
   static getDerivedStateFromError(error: Error): State {
     return { error }
   }
