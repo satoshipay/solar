@@ -399,9 +399,9 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
   const isSmallScreen = useIsMobile()
 
   const { onOpenTransaction } = props
-  const restoredTransaction = TransactionBuilder.fromXDR(
-    props.transactionEnvelopeXdr,
-    props.testnet ? Networks.TESTNET : Networks.PUBLIC
+  const restoredTransaction = React.useMemo(
+    () => TransactionBuilder.fromXDR(props.transactionEnvelopeXdr, props.testnet ? Networks.TESTNET : Networks.PUBLIC),
+    [props.testnet, props.transactionEnvelopeXdr]
   )
 
   const transaction =
@@ -504,9 +504,7 @@ function TransactionList(props: TransactionListProps) {
     const network = props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
     const txResponse = props.transactions.find(recentTx => recentTx.hash === openedTxHash)
 
-    let tx = txResponse
-      ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, network)
-      : null
+    let tx = txResponse ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, network) : null
 
     if (tx instanceof FeeBumpTransaction) {
       tx = tx.innerTransaction
