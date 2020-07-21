@@ -400,9 +400,9 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
   const isSmallScreen = useIsMobile()
 
   const { onOpenTransaction } = props
-  const restoredTransaction = TransactionBuilder.fromXDR(
-    props.transactionEnvelopeXdr,
-    props.testnet ? Networks.TESTNET : Networks.PUBLIC
+  const restoredTransaction = React.useMemo(
+    () => TransactionBuilder.fromXDR(props.transactionEnvelopeXdr, props.testnet ? Networks.TESTNET : Networks.PUBLIC),
+    [props.testnet, props.transactionEnvelopeXdr]
   )
 
   const transaction =
