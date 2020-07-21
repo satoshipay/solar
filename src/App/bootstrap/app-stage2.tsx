@@ -2,7 +2,7 @@ import React from "react"
 import { Route, Switch } from "react-router-dom"
 import AccountPage from "~Account/components/AccountView"
 import SettingsPage from "~AppSettings/components/AppSettingsView"
-import ErrorBoundary from "~Generic/components/ErrorBoundaryView"
+import { MainErrorBoundary } from "~Generic/components/ErrorBoundaries"
 import { VerticalLayout } from "~Layout/components/Box"
 import { appIsLoaded } from "~SplashScreen/splash-screen"
 import ConnectionErrorListener from "~Toasts/components/ConnectionErrorListener"
@@ -32,7 +32,7 @@ function Stage2() {
     <>
       <VerticalLayout height="100%" style={{ WebkitOverflowScrolling: "touch" }}>
         <VerticalLayout height="100%" grow overflowY="hidden">
-          <ErrorBoundary>
+          <MainErrorBoundary>
             <Switch>
               <Route exact path="/" component={AllAccountsPage} />
               <Route
@@ -62,7 +62,7 @@ function Stage2() {
                 )}
               />
             </Switch>
-          </ErrorBoundary>
+          </MainErrorBoundary>
         </VerticalLayout>
       </VerticalLayout>
       <React.Suspense fallback={null}>

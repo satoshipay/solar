@@ -5,6 +5,7 @@ import { useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
 import * as routes from "~App/routes"
 import { Account } from "~App/contexts/accounts"
+import { InlineErrorBoundary } from "~Generic/components/ErrorBoundaries"
 import { SignatureRequest } from "~Generic/lib/multisig-service"
 import { List } from "~Layout/components/List"
 import { TransactionListItem } from "./TransactionList"
@@ -96,16 +97,17 @@ export const SignatureRequestList = React.memo(function SignatureRequestList(pro
           {props.title}
         </ListSubheader>
         {props.signatureRequests.map(signatureRequest => (
-          <SignatureRequestListItem
-            key={signatureRequest.hash}
-            icon={props.icon}
-            onOpenTransaction={openSignatureRequest}
-            signatureRequest={signatureRequest}
-            style={{
-              minHeight: 72
-            }}
-            testnet={props.account.testnet}
-          />
+          <InlineErrorBoundary height={72} key={signatureRequest.hash}>
+            <SignatureRequestListItem
+              icon={props.icon}
+              onOpenTransaction={openSignatureRequest}
+              signatureRequest={signatureRequest}
+              style={{
+                minHeight: 72
+              }}
+              testnet={props.account.testnet}
+            />
+          </InlineErrorBoundary>
         ))}
       </List>
     </>

@@ -23,6 +23,7 @@ import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { getPaymentSummary, PaymentSummary } from "~Generic/lib/paymentSummary"
 import { breakpoints } from "~App/theme"
 import { ActionButton } from "~Generic/components/DialogActions"
+import { InlineErrorBoundary } from "~Generic/components/ErrorBoundaries"
 import { PublicKey } from "~Generic/components/PublicKey"
 import { formatBalance } from "~Generic/lib/balances"
 import { matchesRoute } from "~Generic/lib/routes"
@@ -504,9 +505,7 @@ function TransactionList(props: TransactionListProps) {
     const network = props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
     const txResponse = props.transactions.find(recentTx => recentTx.hash === openedTxHash)
 
-    let tx = txResponse
-      ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, network)
-      : null
+    let tx = txResponse ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, network) : null
 
     if (tx instanceof FeeBumpTransaction) {
       tx = tx.innerTransaction
@@ -543,15 +542,17 @@ function TransactionList(props: TransactionListProps) {
             // Animate only if it's a new tx, not if we just haven't rendered it before
             animate={Date.now() - new Date(transaction.created_at).getTime() < 10_000}
           >
-            <TransactionListItem
-              key={transaction.hash}
-              accountPublicKey={props.account.publicKey}
-              className={classes.listItem}
-              createdAt={transaction.created_at}
-              onOpenTransaction={openTransaction}
-              testnet={props.account.testnet}
-              transactionEnvelopeXdr={transaction.envelope_xdr}
-            />
+            <InlineErrorBoundary height={72}>
+              <TransactionListItem
+                key={transaction.hash}
+                accountPublicKey={props.account.publicKey}
+                className={classes.listItem}
+                createdAt={transaction.created_at}
+                onOpenTransaction={openTransaction}
+                testnet={props.account.testnet}
+                transactionEnvelopeXdr={transaction.envelope_xdr}
+              />
+            </InlineErrorBoundary>
           </EntryAnimation>
         ))}
       </>

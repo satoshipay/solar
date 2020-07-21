@@ -3,7 +3,7 @@ import CircularProgress from "@material-ui/core/CircularProgress"
 import { makeStyles } from "@material-ui/core/styles"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { MobileKeyboardOpenedSelector } from "~App/theme"
-import ErrorBoundary from "~Generic/components/ErrorBoundaryView"
+import { MainErrorBoundary } from "~Generic/components/ErrorBoundaries"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { Section } from "~Layout/components/Page"
 
@@ -91,7 +91,7 @@ function DialogBody(props: Props) {
   )
 
   return (
-    <ErrorBoundary>
+    <MainErrorBoundary>
       <Section
         alignItems="stretch"
         brandColored={props.brandColored}
@@ -125,7 +125,7 @@ function DialogBody(props: Props) {
           {actionsPosition === "bottom" ? actionsContent : null}
         </React.Suspense>
       </Section>
-    </ErrorBoundary>
+    </MainErrorBoundary>
   )
 }
 

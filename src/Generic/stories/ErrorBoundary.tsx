@@ -1,7 +1,7 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
-import ErrorBoundary from "../components/ErrorBoundaryView"
+import { MainErrorBoundary } from "../components/ErrorBoundaries"
 import { VerticalLayout } from "~Layout/components/Box"
 
 function Failing() {
@@ -19,10 +19,10 @@ function Failing() {
   )
 }
 
-storiesOf("ErrorBoundary", module).add("ErrorBoundary", () => (
+storiesOf("MainErrorBoundary", module).add("MainErrorBoundary", () => (
   <VerticalLayout height="400px" justifyContent="center">
-    <ErrorBoundary>
+    <MainErrorBoundary>
       <Failing />
-    </ErrorBoundary>
+    </MainErrorBoundary>
   </VerticalLayout>
 ))
