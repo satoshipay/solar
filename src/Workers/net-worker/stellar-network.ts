@@ -92,7 +92,14 @@ export async function checkHorizonOrFailover(primaryHorizonURL: string, secondar
   try {
     const primaryResponse = await fetch(primaryHorizonURL)
     if (primaryResponse.ok) {
-      return primaryHorizonURL
+      // fetch dynamic data to check database access
+      const accountResponse = await fetch(
+        new URL("/accounts/GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR", primaryHorizonURL).href
+      )
+      if (accountResponse.status < 300 || accountResponse.status === 404) {
+        // consider request successful on 404 as well (account might be missing but horizon is working)
+        return primaryHorizonURL
+      }
     }
   } catch (error) {
     // tslint:disable-next-line no-console
@@ -313,9 +320,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
         }
         return merge(
           // Update whenever we receive an account effect push notification
-          subscribeToAccountEffects(horizonURL, accountID).pipe(
-            map(() => fetchAccountData(horizonURL, accountID))
-          ),
+          subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID))),
           // Update on new optimistic updates
           accountDataUpdates.observe().pipe(
             map(handleNewOptimisticUpdate),
