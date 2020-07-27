@@ -89,25 +89,21 @@ function cachify<T, Args extends any[]>(
 }
 
 export async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
+  const testAccountID = "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR" // accountID of testnet friendbot
   try {
-    const primaryResponse = await fetch(primaryHorizonURL)
-    if (primaryResponse.ok) {
-      // fetch dynamic data to check database access
-      const accountResponse = await fetch(
-        new URL("/accounts/GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR", primaryHorizonURL).href
-      )
-      if (accountResponse.status < 300 || accountResponse.status === 404) {
-        // consider request successful on 404 as well (account might be missing but horizon is working)
-        return primaryHorizonURL
-      }
+    // fetch dynamic data to check database access
+    const primaryResponse = await fetch(new URL(`/accounts/${testAccountID}`, primaryHorizonURL).href)
+    if (primaryResponse.status < 300 || primaryResponse.status === 404) {
+      // consider request successful on 404 as well (account might be missing but horizon is working)
+      return primaryHorizonURL
     }
   } catch (error) {
     // tslint:disable-next-line no-console
     console.error(error)
   }
 
-  const secondaryResponse = await fetch(secondaryHorizonURL)
-  return secondaryResponse.ok ? secondaryHorizonURL : primaryHorizonURL
+  const secondaryResponse = await fetch(new URL(`/accounts/${testAccountID}`, secondaryHorizonURL).href)
+  return secondaryResponse.status < 300 || secondaryResponse.status === 404 ? secondaryHorizonURL : primaryHorizonURL
 }
 
 export function resetAllSubscriptions() {
