@@ -71,11 +71,49 @@ interface MenuProps {
   showingSettings: boolean
 }
 
-function AccountContextMenu(props: MenuProps) {
+function LiveAccountContextMenuItems(
+  props: MenuProps & { closeAndCall: (fn: (() => void) | undefined) => () => void }
+) {
+  const { closeAndCall } = props
+
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const activated = accountData.balances.length > 0
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <AccountContextMenuItem
+        disabled={!activated || !props.onTrade}
+        icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
+        label={t("account.context-menu.trade.label")}
+        onClick={closeAndCall(props.onTrade)}
+      />
+      <AccountContextMenuItem
+        disabled={!props.onDeposit}
+        icon={<CallReceivedIcon />}
+        label={t("account.context-menu.deposit.label")}
+        onClick={closeAndCall(accountData.balances.length > 1 ? props.onDeposit : props.onPurchaseLumens)}
+      />
+      <AccountContextMenuItem
+        disabled={!activated || !props.onWithdraw}
+        icon={<CallMadeIcon />}
+        label={t("account.context-menu.withdraw.label")}
+        onClick={closeAndCall(props.onWithdraw)}
+      />
+      <Divider />
+      <AccountContextMenuItem
+        disabled={!activated || !props.onManageAssets}
+        icon={<MoneyIcon />}
+        label={t("account.context-menu.assets-and-balances.label")}
+        onClick={closeAndCall(props.onManageAssets)}
+      />
+    </>
+  )
+}
+
+function AccountContextMenu(props: MenuProps) {
   const isSmallScreen = useIsMobile()
   const { t } = useTranslation()
-  const activated = accountData.balances.length > 0
 
   return (
     <ContextMenu
@@ -87,31 +125,9 @@ function AccountContextMenu(props: MenuProps) {
           onClose={onClose}
           open={open}
         >
-          <AccountContextMenuItem
-            disabled={!activated || !props.onTrade}
-            icon={<SwapHorizIcon style={{ transform: "scale(1.2)" }} />}
-            label={t("account.context-menu.trade.label")}
-            onClick={closeAndCall(props.onTrade)}
-          />
-          <AccountContextMenuItem
-            disabled={!props.onDeposit}
-            icon={<CallReceivedIcon />}
-            label={t("account.context-menu.deposit.label")}
-            onClick={closeAndCall(accountData.balances.length > 1 ? props.onDeposit : props.onPurchaseLumens)}
-          />
-          <AccountContextMenuItem
-            disabled={!activated || !props.onWithdraw}
-            icon={<CallMadeIcon />}
-            label={t("account.context-menu.withdraw.label")}
-            onClick={closeAndCall(props.onWithdraw)}
-          />
-          <Divider />
-          <AccountContextMenuItem
-            disabled={!activated || !props.onManageAssets}
-            icon={<MoneyIcon />}
-            label={t("account.context-menu.assets-and-balances.label")}
-            onClick={closeAndCall(props.onManageAssets)}
-          />
+          <React.Suspense fallback={null}>
+            <LiveAccountContextMenuItems closeAndCall={closeAndCall} {...props} />
+          </React.Suspense>
           {props.showingSettings ? (
             <AccountContextMenuItem
               disabled={!props.onAccountTransactions}
