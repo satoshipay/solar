@@ -78,12 +78,58 @@ function SettingsDialogs(props: Props) {
   )
 }
 
+interface SuspendedItemProps {
+  account: Account
+  listItemTextStyle?: React.CSSProperties
+  onClick: () => void
+}
+
+function MultiSigItem(props: SuspendedItemProps) {
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
+  return (
+    <AccountSettingsItem
+      caret="right"
+      disabled={accountData.balances.length === 0}
+      icon={<GroupIcon style={{ fontSize: "100%" }} />}
+      onClick={props.onClick}
+    >
+      <ListItemText
+        primary={t("account-settings.settings.multi-sig.text.primary")}
+        secondary={
+          isSmallScreen
+            ? t("account-settings.settings.multi-sig.text.secondary.short")
+            : t("account-settings.settings.multi-sig.text.secondary.long")
+        }
+        style={props.listItemTextStyle}
+      />
+    </AccountSettingsItem>
+  )
+}
+
+function DeleteAccountItem(props: SuspendedItemProps) {
+  // call useLiveAccountData to make sure this item is suspended until the account data is available
+  // necessary because the AccountDeletion dialog needs account data and would be suspended anyways
+  useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const { t } = useTranslation()
+
+  return (
+    <AccountSettingsItem caret="right" icon={<DeleteIcon style={{ fontSize: "100%" }} />} onClick={props.onClick}>
+      <ListItemText
+        primary={t("account-settings.settings.delete-account.text.primary")}
+        style={props.listItemTextStyle}
+      />
+    </AccountSettingsItem>
+  )
+}
+
 interface Props {
   account: Account
 }
 
 function AccountSettings(props: Props) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const { t } = useTranslation()
@@ -129,22 +175,9 @@ function AccountSettings(props: Props) {
           />
         </AccountSettingsItem>
         {settings.multiSignature ? (
-          <AccountSettingsItem
-            caret="right"
-            disabled={accountData.balances.length === 0}
-            icon={<GroupIcon style={{ fontSize: "100%" }} />}
-            onClick={navigateTo.manageSigners}
-          >
-            <ListItemText
-              primary={t("account-settings.settings.multi-sig.text.primary")}
-              secondary={
-                isSmallScreen
-                  ? t("account-settings.settings.multi-sig.text.secondary.short")
-                  : t("account-settings.settings.multi-sig.text.secondary.long")
-              }
-              style={listItemTextStyle}
-            />
-          </AccountSettingsItem>
+          <React.Suspense fallback={null}>
+            <MultiSigItem {...props} listItemTextStyle={listItemTextStyle} onClick={navigateTo.manageSigners} />
+          </React.Suspense>
         ) : null}
         <AccountSettingsItem
           caret="right"
@@ -157,16 +190,9 @@ function AccountSettings(props: Props) {
             style={listItemTextStyle}
           />
         </AccountSettingsItem>
-        <AccountSettingsItem
-          caret="right"
-          icon={<DeleteIcon style={{ fontSize: "100%" }} />}
-          onClick={navigateTo.deleteAccount}
-        >
-          <ListItemText
-            primary={t("account-settings.settings.delete-account.text.primary")}
-            style={listItemTextStyle}
-          />
-        </AccountSettingsItem>
+        <React.Suspense fallback={null}>
+          <DeleteAccountItem {...props} listItemTextStyle={listItemTextStyle} onClick={navigateTo.deleteAccount} />
+        </React.Suspense>
       </List>
       <SettingsDialogs account={props.account} />
     </>
