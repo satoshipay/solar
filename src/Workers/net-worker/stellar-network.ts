@@ -94,7 +94,13 @@ export async function checkHorizonOrFailover(primaryHorizonURL: string, secondar
 
   try {
     // fetch dynamic data to check database access
-    const primaryResponse = await fetch(new URL(`/accounts/${testAccountID}`, primaryHorizonURL).href)
+    const primaryResponse = await Promise.race([
+      fetch(new URL(`/accounts/${testAccountID}`, primaryHorizonURL).href),
+      delay(2500).then(() => {
+        throw Error(`Horizon health check timed out. Trying failover…`)
+      })
+    ])
+
     if (primaryResponse.status < 300 || primaryResponse.status === 404) {
       // consider request successful on 404 as well (account might be missing but horizon is working)
       return primaryHorizonURL
