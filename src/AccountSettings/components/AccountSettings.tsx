@@ -1,6 +1,5 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItemText from "@material-ui/core/ListItemText"
 import EyeIcon from "@material-ui/icons/RemoveRedEye"
@@ -9,16 +8,16 @@ import GroupIcon from "@material-ui/icons/Group"
 import KeyIcon from "@material-ui/icons/VpnKey"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
+import * as routes from "~App/routes"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "~App/routes"
-import { FullscreenDialogTransition } from "~App/theme"
+import Carousel from "~Layout/components/Carousel"
+import ManageSignersDialog from "~ManageSigners/components/ManageSignersDialog"
 import AccountDeletionDialog from "./AccountDeletionDialog"
 import AccountSettingsItem from "./AccountSettingsItem"
 import ChangePasswordDialog from "./ChangePasswordDialog"
 import ExportKeyDialog from "./ExportKeyDialog"
-import ManageSignersDialog from "~ManageSigners/components/ManageSignersDialog"
 
 function SettingsDialogs(props: Props) {
   const router = useRouter()
@@ -38,42 +37,22 @@ function SettingsDialogs(props: Props) {
 
   return (
     <>
-      <Dialog
-        fullScreen
-        open={showChangePassword}
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={FullscreenDialogTransition}
-      >
+      <div style={{ display: showChangePassword ? undefined : "none" }}>
         <ChangePasswordDialog account={props.account} onClose={navigateTo.accountSettings} />
-      </Dialog>
-      <Dialog
-        fullScreen
-        open={showDeleteAccount}
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={FullscreenDialogTransition}
-      >
+      </div>
+      <div style={{ display: showDeleteAccount ? undefined : "none" }}>
         <AccountDeletionDialog
           account={props.account}
           onClose={navigateTo.accountSettings}
           onDeleted={navigateTo.allAccounts}
         />
-      </Dialog>
-      <Dialog
-        fullScreen
-        open={showExportKey}
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={FullscreenDialogTransition}
-      >
+      </div>
+      <div style={{ display: showExportKey ? undefined : "none" }}>
         <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
-      </Dialog>
-      <Dialog
-        fullScreen
-        open={showManageSigners}
-        onClose={navigateTo.accountSettings}
-        TransitionComponent={FullscreenDialogTransition}
-      >
+      </div>
+      <div style={{ display: showManageSigners ? undefined : "none" }}>
         <ManageSignersDialog account={props.account} onClose={navigateTo.accountSettings} />
-      </Dialog>
+      </div>
     </>
   )
 }
@@ -99,6 +78,8 @@ function AccountSettings(props: Props) {
     [router.history, props.account]
   )
 
+  const showSettingsOverview = matchesRoute(router.location.pathname, routes.accountSettings(props.account.id), true)
+
   const listItemTextStyle: React.CSSProperties = React.useMemo(
     () => ({
       paddingRight: isSmallScreen ? 0 : undefined
@@ -107,7 +88,7 @@ function AccountSettings(props: Props) {
   )
 
   return (
-    <>
+    <Carousel current={showSettingsOverview ? 0 : 1}>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
         <AccountSettingsItem
           caret="right"
@@ -169,7 +150,7 @@ function AccountSettings(props: Props) {
         </AccountSettingsItem>
       </List>
       <SettingsDialogs account={props.account} />
-    </>
+    </Carousel>
   )
 }
 
