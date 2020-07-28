@@ -89,7 +89,9 @@ function cachify<T, Args extends any[]>(
 }
 
 export async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
-  const testAccountID = "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR" // accountID of testnet friendbot
+  // Account ID of friendbot (account exists on pubnet, too)
+  const testAccountID = "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
+
   try {
     // fetch dynamic data to check database access
     const primaryResponse = await fetch(new URL(`/accounts/${testAccountID}`, primaryHorizonURL).href)
