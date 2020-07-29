@@ -5,7 +5,7 @@ import React from "react"
 import { HashRouter as Router } from "react-router-dom"
 import "storybook-addon-material-ui/register"
 import { muiTheme } from "storybook-addon-material-ui"
-import ErrorBoundary from "../src/Generic/components/ErrorBoundary"
+import { MainErrorBoundary } from "../src/Generic/components/ErrorBoundaries"
 import ViewLoading from "../src/Generic/components/ViewLoading"
 import { ContextProviders } from "../src/App/bootstrap/context"
 import theme from "../src/App/theme"
@@ -16,7 +16,7 @@ const contextProviders = makeDecorator({
 })
 
 const errorBoundary = makeDecorator({
-  wrapper: storyFn => React.createElement(ErrorBoundary, {}, storyFn())
+  wrapper: storyFn => React.createElement(MainErrorBoundary, {}, storyFn())
 })
 
 const suspense = makeDecorator({
