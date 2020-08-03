@@ -154,6 +154,8 @@ export async function submitTransaction(horizonURL: string, txEnvelopeXdr: strin
 }
 
 async function waitForAccountDataUncached(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
+  const fetchQueue = getFetchQueue(horizonURL)
+
   let accountData = null
   let initialFetchFailed = false
 
@@ -163,7 +165,7 @@ async function waitForAccountDataUncached(horizonURL: string, accountID: string,
     }
 
     const url = new URL(`/accounts/${accountID}`, horizonURL)
-    const response = await fetch(String(url) + "?" + qs.stringify(identification))
+    const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)))
 
     if (response.status === 200) {
       accountData = await parseJSONResponse<Horizon.AccountResponse>(response)
