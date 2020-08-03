@@ -6,9 +6,13 @@ import qs from "qs"
 import { Asset, Horizon, Networks, ServerApi, Transaction } from "stellar-sdk"
 import pkg from "../../../package.json"
 import { Cancellation, CustomError } from "~Generic/lib/errors"
+import { observableFromAsyncFactory } from "~Generic/lib/observables"
 import { parseAssetID } from "~Generic/lib/stellar"
 import { max } from "~Generic/lib/strings"
 import { createReconnectingSSE } from "../lib/event-source"
+import { parseJSONResponse } from "../lib/rest"
+import { resetSubscriptions, subscribeToUpdatesAndPoll } from "../lib/subscription"
+import { ServiceID } from "./errors"
 import {
   accountDataUpdates,
   offerUpdates,
@@ -19,9 +23,6 @@ import {
   OptimisticAccountUpdate,
   OptimisticOfferUpdate
 } from "./optimistic-updates/index"
-import { parseJSONResponse } from "../lib/rest"
-import { resetSubscriptions, subscribeToUpdatesAndPoll } from "../lib/subscription"
-import { ServiceID } from "./errors"
 
 export interface CollectionPage<T> {
   _embedded: {
@@ -137,10 +138,13 @@ export function resetAllSubscriptions() {
 }
 
 export async function submitTransaction(horizonURL: string, txEnvelopeXdr: string, network: Networks) {
+  const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/transactions`, horizonURL)
 
-  const response = await fetch(String(url) + "?" + qs.stringify({ tx: txEnvelopeXdr }), {
-    method: "POST"
+  const response = await fetchQueue.add(() => {
+    return fetch(String(url) + "?" + qs.stringify({ tx: txEnvelopeXdr }), {
+      method: "POST"
+    })
   })
 
   if (response.status === 200) {
@@ -206,6 +210,7 @@ async function waitForAccountData(horizonURL: string, accountID: string, shouldC
 }
 
 function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string) {
+  const fetchQueue = getFetchQueue(horizonURL)
   const serviceID = getServiceID(horizonURL)
 
   let latestCursor: string | undefined
@@ -254,23 +259,25 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
         }
 
         return multicast(
-          new Observable<ServerApi.EffectRecord>(observer => {
-            return createReconnectingSSE(createURL, {
-              onMessage(message) {
-                const effect: ServerApi.EffectRecord = JSON.parse(message.data)
+          observableFromAsyncFactory<ServerApi.EffectRecord>(async observer => {
+            return fetchQueue.add(() =>
+              createReconnectingSSE(createURL, {
+                onMessage(message) {
+                  const effect: ServerApi.EffectRecord = JSON.parse(message.data)
 
-                // Don't update latestCursor cursor here – if we do it too early it might cause
-                // shouldApplyUpdate() to return false, since it compares the new effect with itself
-                observer.next(effect)
+                  // Don't update latestCursor cursor here – if we do it too early it might cause
+                  // shouldApplyUpdate() to return false, since it compares the new effect with itself
+                  observer.next(effect)
 
-                if (effect.type === "account_removed" && effect.account === accountID) {
-                  observer.complete()
+                  if (effect.type === "account_removed" && effect.account === accountID) {
+                    observer.complete()
+                  }
+                },
+                onUnexpectedError(error) {
+                  observer.error(error)
                 }
-              },
-              onUnexpectedError(error) {
-                observer.error(error)
-              }
-            })
+              })
+            )
           })
         )
       }
@@ -544,6 +551,7 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
   const fetchUpdate = () => fetchOrderbookRecord(horizonURL, sellingAsset, buyingAsset)
 
   let latestKnownSnapshot = ""
+  const fetchQueue = getFetchQueue(horizonURL)
   const serviceID = getServiceID(horizonURL)
 
   // TODO: Optimize - Make UpdateT = ValueT & { [$snapshot]: string }
@@ -565,16 +573,18 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
         return snapshot !== latestKnownSnapshot
       },
       subscribeToUpdates() {
-        return new Observable<ServerApi.OrderbookRecord>(observer => {
-          return createReconnectingSSE(createURL, {
-            onMessage(message) {
-              const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
-              observer.next(record)
-            },
-            onUnexpectedError(error) {
-              observer.error(error)
-            }
-          })
+        return observableFromAsyncFactory<ServerApi.OrderbookRecord>(observer => {
+          return fetchQueue.add(() =>
+            createReconnectingSSE(createURL, {
+              onMessage(message) {
+                const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
+                observer.next(record)
+              },
+              onUnexpectedError(error) {
+                observer.error(error)
+              }
+            })
+          )
         })
       }
     },
