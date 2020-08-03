@@ -26,7 +26,7 @@
     "build:linux": "PLATFORM=linux npm run prebuild:electron && electron-builder --linux --x64 --config ./electron-build.yml",
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && electron-builder --mac --x64 --config ./electron-build.yml",
     "build:mac:signed": "source ./scripts/signing-env.sh mac && NOTARIZE=true npm run build:mac -- -c.forceCodeSigning=true",
-    "build:win": "PLATFORM=win32 npm run prebuild:electron && electron-builder --win --ia32 --config ./electron-build.yml",
+    "build:win": "PLATFORM=win32 npm run prebuild:electron && electron-builder --win --x64 --config ./electron-build.yml",
     "build:win:signed": "source ./scripts/signing-env.sh win && npm run build:win -- -c.forceCodeSigning=true",
     "dev": "run-p prebuild:electron:ts:watch dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development TS_NODE_PROJECT=./electron/tsconfig.json run-electron -r ts-node/register/transpile-only ./electron/src/index.dev",
