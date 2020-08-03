@@ -49,8 +49,8 @@ const transactionsSubscriptionCache = new Map<string, Observable<Horizon.Transac
 const accountDataCache = new Map<string, Horizon.AccountResponse | null>()
 const accountDataWaitingCache = new Map<string, ReturnType<typeof waitForAccountDataUncached>>()
 
-// Limit the number of concurrent fetches
-const fetchQueue = new PromiseQueue({ concurrency: 8 })
+// Rate-limit concurrent fetches
+const fetchQueuesByHorizon = new Map<string, PromiseQueue>()
 
 const identification = {
   "X-Client-Name": "Solar",
@@ -63,6 +63,19 @@ const createOrderbookCacheKey = (horizonURL: string, sellingAsset: string, buyin
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function getFetchQueue(horizonURL: string): PromiseQueue {
+  if (!fetchQueuesByHorizon.has(horizonURL)) {
+    const fetchQueue = new PromiseQueue({
+      concurrency: 8,
+      interval: 1000,
+      intervalCap: 4
+    })
+    fetchQueuesByHorizon.set(horizonURL, fetchQueue)
+  }
+
+  return fetchQueuesByHorizon.get(horizonURL)!
 }
 
 function getServiceID(horizonURL: string): ServiceID {
@@ -583,6 +596,7 @@ export async function fetchAccountData(
   horizonURL: string,
   accountID: string
 ): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
+  const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 0 })
 
@@ -595,7 +609,9 @@ export async function fetchAccountData(
 }
 
 export async function fetchLatestAccountEffect(horizonURL: string, accountID: string) {
+  const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}/effects?${qs.stringify(identification)}`, horizonURL)
+
   const response = await fetchQueue.add(
     () =>
       fetch(
@@ -626,7 +642,9 @@ export async function fetchAccountTransactions(
   accountID: string,
   options: FetchTransactionsOptions = {}
 ): Promise<CollectionPage<Horizon.TransactionResponse>> {
+  const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}/transactions?${qs.stringify(identification)}`, horizonURL)
+
   const pagination = {
     cursor: options.cursor,
     limit: options.limit,
@@ -660,7 +678,9 @@ export async function fetchAccountTransactions(
 }
 
 export async function fetchAccountOpenOrders(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
+  const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}/offers?${qs.stringify(identification)}`, horizonURL)
+
   const response = await fetchQueue.add(
     () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...options })),
     { priority: 1 }
@@ -674,8 +694,10 @@ export async function fetchOrderbookRecord(horizonURL: string, sellingAsset: str
     return createEmptyOrderbookRecord(parseAssetID(buyingAsset), parseAssetID(buyingAsset))
   }
 
+  const fetchQueue = getFetchQueue(horizonURL)
   const query = createOrderbookQuery(parseAssetID(sellingAsset), parseAssetID(buyingAsset))
   const url = new URL(`/order_book?${qs.stringify({ ...identification, ...query })}`, horizonURL)
+
   const response = await fetchQueue.add(() => fetch(String(url)), { priority: 1 })
   return parseJSONResponse<ServerApi.OrderbookRecord>(response)
 }
