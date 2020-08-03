@@ -24,7 +24,9 @@ function HardwareWalletSelection() {
   const onSelectWallet = React.useCallback(
     async (walletID: string) => {
       const walletRelatedAccounts = accounts.filter(acc => acc.id.includes(walletID))
-      const walletAccountsIDs = walletRelatedAccounts.map(wallAcc => Number(wallAcc.id.split("-")[2])).sort()
+      const walletAccountsIDs = walletRelatedAccounts
+        .map(wallAcc => Number(wallAcc.id.split("-")[wallAcc.id.split("-").length - 1]))
+        .sort()
 
       let nextAccountID = walletAccountsIDs.length
       // check for missing account lower than the highest id

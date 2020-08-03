@@ -11,7 +11,9 @@ import {
   getLedgerPublicKey,
   signTransactionWithLedger,
   subscribeBluetoothConnectionChanges,
-  LedgerWallet
+  LedgerWallet,
+  isHIDSupported,
+  subscribeHIDConnectionChanges
 } from "../ledger"
 import { expose } from "./_ipc"
 
@@ -161,6 +163,24 @@ export function subscribeHardwareWalletChange(subscribeCallback: (event: WalletC
 let ledgerWallets: LedgerWallet[] = []
 let bluetoothSubscription: { unsubscribe: () => void } | null = null
 
+isHIDSupported().then(supported => {
+  if (!supported) {
+    return
+  }
+  subscribeHIDConnectionChanges({
+    add: async ledgerWallet => {
+      ledgerWallets.push(ledgerWallet)
+      walletEventEmitter.emit(walletEventChannel, { type: "add", wallet: ledgerWallet })
+    },
+    remove: wallet => {
+      walletEventEmitter.emit(walletEventChannel, { type: "remove", wallet })
+      ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
+    },
+    // tslint:disable-next-line: no-console
+    error: console.error
+  })
+})
+
 expose(Messages.StartBluetoothDiscovery, () => {
   if (!bluetoothSubscription) {
     bluetoothSubscription = subscribeBluetoothConnectionChanges({
@@ -226,6 +246,5 @@ expose(Messages.GetHardwareWalletAccounts, async function getHardwareWalletAccou
   }, Promise.resolve())
 
   allAccounts.push(...ledgerWalletAccounts)
-
   return allAccounts
 })

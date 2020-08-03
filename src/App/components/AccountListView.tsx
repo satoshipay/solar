@@ -31,8 +31,9 @@ import AccountList from "./AccountList"
 import TermsAndConditions from "./TermsAndConditionsDialog"
 
 const isDesktopApplication = process.env.PLATFORM !== "ios" && process.env.PLATFORM !== "android"
-const BluetoothOnboardingDialog = isDesktopApplication
-  ? React.lazy(() => import("~Account/components/BluetoothOnboardingDialog"))
+const bluetoothSupported = process.env.PLATFORM === "darwin" // bluetooth currently only works on macOS
+const HardwareConnectionHandler = isDesktopApplication
+  ? React.lazy(() => import("~Account/components/HardwareConnectionHandler"))
   : undefined
 
 const useStyles = makeStyles({
@@ -122,7 +123,7 @@ function AllAccountsPage() {
     pollBluetoothState()
     setInterval(() => {
       pollBluetoothState()
-    }, 10000)
+    }, 5000)
   }, [])
 
   const toggleBluetoothDiscovery = React.useCallback(async () => {
@@ -196,7 +197,7 @@ function AllAccountsPage() {
             !updater.isUpdateDownloaded()
               ? updateButton
               : null}
-            {isDesktopApplication ? bluetoothButton : undefined}
+            {bluetoothSupported ? bluetoothButton : undefined}
             <IconButton
               onClick={() => router.history.push(routes.settings())}
               style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
@@ -241,9 +242,14 @@ function AllAccountsPage() {
         open={settings.initialized && !settings.agreedToTermsAt}
         onConfirm={settings.confirmToC}
       />
-      {BluetoothOnboardingDialog && (
-        <BluetoothOnboardingDialog showOnboarding={bluetoothOnboarding} onClose={() => setBluetoothOnboarding(false)} />
-      )}
+      <React.Suspense fallback={null}>
+        {HardwareConnectionHandler && (
+          <HardwareConnectionHandler
+            showBluetoothOnboarding={bluetoothOnboarding}
+            onClose={() => setBluetoothOnboarding(false)}
+          />
+        )}
+      </React.Suspense>
     </Section>
   )
 }

@@ -97,3 +97,39 @@ declare module "@ledgerhq/hw-transport-node-ble" {
 
   export default TransportNodeBLE
 }
+
+declare module "@ledgerhq/hw-transport-node-hid-singleton" {
+  import Observable from "zen-observable"
+
+  declare class TransportNodeHID {
+    constructor(device: any, ledgerTransport?: boolean, timeout?: number)
+    static isSupported(): Promise<boolean>
+    static open(path: string): Promise<TransportNodeBLE>
+    setScrambleKey(): void
+    static listen(observer: Observer<DescriptorEvent<Descriptor>>): Subscription
+
+    device: HID.HID
+    id: string
+    ledgerTransport: boolean
+    timeout: number
+    exchangeStack: any[]
+  }
+
+  type Device = any
+  type Descriptor = string
+  interface DescriptorEvent<Descriptor> {
+    type: "add" | "remove"
+    descriptor: Descriptor
+    device?: Device
+  }
+  interface Observer<Ev> {
+    readonly next: (event: Ev) => any
+    readonly error: (e: any) => any
+    readonly complete: () => any
+  }
+  interface Subscription {
+    readonly unsubscribe: () => void
+  }
+
+  export default TransportNodeHID
+}

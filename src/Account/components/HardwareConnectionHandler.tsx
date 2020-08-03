@@ -28,17 +28,13 @@ const useStyles = makeStyles(() => ({
 
 interface Props {
   onClose: () => void
-  showOnboarding: boolean
+  showBluetoothOnboarding: boolean
 }
 
-function BluetoothOnboardingDialog(props: Props) {
-  const { onClose, showOnboarding } = props
+function HardwareConnectionHandler(props: Props) {
+  const { onClose, showBluetoothOnboarding } = props
 
-  const classes = useStyles()
-  const isSmallScreen = useIsMobile()
-  const { t } = useTranslation()
-
-  const { createHardwareAccount, deleteAccount } = React.useContext(AccountsContext)
+  const { accounts, createHardwareAccount, deleteAccount } = React.useContext(AccountsContext)
 
   const [hardwareWalletAccounts, setHardwareWalletAccounts] = React.useState<Account[]>([])
   const [walletConnected, setWalletConnected] = React.useState<boolean>(false)
@@ -109,7 +105,7 @@ function BluetoothOnboardingDialog(props: Props) {
     const unsubscribeWalletRemoveEvents = subscribeToMessages(
       Messages.HardwareWalletRemoved,
       (wallet: HardwareWallet) => {
-        const removedAccounts = hardwareWalletAccounts.filter(account => account.id.includes(wallet.id))
+        const removedAccounts = accounts.filter(account => account.id.includes(wallet.id))
 
         if (removedAccounts) {
           for (const account of removedAccounts) {
@@ -125,7 +121,7 @@ function BluetoothOnboardingDialog(props: Props) {
     }
 
     return unsubscribe
-  }, [addWallet, createHardwareAccount, deleteAccount, hardwareWalletAccounts, horizonURL, netWorker, requestAccounts])
+  }, [accounts, addWallet, createHardwareAccount, deleteAccount, horizonURL, netWorker, requestAccounts])
 
   React.useEffect(() => {
     if (hardwareWalletAccounts.length > 0) {
@@ -136,7 +132,29 @@ function BluetoothOnboardingDialog(props: Props) {
   }, [hardwareWalletAccounts, onClose])
 
   return (
-    <Dialog open={showOnboarding} onClose={onClose}>
+    <BluetoothOnboardingDialog
+      hardwareWalletAccounts={hardwareWalletAccounts}
+      showBluetoothOnboarding={showBluetoothOnboarding}
+      onClose={onClose}
+      walletConnected={walletConnected}
+    />
+  )
+}
+
+interface BluetoothOnboardingDialogProps extends Props {
+  walletConnected: boolean
+  hardwareWalletAccounts: Account[]
+}
+
+function BluetoothOnboardingDialog(props: BluetoothOnboardingDialogProps) {
+  const { hardwareWalletAccounts, onClose, showBluetoothOnboarding, walletConnected } = props
+
+  const classes = useStyles()
+  const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
+  return (
+    <Dialog open={showBluetoothOnboarding} onClose={onClose}>
       <DialogTitle>{t("account.bluetooth-onboarding.title")}</DialogTitle>
       <DialogContent style={{ paddingBottom: isSmallScreen ? 24 : undefined }}>
         <div className={classes.typographyContainer}>
@@ -177,4 +195,4 @@ function BluetoothOnboardingDialog(props: Props) {
   )
 }
 
-export default React.memo(BluetoothOnboardingDialog)
+export default HardwareConnectionHandler
