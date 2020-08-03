@@ -23,6 +23,7 @@ import { getLastArgumentFromURL } from "~Generic/lib/url"
 import { matchesRoute } from "~Generic/lib/routes"
 import * as routes from "~App/routes"
 import { FullscreenDialogTransition } from "../../App/theme"
+import { InlineErrorBoundary, HideOnError } from "~Generic/components/ErrorBoundaries"
 
 const modules = {
   AssetDetailsDialog: import("../../Assets/components/AssetDetailsDialog"),
@@ -246,19 +247,21 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
         onTrade={navigateTo.tradeAssets}
         onWithdraw={navigateTo.withdraw}
       >
-        {props.account ? (
-          <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
-        ) : null}
-        {isSmallScreen || !props.account ? null : (
-          <React.Suspense fallback={<InlineLoader />}>
-            <AccountActions
-              account={props.account}
-              hidden={!showSendReceiveButtons}
-              onCreatePayment={navigateTo.createPayment!}
-              onReceivePayment={navigateTo.receivePayment!}
-            />
-          </React.Suspense>
-        )}
+        <HideOnError>
+          {props.account ? (
+            <ScrollableBalances account={props.account} onClick={navigateTo.balanceDetails} style={{ marginTop: 8 }} />
+          ) : null}
+          {isSmallScreen || !props.account ? null : (
+            <React.Suspense fallback={<InlineLoader />}>
+              <AccountActions
+                account={props.account}
+                hidden={!showSendReceiveButtons}
+                onCreatePayment={navigateTo.createPayment!}
+                onReceivePayment={navigateTo.receivePayment!}
+              />
+            </React.Suspense>
+          )}
+        </HideOnError>
       </AccountHeaderCard>
     ),
     [
@@ -292,25 +295,27 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           overflowY: "auto"
         }}
       >
-        {showAccountCreation ? (
-          <React.Suspense fallback={<ViewLoading />}>
-            <AccountCreationOptions
-              accountCreation={accountCreation}
-              accountToBackup={accountToBackup}
-              errors={accountCreationErrors}
-              onFinishBackup={closeBackupDialog}
-              onUpdateAccountCreation={updateAccountCreation}
-            />
-          </React.Suspense>
-        ) : showAccountSettings ? (
-          <React.Suspense fallback={<TransactionListPlaceholder />}>
-            <AccountSettings account={props.account!} />
-          </React.Suspense>
-        ) : (
-          <React.Suspense fallback={<TransactionListPlaceholder />}>
-            <AccountTransactions account={props.account!} />
-          </React.Suspense>
-        )}
+        <InlineErrorBoundary>
+          {showAccountCreation ? (
+            <React.Suspense fallback={<ViewLoading />}>
+              <AccountCreationOptions
+                accountCreation={accountCreation}
+                accountToBackup={accountToBackup}
+                errors={accountCreationErrors}
+                onFinishBackup={closeBackupDialog}
+                onUpdateAccountCreation={updateAccountCreation}
+              />
+            </React.Suspense>
+          ) : showAccountSettings ? (
+            <React.Suspense fallback={<TransactionListPlaceholder />}>
+              <AccountSettings account={props.account!} />
+            </React.Suspense>
+          ) : (
+            <React.Suspense fallback={<TransactionListPlaceholder />}>
+              <AccountTransactions account={props.account!} />
+            </React.Suspense>
+          )}
+        </InlineErrorBoundary>
       </Section>
       {isSmallScreen && props.account ? (
         <React.Suspense fallback={<ViewLoading />}>

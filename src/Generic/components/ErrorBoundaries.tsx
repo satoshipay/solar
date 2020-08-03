@@ -17,7 +17,7 @@ interface State {
 }
 
 function ErrorBoundary<Props extends { children: React.ReactNode }>(
-  View: React.ComponentType<Props & { error: Error }>
+  View: React.FunctionComponent<Props & { error: Error }>
 ): React.ComponentType<Props> {
   return class ErrorComponent extends React.PureComponent<Props, State> {
     static getDerivedStateFromError(error: Error): State {
@@ -44,6 +44,10 @@ function ErrorBoundary<Props extends { children: React.ReactNode }>(
     }
   }
 }
+
+export const HideOnError = ErrorBoundary(function HideOnError() {
+  return <React.Fragment />
+})
 
 interface InlineErrorBoundaryProps {
   children: React.ReactNode

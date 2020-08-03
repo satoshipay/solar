@@ -11,9 +11,10 @@ import { matchesRoute } from "~Generic/lib/routes"
 import * as routes from "~App/routes"
 import { breakpoints } from "~App/theme"
 import { AccountCreation } from "~AccountCreation/types/types"
-import { Box } from "~Layout/components/Box"
-import withFallback from "~Generic/hocs/withFallback"
+import { HideOnError } from "~Generic/components/ErrorBoundaries"
 import ViewLoading from "~Generic/components/ViewLoading"
+import withFallback from "~Generic/hocs/withFallback"
+import { Box } from "~Layout/components/Box"
 import AccountTitle, { Badges, StaticBadges } from "./AccountTitle"
 
 const AccountContextMenu = withFallback(
@@ -110,17 +111,19 @@ function AccountHeaderCard(props: Props) {
 
   const badges = React.useMemo(
     () => (
-      <React.Suspense fallback={null}>
-        {meta.account ? (
-          <Badges account={meta.account} />
-        ) : (
-          <StaticBadges
-            multisig={meta.accountCreation.multisig ? "generic" : undefined}
-            password={meta.accountCreation.requiresPassword}
-            testnet={meta.accountCreation.testnet}
-          />
-        )}
-      </React.Suspense>
+      <HideOnError>
+        <React.Suspense fallback={null}>
+          {meta.account ? (
+            <Badges account={meta.account} />
+          ) : (
+            <StaticBadges
+              multisig={meta.accountCreation.multisig ? "generic" : undefined}
+              password={meta.accountCreation.requiresPassword}
+              testnet={meta.accountCreation.testnet}
+            />
+          )}
+        </React.Suspense>
+      </HideOnError>
     ),
     [meta.account, meta.accountCreation]
   )

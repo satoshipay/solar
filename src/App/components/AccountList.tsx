@@ -12,11 +12,12 @@ import AccountBalances from "~Account/components/AccountBalances"
 import { CardList, CardListCard } from "~Layout/components/CardList"
 import { Account } from "../contexts/accounts"
 import { SignatureDelegationContext } from "../contexts/signatureDelegation"
+import { InlineErrorBoundary } from "~Generic/components/ErrorBoundaries"
+import InlineLoader from "~Generic/components/InlineLoader"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { containsThirdPartySigner } from "~Generic/lib/third-party-security"
 import { SignatureRequest } from "~Generic/lib/multisig-service"
-import InlineLoader from "~Generic/components/InlineLoader"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 import * as routes from "../routes"
 
@@ -110,19 +111,21 @@ function AccountCard(props: AccountCardProps) {
     <StyledCard elevation={5} onClick={onClick} style={{ background: "white", color: "black" }}>
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
         <VerticalLayout minHeight="100px" justifyContent="space-evenly" textAlign="left">
-          <HorizontalLayout margin="0 0 12px">
-            <Typography variant="h5" style={{ flexGrow: 1, fontSize: 20 }}>
-              {props.account.name}
-            </Typography>
-            <React.Suspense fallback={null}>
-              <Badges account={props.account} />
-            </React.Suspense>
-          </HorizontalLayout>
-          <Box fontSize="120%">
-            <React.Suspense fallback={<InlineLoader />}>
-              <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
-            </React.Suspense>
-          </Box>
+          <InlineErrorBoundary>
+            <HorizontalLayout margin="0 0 12px">
+              <Typography variant="h5" style={{ flexGrow: 1, fontSize: 20 }}>
+                {props.account.name}
+              </Typography>
+              <React.Suspense fallback={null}>
+                <Badges account={props.account} />
+              </React.Suspense>
+            </HorizontalLayout>
+            <Box fontSize="120%">
+              <React.Suspense fallback={<InlineLoader />}>
+                <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+              </React.Suspense>
+            </Box>
+          </InlineErrorBoundary>
         </VerticalLayout>
       </StyledBadge>
     </StyledCard>
