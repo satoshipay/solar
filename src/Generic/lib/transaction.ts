@@ -192,13 +192,23 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
 }
 
 export async function requiresRemoteSignatures(horizon: Server, transaction: Transaction, walletPublicKey: string) {
+  const { netWorker } = await workers
+  const horizonURL = horizon.serverURL.toString()
   const sources = getAllSources(transaction)
 
   if (sources.length > 1) {
     return true
   }
 
-  const accounts = await Promise.all(sources.map(sourcePublicKey => horizon.loadAccount(sourcePublicKey)))
+  const accounts = await Promise.all(
+    sources.map(async sourcePublicKey => {
+      const account = await netWorker.fetchAccountData(horizonURL, sourcePublicKey)
+      if (!account) {
+        throw Error(`Could not fetch account metadata from horizon server: ${sourcePublicKey}`)
+      }
+      return account
+    })
+  )
 
   return accounts.some(account => {
     const thisWalletSigner = account.signers.find(signer => signer.key === walletPublicKey)

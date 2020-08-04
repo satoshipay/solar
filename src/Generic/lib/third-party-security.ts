@@ -2,6 +2,7 @@ import { Server, Transaction, Horizon } from "stellar-sdk"
 import { CustomError } from "./errors"
 import StellarGuardIcon from "~Icons/components/StellarGuard"
 import LobstrVaultIcon from "~Icons/components/LobstrVault"
+import { workers } from "~Workers/worker-controller"
 
 export interface ThirdPartySecurityService {
   endpoints: {
@@ -34,8 +35,11 @@ const services: ThirdPartySecurityService[] = [
 ]
 
 export async function isThirdPartyProtected(horizon: Server, accountPubKey: string) {
-  const account = await horizon.loadAccount(accountPubKey)
-  const signerKeys = account.signers.map(signer => signer.key)
+  const { netWorker } = await workers
+  const horizonURL = horizon.serverURL.toString()
+
+  const account = await netWorker.fetchAccountData(horizonURL, accountPubKey)
+  const signerKeys = (account?.signers || []).map(signer => signer.key)
 
   const enabledService = services.find(service => signerKeys.includes(service.publicKey))
   return enabledService
