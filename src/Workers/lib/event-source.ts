@@ -2,7 +2,8 @@ import { handleConnectionState } from "./connection"
 
 const watchdogIntervalTime = 15_000
 
-function createReconnectDelay(options: { delay: number }): () => Promise<void> {
+function createReconnectDelay(options: { initialDelay: number }): () => Promise<void> {
+  let delay = options.initialDelay
   let lastConnectionAttemptTime = 0
 
   const networkBackOnline = () => {
@@ -21,14 +22,17 @@ function createReconnectDelay(options: { delay: number }): () => Promise<void> {
   }
 
   return async function delayReconnect() {
-    const justConnectedBefore = Date.now() - lastConnectionAttemptTime < options.delay
-    const waitUntil = Date.now() + options.delay
+    const justConnectedBefore = Date.now() - lastConnectionAttemptTime < delay
+    const waitUntil = Date.now() + delay
 
     await networkBackOnline()
 
     if (justConnectedBefore) {
-      // Reconnect immediately (skip await) if last reconnection is long ago
       await timeReached(waitUntil)
+      delay = Math.min(delay * 1.5, options.initialDelay * 8)
+    } else {
+      // Reconnect immediately (skip await) if last reconnection is long ago
+      delay = options.initialDelay
     }
 
     lastConnectionAttemptTime = Date.now()
@@ -41,7 +45,11 @@ interface SSEHandlers {
   onMessage?(event: MessageEvent): void
 }
 
-export function createReconnectingSSE(createURL: () => string, handlers: SSEHandlers) {
+export function createReconnectingSSE(
+  createURL: () => string,
+  handlers: SSEHandlers,
+  queueRequest: (task: () => any) => Promise<any>
+) {
   let currentlySubscribed = false
   let delayReconnect: () => Promise<void>
 
@@ -97,21 +105,20 @@ export function createReconnectingSSE(createURL: () => string, handlers: SSEHand
         handlers.onStreamError(error)
       }
 
-      delayReconnect().then(
-        () => subscribe(),
-        unexpectedError => {
+      delayReconnect()
+        .then(() => queueRequest(() => subscribe()))
+        .catch(unexpectedError => {
           if (handlers.onUnexpectedError) {
             handlers.onUnexpectedError(unexpectedError)
           }
-        }
-      )
+        })
     }
 
     currentlySubscribed = true
   }
 
   const setup = async () => {
-    delayReconnect = createReconnectDelay({ delay: 1000 })
+    delayReconnect = createReconnectDelay({ initialDelay: 1000 })
     subscribe()
   }
 

@@ -3,40 +3,6 @@ import fetch from "isomorphic-fetch"
 import { xdr, Asset, Horizon, Keypair, NotFoundError, Server, ServerApi, Transaction } from "stellar-sdk"
 import { AssetRecord } from "../hooks/stellar-ecosystem"
 import { AccountData } from "./account"
-import { joinURL } from "./url"
-import { CustomError } from "./errors"
-
-export interface SmartFeePreset {
-  capacityTrigger: number
-  maxFee: number
-  percentile: number
-}
-
-interface FeeStatsDetails {
-  max: string
-  min: string
-  mode: string
-  p10: string
-  p20: string
-  p30: string
-  p40: string
-  p50: string
-  p60: string
-  p70: string
-  p80: string
-  p90: string
-  p95: string
-  p99: string
-}
-
-// See <https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html>
-interface FeeStats {
-  last_ledger: string
-  last_ledger_base_fee: string
-  ledger_capacity_usage: string
-  fee_charged: FeeStatsDetails
-  max_fee: FeeStatsDetails
-}
 
 const MAX_INT64 = "9223372036854775807"
 
@@ -89,32 +55,6 @@ export function stringifyAsset(assetOrTrustline: Asset | Horizon.BalanceLine) {
     const line: Horizon.BalanceLine = assetOrTrustline
     return line.asset_type === "native" ? "XLM" : `${line.asset_issuer}:${line.asset_code}`
   }
-}
-
-async function fetchFeeStats(horizon: Server): Promise<FeeStats> {
-  const url = joinURL(getHorizonURL(horizon), "/fee_stats")
-  const response = await fetch(url)
-
-  if (!response.ok) {
-    throw CustomError("RequestFailedError", `Request to ${url} failed with status code ${response.status}`, {
-      target: url,
-      status: response.status
-    })
-  }
-  return response.json()
-}
-
-export async function selectSmartTransactionFee(horizon: Server, preset: SmartFeePreset): Promise<number> {
-  const feeStats = await fetchFeeStats(horizon)
-  const capacityUsage = Number.parseFloat(feeStats.ledger_capacity_usage)
-  const percentileFees = feeStats.fee_charged
-
-  const smartFee =
-    capacityUsage > preset.capacityTrigger
-      ? Number.parseInt((percentileFees as any)[`p${preset.percentile}`] || feeStats.fee_charged.mode, 10)
-      : Number.parseInt(feeStats.fee_charged.min, 10)
-
-  return Math.min(smartFee, preset.maxFee)
 }
 
 export async function friendbotTopup(horizonURL: string, publicKey: string) {
