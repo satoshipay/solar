@@ -170,9 +170,11 @@ function initializeStorage(contentWindow: Window) {
 
       return [secureStorage, keyStore] as const
     } catch (error) {
-      // Assume that it is a 'device not secure' error
+      const message = error && error.message ? error.message : "Unknown error."
       alert(
-        "This application requires you to set a PIN or unlock pattern for your device.\n\nPlease retry after setting it up."
+        "Could not initialize keystore: " +
+          message +
+          " If this error persists try wiping your application data in the system settings."
       )
       return navigator.app.exitApp()
     }
