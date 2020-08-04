@@ -1,4 +1,5 @@
 import {
+  Account as StellarAccount,
   Asset,
   Keypair,
   Memo,
@@ -13,7 +14,14 @@ import {
 import { Account } from "~App/contexts/accounts"
 import { WrongPasswordError, CustomError } from "./errors"
 import { applyTimeout } from "./promise"
-import { getAllSources, isNotFoundError, isSignedByAnyOf, selectSmartTransactionFee, SmartFeePreset } from "./stellar"
+import { getAllSources, isNotFoundError, isSignedByAnyOf } from "./stellar"
+import { workers } from "~Workers/worker-controller"
+
+interface SmartFeePreset {
+  capacityTrigger: number
+  maxFee: number
+  percentile: number
+}
 
 // See <https://github.com/stellar/go/issues/926>
 const highFeePreset: SmartFeePreset = {
@@ -72,9 +80,20 @@ async function accountExists(horizon: Server, publicKey: string) {
   }
 }
 
-async function selectTransactionFeeWithFallback(horizon: Server, fallbackFee: number) {
+async function selectTransactionFeeWithFallback(horizonURL: string, preset: SmartFeePreset, fallbackFee: number) {
   try {
-    return await selectSmartTransactionFee(horizon, highFeePreset)
+    const { netWorker } = await workers
+    const feeStats = await netWorker.fetchFeeStats(horizonURL)
+
+    const capacityUsage = Number.parseFloat(feeStats.ledger_capacity_usage)
+    const percentileFees = feeStats.fee_charged
+
+    const smartFee =
+      capacityUsage > preset.capacityTrigger
+        ? Number.parseInt((percentileFees as any)[`p${preset.percentile}`] || feeStats.fee_charged.mode, 10)
+        : Number.parseInt(feeStats.fee_charged.min, 10)
+
+    return Math.min(smartFee, preset.maxFee)
   } catch (error) {
     // Don't show error notification, since our horizon's endpoint is non-functional anyway
     // tslint:disable-next-line no-console
@@ -98,17 +117,27 @@ interface TxBlueprint {
 
 export async function createTransaction(operations: Array<xdr.Operation<any>>, options: TxBlueprint) {
   const { horizon, walletAccount } = options
+  const { netWorker } = await workers
+
   const fallbackFee = 10000
+  const horizonURL = horizon.serverURL.toString()
   const timeout = selectTransactionTimeout(options.accountData)
 
-  const [account, smartTxFee, timebounds] = await Promise.all([
-    applyTimeout(horizon.loadAccount(walletAccount.publicKey), 10000, () =>
+  const [accountMetadata, smartTxFee, timebounds] = await Promise.all([
+    applyTimeout(netWorker.fetchAccountData(horizonURL, walletAccount.publicKey), 10000, () =>
       fail(`Fetching source account data timed out`)
     ),
-    applyTimeout(selectTransactionFeeWithFallback(horizon, fallbackFee), 5000, () => fallbackFee),
-    applyTimeout(horizon.fetchTimebounds(timeout), 10000, () => fail(`Syncing time bounds with horizon timed out`))
-  ])
+    applyTimeout(selectTransactionFeeWithFallback(horizonURL, highFeePreset, fallbackFee), 5000, () => fallbackFee),
+    applyTimeout(netWorker.fetchTimebounds(horizonURL, timeout), 10000, () =>
+      fail(`Syncing time bounds with horizon timed out`)
+    )
+  ] as const)
 
+  if (!accountMetadata) {
+    throw Error(`Failed to query account from horizon server: ${walletAccount.publicKey}`)
+  }
+
+  const account = new StellarAccount(accountMetadata.id, accountMetadata.sequence)
   const networkPassphrase = walletAccount.testnet ? Networks.TESTNET : Networks.PUBLIC
   const txFee = Math.max(smartTxFee, options.minTransactionFee || 0)
 
@@ -163,13 +192,23 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
 }
 
 export async function requiresRemoteSignatures(horizon: Server, transaction: Transaction, walletPublicKey: string) {
+  const { netWorker } = await workers
+  const horizonURL = horizon.serverURL.toString()
   const sources = getAllSources(transaction)
 
   if (sources.length > 1) {
     return true
   }
 
-  const accounts = await Promise.all(sources.map(sourcePublicKey => horizon.loadAccount(sourcePublicKey)))
+  const accounts = await Promise.all(
+    sources.map(async sourcePublicKey => {
+      const account = await netWorker.fetchAccountData(horizonURL, sourcePublicKey)
+      if (!account) {
+        throw Error(`Could not fetch account metadata from horizon server: ${sourcePublicKey}`)
+      }
+      return account
+    })
+  )
 
   return accounts.some(account => {
     const thisWalletSigner = account.signers.find(signer => signer.key === walletPublicKey)

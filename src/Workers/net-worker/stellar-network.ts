@@ -3,7 +3,7 @@ import throttle from "lodash.throttle"
 import { filter, flatMap, map, merge, multicast, Observable } from "observable-fns"
 import PromiseQueue from "p-queue"
 import qs from "qs"
-import { Asset, Horizon, Networks, ServerApi, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Networks, Server, ServerApi, Transaction } from "stellar-sdk"
 import pkg from "../../../package.json"
 import { Cancellation, CustomError } from "~Generic/lib/errors"
 import { observableFromAsyncFactory } from "~Generic/lib/observables"
@@ -41,6 +41,32 @@ export interface CollectionPage<T> {
   }
 }
 
+interface FeeStatsDetails {
+  max: string
+  min: string
+  mode: string
+  p10: string
+  p20: string
+  p30: string
+  p40: string
+  p50: string
+  p60: string
+  p70: string
+  p80: string
+  p90: string
+  p95: string
+  p99: string
+}
+
+// See <https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html>
+interface FeeStats {
+  last_ledger: string
+  last_ledger_base_fee: string
+  ledger_capacity_usage: string
+  fee_charged: FeeStatsDetails
+  max_fee: FeeStatsDetails
+}
+
 const accountSubscriptionCache = new Map<string, Observable<Horizon.AccountResponse>>()
 const effectsSubscriptionCache = new Map<string, Observable<ServerApi.EffectRecord>>()
 const orderbookSubscriptionCache = new Map<string, Observable<ServerApi.OrderbookRecord>>()
@@ -69,9 +95,10 @@ function delay(ms: number) {
 function getFetchQueue(horizonURL: string): PromiseQueue {
   if (!fetchQueuesByHorizon.has(horizonURL)) {
     const fetchQueue = new PromiseQueue({
-      concurrency: 8,
+      concurrency: 4,
       interval: 1000,
-      intervalCap: 4
+      intervalCap: 4,
+      timeout: 10000
     })
     fetchQueuesByHorizon.set(horizonURL, fetchQueue)
   }
@@ -261,22 +288,26 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
         return multicast(
           observableFromAsyncFactory<ServerApi.EffectRecord>(async observer => {
             return fetchQueue.add(() =>
-              createReconnectingSSE(createURL, {
-                onMessage(message) {
-                  const effect: ServerApi.EffectRecord = JSON.parse(message.data)
+              createReconnectingSSE(
+                createURL,
+                {
+                  onMessage(message) {
+                    const effect: ServerApi.EffectRecord = JSON.parse(message.data)
 
-                  // Don't update latestCursor cursor here – if we do it too early it might cause
-                  // shouldApplyUpdate() to return false, since it compares the new effect with itself
-                  observer.next(effect)
+                    // Don't update latestCursor cursor here – if we do it too early it might cause
+                    // shouldApplyUpdate() to return false, since it compares the new effect with itself
+                    observer.next(effect)
 
-                  if (effect.type === "account_removed" && effect.account === accountID) {
-                    observer.complete()
+                    if (effect.type === "account_removed" && effect.account === accountID) {
+                      observer.complete()
+                    }
+                  },
+                  onUnexpectedError(error) {
+                    observer.error(error)
                   }
                 },
-                onUnexpectedError(error) {
-                  observer.error(error)
-                }
-              })
+                fetchQueue.add.bind(fetchQueue)
+              )
             )
           })
         )
@@ -575,15 +606,19 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
       subscribeToUpdates() {
         return observableFromAsyncFactory<ServerApi.OrderbookRecord>(observer => {
           return fetchQueue.add(() =>
-            createReconnectingSSE(createURL, {
-              onMessage(message) {
-                const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
-                observer.next(record)
+            createReconnectingSSE(
+              createURL,
+              {
+                onMessage(message) {
+                  const record: ServerApi.OrderbookRecord = JSON.parse(message.data)
+                  observer.next(record)
+                },
+                onUnexpectedError(error) {
+                  observer.error(error)
+                }
               },
-              onUnexpectedError(error) {
-                observer.error(error)
-              }
-            })
+              fetchQueue.add.bind(fetchQueue)
+            )
           )
         })
       }
@@ -610,7 +645,7 @@ export async function fetchAccountData(
 ): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
-  const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 0 })
+  const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 2 })
 
   if (response.status === 404) {
     return null
@@ -701,6 +736,23 @@ export async function fetchAccountOpenOrders(horizonURL: string, accountID: stri
   return parseJSONResponse<CollectionPage<ServerApi.OfferRecord>>(response)
 }
 
+export async function fetchFeeStats(horizonURL: string): Promise<FeeStats> {
+  const fetchQueue = getFetchQueue(horizonURL)
+  const url = new URL("/fee_stats", horizonURL)
+
+  const response = await fetchQueue.add(() => fetch(url.toString()), {
+    priority: 10
+  })
+
+  if (!response.ok) {
+    throw CustomError("RequestFailedError", `Request to ${url} failed with status code ${response.status}`, {
+      target: url.toString(),
+      status: response.status
+    })
+  }
+  return response.json()
+}
+
 export async function fetchOrderbookRecord(horizonURL: string, sellingAsset: string, buyingAsset: string) {
   if (buyingAsset === sellingAsset) {
     return createEmptyOrderbookRecord(parseAssetID(buyingAsset), parseAssetID(buyingAsset))
@@ -712,4 +764,13 @@ export async function fetchOrderbookRecord(horizonURL: string, sellingAsset: str
 
   const response = await fetchQueue.add(() => fetch(String(url)), { priority: 1 })
   return parseJSONResponse<ServerApi.OrderbookRecord>(response)
+}
+
+export async function fetchTimebounds(horizonURL: string, timeout: number) {
+  const fetchQueue = getFetchQueue(horizonURL)
+  const horizon = new Server(horizonURL)
+
+  return fetchQueue.add(() => horizon.fetchTimebounds(timeout), {
+    priority: 10
+  })
 }
