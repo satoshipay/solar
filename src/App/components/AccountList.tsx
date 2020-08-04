@@ -110,7 +110,7 @@ function AccountCard(props: AccountCardProps) {
   return (
     <StyledCard elevation={5} onClick={onClick} style={{ background: "white", color: "black" }}>
       <StyledBadge badgeContent={badgeContent} color="secondary" style={{ width: "100%" }}>
-        <VerticalLayout minHeight="100px" justifyContent="space-evenly" textAlign="left">
+        <VerticalLayout minHeight="100px" justifyContent="space-evenly" textAlign="left" width="100%">
           <InlineErrorBoundary>
             <HorizontalLayout margin="0 0 12px">
               <Typography variant="h5" style={{ flexGrow: 1, fontSize: 20 }}>
