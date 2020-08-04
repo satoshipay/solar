@@ -645,7 +645,7 @@ export async function fetchAccountData(
 ): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
-  const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 0 })
+  const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 2 })
 
   if (response.status === 404) {
     return null
