@@ -2,13 +2,19 @@ import BigNumber from "big.js"
 import React from "react"
 import { Trans } from "react-i18next"
 import { Operation, Server, ServerApi, Transaction } from "stellar-sdk"
+import ExpansionPanel from "@material-ui/core/ExpansionPanel"
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import ArrowRightIcon from "@material-ui/icons/ArrowRightAlt"
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import BarChartIcon from "@material-ui/icons/BarChart"
 import { Account } from "~App/contexts/accounts"
+import { breakpoints } from "~App/theme"
 import { trackError } from "~App/contexts/notifications"
 import { useHorizon } from "~Generic/hooks/stellar"
 import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
@@ -150,10 +156,45 @@ interface Props {
   title: React.ReactNode
 }
 
+const useStyles = makeStyles({
+  expansionPanel: {
+    background: "transparent",
+
+    "&:before": {
+      background: "transparent"
+    }
+  },
+  expansionPanelSummary: {
+    justifyContent: "flex-start",
+    minHeight: "48px !important",
+    padding: 0
+  },
+  expansionPanelSummaryContent: {
+    flexGrow: 0,
+    marginTop: "0 !important",
+    marginBottom: "0 !important"
+  },
+  expansionPanelDetails: {
+    display: "block",
+    padding: 0
+  },
+  listItem: {
+    padding: "8px 24px",
+
+    [breakpoints.down(600)]: {
+      paddingLeft: 24,
+      paddingRight: 24
+    }
+  }
+})
+
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const classes = useStyles()
   const offers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
+
+  const [expanded, setExpanded] = React.useState(true)
 
   const onCancel = async (offer: ServerApi.OfferRecord) => {
     try {
@@ -169,17 +210,35 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
   } else {
     return (
       <List style={{ background: "transparent" }}>
-        <ListSubheader disableSticky style={{ background: "transparent" }}>
-          {props.title}
-        </ListSubheader>
-        {offers.map(offer => (
-          <OfferListItem
-            key={offer.id}
-            accountPublicKey={props.account.publicKey}
-            offer={offer}
-            onCancel={() => onCancel(offer)}
-          />
-        ))}
+        <ExpansionPanel
+          className={classes.expansionPanel}
+          elevation={0}
+          expanded={expanded}
+          onChange={() => setExpanded(!expanded)}
+        >
+          <ExpansionPanelSummary
+            classes={{ root: classes.expansionPanelSummary, content: classes.expansionPanelSummaryContent }}
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <ListSubheader
+              className={classes.listItem}
+              disableSticky
+              style={{ background: "transparent", paddingRight: 0 }}
+            >
+              {props.title}
+            </ListSubheader>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails className={classes.expansionPanelDetails}>
+            {offers.map(offer => (
+              <OfferListItem
+                key={offer.id}
+                accountPublicKey={props.account.publicKey}
+                offer={offer}
+                onCancel={() => onCancel(offer)}
+              />
+            ))}
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
       </List>
     )
   }
