@@ -471,7 +471,7 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
   const fetchUpdate = async () => {
     // Don't use latest cursor as we want to fetch all open orders
     // (otherwise we could not handle order deletions)
-    const page = await fetchAccountOpenOrders(horizonURL, accountID)
+    const page = await fetchAccountOpenOrders(horizonURL, accountID, { order: "desc" })
     return page._embedded.records
   }
 

@@ -129,7 +129,7 @@ export function useLiveAccountOffers(accountID: string, testnet: boolean): Offer
         return (
           accountOpenOrdersCache.get(selector) ||
           accountOpenOrdersCache.suspend(selector, async () => {
-            const page = await netWorker.fetchAccountOpenOrders(horizonURL, accountID, { limit })
+            const page = await netWorker.fetchAccountOpenOrders(horizonURL, accountID, { limit, order: "desc" })
             const offers = page._embedded.records
             return {
               olderOffersAvailable: offers.length === limit,
@@ -139,7 +139,9 @@ export function useLiveAccountOffers(accountID: string, testnet: boolean): Offer
         )
       },
       set(updated: OfferHistory) {
-        accountOpenOrdersCache.set(selector, updated)
+        // reset olderOffersAvailable because updated history will only have the 10 most recent offers
+        const olderOffersAvailable = updated.offers.length === limit
+        accountOpenOrdersCache.set(selector, { ...updated, olderOffersAvailable })
       },
       observe() {
         return netWorker.subscribeToOpenOrders(horizonURL, accountID)
@@ -169,12 +171,12 @@ export function useOlderOffers(accountID: string, testnet: boolean) {
         fetched = await netWorker.fetchAccountOpenOrders(horizonURL, accountID, {
           cursor: prevOffers[prevOffers.length - 1].paging_token,
           limit,
-          order: "asc"
+          order: "desc"
         })
       } else {
         fetched = await netWorker.fetchAccountOpenOrders(horizonURL, accountID, {
           limit,
-          order: "asc"
+          order: "desc"
         })
       }
 
