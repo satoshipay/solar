@@ -55,13 +55,13 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
 
   const data = props.state.response.data
   const minAmount = data.min_amount ? BigNumber(data.min_amount) : undefined
-  const maxAmount = data.max_amount ? BigNumber(data.max_amount) : balance
+  const maxAmount = data.max_amount ? BigNumber(data.max_amount) : undefined
 
   const amount = amountString.match(/^[0-9]+(\.[0-9]+)?$/) ? BigNumber(amountString) : BigNumber(0)
   const eta = data.eta ? formatDuration(data.eta) : t("transfer-service.transaction-details.body.eta.not-available")
 
   const isAmountOutOfBounds = (minAmount && amount.lt(minAmount)) || (maxAmount && amount.gt(maxAmount))
-  const isDisabled = !amount.gt(0) || amount.gt(balance) || isAmountOutOfBounds
+  const isDisabled = props.type === "withdrawal" ? !amount.gt(0) || amount.gt(balance) || isAmountOutOfBounds : false
 
   const fees = BigNumber(data.fee_fixed || 0).add(
     BigNumber(data.fee_percent || 0)
@@ -109,21 +109,19 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
             value={(props.state.response as DepositInstructionsSuccess).data.how}
           />
         ) : null}
-        <PriceInput
-          assetCode={asset.getCode()}
-          disabled={minAmount && minAmount.gt(balance)}
-          error={minAmount && minAmount.gt(balance)}
-          label={
-            props.type === "deposit"
-              ? t("transfer-service.transaction-details.body.amount.label.deposit")
-              : t("transfer-service.transaction-details.body.amount.label.withdrawal")
-          }
-          margin="normal"
-          onChange={event => setAmountString(event.target.value)}
-          placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
-          style={{ marginTop: 24 }}
-          value={amountString}
-        />
+        {props.type === "deposit" ? null : (
+          <PriceInput
+            assetCode={asset.getCode()}
+            disabled={minAmount && minAmount.gt(balance)}
+            error={minAmount && minAmount.gt(balance)}
+            label={t("transfer-service.transaction-details.body.amount.label.withdrawal")}
+            margin="normal"
+            onChange={event => setAmountString(event.target.value)}
+            placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
+            style={{ marginTop: 24 }}
+            value={amountString}
+          />
+        )}
         <PriceInput
           assetCode={asset.getCode()}
           disabled

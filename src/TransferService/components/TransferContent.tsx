@@ -9,10 +9,10 @@ import PurchaseLumens from "./PurchaseLumens"
 import TransferAuthentication from "./TransferAuthentication"
 import TransferKYCDenied from "./TransferKYCDenied"
 import TransferKYCPending from "./TransferKYCPending"
-import WithdrawalDetailsForm from "./TransferDetailsForm"
+import TransferDetailsForm from "./TransferDetailsForm"
 import TransferInitial from "./TransferInitial"
 import WithdrawalSuccess from "./WithdrawalSuccess"
-import WithdrawalTransactionDetails from "./TransferTransactionDetails"
+import TransferTransactionDetails from "./TransferTransactionDetails"
 import { TransferState } from "../util/statemachine"
 
 interface TransferContentProps {
@@ -44,7 +44,7 @@ export const TransferContent = React.memo(function TransferContent(props: Transf
     )
   } else if (state.step === "enter-values") {
     return (
-      <WithdrawalDetailsForm
+      <TransferDetailsForm
         active={props.active || false}
         assetTransferInfos={assetTransferInfos}
         dialogActionsRef={props.dialogActionsRef}
@@ -71,7 +71,7 @@ export const TransferContent = React.memo(function TransferContent(props: Transf
     return <TransferKYCDenied state={state} />
   } else if (state.step === "enter-tx-details") {
     return (
-      <WithdrawalTransactionDetails
+      <TransferTransactionDetails
         dialogActionsRef={props.dialogActionsRef}
         sendTransaction={props.sendTransaction}
         state={state}
@@ -102,7 +102,7 @@ export const TransferSidebar = React.memo(function TransferSidebar(props: Transf
   if (state.step === "initial") {
     return <TransferInitial.Sidebar type={type} />
   } else if (state.step === "enter-values") {
-    return <WithdrawalDetailsForm.Sidebar type={type} />
+    return <TransferDetailsForm.Sidebar type={type} />
   } else if (state.step === "xlm-deposit") {
     return <PurchaseLumens.Sidebar />
   } else if (state.step === "auth-pending") {
@@ -112,7 +112,7 @@ export const TransferSidebar = React.memo(function TransferSidebar(props: Transf
   } else if (state.step === "kyc-denied") {
     return <TransferKYCDenied.Sidebar />
   } else if (state.step === "enter-tx-details") {
-    return <WithdrawalTransactionDetails.Sidebar type={type} />
+    return <TransferTransactionDetails.Sidebar type={type} />
   } else if (state.step === "completed") {
     return type === "deposit" ? <DepositSuccess.Sidebar /> : <WithdrawalSuccess.Sidebar />
   } else {
