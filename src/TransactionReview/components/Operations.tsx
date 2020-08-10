@@ -265,7 +265,7 @@ function ManageOfferOperation(props: ManageOfferOperationProps) {
       ? BigNumber(props.operation.buyAmount).mul(props.operation.price)
       : BigNumber(props.operation.amount)
 
-  const offers = useLiveAccountOffers(props.accountData.id, props.testnet)
+  const { offers } = useLiveAccountOffers(props.accountData.id, props.testnet)
 
   if (offerId === "0") {
     // Offer creation

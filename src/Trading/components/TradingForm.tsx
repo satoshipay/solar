@@ -105,7 +105,7 @@ function TradingForm(props: Props) {
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
-  const openOrders = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const { offers: openOrders } = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
 

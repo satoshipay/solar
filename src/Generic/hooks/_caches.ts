@@ -103,6 +103,11 @@ export interface TransactionHistory {
   transactions: Horizon.TransactionResponse[]
 }
 
+export interface OfferHistory {
+  olderOffersAvailable: boolean
+  offers: ServerApi.OfferRecord[]
+}
+
 function areTransactionsNewer(prev: TransactionHistory, next: TransactionHistory) {
   const prevMaxTimestamp =
     (prev
@@ -120,17 +125,33 @@ function areTransactionsNewer(prev: TransactionHistory, next: TransactionHistory
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
 
+function areOffersNewer(prev: OfferHistory, next: OfferHistory) {
+  const prevMaxTimestamp =
+    (prev
+      ? max(
+          prev.offers.map(tx => tx.last_modified_time),
+          "0"
+        )
+      : undefined) || ""
+  const nextMaxTimestamp =
+    max(
+      next.offers.map(tx => tx.last_modified_time),
+      "0"
+    ) || ""
+
+  return !prev || nextMaxTimestamp > prevMaxTimestamp
+}
+
 export const accountDataCache = createCache<readonly [string, string], AccountData, AccountData>(createAccountCacheKey)
 
 export const accountHomeDomainCache = createCache<readonly [string, string], [string] | [], AccountData["home_domain"]>(
   createAccountCacheKey
 )
 
-export const accountOpenOrdersCache = createCache<
-  readonly [string, string],
-  ServerApi.OfferRecord[],
-  ServerApi.OfferRecord[]
->(createAccountCacheKey)
+export const accountOpenOrdersCache = createCache<readonly [string, string], OfferHistory, ServerApi.OfferRecord[]>(
+  createAccountCacheKey,
+  areOffersNewer
+)
 
 export const accountTransactionsCache = createCache<
   readonly [string, string],

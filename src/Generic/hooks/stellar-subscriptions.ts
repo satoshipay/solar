@@ -15,6 +15,7 @@ import {
   accountTransactionsCache,
   orderbookCache,
   resetNetworkCaches,
+  OfferHistory,
   TransactionHistory
 } from "./_caches"
 import { useHorizonURL } from "./stellar"
@@ -111,31 +112,33 @@ export function useLiveAccountData(accountID: string, testnet: boolean): Account
   return useLiveAccountDataSet([accountID], testnet)[0]
 }
 
-function applyAccountOffersUpdate(
-  prev: ServerApi.OfferRecord[],
-  next: ServerApi.OfferRecord[]
-): ServerApi.OfferRecord[] {
+function applyAccountOffersUpdate(prev: OfferHistory, next: ServerApi.OfferRecord[]): OfferHistory {
   // We ignore `prev` here
-  return next
+  return { olderOffersAvailable: prev.olderOffersAvailable, offers: next }
 }
 
-export function useLiveAccountOffers(accountID: string, testnet: boolean): ServerApi.OfferRecord[] {
+export function useLiveAccountOffers(accountID: string, testnet: boolean): OfferHistory {
   const horizonURL = useHorizonURL(testnet)
   const netWorker = useNetWorker()
 
   const { get, set, observe } = React.useMemo(() => {
     const selector = [horizonURL, accountID] as const
+    const limit = 10
     return {
       get() {
         return (
           accountOpenOrdersCache.get(selector) ||
           accountOpenOrdersCache.suspend(selector, async () => {
-            const page = await netWorker.fetchAccountOpenOrders(horizonURL, accountID)
-            return page._embedded.records
+            const page = await netWorker.fetchAccountOpenOrders(horizonURL, accountID, { limit })
+            const offers = page._embedded.records
+            return {
+              olderOffersAvailable: offers.length === limit,
+              offers
+            }
           })
         )
       },
-      set(updated: ServerApi.OfferRecord[]) {
+      set(updated: OfferHistory) {
         accountOpenOrdersCache.set(selector, updated)
       },
       observe() {
@@ -145,6 +148,55 @@ export function useLiveAccountOffers(accountID: string, testnet: boolean): Serve
   }, [accountID, horizonURL, netWorker])
 
   return useDataSubscription(applyAccountOffersUpdate, get, set, observe)
+}
+
+export function useOlderOffers(accountID: string, testnet: boolean) {
+  const forceRerender = useForceRerender()
+  const horizonURL = useHorizonURL(testnet)
+  const netWorker = useNetWorker()
+
+  const fetchMoreOffers = React.useCallback(
+    async function fetchMoreOffers() {
+      let fetched: CollectionPage<ServerApi.OfferRecord>
+
+      const selector = [horizonURL, accountID] as const
+      const history = accountOpenOrdersCache.get(selector)
+
+      const limit = 10
+      const prevOffers = history?.offers || []
+
+      if (prevOffers.length > 0) {
+        fetched = await netWorker.fetchAccountOpenOrders(horizonURL, accountID, {
+          cursor: prevOffers[prevOffers.length - 1].paging_token,
+          limit,
+          order: "asc"
+        })
+      } else {
+        fetched = await netWorker.fetchAccountOpenOrders(horizonURL, accountID, {
+          limit,
+          order: "asc"
+        })
+      }
+
+      const fetchedOffers: ServerApi.OfferRecord[] = fetched._embedded.records
+
+      accountOpenOrdersCache.set(
+        selector,
+        {
+          // not an accurate science right now…
+          olderOffersAvailable: fetchedOffers.length === limit,
+          offers: [...(accountOpenOrdersCache.get(selector)?.offers || []), ...fetchedOffers]
+        },
+        true
+      )
+
+      // hacky…
+      forceRerender()
+    },
+    [accountID, forceRerender, horizonURL, netWorker]
+  )
+
+  return fetchMoreOffers
 }
 
 type EffectHandler = (account: Account, effect: ServerApi.EffectRecord) => void

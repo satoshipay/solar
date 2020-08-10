@@ -1,6 +1,6 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Trans } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 import { Operation, Server, ServerApi, Transaction } from "stellar-sdk"
 import ExpansionPanel from "@material-ui/core/ExpansionPanel"
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
@@ -16,8 +16,10 @@ import BarChartIcon from "@material-ui/icons/BarChart"
 import { Account } from "~App/contexts/accounts"
 import { breakpoints } from "~App/theme"
 import { trackError } from "~App/contexts/notifications"
+import { ActionButton } from "~Generic/components/DialogActions"
 import { useHorizon } from "~Generic/hooks/stellar"
-import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
+import { useLoadingState } from "~Generic/hooks/util"
+import { useLiveAccountData, useLiveAccountOffers, useOlderOffers } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { offerAssetToAsset } from "~Generic/lib/stellar"
@@ -151,6 +153,29 @@ const OfferListItem = React.memo(function OfferListItem(props: OfferListItemProp
   )
 })
 
+interface LoadMoreOffersListItemProps {
+  onClick: () => void
+  pending?: boolean
+}
+
+const LoadMoreOffersListItem = React.memo(function LoadMoreOffersListItem(props: LoadMoreOffersListItemProps) {
+  const { t } = useTranslation()
+  return (
+    <ListItem style={{ borderBottom: "none", height: 75 }}>
+      <ListItemText disableTypography style={{ textAlign: "center" }}>
+        <ActionButton
+          onClick={props.onClick}
+          loading={props.pending}
+          style={{ margin: "0 auto", paddingLeft: 16, paddingRight: 16 }}
+          variant="text"
+        >
+          {t("account.transactions.transaction-list.load-more.label")}
+        </ActionButton>
+      </ListItemText>
+    </ListItem>
+  )
+})
+
 interface Props {
   account: Account
   title: React.ReactNode
@@ -191,10 +216,17 @@ const useStyles = makeStyles({
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useStyles()
-  const offers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const horizon = useHorizon(props.account.testnet)
+  const offerHistory = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
+  const fetchMoreOffers = useOlderOffers(props.account.publicKey, props.account.testnet)
 
   const [expanded, setExpanded] = React.useState(true)
+
+  const handleFetchMoreOffers = React.useCallback(() => handleMoreTxsFetch(fetchMoreOffers()), [
+    fetchMoreOffers,
+    handleMoreTxsFetch
+  ])
 
   const onCancel = async (offer: ServerApi.OfferRecord) => {
     try {
@@ -205,7 +237,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
     }
   }
 
-  if (offers.length === 0) {
+  if (offerHistory.offers.length === 0) {
     return null
   } else {
     return (
@@ -229,7 +261,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
             </ListSubheader>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails className={classes.expansionPanelDetails}>
-            {offers.map(offer => (
+            {offerHistory.offers.map(offer => (
               <OfferListItem
                 key={offer.id}
                 accountPublicKey={props.account.publicKey}
@@ -237,6 +269,12 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
                 onCancel={() => onCancel(offer)}
               />
             ))}
+            {offerHistory.olderOffersAvailable ? (
+              <LoadMoreOffersListItem
+                pending={moreTxsLoadingState.type === "pending"}
+                onClick={handleFetchMoreOffers}
+              />
+            ) : null}
           </ExpansionPanelDetails>
         </ExpansionPanel>
       </List>
