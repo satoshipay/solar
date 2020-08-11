@@ -4,7 +4,6 @@ import DialogActions from "@material-ui/core/DialogActions"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
-import TextField from "@material-ui/core/TextField"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import { Account, AccountsContext } from "~App/contexts/accounts"
@@ -15,6 +14,7 @@ import { ActionButton, DialogActionsBox } from "~Generic/components/DialogAction
 import { Box } from "~Layout/components/Box"
 import DialogBody from "~Layout/components/DialogBody"
 import MainTitle from "~Generic/components/MainTitle"
+import PasswordField from "~Generic/components/PasswordField"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -204,7 +204,7 @@ function ChangePasswordDialog(props: Props) {
     >
       <Box alignSelf="center" margin="24px auto 0" maxWidth={400} width="100%">
         <Box hidden={!props.account.requiresPassword} margin="0 0 8px">
-          <TextField
+          <PasswordField
             autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.prevPassword)}
             label={
@@ -216,12 +216,11 @@ function ChangePasswordDialog(props: Props) {
             margin="normal"
             value={formValues.prevPassword}
             onChange={event => setFormValue("prevPassword", event.target.value)}
-            type="password"
             InputProps={{ startAdornment: adornmentLockOpen }}
           />
         </Box>
         <Box hidden={removingPassword}>
-          <TextField
+          <PasswordField
             autoFocus={!props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.nextPassword)}
             label={
@@ -233,10 +232,9 @@ function ChangePasswordDialog(props: Props) {
             margin="normal"
             value={formValues.nextPassword}
             onChange={event => setFormValue("nextPassword", event.target.value)}
-            type="password"
             InputProps={{ startAdornment: adornmentLock }}
           />
-          <TextField
+          <PasswordField
             error={Boolean(errors.nextPasswordRepeat)}
             label={
               errors.nextPasswordRepeat
@@ -247,7 +245,6 @@ function ChangePasswordDialog(props: Props) {
             margin="normal"
             value={formValues.nextPasswordRepeat}
             onChange={event => setFormValue("nextPasswordRepeat", event.target.value)}
-            type="password"
             InputProps={{ startAdornment: adornmentLock }}
           />
         </Box>

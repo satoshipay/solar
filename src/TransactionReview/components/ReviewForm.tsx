@@ -3,7 +3,6 @@ import nanoid from "nanoid"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Transaction } from "stellar-sdk"
-import TextField from "@material-ui/core/TextField"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
@@ -18,6 +17,7 @@ import { VerticalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
 import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
 import TransactionSummary from "./TransactionSummary"
+import PasswordField from "~Generic/components/PasswordField"
 
 type FormErrors = { [formField in keyof FormValues]: Error | null }
 
@@ -139,7 +139,7 @@ function TxConfirmationForm(props: Props) {
           transaction={props.transaction}
         />
         {props.account.requiresPassword && !props.disabled ? (
-          <TextField
+          <PasswordField
             autoFocus={process.env.PLATFORM !== "ios"}
             error={Boolean(passwordError)}
             label={
@@ -147,7 +147,6 @@ function TxConfirmationForm(props: Props) {
                 ? renderFormFieldError(passwordError, t)
                 : t("account.transaction-review.textfield.password.label")
             }
-            type="password"
             fullWidth
             margin="dense"
             value={formValues.password || ""}

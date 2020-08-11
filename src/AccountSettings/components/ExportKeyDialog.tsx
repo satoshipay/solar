@@ -1,7 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import InputAdornment from "@material-ui/core/InputAdornment"
-import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
@@ -16,6 +15,7 @@ import { Box } from "~Layout/components/Box"
 import DialogBody from "~Layout/components/DialogBody"
 import KeyExportBox from "~Account/components/KeyExportBox"
 import MainTitle from "~Generic/components/MainTitle"
+import PasswordField from "~Generic/components/PasswordField"
 
 interface PromptToRevealProps {
   children: React.ReactNode
@@ -48,7 +48,7 @@ function PromptToReveal(props: PromptToRevealProps) {
       {props.children}
       <form noValidate onSubmit={props.onReveal}>
         {props.requiresPassword ? (
-          <TextField
+          <PasswordField
             autoFocus={process.env.PLATFORM !== "ios"}
             fullWidth
             error={props.passwordError !== null}
@@ -58,7 +58,6 @@ function PromptToReveal(props: PromptToRevealProps) {
                 : t("account-settings.export-key.textfield.password.label")
             }
             margin="dense"
-            type="password"
             value={props.password}
             onChange={props.updatePassword}
             style={{ marginTop: 8 }}
