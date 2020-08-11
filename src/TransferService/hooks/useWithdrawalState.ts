@@ -50,6 +50,13 @@ async function createWithdrawalTransaction(
 ): Promise<Transaction> {
   const memo = createMemo(instructions.data)
 
+  if (!instructions.data.account_id) {
+    throw CustomError(
+      "MissingInfoError",
+      "Cannot create transaction because the anchor is missing required information."
+    )
+  }
+
   const operations: xdr.Operation[] = [
     Operation.payment({
       amount: String(amount),
