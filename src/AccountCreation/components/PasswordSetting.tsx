@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next"
 import Collapse from "@material-ui/core/Collapse"
 import ListItemText from "@material-ui/core/ListItemText"
 import Switch from "@material-ui/core/Switch"
-import TextField from "@material-ui/core/TextField"
 import AccountSettingsItem from "~AccountSettings/components/AccountSettingsItem"
+import PasswordField from "~Generic/components/PasswordField"
 
 interface PasswordSettingProps {
   error?: string
@@ -39,17 +39,16 @@ function PasswordSetting(props: PasswordSettingProps) {
       <Collapse in={props.requiresPassword}>
         <AccountSettingsItem icon={null} subItem>
           <ListItemText style={{ marginLeft: 12, marginRight: 56, marginTop: -8 }}>
-            <TextField
+            <PasswordField
               error={Boolean(props.error)}
               fullWidth
               label={t("create-account.inputs.password.label")}
               margin="normal"
               onChange={event => props.onEnterPassword(event.target.value)}
               placeholder={t("create-account.inputs.password.placeholder")}
-              type="password"
               value={props.password}
             />
-            <TextField
+            <PasswordField
               error={Boolean(props.error)}
               fullWidth
               helperText={props.error}
@@ -57,7 +56,6 @@ function PasswordSetting(props: PasswordSettingProps) {
               margin="normal"
               onChange={event => props.onRepeatPassword(event.target.value)}
               placeholder={t("create-account.inputs.password-repeat.placeholder")}
-              type="password"
               value={props.repeatedPassword}
             />
           </ListItemText>
