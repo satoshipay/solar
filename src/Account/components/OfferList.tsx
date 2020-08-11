@@ -1,17 +1,25 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Trans } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 import { Operation, Server, ServerApi, Transaction } from "stellar-sdk"
+import ExpansionPanel from "@material-ui/core/ExpansionPanel"
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
+import makeStyles from "@material-ui/core/styles/makeStyles"
 import ArrowRightIcon from "@material-ui/icons/ArrowRightAlt"
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import BarChartIcon from "@material-ui/icons/BarChart"
 import { Account } from "~App/contexts/accounts"
+import { breakpoints } from "~App/theme"
 import { trackError } from "~App/contexts/notifications"
+import { ActionButton } from "~Generic/components/DialogActions"
 import { useHorizon } from "~Generic/hooks/stellar"
-import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
+import { useLoadingState } from "~Generic/hooks/util"
+import { useLiveAccountData, useLiveAccountOffers, useOlderOffers } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { offerAssetToAsset } from "~Generic/lib/stellar"
@@ -145,15 +153,80 @@ const OfferListItem = React.memo(function OfferListItem(props: OfferListItemProp
   )
 })
 
+interface LoadMoreOffersListItemProps {
+  onClick: () => void
+  pending?: boolean
+}
+
+const LoadMoreOffersListItem = React.memo(function LoadMoreOffersListItem(props: LoadMoreOffersListItemProps) {
+  const { t } = useTranslation()
+  return (
+    <ListItem style={{ borderBottom: "none", height: 75 }}>
+      <ListItemText disableTypography style={{ textAlign: "center" }}>
+        <ActionButton
+          onClick={props.onClick}
+          loading={props.pending}
+          style={{ margin: "0 auto", paddingLeft: 16, paddingRight: 16 }}
+          variant="text"
+        >
+          {t("account.transactions.transaction-list.load-more.label")}
+        </ActionButton>
+      </ListItemText>
+    </ListItem>
+  )
+})
+
 interface Props {
   account: Account
   title: React.ReactNode
 }
 
+const useStyles = makeStyles({
+  expansionPanel: {
+    background: "transparent",
+
+    "&:before": {
+      background: "transparent"
+    }
+  },
+  expansionPanelSummary: {
+    justifyContent: "flex-start",
+    minHeight: "48px !important",
+    padding: 0
+  },
+  expansionPanelSummaryContent: {
+    flexGrow: 0,
+    marginTop: "0 !important",
+    marginBottom: "0 !important"
+  },
+  expansionPanelDetails: {
+    display: "block",
+    padding: 0
+  },
+  listItem: {
+    padding: "8px 24px",
+
+    [breakpoints.down(600)]: {
+      paddingLeft: 24,
+      paddingRight: 24
+    }
+  }
+})
+
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const offers = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const classes = useStyles()
   const horizon = useHorizon(props.account.testnet)
+  const offerHistory = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
+  const fetchMoreOffers = useOlderOffers(props.account.publicKey, props.account.testnet)
+
+  const [expanded, setExpanded] = React.useState(true)
+
+  const handleFetchMoreOffers = React.useCallback(() => handleMoreTxsFetch(fetchMoreOffers()), [
+    fetchMoreOffers,
+    handleMoreTxsFetch
+  ])
 
   const onCancel = async (offer: ServerApi.OfferRecord) => {
     try {
@@ -164,22 +237,46 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
     }
   }
 
-  if (offers.length === 0) {
+  if (offerHistory.offers.length === 0) {
     return null
   } else {
     return (
       <List style={{ background: "transparent" }}>
-        <ListSubheader disableSticky style={{ background: "transparent" }}>
-          {props.title}
-        </ListSubheader>
-        {offers.map(offer => (
-          <OfferListItem
-            key={offer.id}
-            accountPublicKey={props.account.publicKey}
-            offer={offer}
-            onCancel={() => onCancel(offer)}
-          />
-        ))}
+        <ExpansionPanel
+          className={classes.expansionPanel}
+          elevation={0}
+          expanded={expanded}
+          onChange={() => setExpanded(!expanded)}
+        >
+          <ExpansionPanelSummary
+            classes={{ root: classes.expansionPanelSummary, content: classes.expansionPanelSummaryContent }}
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <ListSubheader
+              className={classes.listItem}
+              disableSticky
+              style={{ background: "transparent", paddingRight: 0 }}
+            >
+              {props.title}
+            </ListSubheader>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails className={classes.expansionPanelDetails}>
+            {offerHistory.offers.map(offer => (
+              <OfferListItem
+                key={offer.id}
+                accountPublicKey={props.account.publicKey}
+                offer={offer}
+                onCancel={() => onCancel(offer)}
+              />
+            ))}
+            {offerHistory.olderOffersAvailable ? (
+              <LoadMoreOffersListItem
+                pending={moreTxsLoadingState.type === "pending"}
+                onClick={handleFetchMoreOffers}
+              />
+            ) : null}
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
       </List>
     )
   }
