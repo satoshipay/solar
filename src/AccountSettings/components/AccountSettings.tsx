@@ -37,20 +37,20 @@ function SettingsDialogs(props: Props) {
 
   return (
     <>
-      <div style={{ display: showChangePassword ? undefined : "none" }}>
+      <div style={{ display: showChangePassword ? undefined : "none", height: "100%" }}>
         <ChangePasswordDialog account={props.account} onClose={navigateTo.accountSettings} />
       </div>
-      <div style={{ display: showDeleteAccount ? undefined : "none" }}>
+      <div style={{ display: showDeleteAccount ? undefined : "none", height: "100%" }}>
         <AccountDeletionDialog
           account={props.account}
           onClose={navigateTo.accountSettings}
           onDeleted={navigateTo.allAccounts}
         />
       </div>
-      <div style={{ display: showExportKey ? undefined : "none" }}>
+      <div style={{ display: showExportKey ? undefined : "none", height: "100%" }}>
         <ExportKeyDialog account={props.account} onClose={navigateTo.accountSettings} variant="export" />
       </div>
-      <div style={{ display: showManageSigners ? undefined : "none" }}>
+      <div style={{ display: showManageSigners ? undefined : "none", height: "100%" }}>
         <ManageSignersDialog account={props.account} onClose={navigateTo.accountSettings} />
       </div>
     </>
