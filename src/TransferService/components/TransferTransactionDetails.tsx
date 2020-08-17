@@ -10,6 +10,7 @@ import {
   WithdrawalInstructionsSuccess,
   DepositInstructionsSuccess
 } from "@satoshipay/stellar-transfer"
+import { trackError } from "~App/contexts/notifications"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
@@ -80,13 +81,17 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
       } else {
         handleTxPreparation(
           (async () => {
-            const tx = await (actions as WithdrawalActions).prepareWithdrawalTransaction(
-              props.state.withdrawal!,
-              props.state.response as WithdrawalInstructionsSuccess,
-              amount
-            )
-            await sendTransaction(tx)
-            actions.afterSuccessfulExecution(amount)
+            try {
+              const tx = await (actions as WithdrawalActions).prepareWithdrawalTransaction(
+                props.state.withdrawal!,
+                props.state.response as WithdrawalInstructionsSuccess,
+                amount
+              )
+              await sendTransaction(tx)
+              actions.afterSuccessfulExecution(amount)
+            } catch (error) {
+              trackError(error)
+            }
           })()
         )
       }

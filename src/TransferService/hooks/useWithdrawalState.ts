@@ -50,6 +50,14 @@ async function createWithdrawalTransaction(
 ): Promise<Transaction> {
   const memo = createMemo(instructions.data)
 
+  if (!instructions.data.account_id) {
+    throw CustomError(
+      "MissingInfoError",
+      `Cannot create transaction, because ${withdrawal.transferServer.domain} did not send all required information.`,
+      { transferServer: withdrawal.transferServer.domain }
+    )
+  }
+
   const operations: xdr.Operation[] = [
     Operation.payment({
       amount: String(amount),
