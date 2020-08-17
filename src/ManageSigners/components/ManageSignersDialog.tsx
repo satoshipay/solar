@@ -84,6 +84,7 @@ function ManageSignersDialog(props: Props) {
   const titleContent = React.useMemo(
     () => (
       <MainTitle
+        hideBackButton
         title={
           isSmallScreen
             ? t("account-settings.manage-signers.title.short")

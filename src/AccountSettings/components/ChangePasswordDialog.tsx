@@ -11,10 +11,10 @@ import { NotificationsContext } from "~App/contexts/notifications"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { renderFormFieldError, isWrongPasswordError } from "~Generic/lib/errors"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
-import { Box } from "~Layout/components/Box"
-import DialogBody from "~Layout/components/DialogBody"
 import MainTitle from "~Generic/components/MainTitle"
 import PasswordField from "~Generic/components/PasswordField"
+import { Box } from "~Layout/components/Box"
+import DialogBody from "~Layout/components/DialogBody"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -181,8 +181,10 @@ function ChangePasswordDialog(props: Props) {
 
   return (
     <DialogBody
+      noMaxWidth
       top={
         <MainTitle
+          hideBackButton
           onBack={onClose}
           title={
             props.account.requiresPassword
