@@ -346,5 +346,22 @@
     },
     "placeholder": "Account name…",
     "testnet": "Testnet"
+  },
+  "windows-onboarding": {
+    "action": {
+      "dismiss": "Dismiss",
+      "download-zadig": "Download Zadig"
+    },
+    "text": {
+      "info": "In order to communicate with a Ledger Wallet via USB on Windows you need to install a WinUSB driver for your device.",
+      "step": {
+        "1": "1. Download, install and run 'Zadig' (a tool to install 'libusb' compatible drivers)",
+        "2": "2. Choose your hardware wallet from the list of devices",
+        "3": "3. Select the 'WinUSB' driver in the drivers list",
+        "4": "4. Click on 'Install Driver' and wait for the installation to finish",
+        "5": "5. Close and reopen Solar"
+      }
+    },
+    "title": "Connect Ledger Wallet via USB"
   }
 }

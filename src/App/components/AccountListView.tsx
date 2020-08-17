@@ -10,6 +10,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import UpdateIcon from "@material-ui/icons/SystemUpdateAlt"
 import EnableBluetoothIcon from "@material-ui/icons/Bluetooth"
 import DisableBluetoothIcon from "@material-ui/icons/BluetoothDisabled"
+import HardwareAccountIcon from "@material-ui/icons/Memory"
 import DialogBody from "~Layout/components/DialogBody"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { Section } from "~Layout/components/Page"
@@ -31,6 +32,7 @@ import AccountList from "./AccountList"
 import TermsAndConditions from "./TermsAndConditionsDialog"
 
 const isDesktopApplication = process.env.PLATFORM !== "ios" && process.env.PLATFORM !== "android"
+const isWindowsApplication = process.env.PLATFORM === "win32"
 const bluetoothSupported = process.env.PLATFORM === "darwin" // bluetooth currently only works on macOS
 const HardwareConnectionHandler = isDesktopApplication
   ? React.lazy(() => import("~Account/components/HardwareConnectionHandler"))
@@ -74,6 +76,7 @@ function AllAccountsPage() {
   const [bluetoothAvailable, setBluetoothAvailable] = React.useState(false)
   const [bluetoothDiscoveryRunning, setBluetoothDiscoveryRunning] = React.useState(isDiscoveryRunning)
   const [bluetoothOnboarding, setBluetoothOnboarding] = React.useState(false)
+  const [windowsOnboarding, setWindowsOnboarding] = React.useState(false)
 
   const classes = useStyles()
   const isSmallScreen = useIsMobile()
@@ -198,6 +201,16 @@ function AllAccountsPage() {
               ? updateButton
               : null}
             {bluetoothSupported ? bluetoothButton : undefined}
+            {isWindowsApplication ? (
+              <IconButton
+                onClick={() => setWindowsOnboarding(true)}
+                style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
+              >
+                <HardwareAccountIcon />
+              </IconButton>
+            ) : (
+              undefined
+            )}
             <IconButton
               onClick={() => router.history.push(routes.settings())}
               style={{ marginLeft: isWidthMax450 ? 0 : 8, marginRight: -12, color: "inherit" }}
@@ -246,7 +259,11 @@ function AllAccountsPage() {
         {HardwareConnectionHandler && (
           <HardwareConnectionHandler
             showBluetoothOnboarding={bluetoothOnboarding}
-            onClose={() => setBluetoothOnboarding(false)}
+            showWindowsOnboarding={windowsOnboarding}
+            onClose={() => {
+              setBluetoothOnboarding(false)
+              setWindowsOnboarding(false)
+            }}
           />
         )}
       </React.Suspense>

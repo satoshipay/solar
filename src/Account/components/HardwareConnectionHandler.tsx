@@ -13,6 +13,7 @@ import { useIsMobile } from "~Generic/hooks/userinterface"
 import { useNetWorker } from "~Generic/hooks/workers"
 import { requestHardwareAccounts, getConnectedWallets } from "~Platform/hardware-wallet"
 import { subscribeToMessages } from "~Platform/ipc"
+import { openLink } from "~Platform/links"
 import { Messages } from "~shared/ipc"
 
 const useStyles = makeStyles(() => ({
@@ -26,13 +27,116 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
+interface BluetoothOnboardingDialogProps {
+  showBluetoothOnboarding: boolean
+  onClose: () => void
+  walletConnected: boolean
+  hardwareWalletAccounts: Account[]
+}
+
+function BluetoothOnboardingDialog(props: BluetoothOnboardingDialogProps) {
+  const { hardwareWalletAccounts, onClose, showBluetoothOnboarding, walletConnected } = props
+
+  const classes = useStyles()
+  const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
+  return (
+    <Dialog open={showBluetoothOnboarding} onClose={onClose}>
+      <DialogTitle>{t("account.bluetooth-onboarding.title")}</DialogTitle>
+      <DialogContent style={{ paddingBottom: isSmallScreen ? 24 : undefined }}>
+        <div className={classes.typographyContainer}>
+          <Typography
+            className={classes.typography}
+            variant="body1"
+            color={!walletConnected ? "textPrimary" : "textSecondary"}
+          >
+            {t("account.bluetooth-onboarding.text.info.1")}
+          </Typography>
+          {!walletConnected ? <CircularProgress size={16} style={{ marginLeft: 8 }} /> : undefined}
+        </div>
+
+        <div className={classes.typographyContainer}>
+          <Typography
+            className={classes.typography}
+            variant="body1"
+            color={walletConnected && hardwareWalletAccounts.length === 0 ? "textPrimary" : "textSecondary"}
+          >
+            {t("account.bluetooth-onboarding.text.info.2")}
+          </Typography>
+          {walletConnected && hardwareWalletAccounts.length === 0 ? (
+            <CircularProgress size={16} style={{ marginLeft: 8 }} />
+          ) : (
+            undefined
+          )}
+        </div>
+        <Typography className={classes.typography} variant="body2" color="textPrimary" style={{ marginTop: 16 }}>
+          <Trans i18nKey="account.bluetooth-onboarding.text.hint">
+            <b>Hint:</b> You can open more accounts of your hardware wallet by navigating to "Add Accounts".
+          </Trans>
+        </Typography>
+        <DialogActionsBox preventMobileActionsBox smallDialog>
+          <ActionButton onClick={props.onClose}>{t("account.bluetooth-onboarding.action.dismiss")}</ActionButton>
+        </DialogActionsBox>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+interface WindowsOnboardingDialogProps {
+  onClose: () => void
+  showWindowsOnboarding: boolean
+}
+
+function WindowsOnboardingDialog(props: WindowsOnboardingDialogProps) {
+  const { onClose, showWindowsOnboarding } = props
+
+  const classes = useStyles()
+  const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
+
+  return (
+    <Dialog open={showWindowsOnboarding} onClose={onClose}>
+      <DialogTitle>{t("account.windows-onboarding.title")}</DialogTitle>
+      <DialogContent style={{ paddingBottom: isSmallScreen ? 24 : undefined }}>
+        <Typography className={classes.typography} variant="body1" style={{ marginBottom: 16 }}>
+          {t("account.windows-onboarding.text.info")}
+        </Typography>
+
+        <Typography className={classes.typography} variant="body2">
+          {t("account.windows-onboarding.text.step.1")}
+        </Typography>
+        <Typography className={classes.typography} variant="body2" color="textPrimary" style={{ marginTop: 8 }}>
+          {t("account.windows-onboarding.text.step.2")}
+        </Typography>
+        <Typography className={classes.typography} variant="body2" color="textPrimary" style={{ marginTop: 8 }}>
+          {t("account.windows-onboarding.text.step.3")}
+        </Typography>
+        <Typography className={classes.typography} variant="body2" color="textPrimary" style={{ marginTop: 8 }}>
+          {t("account.windows-onboarding.text.step.4")}
+        </Typography>
+        <Typography className={classes.typography} variant="body2" color="textPrimary" style={{ marginTop: 8 }}>
+          {t("account.windows-onboarding.text.step.5")}
+        </Typography>
+        <DialogActionsBox preventMobileActionsBox smallDialog>
+          <ActionButton onClick={() => openLink("https://zadig.akeo.ie/")}>
+            {t("account.windows-onboarding.action.download-zadig")}
+          </ActionButton>
+          <ActionButton onClick={props.onClose}>{t("account.windows-onboarding.action.dismiss")}</ActionButton>
+        </DialogActionsBox>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 interface Props {
   onClose: () => void
   showBluetoothOnboarding: boolean
+  showWindowsOnboarding: boolean
 }
 
 function HardwareConnectionHandler(props: Props) {
-  const { onClose, showBluetoothOnboarding } = props
+  const { onClose, showBluetoothOnboarding, showWindowsOnboarding } = props
 
   const { accounts, createHardwareAccount, deleteAccount } = React.useContext(AccountsContext)
 
@@ -132,66 +236,15 @@ function HardwareConnectionHandler(props: Props) {
   }, [hardwareWalletAccounts, onClose])
 
   return (
-    <BluetoothOnboardingDialog
-      hardwareWalletAccounts={hardwareWalletAccounts}
-      showBluetoothOnboarding={showBluetoothOnboarding}
-      onClose={onClose}
-      walletConnected={walletConnected}
-    />
-  )
-}
-
-interface BluetoothOnboardingDialogProps extends Props {
-  walletConnected: boolean
-  hardwareWalletAccounts: Account[]
-}
-
-function BluetoothOnboardingDialog(props: BluetoothOnboardingDialogProps) {
-  const { hardwareWalletAccounts, onClose, showBluetoothOnboarding, walletConnected } = props
-
-  const classes = useStyles()
-  const isSmallScreen = useIsMobile()
-  const { t } = useTranslation()
-
-  return (
-    <Dialog open={showBluetoothOnboarding} onClose={onClose}>
-      <DialogTitle>{t("account.bluetooth-onboarding.title")}</DialogTitle>
-      <DialogContent style={{ paddingBottom: isSmallScreen ? 24 : undefined }}>
-        <div className={classes.typographyContainer}>
-          <Typography
-            className={classes.typography}
-            variant="body1"
-            color={!walletConnected ? "textPrimary" : "textSecondary"}
-          >
-            {t("account.bluetooth-onboarding.text.info.1")}
-          </Typography>
-          {!walletConnected ? <CircularProgress size={16} style={{ marginLeft: 8 }} /> : undefined}
-        </div>
-
-        <div className={classes.typographyContainer}>
-          <Typography
-            className={classes.typography}
-            variant="body1"
-            color={walletConnected && hardwareWalletAccounts.length === 0 ? "textPrimary" : "textSecondary"}
-          >
-            {t("account.bluetooth-onboarding.text.info.2")}
-          </Typography>
-          {walletConnected && hardwareWalletAccounts.length === 0 ? (
-            <CircularProgress size={16} style={{ marginLeft: 8 }} />
-          ) : (
-            undefined
-          )}
-        </div>
-        <Typography className={classes.typography} variant="body2" color="textPrimary" style={{ marginTop: 16 }}>
-          <Trans i18nKey="account.bluetooth-onboarding.text.hint">
-            <b>Hint:</b> You can open more accounts of your hardware wallet by navigating to "Add Accounts".
-          </Trans>
-        </Typography>
-        <DialogActionsBox preventMobileActionsBox smallDialog>
-          <ActionButton onClick={props.onClose}>{t("account.bluetooth-onboarding.action.dismiss")}</ActionButton>
-        </DialogActionsBox>
-      </DialogContent>
-    </Dialog>
+    <>
+      <BluetoothOnboardingDialog
+        hardwareWalletAccounts={hardwareWalletAccounts}
+        showBluetoothOnboarding={showBluetoothOnboarding}
+        onClose={onClose}
+        walletConnected={walletConnected}
+      />
+      <WindowsOnboardingDialog showWindowsOnboarding={showWindowsOnboarding} onClose={onClose} />
+    </>
   )
 }
 
