@@ -127,6 +127,10 @@ function initKeyStore() {
   callHandlers[Messages.SaveKey] = keyStore.saveKey
   callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData
 
+  callHandlers[Messages.GetHardwareWallets] = () => []
+  callHandlers[Messages.GetHardwareWalletAccounts] = () => []
+  callHandlers[Messages.IsBluetoothAvailable] = () => false
+
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
       const account = keyStore.getPublicKeyData(internalAccountID)
@@ -147,6 +151,8 @@ function initKeyStore() {
   }
 
   callHandlers[Messages.SignTransaction] = signTransaction
+  callHandlers[Messages.SignTransactionWithHardwareWallet] = () =>
+    Promise.reject("Cannot sign transaction of hardware wallet account in web build.")
 }
 
 function initSettings() {

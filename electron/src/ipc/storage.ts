@@ -1,12 +1,21 @@
 import { app } from "electron"
 import isDev from "electron-is-dev"
 import Store from "electron-store"
+import events from "events"
 import { createStore } from "key-store"
 import generateID from "nanoid/generate"
 import * as path from "path"
 import { Keypair, Networks, Transaction } from "stellar-sdk"
-import { expose } from "./_ipc"
 import { Messages } from "../shared/ipc"
+import {
+  getLedgerPublicKey,
+  signTransactionWithLedger,
+  subscribeBluetoothConnectionChanges,
+  LedgerWallet,
+  isHIDSupported,
+  subscribeHIDConnectionChanges
+} from "../ledger"
+import { expose } from "./_ipc"
 
 // Use legacy path to not break backwards-compatibility
 const storeDirectoryPath = path.join(app.getPath("appData"), "satoshipay-stellar-wallet")
@@ -68,7 +77,6 @@ expose(Messages.SignTransaction, function signTransaction(internalAccountID, tra
     const transaction = new Transaction(transactionXDR, networkPassphrase)
 
     const privateKey = keystore.getPrivateKeyData(internalAccountID, password).privateKey
-
     transaction.sign(Keypair.fromSecret(privateKey))
 
     return transaction
@@ -77,6 +85,34 @@ expose(Messages.SignTransaction, function signTransaction(internalAccountID, tra
       .toString("base64")
   } catch (error) {
     throw Object.assign(new Error("Wrong password."), { name: "WrongPasswordError" })
+  }
+})
+
+expose(Messages.SignTransactionWithHardwareWallet, async function signTransaction(
+  walletID,
+  accountIndex,
+  transactionXDR
+) {
+  try {
+    const networkPassphrase = Networks.PUBLIC
+    const transaction = new Transaction(transactionXDR, networkPassphrase)
+
+    const wallet = ledgerWallets.find(w => w.id === walletID)
+    if (wallet) {
+      await signTransactionWithLedger(wallet.transport, accountIndex, transaction)
+    } else {
+      throw Error("Could not find hardware wallet with ID:" + walletID)
+    }
+
+    return transaction
+      .toEnvelope()
+      .toXDR()
+      .toString("base64")
+  } catch (error) {
+    throw Object.assign(new Error(`Could not sign transaction with hardware wallet: ${error.message}`), {
+      name: "SignWithHardwareWalletError",
+      message: error.message
+    })
   }
 })
 
@@ -105,4 +141,110 @@ expose(Messages.StoreIgnoredSignatureRequestHashes, function storeIgnoredSignatu
 ) {
   mainStore.set("ignoredSignatureRequests", updatedHashes)
   return true
+})
+
+////////////////////
+// Hardware wallets:
+
+const walletEventEmitter = new events.EventEmitter()
+const walletEventChannel = "hw-wallet:change"
+
+interface WalletChangeEvent {
+  type: "add" | "remove"
+  wallet: LedgerWallet
+}
+
+export function subscribeHardwareWalletChange(subscribeCallback: (event: WalletChangeEvent) => void) {
+  walletEventEmitter.on(walletEventChannel, subscribeCallback)
+  const unsubscribe = () => walletEventEmitter.removeListener(walletEventChannel, subscribeCallback)
+  return unsubscribe
+}
+
+let ledgerWallets: LedgerWallet[] = []
+let bluetoothSubscription: { unsubscribe: () => void } | null = null
+
+isHIDSupported().then(supported => {
+  if (!supported) {
+    return
+  }
+  subscribeHIDConnectionChanges({
+    add: async ledgerWallet => {
+      ledgerWallets.push(ledgerWallet)
+      walletEventEmitter.emit(walletEventChannel, { type: "add", wallet: ledgerWallet })
+    },
+    remove: wallet => {
+      walletEventEmitter.emit(walletEventChannel, { type: "remove", wallet })
+      ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
+    },
+    // tslint:disable-next-line: no-console
+    error: console.error
+  })
+})
+
+expose(Messages.StartBluetoothDiscovery, () => {
+  if (!bluetoothSubscription) {
+    bluetoothSubscription = subscribeBluetoothConnectionChanges({
+      add: async ledgerWallet => {
+        ledgerWallets.push(ledgerWallet)
+        walletEventEmitter.emit(walletEventChannel, { type: "add", wallet: ledgerWallet })
+      },
+      remove: wallet => {
+        walletEventEmitter.emit(walletEventChannel, { type: "remove", wallet })
+        ledgerWallets = ledgerWallets.filter(w => w.id !== wallet.id)
+      },
+      // tslint:disable-next-line: no-console
+      error: console.error
+    })
+  }
+})
+
+// this will only stop listening for new devices and not close existing connections
+expose(Messages.StopBluetoothDiscovery, () => {
+  if (bluetoothSubscription) {
+    bluetoothSubscription.unsubscribe()
+    bluetoothSubscription = null
+  }
+})
+
+expose(Messages.GetHardwareWallets, function getHardwareWallets() {
+  return ledgerWallets.map(ledgerWallet => ({
+    id: ledgerWallet.id,
+    deviceModel: ledgerWallet.deviceModel
+  }))
+})
+
+expose(Messages.GetHardwareWalletAccounts, async function getHardwareWalletAccounts(
+  walletID: string,
+  accountIndices: number[]
+) {
+  const allAccounts: HardwareWalletAccount[] = []
+
+  const ledgerWallet = ledgerWallets.find(wallet => (wallet.id = walletID))
+  if (!ledgerWallet) {
+    return allAccounts
+  }
+
+  const ledgerWalletAccounts: HardwareWalletAccount[] = []
+
+  await accountIndices.reduce((previousPromise, nextIndex) => {
+    return previousPromise.then(() => {
+      return (
+        getLedgerPublicKey(ledgerWallet.transport, nextIndex)
+          .then(publicKey => {
+            const account: HardwareWalletAccount = {
+              accountIndex: nextIndex,
+              name: `${ledgerWallet.deviceModel ? ledgerWallet.deviceModel : "Ledger Wallet"} #${nextIndex + 1}`,
+              publicKey,
+              walletID: ledgerWallet.id
+            }
+            ledgerWalletAccounts.push(account)
+          })
+          // tslint:disable-next-line: no-console
+          .catch(error => console.error(error.message))
+      )
+    })
+  }, Promise.resolve())
+
+  allAccounts.push(...ledgerWalletAccounts)
+  return allAccounts
 })

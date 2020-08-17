@@ -26,12 +26,13 @@
     "build:linux": "PLATFORM=linux npm run prebuild:electron && electron-builder --linux --x64 --config ./electron-build.yml",
     "build:mac": "PLATFORM=darwin npm run prebuild:electron && electron-builder --mac --x64 --config ./electron-build.yml",
     "build:mac:signed": "source ./scripts/signing-env.sh mac && NOTARIZE=true npm run build:mac -- -c.forceCodeSigning=true",
-    "build:win": "PLATFORM=win32 npm run prebuild:electron && electron-builder --win --ia32 --config ./electron-build.yml",
+    "build:win": "PLATFORM=win32 npm run prebuild:electron && electron-builder --win --x64 --config ./electron-build.yml",
     "build:win:signed": "source ./scripts/signing-env.sh win && npm run build:win -- -c.forceCodeSigning=true",
     "dev": "run-p prebuild:electron:ts:watch dev:bundle dev:app:delayed",
     "dev:app": "NODE_ENV=development TS_NODE_PROJECT=./electron/tsconfig.json run-electron -r ts-node/register/transpile-only ./electron/src/index.dev",
     "dev:app:delayed": "sleep 2 && run-s dev:app",
-    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./"
+    "dev:bundle": "NODE_ENV=development parcel watch ./src/index.dev.njk --hmr-hostname localhost --public-url=./",
+    "postinstall": "electron-builder install-app-deps"
   },
   "lint-staged": {
     "ignore": [
@@ -45,6 +46,9 @@
     }
   },
   "dependencies": {
+    "@ledgerhq/hw-app-str": "^5.13.0",
+    "@ledgerhq/hw-transport-node-ble": "^5.16.0",
+    "@ledgerhq/hw-transport-node-hid-singleton": "^5.21.0",
     "electron-context-menu": "^0.15.0",
     "electron-debug": "^3.0.1",
     "electron-is-dev": "^1.1.0",
@@ -72,6 +76,7 @@
     "@types/history": "^4.7.3",
     "@types/isomorphic-fetch": "0.0.34",
     "@types/jsonwebtoken": "^8.3.3",
+    "@types/ledgerhq__hw-transport-node-hid": "^4.22.1",
     "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.pick": "^4.4.6",
     "@types/lodash.throttle": "^4.1.6",

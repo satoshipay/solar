@@ -137,6 +137,19 @@
       }
     }
   },
+  "bluetooth-onboarding": {
+    "action": {
+      "dismiss": "Dismiss"
+    },
+    "text": {
+      "info": {
+        "1": "1. Unlock your hardware wallet",
+        "2": "2. Navigate to the Stellar application on your ledger device"
+      },
+      "hint": "<0>Hint:</0> You can open more accounts of your hardware wallet by navigating to \"Add Accounts\"."
+    },
+    "title": "Connect Ledger Wallet via Bluetooth"
+  },
   "context-menu": {
     "account-settings": {
       "label": "Account Settings"
@@ -260,6 +273,7 @@
       "header": "Dismiss pending multi-signature transaction?",
       "title": "Confirm"
     },
+    "hardware-verification-pending": "Review and verify the transaction on your hardware wallet",
     "signers": {
       "heading-details": {
         "single-signature": "Single signature",
@@ -316,7 +330,8 @@
     "validation": {
       "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
       "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
-      "password-required": "Password required"
+      "password-required": "Password required",
+      "signing-failed": "Signing failed. Make sure your hardware wallet is connected and the Stellar application stays selected."
     }
   },
   "title": {
@@ -326,9 +341,27 @@
     },
     "tooltip": {
       "multi-sig-account": "Multi-Signature Account",
-      "security-service": "{{service}} Protection"
+      "security-service": "{{service}} Protection",
+      "hardware-account": "Hardware Wallet Account"
     },
     "placeholder": "Account name…",
     "testnet": "Testnet"
+  },
+  "windows-onboarding": {
+    "action": {
+      "dismiss": "Dismiss",
+      "download-zadig": "Download Zadig"
+    },
+    "text": {
+      "info": "In order to communicate with a Ledger Wallet via USB on Windows you need to install a WinUSB driver for your device.",
+      "step": {
+        "1": "1. Download, install and run 'Zadig' (a tool to install 'libusb' compatible drivers)",
+        "2": "2. Choose your hardware wallet from the list of devices",
+        "3": "3. Select the 'WinUSB' driver in the drivers list",
+        "4": "4. Click on 'Install Driver' and wait for the installation to finish",
+        "5": "5. Close and reopen Solar"
+      }
+    },
+    "title": "Connect Ledger Wallet via USB"
   }
 }

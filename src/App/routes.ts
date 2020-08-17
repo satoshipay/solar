@@ -12,6 +12,7 @@ export const deleteAccount = (accountID: string) => `/account/${accountID}/setti
 export const depositAsset = (accountID: string) => `/account/${accountID}/deposit`
 export const exportSecretKey = (accountID: string) => `/account/${accountID}/settings/export`
 export const importAccount = (testnet: boolean) => `/account/import/${testnet ? "testnet" : "mainnet"}`
+export const importHardwareAccount = () => `/account/import-hardware/`
 export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/balances/manage`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
@@ -35,7 +36,7 @@ export function routeUp(currentPath: string) {
     return "/"
   } else if (currentPath.match(/^\/account\/new\//)) {
     return "/"
-  } else if (currentPath.match(/^\/account\/(create|import)\//)) {
+  } else if (currentPath.match(/^\/account\/(create|import|import-hardware)\//)) {
     const testnet = Boolean(currentPath.match(/\/testnet/))
     return newAccount(testnet)
   } else if (accountID && matchesRoute(currentPath, "/account/*/settings/*", false)) {

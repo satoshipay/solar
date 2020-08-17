@@ -98,7 +98,9 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   const horizon = props.horizon
 
   const { accounts, deleteAccount } = React.useContext(AccountsContext)
-  const [mergeAccountEnabled, setMergeAccountEnabled] = React.useState(false)
+  const [mergeAccountEnabled, setMergeAccountEnabled] = React.useState(
+    props.account.isHardwareWalletAccount && accountData.balances.length > 0
+  )
   const [confirmationPending, setConfirmationPending] = React.useState(false)
   const [selectedMergeAccount, setSelectedMergeAccount] = React.useState<Account | null>(null)
   const [warning, setWarning] = React.useState<Warning | undefined>()
@@ -133,14 +135,16 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       )
 
       await props.sendTransaction(transaction)
-      setTimeout(onDelete, 1000)
     }
   }
 
   const onConfirm = () => {
     setConfirmationPending(false)
     if (mergeAccountEnabled) {
-      onMerge()
+      onMerge().then(() =>
+        // delay closing of dialog for showing submission progress
+        setTimeout(props.account.isHardwareWalletAccount ? () => props.onClose : onDelete, 1000)
+      )
     } else {
       onDelete()
     }
@@ -162,16 +166,23 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     () =>
       accountData.balances.length > 0 ? (
         <>
-          <HorizontalLayout alignItems="center" style={{ marginTop: 24, marginLeft: -12, marginBottom: 8 }}>
-            <Switch color="primary" checked={mergeAccountEnabled} onChange={toggleMergeAccount} />
+          <HorizontalLayout alignItems="center" style={{ marginTop: 24, marginLeft: 0, marginBottom: 8 }}>
+            {!props.account.isHardwareWalletAccount && (
+              <Switch
+                color="primary"
+                checked={mergeAccountEnabled}
+                disabled={props.account.isHardwareWalletAccount}
+                onChange={toggleMergeAccount}
+              />
+            )}
             <Typography
-              onClick={toggleMergeAccount}
+              onClick={props.account.isHardwareWalletAccount ? undefined : toggleMergeAccount}
               variant="h6"
               style={{
                 display: "flex",
                 alignItems: "center",
                 height: 48,
-                cursor: "pointer",
+                cursor: props.account.isHardwareWalletAccount ? undefined : "pointer",
                 fontSize: isSmallScreen ? 16 : 20,
                 marginLeft: 8
               }}
@@ -197,6 +208,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       isSmallScreen,
       t,
       accounts,
+      props.account.isHardwareWalletAccount,
       props.account.testnet,
       props.account.publicKey
     ]
@@ -208,7 +220,13 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       top={
         <>
           <MainTitle
-            title={<span>{t("account-settings.account-deletion.title")}</span>}
+            title={
+              <span>
+                {props.account.isHardwareWalletAccount && accountData.balances.length > 0
+                  ? t("account-settings.account-deletion.title.merge")
+                  : t("account-settings.account-deletion.title.delete")}
+              </span>
+            }
             titleColor="inherit"
             onBack={props.onClose}
             style={{ marginTop: 0, marginLeft: 0 }}
@@ -240,10 +258,14 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     >
       <DialogContent style={{ padding: 0 }}>
         <DialogContentText style={{ marginTop: 24 }}>
-          {t("account-settings.account-deletion.text.1", { accountName: props.account.name })}
+          {props.account.isHardwareWalletAccount && accountData.balances.length > 0
+            ? t("account-settings.account-deletion.text.merge-info", { accountName: props.account.name })
+            : t("account-settings.account-deletion.text.confirm-deletion", { accountName: props.account.name })}
         </DialogContentText>
         <DialogContentText style={{ display: accountData.balances.length > 0 ? undefined : "none", marginTop: 16 }}>
-          {t("account-settings.account-deletion.text.2")}
+          {props.account.isHardwareWalletAccount
+            ? t("account-settings.account-deletion.text.transfer-info")
+            : t("account-settings.account-deletion.text.backup-info")}
         </DialogContentText>
 
         {remainingFundsContent}

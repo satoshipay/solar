@@ -1,5 +1,6 @@
 export interface AccountCreation {
   import: boolean
+  importHardware: boolean
   multisig: boolean
   name: string
   password: string

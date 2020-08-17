@@ -6,6 +6,7 @@ import { trackError } from "./notifications"
 
 export interface Account {
   id: string
+  isHardwareWalletAccount: boolean
   name: string
   publicKey: string
   requiresPassword: boolean
@@ -29,6 +30,7 @@ interface ContextValue {
   networkSwitch: NetworkID
   changePassword(accountID: string, prevPassword: string, nextPassword: string): Promise<any>
   createAccount(accountData: NewAccountData): Promise<Account>
+  createHardwareAccount(account: HardwareWalletAccount): Promise<Account>
   deleteAccount(accountID: string): Promise<any>
   removePassword(accountID: string, prevPassword: string): Promise<any>
   renameAccount(accountID: string, newName: string): Promise<any>
@@ -43,6 +45,7 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
   const publicData = await keyStore.getPublicKeyData(keyID)
   const account: Account = {
     id: keyID,
+    isHardwareWalletAccount: false,
     name: publicData.name,
     publicKey: publicData.publicKey,
     requiresPassword: publicData.password,
@@ -78,8 +81,37 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
           { accountName: publicData.name }
         )
       }
-
       return keyStore.signTransaction(account.id, transaction, password || "")
+    }
+  }
+  return account
+}
+
+async function createHardwareWalletAccountInstance(
+  keyStore: KeyStoreAPI,
+  hardwareWalletAccount: HardwareWalletAccount
+) {
+  const account: Account = {
+    id: `hardware-${hardwareWalletAccount.walletID}-${hardwareWalletAccount.accountIndex}`,
+    isHardwareWalletAccount: true,
+    name: hardwareWalletAccount.name,
+    publicKey: hardwareWalletAccount.publicKey,
+    requiresPassword: false,
+    testnet: false,
+
+    async getPrivateKey() {
+      throw CustomError(
+        "HardwareWalletAccessPrivateKeyError",
+        `You cannot access the private key of a hardware wallet account.`
+      )
+    },
+
+    async signTransaction(transaction: Transaction) {
+      return keyStore.signTransactionWithHardwareWallet(
+        hardwareWalletAccount.walletID,
+        hardwareWalletAccount.accountIndex,
+        transaction
+      )
     }
   }
   return account
@@ -132,6 +164,9 @@ const AccountsContext = React.createContext<ContextValue>({
   createAccount: () => {
     throw new Error("AccountsProvider not yet ready.")
   },
+  createHardwareAccount: () => {
+    throw new Error("AccountsProvider not yet ready.")
+  },
   deleteAccount: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
   removePassword: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
   renameAccount: () => Promise.reject(new Error("AccountsProvider not yet ready.")),
@@ -154,8 +189,8 @@ export function AccountsProvider(props: Props) {
         .getKeyIDs()
         .then(async keyIDs => {
           const loadedAccounts = await Promise.all(keyIDs.map(keyID => createAccountInstance(keyStore, keyID)))
-          setAccounts(loadedAccounts)
           setNetworkSwitch(getInitialNetwork(loadedAccounts))
+          setAccounts(loadedAccounts)
         })
         .catch(trackError)
     } catch (error) {
@@ -163,6 +198,7 @@ export function AccountsProvider(props: Props) {
     }
 
     const unsubscribe = () => undefined
+
     return unsubscribe
   }, [])
 
@@ -171,6 +207,20 @@ export function AccountsProvider(props: Props) {
     setAccounts(prevAccounts => [...prevAccounts, account])
     return account
   }
+
+  const createHardwareAccount = React.useCallback(async (account: HardwareWalletAccount) => {
+    const keyStore = getKeyStore()
+    const accountInstance = await createHardwareWalletAccountInstance(keyStore, account)
+    setAccounts(prevAccounts => {
+      if (!prevAccounts.find(acc => acc.id === accountInstance.id)) {
+        return [...prevAccounts, accountInstance]
+      } else {
+        return prevAccounts
+      }
+    })
+
+    return accountInstance
+  }, [])
 
   const updateAccountInStore = (updatedAccount: Account) => {
     setAccounts(prevAccounts =>
@@ -188,9 +238,12 @@ export function AccountsProvider(props: Props) {
   }
 
   const deleteAccount = async (accountID: string) => {
-    const keyStore = await getKeyStore()
-    await keyStore.removeKey(accountID)
-    setAccounts(prevAccounts => prevAccounts.filter(account => account.id !== accountID))
+    const account = accounts.find(acc => acc.id === accountID)
+    if (account && !account.isHardwareWalletAccount) {
+      const keyStore = await getKeyStore()
+      await keyStore.removeKey(accountID)
+    }
+    setAccounts(prevAccounts => prevAccounts.filter(acc => acc.id !== accountID))
   }
 
   const changePassword = async (accountID: string, prevPassword: string, nextPassword: string) => {
@@ -208,7 +261,10 @@ export function AccountsProvider(props: Props) {
     }
 
     // Setting `password: true` explicitly, in case there was no password set before
-    await keyStore.saveKey(accountID, nextPassword, privateKeyData, { ...publicKeyData, password: true })
+    await keyStore.saveKey(accountID, nextPassword, privateKeyData, {
+      ...publicKeyData,
+      password: true
+    })
 
     updateAccountInStore(await createAccountInstance(keyStore, accountID))
   }
@@ -227,7 +283,10 @@ export function AccountsProvider(props: Props) {
       throw WrongPasswordError()
     }
 
-    await keyStore.saveKey(accountID, "", privateKeyData, { ...publicKeyData, password: false })
+    await keyStore.saveKey(accountID, "", privateKeyData, {
+      ...publicKeyData,
+      password: false
+    })
     updateAccountInStore(await createAccountInstance(keyStore, accountID))
   }
 
@@ -240,6 +299,7 @@ export function AccountsProvider(props: Props) {
     networkSwitch,
     changePassword,
     createAccount,
+    createHardwareAccount,
     deleteAccount,
     removePassword,
     renameAccount,

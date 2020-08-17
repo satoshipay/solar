@@ -86,6 +86,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const showAccountCreation =
     matchesRoute(router.location.pathname, routes.createAccount(props.testnet), false) ||
     matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false) ||
+    matchesRoute(router.location.pathname, routes.importHardwareAccount(), false) ||
     matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
 
   const showAccountCreationOptions = matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
@@ -235,7 +236,8 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           showAccountCreationOptions ? { ...accountCreation, name: creationTitle } : props.account || accountCreation
         }
         editableAccountName={
-          showAccountSettings || (showAccountCreation && !showAccountCreationOptions && !accountToBackup)
+          (showAccountSettings && !props.account?.isHardwareWalletAccount) ||
+          (showAccountCreation && !showAccountCreationOptions && !accountToBackup && !accountCreation.importHardware)
         }
         onAccountSettings={navigateTo.accountSettings}
         onAccountTransactions={navigateTo.transactions}
@@ -442,9 +444,11 @@ function AccountPage(props: AccountPageProps) {
   const { accounts } = React.useContext(AccountsContext)
   const account = props.accountID ? accounts.find(someAccount => someAccount.id === props.accountID) : undefined
 
+  const router = useRouter()
+
   if (props.accountID && !account) {
-    // FIXME: Use error boundaries
-    return <div>Wallet account not found. ID: {props.accountID}</div>
+    // navigate to all-accounts page if account is missing
+    router.history.push(routes.allAccounts())
   }
 
   return (

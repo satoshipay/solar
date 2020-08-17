@@ -57,6 +57,7 @@ function useAccountCreation(options: UseAccountCreationOptions) {
 
   const [currentAccountCreation, setAccountCreation] = React.useState<AccountCreation>(() => ({
     import: options.import,
+    importHardware: false,
     multisig: false,
     name: getNewAccountName(t, accounts, options.testnet),
     password: "",

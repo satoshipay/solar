@@ -31,5 +31,15 @@ export const Messages: IPC.MessageType = {
   SaveKey: "SaveKey",
   SavePublicKeyData: "SavePublicKeyData",
   SignTransaction: "SignTransaction",
-  RemoveKey: "RemoveKey"
+  RemoveKey: "RemoveKey",
+
+  GetHardwareWallets: "GetHardwareWallets",
+  GetHardwareWalletAccounts: "GetHardwareWalletAccounts",
+  HardwareWalletAdded: "HardwareWalletAdded",
+  HardwareWalletRemoved: "HardwareWalletRemoved",
+  SignTransactionWithHardwareWallet: "SignTransactionWithHardwareWallet",
+
+  IsBluetoothAvailable: "IsBluetoothAvailable",
+  StartBluetoothDiscovery: "StartBluetoothDiscovery",
+  StopBluetoothDiscovery: "StopBluetoothDiscovery"
 } as const

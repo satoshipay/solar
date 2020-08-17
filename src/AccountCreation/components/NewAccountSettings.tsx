@@ -4,6 +4,7 @@ import { useIsMobile } from "~Generic/hooks/userinterface"
 import PasswordSetting from "./PasswordSetting"
 import SecretKeyImport from "./SecretKeyImport"
 import { AccountCreation, AccountCreationErrors } from "../types/types"
+import HardwareWalletSelection from "./HardwareWalletSelection"
 
 interface NewAccountSettingsProps {
   accountCreation: AccountCreation
@@ -40,7 +41,9 @@ function NewAccountSettings(props: NewAccountSettingsProps) {
     [onUpdateAccountCreation]
   )
 
-  return (
+  return props.accountCreation.importHardware ? (
+    <HardwareWalletSelection />
+  ) : (
     <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
       {props.accountCreation.import ? (
         <SecretKeyImport

@@ -45,3 +45,91 @@ declare module "electron-reload" {
     options?: { electron?: string; argv?: string[]; hardResetMethod?: "exit"; forceHardReset?: boolean }
   ): void
 }
+
+declare module "@ledgerhq/hw-app-str" {
+  declare class Str {
+    constructor(transport: any, scrambleKey: string = "l0v")
+    getAppConfiguration: () => Promise<{ version: string }>
+    getPublicKey: (
+      path: string,
+      boolValidate?: boolean,
+      boolDisplay?: boolean
+    ) => Promise<{ publicKey: string; raw: Buffer }>
+    signTransaction: (path: string, transaction: Buffer) => Promise<{ signature: Buffer }>
+    signHash: (path: string, hash: Buffer) => Promise<{ signature: Buffer }>
+  }
+
+  export default Str
+}
+
+declare module "@ledgerhq/hw-transport-node-ble" {
+  import Observable from "zen-observable"
+
+  declare class TransportNodeBLE {
+    constructor(device: any, ledgerTransport?: boolean, timeout?: number)
+    static availability: Observable<boolean>
+    static open(path: string): Promise<TransportNodeBLE>
+    setScrambleKey(): void
+    static listen(observer: Observer<DescriptorEvent<Descriptor>>): Subscription
+
+    device: HID.HID
+    id: string
+    ledgerTransport: boolean
+    timeout: number
+    exchangeStack: any[]
+  }
+
+  type Device = any
+  type Descriptor = string
+  interface DescriptorEvent<Descriptor> {
+    type: "add" | "remove"
+    descriptor: Descriptor
+    device?: Device
+  }
+  interface Observer<Ev> {
+    readonly next: (event: Ev) => any
+    readonly error: (e: any) => any
+    readonly complete: () => any
+  }
+  interface Subscription {
+    readonly unsubscribe: () => void
+  }
+
+  export default TransportNodeBLE
+}
+
+declare module "@ledgerhq/hw-transport-node-hid-singleton" {
+  import Observable from "zen-observable"
+
+  declare class TransportNodeHID {
+    constructor(device: any, ledgerTransport?: boolean, timeout?: number)
+    static isSupported(): Promise<boolean>
+    static open(path: string): Promise<TransportNodeBLE>
+    setScrambleKey(): void
+    static listen(observer: Observer<DescriptorEvent<Descriptor>>): Subscription
+
+    device: HID.HID
+    id: string
+    ledgerTransport: boolean
+    timeout: number
+    exchangeStack: any[]
+  }
+
+  type Device = any
+  type Descriptor = string
+  interface DescriptorEvent<Descriptor> {
+    type: "add" | "remove"
+    descriptor: Descriptor
+    device?: Device
+  }
+  interface Observer<Ev> {
+    readonly next: (event: Ev) => any
+    readonly error: (e: any) => any
+    readonly complete: () => any
+  }
+  interface Subscription {
+    readonly unsubscribe: () => void
+  }
+
+  export default TransportNodeHID
+}

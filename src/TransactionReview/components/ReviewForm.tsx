@@ -3,6 +3,7 @@ import nanoid from "nanoid"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Transaction } from "stellar-sdk"
+import Typography from "@material-ui/core/Typography"
 import CheckIcon from "@material-ui/icons/Check"
 import CloseIcon from "@material-ui/icons/Close"
 import OpenInNewIcon from "@material-ui/icons/OpenInNew"
@@ -19,7 +20,7 @@ import DismissalConfirmationDialog from "./DismissalConfirmationDialog"
 import TransactionSummary from "./TransactionSummary"
 import PasswordField from "~Generic/components/PasswordField"
 
-type FormErrors = { [formField in keyof FormValues]: Error | null }
+type FormErrors = { [formField in keyof FormValues]: Error | null } & { signing: Error }
 
 interface FormValues {
   password: string | null
@@ -48,6 +49,7 @@ function TxConfirmationForm(props: Props) {
   const [errors, setErrors] = React.useState<Partial<FormErrors>>({})
   const [formValues, setFormValues] = React.useState<FormValues>({ password: null })
   const [loading, setLoading] = React.useState<boolean>(false)
+  const [hardwareVerificationPending, setHardwareVerificationPending] = React.useState<boolean>(false)
   const { t } = useTranslation()
 
   const passwordError = props.passwordError || errors.password
@@ -83,35 +85,37 @@ function TxConfirmationForm(props: Props) {
 
   const handleTextFieldChange = React.useCallback(event => setFormValue("password", event.target.value), [])
 
-  const handleFormSubmission = React.useCallback(
-    async (event: React.SyntheticEvent) => {
-      event.preventDefault()
+  const handleFormSubmission = React.useCallback(async () => {
+    if (props.disabled) {
+      // Just a precaution; we shouldn't even get here if the component is disabled
+      return
+    }
 
-      if (props.disabled) {
-        // Just a precaution; we shouldn't even get here if the component is disabled
-        return
-      }
+    if (props.account.requiresPassword && !formValues.password) {
+      setLoading(false)
+      return setErrors({
+        ...errors,
+        password: new Error(t("account.transaction-review.validation.password-required"))
+      })
+    }
 
-      if (props.account.requiresPassword && !formValues.password) {
-        setLoading(false)
-        return setErrors({
+    setErrors({})
+    try {
+      await onConfirm(formValues)
+    } catch (error) {
+      if (error.name === "SignWithHardwareWalletError") {
+        setErrors({
           ...errors,
-          password: new Error(t("account.transaction-review.validation.password-required"))
+          signing: new Error(t("account.transaction-review.validation.signing-failed"))
         })
-      }
-
-      setErrors({})
-      try {
-        await onConfirm(formValues)
-      } catch (error) {
+      } else {
         // re-throw error
         throw error
-      } finally {
-        setLoading(false)
       }
-    },
-    [props.disabled, props.account.requiresPassword, formValues, errors, t, onConfirm]
-  )
+    } finally {
+      setLoading(false)
+    }
+  }, [props.disabled, props.account.requiresPassword, formValues, errors, t, onConfirm])
 
   const DismissIcon = React.useMemo(() => <CloseIcon style={{ fontSize: "140%" }} />, [])
   const ConfirmIcon = React.useMemo(() => <CheckIcon />, [])
@@ -122,12 +126,18 @@ function TxConfirmationForm(props: Props) {
       (op.type === "manageSellOffer" && BigNumber(op.amount).eq(0))
   )
 
-  const showLoadingIndicator = React.useCallback(() => {
+  const showLoadingAndSubmit = React.useCallback(() => {
     setLoading(true)
-  }, [])
+
+    if (props.account.isHardwareWalletAccount) {
+      setHardwareVerificationPending(true)
+    }
+
+    handleFormSubmission()
+  }, [handleFormSubmission, props.account.isHardwareWalletAccount])
 
   return (
-    <form id={formID} noValidate onSubmit={handleFormSubmission}>
+    <form id={formID} noValidate>
       <VerticalLayout>
         <TransactionSummary
           account={props.account}
@@ -154,6 +164,11 @@ function TxConfirmationForm(props: Props) {
             style={{ margin: "32px auto 0", maxWidth: 300 }}
           />
         ) : null}
+        {hardwareVerificationPending ? (
+          <Typography variant="body1" style={{ margin: "32px auto 0" }}>
+            {errors.signing ? errors.signing.message : t("account.transaction-review.hardware-verification-pending")}
+          </Typography>
+        ) : null}
       </VerticalLayout>
       <Portal desktop="inline" target={props.actionsRef && props.actionsRef.element}>
         <DialogActionsBox smallDialog={props.disabled && !props.signatureRequest}>
@@ -164,10 +179,11 @@ function TxConfirmationForm(props: Props) {
           ) : null}
           {props.disabled ? null : (
             <ActionButton
+              disabled={props.loading || loading}
               icon={ConfirmIcon}
               form={formID}
               loading={props.loading || loading}
-              onClick={showLoadingIndicator}
+              onClick={showLoadingAndSubmit}
               type="submit"
             >
               {isOrderCancellation
