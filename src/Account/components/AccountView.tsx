@@ -213,7 +213,11 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
 
   const handleBackNavigation = React.useCallback(() => {
     if (props.account && matchesRoute(router.location.pathname, routes.accountSettings(props.account.id))) {
-      router.history.push(routes.account(props.account.id))
+      if (matchesRoute(router.location.pathname, routes.accountSettings(props.account.id) + "/*")) {
+        router.history.push(routes.accountSettings(props.account.id))
+      } else {
+        router.history.push(routes.account(props.account.id))
+      }
     } else if (showAccountCreation && accountToBackup) {
       setAccountToBackup(null)
     } else if (showAccountCreation) {
