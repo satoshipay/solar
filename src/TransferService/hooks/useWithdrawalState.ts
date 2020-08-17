@@ -53,7 +53,8 @@ async function createWithdrawalTransaction(
   if (!instructions.data.account_id) {
     throw CustomError(
       "MissingInfoError",
-      `Cannot create transaction, because ${withdrawal.transferServer.domain} did not send all required information.`
+      `Cannot create transaction, because ${withdrawal.transferServer.domain} did not send all required information.`,
+      { transferServer: withdrawal.transferServer.domain }
     )
   }
 
