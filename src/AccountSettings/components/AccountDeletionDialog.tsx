@@ -14,11 +14,14 @@ import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useIsSmallMobile } from "~Generic/hooks/userinterface"
 import { ActionButton, ConfirmDialog, DialogActionsBox } from "~Generic/components/DialogActions"
 import MainTitle from "~Generic/components/MainTitle"
-import ScrollableBalances from "~Generic/components/ScrollableBalances"
 import MergeIcon from "~Icons/components/Merge"
 import DialogBody from "~Layout/components/DialogBody"
 import { HorizontalLayout } from "~Layout/components/Box"
 import TransactionSender from "~Transaction/components/TransactionSender"
+
+const redText: React.CSSProperties = {
+  color: "red"
+}
 
 interface DeletionConfirmationDialogProps {
   merging: boolean
@@ -207,16 +210,13 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       background={<WarnIcon style={{ fontSize: 160 }} />}
       noMaxWidth
       top={
-        <>
-          <MainTitle
-            hideBackButton
-            title={<span>{t("account-settings.account-deletion.title")}</span>}
-            titleColor="inherit"
-            onBack={props.onClose}
-            style={{ marginTop: 0, marginLeft: 0 }}
-          />
-          <ScrollableBalances account={props.account} compact />
-        </>
+        <MainTitle
+          hideBackButton
+          title={<span style={redText}>{t("account-settings.account-deletion.title")}</span>}
+          titleColor="inherit"
+          onBack={props.onClose}
+          style={{ marginTop: 0, marginLeft: 0 }}
+        />
       }
       actions={
         <DialogActionsBox>
