@@ -11,10 +11,10 @@ import { NotificationsContext } from "~App/contexts/notifications"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { renderFormFieldError, isWrongPasswordError } from "~Generic/lib/errors"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
-import { Box } from "~Layout/components/Box"
-import DialogBody from "~Layout/components/DialogBody"
 import MainTitle from "~Generic/components/MainTitle"
 import PasswordField from "~Generic/components/PasswordField"
+import { Box, HorizontalLayout } from "~Layout/components/Box"
+import DialogBody from "~Layout/components/DialogBody"
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -181,8 +181,10 @@ function ChangePasswordDialog(props: Props) {
 
   return (
     <DialogBody
+      noMaxWidth
       top={
         <MainTitle
+          hideBackButton
           onBack={onClose}
           title={
             props.account.requiresPassword
@@ -202,8 +204,14 @@ function ChangePasswordDialog(props: Props) {
         </DialogActions>
       }
     >
-      <Box alignSelf="center" margin="24px auto 0" maxWidth={400} width="100%">
-        <Box hidden={!props.account.requiresPassword} margin="0 0 8px">
+      <HorizontalLayout
+        alignSelf="center"
+        justifyContent="space-evenly"
+        margin="24px 0 0"
+        width="calc(100% + 16px)"
+        wrap="wrap"
+      >
+        <Box basis="400px" grow={0} hidden={!props.account.requiresPassword} margin="0 16px" shrink>
           <PasswordField
             autoFocus={props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.prevPassword)}
@@ -219,7 +227,7 @@ function ChangePasswordDialog(props: Props) {
             InputProps={{ startAdornment: adornmentLockOpen }}
           />
         </Box>
-        <Box hidden={removingPassword}>
+        <Box basis="400px" grow={0} hidden={removingPassword} margin="0 16px" shrink>
           <PasswordField
             autoFocus={!props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.nextPassword)}
@@ -248,7 +256,7 @@ function ChangePasswordDialog(props: Props) {
             InputProps={{ startAdornment: adornmentLock }}
           />
         </Box>
-      </Box>
+      </HorizontalLayout>
     </DialogBody>
   )
 }

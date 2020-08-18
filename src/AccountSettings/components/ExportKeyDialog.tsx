@@ -6,16 +6,16 @@ import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import LockFilledIcon from "@material-ui/icons/Lock"
 import WarnIcon from "@material-ui/icons/Warning"
+import KeyExportBox from "~Account/components/KeyExportBox"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
 import { useIsMobile } from "~Generic/hooks/userinterface"
+import MainTitle from "~Generic/components/MainTitle"
+import PasswordField from "~Generic/components/PasswordField"
 import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { Box } from "~Layout/components/Box"
 import DialogBody from "~Layout/components/DialogBody"
-import KeyExportBox from "~Account/components/KeyExportBox"
-import MainTitle from "~Generic/components/MainTitle"
-import PasswordField from "~Generic/components/PasswordField"
 
 interface PromptToRevealProps {
   children: React.ReactNode
@@ -34,6 +34,7 @@ function PromptToReveal(props: PromptToRevealProps) {
   return (
     <DialogBody
       background={<WarnIcon style={{ fontSize: 220 }} />}
+      noMaxWidth
       top={props.title}
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
@@ -88,6 +89,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
   return (
     <DialogBody
       background={<LockFilledIcon style={{ fontSize: 220 }} />}
+      noMaxWidth
       top={props.title}
       actions={
         props.onConfirm ? (
@@ -159,13 +161,13 @@ function ExportKeyDialog(props: Props) {
     () =>
       props.variant === "initial-backup" ? null : (
         <MainTitle
-          hideBackButton={!props.onClose}
+          hideBackButton
           onBack={onBackButtonClick}
           style={{ marginBottom: 24 }}
           title={t("account-settings.export-key.title.default")}
         />
       ),
-    [props.onClose, props.variant, onBackButtonClick, t]
+    [props.variant, onBackButtonClick, t]
   )
 
   const backupInfoContent = React.useMemo(

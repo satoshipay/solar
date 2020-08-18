@@ -7,18 +7,21 @@ import Switch from "@material-ui/core/Switch"
 import Typography from "@material-ui/core/Typography"
 import DeleteIcon from "@material-ui/icons/Delete"
 import WarnIcon from "@material-ui/icons/Warning"
+import AccountSelectionList from "~Account/components/AccountSelectionList"
 import { Account, AccountsContext } from "~App/contexts/accounts"
 import { createTransaction } from "~Generic/lib/transaction"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useIsSmallMobile } from "~Generic/hooks/userinterface"
-import AccountSelectionList from "~Account/components/AccountSelectionList"
-import DialogBody from "~Layout/components/DialogBody"
-import MergeIcon from "~Icons/components/Merge"
-import { HorizontalLayout } from "~Layout/components/Box"
-import ScrollableBalances from "~Generic/components/ScrollableBalances"
-import MainTitle from "~Generic/components/MainTitle"
-import TransactionSender from "~Transaction/components/TransactionSender"
 import { ActionButton, ConfirmDialog, DialogActionsBox } from "~Generic/components/DialogActions"
+import MainTitle from "~Generic/components/MainTitle"
+import MergeIcon from "~Icons/components/Merge"
+import DialogBody from "~Layout/components/DialogBody"
+import { HorizontalLayout } from "~Layout/components/Box"
+import TransactionSender from "~Transaction/components/TransactionSender"
+
+const redText: React.CSSProperties = {
+  color: "red"
+}
 
 interface DeletionConfirmationDialogProps {
   merging: boolean
@@ -205,16 +208,15 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   return (
     <DialogBody
       background={<WarnIcon style={{ fontSize: 160 }} />}
+      noMaxWidth
       top={
-        <>
-          <MainTitle
-            title={<span>{t("account-settings.account-deletion.title")}</span>}
-            titleColor="inherit"
-            onBack={props.onClose}
-            style={{ marginTop: 0, marginLeft: 0 }}
-          />
-          <ScrollableBalances account={props.account} compact />
-        </>
+        <MainTitle
+          hideBackButton
+          title={<span style={redText}>{t("account-settings.account-deletion.title")}</span>}
+          titleColor="inherit"
+          onBack={props.onClose}
+          style={{ marginTop: 0, marginLeft: 0 }}
+        />
       }
       actions={
         <DialogActionsBox>

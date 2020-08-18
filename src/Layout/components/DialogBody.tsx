@@ -53,6 +53,7 @@ interface Props {
   children: React.ReactNode
   excessWidth?: number
   fitToShrink?: boolean
+  noMaxWidth?: boolean
   preventActionsPlaceholder?: boolean
   preventNotch?: boolean
   top?: React.ReactNode
@@ -99,7 +100,7 @@ function DialogBody(props: Props) {
         display="flex"
         height="100%"
         margin="0 auto"
-        maxWidth={900}
+        maxWidth={props.noMaxWidth ? undefined : 900}
         overflowX="hidden"
         padding={isSmallScreen ? "12px 24px" : "24px 32px"}
         style={{ flexDirection: "column" }}

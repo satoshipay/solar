@@ -210,7 +210,7 @@ function ManageSignersDialogContent(props: Props) {
   )
 
   return (
-    <DialogBody top={props.title} actions={isSmallScreen ? actionsRef : undefined}>
+    <DialogBody noMaxWidth top={props.title} actions={isSmallScreen ? actionsRef : undefined}>
       <VerticalLayout
         justifyContent="space-between"
         margin="8px 0 0"
