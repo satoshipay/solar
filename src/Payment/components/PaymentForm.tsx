@@ -142,7 +142,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       setMemoType(requiredType)
       setMemoMetadata({
         label: requiredType === "id" ? t("payment.memo-metadata.label.id") : t("payment.memo-metadata.label.text"),
-        placeholder: "test",
+        placeholder: t("payment.memo-metadata.placeholder.optional"),
         requiredType
       })
     }
@@ -192,7 +192,12 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         inputRef={form.register({
           required: t<string>("payment.validation.no-destination"),
           validate: value =>
-            isPublicKey(value) || isStellarAddress(value) || t<string>("payment.validation.invalid-destination")
+            (isStellarAddress(value) &&
+              !Boolean(matchingFederationRecord) &&
+              t<string>("payment.validation.stellar-address-not-found")) ||
+            isPublicKey(value) ||
+            isStellarAddress(value) ||
+            t<string>("payment.validation.invalid-destination")
         })}
         label={form.errors.destination ? form.errors.destination.message : t("payment.inputs.destination.label")}
         margin="normal"
@@ -204,6 +209,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
             const federationRecord = await lookupFederationRecord(destination)
             if (federationRecord && federationRecord.memo && federationRecord.memo_type) {
               setMatchingFederationRecord(federationRecord)
+              form.triggerValidation("destination")
             } else {
               setMatchingFederationRecord(undefined)
             }
@@ -217,7 +223,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         placeholder={t("payment.inputs.destination.placeholder")}
       />
     ),
-    [form, lookupFederationRecord, qrReaderAdornment, setValue, t]
+    [form, lookupFederationRecord, matchingFederationRecord, qrReaderAdornment, setValue, t]
   )
 
   const assetSelector = React.useMemo(
