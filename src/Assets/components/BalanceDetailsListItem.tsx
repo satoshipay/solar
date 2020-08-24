@@ -1,7 +1,6 @@
-import BigNumber from "big.js"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Horizon, Asset } from "stellar-sdk"
+import { Horizon } from "stellar-sdk"
 import Badge from "@material-ui/core/Badge"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -13,9 +12,7 @@ import { balancelineToAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
 import { SingleBalance } from "~Account/components/AccountBalances"
 import { AccountName } from "~Generic/components/Fetchers"
-import { useLiveOrderbook } from "~Generic/hooks/stellar-subscriptions"
-import { usePriceConversion } from "~Generic/hooks/stellar-ecosystem"
-import { useConversionOffers } from "~Trading/hooks/conversion"
+import { useFiatEstimate } from "~Generic/hooks/stellar-ecosystem"
 import AssetLogo from "./AssetLogo"
 
 export const actionsSize = 36
@@ -107,11 +104,8 @@ function BalanceListItem(props: BalanceListItemProps) {
 
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
   const assetMetadata = useAssetMetadata(asset, props.testnet)
+  const fiatEstimate = useFiatEstimate(asset, settings.preferredCurrency, props.testnet)
   const { t } = useTranslation()
-
-  const conversion = usePriceConversion(settings.preferredCurrency, props.testnet)
-  const tradePair = useLiveOrderbook(asset, Asset.native(), props.testnet)
-  const { worstPriceOfBestMatches } = useConversionOffers(tradePair.bids, BigNumber(0.01), false)
 
   const balance = React.useMemo(
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
@@ -119,7 +113,7 @@ function BalanceListItem(props: BalanceListItemProps) {
   )
 
   if (props.balance.asset_type === "native") {
-    const amountInPreferredCurrency = BigNumber(conversion.convertXLM(+props.balance.balance))
+    const amountInPreferredCurrency = fiatEstimate.convertAmount(Number(props.balance.balance))
     const amountInPreferredCurrencyString = `${amountInPreferredCurrency.toFixed(2)} ${settings.preferredCurrency}`
 
     return (
@@ -165,9 +159,7 @@ function BalanceListItem(props: BalanceListItemProps) {
   const title =
     assetName !== props.balance.asset_code ? `${assetName} (${props.balance.asset_code})` : props.balance.asset_code
 
-  const estimatedAmountInPreferredCurrency = worstPriceOfBestMatches
-    ? conversion.convertXLM(+worstPriceOfBestMatches.mul(BigNumber(props.balance.balance).abs()))
-    : BigNumber(0)
+  const estimatedAmountInPreferredCurrency = fiatEstimate.convertAmount(Number(props.balance.balance))
   const estimatedAmountString = `${estimatedAmountInPreferredCurrency.toFixed(2)} ${settings.preferredCurrency}`
 
   return (

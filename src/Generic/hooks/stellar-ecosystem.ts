@@ -1,3 +1,4 @@
+import BigNumber from "big.js"
 import React from "react"
 import { trackError } from "~App/contexts/notifications"
 import { AccountRecord, fetchWellknownAccounts } from "../lib/stellar-expert"
@@ -5,6 +6,8 @@ import { AssetRecord, fetchAllAssets } from "../lib/stellar-ticker"
 import { CurrencyCode, fetchCryptoPrice } from "../lib/currency-conversion"
 import { tickerAssetsCache, wellKnownAccountsCache } from "./_caches"
 import { useForceRerender } from "./util"
+import { Asset } from "stellar-sdk"
+import { useLiveOrderbook } from "./stellar-subscriptions"
 
 export { AccountRecord, AssetRecord }
 
@@ -67,4 +70,29 @@ export function usePriceConversion(currency: CurrencyCode, testnet: boolean) {
   }, [price])
 
   return conversion
+}
+
+export function useFiatEstimate(asset: Asset, currency: CurrencyCode, testnet: boolean) {
+  const conversion = usePriceConversion(currency, testnet)
+  const tradePair = useLiveOrderbook(asset, Asset.native(), testnet)
+
+  if (asset.getAssetType() === "native") {
+    return {
+      estimatedPrice: conversion.price,
+      convertAmount(amount: number) {
+        return BigNumber(conversion.convertXLM(amount))
+      }
+    }
+  } else {
+    const bestOffers = tradePair.bids
+    const bestOffer = bestOffers.length ? bestOffers[0] : undefined
+    const bestPrice = bestOffer ? Number(bestOffer.price) : 0
+
+    return {
+      estimatedPrice: bestPrice,
+      convertAmount(amount: number) {
+        return BigNumber(conversion.convertXLM(bestPrice * amount))
+      }
+    }
+  }
 }
