@@ -1,5 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import { CurrencyCode } from "~Generic/lib/currency-conversion"
 import { useForceRerender } from "~Generic/hooks/util"
 import { testBiometricAuth, isBiometricAuthAvailable } from "~Platform/bio-auth"
 import {
@@ -27,7 +28,9 @@ interface ContextType {
   language: string | undefined
   multiSignature: boolean
   multiSignatureServiceURL: string
+  preferredCurrency: CurrencyCode
   setLanguage: (language: string | undefined) => void
+  setPreferredCurrency: (currency: CurrencyCode) => void
   setSetting: (key: keyof Platform.SettingsData, value: any) => void
   showTestnet: boolean
   toggleBiometricLock: () => void
@@ -54,6 +57,8 @@ const initialSettings: SettingsState = {
 
 const initialIgnoredSignatureRequests: string[] = []
 
+const initialPreferredCurrency: CurrencyCode = (localStorage.getItem("preferred-currency") as CurrencyCode) ?? "USD"
+
 const multiSignatureServiceURL = process.env.MULTISIG_SERVICE || "https://multisig.satoshipay.io/"
 
 const SettingsContext = React.createContext<ContextType>({
@@ -69,8 +74,10 @@ const SettingsContext = React.createContext<ContextType>({
   multiSignature: initialSettings.multisignature,
   multiSignatureServiceURL,
   setLanguage: () => undefined,
+  setPreferredCurrency: () => undefined,
   setSetting: () => undefined,
   showTestnet: initialSettings.testnet,
+  preferredCurrency: "USD",
   toggleBiometricLock: () => undefined,
   toggleMultiSignature: () => undefined,
   toggleTestnet: () => undefined,
@@ -81,6 +88,7 @@ const SettingsContext = React.createContext<ContextType>({
 
 export function SettingsProvider(props: Props) {
   const [ignoredSignatureRequests, setIgnoredSignatureRequests] = React.useState(initialIgnoredSignatureRequests)
+  const [preferredCurrency, setPreferredCurrency] = React.useState<CurrencyCode>(initialPreferredCurrency)
   const [settings, setSettings] = React.useState<SettingsState>(initialSettings)
   const [updateAvailable, setUpdateAvailable] = React.useState(false)
   const [biometricAvailability, setBiometricAvailability] = React.useState<BiometricAvailability>({
@@ -143,6 +151,11 @@ export function SettingsProvider(props: Props) {
     forceRerender()
   }
 
+  const savePreferredCurrency = (currency: CurrencyCode) => {
+    setPreferredCurrency(currency)
+    localStorage.setItem("preferred-currency", currency)
+  }
+
   const setSetting = (key: keyof Platform.SettingsData, value: any) => {
     const partial: Partial<Platform.SettingsData> = {}
     partial[key] = value
@@ -171,7 +184,9 @@ export function SettingsProvider(props: Props) {
     language: localStorage.getItem("i18nextLng") || undefined,
     multiSignature: settings.multisignature,
     multiSignatureServiceURL,
+    preferredCurrency,
     setLanguage,
+    setPreferredCurrency: savePreferredCurrency,
     setSetting,
     showTestnet: settings.testnet,
     toggleBiometricLock,

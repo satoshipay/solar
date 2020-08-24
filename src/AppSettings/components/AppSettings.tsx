@@ -6,6 +6,7 @@ import { AccountsContext } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import * as routes from "~App/routes"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
+import { CurrencyCode } from "~Generic/lib/currency-conversion"
 import { matchesRoute } from "~Generic/lib/routes"
 import Carousel from "~Layout/components/Carousel"
 import ManageTrustedServicesDialog from "./ManageTrustedServicesDialog"
@@ -14,6 +15,7 @@ import {
   HideMemoSetting,
   LanguageSetting,
   MultiSigSetting,
+  PreferredCurrencySetting,
   TestnetSetting,
   TrustedServicesSetting
 } from "./Settings"
@@ -53,6 +55,13 @@ function AppSettings() {
     [i18n, settings]
   )
 
+  const switchPreferredCurrency = React.useCallback(
+    (currency: CurrencyCode) => {
+      settings.setPreferredCurrency(currency)
+    },
+    [settings]
+  )
+
   return (
     <Carousel current={showSettingsOverview ? 0 : 1}>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
@@ -66,6 +75,7 @@ function AppSettings() {
             value={settings.biometricLock}
           />
         ) : null}
+        <PreferredCurrencySetting onSelect={switchPreferredCurrency} value={settings.preferredCurrency} />
         <TestnetSetting
           hasTestnetAccount={hasTestnetAccount}
           onToggle={settings.toggleTestnet}
