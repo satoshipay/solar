@@ -1,16 +1,21 @@
+import BigNumber from "big.js"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Horizon } from "stellar-sdk"
+import { Horizon, Asset } from "stellar-sdk"
 import Badge from "@material-ui/core/Badge"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
+import { SettingsContext } from "~App/contexts/settings"
 import { useAssetMetadata } from "~Generic/hooks/stellar"
 import { balancelineToAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
 import { SingleBalance } from "~Account/components/AccountBalances"
 import { AccountName } from "~Generic/components/Fetchers"
+import { useLiveOrderbook } from "~Generic/hooks/stellar-subscriptions"
+import { usePriceConversion } from "~Generic/hooks/stellar-ecosystem"
+import { useConversionOffers } from "~Trading/hooks/conversion"
 import AssetLogo from "./AssetLogo"
 
 export const actionsSize = 36
@@ -98,9 +103,15 @@ function BalanceListItem(props: BalanceListItemProps) {
   const classes = useBalanceItemStyles()
   const className = `${props.className || ""} ${props.onClick ? classes.clickable : ""}`
 
+  const settings = React.useContext(SettingsContext)
+
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
   const assetMetadata = useAssetMetadata(asset, props.testnet)
   const { t } = useTranslation()
+
+  const conversion = usePriceConversion(settings.preferredCurrency, props.testnet)
+  const tradePair = useLiveOrderbook(asset, Asset.native(), props.testnet)
+  const { worstPriceOfBestMatches } = useConversionOffers(tradePair.bids, BigNumber(0.01), false)
 
   const balance = React.useMemo(
     () => (props.hideBalance ? null : <SingleBalance assetCode={""} balance={props.balance.balance} />),
@@ -108,6 +119,9 @@ function BalanceListItem(props: BalanceListItemProps) {
   )
 
   if (props.balance.asset_type === "native") {
+    const amountInPreferredCurrency = BigNumber(conversion.convertXLM(+props.balance.balance))
+    const amountInPreferredCurrencyString = `${amountInPreferredCurrency.toFixed(2)} ${settings.preferredCurrency}`
+
     return (
       <ListItem
         button={Boolean(props.onClick) as any}
@@ -141,6 +155,7 @@ function BalanceListItem(props: BalanceListItemProps) {
             primary: classes.balanceText
           }}
           primary={balance}
+          secondary={amountInPreferredCurrencyString}
         />
       </ListItem>
     )
@@ -149,6 +164,11 @@ function BalanceListItem(props: BalanceListItemProps) {
   const assetName = (assetMetadata && assetMetadata.name) || props.balance.asset_code
   const title =
     assetName !== props.balance.asset_code ? `${assetName} (${props.balance.asset_code})` : props.balance.asset_code
+
+  const estimatedAmountInPreferredCurrency = worstPriceOfBestMatches
+    ? conversion.convertXLM(+worstPriceOfBestMatches.mul(BigNumber(props.balance.balance).abs()))
+    : BigNumber(0)
+  const estimatedAmountString = `${estimatedAmountInPreferredCurrency.toFixed(2)} ${settings.preferredCurrency}`
 
   return (
     <ListItem button={Boolean(props.onClick) as any} className={className} onClick={props.onClick} style={props.style}>
@@ -175,6 +195,7 @@ function BalanceListItem(props: BalanceListItemProps) {
         className={classes.balanceListItemText}
         primary={balance}
         primaryTypographyProps={{ className: classes.balanceText }}
+        secondary={estimatedAmountString}
       />
     </ListItem>
   )
