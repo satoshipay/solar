@@ -96,3 +96,29 @@ export function useFiatEstimate(asset: Asset, currency: CurrencyCode, testnet: b
     }
   }
 }
+
+export function useAssetEstimate(currency: CurrencyCode, asset: Asset, testnet: boolean) {
+  const conversion = usePriceConversion(currency, testnet)
+  const tradePair = useLiveOrderbook(Asset.native(), asset, testnet)
+
+  const inversePrice = conversion.price > 0 ? 1 / conversion.price : 0
+  if (asset.getAssetType() === "native") {
+    return {
+      estimatedPrice: inversePrice,
+      convertAmount(amount: number) {
+        return BigNumber(inversePrice * amount)
+      }
+    }
+  } else {
+    const bestOffers = tradePair.bids
+    const bestOffer = bestOffers.length ? bestOffers[0] : undefined
+    const bestPrice = bestOffer ? Number(bestOffer.price) : 0
+
+    return {
+      estimatedPrice: bestPrice * inversePrice,
+      convertAmount(amount: number) {
+        return BigNumber(bestPrice * inversePrice * amount)
+      }
+    }
+  }
+}
