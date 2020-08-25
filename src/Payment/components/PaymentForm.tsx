@@ -8,7 +8,13 @@ import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "~App/contexts/accounts"
-import { AccountRecord, useWellKnownAccounts } from "~Generic/hooks/stellar-ecosystem"
+import { SettingsContext } from "~App/contexts/settings"
+import {
+  AccountRecord,
+  useWellKnownAccounts,
+  useFiatEstimate,
+  useAssetEstimate
+} from "~Generic/hooks/stellar-ecosystem"
 import { useFederationLookup } from "~Generic/hooks/stellar"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
@@ -18,14 +24,18 @@ import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "~Generic/lib/transaction"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import AssetSelector from "~Generic/components/AssetSelector"
+import CurrencySelector from "~Generic/components/CurrencySelector"
 import { PriceInput, QRReader } from "~Generic/components/FormFields"
-import { formatBalance } from "~Generic/lib/balances"
-import { HorizontalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
+import { formatBalance } from "~Generic/lib/balances"
+import { CurrencyCode } from "~Generic/lib/currency-conversion"
+import { HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 
 export interface PaymentFormValues {
   amount: string
+  eventualAmount: string
   asset: Asset
+  amountType: Asset | CurrencyCode
   destination: string
   memoValue: string
 }
@@ -69,6 +79,8 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const { t } = useTranslation()
   const wellknownAccounts = useWellKnownAccounts(props.testnet)
 
+  const { preferredCurrency } = React.useContext(SettingsContext)
+
   const [matchingWellknownAccount, setMatchingWellknownAccount] = React.useState<AccountRecord | undefined>(undefined)
   const [memoType, setMemoType] = React.useState<MemoType>("none")
   const [memoMetadata, setMemoMetadata] = React.useState<MemoMetadata>({
@@ -79,6 +91,8 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const form = useForm<PaymentFormValues>({
     defaultValues: {
       amount: "",
+      amountType: Asset.native(),
+      eventualAmount: "",
       asset: Asset.native(),
       destination: "",
       memoValue: ""
@@ -88,10 +102,33 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const formValues = form.watch()
   const { setValue } = form
 
+  const preferredCurrencyEstimate = useFiatEstimate(formValues.asset, preferredCurrency, props.testnet)
+  const amountTypeToAssetEstimate = useAssetEstimate(
+    formValues.amountType instanceof Asset ? preferredCurrency : formValues.amountType,
+    formValues.asset,
+    props.testnet
+  )
+
   const spendableBalance = getSpendableBalance(
     getAccountMinimumBalance(props.accountData, props.openOrdersCount),
     findMatchingBalanceLine(props.accountData.balances, formValues.asset)
   )
+
+  React.useEffect(() => {
+    // if asset is selected instead of currency replace it with the new one
+    if (formValues.amountType instanceof Asset) {
+      setValue("amountType", formValues.asset)
+    }
+  }, [formValues.amountType, formValues.asset, setValue])
+
+  React.useEffect(() => {
+    const eventualAmountValue =
+      formValues.amountType === formValues.asset
+        ? formValues.amount
+        : amountTypeToAssetEstimate.convertAmount(Number(formValues.amount)).toFixed(2)
+
+    setValue("eventualAmount", eventualAmountValue || "0.00")
+  }, [amountTypeToAssetEstimate, formValues.amount, formValues.amountType, formValues.asset, setValue])
 
   React.useEffect(() => {
     if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
@@ -191,6 +228,9 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           <AssetSelector
             assets={props.accountData.balances}
             disableUnderline
+            inputStyle={{
+              fontSize: "x-large"
+            }}
             showXLM
             style={{ alignSelf: "center" }}
             testnet={props.testnet}
@@ -204,10 +244,28 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     [form, formValues.asset, props.accountData.balances, props.testnet]
   )
 
-  const priceInput = React.useMemo(
+  const currencySelector = React.useMemo(
+    () => (
+      <Controller
+        as={
+          <CurrencySelector
+            asset={formValues.asset}
+            disableUnderline
+            style={{ alignSelf: "center" }}
+            testnet={props.testnet}
+          />
+        }
+        control={form.control}
+        name="amountType"
+      />
+    ),
+    [form, formValues.asset, props.testnet]
+  )
+
+  const amountInput = React.useMemo(
     () => (
       <PriceInput
-        assetCode={assetSelector}
+        selector={currencySelector}
         error={Boolean(form.errors.amount)}
         inputRef={form.register({
           required: t<string>("payment.validation.no-price"),
@@ -229,8 +287,57 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [assetSelector, form, isSmallScreen, spendableBalance, t]
+    [currencySelector, form, isSmallScreen, spendableBalance, t]
   )
+
+  const eventualAmountInput = React.useMemo(() => {
+    const amountInPreferredCurrency = preferredCurrencyEstimate.convertAmount(
+      formValues.asset === formValues.amountType
+        ? Number(formValues.amount)
+        : amountTypeToAssetEstimate.convertAmount(Number(formValues.amount))
+    )
+
+    return (
+      <PriceInput
+        selector={assetSelector}
+        disabled
+        helperText={
+          formValues.amount
+            ? `~ ${amountInPreferredCurrency.toFixed(2)} ${preferredCurrency}`
+            : t("payment.inputs.eventual-price.helper")
+        }
+        margin="normal"
+        name="eventualAmount"
+        inputRef={form.register()}
+        InputProps={{
+          disableUnderline: true,
+          inputProps: {
+            style: { textAlign: "right", fontSize: "x-large" }
+          }
+        }}
+        FormHelperTextProps={{
+          style: { textAlign: "center" }
+        }}
+        style={{
+          flexGrow: isSmallScreen ? 1 : undefined,
+          marginLeft: 24,
+          marginRight: 24
+        }}
+        variant="standard"
+      />
+    )
+  }, [
+    assetSelector,
+    amountTypeToAssetEstimate,
+    form,
+    formValues.amount,
+    formValues.amountType,
+    formValues.asset,
+    isSmallScreen,
+    preferredCurrency,
+    preferredCurrencyEstimate,
+    t
+  ])
 
   const memoInput = React.useMemo(
     () => (
@@ -309,9 +416,12 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     <form id={formID} noValidate onSubmit={form.handleSubmit(handleFormSubmission)}>
       {destinationInput}
       <HorizontalLayout justifyContent="space-between" alignItems="center" margin="0 -24px" wrap="wrap">
-        {priceInput}
+        {amountInput}
         {memoInput}
       </HorizontalLayout>
+      <VerticalLayout justifyContent="center" style={{ marginTop: 16 }}>
+        <div style={{ alignSelf: "center" }}>{eventualAmountInput}</div>
+      </VerticalLayout>
       <Portal target={props.actionsRef.element}>{dialogActions}</Portal>
     </form>
   )
@@ -355,7 +465,7 @@ function PaymentFormContainer(props: Props) {
 
     const payment = await createPaymentOperation({
       asset: asset || Asset.native(),
-      amount: formValues.amount,
+      amount: formValues.eventualAmount,
       destination,
       horizon
     })
