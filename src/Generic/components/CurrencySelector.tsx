@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
 import ListItemText from "@material-ui/core/ListItemText"
 import MenuItem from "@material-ui/core/MenuItem"
@@ -68,6 +69,7 @@ interface CurrencySelectorProps {
 function CurrencySelector(props: CurrencySelectorProps) {
   const { asset, onChange } = props
   const classes = useCurrencySelectorStyles()
+  const { t } = useTranslation()
 
   const currencies = props.currencies
     ? props.currencies
@@ -103,7 +105,7 @@ function CurrencySelector(props: CurrencySelectorProps) {
       margin={props.margin}
       onChange={handleChange as any}
       name={props.name}
-      placeholder="Select a currency"
+      placeholder={t("generic.currency-selector.placeholder")}
       select
       style={{ flexShrink: 0, ...props.style }}
       value={value}
@@ -126,12 +128,16 @@ function CurrencySelector(props: CurrencySelectorProps) {
         displayEmpty: !props.value,
         disableUnderline: props.disableUnderline,
         renderValue: () =>
-          props.value ? (props.value instanceof Asset ? props.value.getCode() : props.value) : "Select"
+          props.value
+            ? props.value instanceof Asset
+              ? props.value.getCode()
+              : props.value
+            : t("generic.currency-selector.render-value")
       }}
     >
       {props.value ? null : (
         <MenuItem disabled value="">
-          Select an asset
+          {t("generic.currency-selector.placeholder")}
         </MenuItem>
       )}
       {asset && <AssetItem asset={asset} key={stringifyAsset(asset)} testnet={props.testnet} value={asset.getCode()} />}

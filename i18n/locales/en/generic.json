@@ -1,4 +1,12 @@
 {
+  "asset-selector": {
+    "placeholder": "Select an asset",
+    "render-value": "Select"
+  },
+  "currency-selector": {
+    "placeholder": "Select a currency",
+    "render-value": "Select"
+  },
   "dialog-actions": {
     "close": {
       "label": "Close"

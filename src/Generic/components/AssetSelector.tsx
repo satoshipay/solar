@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon } from "stellar-sdk"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -90,6 +91,7 @@ interface AssetSelectorProps {
 function AssetSelector(props: AssetSelectorProps) {
   const { onChange } = props
   const classes = useAssetSelectorStyles()
+  const { t } = useTranslation()
 
   const assets = React.useMemo(
     () => [
@@ -129,7 +131,7 @@ function AssetSelector(props: AssetSelectorProps) {
       margin={props.margin}
       onChange={handleChange as any}
       name={props.name}
-      placeholder="Select an asset"
+      placeholder={t("generic.asset-selector.placeholder")}
       select
       style={{ flexShrink: 0, ...props.style }}
       value={props.value ? props.value.getCode() : ""}
@@ -152,12 +154,12 @@ function AssetSelector(props: AssetSelectorProps) {
         style: props.inputStyle,
         displayEmpty: !props.value,
         disableUnderline: props.disableUnderline,
-        renderValue: () => (props.value ? props.value.getCode() : "Select")
+        renderValue: () => (props.value ? props.value.getCode() : t("generic.asset-selector.render-value"))
       }}
     >
       {props.value ? null : (
         <MenuItem disabled value="">
-          Select an asset
+          {t("generic.asset-selector.placeholder")}
         </MenuItem>
       )}
       {props.showXLM ? (
