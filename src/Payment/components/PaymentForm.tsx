@@ -103,16 +103,29 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const { setValue } = form
 
   const preferredCurrencyEstimate = useFiatEstimate(formValues.asset, preferredCurrency, props.testnet)
+  const selectedCurrencyEstimate = useFiatEstimate(
+    formValues.asset,
+    formValues.amountType instanceof Asset ? preferredCurrency : formValues.amountType,
+    props.testnet
+  )
   const amountTypeToAssetEstimate = useAssetEstimate(
     formValues.amountType instanceof Asset ? preferredCurrency : formValues.amountType,
     formValues.asset,
     props.testnet
   )
 
-  const spendableBalance = getSpendableBalance(
-    getAccountMinimumBalance(props.accountData, props.openOrdersCount),
-    findMatchingBalanceLine(props.accountData.balances, formValues.asset)
-  )
+  const spendableBalance =
+    formValues.amountType instanceof Asset
+      ? getSpendableBalance(
+          getAccountMinimumBalance(props.accountData, props.openOrdersCount),
+          findMatchingBalanceLine(props.accountData.balances, formValues.asset)
+        )
+      : selectedCurrencyEstimate.convertAmount(
+          getSpendableBalance(
+            getAccountMinimumBalance(props.accountData, props.openOrdersCount),
+            findMatchingBalanceLine(props.accountData.balances, formValues.asset)
+          )
+        )
 
   React.useEffect(() => {
     // if asset is selected instead of currency replace it with the new one
