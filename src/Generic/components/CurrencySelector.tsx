@@ -1,6 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
+import Divider from "@material-ui/core/Divider"
 import ListItemText from "@material-ui/core/ListItemText"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
@@ -95,6 +96,29 @@ function CurrencySelector(props: CurrencySelectorProps) {
     [props.value]
   )
 
+  const items = React.useMemo(() => {
+    const array: React.ReactNode[] = []
+    if (!props.value) {
+      array.push(
+        <MenuItem disabled key="placeholder" value="">
+          {t("generic.currency-selector.placeholder")}
+        </MenuItem>
+      )
+    }
+    if (asset) {
+      array.push(
+        <AssetItem asset={asset} key={stringifyAsset(asset)} testnet={props.testnet} value={asset.getCode()} />
+      )
+      array.push(<Divider key="divider" />)
+    }
+    array.push(
+      currencies.map(currency => (
+        <CurrencyItem currency={currency} key={currency} testnet={props.testnet} value={currency} />
+      ))
+    )
+    return array
+  }, [asset, currencies, props.testnet, props.value, t])
+
   return (
     <TextField
       autoFocus={props.autoFocus}
@@ -135,15 +159,7 @@ function CurrencySelector(props: CurrencySelectorProps) {
             : t("generic.currency-selector.render-value")
       }}
     >
-      {props.value ? null : (
-        <MenuItem disabled value="">
-          {t("generic.currency-selector.placeholder")}
-        </MenuItem>
-      )}
-      {asset && <AssetItem asset={asset} key={stringifyAsset(asset)} testnet={props.testnet} value={asset.getCode()} />}
-      {currencies.map(currency => (
-        <CurrencyItem currency={currency} key={currency} testnet={props.testnet} value={currency} />
-      ))}
+      {items}
     </TextField>
   )
 }
