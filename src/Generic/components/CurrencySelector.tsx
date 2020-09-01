@@ -92,7 +92,7 @@ function CurrencySelector(props: CurrencySelectorProps) {
   )
 
   const value = React.useMemo(
-    () => (props.value ? (props.value instanceof Asset ? props.value.getCode() : props.value) : ""),
+    () => (props.value ? (props.value instanceof Asset ? stringifyAsset(props.value) : props.value) : ""),
     [props.value]
   )
 
@@ -107,7 +107,7 @@ function CurrencySelector(props: CurrencySelectorProps) {
     }
     if (asset) {
       array.push(
-        <AssetItem asset={asset} key={stringifyAsset(asset)} testnet={props.testnet} value={asset.getCode()} />
+        <AssetItem asset={asset} key={stringifyAsset(asset)} testnet={props.testnet} value={stringifyAsset(asset)} />
       )
       array.push(<Divider key="divider" />)
     }
