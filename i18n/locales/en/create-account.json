@@ -76,6 +76,7 @@
   },
   "validation": {
     "invalid-key": "Invalid stellar private key.",
+    "invalid-mnemonic": "Invalid mnemonic phrase.",
     "no-account-name": "No account name has been entered.",
     "no-password": "No password has been entered.",
     "password-no-match": "Password does not match.",
