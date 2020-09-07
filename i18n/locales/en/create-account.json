@@ -31,10 +31,22 @@
   },
   "inputs": {
     "import": {
-      "helper-text": "A Stellar secret key is 56 alphanumeric characters long and starts with an S",
-      "placeholder": "SABCDEFGH…",
-      "label": "Secret key",
-      "title": "Import Existing"
+      "mnemonic": {
+        "helper-text": "A mnemonic sentence is a group of 12 to 24 words",
+        "placeholder": "actress banana cheese detail…",
+        "label": "Mnemonic sentence",
+        "title": "Import Existing"
+      },
+      "secret-key": {
+        "helper-text": "A Stellar secret key is 56 alphanumeric characters long and starts with an S",
+        "placeholder": "SABCDEFGH…",
+        "label": "Secret key",
+        "title": "Import Existing"
+      },
+      "toggle-method": {
+        "use-mnemonic": "Use mnemonic phrase",
+        "use-secret-key": "Use secret key"
+      }
     },
     "password": {
       "label": "Password",
@@ -47,8 +59,14 @@
   },
   "options": {
     "import": {
-      "label": "Import secret key",
-      "description": "Restore account from backup"
+      "label": {
+        "mnemonic": "Import with backup phrase",
+        "secret-key": "Import secret key"
+      },
+      "description": {
+        "mnemonic": "Restore account from mnemonic backup phrase",
+        "secret-key": "Restore account from backup key"
+      }
     },
     "password": {
       "label": "Password protection",
