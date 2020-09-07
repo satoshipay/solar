@@ -135,7 +135,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
               <SummaryDetailsField
                 fullWidth
                 label={t("account.transaction-review.summary.item.account.label")}
-                value={<CopyableAddress address={props.transaction.source} variant="short" />}
+                value={<CopyableAddress address={props.transaction.source} testnet={props.testnet} variant="short" />}
               />
             </SummaryItem>
           ) : null}
@@ -144,7 +144,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
               <SummaryDetailsField
                 fullWidth
                 label={t("account.transaction-review.summary.item.tx-hash.label")}
-                value={<ClickableAddress address={transactionHash} variant="shorter" />}
+                value={<ClickableAddress address={transactionHash} testnet={props.testnet} variant="shorter" />}
               />
             </SummaryItem>
           ) : null}
@@ -195,7 +195,7 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
         />
         <SummaryDetailsField
           label={t("account.transaction-review.summary.item.authenticating-account.label")}
-          value={<CopyableAddress address={manageDataOperation.source || ""} variant="short" />}
+          value={<CopyableAddress address={manageDataOperation.source || ""} testnet={props.testnet} variant="short" />}
         />
       </SummaryItem>
       {maxTime ? (

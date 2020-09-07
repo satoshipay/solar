@@ -119,6 +119,7 @@ function ManageSignersDialog(props: Props) {
       onCancel={props.onClose}
       onSubmit={submitTransaction}
       setIsEditingNewSigner={setIsEditingNewSigner}
+      testnet={props.account.testnet}
       title={titleContent}
     />
   )

@@ -101,16 +101,18 @@ function OfferDescription(props: {
   )
 }
 
-function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean }) {
+function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean; testnet: boolean }) {
   const { t } = useTranslation()
   if (props.publicKeys.length === 0) {
     return <>-</>
   } else if (props.publicKeys.length === 1) {
-    return <PublicKey publicKey={props.publicKeys[0]} variant={props.short ? "short" : "full"} />
+    return (
+      <PublicKey publicKey={props.publicKeys[0]} testnet={props.testnet} variant={props.short ? "short" : "full"} />
+    )
   } else {
     return (
       <>
-        <PublicKey publicKey={props.publicKeys[0]} variant="short" />{" "}
+        <PublicKey publicKey={props.publicKeys[0]} testnet={props.testnet} variant="short" />{" "}
         <i>
           + {props.publicKeys.length - 1} {t("account.transactions.transaction-list.item.remote-public-keys.more")}
         </i>
@@ -169,6 +171,8 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
     [] as string[]
   )
 
+  const testnet = props.transaction.networkPassphrase === Networks.TESTNET
+
   const secondary = React.useMemo(
     () => (
       <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -193,7 +197,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
         primary={
           <span>
             {t("account.transactions.transaction-list.item.from")}&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} short />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short testnet={testnet} />
           </span>
         }
         primaryTypographyProps={{ style: props.style }}
@@ -210,11 +214,11 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
         primary={
           <span>
             {t("account.transactions.transaction-list.item.to")}&nbsp;
-            <RemotePublicKeys publicKeys={remotePublicKeys} short />
+            <RemotePublicKeys publicKeys={remotePublicKeys} short testnet={testnet} />
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;{t("account.transactions.transaction-list.item.from")}&nbsp;
-                <PublicKey publicKey={props.accountPublicKey} variant="short" />{" "}
+                <PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />{" "}
               </span>
             ) : null}
           </span>
@@ -239,7 +243,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
             {props.alwaysShowSource ? (
               <>
                 {" "}
-                (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
               </>
             ) : null}
           </span>
@@ -258,7 +262,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
             {props.alwaysShowSource ? (
               <>
                 {" "}
-                (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
               </>
             ) : null}
           </span>
@@ -285,7 +289,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
               {props.alwaysShowSource ? (
                 <>
                   {" "}
-                  (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                  (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
                 </>
               ) : null}
             </span>
@@ -305,7 +309,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
               {props.alwaysShowSource ? (
                 <>
                   {" "}
-                  (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                  (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
                 </>
               ) : null}
             </span>
@@ -325,7 +329,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
               {props.alwaysShowSource ? (
                 <>
                   {" "}
-                  (<PublicKey publicKey={props.accountPublicKey} variant="short" />)
+                  (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
                 </>
               ) : null}
             </span>

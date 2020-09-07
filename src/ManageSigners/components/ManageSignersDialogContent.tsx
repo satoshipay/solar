@@ -96,6 +96,7 @@ interface Props {
   onCancel: () => void
   onSubmit: (values: SignerUpdate) => void
   style?: React.CSSProperties
+  testnet: boolean
   title: React.ReactNode
 }
 
@@ -225,6 +226,7 @@ function ManageSignersDialogContent(props: Props) {
           localPublicKey={accountData.id}
           signers={updatedSigners}
           showKeyWeights={!allDefaultKeyweights}
+          testnet={props.testnet}
         />
       </VerticalLayout>
       {actionsContent}
