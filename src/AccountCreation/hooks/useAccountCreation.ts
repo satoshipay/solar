@@ -5,9 +5,9 @@ import { Keypair } from "stellar-sdk"
 import { Account, AccountsContext } from "~App/contexts/accounts"
 import { AccountCreation, AccountCreationErrors } from "../types/types"
 
-function isAccountAlreadyImported(privateKey: string, accounts: Account[]) {
+function isAccountAlreadyImported(privateKey: string, accounts: Account[], testnet: boolean) {
   const publicKey = Keypair.fromSecret(privateKey).publicKey()
-  return accounts.some(account => account.publicKey === publicKey)
+  return accounts.some(account => account.publicKey === publicKey && account.testnet === testnet)
 }
 
 function getNewAccountName(t: TFunction, accounts: Account[], testnet: boolean) {
@@ -35,7 +35,10 @@ function validateAccountCreation(t: TFunction, accounts: Account[], accountCreat
 
   if (accountCreation.import && !(accountCreation.secretKey || "").match(/^S[A-Z0-9]{55}$/)) {
     errors.secretKey = t("create-account.validation.invalid-key")
-  } else if (accountCreation.import && isAccountAlreadyImported(accountCreation.secretKey!, accounts)) {
+  } else if (
+    accountCreation.import &&
+    isAccountAlreadyImported(accountCreation.secretKey!, accounts, accountCreation.testnet)
+  ) {
     errors.secretKey = t("create-account.validation.same-account")
   }
 
