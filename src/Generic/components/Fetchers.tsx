@@ -18,6 +18,6 @@ export const AccountName = React.memo(function AccountName(props: AccountNamePro
   } else if (homeDomain) {
     return <span style={{ userSelect: "text" }}>{homeDomain}</span>
   } else {
-    return <Address address={props.publicKey} variant="short" />
+    return <Address address={props.publicKey} testnet={props.testnet} variant="short" />
   }
 })

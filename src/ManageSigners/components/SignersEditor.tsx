@@ -56,6 +56,7 @@ interface SignersEditorProps {
   addSigner: (signer: Horizon.AccountSigner) => void
   removeSigner: (signer: Horizon.AccountSigner) => void
   showKeyWeights?: boolean
+  testnet: boolean
 }
 
 function SignersEditor(props: SignersEditorProps) {
@@ -114,7 +115,7 @@ function SignersEditor(props: SignersEditorProps) {
             <PersonIcon style={{ fontSize: "2rem" }} />
           </ListItemIcon>
           <ListItemText
-            primary={<Address address={signer.key} variant="full" />}
+            primary={<Address address={signer.key} testnet={props.testnet} variant="full" />}
             secondary={
               <>
                 {props.showKeyWeights ? (

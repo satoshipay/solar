@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Horizon, Memo, Transaction } from "stellar-sdk"
+import { Horizon, Memo, Transaction, Networks } from "stellar-sdk"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -78,6 +78,7 @@ const Signer = React.memo(function Signer(props: {
   transaction: Transaction
 }) {
   const isSmallScreen = useIsMobile()
+  const testnet = props.transaction.networkPassphrase === Networks.TESTNET
 
   return (
     <div style={{ display: "flex", alignItems: "center", ...props.style }}>
@@ -86,6 +87,7 @@ const Signer = React.memo(function Signer(props: {
         <Address
           address={props.signer.key}
           style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
+          testnet={testnet}
           variant={isSmallScreen ? "short" : "full"}
         />
       </div>

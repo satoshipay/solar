@@ -41,6 +41,7 @@ interface PublicKeyProps {
   publicKey: string
   variant?: Variant
   style?: React.CSSProperties
+  testnet: boolean
 }
 
 // tslint:disable-next-line no-shadowed-variable
@@ -49,7 +50,9 @@ export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   const digits = getDigitCounts(props.variant)
   const { accounts } = React.useContext(AccountsContext)
 
-  const matchingLocalAccount = accounts.find(account => account.publicKey === props.publicKey)
+  const matchingLocalAccount = accounts.find(
+    account => account.publicKey === props.publicKey && account.testnet === props.testnet
+  )
 
   const style: React.CSSProperties = {
     display: "inline",
@@ -87,6 +90,7 @@ interface AddressProps {
   address: string
   variant?: Variant
   style?: React.CSSProperties
+  testnet: boolean
 }
 
 // tslint:disable-next-line no-shadowed-variable
@@ -108,11 +112,19 @@ export const Address = React.memo(function Address(props: AddressProps) {
 
       return (
         <span style={style}>
-          {formattedStellarAddress} ({<PublicKey publicKey={props.address} variant="shorter" />})
+          {formattedStellarAddress} ({<PublicKey publicKey={props.address} testnet={props.testnet} variant="shorter" />}
+          )
         </span>
       )
     } else {
-      return <PublicKey publicKey={props.address} style={{ fontWeight: "inherit" }} variant={props.variant} />
+      return (
+        <PublicKey
+          publicKey={props.address}
+          style={{ fontWeight: "inherit" }}
+          testnet={props.testnet}
+          variant={props.variant}
+        />
+      )
     }
   } else {
     return props.variant === "short" ? (
