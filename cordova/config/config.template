@@ -117,6 +117,7 @@
     <preference name="HideKeyboardFormAccessoryBar" value="false" />
     <preference name="KeyboardResize" value="true" />
     <preference name="KeyboardResizeMode" value="native" />
+    <preference name="resizeOnFullScreen" value="true" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="SplashScreenDelay" value="$SPLASH_SCREEN_DELAY" />
     <preference name="SwiftVersion" value="5.0" />
