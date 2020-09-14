@@ -1,4 +1,5 @@
-// Fix from https://github.com/ionic-team/cordova-plugin-ionic-keyboard/pull/145
+// Code copied from https://github.com/ionic-team/cordova-plugin-ionic-keyboard/pull/145 (because it is not yet merged)
+// to fix an issue with the keyboard covering input fields (see https://github.com/satoshipay/solar/pull/1144)
 package io.ionic.keyboard;
 
 import org.apache.cordova.CallbackContext;
