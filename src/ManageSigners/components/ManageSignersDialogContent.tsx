@@ -113,10 +113,22 @@ function ManageSignersDialogContent(props: Props) {
   const [weightThresholdError, setWeightThresholdError] = React.useState<Error | undefined>(undefined)
   const [weightThreshold, setWeightThreshold] = React.useState(getEffectiveWeightThreshold(accountData).toString())
 
-  const updatedSigners = getUpdatedSigners(accountData, signersToAdd, signersToRemove)
-  const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
+  const updatedSigners = React.useMemo(() => getUpdatedSigners(accountData, signersToAdd, signersToRemove), [
+    accountData,
+    signersToAdd,
+    signersToRemove
+  ])
+  const allDefaultKeyweights = React.useMemo(() => updatedSigners.every(signer => signer.weight === 1), [
+    updatedSigners
+  ])
 
-  const addSigner = (signer: Horizon.AccountSigner) => setSignersToAdd([...signersToAdd, signer])
+  React.useEffect(() => {
+    setWeightThreshold(String(updatedSigners.length))
+  }, [updatedSigners])
+
+  const addSigner = (signer: Horizon.AccountSigner) => {
+    setSignersToAdd([...signersToAdd, signer])
+  }
 
   const removeSigner = (signer: Horizon.AccountSigner) => {
     setSignersToAdd(signersToAdd.filter(someSignerToBeAddd => someSignerToBeAddd.key !== signer.key))
