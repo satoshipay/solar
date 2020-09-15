@@ -32,6 +32,17 @@ const useAccountHeaderStyles = makeStyles({
       marginRight: -12
     }
   },
+  card: {
+    color: "white",
+    position: "relative",
+    background: "transparent",
+    boxShadow: "none",
+    overflow: "visible",
+
+    "@media print": {
+      display: "none"
+    }
+  },
   closeButton: {
     boxSizing: "content-box",
     width: 32,
@@ -129,15 +140,7 @@ function AccountHeaderCard(props: Props) {
   )
 
   return (
-    <Card
-      style={{
-        color: "white",
-        position: "relative",
-        background: "transparent",
-        boxShadow: "none",
-        overflow: "visible"
-      }}
-    >
+    <Card className={classes.card}>
       <CardContent style={isSmallScreen ? { padding: 8 } : undefined}>
         <React.Suspense fallback={null}>
           <AccountTitle

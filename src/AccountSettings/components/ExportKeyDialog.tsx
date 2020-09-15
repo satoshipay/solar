@@ -1,14 +1,18 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Typography from "@material-ui/core/Typography"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import LockFilledIcon from "@material-ui/icons/Lock"
+import { makeStyles } from "@material-ui/core/styles"
+import PrintIcon from "@material-ui/icons/Print"
 import WarnIcon from "@material-ui/icons/Warning"
 import KeyExportBox from "~Account/components/KeyExportBox"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
+import ButtonIconLabel from "~Generic/components/ButtonIconLabel"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import MainTitle from "~Generic/components/MainTitle"
 import PasswordField from "~Generic/components/PasswordField"
@@ -77,7 +81,18 @@ function PromptToReveal(props: PromptToRevealProps) {
   )
 }
 
+const useSecretKeyStyles = makeStyles(() => ({
+  hiddenAccountName: {
+    display: "none",
+
+    "@media print": {
+      display: "block"
+    }
+  }
+}))
+
 interface ShowSecretKeyProps {
+  accountName?: string
   export: string
   onConfirm?: () => void
   title: React.ReactNode
@@ -86,6 +101,8 @@ interface ShowSecretKeyProps {
 
 function ShowSecretKey(props: ShowSecretKeyProps) {
   const { t } = useTranslation()
+
+  const classes = useSecretKeyStyles()
 
   return (
     <DialogBody
@@ -108,12 +125,23 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
           {t("account-settings.export-key.info.secret-key")}
         </Typography>
       ) : null}
+      <Typography align="center" className={classes.hiddenAccountName} variant="h4">
+        {props.accountName ? `"${props.accountName}"` : undefined}
+      </Typography>
       <Box padding={"32px 0 0"}>
         <KeyExportBox export={props.export} hideTapToCopy={props.variant === "initial-backup"} size={192} />
       </Box>
     </DialogBody>
   )
 }
+
+export const useExportKeyDialogStyles = makeStyles(theme => ({
+  noPrint: {
+    "@media print": {
+      display: "none"
+    }
+  }
+}))
 
 interface Props {
   account: Account | null | undefined
@@ -123,6 +151,8 @@ interface Props {
 }
 
 function ExportKeyDialog(props: Props) {
+  const classes = useExportKeyDialogStyles()
+
   const [password, setPassword] = React.useState("")
   const [passwordError, setPasswordError] = React.useState<Error | null>(null)
   const [isRevealed, setIsRevealed] = React.useState(false)
@@ -159,17 +189,30 @@ function ExportKeyDialog(props: Props) {
     []
   )
 
+  const actions = React.useMemo(() => {
+    return isRevealed ? (
+      <Button className={classes.noPrint} color="primary" onClick={() => window.print()} variant="contained">
+        <ButtonIconLabel label={t("account-settings.export-key.action.print")}>
+          <PrintIcon />
+        </ButtonIconLabel>
+      </Button>
+    ) : (
+      undefined
+    )
+  }, [classes, isRevealed, t])
+
   const titleContent = React.useMemo(
     () =>
       props.variant === "initial-backup" ? null : (
         <MainTitle
+          actions={actions}
           hideBackButton
           onBack={onBackButtonClick}
           style={{ marginBottom: 24 }}
           title={t("account-settings.export-key.title.default")}
         />
       ),
-    [props.variant, onBackButtonClick, t]
+    [actions, props.variant, onBackButtonClick, t]
   )
 
   const backupInfoContent = React.useMemo(
@@ -204,7 +247,13 @@ function ExportKeyDialog(props: Props) {
   )
 
   return isRevealed && secretKey ? (
-    <ShowSecretKey export={secretKey} onConfirm={props.onConfirm} title={titleContent} variant={props.variant} />
+    <ShowSecretKey
+      accountName={props.account?.name}
+      export={secretKey}
+      onConfirm={props.onConfirm}
+      title={titleContent}
+      variant={props.variant}
+    />
   ) : (
     <PromptToReveal
       onReveal={reveal}
