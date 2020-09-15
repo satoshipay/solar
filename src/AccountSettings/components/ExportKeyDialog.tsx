@@ -20,6 +20,7 @@ import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { Box } from "~Layout/components/Box"
 import DialogBody from "~Layout/components/DialogBody"
+import { print } from "~Platform/print"
 
 interface PromptToRevealProps {
   children: React.ReactNode
@@ -191,7 +192,7 @@ function ExportKeyDialog(props: Props) {
 
   const actions = React.useMemo(() => {
     return isRevealed ? (
-      <Button className={classes.noPrint} color="primary" onClick={() => window.print()} variant="contained">
+      <Button className={classes.noPrint} color="primary" onClick={print} variant="contained">
         <ButtonIconLabel label={t("account-settings.export-key.action.print")}>
           <PrintIcon />
         </ButtonIconLabel>

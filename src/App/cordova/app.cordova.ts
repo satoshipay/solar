@@ -7,6 +7,7 @@ import { Messages } from "~shared/ipc"
 import { trackError } from "./error"
 import { handleMessageEvent, expose } from "./ipc"
 import initializeQRReader from "./qr-reader"
+import initializePrinter from "./print"
 import { getCurrentSettings, initSecureStorage, initKeyStore } from "./storage"
 import { bioAuthenticate, isBiometricAuthAvailable } from "./bio-auth"
 import { registerURLHandler } from "./protocol-handler"
@@ -60,6 +61,7 @@ function onDeviceReady() {
   initializeQRReader()
   initializeClipboard(cordova)
   initializeIPhoneNotchFix()
+  initializePrinter()
 
   setupLinkListener(contentWindow)
   setupBioAuthAvailableHandler()

@@ -23,6 +23,8 @@ declare namespace IPC {
 
     OpenLink: "OpenLink"
 
+    Print: "Print"
+
     DeepLinkURL: "DeepLinkURL"
 
     CheckUpdateAvailability: "CheckUpdateAvailability"
@@ -60,6 +62,8 @@ declare namespace IPC {
     [Messages.ShowNotification]: (notification: LocalNotification) => void
 
     [Messages.OpenLink]: (href: string) => void
+
+    [Messages.Print]: () => void
 
     [Messages.DeepLinkURL]: () => string
 
