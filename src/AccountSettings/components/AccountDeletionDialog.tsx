@@ -209,6 +209,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     <DialogBody
       background={<WarnIcon style={{ fontSize: 160 }} />}
       noMaxWidth
+      preventNotch
       top={
         <MainTitle
           hideBackButton
