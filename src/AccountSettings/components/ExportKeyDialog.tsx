@@ -118,7 +118,16 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       top={<span className={classes.noPrint}>{props.title}</span>}
       actions={
         props.onConfirm ? (
-          <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
+          <DialogActionsBox className={classes.noPrint} desktopStyle={{ marginTop: 32 }} smallDialog>
+            {props.variant === "initial-backup" ? (
+              <ActionButton onClick={() => print()} type="secondary">
+                <ButtonIconLabel label={t("account-settings.export-key.action.print")}>
+                  <PrintIcon />
+                </ButtonIconLabel>
+              </ActionButton>
+            ) : (
+              undefined
+            )}
             <ActionButton onClick={props.onConfirm} type="primary">
               {t("account-settings.export-key.action.confirm")}
             </ActionButton>
@@ -127,7 +136,13 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       }
     >
       {props.variant === "initial-backup" ? (
-        <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 16 }}>
+        <Typography
+          align="center"
+          className={classes.noPrint}
+          component="p"
+          variant="h6"
+          style={{ marginTop: -8, marginBottom: 16 }}
+        >
           {t("account-settings.export-key.info.secret-key")}
         </Typography>
       ) : null}
