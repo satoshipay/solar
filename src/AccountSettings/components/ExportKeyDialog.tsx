@@ -212,7 +212,9 @@ function ExportKeyDialog(props: Props) {
 
   const onPrint = React.useCallback(() => {
     if (secretKey) {
-      print()
+      // Add left-margin on ios to fix content content not being centered
+      const options = process.env.PLATFORM === "ios" ? { margin: { left: "2in" } } : {}
+      print(options)
     }
   }, [secretKey])
 

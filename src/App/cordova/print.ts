@@ -1,26 +1,12 @@
 import { expose } from "./ipc"
 import { Messages } from "~shared/ipc"
 
-function print(content?: string) {
+function print(content?: string, options?: object) {
   return new Promise<void>((resolve, reject) => {
-    cordova.plugins.printer.print(
-      content,
-      {
-        monochrome: true,
-        paper: {
-          width: "210mm",
-          height: "297mm"
-        },
-        maxHeight: {
-          width: "210mm",
-          height: "297mm"
-        }
-      },
-      resolve
-    )
+    cordova.plugins.printer.print(content, options, resolve)
   })
 }
 
 export default function initializePrinter() {
-  expose(Messages.Print, () => print())
+  expose(Messages.Print, (storage, keystore, content, options) => print(content, options))
 }
