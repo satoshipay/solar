@@ -83,7 +83,12 @@ function PromptToReveal(props: PromptToRevealProps) {
 }
 
 const useSecretKeyStyles = makeStyles(() => ({
-  hiddenAccountName: {
+  noPrint: {
+    "@media print": {
+      display: "none"
+    }
+  },
+  onlyPrint: {
     display: "none",
 
     "@media print": {
@@ -110,7 +115,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       background={<LockFilledIcon style={{ fontSize: 220 }} />}
       noMaxWidth
       preventNotchSpacing
-      top={props.title}
+      top={<span className={classes.noPrint}>{props.title}</span>}
       actions={
         props.onConfirm ? (
           <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
@@ -126,7 +131,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
           {t("account-settings.export-key.info.secret-key")}
         </Typography>
       ) : null}
-      <Typography align="center" className={classes.hiddenAccountName} variant="h4">
+      <Typography align="center" className={classes.onlyPrint} variant="h4">
         {props.accountName ? `"${props.accountName}"` : undefined}
       </Typography>
       <Box padding={"32px 0 0"}>
@@ -190,9 +195,15 @@ function ExportKeyDialog(props: Props) {
     []
   )
 
+  const onPrint = React.useCallback(() => {
+    if (secretKey) {
+      print()
+    }
+  }, [secretKey])
+
   const actions = React.useMemo(() => {
     return isRevealed ? (
-      <Button className={classes.noPrint} color="primary" onClick={print} variant="contained">
+      <Button className={classes.noPrint} color="primary" onClick={onPrint} variant="contained">
         <ButtonIconLabel label={t("account-settings.export-key.action.print")}>
           <PrintIcon />
         </ButtonIconLabel>
@@ -200,7 +211,7 @@ function ExportKeyDialog(props: Props) {
     ) : (
       undefined
     )
-  }, [classes, isRevealed, t])
+  }, [classes, isRevealed, onPrint, t])
 
   const titleContent = React.useMemo(
     () =>
