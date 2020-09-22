@@ -35,7 +35,7 @@ function PromptToReveal(props: PromptToRevealProps) {
     <DialogBody
       background={<WarnIcon style={{ fontSize: 220 }} />}
       noMaxWidth
-      preventNotch
+      preventNotchSpacing
       top={props.title}
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
@@ -91,7 +91,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
     <DialogBody
       background={<LockFilledIcon style={{ fontSize: 220 }} />}
       noMaxWidth
-      preventNotch
+      preventNotchSpacing
       top={props.title}
       actions={
         props.onConfirm ? (

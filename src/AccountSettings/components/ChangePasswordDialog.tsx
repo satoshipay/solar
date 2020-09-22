@@ -182,7 +182,7 @@ function ChangePasswordDialog(props: Props) {
   return (
     <DialogBody
       noMaxWidth
-      preventNotch
+      preventNotchSpacing
       top={
         <MainTitle
           hideBackButton
