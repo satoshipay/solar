@@ -8,5 +8,5 @@ function print(content?: string, options?: object) {
 }
 
 export default function initializePrinter() {
-  expose(Messages.Print, (storage, keystore, content, options) => print(content, options))
+  expose(Messages.Print, (storage, keystore, options, content) => print(content, options))
 }

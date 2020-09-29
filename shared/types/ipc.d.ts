@@ -63,7 +63,7 @@ declare namespace IPC {
 
     [Messages.OpenLink]: (href: string) => void
 
-    [Messages.Print]: (content: string | undefined, options: object | undefined) => void
+    [Messages.Print]: (options: object | undefined, content: string | undefined) => void
 
     [Messages.DeepLinkURL]: () => string
 

@@ -31,7 +31,7 @@ const printOptions =
         orientation: "landscape",
         pageCount: 1
       }
-    : {}
+    : { landscape: true }
 
 interface PromptToRevealProps {
   children: React.ReactNode
