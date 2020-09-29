@@ -24,6 +24,15 @@ import { Box } from "~Layout/components/Box"
 import DialogBody from "~Layout/components/DialogBody"
 import { print } from "~Platform/print"
 
+const printOptions =
+  process.env.PLATFORM === "ios" || process.env.PLATFORM === "android"
+    ? {
+        name: "Solar Wallet Paper Backup",
+        orientation: "landscape",
+        pageCount: 1
+      }
+    : {}
+
 interface PromptToRevealProps {
   children: React.ReactNode
   password: string
@@ -84,44 +93,103 @@ function PromptToReveal(props: PromptToRevealProps) {
   )
 }
 
+const useBackupPrintStyles = makeStyles(() => ({
+  icon: {
+    color: "black",
+    width: 80,
+    height: 80
+  },
+  keyTypography: {
+    paddingTop: 16,
+    wordBreak: "break-word",
+    maxWidth: "300px"
+  },
+  accountName: {
+    paddingTop: 8,
+    marginBottom: 16
+  },
+  printContainer: {
+    paddingTop: 16,
+    paddingBottom: 16,
+    display: "none",
+
+    "@media print": {
+      display: "block",
+      borderStyle: "groove"
+    }
+  },
+  qrContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    textAlign: "center"
+  },
+  qrWrapper: {
+    padding: 32,
+    display: "flex",
+    flexDirection: "column"
+  },
+  qrCaption: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    writingMode: "vertical-lr"
+  }
+}))
+
+interface BackupPrintContainerProps {
+  accountName?: string
+  publicKey?: string
+  secretKey: string
+}
+
+function BackupPrintContainer(props: BackupPrintContainerProps) {
+  const classes = useBackupPrintStyles()
+
+  return (
+    <Box className={classes.printContainer}>
+      <Typography align="center" className={classes.accountName} variant="h3">
+        {props.accountName ? `${props.accountName}` : undefined}
+      </Typography>
+      <div className={classes.qrContainer}>
+        {props.publicKey && (
+          <div className={classes.qrWrapper}>
+            <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}>
+              <Typography className={classes.qrCaption} variant="h4">
+                Public Key
+              </Typography>
+              <QRCode value={props.publicKey} size={200} />
+            </div>
+            <Typography className={classes.keyTypography}>{props.publicKey}</Typography>
+          </div>
+        )}
+        <div style={{ alignSelf: "center" }}>
+          <SolarIcon className={classes.icon} />
+          <Typography>Solar Wallet</Typography>
+          <Typography>Paper Backup</Typography>
+        </div>
+        <div className={classes.qrWrapper}>
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+            <QRCode value={props.secretKey} size={200} />
+            <Typography className={classes.qrCaption} variant="h4">
+              Secret Key
+            </Typography>
+          </div>
+          <Typography className={classes.keyTypography}>{props.secretKey}</Typography>
+        </div>
+      </div>
+      <Typography align="center">
+        This is a backup of your account. <br /> Make sure to keep it in a safe place because anyone who has access to
+        it can access your account.
+      </Typography>
+    </Box>
+  )
+}
+
 const useSecretKeyStyles = makeStyles(() => ({
   noPrint: {
     "@media print": {
       display: "none"
     }
-  },
-  onlyPrint: {
-    display: "none",
-
-    "@media print": {
-      display: "block"
-    }
-  },
-  printContainer: {
-    paddingTop: 16,
-
-    "@media print": {
-      borderStyle: "groove"
-    }
-  },
-  qrContainer: {
-    padding: 32,
-    display: "block",
-
-    "@media print": {
-      display: "flex",
-      flexDirection: "column"
-    }
-  },
-  qrTitle: {
-    paddingLeft: 8,
-    paddingRight: 8,
-    writingMode: "vertical-lr"
-  },
-  qrTypography: {
-    paddingTop: 16,
-    wordBreak: "break-word",
-    maxWidth: "300px"
   }
 }))
 
@@ -136,7 +204,6 @@ interface ShowSecretKeyProps {
 
 function ShowSecretKey(props: ShowSecretKeyProps) {
   const classes = useSecretKeyStyles()
-  const isSmallScreen = useIsMobile()
   const { t } = useTranslation()
 
   return (
@@ -149,7 +216,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
         props.onConfirm ? (
           <DialogActionsBox className={classes.noPrint} desktopStyle={{ marginTop: 32 }} smallDialog>
             {props.variant === "initial-backup" ? (
-              <ActionButton onClick={() => print()} type="secondary">
+              <ActionButton onClick={() => print(printOptions)} type="secondary">
                 <ButtonIconLabel label={t("account-settings.export-key.action.print")}>
                   <PrintIcon />
                 </ButtonIconLabel>
@@ -178,38 +245,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       <Box className={classes.noPrint} padding="32px 0 0">
         <KeyExportBox export={props.secretKey} hideTapToCopy={props.variant === "initial-backup"} size={192} />
       </Box>
-      <Box className={classes.printContainer}>
-        <Typography align="center" className={classes.onlyPrint} variant="h3">
-          {props.accountName ? `${props.accountName}` : undefined}
-        </Typography>
-        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", textAlign: "center" }}>
-          {props.publicKey && (
-            <div className={classes.qrContainer}>
-              <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}>
-                <Typography className={classes.qrTitle} variant="h4">
-                  Public Key
-                </Typography>
-                <QRCode value={props.publicKey} size={isSmallScreen ? 200 : 200} />
-              </div>
-              <Typography className={classes.qrTypography}>{props.publicKey}</Typography>
-            </div>
-          )}
-          <div style={{ paddingTop: 60 }}>
-            <SolarIcon style={{ color: "black", width: 80, height: 80 }} />
-            <Typography>Solar Wallet</Typography>
-            <Typography>Paper Backup</Typography>
-          </div>
-          <div className={classes.qrContainer}>
-            <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
-              <QRCode value={props.secretKey} size={isSmallScreen ? 200 : 200} />
-              <Typography className={classes.qrTitle} variant="h4">
-                Secret Key
-              </Typography>
-            </div>
-            <Typography className={classes.qrTypography}>{props.secretKey}</Typography>
-          </div>
-        </div>
-      </Box>
+      <BackupPrintContainer accountName={props.accountName} publicKey={props.publicKey} secretKey={props.secretKey} />
     </DialogBody>
   )
 }
@@ -270,17 +306,7 @@ function ExportKeyDialog(props: Props) {
 
   const onPrint = React.useCallback(() => {
     if (secretKey) {
-      // Add left-margin on ios to fix content content not being centered
-      const options =
-        process.env.PLATFORM === "ios"
-          ? {
-              margin: { left: "2in" },
-              pageCount: 1,
-              name: "Paper Wallet Backup",
-              orientation: "landscape"
-            }
-          : {}
-      print(options)
+      print(printOptions)
     }
   }, [secretKey])
 
