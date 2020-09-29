@@ -1,5 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import QRCode from "qrcode.react"
 import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Typography from "@material-ui/core/Typography"
@@ -12,6 +13,7 @@ import WarnIcon from "@material-ui/icons/Warning"
 import KeyExportBox from "~Account/components/KeyExportBox"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
+import SolarIcon from "~Icons/components/Solar"
 import ButtonIconLabel from "~Generic/components/ButtonIconLabel"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import MainTitle from "~Generic/components/MainTitle"
@@ -94,21 +96,48 @@ const useSecretKeyStyles = makeStyles(() => ({
     "@media print": {
       display: "block"
     }
+  },
+  printContainer: {
+    paddingTop: 16,
+
+    "@media print": {
+      borderStyle: "groove"
+    }
+  },
+  qrContainer: {
+    padding: 32,
+    display: "block",
+
+    "@media print": {
+      display: "flex",
+      flexDirection: "column"
+    }
+  },
+  qrTitle: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    writingMode: "vertical-lr"
+  },
+  qrTypography: {
+    paddingTop: 16,
+    wordBreak: "break-word",
+    maxWidth: "300px"
   }
 }))
 
 interface ShowSecretKeyProps {
   accountName?: string
-  export: string
+  publicKey?: string
+  secretKey: string
   onConfirm?: () => void
   title: React.ReactNode
   variant: Props["variant"]
 }
 
 function ShowSecretKey(props: ShowSecretKeyProps) {
-  const { t } = useTranslation()
-
   const classes = useSecretKeyStyles()
+  const isSmallScreen = useIsMobile()
+  const { t } = useTranslation()
 
   return (
     <DialogBody
@@ -146,11 +175,40 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
           {t("account-settings.export-key.info.secret-key")}
         </Typography>
       ) : null}
-      <Typography align="center" className={classes.onlyPrint} variant="h4">
-        {props.accountName ? `"${props.accountName}"` : undefined}
-      </Typography>
-      <Box padding={"32px 0 0"}>
-        <KeyExportBox export={props.export} hideTapToCopy={props.variant === "initial-backup"} size={192} />
+      <Box className={classes.noPrint} padding="32px 0 0">
+        <KeyExportBox export={props.secretKey} hideTapToCopy={props.variant === "initial-backup"} size={192} />
+      </Box>
+      <Box className={classes.printContainer}>
+        <Typography align="center" className={classes.onlyPrint} variant="h3">
+          {props.accountName ? `${props.accountName}` : undefined}
+        </Typography>
+        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", textAlign: "center" }}>
+          {props.publicKey && (
+            <div className={classes.qrContainer}>
+              <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}>
+                <Typography className={classes.qrTitle} variant="h4">
+                  Public Key
+                </Typography>
+                <QRCode value={props.publicKey} size={isSmallScreen ? 200 : 200} />
+              </div>
+              <Typography className={classes.qrTypography}>{props.publicKey}</Typography>
+            </div>
+          )}
+          <div style={{ paddingTop: 60 }}>
+            <SolarIcon style={{ color: "black", width: 80, height: 80 }} />
+            <Typography>Solar Wallet</Typography>
+            <Typography>Paper Backup</Typography>
+          </div>
+          <div className={classes.qrContainer}>
+            <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+              <QRCode value={props.secretKey} size={isSmallScreen ? 200 : 200} />
+              <Typography className={classes.qrTitle} variant="h4">
+                Secret Key
+              </Typography>
+            </div>
+            <Typography className={classes.qrTypography}>{props.secretKey}</Typography>
+          </div>
+        </div>
       </Box>
     </DialogBody>
   )
@@ -213,7 +271,15 @@ function ExportKeyDialog(props: Props) {
   const onPrint = React.useCallback(() => {
     if (secretKey) {
       // Add left-margin on ios to fix content content not being centered
-      const options = process.env.PLATFORM === "ios" ? { margin: { left: "2in" } } : {}
+      const options =
+        process.env.PLATFORM === "ios"
+          ? {
+              margin: { left: "2in" },
+              pageCount: 1,
+              name: "Paper Wallet Backup",
+              orientation: "landscape"
+            }
+          : {}
       print(options)
     }
   }, [secretKey])
@@ -278,7 +344,8 @@ function ExportKeyDialog(props: Props) {
   return isRevealed && secretKey ? (
     <ShowSecretKey
       accountName={props.account?.name}
-      export={secretKey}
+      secretKey={secretKey}
+      publicKey={props.account?.publicKey}
       onConfirm={props.onConfirm}
       title={titleContent}
       variant={props.variant}
