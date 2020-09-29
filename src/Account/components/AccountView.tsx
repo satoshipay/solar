@@ -98,6 +98,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const showBalanceDetails = matchesRoute(router.location.pathname, routes.balanceDetails("*"))
   const showCreatePayment = matchesRoute(router.location.pathname, routes.createPayment("*"))
   const showDeposit = matchesRoute(router.location.pathname, routes.depositAsset("*"))
+  const showExportSecretKey = matchesRoute(router.location.pathname, routes.exportSecretKey("*"), false)
   const showLumenPurchase = matchesRoute(router.location.pathname, routes.purchaseLumens("*"))
   const showReceivePayment = matchesRoute(router.location.pathname, routes.receivePayment("*"))
   const showWithdrawal = matchesRoute(router.location.pathname, routes.withdrawAsset("*"))
@@ -115,15 +116,16 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     testnet: props.testnet
   })
 
-  const headerHeight = showAccountCreation
-    ? isSmallScreen
-      ? 128
-      : 120
-    : isSmallScreen
-    ? 188
-    : showSendReceiveButtons
-    ? 272
-    : 184
+  const headerHeight =
+    showAccountCreation || showExportSecretKey
+      ? isSmallScreen
+        ? 128
+        : 120
+      : isSmallScreen
+      ? 188
+      : showSendReceiveButtons
+      ? 272
+      : 184
 
   const navigateTo = React.useMemo(() => {
     const accountID = props.account?.id
