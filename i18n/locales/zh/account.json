@@ -1,0 +1,218 @@
+{
+  "add-asset": {
+    "button": {
+      "add-custom-asset": {
+        "label": "添加自定义资产"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "一个相符的资产",
+          "more-than-one-asset": "{{amount}} 個相符的资产"
+        }
+      },
+      "no-result": {
+        "primary": "没有相符的资产",
+        "secondary": "未找到相符的资产或发行者"
+      }
+    },
+    "search-field": {
+      "placeholder": "以代码或名稱搜索资产…"
+    },
+    "title": "添加资产"
+  },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "说明",
+        "text": "这是恒星区块链的原生资产。\n\n 每个账户都持有它，用于支付网络费用。"
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "须发行者授权",
+        "auth-not-required": "无需授权",
+        "auth-revocable": "可撤销授权",
+        "auth-not-revocable": "不可撤销授权",
+        "auth-immutable": "发行者不可以更改授权設定",
+        "auth-mutable": "发行者可更改授权設定",
+        "label": "发行者授权設定"
+      },
+      "anchor-asset": {
+        "label": "锚点"
+      },
+      "conditions": {
+        "label": "状态"
+      },
+      "description": {
+        "label": "说明"
+      },
+      "issuing-account": {
+        "label": "发行者账户"
+      },
+      "organisation": {
+        "address": {
+          "label": "地址"
+        },
+        "dba": {
+          "label": "业务"
+        },
+        "description": {
+          "label": "说明"
+        },
+        "email": {
+          "label": "电邮地址"
+        },
+        "name": {
+          "label": "机构名稱"
+        },
+        "phone-number": {
+          "label": "电话號碼"
+        },
+        "website": {
+          "label": "网址"
+        }
+      },
+      "redemption-instructions": {
+        "label": "取款说明"
+      }
+    }
+  },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "添加资产到您的账户"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "可用余额"
+      }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "基本储备",
+        "secondary": "固定基本储备"
+      },
+      "data-reserve": {
+        "primary": "数据字段储备",
+        "secondary": "帐户数据字段"
+      },
+      "headline": "XLM 数量",
+      "open-orders-reserve": {
+        "primary": "未结订单储备",
+        "secondary": "未结SDEX订单所需储备"
+      },
+      "selling-liabilities": {
+        "primary": "未结订单总和",
+        "secondary": "未结订单所需余额总和"
+      },
+      "signers-reserve": {
+        "primary": "用户签名储备",
+        "secondary": {
+          "single-key": "單钥储备",
+          "multiple-keys": "主钥 + 签名者"
+        }
+      },
+      "spendable-balance": {
+        "primary": "可用余额",
+        "secondary": "可自由使用余额"
+      },
+      "total-balance": {
+        "primary": "总余额",
+        "secondary": "您的余额，當中包括不可消费的余额"
+      },
+      "trustline-reserve": {
+        "primary": "授信储备",
+        "secondary": "用於每个非XLM的余额"
+      }
+    }
+  },
+  "context-menu": {
+    "account-settings": {
+      "label": "帐户设定"
+    },
+    "assets-and-balances": {
+      "label": "资产和结余"
+    },
+    "deposit": {
+      "label": "存储"
+    },
+    "trade": {
+      "label": "交易"
+    },
+    "transactions": {
+      "label": "交易记录"
+    },
+    "withdraw": {
+      "label": "取款"
+    }
+  },
+  "remove-trustline": {
+    "action": {
+      "cancel": "取消",
+      "remove": "移除"
+    },
+    "text": {
+      "warning": "移除资产前，该资产值必须为零。",
+      "info": "你将要从帐户 \"{{accountName}}\" 移除资产 <1>{{asset}}</1>"
+    },
+    "title": "确定移除资产"
+  },
+  "transaction-list": {
+    "load-more": {
+      "label": "Load more"
+    },
+    "title": "显示更多"
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "确认",
+      "dismiss": "驳回",
+      "inspect": "查看",
+      "show-more": "显示更多资料"
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "账户"
+        },
+        "authenticating-account": {
+          "label": "认证账户"
+        },
+        "expiry": {
+          "label": "到期时间"
+        },
+        "max-fee": {
+          "label": "最大费用"
+        },
+        "service": {
+          "label": "服务"
+        },
+        "submission": {
+          "label": "提交时间"
+        },
+        "tx-hash": {
+          "label": "交易序号"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "密码"
+      }
+    },
+    "title": {
+      "transaction": "交易",
+      "payment": "支付",
+      "delete-orders-operation": "删除交易单",
+      "web-auth": "网络验证"
+    },
+    "validation": {
+      "no-account-data": "错误: 未能找到相关账户数据。",
+      "no-manage-data-operation": "错误：恒星网络验证必须包含一个manage_data操作。",
+      "password-required": "需要密码"
+    }
+  }
+}
