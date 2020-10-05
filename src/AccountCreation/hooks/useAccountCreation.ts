@@ -79,7 +79,7 @@ function useAccountCreation(options: UseAccountCreationOptions) {
     repeatedPassword: "",
     requiresPassword: true,
     testnet: options.testnet,
-    useMnemonic: true
+    useMnemonic: false
   }))
 
   const createNewAccount = async (accountCreation: AccountCreation) => {
