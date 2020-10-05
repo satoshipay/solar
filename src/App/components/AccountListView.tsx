@@ -4,6 +4,7 @@ import Button from "@material-ui/core/Button"
 import IconButton from "@material-ui/core/IconButton"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import SettingsIcon from "@material-ui/icons/Settings"
+import SwapIcon from "@material-ui/icons/SwapHoriz"
 import Tooltip from "@material-ui/core/Tooltip"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import UpdateIcon from "@material-ui/icons/SystemUpdateAlt"
@@ -83,7 +84,13 @@ function AllAccountsPage() {
   )
 
   const networkSwitchButton = (
-    <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
+    <Button
+      color="inherit"
+      variant="outlined"
+      onClick={toggleNetwork}
+      startIcon={isSmallScreen ? <SwapIcon /> : undefined}
+      style={{ borderColor: "white", borderRadius: "40px" }}
+    >
       {networkSwitch === "testnet" ? switchToMainnetLabel : switchToTestnetLabel}
     </Button>
   )
