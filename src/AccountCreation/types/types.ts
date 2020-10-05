@@ -1,5 +1,6 @@
 export interface AccountCreation {
   import: boolean
+  mnemonic?: string
   multisig: boolean
   name: string
   password: string
@@ -7,6 +8,7 @@ export interface AccountCreation {
   requiresPassword: boolean
   secretKey?: string
   testnet: boolean
+  useMnemonic: boolean
 }
 
 export interface AccountCreationErrors {
