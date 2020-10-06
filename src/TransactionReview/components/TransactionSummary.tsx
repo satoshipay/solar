@@ -15,7 +15,7 @@ import { SignatureRequest } from "~Generic/lib/multisig-service"
 import { getAllSources } from "~Generic/lib/stellar"
 import { isPotentiallyDangerousTransaction, isStellarWebAuthTransaction } from "~Generic/lib/transaction"
 import { SingleBalance } from "~Account/components/AccountBalances"
-import { AccountName } from "~Generic/components/AccountName"
+import Address from "~Generic/components/Address"
 import { VerticalLayout } from "~Layout/components/Box"
 import { ShowMoreItem, SummaryDetailsField, SummaryItem } from "./SummaryItem"
 import OperationListItem from "./Operations"
@@ -134,7 +134,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
               <SummaryDetailsField
                 fullWidth
                 label={t("account.transaction-review.summary.item.account.label")}
-                value={<AccountName address={props.transaction.source} copy testnet={props.testnet} />}
+                value={<Address address={props.transaction.source} copy testnet={props.testnet} />}
               />
             </SummaryItem>
           ) : null}
@@ -143,7 +143,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
               <SummaryDetailsField
                 fullWidth
                 label={t("account.transaction-review.summary.item.tx-hash.label")}
-                value={<AccountName address={transactionHash} copy testnet={props.testnet} variant="shorter" />}
+                value={<Address address={transactionHash} copy testnet={props.testnet} variant="shorter" />}
               />
             </SummaryItem>
           ) : null}
@@ -190,11 +190,11 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
       <SummaryItem>
         <SummaryDetailsField
           label={t("account.transaction-review.summary.item.service.label")}
-          value={domain ? domain : <AccountName address={props.transaction.source} testnet={props.testnet} />}
+          value={domain ? domain : <Address address={props.transaction.source} testnet={props.testnet} />}
         />
         <SummaryDetailsField
           label={t("account.transaction-review.summary.item.authenticating-account.label")}
-          value={<AccountName address={manageDataOperation.source || ""} copy testnet={props.testnet} />}
+          value={<Address address={manageDataOperation.source || ""} copy testnet={props.testnet} />}
         />
       </SummaryItem>
       {maxTime ? (

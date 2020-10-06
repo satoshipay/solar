@@ -18,7 +18,7 @@ import { assetRecordToAsset, stringifyAsset } from "~Generic/lib/stellar"
 import { createTransaction } from "~Generic/lib/transaction"
 import { CompactDialogTransition } from "~App/theme"
 import DialogBody from "~Layout/components/DialogBody"
-import { AccountName } from "~Generic/components/AccountName"
+import Address from "~Generic/components/Address"
 import { SearchField } from "~Generic/components/FormFields"
 import { VerticalLayout } from "~Layout/components/Box"
 import { FixedSizeList } from "~Generic/components/VirtualList"
@@ -147,11 +147,7 @@ function createSearchResultRow(
             <ListItem key={item.issuer} className={classes.issuerItem}>
               <ListItemText
                 primary={
-                  item.issuer === "native" ? (
-                    "stellar.org"
-                  ) : (
-                    <AccountName address={item.issuer} testnet={account.testnet} />
-                  )
+                  item.issuer === "native" ? "stellar.org" : <Address address={item.issuer} testnet={account.testnet} />
                 }
                 secondary={
                   assetsByIssuer[item.issuer].length === 1

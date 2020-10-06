@@ -12,7 +12,7 @@ import { trackError } from "~App/contexts/notifications"
 import { useFederationLookup } from "~Generic/hooks/stellar"
 import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
 import SpaciousList from "~Generic/components/SpaciousList"
-import { AccountName } from "~Generic/components/AccountName"
+import Address from "~Generic/components/Address"
 import NewSignerForm from "./NewSignerForm"
 
 interface SignerFormValues {
@@ -115,7 +115,7 @@ function SignersEditor(props: SignersEditorProps) {
             <PersonIcon style={{ fontSize: "2rem" }} />
           </ListItemIcon>
           <ListItemText
-            primary={<AccountName address={signer.key} testnet={props.testnet} variant="full" />}
+            primary={<Address address={signer.key} testnet={props.testnet} variant="full" />}
             secondary={
               <>
                 {props.showKeyWeights ? (

@@ -87,7 +87,7 @@ const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   )
 })
 
-interface AddressProps {
+interface BasicAddressProps {
   /** Account ID (public key) or stellar address (alice*example.com) */
   address: string
   variant?: Variant
@@ -96,7 +96,7 @@ interface AddressProps {
 }
 
 // tslint:disable-next-line no-shadowed-variable
-const Address = React.memo(function Address(props: AddressProps) {
+const BasicAddress = React.memo(function BasicAddress(props: BasicAddressProps) {
   const { lookupStellarAddress } = useFederationLookup()
 
   const style: React.CSSProperties = {
@@ -139,7 +139,7 @@ const Address = React.memo(function Address(props: AddressProps) {
   }
 })
 
-interface ClickableAddressProps extends AddressProps {
+interface ClickableAddressProps extends BasicAddressProps {
   icon?: React.ReactNode
   onClick?: () => void
 }
@@ -148,7 +148,7 @@ interface ClickableAddressProps extends AddressProps {
 const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAddressProps) {
   return (
     <ButtonBase onClick={props.onClick} style={{ fontSize: "inherit", fontWeight: "inherit", textAlign: "inherit" }}>
-      <Address {...props} />
+      <BasicAddress {...props} />
       {props.icon ? (
         <>
           &nbsp;
@@ -159,7 +159,7 @@ const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAd
   )
 })
 
-interface CopyableAddressProps extends AddressProps {
+interface CopyableAddressProps extends BasicAddressProps {
   onClick?: () => void
 }
 
@@ -178,7 +178,7 @@ const CopyableAddress = React.memo(function CopyableAddress(props: CopyableAddre
   return <ClickableAddress {...props} onClick={handleClick} />
 })
 
-interface AccountNameProps {
+interface AddressProps {
   address: string
   copy?: boolean
   icon?: React.ReactNode
@@ -188,7 +188,7 @@ interface AccountNameProps {
   variant?: Variant
 }
 
-export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
+const Address = React.memo(function Address(props: AddressProps) {
   const { address, copy, icon, onClick, style, testnet, variant = "short" } = props
 
   const accountID = isPublicKey(address) ? address : undefined
@@ -206,6 +206,8 @@ export const AccountName = React.memo(function AccountName(props: AccountNamePro
   } else if (homeDomain) {
     return <span style={{ userSelect: "text", ...style }}>{homeDomain}</span>
   } else {
-    return <Address address={address} style={style} testnet={testnet} variant={variant} />
+    return <BasicAddress address={address} style={style} testnet={testnet} variant={variant} />
   }
 })
+
+export default Address

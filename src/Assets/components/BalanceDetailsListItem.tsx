@@ -10,7 +10,7 @@ import { useAssetMetadata } from "~Generic/hooks/stellar"
 import { balancelineToAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
 import { SingleBalance } from "~Account/components/AccountBalances"
-import { AccountName } from "~Generic/components/AccountName"
+import Address from "~Generic/components/Address"
 import AssetLogo from "./AssetLogo"
 
 export const actionsSize = 36
@@ -169,7 +169,7 @@ function BalanceListItem(props: BalanceListItemProps) {
           secondary: classes.mainListItemTextSecondaryTypography
         }}
         primary={title}
-        secondary={<AccountName address={props.balance.asset_issuer} testnet={props.testnet} />}
+        secondary={<Address address={props.balance.asset_issuer} testnet={props.testnet} />}
       />
       <ListItemText
         className={classes.balanceListItemText}
