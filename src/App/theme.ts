@@ -4,6 +4,7 @@ import Fade from "@material-ui/core/Fade"
 import ArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
 import amber from "@material-ui/core/colors/amber"
 import lightBlue from "@material-ui/core/colors/lightBlue"
+import grey from "@material-ui/core/colors/grey"
 import { SlideLeftTransition, SlideUpTransition } from "../Generic/components/Transitions"
 
 // TODO: The dark and light derivation of the brand color have not been design-reviewed!
@@ -276,6 +277,17 @@ const theme = createMuiTheme({
     MuiPaper: {
       rounded: {
         borderRadius: 8
+      }
+    },
+    MuiSwitch: {
+      colorSecondary: {
+        color: grey[50],
+        "&$checked": {
+          color: grey[50]
+        },
+        "&$checked + $track": {
+          backgroundColor: grey[50]
+        }
       }
     },
     MuiTab: {
