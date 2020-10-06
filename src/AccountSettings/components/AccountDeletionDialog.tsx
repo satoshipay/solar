@@ -92,7 +92,7 @@ interface AccountDeletionDialogProps {
   account: Account
   horizon: Server
   onClose: () => void
-  onDeleted: () => void
+  onDelete: () => void
   sendTransaction: (transaction: Transaction) => void
 }
 
@@ -100,7 +100,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const horizon = props.horizon
 
-  const { accounts, deleteAccount } = React.useContext(AccountsContext)
+  const { accounts } = React.useContext(AccountsContext)
   const [mergeAccountEnabled, setMergeAccountEnabled] = React.useState(false)
   const [confirmationPending, setConfirmationPending] = React.useState(false)
   const [selectedMergeAccount, setSelectedMergeAccount] = React.useState<Account | null>(null)
@@ -117,12 +117,6 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     setWarning(prev => (prev ? { ...prev, open: false } : undefined))
   }, [setWarning])
 
-  const onDelete = () => {
-    deleteAccount(props.account.id)
-    props.onClose()
-    props.onDeleted()
-  }
-
   const onMerge = async () => {
     if (selectedMergeAccount) {
       const transaction = await createTransaction(
@@ -136,7 +130,6 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       )
 
       await props.sendTransaction(transaction)
-      setTimeout(onDelete, 1000)
     }
   }
 
@@ -145,7 +138,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
     if (mergeAccountEnabled) {
       onMerge()
     } else {
-      onDelete()
+      props.onDelete()
     }
   }
 
@@ -275,9 +268,17 @@ interface AccountDeletionContainerProps {
 }
 
 function AccountDeletionContainer(props: AccountDeletionContainerProps) {
+  const { deleteAccount } = React.useContext(AccountsContext)
+
+  const onDelete = () => {
+    deleteAccount(props.account.id)
+    props.onClose()
+    props.onDeleted()
+  }
+
   return (
-    <TransactionSender account={props.account}>
-      {txContext => <AccountDeletionDialog {...props} {...txContext} />}
+    <TransactionSender account={props.account} onSubmissionCompleted={onDelete}>
+      {txContext => <AccountDeletionDialog {...props} {...txContext} onDelete={onDelete} />}
     </TransactionSender>
   )
 }

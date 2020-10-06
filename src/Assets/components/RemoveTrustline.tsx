@@ -84,12 +84,8 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
 })
 
 function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon" | "sendTransaction">) {
-  const closeAfterTimeout = () => {
-    // Close automatically a second after successful submission
-    setTimeout(() => props.onClose(), 1000)
-  }
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+    <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>
       {({ horizon, sendTransaction }) => (
         <RemoveTrustlineDialog
           {...props}
