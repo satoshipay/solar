@@ -15,7 +15,7 @@ import { breakpoints } from "~App/theme"
 import { StellarTomlCurrency } from "~shared/types/stellar-toml"
 import { SingleBalance } from "~Account/components/AccountBalances"
 import DialogBody from "~Layout/components/DialogBody"
-import { AccountName } from "~Generic/components/Fetchers"
+import { AccountName } from "~Generic/components/AccountName"
 import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 import { VerticalLayout } from "~Layout/components/Box"
 import MainTitle from "~Generic/components/MainTitle"
@@ -375,7 +375,7 @@ function AssetDetailsDialog(props: Props) {
             ) : asset.isNative() ? (
               "stellar.org"
             ) : (
-              <AccountName publicKey={asset.getIssuer()} testnet={props.account.testnet} />
+              <AccountName address={asset.getIssuer()} testnet={props.account.testnet} />
             )}
           </Typography>
           <AssetLogo asset={asset} className={classes.logo} testnet={props.account.testnet} />

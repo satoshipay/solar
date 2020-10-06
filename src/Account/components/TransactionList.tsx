@@ -24,7 +24,7 @@ import { getPaymentSummary, PaymentSummary } from "~Generic/lib/paymentSummary"
 import { breakpoints } from "~App/theme"
 import { ActionButton } from "~Generic/components/DialogActions"
 import { InlineErrorBoundary } from "~Generic/components/ErrorBoundaries"
-import { PublicKey } from "~Generic/components/PublicKey"
+import { AccountName } from "~Generic/components/AccountName"
 import { formatBalance } from "~Generic/lib/balances"
 import { matchesRoute } from "~Generic/lib/routes"
 import MemoMessage from "~Transaction/components/MemoMessage"
@@ -107,12 +107,12 @@ function RemotePublicKeys(props: { publicKeys: string[]; short?: boolean; testne
     return <>-</>
   } else if (props.publicKeys.length === 1) {
     return (
-      <PublicKey publicKey={props.publicKeys[0]} testnet={props.testnet} variant={props.short ? "short" : "full"} />
+      <AccountName address={props.publicKeys[0]} testnet={props.testnet} variant={props.short ? "short" : "full"} />
     )
   } else {
     return (
       <>
-        <PublicKey publicKey={props.publicKeys[0]} testnet={props.testnet} variant="short" />{" "}
+        <AccountName address={props.publicKeys[0]} testnet={props.testnet} />{" "}
         <i>
           + {props.publicKeys.length - 1} {t("account.transactions.transaction-list.item.remote-public-keys.more")}
         </i>
@@ -218,7 +218,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
             {props.alwaysShowSource ? (
               <span>
                 &nbsp;{t("account.transactions.transaction-list.item.from")}&nbsp;
-                <PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />{" "}
+                <AccountName address={props.accountPublicKey} testnet={testnet} />{" "}
               </span>
             ) : null}
           </span>
@@ -243,7 +243,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
             {props.alwaysShowSource ? (
               <>
                 {" "}
-                (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
+                (<AccountName address={props.accountPublicKey} testnet={testnet} />)
               </>
             ) : null}
           </span>
@@ -262,7 +262,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
             {props.alwaysShowSource ? (
               <>
                 {" "}
-                (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
+                (<AccountName address={props.accountPublicKey} testnet={testnet} />)
               </>
             ) : null}
           </span>
@@ -289,7 +289,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
               {props.alwaysShowSource ? (
                 <>
                   {" "}
-                  (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
+                  (<AccountName address={props.accountPublicKey} testnet={testnet} />)
                 </>
               ) : null}
             </span>
@@ -309,7 +309,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
               {props.alwaysShowSource ? (
                 <>
                   {" "}
-                  (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
+                  (<AccountName address={props.accountPublicKey} testnet={testnet} />)
                 </>
               ) : null}
             </span>
@@ -329,7 +329,7 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
               {props.alwaysShowSource ? (
                 <>
                   {" "}
-                  (<PublicKey publicKey={props.accountPublicKey} testnet={testnet} variant="short" />)
+                  (<AccountName address={props.accountPublicKey} testnet={testnet} />)
                 </>
               ) : null}
             </span>

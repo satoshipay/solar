@@ -13,7 +13,7 @@ import { Account } from "~App/contexts/accounts"
 import { AccountData } from "~Generic/lib/account"
 import { signatureMatchesPublicKey } from "~Generic/lib/stellar"
 import { warningColor } from "~App/theme"
-import { Address } from "~Generic/components/PublicKey"
+import { AccountName } from "~Generic/components/AccountName"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 
@@ -84,7 +84,7 @@ const Signer = React.memo(function Signer(props: {
     <div style={{ display: "flex", alignItems: "center", ...props.style }}>
       <SignerStatus hasSigned={props.hasSigned} style={{ fontSize: "100%", marginRight: 8 }} />
       <div style={{ whiteSpace: "nowrap" }}>
-        <Address
+        <AccountName
           address={props.signer.key}
           style={{ display: "inline-block", fontWeight: "normal", minWidth: 480 }}
           testnet={testnet}

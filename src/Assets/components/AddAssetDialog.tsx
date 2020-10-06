@@ -18,7 +18,7 @@ import { assetRecordToAsset, stringifyAsset } from "~Generic/lib/stellar"
 import { createTransaction } from "~Generic/lib/transaction"
 import { CompactDialogTransition } from "~App/theme"
 import DialogBody from "~Layout/components/DialogBody"
-import { AccountName } from "~Generic/components/Fetchers"
+import { AccountName } from "~Generic/components/AccountName"
 import { SearchField } from "~Generic/components/FormFields"
 import { VerticalLayout } from "~Layout/components/Box"
 import { FixedSizeList } from "~Generic/components/VirtualList"
@@ -150,7 +150,7 @@ function createSearchResultRow(
                   item.issuer === "native" ? (
                     "stellar.org"
                   ) : (
-                    <AccountName publicKey={item.issuer} testnet={account.testnet} />
+                    <AccountName address={item.issuer} testnet={account.testnet} />
                   )
                 }
                 secondary={
