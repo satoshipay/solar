@@ -79,6 +79,7 @@ interface RenderFunctionProps {
 
 interface Props {
   account: Account
+  completionCallbackDelay?: number
   forceClose?: boolean
   horizon: Server
   settings: SettingsContextType
@@ -175,7 +176,13 @@ class TransactionSender extends React.Component<Props, State> {
 
   submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
     let signedTx: Transaction
-    const { account, horizon, onSubmissionCompleted = () => undefined, onSubmissionFailure } = this.props
+    const {
+      account,
+      completionCallbackDelay = 1000,
+      horizon,
+      onSubmissionCompleted = () => undefined,
+      onSubmissionFailure
+    } = this.props
 
     try {
       signedTx = await signTransaction(transaction, this.props.account, formValues.password)
@@ -201,7 +208,10 @@ class TransactionSender extends React.Component<Props, State> {
       setTimeout(() => {
         this.clearSubmissionPromise()
       }, 1000)
-      onSubmissionCompleted(signedTx)
+
+      setTimeout(() => {
+        onSubmissionCompleted(signedTx)
+      }, completionCallbackDelay)
     } catch (error) {
       if (onSubmissionFailure) {
         onSubmissionFailure(error, transaction)
