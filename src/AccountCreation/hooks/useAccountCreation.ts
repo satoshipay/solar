@@ -65,6 +65,7 @@ function useAccountCreation(options: UseAccountCreationOptions) {
     password: "",
     repeatedPassword: "",
     requiresPassword: true,
+    weakPassword: true,
     testnet: options.testnet
   }))
 

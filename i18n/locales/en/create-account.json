@@ -19,9 +19,13 @@
     "mainnet": "My Account",
     "testnet": "My Testnet Account"
   },
-  "confirm": {
+  "confirm-no-password": {
     "text": "You are about to create an account without password protection. Anyone that has access to your device will have access to your account funds. <1 /> <3 /> Are you sure you want to continue without setting up a password?",
     "title": "Continue without password"
+  },
+  "confirm-weak-password": {
+    "text": "You are about to protect this account with a weak password. Anyone that has access to your device will have access to your account funds. <1 /> <3 /> Are you sure you want to continue without setting up a strong password?",
+    "title": "Continue without strong password"
   },
   "header": {
     "placeholder": {

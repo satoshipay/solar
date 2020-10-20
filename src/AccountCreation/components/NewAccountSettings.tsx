@@ -40,6 +40,13 @@ function NewAccountSettings(props: NewAccountSettingsProps) {
     [onUpdateAccountCreation]
   )
 
+  const updatePasswordStrength = React.useCallback(
+    (weakPassword: boolean) => {
+      onUpdateAccountCreation({ weakPassword })
+    },
+    [onUpdateAccountCreation]
+  )
+
   return (
     <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
       {props.accountCreation.import ? (
@@ -55,6 +62,7 @@ function NewAccountSettings(props: NewAccountSettingsProps) {
         onEnterPassword={updatePassword}
         onRepeatPassword={updateRepeatedPassword}
         onTogglePassword={togglePasswordProtection}
+        onPasswordStrengthChange={updatePasswordStrength}
         repeatedPassword={props.accountCreation.repeatedPassword}
         requiresPassword={props.accountCreation.requiresPassword}
       />

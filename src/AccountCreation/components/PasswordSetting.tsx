@@ -20,12 +20,22 @@ interface PasswordSettingProps {
   onEnterPassword: (password: string) => void
   onRepeatPassword: (password: string) => void
   onTogglePassword: () => void
+  onPasswordStrengthChange: (weak: boolean) => void
   repeatedPassword: string
   requiresPassword: boolean
 }
 
 function PasswordSetting(props: PasswordSettingProps) {
+  const { onPasswordStrengthChange } = props
   const { t } = useTranslation()
+
+  const onScoreChange = React.useCallback(
+    (score: number) => {
+      const weak = score < 3 ? true : false
+      onPasswordStrengthChange(weak)
+    },
+    [onPasswordStrengthChange]
+  )
 
   return (
     <>
@@ -51,7 +61,9 @@ function PasswordSetting(props: PasswordSettingProps) {
               error={Boolean(props.error)}
               fullWidth
               label={t("create-account.inputs.password.label")}
+              margin="normal"
               onChange={event => props.onEnterPassword(event.target.value)}
+              onScoreChange={onScoreChange}
               placeholder={t("create-account.inputs.password.placeholder")}
               value={props.password}
             />

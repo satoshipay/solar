@@ -50,7 +50,7 @@ const useProgressBarStyles = makeStyles({
     borderRadius: 4,
     display: "inline-block",
     width: "100%",
-    height: 3,
+    height: 4,
 
     "&:before": {
       position: "absolute",
@@ -145,19 +145,28 @@ const usePasswordStrengthTextFieldStyles = makeStyles({
 })
 
 interface PasswordStrengthTextFieldProps extends StandardTextFieldProps {
+  onScoreChange?: (score: ZXCVBNScore) => void
   value: string
 }
 
 function PasswordStrengthTextField(props: PasswordStrengthTextFieldProps) {
+  const { onScoreChange, value } = props
   const classes = usePasswordStrengthTextFieldStyles()
 
   const [focused, setFocused] = React.useState(false)
   const [passwordStrength, setPasswordStrength] = React.useState<ZXCVBNScore>(0)
 
   React.useEffect(() => {
-    const strengthResult = zxcvbn(props.value)
-    setPasswordStrength(strengthResult.score)
-  }, [props.value])
+    const strengthResult = zxcvbn(value)
+    const newStrength = strengthResult.score
+
+    if (passwordStrength !== newStrength) {
+      if (onScoreChange) {
+        onScoreChange(newStrength)
+      }
+      setPasswordStrength(newStrength)
+    }
+  }, [onScoreChange, value, passwordStrength])
 
   return (
     <>
