@@ -115,6 +115,7 @@ interface ActionButtonProps {
   loading?: boolean
   onClick?: (event: React.SyntheticEvent) => void
   style?: React.CSSProperties
+  testnet?: boolean
   variant?: ButtonProps["variant"]
   type?: "primary" | "secondary" | "submit"
 }
@@ -128,7 +129,7 @@ export function ActionButton(props: ActionButtonProps) {
   return (
     <Button
       autoFocus={props.autoFocus}
-      color={type === "primary" || type === "submit" ? "primary" : undefined}
+      color={props.testnet ? "secondary" : type === "primary" || type === "submit" ? "primary" : undefined}
       className={`${classes.actionButton} ${props.className || ""}`}
       disabled={props.disabled}
       form={props.form}
