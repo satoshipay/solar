@@ -2,7 +2,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { Operation, Server, Transaction } from "stellar-sdk"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
-import Button from "@material-ui/core/Button"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
@@ -10,9 +9,10 @@ import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { createTransaction } from "~Generic/lib/transaction"
-import TransactionSender from "~Transaction/components/TransactionSender"
+import { ActionButton } from "~Generic/components/DialogActions"
 import ButtonIconLabel from "~Generic/components/ButtonIconLabel"
 import MainTitle from "~Generic/components/MainTitle"
+import TransactionSender from "~Transaction/components/TransactionSender"
 import ManageSignersDialogContent, { SignerUpdate } from "./ManageSignersDialogContent"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
@@ -92,7 +92,7 @@ function ManageSignersDialog(props: Props) {
         }
         actions={
           <>
-            <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
+            <ActionButton testnet={props.account.testnet} type="primary" onClick={() => setIsEditingNewSigner(true)}>
               <ButtonIconLabel
                 label={
                   isWidthMax450
@@ -102,14 +102,14 @@ function ManageSignersDialog(props: Props) {
               >
                 <PersonAddIcon />
               </ButtonIconLabel>
-            </Button>
+            </ActionButton>
           </>
         }
         onBack={props.onClose}
         style={{ marginBottom: 24 }}
       />
     ),
-    [isSmallScreen, t, isWidthMax450, props.onClose]
+    [isSmallScreen, t, isWidthMax450, props.account, props.onClose]
   )
 
   return (

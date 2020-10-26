@@ -24,6 +24,7 @@ function NoWithdrawableAssets(props: Props) {
         <DialogActionsBox>
           <ActionButton
             onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+            testnet={props.account.testnet}
             type="primary"
           >
             {t("transfer-service.no-withdrawable-assets.action.add-asset")}

@@ -129,7 +129,7 @@ export function ActionButton(props: ActionButtonProps) {
   return (
     <Button
       autoFocus={props.autoFocus}
-      color={props.testnet ? "secondary" : type === "primary" || type === "submit" ? "primary" : undefined}
+      color={type === "primary" || type === "submit" ? (props.testnet ? "secondary" : "primary") : undefined}
       className={`${classes.actionButton} ${props.className || ""}`}
       disabled={props.disabled}
       form={props.form}

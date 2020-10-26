@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import grey from "@material-ui/core/colors/grey"
+import { testnetColor } from "~App/theme"
 
 const TestnetBadge = (props: { style?: React.CSSProperties }) => {
   const { t } = useTranslation()
@@ -10,7 +10,7 @@ const TestnetBadge = (props: { style?: React.CSSProperties }) => {
     display: "inline-block",
     top: -4,
     padding: "0.1rem 0.3rem",
-    background: grey[500],
+    background: testnetColor.main,
     borderRadius: 3,
     color: "white",
     fontSize: "10px",

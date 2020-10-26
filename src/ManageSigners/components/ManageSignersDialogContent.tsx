@@ -199,7 +199,13 @@ function ManageSignersDialogContent(props: Props) {
       >
         <DialogActionsPortal>
           <DialogActionsBox desktopStyle={{ margin: 0 }}>
-            <ActionButton disabled={nothingEdited} icon={<CheckIcon />} onClick={submit} type="submit">
+            <ActionButton
+              disabled={nothingEdited}
+              icon={<CheckIcon />}
+              onClick={submit}
+              testnet={props.testnet}
+              type="submit"
+            >
               {isSmallScreen
                 ? t("account-settings.manage-signers.action.apply.short")
                 : t("account-settings.manage-signers.action.apply.long")}

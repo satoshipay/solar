@@ -173,6 +173,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
               icon={props.type === "deposit" ? null : <SendIcon />}
               loading={txPreparationState.type === "pending"}
               onClick={() => undefined}
+              testnet={account.testnet}
               type="submit"
             >
               {props.type === "deposit"
