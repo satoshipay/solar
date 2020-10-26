@@ -86,7 +86,12 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
 }
 
 async function createAccountInKeyStore(accounts: Account[], accountData: NewAccountData) {
-  if (accounts.some(someAccount => someAccount.name.toLowerCase() === accountData.name.toLowerCase())) {
+  if (
+    accounts.some(
+      someAccount =>
+        someAccount.name.toLowerCase() === accountData.name.toLowerCase() && someAccount.testnet === accountData.testnet
+    )
+  ) {
     throw CustomError("ExistingAccountError", "An account with that name does already exist.")
   }
 
