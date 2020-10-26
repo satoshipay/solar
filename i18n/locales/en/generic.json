@@ -69,6 +69,15 @@
       "timeout": "The server did not respond. Please try again."
     }
   },
+  "password-strength": {
+    "label": {
+      "0": "Very Weak",
+      "1": "Weak",
+      "2": "Fair",
+      "3": "Good",
+      "4": "Strong"
+    }
+  },
   "qr-reader": {
     "action": {
       "cancel": "Cancel"

@@ -4,6 +4,8 @@ import makeStyles from "@material-ui/styles/makeStyles"
 import PasswordField from "~Generic/components/PasswordField"
 import { StandardTextFieldProps } from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
+import { TFunction } from "i18next"
+import { useTranslation } from "react-i18next"
 
 function getColor(passwordStrength: number) {
   switch (passwordStrength) {
@@ -22,20 +24,20 @@ function getColor(passwordStrength: number) {
   }
 }
 
-function getLabel(passwordStrength: number) {
+function getLabel(passwordStrength: number, t: TFunction) {
   switch (passwordStrength) {
     case 0:
-      return "Very Weak"
+      return t("generic.password-strength.label.0")
     case 1:
-      return "Weak"
+      return t("generic.password-strength.label.1")
     case 2:
-      return "Fair"
+      return t("generic.password-strength.label.2")
     case 3:
-      return "Good"
+      return t("generic.password-strength.label.3")
     case 4:
-      return "Strong"
+      return t("generic.password-strength.label.4")
     default:
-      return "Weak"
+      return t("generic.password-strength.label.0")
   }
 }
 
@@ -109,11 +111,12 @@ interface PasswordStrengthLabelProps {
 
 function PasswordStrengthLabel(props: PasswordStrengthLabelProps) {
   const { className, passwordStrength, style, visible } = props
+  const { t } = useTranslation()
   const [label, setLabel] = React.useState("")
 
   React.useEffect(() => {
-    setLabel(getLabel(passwordStrength))
-  }, [passwordStrength])
+    setLabel(getLabel(passwordStrength, t))
+  }, [passwordStrength, t])
 
   return visible ? (
     <Typography align="center" className={className} style={style}>
