@@ -1,0 +1,83 @@
+{
+  "account-list": {
+    "add-account-card": {
+      "label": "Aggiungi account"
+    },
+    "badges": {
+      "tooltip": {
+        "multi-sig": "Account multi-firma",
+        "security-service": "{{service}} Protezione"
+      }
+    }
+  },
+  "all-accounts": {
+    "switch": {
+      "to-mainnet": {
+        "short": "Mainnet",
+        "long": "Passa a Mainnet"
+      },
+      "to-testnet": {
+        "short": "Testnet",
+        "long": "SwitchA To TEST"
+      }
+    },
+    "update": {
+      "notification": {
+        "start": "Avvio del download dell'aggiornamento ...",
+        "success": "Il download è pronto e verrà installato al prossimo riavvio!"
+      },
+      "tooltip": "Aggiornamento disponibile"
+    },
+    "title": {
+      "testnet": "Account Testnet",
+      "mainnet": "I miei account"
+    }
+  },
+  "notification": {
+    "desktop": {
+      "new-signature-request": {
+        "title": "Nuova transazione da co-firmare",
+        "body": "Da {{signersHavingSigned}}"
+      },
+      "received-payment": {
+        "title": "Pagamento ricevuto | {{account}}",
+        "body": "Ricevuto {{amount}} {{assetCode}}"
+      },
+      "trade-completed": {
+        "title": "Scambio completato | {{account}}"
+      }
+    },
+    "details": {
+      "action": {
+        "dismiss": "Respingere"
+      },
+      "support": "Hai un problema con l'app? &lt;1 /&gt; Contattaci tramite",
+      "title": "Errore",
+      "offline": "disconnesso"
+    },
+    "permission": {
+      "app-notification": {
+        "error": "Abilita nelle impostazioni del sistema operativo",
+        "granted": {
+          "title": "Notifiche abilitate",
+          "text": "Solar ora mostrerà le notifiche"
+        },
+        "message": "Abilita le notifiche dell'app"
+      }
+    }
+  },
+  "terms-and-conditions": {
+    "action": {
+      "confirm": "Confermare"
+    },
+    "header": "Benvenuto in Solar",
+    "checkbox": {
+      "1": {
+        "label": "Sono consapevole di essere responsabile della sicurezza dei miei fondi e che Solar non è in grado di recuperare i miei fondi in caso di perdita di dati o se perdo le mie credenziali."
+      },
+      "2": {
+        "label": "I have read, understood and agree to the <1>Terms and Conditions</1> <2>&amp;</2> <3>Privacy policy</3> of Solar."
+      }
+    }
+  }
+}

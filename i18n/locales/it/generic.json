@@ -1,0 +1,83 @@
+{
+  "dialog-actions": {
+    "close": {
+      "label": "Vicino"
+    }
+  },
+  "error": {
+    "asset-not-depositable-error": "La risorsa {{asset}} sembra non essere depositabile tramite {{domain}}",
+    "asset-not-withdrawable-error": "La risorsa {{asset}} sembra non essere ritirabile tramite {{domain}}",
+    "boundary": {
+      "header": "Oops, something went wrong...",
+      "contact-us": "Contattaci tramite"
+    },
+    "bad-response-error": "Risposta errata ({{status}}) dal server {{server}}",
+    "bad-transaction-error": "Cattiva transazione data. Era prevista una transazione o TransactionRecord",
+    "bio-auth-test-canceled": "Autenticazione biometrica annullata",
+    "expected-json-response-error": "Previsto che {{url}} restituisse una risposta JSON. Il tipo di contenuto era invece {{contentType}}.",
+    "existing-account-error": "Esiste già un account con quel nome.",
+    "fetch-account-data-error": "Impossibile recuperare i dati dell'account di {{account}} da {{horizon}}",
+    "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
+    "invariant-violation-error": "Invariant violation: {{message}}",
+    "low-reserve-order-error": "Impossibile effettuare l'ordine perché il saldo XLM spendibile è troppo basso.",
+    "memo-already-specified-error": "Impossibile impostare un promemoria personalizzato. Il record della federazione di {{destinazione}} specifica già il memo.",
+    "missing-info-error": "Cannot create transaction, because {{transferServer}} did not send all required information.",
+    "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
+    "no-callback-url-error": "Impossibile inviare di nuovo al servizio multi-firma. Per la richiesta di firma non è stato impostato alcun URL di richiamata.",
+    "non-existent-destination-error": "Cannot pay in {{assetCode}}, since the destination account does not exist yet. Account creations always need to be done via XLM.",
+    "only-interactive-kyc-supported-error": "Sono supportati solo KYC interattivi.",
+    "password-required-error": "Account {{accountName}} is password-protected, but no password was passed.",
+    "promise-timeout-error": "Promessa scaduta dopo {{timeout}} ms",
+    "request-failed-error": "Request to {{target}} failed with status {{status}}: {{message}}",
+    "stellar-address-not-found-error": "Stellar address not found: {{address}}",
+    "stellar-address-request-failed-error": "Risoluzione stellare dell'indirizzo di {{address}} non riuscita.",
+    "submission-failed-error": "Submitting transaction to {{endpoint}} failed with status {{status}}: {{message}}",
+    "testnet-endpoint-not-available-error": "{{service}} non fornisce un endpoint testnet.",
+    "unexpected-action-error": "Unexpected action: {{action}}",
+    "unexpected-state-error": "Encountered unexpected state: {{state}}",
+    "unexpected-response-type-error": "Unexpected response type: {{type}} / ${dataType}",
+    "unknown-error": "Si è verificato un errore sconosciuto.",
+    "update-already-running-error": "L'aggiornamento è già in esecuzione!",
+    "wrong-password-error": "Password errata.",
+    "wrong-request-start-error": "Expected request to start with 'web+stellar:'",
+    "submission-error": {
+      "default": "Transaction rejected by the network. Error code(s): {{codes}}",
+      "internal-server-error": "Il server ha avuto problemi a elaborare questa richiesta. Per favore riprova.",
+      "op-result-code": {
+        "op_cross_self": "L'ordine contrasterebbe un tuo ordine aperto.",
+        "op_has_sub_entries": "L'account ha ancora linee di fiducia (attività) o ordini di trading aperti.",
+        "op_immutable_set": "L'account non è modificabile (set di flag AUTH_IMMUTABLE).",
+        "op_line_full": "Il saldo dell'account di destinazione supererebbe la fiducia della destinazione nell'asset.",
+        "op_low_reserve": "Transazione rifiutata dalla rete. Il saldo del conto di origine o di destinazione sarebbe inferiore al saldo minimo.",
+        "op_no_account": "L'account di destinazione non esiste.",
+        "op_no_issuer": "La risorsa non è valida. Emittente di asset errato.",
+        "op_no_trust": "L'account di destinazione non considera attendibile la risorsa che stai tentando di inviare.",
+        "op_offer_not_found": "L'offerta non esiste.",
+        "op_self_not_allowed": "L'account non può fidarsi delle risorse emesse da solo.",
+        "op_underfunded": "Fondi insufficienti per eseguire questa operazione."
+      },
+      "tx-result-code": {
+        "insufficient_fee": "La rete richiede tariffe più elevate rispetto a quelle stabilite nella transazione.",
+        "internal_error": "Si è verificato un errore sconosciuto sul server Stellar.",
+        "no_account": "Account di origine non trovato.",
+        "tx_bad_auth": "Troppe poche firme valide o rete sbagliata.",
+        "tx_bad_auth_extra": "Firme inutilizzate allegate alla transazione.",
+        "tx_bad_seq": "Mancata corrispondenza del numero di sequenza. Ricrea la transazione.",
+        "tx_insufficient_balance": "Equilibrio insufficiente. Il saldo scenderebbe al di sotto della riserva minima.",
+        "tx_too_late": "La bozza della transazione è scaduta. Riprova."
+      },
+      "timeout": "Il server non ha risposto. Per favore riprova."
+    }
+  },
+  "qr-reader": {
+    "action": {
+      "cancel": "Annulla"
+    }
+  },
+  "testnet-badge": {
+    "label": "Testnet"
+  },
+  "user-interface": {
+    "copied-to-clipboard": "Copiato negli appunti."
+  }
+}

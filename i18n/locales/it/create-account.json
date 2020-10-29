@@ -1,0 +1,66 @@
+{
+  "action": {
+    "cancel": "Annulla",
+    "confirm": "Confermare",
+    "create": "Creare un profilo",
+    "import": "Importa account"
+  },
+  "action-selection": {
+    "create": {
+      "description": "Crea un nuovo account vuoto",
+      "label": "Creare un profilo"
+    },
+    "import": {
+      "description": "Ripristina l'account dal backup",
+      "label": "Importa account"
+    }
+  },
+  "base-name": {
+    "mainnet": "Il mio account",
+    "testnet": "Il mio account Testnet"
+  },
+  "confirm": {
+    "text": "Stai per creare un account senza protezione tramite password. Chiunque abbia accesso al tuo dispositivo avrà accesso ai fondi del tuo account. &lt;1 /&gt; &lt;3 /&gt; Sei sicuro di voler continuare senza impostare una password?",
+    "title": "Continua senza password"
+  },
+  "header": {
+    "placeholder": {
+      "mainnet": "Nuovo account",
+      "testnet": "Nuovo account Testnet"
+    }
+  },
+  "inputs": {
+    "import": {
+      "helper-text": "Una chiave segreta Stellar è lunga 56 caratteri alfanumerici e inizia con una S.",
+      "placeholder": "SABCDEFGH ...",
+      "label": "Chiave segreta",
+      "title": "Importa esistente"
+    },
+    "password": {
+      "label": "Parola d'ordine",
+      "placeholder": "Inserisci una password"
+    },
+    "password-repeat": {
+      "label": "ripeti la password",
+      "placeholder": "Ripeti la tua password"
+    }
+  },
+  "options": {
+    "import": {
+      "label": "Importa chiave segreta",
+      "description": "Ripristina l'account dal backup"
+    },
+    "password": {
+      "label": "Protezione della password",
+      "protected": "La tua chiave segreta verrà crittografata",
+      "unprotected": "La tua chiave segreta non sarà protetta"
+    }
+  },
+  "validation": {
+    "invalid-key": "Chiave privata stellare non valida.",
+    "no-account-name": "Non è stato inserito alcun nome account.",
+    "no-password": "Non è stata inserita alcuna password.",
+    "password-no-match": "La password non corrisponde.",
+    "same-account": "Già aggiunto questo account."
+  }
+}

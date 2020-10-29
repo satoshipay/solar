@@ -1,0 +1,248 @@
+{
+  "authentication": {
+    "sidebar": {
+      "headline": "Autenticazione",
+      "info": {
+        "1": "L'emittente della risorsa richiede che tu acceda al suo servizio utilizzando il tuo account.",
+        "2": "Verrà firmata una transazione di autenticazione per dimostrare la proprietà di tale account."
+      }
+    }
+  },
+  "deposit-success": {
+    "action": {
+      "close": "Vicino" 
+    }, 
+    "body": {
+      "deposit-pending": "Deposito in attesa",
+      "info": {
+        "1": "{{domain}} sta aspettando il tuo deposito.",
+        "2": "I fondi verranno accreditati sul tuo account Stellar quando il deposito viene accreditato all'emittente dell'asset."
+      }
+    },
+    "sidebar": {
+      "headline": "Fatto",
+      "info": "Il tuo deposito è stato accettato e verrà elaborato dall'emittente dell'asset quando il tuo pagamento arriverà."
+    }
+  },
+  "form-builder": {
+    "placeholder": {
+      "optional": "(Facoltativo) {{name}}"
+    }
+  },
+  "initial": {
+    "action": {
+      "proceed": "Procedere"
+    },
+    "body": {
+      "asset-selector": {
+        "label": {
+          "deposit": "Risorsa",
+          "short": "Risorsa",
+          "withdrawal": "Attività da ritirare"
+        },
+        "no-assets": "Nessun patrimonio prelevabile"
+      },
+      "method-selector": {
+        "info-item": {
+          "asset": "Seleziona un tipo",
+          "no-asset": "Seleziona prima una risorsa"
+        },
+        "label": {
+          "deposit": "Tipo di deposito",
+          "withdrawal": "Tipo di ritiro"
+        }
+      }
+    },
+    "sidebar": {
+      "deposit": {
+        "headline": "Finanzia il tuo account",
+        "info": {
+          "1": "Purchase Stellar lumens (XLM) or deposit assets to fund your account. Send USD from your bank account, ETH from your Ethereum wallet, etc.",
+          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente dell'asset."
+        }
+      },
+      "withdrawal": {
+        "headline": "Cosa ritirare",
+        "info": {
+          "1": "Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.",
+          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente dell'asset."
+        }
+      }
+    }
+  },
+  "kyc-denied": {
+    "sidebar": {
+      "headline": "Conosci il tuo cliente",
+      "info": "Sei stato rifiutato: il servizio è disabilitato per te. Si prega di contattare l'emittente dell'asset."
+    }
+  },
+  "kyc-pending": {
+    "action": {
+      "continue": "Continua",
+      "open-again": "Apri di nuovo"
+    },
+    "body": {
+      "additional-info-needed": "Sono necessarie ulteriori informazioni"
+    },
+    "sidebar": {
+      "headline": "Conosci il tuo cliente",
+      "info": {
+        "1": "Il servizio funzionerà solo se fornisci informazioni personali su di te.",
+        "2": "Questo di solito accade per motivi legali."
+      }
+    }
+  },
+  "no-withdrawable-assets": {
+    "action": {
+      "add-asset": "Aggiungi risorsa"
+    },
+    "body": {
+      "no-withdrawable-assets": "Questo conto non contiene beni prelevabili."
+    }
+  },
+  "purchase-lumens": {
+    "sidebar": {
+      "headline": "Acquista Stellar lumen",
+      "info": {
+        "1": "Offriamo opzioni per acquistare lumen che non coinvolgono un emittente di asset Stellar.",
+        "2": " Stellar lumens (XLM) are the native tokens on the Stellar network. They are used to pay transaction fees, among other things."
+      }
+    }
+  },
+  "title": {
+    "deposit": "Aggiungere fondi",
+    "withdrawal": "Preleva fondi"
+  },
+  "transaction-details": {
+    "action": {
+      "done": "Fatto",
+      "withdraw": "Ritira"
+    },
+    "body": {
+      "amount": {
+        "label": {
+          "deposit": "Ammontare da depositare",
+          "withdrawal": "Importo da prelevare"
+        }
+      },
+      "amount-to-receive": {
+        "label": "Importo da ricevere"
+      },
+      "deposit-instructions": {
+        "label": "Istruzioni di deposito"
+      },
+      "eta": {
+        "label": "ETA",
+        "not-available": "N / A"
+      },
+      "fees": {
+        "label": "Commissioni",
+        "value": {
+          "unknown": "sconosciuto"
+        }
+      },
+      "information": {
+        "label": "Informazione"
+      }
+    },
+    "sidebar": {
+      "deposit": {
+        "headline": "Riepilogo del deposito",
+        "info": {
+          "1": "Assicurati di inviare i fondi alla destinazione giusta.",
+          "2": "L'emittente dell'asset accrediterà i token una volta che il tuo deposito è stato accreditato."
+        }
+      },
+      "withdrawal": {
+        "headline": "Quasi fatto",
+        "info": {
+          "1": "Controllare il modulo e fornire un importo da prelevare se necessario.",
+          "2": "Il ritiro è quasi pronto."
+        }
+      }
+    }
+  },
+  "transaction-status": {
+    "error": {
+      "rejected": {
+        "deposit": "Deposito rifiutato",
+        "withdrawal": "Ritiro rifiutato"
+      },
+      "contact": "Contatta {{domain}}."
+    },
+    "incomplete": {
+      "already-redirected": {
+        "info": {
+          "1": "{{domain}} sta controllando le tue informazioni personali. Per favore riprova più tardi.",
+          "2": "Estimated time to completion: {{eta}}"
+        }
+      },
+      "not-redirected": {
+        "info": "{{domain}} richiede di fornire informazioni aggiuntive."
+      }
+    },
+    "more-info-url": {
+      "info": "For more information, visit"
+    },
+    "pending-user-transfer-start": {
+      "info": "{{domain}} richiede ulteriori informazioni da parte tua."
+    }
+  },
+  "withdrawal-success": {
+    "action": {
+      "close": "Vicino"
+    },
+    "body": {
+      "withdrawal-in-progress": "Ritiro in corso",
+      "info": {
+        "1": "{{domain}} sta conducendo il ritiro.",
+        "2": "I fondi sono stati detratti dal tuo account Stellar e dovrebbero essere accreditati a breve sulla destinazione del prelievo."
+      }
+    },
+    "sidebar": {
+      "headline": "Fatto",
+      "info": "Il tuo prelievo è stato accettato e verrà elaborato dall'emittente dell'asset."
+    }
+  },
+  "transfer-details": {
+    "action": {
+      "proceed": "Procedere"
+    },
+    "body": {
+      "destination": {
+        "name": "Account di destinazione"
+      },
+      "dest_extra": {
+        "name": "Dati di destinazione extra (nessuna descrizione)"
+      },
+      "min-max-amount": {
+        "label": "Quantità",
+        "max-amount": "Max. {{amount}} {{assetCode}}",
+        "min-amount": "Min. {{amount}} {{assetCode}}"
+      },
+      "fee": {
+        "helper-text": "Come addebitato da {{domain}}",
+        "label": {
+          "deposit": "Commissione di deposito",
+          "withdrawal": "Commissione di prelievo"
+        }
+      }
+    },
+    "sidebar": {
+      "deposit": {
+        "headline": "Dettagli del deposito",
+        "info": {
+          "1": "Ulteriori dettagli sul deposito previsto.",
+          "2": "A seconda di ciò che l'emittente dell'asset richiede, potresti dover inserire ulteriori informazioni qui."
+        }
+      },
+      "withdrawal": {
+        "headline": "Dettagli sul ritiro",
+        "info": {
+          "1": "Ulteriori dettagli sul deposito previsto.",
+          "2": "A seconda di ciò che l'emittente dell'asset richiede, potresti dover inserire ulteriori informazioni qui."
+        }
+      }
+    }
+  }
+}

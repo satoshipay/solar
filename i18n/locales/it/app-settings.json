@@ -1,0 +1,79 @@
+{
+  "settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": {
+          "default": "Blocco delle impronte digitali",
+          "ios": "Face ID / Touch ID"
+        },
+        "secondary": {
+          "disabled": "L'autenticazione biometrica è disabilitata",
+          "enabled": "L'autenticazione biometrica è abilitata",
+          "not-enrolled": "Configurare l'autenticazione biometrica nelle impostazioni del sistema operativo"
+        }
+      },
+      "prompt": {
+        "enable": "Sblocca il dispositivo una volta per abilitare la funzione.",
+        "disable": "Sblocca il dispositivo per disabilitare il blocco automatico."
+      }
+    },
+    "language": {
+      "auto-detect": {
+        "label": "auto"
+      },
+      "text": {
+        "primary": "linguaggio",
+        "secondary": "Cambia la lingua dell'interfaccia utente qui"
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "Mostra memo",
+        "secondary": {
+          "hidden": "I promemoria sono nascosti nella panoramica delle transazioni",
+          "shown": "I promemoria vengono visualizzati nella panoramica delle transazioni"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Abilita firma multipla",
+        "secondary": {
+          "enabled": "Le funzionalità multi-firma sono abilitate",
+          "disabled": "Le funzionalità multi-firma sono disabilitate"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "Mostra account Testnet",
+        "secondary": {
+          "cannot-disable": "Non può essere disabilitato perché hai già aggiunto account testnet",
+          "hidden": "Gli account Testnet sono nascosti",
+          "shown": "Vengono visualizzati gli account Testnet"
+        }
+      }
+    },
+    "title": "impostazioni",
+    "trusted-services": {
+      "text": {
+        "primary": "Gestisci servizi attendibili",
+        "secondary": "Rimuovi servizi attendibili"
+      }
+    }
+  },
+  "trusted-services": {
+    "info": "I servizi attendibili sono servizi Web che possono interagire con il portafoglio solare richiedendo i dati dell'account o proponendo transazioni. È possibile aggiungere un nuovo servizio una volta che tenta di interagire con Solar.",
+    "service-selection": {
+      "action": {
+        "cancel": "Annulla",
+        "confirm": "Confermare"
+      },
+      "confirm": {
+        "title": "Conferma la rimozione",
+        "text": "Il servizio verrà rimosso dal tuo elenco di fiducia. Sei sicuro?"
+      },
+      "no-services": "Nessun servizio affidabile"
+    }
+  }
+}

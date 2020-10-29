@@ -1,0 +1,334 @@
+{
+  "action": {
+    "receive": "RICEVI",
+    "send": "INVIA"
+  },
+  "add-asset": {
+    "action": {
+      "remove": "Rimuovi",
+      "trade": "Traffico"
+    },
+    "button": {
+      "add-custom-asset": {
+        "label": "Aggiungi Custom Asset"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "1 asset trovato",
+          "more-than-one-asset": "{{amount}} assets trovati"
+        }
+      },
+      "no-result": {
+        "primary": "Nessun asset trovato",
+        "secondary": "Nessun asset o emittente corrispondente alla tua ricerca"
+      }
+    },
+    "search-field": {
+      "placeholder": "Cerca assets tramite codice o nome…"
+    },
+    "title": "Aggiungi Asset"
+  },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "Descrizione",
+        "text": "Il token nativo della rete Stellar.\n\n Ogni account della rete ha un saldo di lumens. I Lumens sono usati per pagare le commissioni sulle transazioni."
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "Autorizzazione tramite emittente richiesta",
+        "auth-not-required": "Nessuna autorizzazione richiesta",
+        "auth-revocable": "Autorizzazione revocabile",
+        "auth-not-revocable": "Autorizzazione non revocabile",
+        "auth-immutable": "Queste impostazioni sono immutabili",
+        "auth-mutable": "L'emittente può cambiare queste impostazioni",
+        "label": "Impostazioni del conto"
+      },
+      "anchor-asset": {
+        "label": "Relativo a"
+      },
+      "conditions": {
+        "label": "Condizioni"
+      },
+      "description": {
+        "label": "Descrizione"
+      },
+      "issuing-account": {
+        "label": "Conto di emizzione"
+      },
+      "organisation": {
+        "address": {
+          "label": "Indirizzio"
+        },
+        "dba": {
+          "label": "Doing business as"
+        },
+        "description": {
+          "label": "Descrizione"
+        },
+        "email": {
+          "label": "indirizzo di posta elettronica"
+        },
+        "name": {
+          "label": "Nome dell'organizzazione"
+        },
+        "phone-number": {
+          "label": "Numero di telefono"
+        },
+        "website": {
+          "label": "Sito web"
+        }
+      },
+      "redemption-instructions": {
+        "label": "Istruzioni sul rimborso"
+      }
+    }
+  },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "Aggiungi Asset al tuo Conto"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "Equilibrio spendibile"
+      }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "Riserva di base",
+        "secondary": "Riserva di base fissa"
+      },
+      "data-reserve": {
+        "primary": "Riserva di campi dati",
+        "secondary": "Campi dati dell'account"
+      },
+      "headline": "Importi in XLM",
+      "open-orders-reserve": {
+        "primary": "Riserva ordini aperti",
+        "secondary": "Riserva per ordine"
+      },
+      "selling-liabilities": {
+        "primary": "Importo da vendere",
+        "secondary": "Impegnato ad aprire gli ordini"
+      },
+      "signers-reserve": {
+        "primary": "Riserva dei firmatari dell'account",
+        "secondary": {
+          "single-key": "Riserva chiave singola",
+          "multiple-keys": "Co-firmatari della chiave principale"
+        }
+      },
+      "spendable-balance": {
+        "primary": "Equilibrio spendibile",
+        "secondary": "Importo liberamente utilizzabile"
+      },
+      "total-balance": {
+        "primary": "Saldo totale",
+        "secondary": "Your balance, incl. unspendable"
+      },
+      "trustline-reserve": {
+        "primary": "Riserva di fiducia",
+        "secondary": "Per ogni bilancia non XLM"
+      }
+    }
+  },
+  "context-menu": {
+    "account-settings": {
+      "label": "Impostazioni dell 'account"
+    },
+    "assets-and-balances": {
+      "label": "Assets & Balances"
+    },
+    "deposit": {
+      "label": "Aggiungere fondi"
+    },
+    "trade": {
+      "label": "Commercio"
+    },
+    "transactions": {
+      "label": "Transazioni"
+    },
+    "withdraw": {
+      "label": "Ritira"
+    }
+  },
+  "purchase-lumens": {
+    "legal-confirmation": {
+      "action": {
+        "confirm": "Capisco"
+      }
+    },
+    "moonpay": {
+      "text": {
+        "primary": "MoonPay",
+        "secondary": "Acquista Stellar Lumens immediatamente utilizzando la tua carta di debito / credito o Apple Pay"
+      },
+      "legal-confirmation": " You will be redirected to moonpay.io, a third-party service. The depositing process is operated by Moon Pay Ltd, not by Solar or SatoshiPay Ltd. <1 /> <2 /> Please contact the moonpay.io support for inquiries related to your deposit."
+    },
+    "title": "Acquista Stellar lumen"
+  },
+  "remove-trustline": {
+    "action": {
+      "cancel": "Annulla",
+      "remove": "Rimuovere"
+    },
+    "text": {
+      "warning": "Non è possibile rimuovere questo asset a meno che il saldo dell'asset non sia zero.",
+      "info": "Stai per rimuovere &lt;1&gt; {{asset}} &lt;/1&gt; dall'account \"{{accountName}}\"."
+    },
+    "title": "Conferma la rimozione della risorsa"
+  },
+  "transactions": {
+    "action": {
+      "friendbot": {
+        "description": "Ottieni alcuni lumen di testnet gratuiti",
+        "label": "Chiedi all'amicobot"
+      },
+      "navigate-to-deposit": {
+        "description": "Via credit card, bank transfer, etc.",
+        "label": "Fondi di deposito"
+      }
+    },
+    "offer-list": {
+      "text": {
+        "buy": "Acquista &lt;1 /&gt; per &lt;3 /&gt;",
+        "sell": "Vendi &lt;1 /&gt; per &lt;3 /&gt;",
+        "for": "per"
+      },
+      "title": "Ordini aperti"
+    },
+    "transaction-list": {
+      "offer-description": {
+        "prefix": {
+          "default": "Ordine",
+          "cancel": "Annulla Ordine",
+          "update": "Aggiorna l'ordine"
+        },
+        "buy": "Acquista {{purchaseAmount}} {{purchaseCode}} per {{sellingAmount}} {{sellingCode}}",
+        "sell": "Vendi {{sellingAmount}} {{sellingCode}} per {{purchaseAmount}} {{purchaseCode}}"
+      },
+      "item": {
+        "from": "A partire dal",
+        "to": "Per",
+        "memo": "Memo",
+        "remote-public-keys": {
+          "more": "Di Più"
+        },
+        "trust": {
+          "add-trust": "Trust asset {{asset}}",
+          "remove-trust": "Rimuovi la fiducia nella risorsa {{asset}}"
+        }
+      },
+      "load-more": {
+        "label": "Carica di più"
+      },
+      "title": "Le transazioni recenti"
+    },
+    "signature-request-list": {
+      "title": {
+        "requests-to-cosign": "Transazioni da co-firmare",
+        "requests-waiting-for-others": "In attesa di firme aggiuntive"
+      }
+    }
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "Confermare",
+      "cancel-order": "Annulla Ordine",
+      "dismiss": "Respingere",
+      "inspect": "Ispezionare",
+      "show-more": "Mostra più dettagli"
+    },
+    "account-creation-warning": {
+      "primary": "Finanziamento di un nuovo account",
+      "secondary": "Finanziamento di un conto vuoto. Assicurati che la destinazione sia corretta."
+    },
+    "dangerous-transaction-warning": {
+      "primary": "Transazione avviata da un account non riconosciuto",
+      "secondary": "Please review carefully. In case of doubt, prefer dismissing."
+    },
+    "dismissal": {
+      "action": {
+        "cancel": "Annulla",
+        "confirm": "Confermare"
+      },
+      "header": "Ignorare la transazione multi-firma in sospeso?",
+      "title": "Confermare"
+    },
+    "signers": {
+      "heading-details": {
+        "single-signature": "Firma singola",
+        "default-signatures": "{{threshold}} di {{length}} multi-firma",
+        "custom-consensus": "Multi-firma di consenso personalizzato"
+      },
+      "label": "Firmatari {{details}}"
+    },
+    "signer-status": {
+      "tooltip": {
+        "has-signed": "Ha firmato la transazione",
+        "has-not-signed": "In attesa della loro firma"
+      }
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "account"
+        },
+        "authenticating-account": {
+          "label": "Account di autenticazione"
+        },
+        "expiry": {
+          "label": "Scadenza"
+        },
+        "max-fee": {
+          "label": "Canone massimo"
+        },
+        "service": {
+          "label": "Servizio"
+        },
+        "submission": {
+          "label": "Sottomissione"
+        },
+        "tx-hash": {
+          "label": "Hash di transazione"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "Parola d'ordine"
+      }
+    },
+    "title": {
+      "transaction": "Transazione",
+      "payment": "Pagamento",
+      "delete-orders-operation": "Elimina ordini di trading",
+      "web-auth": "Autenticazione Web"
+    },
+    "transaction-memo": {
+      "label": "{{type}} Promemoria"
+    },
+    "validation": {
+      "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
+      "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
+      "password-required": "Password richiesta"
+    }
+  },
+  "title": {
+    "password-status": {
+      "protected": "Protetto da password",
+      "unprotected": "No Password"
+    },
+    "tooltip": {
+      "multi-sig-account": "Account multi-firma",
+      "security-service": "{{service}} Protezione"
+    },
+    "placeholder": "Nome utente…",
+    "testnet": "Testnet"
+  }
+}
