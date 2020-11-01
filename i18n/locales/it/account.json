@@ -10,25 +10,25 @@
     },
     "button": {
       "add-custom-asset": {
-        "label": "Aggiungi Custom Asset"
+        "label": "Aggiungi risorsa personalizzata"
       }
     },
     "item": {
       "issuer": {
         "secondary": {
-          "one-asset": "1 asset trovato",
-          "more-than-one-asset": "{{amount}} assets trovati"
+          "one-asset": "1 risorsa trovata",
+          "more-than-one-asset": "{{amount}} risorse trovati"
         }
       },
       "no-result": {
-        "primary": "Nessun asset trovato",
-        "secondary": "Nessun asset o emittente corrispondente alla tua ricerca"
+        "primary": "Nessuna risorsa trovato",
+        "secondary": "Nessuna risorsa o emittente corrispondente alla tua ricerca"
       }
     },
     "search-field": {
-      "placeholder": "Cerca assets tramite codice o nome…"
+      "placeholder": "Cerca risorse tramite codice o nome…"
     },
-    "title": "Aggiungi Asset"
+    "title": "Aggiungi risorsa"
   },
   "asset-details": {
     "lumen": {
@@ -90,12 +90,12 @@
   "balance-details": {
     "button": {
       "add-asset": {
-        "label": "Aggiungi Asset al tuo Conto"
+        "label": "Aggiungi risorsa al tuo Conto"
       }
     },
     "item": {
       "spendable-balance": {
-        "primary": "Equilibrio spendibile"
+        "primary": "Saldo spendibile"
       }
     },
     "spendable-balances": {
@@ -124,16 +124,16 @@
         }
       },
       "spendable-balance": {
-        "primary": "Equilibrio spendibile",
+        "primary": "Saldo spendibile",
         "secondary": "Importo liberamente utilizzabile"
       },
       "total-balance": {
         "primary": "Saldo totale",
-        "secondary": "Your balance, incl. unspendable"
+        "secondary": "Il tuo saldo, incl. inutile"
       },
       "trustline-reserve": {
         "primary": "Riserva di fiducia",
-        "secondary": "Per ogni bilancia non XLM"
+        "secondary": "Per ogni saldo non XLM"
       }
     }
   },
@@ -142,7 +142,7 @@
       "label": "Impostazioni dell 'account"
     },
     "assets-and-balances": {
-      "label": "Assets & Balances"
+      "label": "Risorse & Saldi"
     },
     "deposit": {
       "label": "Aggiungere fondi"
@@ -168,17 +168,17 @@
         "primary": "MoonPay",
         "secondary": "Acquista Stellar Lumens immediatamente utilizzando la tua carta di debito / credito o Apple Pay"
       },
-      "legal-confirmation": " You will be redirected to moonpay.io, a third-party service. The depositing process is operated by Moon Pay Ltd, not by Solar or SatoshiPay Ltd. <1 /> <2 /> Please contact the moonpay.io support for inquiries related to your deposit."
+      "legal-confirmation": "Verrai reindirizzato a moonpay.io, un servizio di terze parti. Il processo di deposito è gestito da Moon Pay Ltd, non da Solar o SatoshiPay Ltd. <1 /> <2 /> Contatta l'assistenza di moonpay.io per domande relative al tuo deposito."
     },
     "title": "Acquista Stellar lumen"
   },
   "remove-trustline": {
     "action": {
       "cancel": "Annulla",
-      "remove": "Rimuovere"
+      "remove": "Rimuovi"
     },
     "text": {
-      "warning": "Non è possibile rimuovere questo asset a meno che il saldo dell'asset non sia zero.",
+      "warning": "Non è possibile rimuovere questa risorsa a meno che il saldo della risorsa non sia zero.",
       "info": "Stai per rimuovere &lt;1&gt; {{asset}} &lt;/1&gt; dall'account \"{{accountName}}\"."
     },
     "title": "Conferma la rimozione della risorsa"
@@ -190,7 +190,7 @@
         "label": "Chiedi all'amicobot"
       },
       "navigate-to-deposit": {
-        "description": "Via credit card, bank transfer, etc.",
+        "description": "Con carta di credito, bonifico, etc.",
         "label": "Fondi di deposito"
       }
     },
@@ -220,7 +220,7 @@
           "more": "Di Più"
         },
         "trust": {
-          "add-trust": "Trust asset {{asset}}",
+          "add-trust": "Fidati della risorsa {{asset}}",
           "remove-trust": "Rimuovi la fiducia nella risorsa {{asset}}"
         }
       },
@@ -238,10 +238,10 @@
   },
   "transaction-review": {
     "action": {
-      "confirm": "Confermare",
+      "confirm": "Conferma",
       "cancel-order": "Annulla Ordine",
-      "dismiss": "Respingere",
-      "inspect": "Ispezionare",
+      "dismiss": "Respingi",
+      "inspect": "Ispeziona",
       "show-more": "Mostra più dettagli"
     },
     "account-creation-warning": {
@@ -250,15 +250,15 @@
     },
     "dangerous-transaction-warning": {
       "primary": "Transazione avviata da un account non riconosciuto",
-      "secondary": "Please review carefully. In case of doubt, prefer dismissing."
+      "secondary": "Si prega di rivedere attentamente. In caso di dubbio, annullare."
     },
     "dismissal": {
       "action": {
         "cancel": "Annulla",
-        "confirm": "Confermare"
+        "confirm": "Conferma"
       },
       "header": "Ignorare la transazione multi-firma in sospeso?",
-      "title": "Confermare"
+      "title": "Conferma"
     },
     "signers": {
       "heading-details": {
@@ -314,8 +314,8 @@
       "label": "{{type}} Promemoria"
     },
     "validation": {
-      "no-account-data": "Invariant violation: Cannot find the transaction source account's account data in set of account data subscriptions.",
-      "no-manage-data-operation": "Invariant violation: Stellar web auth transaction must contain a manage_data operation.",
+      "no-account-data": "Violazione invariante: impossibile trovare i dati dell'account di origine della transazione nel set di sottoscrizioni dei dati dell'account.",
+      "no-manage-data-operation": "Violazione invariante: la transazione di autenticazione web stellare deve contenere un'operazione di manage_data.",
       "password-required": "Password richiesta"
     }
   },

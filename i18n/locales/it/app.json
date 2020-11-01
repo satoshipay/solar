@@ -18,7 +18,7 @@
       },
       "to-testnet": {
         "short": "Testnet",
-        "long": "SwitchA To TEST"
+        "long": "Passa a Testnet"
       }
     },
     "update": {
@@ -49,7 +49,7 @@
     },
     "details": {
       "action": {
-        "dismiss": "Respingere"
+        "dismiss": "Respingi"
       },
       "support": "Hai un problema con l'app? &lt;1 /&gt; Contattaci tramite",
       "title": "Errore",
@@ -68,7 +68,7 @@
   },
   "terms-and-conditions": {
     "action": {
-      "confirm": "Confermare"
+      "confirm": "Conferma"
     },
     "header": "Benvenuto in Solar",
     "checkbox": {

@@ -29,12 +29,12 @@
       "funding-account": "Conto di finanziamento",
       "funding-amount": "Importo del finanziamento"
     },
-    "title": "Creare un profilo"
+    "title": "Crea un profilo"
   },
   "manage-buy-offer": {
     "title": {
       "create": "Crea ordine di acquisto",
-      "delete": "Acquista l'ordine",
+      "delete": "Cancella l'ordine",
       "update": "Aggiorna ordine di acquisto"
     }
   },
@@ -50,7 +50,7 @@
   "manage-sell-offer": {
     "title": {
       "create": "Crea ordine di vendita",
-      "delete": "Ordine di vendita",
+      "delete": "Cancella l'ordine",
       "update": "Aggiorna ordine di vendita"
     }
   },
@@ -79,9 +79,9 @@
         "key-thresholds": {
           "label": "Nuove soglie chiave",
           "value": {
-            "low": "Low threshold:    {{threshold}}",
-            "medium": "Medium threshold: {{threshold}}",
-            "high": "High threshold:   {{threshold}}"
+            "low": "Soglia bassa:    {{threshold}}",
+            "medium": "Soglia media: {{threshold}}",
+            "high": "Soglia alta:   {{threshold}}"
           }
         },
         "required-signatures": "Firme richieste"

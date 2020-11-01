@@ -2,7 +2,7 @@
   "account-deletion": {
     "action": {
       "cancel": "Annulla",
-      "confirm": "Confermare",
+      "confirm": "Conferma",
       "delete": "Elimina",
       "merge": {
         "long": "Unisciti a",
@@ -10,7 +10,7 @@
       }
     },
     "confirm": {
-      "title": "Confermare la cancellazione",
+      "title": "Conferma la cancellazione",
       "text": {
         "confirm": "Sei sicuro?",
         "delete": "L'account verrà eliminato",
@@ -22,7 +22,7 @@
     },
     "text": {
       "1": "Sei sicuro di voler eliminare l'account \"{{accountName}}\"?",
-      "2": " Make sure to backup your private key or merge the funds into another account of yours, since there are still funds left!"
+      "2": "Assicurati di eseguire il backup della tua chiave privata o di unire i fondi in un altro tuo account, poiché ci sono ancora fondi rimasti!"
     },
     "title": "Conferma l'eliminazione dell'account",
     "warning-dialog": {
@@ -32,7 +32,7 @@
     },
     "warnings": {
       "cannot-merge": {
-        "text": "Non è ancora possibile unire l'account. Per prima cosa devi annullare tutti gli ordini di trading aperti e rimuovere tutti gli asset.",
+        "text": "Non è ancora possibile unire l'account. Per prima cosa devi annullare tutti gli ordini di trading aperti e rimuovere tutte le risorse.",
         "title": "Azione manuale richiesta"
       }
     }
@@ -41,7 +41,7 @@
     "action": {
       "cancel": "Annulla",
       "trust": {
-        "long": "Trust Asset",
+        "long": "Fidati della moneta",
         "short": "Fiducia"
       }
     },
@@ -65,29 +65,29 @@
       "confirm": "Fatto",
       "reveal": {
         "long": "Rivela la chiave",
-        "short": "Fare clic per rivelare la chiave segreta"
+        "short": "Fai clic per rivelare la chiave segreta"
       }
     },
     "info": {
       "backup": {
         "title": "Esegui il backup della tua chiave segreta ora",
         "paragraph-1": "Il backup della chiave segreta è l'unico modo per recuperare i tuoi fondi se dimentichi la password o non riesci più ad accedere al tuo dispositivo.",
-        "paragraph-2": "Annotare la chiave o stamparla. Conservalo in un luogo sicuro e non condividerlo con nessuno."
+        "paragraph-2": "Annota la chiave o stampala. Conservala in un luogo sicuro e non condividerla con nessuno."
       },
       "export": {
         "paragraph-1": "Il backup della chiave segreta è l'unico modo per recuperare i tuoi fondi se dimentichi la password o non riesci più ad accedere al tuo dispositivo.",
-        "paragraph-2": "Annotare la chiave o stamparla. Conservalo in un luogo sicuro e non condividerlo con nessuno."
+        "paragraph-2": "Annota la chiave o stampala. Conservala in un luogo sicuro e non condividerla con nessuno."
       },
-      "secret-key": "Annotare la chiave su carta e conservarla in un luogo sicuro.",
+      "secret-key": "Annota la chiave su carta e conservala in un luogo sicuro.",
       "tap-to-copy": "Tocca per copiare"
     },
     "textfield": {
       "password": {
-        "label": "Parola d'ordine"
+        "label": "Password"
       }
     },
     "title": {
-      "default": "Esporta chiave segreta",
+      "default": "Esporta la chiave segreta",
       "initial-backup": "Backup della chiave segreta"
     }
   },
@@ -100,7 +100,7 @@
       "cancel": "Annulla",
       "apply": {
         "long": "Applica i cambiamenti",
-        "short": "Applicare"
+        "short": "Applica"
       }
     },
     "signers-editor": {
@@ -143,11 +143,11 @@
     "action": {
       "change-password": {
         "long": "Cambia la password",
-        "short": "Modificare"
+        "short": "Modifica"
       },
       "remove-password": {
         "long": "Rimuovi la password",
-        "short": "Rimuovere"
+        "short": "Rimuovi"
       }
     },
     "notification": {
@@ -202,10 +202,10 @@
       "text": {
         "primary": {
           "account-protected": "Cambia la password",
-          "account-not-protected": "Impostare la password"
+          "account-not-protected": "Imposta la password"
         },
         "secondary": {
-          "account-protected": "Your account is secure, protected by a password",
+          "account-protected": "Il tuo account è sicuro, protetto da una password",
           "account-not-protected": "Il tuo account non è protetto"
         }
       }

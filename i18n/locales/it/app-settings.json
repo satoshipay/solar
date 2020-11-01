@@ -22,7 +22,7 @@
         "label": "auto"
       },
       "text": {
-        "primary": "linguaggio",
+        "primary": "lingua",
         "secondary": "Cambia la lingua dell'interfaccia utente qui"
       }
     },
@@ -67,7 +67,7 @@
     "service-selection": {
       "action": {
         "cancel": "Annulla",
-        "confirm": "Confermare"
+        "confirm": "Conferma"
       },
       "confirm": {
         "title": "Conferma la rimozione",

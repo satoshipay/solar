@@ -6,11 +6,11 @@
   "action-selection": {
     "buy": {
       "description": "Acquista una certa quantità di un bene sullo scambio distribuito",
-      "label": "Acquista asset"
+      "label": "Acquista risorsa"
     },
     "sell": {
-      "description": "Scambia una certa quantità di un bene con un altro",
-      "label": "Vendi asset"
+      "description": "Scambia una certa quantità di una risorsa con un altra",
+      "label": "Vendi risorsa"
     }
   },
   "advanced": {
@@ -61,6 +61,6 @@
   },
   "warning": {
     "title": "avvertimento",
-    "message": "The spread between buying and selling price is about {{spread}}%."
+    "message": "La differenza tra prezzo di acquisto e prezzo di vendita è circa {{spread}}%."
   }
 }

@@ -10,18 +10,18 @@
   },
   "deposit-success": {
     "action": {
-      "close": "Vicino" 
-    }, 
+      "close": "Chiuso"
+    },
     "body": {
       "deposit-pending": "Deposito in attesa",
       "info": {
         "1": "{{domain}} sta aspettando il tuo deposito.",
-        "2": "I fondi verranno accreditati sul tuo account Stellar quando il deposito viene accreditato all'emittente dell'asset."
+        "2": "I fondi verranno accreditati sul tuo account Stellar quando il deposito viene accreditato all'emittente della risorsa."
       }
     },
     "sidebar": {
       "headline": "Fatto",
-      "info": "Il tuo deposito è stato accettato e verrà elaborato dall'emittente dell'asset quando il tuo pagamento arriverà."
+      "info": "Il tuo deposito è stato accettato e verrà elaborato dall'emittente della risorsa quando il tuo pagamento arriverà."
     }
   },
   "form-builder": {
@@ -57,15 +57,15 @@
       "deposit": {
         "headline": "Finanzia il tuo account",
         "info": {
-          "1": "Purchase Stellar lumens (XLM) or deposit assets to fund your account. Send USD from your bank account, ETH from your Ethereum wallet, etc.",
-          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente dell'asset."
+          "1": "Acquista Stellar lumen (XLM) o deposita risorse per finanziare il tuo account. Invia EURO dal tuo conto bancario, ETH dal tuo portafoglio Ethereum, ecc",
+          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente della risorsa."
         }
       },
       "withdrawal": {
         "headline": "Cosa ritirare",
         "info": {
-          "1": "Withdraw assets in your account, like USD to your bank account or ETH to your Ethereum wallet.",
-          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente dell'asset."
+          "1": "Preleva risorse dal tuo account, come EURO sul tuo conto bancario o ETH sul tuo portafoglio Ethereum.",
+          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente della risorsa."
         }
       }
     }
@@ -73,7 +73,7 @@
   "kyc-denied": {
     "sidebar": {
       "headline": "Conosci il tuo cliente",
-      "info": "Sei stato rifiutato: il servizio è disabilitato per te. Si prega di contattare l'emittente dell'asset."
+      "info": "Sei stato rifiutato: il servizio è disabilitato per te. Si prega di contattare l'emittente della risorsa."
     }
   },
   "kyc-pending": {
@@ -97,15 +97,15 @@
       "add-asset": "Aggiungi risorsa"
     },
     "body": {
-      "no-withdrawable-assets": "Questo conto non contiene beni prelevabili."
+      "no-withdrawable-assets": "Questo conto non contiene risorse prelevabili."
     }
   },
   "purchase-lumens": {
     "sidebar": {
       "headline": "Acquista Stellar lumen",
       "info": {
-        "1": "Offriamo opzioni per acquistare lumen che non coinvolgono un emittente di asset Stellar.",
-        "2": " Stellar lumens (XLM) are the native tokens on the Stellar network. They are used to pay transaction fees, among other things."
+        "1": "Offriamo opzioni per acquistare lumen che non coinvolgono un emittente di risorse Stellar.",
+        "2": "I lumen stellari (XLM) sono i token nativi sulla rete Stellar. Vengono utilizzati per pagare le commissioni di transazione, tra le altre cose"
       }
     }
   },
@@ -150,7 +150,7 @@
         "headline": "Riepilogo del deposito",
         "info": {
           "1": "Assicurati di inviare i fondi alla destinazione giusta.",
-          "2": "L'emittente dell'asset accrediterà i token una volta che il tuo deposito è stato accreditato."
+          "2": "L'emittente della risorsa accrediterà i token una volta che il tuo deposito è stato accreditato."
         }
       },
       "withdrawal": {
@@ -174,7 +174,7 @@
       "already-redirected": {
         "info": {
           "1": "{{domain}} sta controllando le tue informazioni personali. Per favore riprova più tardi.",
-          "2": "Estimated time to completion: {{eta}}"
+          "2": "Tempo stimato per il completamento: {{eta}}"
         }
       },
       "not-redirected": {
@@ -182,7 +182,7 @@
       }
     },
     "more-info-url": {
-      "info": "For more information, visit"
+      "info": "Per maggiori informazioni visita"
     },
     "pending-user-transfer-start": {
       "info": "{{domain}} richiede ulteriori informazioni da parte tua."
@@ -190,7 +190,7 @@
   },
   "withdrawal-success": {
     "action": {
-      "close": "Vicino"
+      "close": "Chiuso"
     },
     "body": {
       "withdrawal-in-progress": "Ritiro in corso",
@@ -201,12 +201,12 @@
     },
     "sidebar": {
       "headline": "Fatto",
-      "info": "Il tuo prelievo è stato accettato e verrà elaborato dall'emittente dell'asset."
+      "info": "Il tuo prelievo è stato accettato e verrà elaborato dall'emittente della risorsa."
     }
   },
   "transfer-details": {
     "action": {
-      "proceed": "Procedere"
+      "proceed": "Procedi"
     },
     "body": {
       "destination": {
@@ -233,14 +233,14 @@
         "headline": "Dettagli del deposito",
         "info": {
           "1": "Ulteriori dettagli sul deposito previsto.",
-          "2": "A seconda di ciò che l'emittente dell'asset richiede, potresti dover inserire ulteriori informazioni qui."
+          "2": "A seconda di ciò che l'emittente della risorsa richiede, potresti dover inserire ulteriori informazioni qui."
         }
       },
       "withdrawal": {
         "headline": "Dettagli sul ritiro",
         "info": {
           "1": "Ulteriori dettagli sul deposito previsto.",
-          "2": "A seconda di ciò che l'emittente dell'asset richiede, potresti dover inserire ulteriori informazioni qui."
+          "2": "A seconda di ciò che l'emittente della risorsa richiede, potresti dover inserire ulteriori informazioni qui."
         }
       }
     }

@@ -1,14 +1,14 @@
 {
   "action": {
     "cancel": "Annulla",
-    "confirm": "Confermare",
-    "create": "Creare un profilo",
+    "confirm": "Conferma",
+    "create": "Crea un profilo",
     "import": "Importa account"
   },
   "action-selection": {
     "create": {
       "description": "Crea un nuovo account vuoto",
-      "label": "Creare un profilo"
+      "label": "Crea un profilo"
     },
     "import": {
       "description": "Ripristina l'account dal backup",
