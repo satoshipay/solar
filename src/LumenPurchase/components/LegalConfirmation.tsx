@@ -60,7 +60,7 @@ function LegalConfirmation(props: Props) {
       open={props.open}
       TransitionComponent={CompactDialogTransition}
     >
-      <DialogBody actions={dialogActionsRef} preventActionsPlaceholder preventNotch>
+      <DialogBody actions={dialogActionsRef} preventActionsPlaceholder preventNotchSpacing>
         <Typography color="textSecondary">{props.message}</Typography>
       </DialogBody>
       <Portal target={isSmallScreen ? document.body : dialogActionsRef.element}>{actions}</Portal>
