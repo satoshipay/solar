@@ -16,8 +16,9 @@ export const brandColor = {
 }
 
 export const testnetColor = {
-  main: "#f58100",
-  light: "#f49836"
+  dark: "#d3356b",
+  main: "#fe4081",
+  light: "#fd5a92"
 }
 
 export const primaryBackground = "linear-gradient(to left bottom, #01B3F3, #0176DC)"
