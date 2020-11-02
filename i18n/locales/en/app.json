@@ -12,14 +12,7 @@
   },
   "all-accounts": {
     "switch": {
-      "to-mainnet": {
-        "short": "Mainnet",
-        "long": "Switch To Mainnet"
-      },
-      "to-testnet": {
-        "short": "Testnet",
-        "long": "Switch To Testnet"
-      }
+      "label": "Testnet"
     },
     "update": {
       "notification": {
