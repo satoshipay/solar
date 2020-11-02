@@ -87,7 +87,7 @@ const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   )
 })
 
-interface BasicAddressProps {
+interface AddressContentProps {
   /** Account ID (public key) or stellar address (alice*example.com) */
   address: string
   variant?: Variant
@@ -96,7 +96,7 @@ interface BasicAddressProps {
 }
 
 // tslint:disable-next-line no-shadowed-variable
-const BasicAddress = React.memo(function BasicAddress(props: BasicAddressProps) {
+const AddressContent = React.memo(function AddressContent(props: AddressContentProps) {
   const { lookupStellarAddress } = useFederationLookup()
 
   const style: React.CSSProperties = {
@@ -139,7 +139,7 @@ const BasicAddress = React.memo(function BasicAddress(props: BasicAddressProps) 
   }
 })
 
-interface ClickableAddressProps extends BasicAddressProps {
+interface ClickableAddressProps extends AddressContentProps {
   icon?: React.ReactNode
   onClick?: () => void
 }
@@ -148,7 +148,7 @@ interface ClickableAddressProps extends BasicAddressProps {
 const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAddressProps) {
   return (
     <ButtonBase onClick={props.onClick} style={{ fontSize: "inherit", fontWeight: "inherit", textAlign: "inherit" }}>
-      <BasicAddress {...props} />
+      <AddressContent {...props} />
       {props.icon ? (
         <>
           &nbsp;
@@ -159,7 +159,7 @@ const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAd
   )
 })
 
-interface CopyableAddressProps extends BasicAddressProps {
+interface CopyableAddressProps extends AddressContentProps {
   onClick?: () => void
 }
 
@@ -206,7 +206,7 @@ const Address = React.memo(function Address(props: AddressProps) {
   } else if (homeDomain) {
     return <span style={{ userSelect: "text", ...style }}>{homeDomain}</span>
   } else {
-    return <BasicAddress address={address} style={style} testnet={testnet} variant={variant} />
+    return <AddressContent address={address} style={style} testnet={testnet} variant={variant} />
   }
 })
 
