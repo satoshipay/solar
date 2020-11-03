@@ -149,10 +149,7 @@ function TradingDialog(props: TradingDialogProps) {
 
 function TradingDialogContainer(props: Pick<TradingDialogProps, "account" | "onClose">) {
   const router = useRouter()
-  const navigateToAccount = () =>
-    setTimeout(() => {
-      router.history.push(routes.account(props.account.id))
-    }, 1000)
+  const navigateToAccount = () => router.history.push(routes.account(props.account.id))
 
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={navigateToAccount}>
