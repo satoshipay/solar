@@ -3,7 +3,7 @@ import Typography from "@material-ui/core/Typography"
 import { fade, useTheme } from "@material-ui/core/styles"
 import ErrorIcon from "@material-ui/icons/Error"
 import React from "react"
-import { Translation } from "react-i18next"
+import { Translation, useTranslation } from "react-i18next"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 import { getErrorTranslation } from "../lib/errors"
 
@@ -56,6 +56,8 @@ interface InlineErrorBoundaryProps {
 
 export const InlineErrorBoundary = ErrorBoundary<InlineErrorBoundaryProps>(function InlineErrorBoundary(props) {
   const theme = useTheme()
+  const { t } = useTranslation()
+
   return (
     <HorizontalLayout
       alignItems="center"
@@ -69,7 +71,7 @@ export const InlineErrorBoundary = ErrorBoundary<InlineErrorBoundaryProps>(funct
       }}
     >
       <ErrorIcon />
-      <span style={{ marginLeft: 8 }}>{props.error.message}</span>
+      <span style={{ marginLeft: 8 }}>{getErrorTranslation(props.error, t)}</span>
     </HorizontalLayout>
   )
 })
