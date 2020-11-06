@@ -6,7 +6,7 @@
   "add-asset": {
     "action": {
       "remove": "Rimuovi",
-      "trade": "Traffico"
+      "trade": "Negozia"
     },
     "button": {
       "add-custom-asset": {
@@ -145,10 +145,10 @@
       "label": "Risorse & Saldi"
     },
     "deposit": {
-      "label": "Aggiungere fondi"
+      "label": "Aggiungi fondi"
     },
     "trade": {
-      "label": "Commercio"
+      "label": "Negozia"
     },
     "transactions": {
       "label": "Transazioni"
@@ -179,7 +179,7 @@
     },
     "text": {
       "warning": "Non è possibile rimuovere questa risorsa a meno che il saldo della risorsa non sia zero.",
-      "info": "Stai per rimuovere &lt;1&gt; {{asset}} &lt;/1&gt; dall'account \"{{accountName}}\"."
+      "info": "Stai per rimuovere <1> {{asset}} </1> dall'account \"{{accountName}}\"."
     },
     "title": "Conferma la rimozione della risorsa"
   },
@@ -196,8 +196,8 @@
     },
     "offer-list": {
       "text": {
-        "buy": "Acquista &lt;1 /&gt; per &lt;3 /&gt;",
-        "sell": "Vendi &lt;1 /&gt; per &lt;3 /&gt;",
+        "buy": "Acquista <1 /> per <3 />",
+        "sell": "Vendi <1 /> per <3 />",
         "for": "per"
       },
       "title": "Ordini aperti"

@@ -10,7 +10,7 @@ i18n
   .use(initReactI18next)
   .init({
     debug: process.env.NODE_ENV === "development" ? true : false,
-    fallbackLng: "it",
+    fallbackLng: "en",
     interpolation: {
       escapeValue: false // not needed for react as it escapes by default
     },

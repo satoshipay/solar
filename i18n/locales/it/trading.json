@@ -47,7 +47,7 @@
     }
   },
   "no-assets-info": "Questo account non utilizza ancora risorse diverse da Stellar Lumens.",
-  "title": "Commercio",
+  "title": "Negozia",
   "trading-price": {
     "default-label": "Prezzo (limite)",
     "label": "Prezzo per {{unit}} (limite)"

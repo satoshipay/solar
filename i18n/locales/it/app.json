@@ -51,7 +51,7 @@
       "action": {
         "dismiss": "Respingi"
       },
-      "support": "Hai un problema con l'app? &lt;1 /&gt; Contattaci tramite",
+      "support": "Hai un problema con l'app? <1 /> Contattaci tramite",
       "title": "Errore",
       "offline": "disconnesso"
     },

@@ -31,7 +31,7 @@
   },
   "initial": {
     "action": {
-      "proceed": "Procedere"
+      "proceed": "Procedi"
     },
     "body": {
       "asset-selector": {
@@ -110,7 +110,7 @@
     }
   },
   "title": {
-    "deposit": "Aggiungere fondi",
+    "deposit": "Aggiungi fondi",
     "withdrawal": "Preleva fondi"
   },
   "transaction-details": {

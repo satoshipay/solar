@@ -202,7 +202,7 @@
       "text": {
         "primary": {
           "account-protected": "Cambia la password",
-          "account-not-protected": "Imposta la password"
+          "account-not-protected": "Impostar la password"
         },
         "secondary": {
           "account-protected": "Il tuo account è sicuro, protetto da una password",
