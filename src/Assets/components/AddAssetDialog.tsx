@@ -375,12 +375,8 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
 })
 
 function ConnectedAddAssetDialog(props: Omit<AddAssetDialogProps, "horizon" | "sendTransaction">) {
-  const closeAfterTimeout = () => {
-    // Close automatically a second after successful submission
-    setTimeout(() => props.onClose(), 1000)
-  }
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={closeAfterTimeout}>
+    <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>
       {({ horizon, sendTransaction }) => (
         <AddAssetDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
       )}

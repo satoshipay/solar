@@ -15,7 +15,7 @@ export interface AssetRecord {
   type: string
 }
 
-const assetsCache = createPersistentCache<AssetRecord[]>("known-accounts", { expiresIn: 60 * 60_000 })
+const assetsCache = createPersistentCache<AssetRecord[]>("known-assets", { expiresIn: 60 * 60_000 })
 
 export async function fetchAllAssets(testnet: boolean): Promise<AssetRecord[]> {
   const cacheKey = testnet ? "testnet" : "mainnet"

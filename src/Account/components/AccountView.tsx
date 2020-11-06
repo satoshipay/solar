@@ -295,6 +295,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
           backgroundColor: "#fcfcfc",
           flexGrow: 1,
           flexShrink: 1,
+          height: "100%",
           padding: isSmallScreen ? 0 : "0 24px",
           overflowY: "auto"
         }}

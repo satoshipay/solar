@@ -24,6 +24,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebView;
+import android.webkit.WebSettings;
 
 import org.apache.cordova.*;
 
@@ -56,5 +58,10 @@ public class MainActivity extends CordovaActivity
 
         // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
+
+        // Force font size to be 100% (standard) instead of using user-defined font size
+        WebView webView = (WebView) appView.getEngine().getView();
+        WebSettings settings = webView.getSettings();
+        settings.setTextZoom(100);
     }
 }

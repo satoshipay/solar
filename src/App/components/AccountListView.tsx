@@ -1,9 +1,10 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import Button from "@material-ui/core/Button"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
 import IconButton from "@material-ui/core/IconButton"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import SettingsIcon from "@material-ui/icons/Settings"
+import Switch from "@material-ui/core/Switch"
 import Tooltip from "@material-ui/core/Tooltip"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import UpdateIcon from "@material-ui/icons/SystemUpdateAlt"
@@ -11,7 +12,7 @@ import DialogBody from "~Layout/components/DialogBody"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { Section } from "~Layout/components/Page"
 import MainTitle from "~Generic/components/MainTitle"
-import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
+import { useRouter } from "~Generic/hooks/userinterface"
 import getUpdater from "~Platform/updater"
 import AppNotificationPermission from "~Toasts/components/AppNotificationPermission"
 import { AccountsContext } from "../contexts/accounts"
@@ -43,15 +44,7 @@ function AllAccountsPage() {
   const { t } = useTranslation()
 
   const styles = useStyles()
-  const isSmallScreen = useIsMobile()
   const isWidthMax450 = useMediaQuery("(max-width:450px)")
-
-  const switchToMainnetLabel = isSmallScreen
-    ? t("app.all-accounts.switch.to-mainnet.short")
-    : t("app.all-accounts.switch.to-mainnet.long")
-  const switchToTestnetLabel = isSmallScreen
-    ? t("app.all-accounts.switch.to-testnet.short")
-    : t("app.all-accounts.switch.to-testnet.long")
 
   const updater = getUpdater()
 
@@ -83,9 +76,11 @@ function AllAccountsPage() {
   )
 
   const networkSwitchButton = (
-    <Button color="inherit" variant="outlined" onClick={toggleNetwork} style={{ borderColor: "white" }}>
-      {networkSwitch === "testnet" ? switchToMainnetLabel : switchToTestnetLabel}
-    </Button>
+    <FormControlLabel
+      control={<Switch checked={networkSwitch === "testnet"} color="secondary" onChange={toggleNetwork} />}
+      label={t("app.all-accounts.switch.label")}
+      style={{ marginRight: 0 }}
+    />
   )
 
   const headerContent = React.useMemo(

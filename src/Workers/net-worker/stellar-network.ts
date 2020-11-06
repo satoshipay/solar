@@ -98,7 +98,8 @@ function getFetchQueue(horizonURL: string): PromiseQueue {
       concurrency: 4,
       interval: 1000,
       intervalCap: 4,
-      timeout: 10000
+      timeout: 10000,
+      throwOnTimeout: true
     })
     fetchQueuesByHorizon.set(horizonURL, fetchQueue)
   }
