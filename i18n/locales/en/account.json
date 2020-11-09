@@ -5,6 +5,7 @@
   },
   "add-asset": {
     "action": {
+      "add-asset": "Add asset to account",
       "remove": "Remove",
       "trade": "Trade"
     },
