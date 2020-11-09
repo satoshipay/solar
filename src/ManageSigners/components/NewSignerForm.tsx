@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import IconButton from "@material-ui/core/IconButton"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -31,6 +32,7 @@ interface Props {
 function NewSignerForm(props: Props) {
   const isSmallScreen = useIsMobile()
   const isTinyScreen = useIsSmallMobile()
+  const { t } = useTranslation()
 
   return (
     <ListItem>
@@ -42,8 +44,16 @@ function NewSignerForm(props: Props) {
           <TextField
             autoFocus={process.env.PLATFORM !== "ios"}
             error={!!props.errors.publicKey}
-            label={props.errors.publicKey ? props.errors.publicKey.message : "Public Key or Stellar Address"}
-            placeholder={isSmallScreen ? "GABC… or address" : "GABCDEFGHIJK… or alice*example.org"}
+            label={
+              props.errors.publicKey
+                ? props.errors.publicKey.message
+                : t("account-settings.manage-signers.signers-editor.new-signer.label")
+            }
+            placeholder={
+              isSmallScreen
+                ? t("account-settings.manage-signers.signers-editor.new-signer.placeholder.short")
+                : t("account-settings.manage-signers.signers-editor.new-signer.placeholder.long")
+            }
             onChange={event => props.onUpdate({ publicKey: event.target.value.trim() })}
             style={{ flexGrow: 1 }}
             InputProps={isTinyScreen ? { style: { fontSize: "0.8rem" } } : undefined}

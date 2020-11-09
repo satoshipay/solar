@@ -34,9 +34,9 @@ export enum SubmissionType {
 }
 
 const successMessages: { [type: number]: string } = {
-  [SubmissionType.default]: "Successful",
-  [SubmissionType.multisig]: "Waiting for missing signatures",
-  [SubmissionType.thirdParty]: "Waiting for authorization of third-party service"
+  [SubmissionType.default]: "generic.submission-progress.success.default",
+  [SubmissionType.multisig]: "generic.submission-progress.success.multisig",
+  [SubmissionType.thirdParty]: "generic.submission-progress.success.third-party"
 }
 
 interface SubmissionProgressProps {
@@ -53,13 +53,13 @@ function SubmissionProgress(props: SubmissionProgressProps) {
       pending={
         <Container>
           <CircularProgress size={70} style={{ marginBottom: 24 }} />
-          <Heading>Submitting to network...</Heading>
+          <Heading>{t("generic.submission-progress.pending")}</Heading>
         </Container>
       }
       then={() => (
         <Container>
           <SuccessIcon size={100} />
-          <Heading>{successMessages[props.type]}</Heading>
+          <Heading>{t(successMessages[props.type])}</Heading>
         </Container>
       )}
       catch={error => (
