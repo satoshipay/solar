@@ -83,10 +83,7 @@
         "public-key": "Public Key",
         "secret-key": "Secret Key",
         "paper-backup": "Paper Backup",
-        "warning": {
-          "1": "This is a backup of your account.",
-          "2": "Make sure to keep it in a safe place because anyone who has access to it can access your account."
-        }
+        "warning": "This is a backup of your Stellar account. Keep it safe at all times. Do not share it with anyone."
       },
       "secret-key": "Write down the key on paper and store it in a safe place.",
       "tap-to-copy": "Tap to copy"

@@ -95,9 +95,10 @@ function PromptToReveal(props: PromptToRevealProps) {
 
 const useBackupPrintStyles = makeStyles(() => ({
   icon: {
-    color: "black",
-    width: 80,
-    height: 80
+    color: "gray",
+    height: 140,
+    width: 140,
+    paddingBottom: 60
   },
   keyTypography: {
     paddingTop: 16,
@@ -125,13 +126,16 @@ const useBackupPrintStyles = makeStyles(() => ({
     textAlign: "center"
   },
   qrWrapper: {
-    padding: 32,
+    padding: "32px 0px",
     display: "flex",
     flexDirection: "column"
   },
   qrCaption: {
+    fontWeight: "bold",
     paddingLeft: 8,
     paddingRight: 8,
+    textTransform: "uppercase",
+    transform: "rotate(180deg)",
     writingMode: "vertical-lr"
   }
 }))
@@ -149,7 +153,7 @@ function BackupPrintContainer(props: BackupPrintContainerProps) {
   return (
     <Box className={classes.printContainer}>
       <Typography align="center" className={classes.accountName} variant="h3">
-        {props.accountName ? `${props.accountName}` : undefined}
+        {props.accountName ? props.accountName : undefined}
       </Typography>
       <div className={classes.qrContainer}>
         {props.publicKey && (
@@ -165,8 +169,6 @@ function BackupPrintContainer(props: BackupPrintContainerProps) {
         )}
         <div style={{ alignSelf: "center" }}>
           <SolarIcon className={classes.icon} />
-          <Typography>Solar Wallet</Typography>
-          <Typography>{t("account-settings.export-key.info.print.paper-backup")}</Typography>
         </div>
         <div className={classes.qrWrapper}>
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
@@ -178,9 +180,11 @@ function BackupPrintContainer(props: BackupPrintContainerProps) {
           <Typography className={classes.keyTypography}>{props.secretKey}</Typography>
         </div>
       </div>
-      <Typography align="center">
-        {t("account-settings.export-key.info.print.warning.1")} <br />
-        {t("account-settings.export-key.info.print.warning.2")}
+      <Typography align="center" color="textSecondary" variant="h6">
+        {t("account-settings.export-key.info.print.warning")}
+      </Typography>
+      <Typography align="center" style={{ color: "#00000066", fontSize: "150%" }} variant="body1">
+        solarwallet.io
       </Typography>
     </Box>
   )
