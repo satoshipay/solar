@@ -75,6 +75,14 @@
       "cancel": "Cancel"
     }
   },
+  "submission-progress": {
+    "pending": "Submitting to network ...",
+    "success": {
+      "default": "Successful",
+      "multisig": "Waiting for missing signatures",
+      "third-party": "Waiting for authorization of third-party service"
+    }
+  },
   "testnet-badge": {
     "label": "Testnet"
   },
