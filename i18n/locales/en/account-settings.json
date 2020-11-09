@@ -110,6 +110,13 @@
           "local-key": "Local key"
         }
       },
+      "new-signer": {
+        "label": "Public Key or Stellar Address",
+        "placeholder": {
+          "long": "GABC… or address",
+          "short": "GABCDEFGHIJK… or alice*example.org"
+        }
+      },
       "validation": {
         "existing-signer": "Cannot add existing signer.",
         "integer-required": "Must be an integer.",
