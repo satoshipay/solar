@@ -90,7 +90,7 @@ function AssetDetailsActions(props: Props) {
           </>
         ) : (
           <ActionButton loading={txCreationPending} onClick={addThisAsset} type="primary">
-            Add asset to account
+            {t("account.add-asset.action.add-asset")}
           </ActionButton>
         )}
       </DialogActionsBox>
