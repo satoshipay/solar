@@ -22,7 +22,7 @@
         "label": "auto"
       },
       "text": {
-        "primary": "lingua",
+        "primary": "Lingua",
         "secondary": "Cambia la lingua dell'interfaccia utente qui"
       }
     },
@@ -54,7 +54,7 @@
         }
       }
     },
-    "title": "impostazioni",
+    "title": "Impostazioni",
     "trusted-services": {
       "text": {
         "primary": "Gestisci servizi attendibili",

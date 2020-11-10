@@ -55,13 +55,13 @@
     }
   },
   "offer-details": {
-    "string": "Acquista {{price}} {{purchaseCode}} per {{amount}} {{sellingCode}}"
+    "string": "Acquista {{price}} {{buyingCode}} per {{amount}} {{sellingCode}}"
   },
   "payment": {
     "summary": {
       "amount": "Quantità",
       "destination": "Destinazione",
-      "source": "fonte"
+      "source": "Fonte"
     },
     "title": "Pagamento"
   },

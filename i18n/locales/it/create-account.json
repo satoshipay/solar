@@ -41,7 +41,7 @@
       "placeholder": "Inserisci una password"
     },
     "password-repeat": {
-      "label": "ripeti la password",
+      "label": "Ripeti la password",
       "placeholder": "Ripeti la tua password"
     }
   },

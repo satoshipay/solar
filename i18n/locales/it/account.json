@@ -1,10 +1,11 @@
 {
   "action": {
-    "receive": "RICEVI",
-    "send": "INVIA"
+    "receive": "Ricevi",
+    "send": "Invia"
   },
   "add-asset": {
     "action": {
+      "add-asset": "Aggiungi risorsa all' account",
       "remove": "Rimuovi",
       "trade": "Negozia"
     },
@@ -64,7 +65,7 @@
           "label": "Indirizzio"
         },
         "dba": {
-          "label": "Doing business as"
+          "label": "Fare affari come"
         },
         "description": {
           "label": "Descrizione"
@@ -209,8 +210,8 @@
           "cancel": "Annulla Ordine",
           "update": "Aggiorna l'ordine"
         },
-        "buy": "Acquista {{purchaseAmount}} {{purchaseCode}} per {{sellingAmount}} {{sellingCode}}",
-        "sell": "Vendi {{sellingAmount}} {{sellingCode}} per {{purchaseAmount}} {{purchaseCode}}"
+        "buy": "Acquista {{buyingAmount}} {{buyingCode}} per {{sellingAmount}} {{sellingCode}}",
+        "sell": "Vendi {{sellingAmount}} {{sellingCode}} per {{buyingAmount}} {{buyingCode}}"
       },
       "item": {
         "from": "A partire dal",
@@ -277,7 +278,7 @@
     "summary": {
       "item": {
         "account": {
-          "label": "account"
+          "label": "Account"
         },
         "authenticating-account": {
           "label": "Account di autenticazione"

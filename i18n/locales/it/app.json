@@ -12,14 +12,7 @@
   },
   "all-accounts": {
     "switch": {
-      "to-mainnet": {
-        "short": "Mainnet",
-        "long": "Passa a Mainnet"
-      },
-      "to-testnet": {
-        "short": "Testnet",
-        "long": "Passa a Testnet"
-      }
+      "label": "Testnet"
     },
     "update": {
       "notification": {
@@ -53,7 +46,7 @@
       },
       "support": "Hai un problema con l'app? <1 /> Contattaci tramite",
       "title": "Errore",
-      "offline": "disconnesso"
+      "offline": "Disconnesso"
     },
     "permission": {
       "app-notification": {

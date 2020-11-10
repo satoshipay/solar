@@ -31,7 +31,7 @@
       "max-button": {
         "label": "Max"
       },
-      "placeholder": "Max. {{quantità}}"
+      "placeholder": "Max. {{amount}}"
     },
     "primary-asset-selector": {
       "label": {
@@ -60,7 +60,7 @@
     "invalid-price": "Prezzo non valido"
   },
   "warning": {
-    "title": "avvertimento",
+    "title": "Avvertimento",
     "message": "La differenza tra prezzo di acquisto e prezzo di vendita è circa {{spread}}%."
   }
 }

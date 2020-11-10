@@ -20,7 +20,7 @@
     },
     "price": {
       "label": "Quantità",
-      "placeholder": "Max. {{quantità}}"
+      "placeholder": "Max. {{amount}}"
     }
   },
   "title": {

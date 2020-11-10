@@ -110,6 +110,13 @@
           "local-key": "Chiave locale"
         }
       },
+      "new-signer": {
+        "label": "Chiave Pubblica o indirizzo Stellar",
+        "placeholder": {
+          "long": "GABC… o indirizzo",
+          "short": "GABCDEFGHIJK… or alice*example.org"
+        }
+      },
       "validation": {
         "existing-signer": "Impossibile aggiungere un firmatario esistente.",
         "integer-required": "Deve essere un numero intero.",
@@ -163,7 +170,7 @@
         "label": "Nuova password"
       },
       "next-password-repeat": {
-        "label": "ripetere la nuova password"
+        "label": "Ripetere la nuova password"
       }
     },
     "title": {

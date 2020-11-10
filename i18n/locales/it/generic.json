@@ -12,7 +12,7 @@
       "contact-us": "Contattaci tramite"
     },
     "bad-response-error": "Risposta errata ({{status}}) dal server {{server}}",
-    "bad-transaction-error": "Cattiva transazione data. Era prevista una transazione o TransactionRecord",
+    "bad-transaction-error": "Cattiva transazione data. Era prevista una transazione o TransactionRecord, ma ottenuto: {{transaction}}",
     "bio-auth-test-canceled": "Autenticazione biometrica annullata",
     "expected-json-response-error": "Previsto che {{url}} restituisse una risposta JSON. Il tipo di contenuto era invece {{contentType}}.",
     "existing-account-error": "Esiste già un account con quel nome.",
@@ -20,7 +20,7 @@
     "fetch-signature-requests-error": "Recupero delle richieste di firma non riuscito: {{response}} \nService: {{service}}",
     "invariant-violation-error": "Violazione invariante: {{message}}",
     "low-reserve-order-error": "Impossibile effettuare l'ordine perché il saldo XLM spendibile è troppo basso.",
-    "memo-already-specified-error": "Impossibile impostare un promemoria personalizzato. Il record della federazione di {{destinazione}} specifica già il memo.",
+    "memo-already-specified-error": "Impossibile impostare un promemoria personalizzato. Il record della federazione di {{destination}} specifica già il memo.",
     "missing-info-error": "Impossibile effettuare la transazione, perché {{transferServer}} non sono state inviate tutte le informazioni richieste.",
     "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
     "no-callback-url-error": "Impossibile inviare di nuovo al servizio multi-firma. Per la richiesta di firma non è stato impostato alcun URL di richiamata.",
@@ -33,6 +33,7 @@
     "stellar-address-request-failed-error": "Risoluzione stellare dell'indirizzo di {{address}} non riuscita.",
     "submission-failed-error": "Invio della transazione a {{endpoint}} fallita {{status}}: {{message}}",
     "testnet-endpoint-not-available-error": "{{service}} non fornisce un endpoint testnet.",
+    "timeout-error": "Richiesta scaduta",
     "unexpected-action-error": "Azione imprevista: {{action}}",
     "unexpected-state-error": "Stato imprevisto riscontrato: {{state}}",
     "unexpected-response-type-error": "Tipo di risposta imprevista: {{type}} / ${dataType}",
@@ -72,6 +73,14 @@
   "qr-reader": {
     "action": {
       "cancel": "Annulla"
+    }
+  },
+  "submission-progress": {
+    "pending": "Invio alla rete ...",
+    "success": {
+      "default": "Successo",
+      "multisig": "Attesa per le firme mancanti",
+      "third-party": "Attesa per l'autorizzazione del servizio di terze-parti"
     }
   },
   "testnet-badge": {
