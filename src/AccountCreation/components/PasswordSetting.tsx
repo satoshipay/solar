@@ -5,6 +5,14 @@ import ListItemText from "@material-ui/core/ListItemText"
 import Switch from "@material-ui/core/Switch"
 import AccountSettingsItem from "~AccountSettings/components/AccountSettingsItem"
 import PasswordField from "~Generic/components/PasswordField"
+import ViewLoading from "~Generic/components/ViewLoading"
+import withFallback from "~Generic/hocs/withFallback"
+
+// lazy load because `zxcvbn` bundle size is big
+const PasswordStrengthTextField = withFallback(
+  React.lazy(() => import("~Generic/components/PasswordStrengthTextField")),
+  <ViewLoading style={{ justifyContent: "flex-end" }} />
+)
 
 interface PasswordSettingProps {
   error?: string
@@ -12,12 +20,22 @@ interface PasswordSettingProps {
   onEnterPassword: (password: string) => void
   onRepeatPassword: (password: string) => void
   onTogglePassword: () => void
+  onPasswordStrengthChange: (weak: boolean) => void
   repeatedPassword: string
   requiresPassword: boolean
 }
 
 function PasswordSetting(props: PasswordSettingProps) {
+  const { onPasswordStrengthChange } = props
   const { t } = useTranslation()
+
+  const onScoreChange = React.useCallback(
+    (score: number) => {
+      const weak = score < 3 ? true : false
+      onPasswordStrengthChange(weak)
+    },
+    [onPasswordStrengthChange]
+  )
 
   return (
     <>
@@ -39,12 +57,13 @@ function PasswordSetting(props: PasswordSettingProps) {
       <Collapse in={props.requiresPassword}>
         <AccountSettingsItem icon={null} subItem>
           <ListItemText style={{ marginLeft: 12, marginRight: 56, marginTop: -8 }}>
-            <PasswordField
+            <PasswordStrengthTextField
               error={Boolean(props.error)}
               fullWidth
               label={t("create-account.inputs.password.label")}
               margin="normal"
               onChange={event => props.onEnterPassword(event.target.value)}
+              onScoreChange={onScoreChange}
               placeholder={t("create-account.inputs.password.placeholder")}
               value={props.password}
             />

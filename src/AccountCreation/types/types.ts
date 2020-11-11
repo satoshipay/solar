@@ -7,6 +7,7 @@ export interface AccountCreation {
   requiresPassword: boolean
   secretKey?: string
   testnet: boolean
+  weakPassword: boolean
 }
 
 export interface AccountCreationErrors {

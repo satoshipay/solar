@@ -2,13 +2,13 @@ import React from "react"
 import { useTranslation, Trans } from "react-i18next"
 import { ActionButton, ConfirmDialog } from "~Generic/components/DialogActions"
 
-interface NoPasswordConfirmationProps {
+interface WeakPasswordConfirmationProps {
   onClose: () => void
   onConfirm: () => void
   open: boolean
 }
 
-function NoPasswordConfirmation(props: NoPasswordConfirmationProps) {
+function WeakPasswordConfirmation(props: WeakPasswordConfirmationProps) {
   const { t } = useTranslation()
   return (
     <ConfirmDialog
@@ -20,14 +20,15 @@ function NoPasswordConfirmation(props: NoPasswordConfirmationProps) {
       }
       onClose={props.onClose}
       open={props.open}
-      title={t("create-account.confirm-no-password.title")}
+      title={t("create-account.confirm-weak-password.title")}
     >
-      <Trans i18nKey="create-account.confirm-no-password.text">
-        You are about to create an account without password protection. Anyone that has access to your device will have
-        access to your account funds. <br /> <br /> Are you sure you want to continue without setting up a password?
+      <Trans i18nKey="create-account.confirm-weak-password.text">
+        You are about to protect this account with a weak password. Anyone that has access to your device will have
+        access to your account funds. <br /> <br /> Are you sure you want to continue without setting up a strong
+        password?
       </Trans>
     </ConfirmDialog>
   )
 }
 
-export default React.memo(NoPasswordConfirmation)
+export default React.memo(WeakPasswordConfirmation)

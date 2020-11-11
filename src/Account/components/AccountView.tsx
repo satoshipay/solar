@@ -4,6 +4,7 @@ import Dialog from "@material-ui/core/Dialog"
 import AccountActions from "~Account/components/AccountActions"
 import AccountCreationActions from "~AccountCreation/components/AccountCreationActions"
 import NoPasswordConfirmation from "~AccountCreation/components/NoPasswordConfirmation"
+import WeakPasswordConfirmation from "~AccountCreation/components/WeakPasswordConfirmation"
 import { AccountCreation } from "~AccountCreation/types/types"
 import useAccountCreation from "~AccountCreation/hooks/useAccountCreation"
 import AccountHeaderCard from "~Account/components/AccountHeaderCard"
@@ -82,6 +83,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const { renameAccount } = React.useContext(AccountsContext)
   const [accountToBackup, setAccountToBackup] = React.useState<Account | null>(null)
   const [noPasswordDialogOpen, setNoPasswordDialogOpen] = React.useState(false)
+  const [weakPasswordDialogOpen, setWeakPasswordDialogOpen] = React.useState(false)
 
   const showAccountCreation =
     matchesRoute(router.location.pathname, routes.createAccount(props.testnet), false) ||
@@ -189,12 +191,23 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       return
     }
 
-    if (!accountCreation.requiresPassword && !props.testnet) {
+    if (accountCreation.requiresPassword && accountCreation.weakPassword) {
+      setWeakPasswordDialogOpen(true)
+    } else if (!accountCreation.requiresPassword && !props.testnet) {
       setNoPasswordDialogOpen(true)
     } else {
       createNewAccount()
     }
   }, [accountCreation, createNewAccount, props.testnet, validateAccountCreation])
+
+  const closeWeakPasswordDialog = React.useCallback(() => {
+    setWeakPasswordDialogOpen(false)
+  }, [])
+
+  const confirmWeakPasswordDialog = React.useCallback(() => {
+    setWeakPasswordDialogOpen(false)
+    createNewAccount()
+  }, [createNewAccount])
 
   const closeNoPasswordDialog = React.useCallback(() => {
     setNoPasswordDialogOpen(false)
@@ -423,11 +436,18 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
         </>
       ) : null}
       {props.account ? null : (
-        <NoPasswordConfirmation
-          onClose={closeNoPasswordDialog}
-          onConfirm={confirmNoPasswordDialog}
-          open={noPasswordDialogOpen}
-        />
+        <>
+          <NoPasswordConfirmation
+            onClose={closeNoPasswordDialog}
+            onConfirm={confirmNoPasswordDialog}
+            open={noPasswordDialogOpen}
+          />
+          <WeakPasswordConfirmation
+            onClose={closeWeakPasswordDialog}
+            onConfirm={confirmWeakPasswordDialog}
+            open={weakPasswordDialogOpen}
+          />
+        </>
       )}
     </VerticalLayout>
   )

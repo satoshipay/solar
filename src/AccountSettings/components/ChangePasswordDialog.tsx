@@ -6,6 +6,7 @@ import InputAdornment from "@material-ui/core/InputAdornment"
 import Switch from "@material-ui/core/Switch"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
+import WeakPasswordConfirmation from "~AccountCreation/components/WeakPasswordConfirmation"
 import { Account, AccountsContext } from "~App/contexts/accounts"
 import { NotificationsContext } from "~App/contexts/notifications"
 import { useIsMobile } from "~Generic/hooks/userinterface"
@@ -13,8 +14,16 @@ import { renderFormFieldError, isWrongPasswordError } from "~Generic/lib/errors"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import MainTitle from "~Generic/components/MainTitle"
 import PasswordField from "~Generic/components/PasswordField"
+import ViewLoading from "~Generic/components/ViewLoading"
+import withFallback from "~Generic/hocs/withFallback"
 import { Box, HorizontalLayout } from "~Layout/components/Box"
 import DialogBody from "~Layout/components/DialogBody"
+
+// lazy load because `zxcvbn` bundle size is big
+const PasswordStrengthTextField = withFallback(
+  React.lazy(() => import("~Generic/components/PasswordStrengthTextField")),
+  <ViewLoading style={{ justifyContent: "flex-end" }} />
+)
 
 const adornmentLock = (
   <InputAdornment position="start">
@@ -32,6 +41,7 @@ interface FormValues {
   nextPassword: string
   nextPasswordRepeat: string
   prevPassword: string
+  weakPassword: boolean
 }
 
 type Errors = { [key in keyof FormValues]?: Error | undefined }
@@ -115,68 +125,89 @@ function ChangePasswordDialog(props: Props) {
   const [formValues, setFormValues] = React.useState<FormValues>({
     nextPassword: "",
     nextPasswordRepeat: "",
-    prevPassword: ""
+    prevPassword: "",
+    weakPassword: true
   })
   const [removingPassword, setRemovingPassword] = React.useState(false)
+  const [weakPasswordDialogOpen, setWeakPasswordDialogOpen] = React.useState(false)
+
   const validate = useFormValidation()
   const { t } = useTranslation()
 
-  const changePassword = () => {
-    const { id: accountID, requiresPassword } = props.account
-    const { nextPassword, prevPassword } = formValues
-
-    const passwordMode = requiresPassword ? "change" : "initial"
-
-    const validation = validate(formValues, passwordMode)
-    setErrors(validation.errors)
-
-    if (validation.success) {
-      // TODO: Show confirmation prompt (dialog)
-      Accounts.changePassword(accountID, prevPassword, nextPassword)
-        .then(() => {
-          showNotification(
-            "success",
-            requiresPassword
-              ? t("account-settings.set-password.notification.password-changed")
-              : t("account-settings.set-password.notification.password-set")
-          )
-          props.onClose()
-        })
-        .catch(error => {
-          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
-        })
-    }
-  }
   const onClose = () => {
     props.onClose()
     setFormValues({
       nextPassword: "",
       nextPasswordRepeat: "",
-      prevPassword: ""
+      prevPassword: "",
+      weakPassword: true
     })
   }
-  const removePassword = () => {
-    const validation = validate(formValues, "remove")
-    setErrors(validation.errors)
 
-    if (validation.success) {
-      // TODO: Show confirmation prompt (dialog)
-      Accounts.removePassword(props.account.id, formValues.prevPassword)
-        .then(() => {
-          showNotification("success", t("account-settings.set-password.notification.password-removed"))
-          props.onClose()
-        })
-        .catch(error => {
-          isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
-        })
+  const changePassword = () => {
+    const { id: accountID, requiresPassword } = props.account
+    const { nextPassword, prevPassword } = formValues
+
+    // TODO: Show confirmation prompt (dialog)
+    Accounts.changePassword(accountID, prevPassword, nextPassword)
+      .then(() => {
+        showNotification(
+          "success",
+          requiresPassword
+            ? t("account-settings.set-password.notification.password-changed")
+            : t("account-settings.set-password.notification.password-set")
+        )
+        onClose()
+      })
+      .catch(error => {
+        isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
+      })
+  }
+
+  const removePassword = () => {
+    // TODO: Show confirmation prompt (dialog)
+    Accounts.removePassword(props.account.id, formValues.prevPassword)
+      .then(() => {
+        showNotification("success", t("account-settings.set-password.notification.password-removed"))
+        onClose()
+      })
+      .catch(error => {
+        isWrongPasswordError(error) ? setErrors({ prevPassword: error }) : showError(error)
+      })
+  }
+
+  const submit = () => {
+    if (removingPassword) {
+      const validation = validate(formValues, "remove")
+      setErrors(validation.errors)
+
+      if (validation.success) {
+        removePassword()
+      }
+    } else {
+      const { requiresPassword } = props.account
+      const passwordMode = requiresPassword ? "change" : "initial"
+
+      const validation = validate(formValues, passwordMode)
+      setErrors(validation.errors)
+
+      if (validation.success) {
+        if (formValues.weakPassword) {
+          setWeakPasswordDialogOpen(true)
+        } else {
+          changePassword()
+        }
+      }
     }
   }
-  const setFormValue = (name: keyof FormValues, value: string) => {
+
+  const setFormValue = (name: keyof FormValues, value: string | boolean) => {
     setFormValues({
       ...formValues,
       [name]: value
     })
   }
+
   const toggleRemovePassword = () => setRemovingPassword(!removingPassword)
 
   return (
@@ -198,7 +229,7 @@ function ChangePasswordDialog(props: Props) {
         <DialogActions style={{ margin: "32px 0 0" }}>
           <Actions
             isPasswordProtected={props.account.requiresPassword}
-            onSubmit={removingPassword ? removePassword : changePassword}
+            onSubmit={submit}
             onToggleRemovePassword={toggleRemovePassword}
             removePassword={removingPassword}
           />
@@ -229,7 +260,7 @@ function ChangePasswordDialog(props: Props) {
           />
         </Box>
         <Box basis="400px" grow={0} hidden={removingPassword} margin="0 16px" shrink>
-          <PasswordField
+          <PasswordStrengthTextField
             autoFocus={!props.account.requiresPassword && process.env.PLATFORM !== "ios"}
             error={Boolean(errors.nextPassword)}
             label={
@@ -241,6 +272,7 @@ function ChangePasswordDialog(props: Props) {
             margin="normal"
             value={formValues.nextPassword}
             onChange={event => setFormValue("nextPassword", event.target.value)}
+            onScoreChange={score => setFormValue("weakPassword", score < 3)}
             InputProps={{ startAdornment: adornmentLock }}
           />
           <PasswordField
@@ -258,6 +290,14 @@ function ChangePasswordDialog(props: Props) {
           />
         </Box>
       </HorizontalLayout>
+      <WeakPasswordConfirmation
+        onClose={() => setWeakPasswordDialogOpen(false)}
+        onConfirm={() => {
+          removingPassword ? removePassword() : changePassword()
+          setWeakPasswordDialogOpen(false)
+        }}
+        open={weakPasswordDialogOpen}
+      />
     </DialogBody>
   )
 }
