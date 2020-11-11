@@ -14,7 +14,7 @@ import { Account } from "~App/contexts/accounts"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { containsThirdPartySigner, ThirdPartySecurityService } from "~Generic/lib/third-party-security"
-import { primaryBackgroundColor } from "~App/theme"
+import { testnetColor } from "~App/theme"
 import { HorizontalLayout } from "~Layout/components/Box"
 import MainTitle from "~Generic/components/MainTitle"
 
@@ -42,9 +42,9 @@ function TestnetBadge(props: { style?: React.CSSProperties }) {
     display: "inline-flex",
     alignItems: "center",
     padding: "5px",
-    background: "white",
+    background: testnetColor.main,
     borderRadius: 3,
-    color: primaryBackgroundColor,
+    color: "white",
     fontSize: "50%",
     fontWeight: "bold",
     lineHeight: "100%",
