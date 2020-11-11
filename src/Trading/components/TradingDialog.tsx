@@ -20,6 +20,7 @@ import TransactionSender from "~Transaction/components/TransactionSender"
 import ViewLoading from "~Generic/components/ViewLoading"
 import MainActionSelection from "./MainActionSelection"
 import TradingForm from "./TradingForm"
+import TestnetBadge from "~Generic/components/TestnetBadge"
 
 interface TradingDialogProps {
   account: Account
@@ -136,7 +137,15 @@ function TradingDialog(props: TradingDialogProps) {
     <DialogBody
       top={
         <>
-          <MainTitle title={t("trading.title")} onBack={primaryAction ? clearPrimaryAction : props.onClose} />
+          <MainTitle
+            title={
+              <span>
+                {t("trading.title")}
+                {props.account.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+              </span>
+            }
+            onBack={primaryAction ? clearPrimaryAction : props.onClose}
+          />
           <ScrollableBalances account={props.account} compact />
         </>
       }
