@@ -112,6 +112,34 @@ Note: Application signing has only been tested on a Mac OS development machine s
 
 See [Cordova build readme](./cordova/README.md).
 
+## Contributing translations
+
+This project uses [i18next](https://www.i18next.com/) for internationalization.
+Because of limited resources we decided to make this a community effort.
+Thus all contributions of translations to this project are very welcome and appreciated.
+
+If you want to contribute translations for a new language follow the steps below: (_Note:_ Words in curly braces have to be replaced according to context/language.)
+
+1. Fork this project and create a new branch called `feature/add-{language}-translations`
+1. Checkout the new branch
+1. Create a new folder for the locale you want to contribute at `{project-root}/i18n/locales/{language-code}` (choose the corresponding two-letter language code from [this](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) list of ISO 639-1 codes)
+1. Copy all files from the folder `{project-root}/i18n/locales/en` to the one you just created
+1. Replace the strings in the copied files with your translations
+   - Do not change values contained in double curly braces (`{{...}}`), these are used by [i18next](https://www.i18next.com/translation-function/interpolation) to integrate dynamic values into the translations
+   - Be precise regarding capitalization, i.e. start translated strings with uppercase/lowercase letters according to the english locale
+1. Copy the file `{project-root}/i18n/en.ts` and paste it into the same directoy renaming it to `{project-root}/i18n/{language-code}.ts`
+1. Open the new file and adjust the paths of the `import` statements
+   (e.g. replace `import App from "./locales/en/app.json"` with `import App from "./locales/{language-code}/app.json"`)
+1. Add your language code to the list of available languages in `{project-root}/i18n/index.ts`
+1. Open `{project-root}/src/App/i18n.ts` and add a new `import translation{LANGUAGE-CODE} from "../../i18n/{language-code}"` statement as well as your new locale to the `resources` object
+
+**Note**: The english locale should always be used for reference, i.e. you should base your translations on the contents of [i18n/locales/en](./i18n/locales/en).
+
+Afterwards you can test if everything works fine by locally running the [development](#development) enviroment.
+You can change the displayed language in the applications settings menu.
+
+Once done you can submit a new pull request from your fork to the upstream repository.
+
 ## License
 
 MIT
