@@ -91,7 +91,7 @@ function TradingDialog(props: TradingDialogProps) {
           <TradingForm
             account={props.account}
             accountData={accountData}
-            dialogActionsRef={dialogActionsRef}
+            dialogActionsRef={primaryAction ? dialogActionsRef : null}
             initialPrimaryAsset={preselectedAsset}
             primaryAction={primaryAction || "buy"}
             sendTransaction={props.sendTransaction}

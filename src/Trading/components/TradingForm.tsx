@@ -67,7 +67,7 @@ interface Props {
   account: Account
   accountData: AccountData
   className?: string
-  dialogActionsRef: RefStateObject
+  dialogActionsRef: RefStateObject | null
   initialPrimaryAsset?: Asset
   primaryAction: "buy" | "sell"
   sendTransaction: (transaction: Transaction) => void
@@ -389,7 +389,7 @@ function TradingForm(props: Props) {
             )}
           </Box>
         ) : null}
-        <Portal target={props.dialogActionsRef.element}>
+        <Portal target={props.dialogActionsRef?.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
             <ActionButton icon={<GavelIcon />} onClick={form.handleSubmit(submitForm)} type="primary">
               {t("trading.action.submit")}
