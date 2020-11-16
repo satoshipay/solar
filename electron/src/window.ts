@@ -26,6 +26,9 @@ export function createMainWindow() {
     backgroundColor: "#0196E8",
     titleBarStyle: process.platform === "darwin" ? "hidden" : "default",
     webPreferences: {
+      contextIsolation: true, // isolate context for preload scripts
+      disableBlinkFeatures: "Auxclick", // prevent middle-click events (see https://git.io/Jeu1K)
+      enableRemoteModule: false,
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
       preload: isDev ? path.join(__dirname, "..", "lib", "preload.js") : path.join(__dirname, "preload.js"),
