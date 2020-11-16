@@ -239,17 +239,16 @@ interface ManageDataOperationProps {
 
 function ManageDataOperation(props: ManageDataOperationProps) {
   const { t } = useTranslation()
+
+  const value = props.operation.value
+    ? isUTF8(props.operation.value)
+      ? props.operation.value.toString("utf8")
+      : props.operation.value.toString("base64")
+    : undefined
+
   return (
     <SummaryItem heading={props.hideHeading ? undefined : t("operations.manage-data.title")}>
-      <SummaryDetailsField
-        fullWidth
-        label={props.operation.name}
-        value={
-          isUTF8(props.operation.value)
-            ? props.operation.value.toString("utf8")
-            : props.operation.value.toString("base64")
-        }
-      />
+      <SummaryDetailsField fullWidth label={props.operation.name} value={value} />
     </SummaryItem>
   )
 }
