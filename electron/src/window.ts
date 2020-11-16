@@ -51,10 +51,27 @@ export function createMainWindow() {
 
   window.loadURL(webappURL)
 
+  window.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (!webContents.getURL().startsWith("file://") && (permission === "media" || permission === "openExternal")) {
+      return callback(false)
+    } else {
+      return callback(true)
+    }
+  })
+
   // subscribes to window.open and <a target="_blank"></a> links and opens the url in the browser
   window.webContents.on("new-window", (event, url) => {
     event.preventDefault()
-    shell.openExternal(url)
+    if (window.webContents.getURL().startsWith("file://")) {
+      shell.openExternal(url)
+    }
+  })
+
+  window.webContents.on("will-navigate", event => {
+    // limit navigation flows to unstrusted origins
+    if (!window.webContents.getURL().startsWith("file://")) {
+      event.preventDefault()
+    }
   })
 
   // subscribe this window to deeplink urls
