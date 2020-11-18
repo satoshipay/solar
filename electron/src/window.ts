@@ -62,7 +62,17 @@ export function createMainWindow() {
   // subscribes to window.open and <a target="_blank"></a> links and opens the url in the browser
   window.webContents.on("new-window", (event, url) => {
     event.preventDefault()
-    shell.openExternal(url)
+    if (window.webContents.getURL().startsWith("file://")) {
+      shell.openExternal(url)
+    }
+  })
+
+  // unlikely to be triggered because we programmatically handle user navigation
+  window.webContents.on("will-redirect", (event, url) => {
+    // limit navigation flows to unstrusted origins
+    if (!window.webContents.getURL().startsWith("file://")) {
+      event.preventDefault()
+    }
   })
 
   // subscribe this window to deeplink urls
