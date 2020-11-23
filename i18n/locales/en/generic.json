@@ -57,6 +57,9 @@
         "op_self_not_allowed": "Account cannot trust assets issued by itself.",
         "op_underfunded": "Not enough funds to perform this operation."
       },
+      "prefix": {
+        "server-error": "Server Error"
+      },
       "tx-result-code": {
         "insufficient_fee": "Network demands higher fees than set in the transaction.",
         "internal_error": "An unknown error occured on the Stellar server.",
