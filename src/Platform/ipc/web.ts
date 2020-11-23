@@ -149,15 +149,18 @@ function initKeyStore() {
   callHandlers[Messages.SignTransaction] = signTransaction
 }
 
+const defaultSettings: Platform.SettingsData = {
+  agreedToTermsAt: "2019-01-17T07:34:05.688Z",
+  biometricLock: false,
+  multisignature: true,
+  testnet: true,
+  trustedServices: [],
+  hideMemos: false
+}
+
 function initSettings() {
-  let settings: Platform.SettingsData = {
-    agreedToTermsAt: "2019-01-17T07:34:05.688Z",
-    biometricLock: false,
-    multisignature: true,
-    testnet: true,
-    trustedServices: [],
-    hideMemos: false
-  }
+  const storedSettings = localStorage.getItem("solar:settings")
+  let settings = storedSettings ? JSON.parse(storedSettings) : defaultSettings
 
   callHandlers[Messages.BioAuthAvailable] = () => ({ available: false, enrolled: false })
 
@@ -167,6 +170,8 @@ function initSettings() {
       ...settings,
       ...updatedSettings
     }
+
+    localStorage.setItem("solar:settings", JSON.stringify(settings))
   }
 
   callHandlers[Messages.ReadIgnoredSignatureRequestHashes] = () => {
