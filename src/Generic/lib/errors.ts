@@ -102,8 +102,15 @@ export function getErrorTranslation(error: Error, t: TFunction): string {
   const key = `generic.error.${toKebabCase(error.name)}`
   const params = CustomError.isCustomError(error) ? pick(error, error.__extraProps || []) : undefined
 
+  let prefix = ""
+  if (params && params["status"] && String(params["status"]).startsWith("5")) {
+    // explicity state it's a server error
+    prefix = t("generic.error.submission-error.prefix.server-error")
+    prefix += ": "
+  }
+
   const fallback = error.message
-  return t([key, fallback], params)
+  return prefix + t([key, fallback], params)
 }
 
 export function renderFormFieldError(error: any, t: TFunction) {
