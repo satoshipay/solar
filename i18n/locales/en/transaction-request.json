@@ -1,0 +1,14 @@
+{
+  "verify-trusted-service": {
+    "action": {
+      "trust": "Trust",
+      "cancel": "Cancel"
+    },
+    "title": "Verify Trusted Service",
+    "info": {
+      "1": "You opened a Stellar URI originating from an untrusted service",
+      "2": "If you trust this domain you can add this service to your list of trusted services.",
+      "3": "You can view and edit your list of trusted services anytime in the application settings."
+    }
+  }
+}
