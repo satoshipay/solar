@@ -113,8 +113,8 @@
       "new-signer": {
         "label": "Chiave Pubblica o indirizzo Stellar",
         "placeholder": {
-          "long": "GABC… o indirizzo",
-          "short": "GABCDEFGHIJK… or alice*example.org"
+          "long": "GABCDEFGHIJK… o alice*example.org",
+          "short": "GABC… o indirizzo"
         }
       },
       "validation": {
