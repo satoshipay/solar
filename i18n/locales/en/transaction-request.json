@@ -1,4 +1,24 @@
 {
+  "payment-account-selection": {
+    "action": {
+      "dismiss": "Dismiss",
+      "select": "Select"
+    },
+    "header": {
+      "origin-domain": "You opened the following payment request from <1>{{originDomain}} <3>",
+      "no-origin-domain": "You opened the following payment request from an unknown origin"
+    },
+    "footer": "Please select the account that you want to use for this payment.",
+    "uri-content": {
+      "any": "Any",
+      "pay": "Pay",
+      "to": "To",
+      "memo": "Memo",
+      "message": "Message"
+    },
+    "title": "Select Account for Payment",
+    "warning": "This request did not include a signature! Make sure that you trust the source of this link!"
+  },
   "verify-trusted-service": {
     "action": {
       "trust": "Trust",
