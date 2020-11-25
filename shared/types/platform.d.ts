@@ -1,6 +1,6 @@
 interface TrustedService {
   domain: string
-  signingKey: string
+  signingKey?: string
 }
 
 declare namespace Platform {
