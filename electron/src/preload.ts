@@ -1,5 +1,5 @@
 // tslint:disable-next-line: no-var-requires
-const { ipcRenderer } = require("electron")
+const { contextBridge, ipcRenderer } = require("electron")
 const electronProcess = process
 
 function sendMessage<Message extends keyof IPC.MessageType>(
@@ -55,7 +55,7 @@ const electron: ElectronContext = {
   subscribeToIPCMessages
 }
 
-global.electron = window.electron = electron
+contextBridge.exposeInMainWorld("electron", electron)
 
 process.once("loaded", () => {
   const newProcess = {
@@ -64,5 +64,5 @@ process.once("loaded", () => {
     platform: electronProcess.platform
   }
 
-  global.process = window.process = newProcess as NodeJS.Process
+  contextBridge.exposeInMainWorld("process", newProcess)
 })

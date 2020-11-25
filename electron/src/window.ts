@@ -26,6 +26,9 @@ export function createMainWindow() {
     backgroundColor: "#0196E8",
     titleBarStyle: process.platform === "darwin" ? "hidden" : "default",
     webPreferences: {
+      contextIsolation: true, // isolate context for preload scripts
+      disableBlinkFeatures: "Auxclick", // prevent middle-click events (see https://git.io/Jeu1K)
+      enableRemoteModule: false,
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
       preload: isDev ? path.join(__dirname, "..", "lib", "preload.js") : path.join(__dirname, "preload.js"),
@@ -48,10 +51,28 @@ export function createMainWindow() {
 
   window.loadURL(webappURL)
 
+  window.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (!webContents.getURL().startsWith("file://") && (permission === "media" || permission === "openExternal")) {
+      return callback(false)
+    } else {
+      return callback(true)
+    }
+  })
+
   // subscribes to window.open and <a target="_blank"></a> links and opens the url in the browser
   window.webContents.on("new-window", (event, url) => {
     event.preventDefault()
-    shell.openExternal(url)
+    if (window.webContents.getURL().startsWith("file://")) {
+      shell.openExternal(url)
+    }
+  })
+
+  // unlikely to be triggered because we programmatically handle user navigation
+  window.webContents.on("will-redirect", (event, url) => {
+    // limit navigation flows to unstrusted origins
+    if (!window.webContents.getURL().startsWith("file://")) {
+      event.preventDefault()
+    }
   })
 
   // subscribe this window to deeplink urls
