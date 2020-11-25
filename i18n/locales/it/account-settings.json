@@ -1,0 +1,221 @@
+{
+  "account-deletion": {
+    "action": {
+      "cancel": "Annulla",
+      "confirm": "Conferma",
+      "delete": "Elimina",
+      "merge": {
+        "long": "Unisciti a",
+        "short": "Unisci"
+      }
+    },
+    "confirm": {
+      "title": "Conferma la cancellazione",
+      "text": {
+        "confirm": "Sei sicuro?",
+        "delete": "L'account verrà eliminato",
+        "merge": "e i fondi rimanenti trasferiti"
+      }
+    },
+    "remaining-funds": {
+      "text": "Invia i fondi rimanenti a"
+    },
+    "text": {
+      "1": "Sei sicuro di voler eliminare l'account \"{{accountName}}\"?",
+      "2": "Assicurati di eseguire il backup della tua chiave privata o di unire i fondi in un altro tuo account, poiché ci sono ancora fondi rimasti!"
+    },
+    "title": "Conferma l'eliminazione dell'account",
+    "warning-dialog": {
+      "close": {
+        "label": "ok"
+      }
+    },
+    "warnings": {
+      "cannot-merge": {
+        "text": "Non è ancora possibile unire l'account. Per prima cosa devi annullare tutti gli ordini di trading aperti e rimuovere tutte le risorse.",
+        "title": "Azione manuale richiesta"
+      }
+    }
+  },
+  "custom-trustline": {
+    "action": {
+      "cancel": "Annulla",
+      "trust": {
+        "long": "Fidati della moneta",
+        "short": "Fiducia"
+      }
+    },
+    "textfield": {
+      "code": {
+        "label": "Codice"
+      },
+      "issuer": {
+        "label": "Emittente",
+        "placeholder": "Rilascio della chiave pubblica dell'account"
+      },
+      "limit": {
+        "label": "Limite (opzionale)",
+        "placeholder": "Limita la fiducia in questa risorsa / saldo massimo da mantenere"
+      }
+    },
+    "title": "Aggiungi risorsa personalizzata"
+  },
+  "export-key": {
+    "action": {
+      "confirm": "Fatto",
+      "reveal": {
+        "long": "Rivela la chiave",
+        "short": "Fai clic per rivelare la chiave segreta"
+      }
+    },
+    "info": {
+      "backup": {
+        "title": "Esegui il backup della tua chiave segreta ora",
+        "paragraph-1": "Il backup della chiave segreta è l'unico modo per recuperare i tuoi fondi se dimentichi la password o non riesci più ad accedere al tuo dispositivo.",
+        "paragraph-2": "Annota la chiave o stampala. Conservala in un luogo sicuro e non condividerla con nessuno."
+      },
+      "export": {
+        "paragraph-1": "Il backup della chiave segreta è l'unico modo per recuperare i tuoi fondi se dimentichi la password o non riesci più ad accedere al tuo dispositivo.",
+        "paragraph-2": "Annota la chiave o stampala. Conservala in un luogo sicuro e non condividerla con nessuno."
+      },
+      "secret-key": "Annota la chiave su carta e conservala in un luogo sicuro.",
+      "tap-to-copy": "Tocca per copiare"
+    },
+    "textfield": {
+      "password": {
+        "label": "Password"
+      }
+    },
+    "title": {
+      "default": "Esporta la chiave segreta",
+      "initial-backup": "Backup della chiave segreta"
+    }
+  },
+  "manage-signers": {
+    "action": {
+      "add-co-signer": {
+        "long": "Aggiungi co-firmatario",
+        "short": "Firmatario"
+      },
+      "cancel": "Annulla",
+      "apply": {
+        "long": "Applica i cambiamenti",
+        "short": "Applica"
+      }
+    },
+    "signers-editor": {
+      "list": {
+        "item": {
+          "weight": "Peso",
+          "local-key": "Chiave locale"
+        }
+      },
+      "new-signer": {
+        "label": "Chiave Pubblica o indirizzo Stellar",
+        "placeholder": {
+          "long": "GABC… o indirizzo",
+          "short": "GABCDEFGHIJK… or alice*example.org"
+        }
+      },
+      "validation": {
+        "existing-signer": "Impossibile aggiungere un firmatario esistente.",
+        "integer-required": "Deve essere un numero intero.",
+        "invalid-stellar-address": "Attesa una chiave pubblica o un indirizzo stellare."
+      }
+    },
+    "textfield": {
+      "weight-threshold": {
+        "explanation": {
+          "required-signatures": "Ogni transazione deve essere firmata da {{amount}} firmatari",
+          "required-weight": "Ogni transazione deve essere firmata dai firmatari con un peso chiave combinato di {{amount}}"
+        },
+        "label": {
+          "required-signatures": "Firme richieste",
+          "required-weight": "Peso chiave richiesto"
+        }
+      }
+    },
+    "title": {
+      "long": "Gestisci firmatari",
+      "short": "Gestisci i firmatari dell'account"
+    },
+    "validation": {
+      "no-signers": "Nessun firmatario rimasto. Non chiuderti fuori!",
+      "invalid-weight-type": "Il peso deve essere un numero intero",
+      "threshold-higher-than-weights": "Soglia superiore ai pesi chiave combinati",
+      "no-threshold": "Si prega di impostare una soglia"
+    }
+  },
+  "set-password": {
+    "action": {
+      "change-password": {
+        "long": "Cambia la password",
+        "short": "Modifica"
+      },
+      "remove-password": {
+        "long": "Rimuovi la password",
+        "short": "Rimuovi"
+      }
+    },
+    "notification": {
+      "password-changed": "Password cambiata.",
+      "password-set": "Password impostata.",
+      "password-removed": "Password rimossa."
+    },
+    "textfield": {
+      "prev-password": {
+        "label": "Password attuale"
+      },
+      "next-password": {
+        "label": "Nuova password"
+      },
+      "next-password-repeat": {
+        "label": "Ripetere la nuova password"
+      }
+    },
+    "title": {
+      "change-password": "Cambia la password",
+      "set-password": "Impostare la password"
+    },
+    "validation": {
+      "next-password-missing": "Immettere una password o impostare \"Rimuovi password\".",
+      "next-password-repeat-missing": "Ripeti la password.",
+      "passwords-no-match": "La password non corrisponde",
+      "previous-password-missing": "Manca la password attuale."
+    }
+  },
+  "settings": {
+    "delete-account": {
+      "text": {
+        "primary": "Unisci o elimina account"
+      }
+    },
+    "export-secret-key": {
+      "text": {
+        "primary": "Esporta chiave segreta",
+        "secondary": "Decifra e mostra la chiave privata"
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Multi-firma",
+        "secondary": {
+          "short": "Gestisci i cofirmatari",
+          "long": "Crea account con firma multipla e gestisci i co-firmatari"
+        }
+      }
+    },
+    "set-password": {
+      "text": {
+        "primary": {
+          "account-protected": "Cambia la password",
+          "account-not-protected": "Impostar la password"
+        },
+        "secondary": {
+          "account-protected": "Il tuo account è sicuro, protetto da una password",
+          "account-not-protected": "Il tuo account non è protetto"
+        }
+      }
+    }
+  }
+}

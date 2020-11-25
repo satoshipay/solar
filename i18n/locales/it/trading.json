@@ -1,0 +1,66 @@
+{
+  "action": {
+    "add-asset": "Aggiungi risorsa",
+    "submit": "Invia ordine"
+  },
+  "action-selection": {
+    "buy": {
+      "description": "Acquista una certa quantità di un bene sullo scambio distribuito",
+      "label": "Acquista risorsa"
+    },
+    "sell": {
+      "description": "Scambia una certa quantità di una risorsa con un altra",
+      "label": "Vendi risorsa"
+    }
+  },
+  "advanced": {
+    "header": "Avanzate"
+  },
+  "inputs": {
+    "estimated-costs": {
+      "label": {
+        "buy": "Costi stimati",
+        "sell": "Rendimento stimato"
+      }
+    },
+    "primary-amount": {
+      "label": {
+        "buy": "Importo da acquistare",
+        "sell": "Importo da vendere"
+      },
+      "max-button": {
+        "label": "Max"
+      },
+      "placeholder": "Max. {{amount}}"
+    },
+    "primary-asset-selector": {
+      "label": {
+        "buy": "Tu compri",
+        "sell": "Tu vendi"
+      }
+    },
+    "secondary-asset-selector": {
+      "label": {
+        "buy": "Trascorrere",
+        "sell": "Ricevere"
+      }
+    }
+  },
+  "no-assets-info": "Questo account non utilizza ancora risorse diverse da Stellar Lumens.",
+  "title": "Negozia",
+  "trading-price": {
+    "default-label": "Prezzo (limite)",
+    "label": "Prezzo per {{unit}} (limite)"
+  },
+  "validation": {
+    "primary-amount-missing": "Nessun importo specificato.",
+    "primary-asset-missing": "Nessuna risorsa selezionata.",
+    "secondary-asset-missing": "Nessuna risorsa selezionata.",
+    "invalid-amount": "Importo specificato non valido.",
+    "invalid-price": "Prezzo non valido"
+  },
+  "warning": {
+    "title": "Avvertimento",
+    "message": "La differenza tra prezzo di acquisto e prezzo di vendita è circa {{spread}}%."
+  }
+}

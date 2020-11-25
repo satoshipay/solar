@@ -3,6 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector"
 import { initReactI18next } from "react-i18next"
 
 import translationEN from "../../i18n/en"
+import translationIT from "../../i18n/it"
 
 i18n
   .use(LanguageDetector)
@@ -16,6 +17,9 @@ i18n
     resources: {
       en: {
         translation: translationEN
+      },
+      it: {
+        translation: translationIT
       }
     }
   })

@@ -1,0 +1,40 @@
+{
+  "actions": {
+    "submit": "Spedisci ora"
+  },
+  "memo-metadata": {
+    "label": {
+      "default": "Memo",
+      "id": "Memo (ID)",
+      "text": "Memo (testo)"
+    },
+    "placeholder": {
+      "optional": "Descrizione (facoltativa)",
+      "mandatory": "Descrizione (obbligatoria)"
+    }
+  },
+  "inputs": {
+    "destination": {
+      "label": "Indirizzo di destinazione",
+      "placeholder": "GABCDEFGHIJK ... o alice * example.org"
+    },
+    "price": {
+      "label": "Quantità",
+      "placeholder": "Max. {{amount}}"
+    }
+  },
+  "title": {
+    "send": "Invia fondi",
+    "receive": "Ricevi fondi"
+  },
+  "validation": {
+    "memo-required": "Imposta un promemoria quando invii fondi a {{destination}}",
+    "memo-too-long": "Memo troppo lungo.",
+    "no-destination": "Nessuna destinazione specificata.",
+    "no-price": "Nessun importo specificato.",
+    "not-enough-funds": "Fondi insufficienti.",
+    "invalid-destination": "Attesa una chiave pubblica o un indirizzo stellare.",
+    "invalid-price": "Importo non valido.",
+    "integer-memo-required": "Il memo deve essere un numero intero."
+  }
+}
