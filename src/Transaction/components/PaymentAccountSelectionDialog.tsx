@@ -10,13 +10,15 @@ import CancelIcon from "@material-ui/icons/Cancel"
 import SelectIcon from "@material-ui/icons/Check"
 import WarningIcon from "@material-ui/icons/Warning"
 import { Account, AccountsContext } from "~App/contexts/accounts"
+import * as routes from "~App/routes"
 import { warningColor } from "~App/theme"
 import AccountSelectionList from "~Account/components/AccountSelectionList"
 import AssetLogo from "~Assets/components/AssetLogo"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { CopyableAddress } from "~Generic/components/PublicKey"
 import MainTitle from "~Generic/components/MainTitle"
-import { useIsMobile } from "~Generic/hooks/userinterface"
+import { stringifyAsset } from "~Generic/lib/stellar"
+import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import DialogBody from "~Layout/components/DialogBody"
 
 const useStyles = makeStyles(theme => ({
@@ -60,17 +62,18 @@ const useStyles = makeStyles(theme => ({
 
 interface PaymentAccountSelectionDialogProps {
   payStellarUri: PayStellarUri
-  onDismiss: () => void
+  onClose: () => void
 }
 
 function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps) {
-  const { onDismiss } = props
+  const { onClose } = props
   const {
     amount,
     assetCode,
     assetIssuer,
     destination,
     memo,
+    memoType,
     msg,
     originDomain,
     signature,
@@ -79,6 +82,7 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
 
   const classes = useStyles()
   const isSmallScreen = useIsMobile()
+  const router = useRouter()
   const { t } = useTranslation()
 
   const { accounts } = React.useContext(AccountsContext)
@@ -91,19 +95,33 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
   const keyItemXS = React.useMemo(() => (isSmallScreen ? 4 : 5), [isSmallScreen])
   const selectableAccounts = React.useMemo(() => accounts.filter(acc => acc.testnet === testnet), [accounts, testnet])
 
+  const onSelect = React.useCallback(() => {
+    if (!selectedAccount) return
+
+    const params = new URLSearchParams()
+    if (amount) params.append("amount", amount)
+    if (asset) params.append("asset", stringifyAsset(asset))
+    if (destination) params.append("destination", destination)
+    if (memo) params.append("memo", memo)
+    if (memoType) params.append("memoType", memoType)
+
+    onClose()
+    router.history.push(routes.createPayment(selectedAccount.id) + "?" + params.toString())
+  }, [amount, asset, destination, memo, memoType, router.history, selectedAccount, onClose])
+
   return (
     <DialogBody
       noMaxWidth
       preventNotchSpacing
       top={
-        <MainTitle hideBackButton onBack={onDismiss} title={t("transaction-request.payment-account-selection.title")} />
+        <MainTitle hideBackButton onBack={onClose} title={t("transaction-request.payment-account-selection.title")} />
       }
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
-          <ActionButton icon={<CancelIcon />} onClick={onDismiss} type="secondary">
+          <ActionButton icon={<CancelIcon />} onClick={onClose} type="secondary">
             {t("transaction-request.payment-account-selection.action.dismiss")}
           </ActionButton>
-          <ActionButton disabled={!selectedAccount} icon={<SelectIcon />} onClick={undefined} type="primary">
+          <ActionButton disabled={!selectedAccount} icon={<SelectIcon />} onClick={onSelect} type="primary">
             {t("transaction-request.payment-account-selection.action.select")}
           </ActionButton>
         </DialogActionsBox>

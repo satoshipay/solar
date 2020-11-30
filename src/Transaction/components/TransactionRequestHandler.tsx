@@ -52,13 +52,13 @@ function TransactionRequestHandler() {
 
   if (renderedURI.operation === StellarUriType.Pay) {
     const payStellarUri = renderedURI as PayStellarUri
-    const onDismiss = () => {
+    const onClose = () => {
       closeDialog()
     }
 
     return (
       <Dialog open={Boolean(uri)} fullScreen TransitionComponent={Transition}>
-        <PaymentAccountSelectionDialog payStellarUri={payStellarUri} onDismiss={onDismiss} />
+        <PaymentAccountSelectionDialog payStellarUri={payStellarUri} onClose={onClose} />
       </Dialog>
     )
   }
