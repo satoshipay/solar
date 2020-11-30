@@ -22,6 +22,7 @@ import { PriceInput, QRReader } from "~Generic/components/FormFields"
 import { formatBalance } from "~Generic/lib/balances"
 import { HorizontalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
+import { PaymentQueryParams } from "./PaymentDialog"
 
 export interface PaymentFormValues {
   amount: string
@@ -58,6 +59,7 @@ interface PaymentFormProps {
     wellknownAccount?: AccountRecord
   ) => void
   openOrdersCount: number
+  preselectedParams: PaymentQueryParams
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
@@ -86,12 +88,20 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   })
 
   const formValues = form.watch()
+  const { preselectedParams } = props
   const { setValue } = form
 
   const spendableBalance = getSpendableBalance(
     getAccountMinimumBalance(props.accountData, props.openOrdersCount),
     findMatchingBalanceLine(props.accountData.balances, formValues.asset)
   )
+
+  React.useEffect(() => {
+    if (preselectedParams.amount) setValue("amount", preselectedParams.amount)
+    if (preselectedParams.asset) setValue("asset", preselectedParams.asset)
+    if (preselectedParams.destination) setValue("destination", preselectedParams.destination)
+    if (preselectedParams.memo) setValue("memoValue", preselectedParams.memo)
+  }, [preselectedParams, setValue])
 
   React.useEffect(() => {
     if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
@@ -104,7 +114,17 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     const knownAccount = wellknownAccounts.lookup(formValues.destination)
     setMatchingWellknownAccount(knownAccount)
 
-    if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
+    if (preselectedParams.memo && preselectedParams.memoType) {
+      setMemoType(preselectedParams.memoType)
+      setMemoMetadata({
+        label:
+          preselectedParams.memoType === "id"
+            ? t("payment.memo-metadata.label.id")
+            : t("payment.memo-metadata.label.text"),
+        placeholder: t("payment.memo-metadata.placeholder.mandatory"),
+        requiredType: preselectedParams.memoType
+      })
+    } else if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
       const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
       const requiredType = acceptedMemoType === "MEMO_ID" ? "id" : "text"
       setMemoType(requiredType)
@@ -122,7 +142,16 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         requiredType: undefined
       })
     }
-  }, [formValues.destination, formValues.memoValue, matchingWellknownAccount, memoType, t, wellknownAccounts])
+  }, [
+    formValues.destination,
+    formValues.memoValue,
+    matchingWellknownAccount,
+    memoType,
+    preselectedParams.memo,
+    preselectedParams.memoType,
+    t,
+    wellknownAccounts
+  ])
 
   const handleFormSubmission = () => {
     props.onSubmit({ memoType, ...form.getValues() }, spendableBalance, matchingWellknownAccount)
@@ -321,6 +350,7 @@ interface Props {
   accountData: AccountData
   actionsRef: RefStateObject
   openOrdersCount: number
+  preselectedParams: PaymentQueryParams
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
