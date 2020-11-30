@@ -5,8 +5,8 @@
   "displayName": "Solar",
   "cordova": {
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ],
     "plugins": {
       "cordova-plugin-secure-storage": {},
@@ -35,12 +35,9 @@
     }
   },
   "dependencies": {
-    "cordova": "^9.0.0",
-    "cordova-android": "^8.1.0",
+    "cordova": "^10.0.0",
     "cordova-clipboard": "^1.2.1",
-    "cordova-ios": "^5.0.1",
     "cordova-plugin-badge": "^0.8.8",
-    "cordova-plugin-customurlscheme": "git+https://github.com/bytelabsco/Custom-URL-scheme.git",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
     "cordova-plugin-fingerprint-aio": "^3.0.1",
@@ -48,13 +45,16 @@
     "cordova-plugin-local-notification": "^0.9.0-beta.2",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-safariviewcontroller": "^1.6.0",
-    "cordova-plugin-secure-storage": "git+https://github.com/satoshipay/cordova-plugin-secure-storage.git",
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-plugin-wkwebview-engine": "^1.1.4",
     "phonegap-plugin-barcodescanner": "^8.0.1"
   },
   "devDependencies": {
+    "cordova-android": "^9.0.0",
+    "cordova-ios": "^6.1.1",
+    "cordova-plugin-customurlscheme": "git+https://github.com/bytelabsco/Custom-URL-scheme.git",
+    "cordova-plugin-secure-storage": "git+https://github.com/satoshipay/cordova-plugin-secure-storage.git",
     "dotenv-cli": "^2.0.0",
     "json": "^9.0.6",
     "npm-run-all": "^4.1.5"
@@ -67,7 +67,7 @@
     "prebuild:android": "rm -rf ../dist/ && NODE_ENV=production PLATFORM=android ../node_modules/.bin/parcel build ../src/index.prod-android.njk --out-dir ../dist --public-url=./ --detailed-report --no-source-maps --no-cache && ./scripts/create-config-from-template.sh prod android",
     "prebuild:ios": "rm -rf ../dist/ && NODE_ENV=production PLATFORM=ios ../node_modules/.bin/parcel build ../src/index.prod-ios.njk --out-dir ../dist --public-url=./ --detailed-report --no-source-maps --no-cache && ./scripts/create-config-from-template.sh prod ios",
     "build:android": "npm run prebuild:android && dotenv -- cordova build android",
-    "build:android:signed": "npm run prebuild:android && source ./scripts/signing-env-android.sh && dotenv -- cordova build android --release -- --gradleArg=-PcdvMinSdkVersion=21 --keystore=$KEYSTORE_LOCATION --storePassword=$KEYSTORE_PASSWORD --alias=$SIGNINGKEY_ALIAS --password=$SIGNINGKEY_PASSWORD",
+    "build:android:signed": "npm run prebuild:android && source ./scripts/signing-env-android.sh && dotenv -- cordova build android --release -- --keystore=$KEYSTORE_LOCATION --storePassword=$KEYSTORE_PASSWORD --alias=$SIGNINGKEY_ALIAS --password=$SIGNINGKEY_PASSWORD",
     "build:ios": "npm run prebuild:ios && cordova build ios --buildConfig=build.ios.json",
     "dev:android": "run-p dev:bundle:android dev:cordova:android",
     "dev:ios": "run-p dev:bundle:ios dev:cordova:ios",
