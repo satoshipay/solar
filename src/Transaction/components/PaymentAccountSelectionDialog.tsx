@@ -17,7 +17,8 @@ import AssetLogo from "~Assets/components/AssetLogo"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { CopyableAddress } from "~Generic/components/PublicKey"
 import MainTitle from "~Generic/components/MainTitle"
-import { stringifyAsset } from "~Generic/lib/stellar"
+import { balancelineToAsset, stringifyAsset } from "~Generic/lib/stellar"
+import { useLiveAccountDataSet } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import DialogBody from "~Layout/components/DialogBody"
 
@@ -93,7 +94,24 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
     assetIssuer
   ])
   const keyItemXS = React.useMemo(() => (isSmallScreen ? 4 : 5), [isSmallScreen])
-  const selectableAccounts = React.useMemo(() => accounts.filter(acc => acc.testnet === testnet), [accounts, testnet])
+
+  const accountDataSet = useLiveAccountDataSet(
+    accounts.map(acc => acc.publicKey),
+    testnet
+  )
+
+  const selectableAccounts = React.useMemo(
+    () =>
+      accounts.filter(acc => {
+        if (acc.testnet !== testnet) return false
+        const matchingAccountData = accountDataSet.find(accData => accData.account_id === acc.publicKey)
+        if (!matchingAccountData) return false
+        const trustlines = matchingAccountData.balances.map(balancelineToAsset)
+        // only show accounts that have trustline for specified asset
+        return Boolean(trustlines.find(trustline => trustline.code === asset.code && trustline.issuer === asset.issuer))
+      }),
+    [accountDataSet, accounts, asset, testnet]
+  )
 
   const onSelect = React.useCallback(() => {
     if (!selectedAccount) return
