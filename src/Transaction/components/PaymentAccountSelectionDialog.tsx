@@ -214,7 +214,15 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
           <Typography variant="body1" color="textSecondary">
             {t("transaction-request.payment-account-selection.footer")}
           </Typography>
-          <AccountSelectionList accounts={selectableAccounts} onChange={setSelectedAccount} testnet={testnet} />
+          {selectableAccounts.length > 0 ? (
+            <AccountSelectionList accounts={selectableAccounts} onChange={setSelectedAccount} testnet={testnet} />
+          ) : (
+            <Typography align="center" color="error" variant="h6" style={{ paddingTop: 16 }}>
+              {asset.code === "XLM"
+                ? t("transaction-request.payment-account-selection.error.no-activated-accounts")
+                : t("transaction-request.payment-account-selection.error.no-accounts-with-trustline")}
+            </Typography>
+          )}
         </Box>
       </DialogBody>
       {selectedAccount && (

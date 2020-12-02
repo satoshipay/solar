@@ -4,6 +4,10 @@
       "dismiss": "Dismiss",
       "select": "Select"
     },
+    "error": {
+      "no-activated-accounts": "No activated accounts found.",
+      "no-accounts-with-trustline": "No accounts with matching trustline found."
+    },
     "header": {
       "origin-domain": "You opened the following payment request from <1>{{originDomain}} <3>",
       "no-origin-domain": "You opened the following payment request from an unknown origin"
