@@ -72,6 +72,7 @@ interface AssetSelectorProps {
   assets: Array<Asset | Horizon.BalanceLine>
   children?: React.ReactNode
   className?: string
+  disabled?: boolean
   disabledAssets?: Asset[]
   disableUnderline?: boolean
   helperText?: TextFieldProps["helperText"]
@@ -123,6 +124,7 @@ function AssetSelector(props: AssetSelectorProps) {
     <TextField
       autoFocus={props.autoFocus}
       className={props.className}
+      disabled={props.disabled}
       error={Boolean(props.inputError)}
       helperText={props.helperText}
       label={props.inputError ? props.inputError : props.label}

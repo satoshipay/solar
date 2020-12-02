@@ -191,13 +191,14 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     () => (
       <TextField
         autoFocus={process.env.PLATFORM !== "ios"}
+        disabled={Boolean(preselectedParams?.destination)}
         error={Boolean(form.errors.destination)}
         fullWidth
         inputProps={{
           style: { textOverflow: "ellipsis" }
         }}
         InputProps={{
-          endAdornment: qrReaderAdornment
+          endAdornment: !Boolean(preselectedParams?.destination) ? qrReaderAdornment : undefined
         }}
         inputRef={form.register({
           required: t<string>("payment.validation.no-destination"),
@@ -211,7 +212,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         placeholder={t("payment.inputs.destination.placeholder")}
       />
     ),
-    [form, qrReaderAdornment, setValue, t]
+    [form, qrReaderAdornment, preselectedParams, setValue, t]
   )
 
   const assetSelector = React.useMemo(
@@ -221,6 +222,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           <AssetSelector
             assets={props.accountData.balances}
             disableUnderline
+            disabled={Boolean(preselectedParams?.asset)}
             showXLM
             style={{ alignSelf: "center" }}
             testnet={props.testnet}
@@ -231,13 +233,14 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         name="asset"
       />
     ),
-    [form, formValues.asset, props.accountData.balances, props.testnet]
+    [form, formValues.asset, preselectedParams, props.accountData.balances, props.testnet]
   )
 
   const priceInput = React.useMemo(
     () => (
       <PriceInput
         assetCode={assetSelector}
+        disabled={Boolean(preselectedParams?.amount)}
         error={Boolean(form.errors.amount)}
         inputRef={form.register({
           required: t<string>("payment.validation.no-price"),
@@ -259,12 +262,13 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [assetSelector, form, isSmallScreen, spendableBalance, t]
+    [assetSelector, form, isSmallScreen, preselectedParams, spendableBalance, t]
   )
 
   const memoInput = React.useMemo(
     () => (
       <TextField
+        disabled={Boolean(preselectedParams?.memo)}
         error={Boolean(form.errors.memoValue)}
         inputProps={{ maxLength: 28 }}
         label={form.errors.memoValue ? form.errors.memoValue.message : memoMetadata.label}
@@ -313,6 +317,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       memoMetadata.label,
       memoMetadata.placeholder,
       memoMetadata.requiredType,
+      preselectedParams,
       setValue,
       t
     ]
