@@ -42,8 +42,8 @@ function VerifyTrustedServiceDialog(props: VerifyTrustedServiceDialogProps) {
         <Typography align="center" color="textPrimary" variant="h4" style={{ paddingTop: 16, paddingBottom: 16 }}>
           {props.domain}
         </Typography>
-        <Typography variant="body1">{t("transaction-request.verify-trusted-service.info.2")}:</Typography>
-        <Typography variant="body1">{t("transaction-request.verify-trusted-service.info.3")}:</Typography>
+        <Typography variant="body1">{t("transaction-request.verify-trusted-service.info.2")}</Typography>
+        <Typography variant="body1">{t("transaction-request.verify-trusted-service.info.3")}</Typography>
       </Box>
     </DialogBody>
   )
