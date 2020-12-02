@@ -18,7 +18,6 @@
       },
       "cordova-plugin-splashscreen": {},
       "cordova-clipboard": {},
-      "cordova-plugin-wkwebview-engine": {},
       "cordova-plugin-device": {},
       "cordova-plugin-safariviewcontroller": {},
       "cordova-plugin-fingerprint-aio": {
@@ -45,9 +44,8 @@
     "cordova-plugin-local-notification": "^0.9.0-beta.2",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-safariviewcontroller": "^1.6.0",
-    "cordova-plugin-splashscreen": "^5.0.2",
+    "cordova-plugin-splashscreen": "^6.0.0",
     "cordova-plugin-whitelist": "^1.3.3",
-    "cordova-plugin-wkwebview-engine": "^1.1.4",
     "phonegap-plugin-barcodescanner": "^8.0.1"
   },
   "devDependencies": {
