@@ -22,7 +22,7 @@ import { PriceInput, QRReader } from "~Generic/components/FormFields"
 import { formatBalance } from "~Generic/lib/balances"
 import { HorizontalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
-import { PaymentQueryParams } from "./PaymentDialog"
+import { PaymentParams } from "./PaymentDialog"
 
 export interface PaymentFormValues {
   amount: string
@@ -59,7 +59,7 @@ interface PaymentFormProps {
     wellknownAccount?: AccountRecord
   ) => void
   openOrdersCount: number
-  preselectedParams: PaymentQueryParams
+  preselectedParams?: PaymentParams
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
@@ -97,6 +97,8 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   )
 
   React.useEffect(() => {
+    if (!preselectedParams) return
+
     if (preselectedParams.amount) setValue("amount", preselectedParams.amount)
     if (preselectedParams.asset) setValue("asset", preselectedParams.asset)
     if (preselectedParams.destination) setValue("destination", preselectedParams.destination)
@@ -114,7 +116,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     const knownAccount = wellknownAccounts.lookup(formValues.destination)
     setMatchingWellknownAccount(knownAccount)
 
-    if (preselectedParams.memo && preselectedParams.memoType) {
+    if (preselectedParams && preselectedParams.memo && preselectedParams.memoType) {
       setMemoType(preselectedParams.memoType)
       setMemoMetadata({
         label:
@@ -147,8 +149,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     formValues.memoValue,
     matchingWellknownAccount,
     memoType,
-    preselectedParams.memo,
-    preselectedParams.memoType,
+    preselectedParams,
     t,
     wellknownAccounts
   ])
@@ -350,7 +351,7 @@ interface Props {
   accountData: AccountData
   actionsRef: RefStateObject
   openOrdersCount: number
-  preselectedParams: PaymentQueryParams
+  preselectedParams?: PaymentParams
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
