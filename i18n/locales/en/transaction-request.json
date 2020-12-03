@@ -1,5 +1,6 @@
 {
   "payment-account-selection": {
+    "account-selector": "Select the account to use",
     "action": {
       "dismiss": "Dismiss",
       "select": "Select"
@@ -9,10 +10,9 @@
       "no-accounts-with-trustline": "No accounts with matching trustline found."
     },
     "header": {
-      "origin-domain": "You opened the following payment request from <1>{{originDomain}} <3>",
-      "no-origin-domain": "You opened the following payment request from an unknown origin"
+      "origin-domain": "The following transaction has been proposed by <1>{{originDomain}}<3>",
+      "no-origin-domain": "You opened the following payment request from an unknown origin."
     },
-    "footer": "Please select the account that you want to use for this payment.",
     "uri-content": {
       "any": "Any",
       "pay": "Pay",
@@ -20,7 +20,7 @@
       "memo": "Memo",
       "message": "Message"
     },
-    "title": "Select Account for Payment",
+    "title": "Transaction proposed",
     "warning": "This request did not include a signature! Make sure that you trust the source of this link!"
   },
   "verify-trusted-service": {

@@ -23,7 +23,6 @@ function VerifyTrustedServiceDialog(props: VerifyTrustedServiceDialogProps) {
   return (
     <DialogBody
       background={<WarnIcon style={{ fontSize: 220 }} />}
-      noMaxWidth
       preventNotchSpacing
       top={<MainTitle hideBackButton onBack={onCancel} title={t("transaction-request.verify-trusted-service.title")} />}
       actions={
@@ -39,7 +38,7 @@ function VerifyTrustedServiceDialog(props: VerifyTrustedServiceDialogProps) {
     >
       <Box padding="24px 0 0">
         <Typography variant="body1">{t("transaction-request.verify-trusted-service.info.1")}:</Typography>
-        <Typography align="center" color="textPrimary" variant="h4" style={{ paddingTop: 16, paddingBottom: 16 }}>
+        <Typography align="center" color="textPrimary" variant="h6" style={{ paddingTop: 32, paddingBottom: 32 }}>
           {props.domain}
         </Typography>
         <Typography variant="body1">{t("transaction-request.verify-trusted-service.info.2")}</Typography>

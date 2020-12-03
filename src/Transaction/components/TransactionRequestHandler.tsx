@@ -31,6 +31,7 @@ function TransactionRequestHandler() {
   }
 
   const trustedService = trustedServices.find(service => renderedURI.originDomain === service.domain)
+
   if (renderedURI.originDomain && !trustedService) {
     const onTrust = () => {
       const newTrustedServices: TrustedService[] = [

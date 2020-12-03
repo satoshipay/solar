@@ -11,7 +11,7 @@ import CancelIcon from "@material-ui/icons/Cancel"
 import SelectIcon from "@material-ui/icons/Check"
 import WarningIcon from "@material-ui/icons/Warning"
 import { Account, AccountsContext } from "~App/contexts/accounts"
-import { FullscreenDialogTransition, warningColor } from "~App/theme"
+import { FullscreenDialogTransition, warningColor, breakpoints } from "~App/theme"
 import AccountSelectionList from "~Account/components/AccountSelectionList"
 import AssetLogo from "~Assets/components/AssetLogo"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
@@ -24,7 +24,7 @@ import { useIsMobile } from "~Generic/hooks/userinterface"
 import DialogBody from "~Layout/components/DialogBody"
 import PaymentDialog from "~Payment/components/PaymentDialog"
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   assetContainer: {
     alignSelf: "center",
     display: "flex",
@@ -40,6 +40,9 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "column",
     padding: "12px 0 0"
   },
+  row: {
+    lineHeight: 1.2
+  },
   keyTypography: {
     alignSelf: "center",
     textAlign: "right"
@@ -48,8 +51,8 @@ const useStyles = makeStyles(theme => ({
     textAlign: "left"
   },
   uriContainer: {
-    paddingTop: 16,
-    paddingBottom: 16
+    paddingTop: 32,
+    paddingBottom: 32
   },
   warningContainer: {
     alignItems: "center",
@@ -58,8 +61,11 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "center",
     padding: "6px 16px",
-    marginBottom: 16,
-    width: "fit-content"
+    width: "fit-content",
+
+    [breakpoints.up(600)]: {
+      width: "100%"
+    }
   }
 }))
 
@@ -134,7 +140,6 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
   return (
     <>
       <DialogBody
-        noMaxWidth
         preventNotchSpacing
         top={
           <MainTitle hideBackButton onBack={onClose} title={t("transaction-request.payment-account-selection.title")} />
@@ -151,7 +156,11 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
         }
       >
         <Box className={classes.root}>
-          {!signature && (
+          {signature ? (
+            <Trans i18nKey="transaction-request.payment-account-selection.header.origin-domain">
+              The following transaction has been proposed by <b>{{ originDomain }}</b>.
+            </Trans>
+          ) : (
             <Box className={classes.warningContainer}>
               <WarningIcon />
               <Typography style={{ padding: 8 }}>
@@ -160,21 +169,12 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
               <WarningIcon />
             </Box>
           )}
-          <Typography variant="body1" color="textSecondary">
-            {originDomain ? (
-              <Trans i18nKey="transaction-request.payment-account-selection.header.origin-domain">
-                You opened the following payment request from <b>{{ originDomain }}</b>:
-              </Trans>
-            ) : (
-              t("transaction-request.payment-account-selection.header.no-origin-domain")
-            )}
-          </Typography>
           <Typography className={classes.uriContainer} variant="h6">
-            <Grid container spacing={3}>
+            <Grid className={classes.row} container spacing={2}>
               <Grid className={classes.keyTypography} item xs={keyItemXS}>
                 {t("transaction-request.payment-account-selection.uri-content.pay")}
               </Grid>
-              <Grid item xs style={{ display: "flex" }}>
+              <Grid item xs style={{ display: "flex", lineHeight: 1.6 }}>
                 {amount ? amount : t("transaction-request.payment-account-selection.uri-content.any")}
                 <div className={classes.assetContainer}>
                   {asset.getCode()}
@@ -182,7 +182,7 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
                 </div>
               </Grid>
             </Grid>
-            <Grid container spacing={3} wrap="nowrap">
+            <Grid className={classes.row} container spacing={2} wrap="nowrap">
               <Grid className={classes.keyTypography} item xs={keyItemXS}>
                 {t("transaction-request.payment-account-selection.uri-content.to")}
               </Grid>
@@ -191,7 +191,7 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
               </Grid>
             </Grid>
             {memo && (
-              <Grid container spacing={3}>
+              <Grid className={classes.row} container spacing={2}>
                 <Grid className={classes.keyTypography} item xs={keyItemXS}>
                   {t("transaction-request.payment-account-selection.uri-content.memo")}
                 </Grid>
@@ -201,7 +201,7 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
               </Grid>
             )}
             {msg && (
-              <Grid container spacing={3}>
+              <Grid className={classes.row} container spacing={3}>
                 <Grid className={classes.keyTypography} item xs={keyItemXS}>
                   {t("transaction-request.payment-account-selection.uri-content.message")}
                 </Grid>
@@ -211,8 +211,8 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
               </Grid>
             )}
           </Typography>
-          <Typography variant="body1" color="textSecondary">
-            {t("transaction-request.payment-account-selection.footer")}
+          <Typography component="h6" variant="h6">
+            {t("transaction-request.payment-account-selection.account-selector")}
           </Typography>
           {selectableAccounts.length > 0 ? (
             <AccountSelectionList accounts={selectableAccounts} onChange={setSelectedAccount} testnet={testnet} />
