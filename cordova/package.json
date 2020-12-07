@@ -31,7 +31,10 @@
         "ANDROID_PATHPREFIX": "/"
       },
       "cordova-plugin-ionic-keyboard": {},
-      "cordova-plugin-local-notification": {}
+      "cordova-plugin-local-notification": {},
+      "cordova-plugin-printer": {
+        "ANDROID_SUPPORT_V4_VERSION": "28.+"
+      }
     }
   },
   "dependencies": {
@@ -47,6 +50,7 @@
     "cordova-plugin-ionic-keyboard": "^2.2.0",
     "cordova-plugin-local-notification": "^0.9.0-beta.2",
     "cordova-plugin-network-information": "^2.0.1",
+    "cordova-plugin-printer": "^0.8.0",
     "cordova-plugin-safariviewcontroller": "^1.6.0",
     "cordova-plugin-secure-storage": "git+https://github.com/satoshipay/cordova-plugin-secure-storage.git",
     "cordova-plugin-splashscreen": "^5.0.2",

@@ -15,6 +15,8 @@ export const Messages: IPC.MessageType = {
 
   OpenLink: "OpenLink",
 
+  Print: "Print",
+
   DeepLinkURL: "DeepLinkURL",
 
   CheckUpdateAvailability: "CheckUpdateAvailability",

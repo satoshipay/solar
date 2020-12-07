@@ -46,6 +46,7 @@ export function subscribeToMessages<Message extends keyof IPC.MessageType>(
 
 callHandlers[Messages.CopyToClipboard] = (text: string) => (navigator as any).clipboard.writeText(text)
 callHandlers[Messages.OpenLink] = (href: string) => window.open(href, "_blank")
+callHandlers[Messages.Print] = () => window.print()
 
 callHandlers[Messages.CheckUpdateAvailability] = () => false
 callHandlers[Messages.StartUpdate] = () => undefined

@@ -7,6 +7,12 @@ body,
   padding: 0;
 }
 
+@media print {
+  @page {
+    size: A4 landscape;
+  }
+}
+
 body {
   background-color: white;
   color: rgba(0, 0, 0, 0.87);

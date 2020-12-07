@@ -1,14 +1,20 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import QRCode from "qrcode.react"
+import Button from "@material-ui/core/Button"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import Typography from "@material-ui/core/Typography"
 import LockIcon from "@material-ui/icons/LockOutlined"
 import LockOpenIcon from "@material-ui/icons/LockOpenOutlined"
 import LockFilledIcon from "@material-ui/icons/Lock"
+import { makeStyles } from "@material-ui/core/styles"
+import PrintIcon from "@material-ui/icons/Print"
 import WarnIcon from "@material-ui/icons/Warning"
 import KeyExportBox from "~Account/components/KeyExportBox"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
+import SolarIcon from "~Icons/components/Solar"
+import ButtonIconLabel from "~Generic/components/ButtonIconLabel"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import MainTitle from "~Generic/components/MainTitle"
 import PasswordField from "~Generic/components/PasswordField"
@@ -16,6 +22,16 @@ import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { Box } from "~Layout/components/Box"
 import DialogBody from "~Layout/components/DialogBody"
+import { print } from "~Platform/print"
+
+const printOptions =
+  process.env.PLATFORM === "ios" || process.env.PLATFORM === "android"
+    ? {
+        name: "Solar Wallet Paper Backup",
+        orientation: "landscape",
+        pageCount: 1
+      }
+    : { landscape: true }
 
 interface PromptToRevealProps {
   children: React.ReactNode
@@ -77,14 +93,122 @@ function PromptToReveal(props: PromptToRevealProps) {
   )
 }
 
+const useBackupPrintStyles = makeStyles(() => ({
+  icon: {
+    color: "gray",
+    height: 140,
+    width: 140,
+    paddingBottom: 60
+  },
+  keyTypography: {
+    paddingTop: 16,
+    wordBreak: "break-word",
+    maxWidth: "300px"
+  },
+  accountName: {
+    paddingTop: 8,
+    marginBottom: 16
+  },
+  printContainer: {
+    paddingTop: 16,
+    paddingBottom: 16,
+    display: "none",
+
+    "@media print": {
+      display: "block",
+      borderStyle: "groove"
+    }
+  },
+  qrContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    textAlign: "center"
+  },
+  qrWrapper: {
+    padding: "32px 0px",
+    display: "flex",
+    flexDirection: "column"
+  },
+  qrCaption: {
+    fontWeight: "bold",
+    paddingLeft: 8,
+    paddingRight: 8,
+    textTransform: "uppercase",
+    transform: "rotate(180deg)",
+    writingMode: "vertical-lr"
+  }
+}))
+
+interface BackupPrintContainerProps {
+  accountName?: string
+  publicKey?: string
+  secretKey: string
+}
+
+function BackupPrintContainer(props: BackupPrintContainerProps) {
+  const classes = useBackupPrintStyles()
+  const { t } = useTranslation()
+
+  return (
+    <Box className={classes.printContainer}>
+      <Typography align="center" className={classes.accountName} variant="h3">
+        {props.accountName ? props.accountName : undefined}
+      </Typography>
+      <div className={classes.qrContainer}>
+        {props.publicKey && (
+          <div className={classes.qrWrapper}>
+            <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}>
+              <Typography className={classes.qrCaption} variant="h4">
+                {t("account-settings.export-key.info.print.public-key")}
+              </Typography>
+              <QRCode value={props.publicKey} size={200} />
+            </div>
+            <Typography className={classes.keyTypography}>{props.publicKey}</Typography>
+          </div>
+        )}
+        <div style={{ alignSelf: "center" }}>
+          <SolarIcon className={classes.icon} />
+        </div>
+        <div className={classes.qrWrapper}>
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+            <QRCode value={props.secretKey} size={200} />
+            <Typography className={classes.qrCaption} variant="h4">
+              {t("account-settings.export-key.info.print.secret-key")}
+            </Typography>
+          </div>
+          <Typography className={classes.keyTypography}>{props.secretKey}</Typography>
+        </div>
+      </div>
+      <Typography align="center" color="textSecondary" variant="h6">
+        {t("account-settings.export-key.info.print.warning")}
+      </Typography>
+      <Typography align="center" style={{ color: "#00000066", fontSize: "150%" }} variant="body1">
+        solarwallet.io
+      </Typography>
+    </Box>
+  )
+}
+
+const useSecretKeyStyles = makeStyles(() => ({
+  noPrint: {
+    "@media print": {
+      display: "none"
+    }
+  }
+}))
+
 interface ShowSecretKeyProps {
-  export: string
+  accountName?: string
+  publicKey?: string
+  secretKey: string
   onConfirm?: () => void
   title: React.ReactNode
   variant: Props["variant"]
 }
 
 function ShowSecretKey(props: ShowSecretKeyProps) {
+  const classes = useSecretKeyStyles()
   const { t } = useTranslation()
 
   return (
@@ -92,10 +216,19 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       background={<LockFilledIcon style={{ fontSize: 220 }} />}
       noMaxWidth
       preventNotchSpacing
-      top={props.title}
+      top={<span className={classes.noPrint}>{props.title}</span>}
       actions={
         props.onConfirm ? (
-          <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
+          <DialogActionsBox className={classes.noPrint} desktopStyle={{ marginTop: 32 }} smallDialog>
+            {props.variant === "initial-backup" ? (
+              <ActionButton onClick={() => print(printOptions)} type="secondary">
+                <ButtonIconLabel label={t("account-settings.export-key.action.print")}>
+                  <PrintIcon />
+                </ButtonIconLabel>
+              </ActionButton>
+            ) : (
+              undefined
+            )}
             <ActionButton onClick={props.onConfirm} type="primary">
               {t("account-settings.export-key.action.confirm")}
             </ActionButton>
@@ -104,16 +237,31 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       }
     >
       {props.variant === "initial-backup" ? (
-        <Typography align="center" component="p" variant="h6" style={{ marginTop: -8, marginBottom: 16 }}>
+        <Typography
+          align="center"
+          className={classes.noPrint}
+          component="p"
+          variant="h6"
+          style={{ marginTop: -8, marginBottom: 16 }}
+        >
           {t("account-settings.export-key.info.secret-key")}
         </Typography>
       ) : null}
-      <Box padding={"32px 0 0"}>
-        <KeyExportBox export={props.export} hideTapToCopy={props.variant === "initial-backup"} size={192} />
+      <Box className={classes.noPrint} padding="32px 0 0">
+        <KeyExportBox export={props.secretKey} hideTapToCopy={props.variant === "initial-backup"} size={192} />
       </Box>
+      <BackupPrintContainer accountName={props.accountName} publicKey={props.publicKey} secretKey={props.secretKey} />
     </DialogBody>
   )
 }
+
+export const useExportKeyDialogStyles = makeStyles(theme => ({
+  noPrint: {
+    "@media print": {
+      display: "none"
+    }
+  }
+}))
 
 interface Props {
   account: Account | null | undefined
@@ -123,6 +271,8 @@ interface Props {
 }
 
 function ExportKeyDialog(props: Props) {
+  const classes = useExportKeyDialogStyles()
+
   const [password, setPassword] = React.useState("")
   const [passwordError, setPasswordError] = React.useState<Error | null>(null)
   const [isRevealed, setIsRevealed] = React.useState(false)
@@ -159,17 +309,36 @@ function ExportKeyDialog(props: Props) {
     []
   )
 
+  const onPrint = React.useCallback(() => {
+    if (secretKey) {
+      print(printOptions)
+    }
+  }, [secretKey])
+
+  const actions = React.useMemo(() => {
+    return isRevealed ? (
+      <Button className={classes.noPrint} color="primary" onClick={onPrint} variant="contained">
+        <ButtonIconLabel label={t("account-settings.export-key.action.print")}>
+          <PrintIcon />
+        </ButtonIconLabel>
+      </Button>
+    ) : (
+      undefined
+    )
+  }, [classes, isRevealed, onPrint, t])
+
   const titleContent = React.useMemo(
     () =>
       props.variant === "initial-backup" ? null : (
         <MainTitle
+          actions={actions}
           hideBackButton
           onBack={onBackButtonClick}
           style={{ marginBottom: 24 }}
           title={t("account-settings.export-key.title.default")}
         />
       ),
-    [props.variant, onBackButtonClick, t]
+    [actions, props.variant, onBackButtonClick, t]
   )
 
   const backupInfoContent = React.useMemo(
@@ -204,7 +373,14 @@ function ExportKeyDialog(props: Props) {
   )
 
   return isRevealed && secretKey ? (
-    <ShowSecretKey export={secretKey} onConfirm={props.onConfirm} title={titleContent} variant={props.variant} />
+    <ShowSecretKey
+      accountName={props.account?.name}
+      secretKey={secretKey}
+      publicKey={props.account?.publicKey}
+      onConfirm={props.onConfirm}
+      title={titleContent}
+      variant={props.variant}
+    />
   ) : (
     <PromptToReveal
       onReveal={reveal}

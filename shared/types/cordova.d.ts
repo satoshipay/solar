@@ -114,6 +114,10 @@ interface NotificationPlugin {
   }
 }
 
+interface Printer {
+  print(content?: string, options?: Object, callback?: Function, scope?: Object): void
+}
+
 declare var Fingerprint: Fingerprint
 
 interface CordovaPlugins {
@@ -121,6 +125,7 @@ interface CordovaPlugins {
   clipboard: CordovaClipboard
   notification: NotificationPlugin
   SecureStorage: CordovaSecureStorage
+  printer: Printer
 }
 
 interface Navigator {

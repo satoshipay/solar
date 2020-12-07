@@ -1,4 +1,5 @@
 import React from "react"
+import { makeStyles } from "@material-ui/core"
 import { Box, BoxProps } from "./Box"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { primaryBackground } from "~App/theme"
@@ -51,8 +52,17 @@ interface SectionProps extends BoxProps {
   top?: boolean
 }
 
+const useStyles = makeStyles(() => ({
+  background: {
+    "@media print": {
+      background: "white !important"
+    }
+  }
+}))
+
 const Section = React.memo(function Section(props: SectionProps) {
   const background = props.brandColored ? primaryBackground : props.backgroundColor || "#fcfcfc"
+  const classes = useStyles()
   const isSmallScreen = useIsMobile()
 
   const padding: React.CSSProperties["padding"] = props.noPadding ? 0 : props.padding !== undefined ? props.padding : 16
@@ -72,7 +82,7 @@ const Section = React.memo(function Section(props: SectionProps) {
   const MaybeInset = props.pageInset ? PageInset : React.Fragment
 
   return (
-    <Box {...props} component="section" padding={padding} style={style}>
+    <Box {...props} className={classes.background} component="section" padding={padding} style={style}>
       {props.top ? <TopOfTopSection background={background} /> : null}
       {/* Add a little padding to the top if window is frameless */}
       {props.top && !isSmallScreen ? <div style={{ width: "100%", padding: "4px 0 0", margin: 0 }} /> : null}
