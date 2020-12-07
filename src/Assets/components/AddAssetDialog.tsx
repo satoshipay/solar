@@ -142,33 +142,35 @@ function createSearchResultRow(
 
     return (
       <div style={props.style}>
-        {item.type === "issuer" ? (
-          <ListItem key={item.issuer} className={classes.issuerItem}>
-            <ListItemText
-              primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
-              secondary={
-                assetsByIssuer[item.issuer].length === 1
-                  ? t("account.add-asset.item.issuer.secondary.one-asset")
-                  : t("account.add-asset.item.issuer.secondary.more-than-one-asset", {
-                      amount: assetsByIssuer[item.issuer].length
-                    })
-              }
-              secondaryTypographyProps={{
-                style: { overflow: "hidden", textOverflow: "ellipsis" }
-              }}
+        <React.Suspense fallback={<ViewLoading />}>
+          {item.type === "issuer" ? (
+            <ListItem key={item.issuer} className={classes.issuerItem}>
+              <ListItemText
+                primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
+                secondary={
+                  assetsByIssuer[item.issuer].length === 1
+                    ? t("account.add-asset.item.issuer.secondary.one-asset")
+                    : t("account.add-asset.item.issuer.secondary.more-than-one-asset", {
+                        amount: assetsByIssuer[item.issuer].length
+                      })
+                }
+                secondaryTypographyProps={{
+                  style: { overflow: "hidden", textOverflow: "ellipsis" }
+                }}
+              />
+            </ListItem>
+          ) : null}
+          {item.type === "asset" ? (
+            <BalanceDetailsListItem
+              balance={assetToBalance(assetRecordToAsset(item.record))}
+              className={classes.assetItem}
+              hideBalance
+              onClick={() => openAssetDetails(assetRecordToAsset(item.record))}
+              style={{ paddingLeft: 32 }}
+              testnet={account.testnet}
             />
-          </ListItem>
-        ) : null}
-        {item.type === "asset" ? (
-          <BalanceDetailsListItem
-            balance={assetToBalance(assetRecordToAsset(item.record))}
-            className={classes.assetItem}
-            hideBalance
-            onClick={() => openAssetDetails(assetRecordToAsset(item.record))}
-            style={{ paddingLeft: 32 }}
-            testnet={account.testnet}
-          />
-        ) : null}
+          ) : null}
+        </React.Suspense>
       </div>
     )
   }
