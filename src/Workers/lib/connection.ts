@@ -28,7 +28,7 @@ export function handleConnectionState(handlers: ConnectionStateHandlers) {
   const handleMessage = (event: MessageEvent) => {
     if (event.data && event.data === "app:pause") {
       onOffline()
-    } else if (event.data && event.data === "app:pause") {
+    } else if (event.data && event.data === "app:resume") {
       onOnline()
     }
   }
