@@ -21,7 +21,7 @@
       "message": "Message"
     },
     "title": "Transaction proposed",
-    "warning": "This request did not include a signature! Make sure that you trust the source of this link!"
+    "warning": "The origin of this request cannot be verified! Decline when in doubt."
   },
   "verify-trusted-service": {
     "action": {
