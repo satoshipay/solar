@@ -10,6 +10,15 @@ function isAccountAlreadyImported(privateKey: string, accounts: Account[], testn
   return accounts.some(account => account.publicKey === publicKey && account.testnet === testnet)
 }
 
+function isValidSecretKey(privateKey: string) {
+  try {
+    Keypair.fromSecret(privateKey)
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 function getNewAccountName(t: TFunction, accounts: Account[], testnet: boolean) {
   const baseName = testnet ? t("create-account.base-name.testnet") : t("create-account.base-name.mainnet")
   const deriveName = (idx: number) => (idx === 0 ? baseName : `${baseName} ${idx + 1}`)
@@ -33,7 +42,7 @@ function validateAccountCreation(t: TFunction, accounts: Account[], accountCreat
     errors.password = t("create-account.validation.password-no-match")
   }
 
-  if (accountCreation.import && !(accountCreation.secretKey || "").match(/^S[A-Z0-9]{55}$/)) {
+  if (accountCreation.import && !isValidSecretKey(accountCreation.secretKey!)) {
     errors.secretKey = t("create-account.validation.invalid-key")
   } else if (
     accountCreation.import &&
