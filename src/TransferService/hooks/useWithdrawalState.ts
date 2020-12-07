@@ -1,5 +1,5 @@
 import BigNumber from "big.js"
-import { Horizon, Memo, Networks, Operation, Server, Transaction, xdr } from "stellar-sdk"
+import { Horizon, Networks, Operation, Server, Transaction, xdr } from "stellar-sdk"
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
   fetchTransferInfos,
@@ -8,7 +8,6 @@ import {
   TransferStatus,
   Withdrawal,
   WithdrawalInstructionsSuccess,
-  WithdrawalSuccessResponse,
   WithdrawalTransaction
 } from "@satoshipay/stellar-transfer"
 import { Account } from "~App/contexts/accounts"
@@ -18,7 +17,7 @@ import { useNetWorker } from "~Generic/hooks/workers"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Action, TransferStates } from "../util/statemachine"
 import { useTransferState } from "./useTransferState"
-import { parseAmount } from "../util/util"
+import { createMemo, parseAmount } from "../util/util"
 
 function createWithdrawal(state: Omit<TransferStates.EnterBasics, "step">): Withdrawal {
   const fields = {
@@ -26,18 +25,6 @@ function createWithdrawal(state: Omit<TransferStates.EnterBasics, "step">): With
     type: state.method
   }
   return Withdrawal(state.transferServer, state.asset, fields)
-}
-
-function createMemo(response: WithdrawalSuccessResponse): Memo | undefined {
-  if (response.memo_type === "text" && response.memo) {
-    return Memo.text(response.memo)
-  } else if (response.memo_type === "hash" && response.memo) {
-    return Memo.hash(response.memo)
-  } else if (response.memo_type === "id" && response.memo) {
-    return Memo.id(response.memo)
-  } else {
-    return undefined
-  }
 }
 
 async function createWithdrawalTransaction(
