@@ -125,7 +125,7 @@ export const LanguageSetting = React.memo(function LanguageSetting(props: Langua
   return (
     <AppSettingsItem
       actions={
-        <Select onChange={handleChange} value={props.value}>
+        <Select onChange={handleChange} value={props.value} style={{ marginLeft: 8 }}>
           {[...availableLanguages].sort().map(lang => (
             <MenuItem key={lang} value={lang}>
               {languageNames[lang]} {lang === browserLanguage && "(Auto)"}
