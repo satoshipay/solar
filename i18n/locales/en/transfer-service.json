@@ -120,6 +120,9 @@
     },
     "body": {
       "amount": {
+        "error": {
+          "amount-greater-than-balance": "Specified amount greater than balance"
+        },
         "label": {
           "deposit": "Amount to deposit",
           "withdrawal": "Amount to withdraw"

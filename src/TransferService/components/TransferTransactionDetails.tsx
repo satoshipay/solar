@@ -122,8 +122,12 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
           <PriceInput
             assetCode={asset.getCode()}
             disabled={isSEP24Anchor || (minAmount && minAmount.gt(balance))}
-            error={minAmount && minAmount.gt(balance)}
+            error={amount.gt(balance) || (minAmount && minAmount.gt(balance))}
             label={t("transfer-service.transaction-details.body.amount.label.withdrawal")}
+            helperText={
+              amount.gt(balance) &&
+              t("transfer-service.transaction-details.body.amount.error.amount-greater-than-balance")
+            }
             margin="normal"
             onChange={event => setAmountString(event.target.value)}
             placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
