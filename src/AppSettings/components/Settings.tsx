@@ -12,7 +12,7 @@ import LanguageIcon from "@material-ui/icons/Language"
 import MessageIcon from "@material-ui/icons/Message"
 import TestnetIcon from "@material-ui/icons/MoneyOff"
 import TrustIcon from "@material-ui/icons/VerifiedUser"
-import { availableLanguages, languageAbbreviationMap } from "../../../i18n/index"
+import { availableLanguages, languageNames } from "../../../i18n/index"
 import AppSettingsItem from "./AppSettingsItem"
 
 interface SettingsToggleProps {
@@ -128,7 +128,7 @@ export const LanguageSetting = React.memo(function LanguageSetting(props: Langua
         <Select onChange={handleChange} value={props.value}>
           {[...availableLanguages].sort().map(lang => (
             <MenuItem key={lang} value={lang}>
-              {languageAbbreviationMap[lang]} {lang === browserLanguage && "(Auto)"}
+              {languageNames[lang]} {lang === browserLanguage && "(Auto)"}
             </MenuItem>
           ))}
         </Select>
