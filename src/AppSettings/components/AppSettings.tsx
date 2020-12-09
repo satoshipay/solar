@@ -46,8 +46,8 @@ function AppSettings() {
   ])
 
   const switchLanguage = React.useCallback(
-    (lang: string | undefined) => {
-      i18n.changeLanguage(getEffectiveLanguage(lang || navigator.language.substr(0, 2), "en"))
+    (lang: string) => {
+      i18n.changeLanguage(getEffectiveLanguage(lang, "en"))
       settings.setLanguage(lang)
     },
     [i18n, settings]
@@ -57,7 +57,7 @@ function AppSettings() {
     <Carousel current={showSettingsOverview ? 0 : 1}>
       <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
         {availableLanguages.length > 1 ? (
-          <LanguageSetting onSelect={switchLanguage} value={getEffectiveLanguage(settings.language, undefined)} />
+          <LanguageSetting onSelect={switchLanguage} value={getEffectiveLanguage(settings.language, "en")} />
         ) : null}
         {settings.biometricAvailability.available ? (
           <BiometricLockSetting

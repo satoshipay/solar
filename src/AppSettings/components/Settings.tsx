@@ -12,7 +12,7 @@ import LanguageIcon from "@material-ui/icons/Language"
 import MessageIcon from "@material-ui/icons/Message"
 import TestnetIcon from "@material-ui/icons/MoneyOff"
 import TrustIcon from "@material-ui/icons/VerifiedUser"
-import { availableLanguages } from "../../../i18n/index"
+import { availableLanguages, languageNames } from "../../../i18n/index"
 import AppSettingsItem from "./AppSettingsItem"
 
 interface SettingsToggleProps {
@@ -104,7 +104,7 @@ export const HideMemoSetting = React.memo(function HideMemoSetting(props: Settin
 })
 
 interface LanguageSettingProps {
-  onSelect: (language: string | undefined) => void
+  onSelect: (language: string) => void
   value: string | null | undefined
 }
 
@@ -113,9 +113,11 @@ export const LanguageSetting = React.memo(function LanguageSetting(props: Langua
   const classes = useSettingsStyles(props)
   const { t } = useTranslation()
 
+  const browserLanguage = navigator.language.substr(0, 2)
+
   const handleChange = React.useCallback(
     (event: React.ChangeEvent<{ value: unknown }>) => {
-      onSelect(event.target.value !== "auto" ? (event.target.value as string) : undefined)
+      onSelect(event.target.value as string)
     },
     [onSelect]
   )
@@ -123,11 +125,15 @@ export const LanguageSetting = React.memo(function LanguageSetting(props: Langua
   return (
     <AppSettingsItem
       actions={
-        <Select onChange={handleChange} value={props.value || "auto"}>
-          <MenuItem value="auto">{t("app-settings.settings.language.auto-detect.label")}</MenuItem>
+        <Select
+          onChange={handleChange}
+          style={{ marginLeft: 8 }}
+          value={props.value}
+          SelectDisplayProps={{ style: { paddingLeft: 8 } }}
+        >
           {[...availableLanguages].sort().map(lang => (
             <MenuItem key={lang} value={lang}>
-              {lang}
+              {languageNames[lang]} {lang === browserLanguage && "(Auto)"}
             </MenuItem>
           ))}
         </Select>
