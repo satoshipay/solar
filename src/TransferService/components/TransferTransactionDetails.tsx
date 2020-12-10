@@ -14,6 +14,7 @@ import { trackError } from "~App/contexts/notifications"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
+import { useStellarToml } from "~Generic/hooks/stellar"
 import { findMatchingBalanceLine } from "~Generic/lib/stellar"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { PriceInput, ReadOnlyTextfield } from "~Generic/components/FormFields"
@@ -63,6 +64,9 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
 
   const isAmountOutOfBounds = (minAmount && amount.lt(minAmount)) || (maxAmount && amount.gt(maxAmount))
   const isDisabled = props.type === "withdrawal" ? !amount.gt(0) || amount.gt(balance) || isAmountOutOfBounds : false
+
+  const stellarToml = useStellarToml(props.state.withdrawal?.transferServer.domain)
+  const isSEP24Anchor = Boolean(stellarToml && stellarToml.TRANSFER_SERVER_SEP0024)
 
   const fees = BigNumber(data.fee_fixed || 0).add(
     BigNumber(data.fee_percent || 0)
@@ -117,9 +121,13 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
         {props.type === "deposit" ? null : (
           <PriceInput
             assetCode={asset.getCode()}
-            disabled={minAmount && minAmount.gt(balance)}
-            error={minAmount && minAmount.gt(balance)}
+            disabled={isSEP24Anchor || (minAmount && minAmount.gt(balance))}
+            error={amount.gt(balance) || (minAmount && minAmount.gt(balance))}
             label={t("transfer-service.transaction-details.body.amount.label.withdrawal")}
+            helperText={
+              amount.gt(balance) &&
+              t("transfer-service.transaction-details.body.amount.error.amount-greater-than-balance")
+            }
             margin="normal"
             onChange={event => setAmountString(event.target.value)}
             placeholder={formatBalanceRange(balance, minAmount, maxAmount)}
