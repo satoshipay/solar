@@ -1,16 +1,20 @@
+import BigNumber from "big.js"
 import nanoid from "nanoid"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
+import Typography from "@material-ui/core/Typography"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
-import { useStellarToml } from "~Generic/hooks/stellar"
-import { RefStateObject } from "~Generic/hooks/userinterface"
-import { useLoadingState } from "~Generic/hooks/util"
 import theme from "~App/theme"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { ReadOnlyTextfield } from "~Generic/components/FormFields"
-import { VerticalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
+import { useStellarToml } from "~Generic/hooks/stellar"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
+import { RefStateObject } from "~Generic/hooks/userinterface"
+import { useLoadingState } from "~Generic/hooks/util"
+import { findMatchingBalanceLine } from "~Generic/lib/stellar"
+import { VerticalLayout } from "~Layout/components/Box"
 import { formatDescriptionText } from "../util/formatters"
 import { TransferStates } from "../util/statemachine"
 import { DepositContext } from "./DepositProvider"
@@ -155,6 +159,10 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     props.type === "deposit" ? React.useContext(DepositContext) : React.useContext(WithdrawalContext)
 
+  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const balanceLine = findMatchingBalanceLine(accountData.balances, props.state.asset)
+  const balance = balanceLine ? BigNumber(balanceLine.balance) : BigNumber(0)
+
   const formID = React.useMemo(() => nanoid(), [])
   const [submissionState, handleSubmission] = useLoadingState({ throwOnError: true })
   const { t } = useTranslation()
@@ -213,11 +221,14 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
   const validAmount =
     (amountOptional || isFormValueSet(formValues.amount)) && /^([0-9]+(\.[0-9]+)?)?$/.test(formValues.amount || "")
 
+  const validBalance =
+    !assetInfo || !assetInfo.withdraw?.min_amount || BigNumber(assetInfo.withdraw.min_amount).lte(balance)
+
   const validEmail =
     (emailOptional === true || isFormValueSet(formValues.email) || isFormValueSet(formValues.email_address)) &&
     /^([^@]+@[^@]+\.[^@]+)?$/.test(formValues.email || formValues.email_address || "")
 
-  const isDisabled = hasEmptyMandatoryFields || !validAmount || !validEmail
+  const isDisabled = hasEmptyMandatoryFields || !validAmount || !validEmail || !validBalance
 
   return (
     <form id={formID} noValidate onSubmit={handleSubmit}>
@@ -257,6 +268,11 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
         />
         <FormLayout>
           <MinMaxAmount asset={props.state.asset} metadata={assetInfo && assetInfo.withdraw} />
+          {!validBalance && (
+            <Typography color="error" variant="caption">
+              {t("transfer-service.transfer-details.body.min-max-amount.not-enough-funds")}
+            </Typography>
+          )}
           <TransferFee
             asset={props.state.asset}
             domain={assetInfo ? assetInfo.transferServer.domain : ""}

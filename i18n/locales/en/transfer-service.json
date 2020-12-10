@@ -218,7 +218,8 @@
       "min-max-amount": {
         "label": "Amount",
         "max-amount": "Max. {{amount}} {{assetCode}}",
-        "min-amount": "Min. {{amount}} {{assetCode}}"
+        "min-amount": "Min. {{amount}} {{assetCode}}",
+        "not-enough-funds": "You do not have enough funds."
       },
       "fee": {
         "helper-text": "As charged by {{domain}}",
