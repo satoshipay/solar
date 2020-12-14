@@ -15,6 +15,7 @@ import MainTitle from "~Generic/components/MainTitle"
 import { useRouter } from "~Generic/hooks/userinterface"
 import getUpdater from "~Platform/updater"
 import AppNotificationPermission from "~Toasts/components/AppNotificationPermission"
+import ProtocolHandlerPermission from "~Toasts/components/ProtocolHandlerPermission"
 import { AccountsContext } from "../contexts/accounts"
 import { NotificationsContext, trackError } from "../contexts/notifications"
 import { SettingsContext } from "../contexts/settings"
@@ -138,6 +139,9 @@ function AllAccountsPage() {
             onCreateTestnetAccount={() => router.history.push(routes.newAccount(true))}
           />
           <AppNotificationPermission />
+          {process.env.PLATFORM === "linux" || process.env.PLATFORM === "darwin" || process.env.PLATFORM === "win32" ? (
+            <ProtocolHandlerPermission />
+          ) : null}
         </VerticalLayout>
       </DialogBody>
       <TermsAndConditions

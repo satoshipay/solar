@@ -63,6 +63,16 @@ callHandlers[Messages.ShowNotification] = (localNotification: LocalNotification)
   })
 }
 
+let isDefault = false
+let differentHandler = true
+callHandlers[Messages.IsDifferentHandlerInstalled] = () => differentHandler
+callHandlers[Messages.IsDefaultProtocolClient] = () => isDefault
+callHandlers[Messages.SetAsDefaultProtocolClient] = () => {
+  isDefault = true
+  differentHandler = false
+  return true
+}
+
 const defaultTestingKeys: KeysData<PublicKeyData> = {
   "1": {
     metadata: {

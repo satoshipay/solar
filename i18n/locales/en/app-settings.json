@@ -44,6 +44,15 @@
         }
       }
     },
+    "protocol-handler": {
+      "text": {
+        "primary": "Handle Stellar protocol requests",
+        "secondary": {
+          "default": "Solar is handling all Stellar links",
+          "non-default": "Make Solar handle all Stellar URIs"
+        }
+      }
+    },
     "testnet": {
       "text": {
         "primary": "Show Testnet Accounts",
