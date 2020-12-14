@@ -38,6 +38,7 @@ interface TrustedAssetsProps {
   hpadding: string | number
   onOpenAssetDetails: (asset: Asset) => void
   openOffers: ServerApi.OfferRecord[]
+  olderOffersAvailable?: boolean
 }
 
 const TrustedAssets = React.memo(function TrustedAssets(props: TrustedAssetsProps) {
@@ -50,10 +51,11 @@ const TrustedAssets = React.memo(function TrustedAssets(props: TrustedAssetsProp
             (offer.buying.asset_code === asset.code && offer.buying.asset_issuer === asset.issuer) ||
             (offer.selling.asset_code === asset.code && offer.selling.asset_issuer === asset.issuer)
         )
+        const badgeCount = props.olderOffersAvailable && openOffers.length >= 10 ? "10+" : openOffers.length
         return (
           <BalanceDetailsListItem
             key={stringifyAsset(asset)}
-            badgeCount={openOffers.length}
+            badgeCount={badgeCount}
             balance={balance!}
             onClick={() => props.onOpenAssetDetails(asset)}
             style={{
@@ -129,7 +131,10 @@ interface BalanceDetailsProps {
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const { offers: openOrders } = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
+  const { offers: openOrders, olderOffersAvailable } = useLiveAccountOffers(
+    props.account.publicKey,
+    props.account.testnet
+  )
   const isSmallScreen = useIsMobile()
   const router = useRouter()
   const { t } = useTranslation()
@@ -186,6 +191,7 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
           hpadding={itemHPadding}
           onOpenAssetDetails={openAssetDetails}
           openOffers={openOrders}
+          olderOffersAvailable={olderOffersAvailable}
         />
       </List>
       <Divider style={{ margin: "16px 0" }} />

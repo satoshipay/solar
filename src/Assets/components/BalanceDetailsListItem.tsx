@@ -83,7 +83,7 @@ const useBalanceItemStyles = makeStyles({
 })
 
 interface BalanceListItemProps {
-  badgeCount?: number
+  badgeCount?: number | string
   balance: Horizon.BalanceLine
   className?: string
   hideBalance?: boolean
