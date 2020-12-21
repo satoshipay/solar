@@ -10,6 +10,7 @@ export interface AccountCreation {
 }
 
 export interface AccountCreationErrors {
+  name?: string
   password?: string
   secretKey?: string
 }

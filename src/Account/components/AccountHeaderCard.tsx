@@ -44,6 +44,7 @@ interface Props {
   account: Account | AccountCreation
   children?: React.ReactNode
   editableAccountName?: boolean
+  error?: string
   onAccountSettings?: () => void
   onAccountTransactions?: () => void
   onClose: () => void
@@ -147,6 +148,7 @@ function AccountHeaderCard(props: Props) {
             actions={actions}
             badges={meta.account || props.editableAccountName ? badges : null}
             editable={props.editableAccountName}
+            error={props.error}
             permanentlyEditing={props.editableAccountName && !meta.account}
             name={meta.account?.name || meta.accountCreation!.name}
             onNavigateBack={props.onClose}

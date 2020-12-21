@@ -241,6 +241,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
         editableAccountName={
           showAccountSettings || (showAccountCreation && !showAccountCreationOptions && !accountToBackup)
         }
+        error={accountCreationErrors.name}
         onAccountSettings={navigateTo.accountSettings}
         onAccountTransactions={navigateTo.transactions}
         onClose={handleBackNavigation}
@@ -270,6 +271,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     ),
     [
       accountCreation,
+      accountCreationErrors.name,
       accountToBackup,
       creationTitle,
       handleBackNavigation,
