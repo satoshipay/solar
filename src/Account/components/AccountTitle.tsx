@@ -226,32 +226,32 @@ function AccountTitle(props: AccountTitleProps) {
     [onRename, props.permanentlyEditing]
   )
 
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === "Enter") {
-        onRename(name)
-        setMode("readonly")
-        clearTextSelection()
-      } else if (event.key === "Escape") {
-        onRename(props.name)
-        setMode("readonly")
-        clearTextSelection()
-      }
-    },
-    [props.name, onRename, name]
-  )
-
-  const applyRenaming = React.useCallback(() => {
-    onRename(name)
-    setMode("readonly")
-    clearTextSelection()
-  }, [onRename, name])
-
   const cancelRenaming = React.useCallback(() => {
     setName(props.name)
     setMode("readonly")
     clearTextSelection()
   }, [props.name])
+
+  const applyRenaming = React.useCallback(() => {
+    if (!name) {
+      cancelRenaming()
+    } else {
+      onRename(name)
+      setMode("readonly")
+      clearTextSelection()
+    }
+  }, [cancelRenaming, onRename, name])
+
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter") {
+        applyRenaming()
+      } else if (event.key === "Escape") {
+        cancelRenaming()
+      }
+    },
+    [applyRenaming, cancelRenaming]
+  )
 
   const focusInput = React.useCallback(() => {
     // Doesn't work on iOS, even leads to weird broken behavior
