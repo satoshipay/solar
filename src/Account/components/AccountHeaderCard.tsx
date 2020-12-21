@@ -67,6 +67,10 @@ function AccountHeaderCard(props: Props) {
       ? ({ account: props.account as Account } as const)
       : ({ accountCreation: props.account as AccountCreation } as const)
 
+  // It should never happen that "Unnamed account" is used
+  // It is only added for the rare case that the user has renamed their account to "" which is prevented by now
+  const name = meta.account?.name || meta.accountCreation?.name || "Unnamed Account"
+
   const showingSettings = matchesRoute(router.location.pathname, routes.accountSettings("*"))
 
   const actions = React.useMemo(
@@ -150,7 +154,7 @@ function AccountHeaderCard(props: Props) {
             editable={props.editableAccountName}
             error={props.error}
             permanentlyEditing={props.editableAccountName && !meta.account}
-            name={meta.account?.name || meta.accountCreation!.name}
+            name={name}
             onNavigateBack={props.onClose}
             onRename={props.onRename}
           />
