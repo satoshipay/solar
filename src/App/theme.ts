@@ -15,6 +15,12 @@ export const brandColor = {
   light: "#72dbfe"
 }
 
+export const testnetColor = {
+  dark: "#d3356b",
+  main: "#fe4081",
+  light: "#fd5a92"
+}
+
 export const primaryBackground = "linear-gradient(to left bottom, #01B3F3, #0176DC)"
 export const primaryBackgroundColor = "#0194E7"
 
@@ -87,6 +93,19 @@ const theme = createMuiTheme({
         },
         "&:hover": {
           backgroundColor: "#02b2f2"
+        }
+      },
+      containedSecondary: {
+        backgroundColor: testnetColor.main,
+
+        "&$disabled": {
+          backgroundColor: testnetColor.main,
+          border: "none",
+          boxShadow: "none",
+          color: "rgba(255, 255, 255, 0.7)"
+        },
+        "&:hover": {
+          backgroundColor: testnetColor.light
         }
       },
       textPrimary: {

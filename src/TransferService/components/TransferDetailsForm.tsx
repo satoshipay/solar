@@ -287,6 +287,7 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
               form={formID}
               loading={submissionState && submissionState.type === "pending"}
               onClick={() => undefined}
+              testnet={account.testnet}
               type="submit"
             >
               {t("transfer-service.transfer-details.action.proceed")}

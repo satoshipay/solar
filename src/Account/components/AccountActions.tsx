@@ -67,6 +67,7 @@ function AccountActions(props: AccountActionsProps) {
         disabled={accountData.balances.length === 0}
         icon={<SendIcon style={{ fontSize: "110%" }} />}
         onClick={props.onCreatePayment}
+        testnet={props.account.testnet}
         type="primary"
       >
         {t("account.action.send")}

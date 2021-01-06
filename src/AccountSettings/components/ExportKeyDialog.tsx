@@ -22,6 +22,7 @@ interface PromptToRevealProps {
   password: string
   passwordError: Error | null
   requiresPassword: boolean
+  testnet?: boolean
   title: React.ReactNode
   onReveal: (event: React.SyntheticEvent) => void
   updatePassword: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -39,7 +40,7 @@ function PromptToReveal(props: PromptToRevealProps) {
       top={props.title}
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
-          <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} type="primary">
+          <ActionButton icon={<LockOpenIcon />} onClick={props.onReveal} testnet={props.testnet} type="primary">
             {isSmallScreen
               ? t("account-settings.export-key.action.reveal.short")
               : t("account-settings.export-key.action.reveal.long")}
@@ -80,6 +81,7 @@ function PromptToReveal(props: PromptToRevealProps) {
 interface ShowSecretKeyProps {
   export: string
   onConfirm?: () => void
+  testnet?: boolean
   title: React.ReactNode
   variant: Props["variant"]
 }
@@ -96,7 +98,7 @@ function ShowSecretKey(props: ShowSecretKeyProps) {
       actions={
         props.onConfirm ? (
           <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
-            <ActionButton onClick={props.onConfirm} type="primary">
+            <ActionButton onClick={props.onConfirm} testnet={props.testnet} type="primary">
               {t("account-settings.export-key.action.confirm")}
             </ActionButton>
           </DialogActionsBox>
@@ -204,13 +206,20 @@ function ExportKeyDialog(props: Props) {
   )
 
   return isRevealed && secretKey ? (
-    <ShowSecretKey export={secretKey} onConfirm={props.onConfirm} title={titleContent} variant={props.variant} />
+    <ShowSecretKey
+      export={secretKey}
+      onConfirm={props.onConfirm}
+      testnet={props.account?.testnet}
+      title={titleContent}
+      variant={props.variant}
+    />
   ) : (
     <PromptToReveal
       onReveal={reveal}
       password={password}
       passwordError={passwordError ? new Error(getErrorTranslation(passwordError, t)) : null}
       requiresPassword={Boolean(props.account && props.account.requiresPassword)}
+      testnet={props.account?.testnet}
       title={titleContent}
       updatePassword={updatePassword}
     >

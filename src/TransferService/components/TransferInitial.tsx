@@ -208,6 +208,7 @@ function TransferInitial(props: TransferInitialProps) {
             form={formID}
             loading={submissionState.type === "pending"}
             onClick={() => undefined}
+            testnet={account.testnet}
             type="submit"
           >
             {t("transfer-service.initial.action.proceed")}

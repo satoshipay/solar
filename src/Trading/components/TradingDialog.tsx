@@ -122,6 +122,7 @@ function TradingDialog(props: TradingDialogProps) {
             <ActionButton
               autoFocus
               onClick={() => router.history.push(routes.manageAccountAssets(props.account.id))}
+              testnet={props.account.testnet}
               type="primary"
             >
               {t("trading.action.add-asset")}

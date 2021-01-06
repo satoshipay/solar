@@ -46,6 +46,7 @@ function AccountCreationActions(props: AccountCreationActionsProps) {
               className={buttonClassName}
               icon={<CheckIcon style={{ fontSize: "120%" }} />}
               onClick={props.onActionButtonClick}
+              testnet={props.testnet}
               type="primary"
             >
               {t("create-account.action.create")}
@@ -57,6 +58,7 @@ function AccountCreationActions(props: AccountCreationActionsProps) {
               className={buttonClassName}
               icon={<CheckIcon style={{ fontSize: "120%" }} />}
               onClick={props.onActionButtonClick}
+              testnet={props.testnet}
               type="primary"
             >
               {t("create-account.action.import")}

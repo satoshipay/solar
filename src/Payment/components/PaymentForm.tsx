@@ -296,13 +296,14 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           icon={<SendIcon style={{ fontSize: 16 }} />}
           loading={props.txCreationPending}
           onClick={() => undefined}
+          testnet={props.testnet}
           type="submit"
         >
           {t("payment.actions.submit")}
         </ActionButton>
       </DialogActionsBox>
     ),
-    [formID, props.txCreationPending, t]
+    [formID, props.testnet, props.txCreationPending, t]
   )
 
   return (

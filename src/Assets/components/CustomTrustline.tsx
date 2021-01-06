@@ -75,6 +75,7 @@ function CustomTrustlineDialog(props: Props) {
             icon={<VerifiedUserIcon />}
             loading={props.txCreationPending}
             onClick={addCustomAsset}
+            testnet={props.account.testnet}
             type="primary"
           >
             {isWidthMax450

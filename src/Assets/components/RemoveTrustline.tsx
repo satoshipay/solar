@@ -72,6 +72,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
               icon={<CloseIcon />}
               onClick={removeAsset}
               style={{ maxWidth: "none" }}
+              testnet={props.account.testnet}
               type="primary"
             >
               {t("account.remove-trustline.action.remove")}

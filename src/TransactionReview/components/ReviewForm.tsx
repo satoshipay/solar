@@ -168,6 +168,7 @@ function TxConfirmationForm(props: Props) {
               form={formID}
               loading={props.loading || loading}
               onClick={showLoadingIndicator}
+              testnet={props.account.testnet}
               type="submit"
             >
               {isOrderCancellation

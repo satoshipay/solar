@@ -29,6 +29,7 @@ interface DeletionConfirmationDialogProps {
   onClose: () => void
   onConfirm: () => void
   open: boolean
+  testnet?: boolean
 }
 
 const DeletionConfirmationDialog = React.memo(function DeletionConfirmationDialog(
@@ -41,7 +42,7 @@ const DeletionConfirmationDialog = React.memo(function DeletionConfirmationDialo
         <ActionButton onClick={props.onCancel}>{t("account-settings.account-deletion.action.cancel")}</ActionButton>
       }
       confirmButton={
-        <ActionButton onClick={props.onConfirm} type="primary">
+        <ActionButton onClick={props.onConfirm} testnet={props.testnet} type="primary">
           {t("account-settings.account-deletion.action.confirm")}
         </ActionButton>
       }
@@ -220,6 +221,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
               disabled={!selectedMergeAccount}
               icon={<MergeIcon />}
               onClick={requestConfirmation}
+              testnet={props.account.testnet}
               type="primary"
             >
               {isTinyScreen
@@ -227,7 +229,13 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
                 : t("account-settings.account-deletion.action.merge.long")}
             </ActionButton>
           ) : (
-            <ActionButton autoFocus icon={<DeleteIcon />} onClick={requestConfirmation} type="primary">
+            <ActionButton
+              autoFocus
+              icon={<DeleteIcon />}
+              onClick={requestConfirmation}
+              testnet={props.account.testnet}
+              type="primary"
+            >
               {t("account-settings.account-deletion.action.delete")}
             </ActionButton>
           )}
@@ -250,6 +258,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
           onClose={cancelConfirmation}
           onConfirm={onConfirm}
           open={confirmationPending}
+          testnet={props.account.testnet}
         />
         <WarningDialog
           onClose={closeWarning}
