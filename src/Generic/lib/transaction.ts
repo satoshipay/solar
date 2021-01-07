@@ -17,18 +17,8 @@ import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError, isSignedByAnyOf } from "./stellar"
 import { workers } from "~Workers/worker-controller"
 
-interface SmartFeePreset {
-  capacityTrigger: number
-  maxFee: number
-  percentile: number
-}
-
-// See <https://github.com/stellar/go/issues/926>
-const highFeePreset: SmartFeePreset = {
-  capacityTrigger: 0.5,
-  maxFee: 1_000_000,
-  percentile: 90
-}
+/** in stroops */
+const maximumFeeToSpend = 1_000_000
 
 // Use a relatively high fee in case there will be a lot of traffic
 // on the network later when the tx will be submitted to the network
@@ -80,28 +70,6 @@ async function accountExists(horizon: Server, publicKey: string) {
   }
 }
 
-async function selectTransactionFeeWithFallback(horizonURL: string, preset: SmartFeePreset, fallbackFee: number) {
-  try {
-    const { netWorker } = await workers
-    const feeStats = await netWorker.fetchFeeStats(horizonURL)
-
-    const capacityUsage = Number.parseFloat(feeStats.ledger_capacity_usage)
-    const percentileFees = feeStats.fee_charged
-
-    const smartFee =
-      capacityUsage > preset.capacityTrigger
-        ? Number.parseInt((percentileFees as any)[`p${preset.percentile}`] || feeStats.fee_charged.mode, 10)
-        : Number.parseInt(feeStats.fee_charged.min, 10)
-
-    return Math.min(smartFee, preset.maxFee)
-  } catch (error) {
-    // Don't show error notification, since our horizon's endpoint is non-functional anyway
-    // tslint:disable-next-line no-console
-    console.error("Smart fee selection failed:", error)
-    return fallbackFee
-  }
-}
-
 function selectTransactionTimeout(accountData: Pick<ServerApi.AccountRecord, "signers">): number {
   // Don't forget that we must give the user enough time to enter their password and click ok
   return accountData.signers.length > 1 ? 30 * 24 * 60 * 60 * 1000 : 90
@@ -119,15 +87,13 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   const { horizon, walletAccount } = options
   const { netWorker } = await workers
 
-  const fallbackFee = 10000
   const horizonURL = horizon.serverURL.toString()
   const timeout = selectTransactionTimeout(options.accountData)
 
-  const [accountMetadata, smartTxFee, timebounds] = await Promise.all([
+  const [accountMetadata, timebounds] = await Promise.all([
     applyTimeout(netWorker.fetchAccountData(horizonURL, walletAccount.publicKey), 10000, () =>
       fail(`Fetching source account data timed out`)
     ),
-    applyTimeout(selectTransactionFeeWithFallback(horizonURL, highFeePreset, fallbackFee), 5000, () => fallbackFee),
     applyTimeout(netWorker.fetchTimebounds(horizonURL, timeout), 10000, () =>
       fail(`Syncing time bounds with horizon timed out`)
     )
@@ -139,7 +105,7 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
 
   const account = new StellarAccount(accountMetadata.id, accountMetadata.sequence)
   const networkPassphrase = walletAccount.testnet ? Networks.TESTNET : Networks.PUBLIC
-  const txFee = Math.max(smartTxFee, options.minTransactionFee || 0)
+  const txFee = Math.max(options.minTransactionFee || 0, maximumFeeToSpend)
 
   const builder = new TransactionBuilder(account, {
     fee: String(txFee),
