@@ -36,6 +36,10 @@ function getNewAccountName(t: TFunction, accounts: Account[], testnet: boolean) 
 function validateAccountCreation(t: TFunction, accounts: Account[], accountCreation: AccountCreation) {
   const errors: AccountCreationErrors = {}
 
+  if (!accountCreation.name) {
+    errors.name = t("create-account.validation.no-account-name")
+  }
+
   if (accountCreation.requiresPassword && !accountCreation.password) {
     errors.password = t("create-account.validation.no-password")
   } else if (accountCreation.requiresPassword && accountCreation.repeatedPassword !== accountCreation.password) {

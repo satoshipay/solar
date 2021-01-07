@@ -125,6 +125,7 @@ const useTitleTextfieldStyles = makeStyles({
 
 interface TitleTextFieldProps {
   actions?: React.ReactNode
+  error?: string
   inputRef?: React.Ref<HTMLInputElement>
   onChange: TextFieldProps["onChange"]
   onClick?: () => void
@@ -142,6 +143,7 @@ function TitleTextField(props: TitleTextFieldProps) {
   const length = props.value.length || props.placeholder?.length || 0
   return (
     <TextField
+      error={Boolean(props.error)}
       inputProps={{
         className: classes.input,
         onClick: props.onClick,
@@ -186,6 +188,7 @@ interface AccountTitleProps {
   actions: React.ReactNode
   badges: React.ReactNode
   editable?: boolean
+  error?: string
   name: string
   onNavigateBack: () => void
   onRename: (newName: string) => void
@@ -226,32 +229,32 @@ function AccountTitle(props: AccountTitleProps) {
     [onRename, props.permanentlyEditing]
   )
 
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === "Enter") {
-        onRename(name)
-        setMode("readonly")
-        clearTextSelection()
-      } else if (event.key === "Escape") {
-        onRename(props.name)
-        setMode("readonly")
-        clearTextSelection()
-      }
-    },
-    [props.name, onRename, name]
-  )
-
-  const applyRenaming = React.useCallback(() => {
-    onRename(name)
-    setMode("readonly")
-    clearTextSelection()
-  }, [onRename, name])
-
   const cancelRenaming = React.useCallback(() => {
     setName(props.name)
     setMode("readonly")
     clearTextSelection()
   }, [props.name])
+
+  const applyRenaming = React.useCallback(() => {
+    if (!name) {
+      cancelRenaming()
+    } else {
+      onRename(name)
+      setMode("readonly")
+      clearTextSelection()
+    }
+  }, [cancelRenaming, onRename, name])
+
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter") {
+        applyRenaming()
+      } else if (event.key === "Escape") {
+        cancelRenaming()
+      }
+    },
+    [applyRenaming, cancelRenaming]
+  )
 
   const focusInput = React.useCallback(() => {
     // Doesn't work on iOS, even leads to weird broken behavior
@@ -315,6 +318,7 @@ function AccountTitle(props: AccountTitleProps) {
           actions={
             props.permanentlyEditing ? permanentEditActions : mode === "readonly" ? readonlyActions : editActions
           }
+          error={props.error}
           inputRef={inputRef}
           onChange={handleNameEditing}
           onClick={props.editable ? switchToEditMode : undefined}
