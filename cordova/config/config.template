@@ -96,19 +96,13 @@
         <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
             <string>The app needs access to the camera, to be able to read QR codes.</string>
         </edit-config>
-
-        <feature name="CDVWKWebViewEngine">
-            <param name="ios-package" value="CDVWKWebViewEngine" />
-        </feature>
-
-        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
     </platform>
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <plugin name="cordova-plugin-dialogs" spec="~2.0.1" />
     <plugin name="cordova-plugin-network-information" spec="~2.0.1" />
     <plugin name="cordova-plugin-secure-storage" spec="~3.0.1" />
-    <engine name="android" spec="^8.0.0" />
-    <engine name="ios" spec="^5.0.0" />
+    <engine name="android" spec="^9.0.0" />
+    <engine name="ios" spec="^6.1.1" />
 
     <preference name="AndroidLaunchMode" value="singleTask"/>
     <preference name="AppendUserAgent" value="SatoshiPaySolar/$PACKAGE_VERSION" />
