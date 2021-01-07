@@ -13,7 +13,8 @@ export function useTickerAssets(testnet: boolean) {
 }
 
 export function useWellKnownAccounts(testnet: boolean) {
-  let accounts: AccountRecord[]
+  const [error, setError] = React.useState<Error | undefined>(undefined)
+  let accounts: AccountRecord[] = []
 
   const forceRerender = useForceRerender()
   const fetchAccounts = () => fetchWellknownAccounts(testnet)
@@ -23,22 +24,24 @@ export function useWellKnownAccounts(testnet: boolean) {
   } catch (thrown) {
     if (thrown && typeof thrown.then === "function") {
       // Promise thrown to suspend component – prevent suspension
-      accounts = []
       thrown.then(forceRerender, trackError)
+      accounts = []
     } else {
-      // It's an error – re-throw
-      throw thrown
+      if (!error || error.message !== thrown.message) {
+        setError(thrown)
+      }
     }
   }
 
   const wellknownAccounts = React.useMemo(() => {
     return {
       accounts,
+      error,
       lookup(publicKey: string): AccountRecord | undefined {
         return accounts.find(account => account.address === publicKey)
       }
     }
-  }, [accounts])
+  }, [accounts, error])
 
   return wellknownAccounts
 }
