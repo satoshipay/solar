@@ -222,7 +222,10 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
     (amountOptional || isFormValueSet(formValues.amount)) && /^([0-9]+(\.[0-9]+)?)?$/.test(formValues.amount || "")
 
   const validBalance =
-    !assetInfo || !assetInfo.withdraw?.min_amount || BigNumber(assetInfo.withdraw.min_amount).lte(balance)
+    props.type === "deposit" ||
+    !assetInfo ||
+    !assetInfo.withdraw?.min_amount ||
+    BigNumber(assetInfo.withdraw.min_amount).lte(balance)
 
   const validEmail =
     (emailOptional === true || isFormValueSet(formValues.email) || isFormValueSet(formValues.email_address)) &&
