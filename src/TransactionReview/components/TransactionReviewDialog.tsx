@@ -27,7 +27,7 @@ function isOfferDeletionOperation(operation: Operation) {
   )
 }
 
-function useTitle() {
+export function useTransactionTitle() {
   const getOperationTitle = useOperationTitle()
   const { t } = useTranslation()
 
@@ -65,7 +65,7 @@ interface TransactionReviewDialogBodyProps {
 export function TransactionReviewDialogBody(props: TransactionReviewDialogBodyProps) {
   const dialogActionsRef = useDialogActions()
   const isSmallScreen = useIsMobile()
-  const getTitle = useTitle()
+  const getTitle = useTransactionTitle()
 
   const titleContent = React.useMemo(
     () => (
