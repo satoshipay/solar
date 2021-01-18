@@ -1,5 +1,5 @@
 import React from "react"
-import { StellarUri, StellarUriType } from "@stellarguard/stellar-uri"
+import { StellarUri, StellarUriType, TransactionStellarUri } from "@stellarguard/stellar-uri"
 import { CustomError } from "~Generic/lib/errors"
 import { subscribeToDeepLinkURLs } from "~Platform/protocol-handler"
 import { verifyTransactionRequest } from "~Transaction/lib/stellar-uri"
@@ -31,6 +31,13 @@ export function TransactionRequestProvider(props: Props) {
   const verifyStellarURI = React.useCallback(async (incomingURI: string) => {
     try {
       const parsedURI = await verifyTransactionRequest(incomingURI, { allowUnsafeTestnetURIs })
+
+      if (parsedURI.operation === StellarUriType.Transaction) {
+        // check if contained transaction is valid
+        const txURI = parsedURI as TransactionStellarUri
+        txURI.getTransaction()
+      }
+
       setURI(parsedURI)
     } catch (error) {
       trackError(error)
