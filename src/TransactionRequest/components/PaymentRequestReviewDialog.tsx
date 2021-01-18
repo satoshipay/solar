@@ -118,7 +118,7 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-interface PaymentAccountSelectionDialogProps {
+interface PaymentRequestReviewDialogProps {
   accounts: Account[]
   horizon: Server
   onAccountChange: (account: Account) => void
@@ -128,7 +128,7 @@ interface PaymentAccountSelectionDialogProps {
   sendTransaction: SendTransaction
 }
 
-function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps) {
+function PaymentRequestReviewDialog(props: PaymentRequestReviewDialogProps) {
   const { onClose, onAccountChange } = props
   const {
     amount,
@@ -228,8 +228,8 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
   )
 }
 
-function ConnectedPaymentAccountSelectionDialog(
-  props: Pick<PaymentAccountSelectionDialogProps, "payStellarUri" | "onClose">
+function ConnectedPaymentRequestReviewDialog(
+  props: Pick<PaymentRequestReviewDialogProps, "payStellarUri" | "onClose">
 ) {
   const { accounts } = React.useContext(AccountsContext)
   const testnet = props.payStellarUri.isTestNetwork
@@ -241,7 +241,7 @@ function ConnectedPaymentAccountSelectionDialog(
   return accountsForNetwork.length > 0 ? (
     <TransactionSender account={selectedAccount || accountsForNetwork[0]} onSubmissionCompleted={props.onClose}>
       {({ horizon, sendTransaction }) => (
-        <PaymentAccountSelectionDialog
+        <PaymentRequestReviewDialog
           {...props}
           accounts={accountsForNetwork}
           horizon={horizon}
@@ -256,4 +256,4 @@ function ConnectedPaymentAccountSelectionDialog(
   )
 }
 
-export default ConnectedPaymentAccountSelectionDialog
+export default ConnectedPaymentRequestReviewDialog

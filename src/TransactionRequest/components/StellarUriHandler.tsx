@@ -2,15 +2,16 @@ import React from "react"
 import Fade from "@material-ui/core/Fade"
 import { TransitionProps } from "@material-ui/core/transitions/transition"
 import { Dialog } from "@material-ui/core"
-import { StellarUriType, StellarUri, PayStellarUri } from "@stellarguard/stellar-uri"
+import { StellarUriType, StellarUri, PayStellarUri, TransactionStellarUri } from "@stellarguard/stellar-uri"
 import { TransactionRequestContext } from "~App/contexts/transactionRequest"
 import { SettingsContext } from "~App/contexts/settings"
 import VerifyTrustedServiceDialog from "./VerifyTrustedServiceDialog"
-import PaymentAccountSelectionDialog from "./PaymentAccountSelectionDialog"
+import PaymentRequestReviewDialog from "./PaymentRequestReviewDialog"
+import TransactionRequestReviewDialog from "./TransactionRequestReviewDialog"
 
 const Transition = React.forwardRef((props: TransitionProps, ref) => <Fade ref={ref} {...props} />)
 
-function TransactionRequestHandler() {
+function StellarUriHandler() {
   const { uri, clearURI } = React.useContext(TransactionRequestContext)
   const { trustedServices, setSetting } = React.useContext(SettingsContext)
   const [closedStellarURI, setClosedStellarURI] = React.useState<StellarUri | null>(null)
@@ -59,12 +60,21 @@ function TransactionRequestHandler() {
 
     return (
       <Dialog open={Boolean(uri)} fullScreen TransitionComponent={Transition}>
-        <PaymentAccountSelectionDialog payStellarUri={payStellarUri} onClose={onClose} />
+        <PaymentRequestReviewDialog payStellarUri={payStellarUri} onClose={onClose} />
+      </Dialog>
+    )
+  } else {
+    const txStellarUri = renderedURI as TransactionStellarUri
+    const onClose = () => {
+      closeDialog()
+    }
+
+    return (
+      <Dialog open={Boolean(uri)} fullScreen TransitionComponent={Transition}>
+        <TransactionRequestReviewDialog txStellarUri={txStellarUri} onClose={onClose} />
       </Dialog>
     )
   }
-
-  return null
 }
 
-export default React.memo(TransactionRequestHandler)
+export default React.memo(StellarUriHandler)
