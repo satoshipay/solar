@@ -31,7 +31,7 @@ function AccountSelectionList(props: AccountSelectionListProps) {
   }
 
   return (
-    <List style={{ background: "transparent", paddingLeft: 0, paddingRight: 0 }}>
+    <List style={{ background: "transparent" }}>
       {props.accounts.map((account, index) => (
         <AccountSelectionListItem
           account={account}
