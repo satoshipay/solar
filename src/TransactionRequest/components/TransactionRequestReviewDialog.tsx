@@ -21,6 +21,7 @@ import { AccountData } from "~Generic/lib/account"
 import DialogBody from "~Layout/components/DialogBody"
 import { useTransactionTitle } from "~TransactionReview/components/TransactionReviewDialog"
 import TransactionSummary from "~TransactionReview/components/TransactionSummary"
+import { findMatchingBalanceLine } from "~Generic/lib/stellar"
 
 function getSelectableAccounts(transaction: Transaction, accounts: Account[], accountsData: AccountData[]) {
   return accounts.filter(acc => {
@@ -30,50 +31,30 @@ function getSelectableAccounts(transaction: Transaction, accounts: Account[], ac
     const paymentOperations = transaction.operations.filter(
       operations => operations.type === "payment"
     ) as Operation.Payment[]
-    if (paymentOperations.length > 0) {
-      const allOperationsViable = paymentOperations.every(operation => {
-        // check if account holds trustline for every asset used in payment operations
-        const asset = operation.asset
-        if (asset.isNative()) {
-          return true
-        } else {
-          return accountData.balances.some(
-            (balance: any) => balance.asset_code === asset.code && balance.asset_issuer === asset.issuer
-          )
-        }
-      })
-      if (!allOperationsViable) return false
+    for (const operation of paymentOperations) {
+      const asset = operation.asset
+      // check if account holds trustline for every asset used in payment operations
+      if (!asset.isNative() && !findMatchingBalanceLine(accountData.balances, asset)) {
+        return false
+      }
     }
 
     const changeTrustOperations = transaction.operations.filter(
       operation => operation.type === "changeTrust"
     ) as Operation.ChangeTrust[]
-    if (changeTrustOperations.length > 0) {
-      const allOperationsViable = changeTrustOperations.every(operation => {
-        const asset = operation.line
-        if (BigNumber(operation.limit).eq(0)) {
-          // remove-trust operation
-          if (
-            !accountData.balances.some(
-              (balance: any) => balance.asset_code === asset.code && balance.asset_issuer === asset.issuer
-            )
-          ) {
-            return false
-          }
-        } else {
-          // add-trust operation
-          if (
-            accountData.balances.some(
-              (balance: any) => balance.asset_code === asset.code && balance.asset_issuer === asset.issuer
-            )
-          ) {
-            return false
-          }
+    for (const operation of changeTrustOperations) {
+      const asset = operation.line
+      if (BigNumber(operation.limit).eq(0)) {
+        // check if account has the specified trustline to remove
+        if (!findMatchingBalanceLine(accountData.balances, asset)) {
+          return false
         }
-        return true
-      })
-
-      if (!allOperationsViable) return false
+      } else {
+        // check if account does not already have a trustline for this asset
+        if (findMatchingBalanceLine(accountData.balances, asset)) {
+          return false
+        }
+      }
     }
 
     return true
