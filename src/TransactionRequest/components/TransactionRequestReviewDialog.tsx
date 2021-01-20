@@ -215,6 +215,39 @@ function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogPro
   )
 }
 
+function NoAccountsDialog(props: { onClose: () => void; testnet: boolean }) {
+  const { t } = useTranslation()
+  return (
+    <DialogBody
+      preventNotchSpacing
+      top={
+        <MainTitle
+          hideBackButton
+          onBack={props.onClose}
+          title={
+            <span>
+              {t("transaction-request.payment-account-selection.title")}
+              {props.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
+            </span>
+          }
+        />
+      }
+      actions={
+        <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
+          <ActionButton icon={<CancelIcon />} onClick={props.onClose} type="secondary">
+            {t("transaction-request.payment-account-selection.action.dismiss")}
+          </ActionButton>
+        </DialogActionsBox>
+      }
+    >
+      <Box>
+        <Typography>No accounts found for network.</Typography>
+        <Typography>You must import an account before you can sign transaction requests.</Typography>
+      </Box>
+    </DialogBody>
+  )
+}
+
 interface ConnectedTransactionRequestReviewDialogProps {
   onClose: () => void
   txStellarUri: TransactionStellarUri
@@ -226,9 +259,8 @@ function ConnectedTransferRequestReviewDialog(props: ConnectedTransactionRequest
   const selectableAccounts = React.useMemo(() => accounts.filter(acc => acc.testnet === testnet), [accounts, testnet])
   const [selectedAccount, setSelectedAccount] = React.useState<Account | null>(null)
 
-  return (
-    // FIXME fix default account of TransactionSender
-    <TransactionSender account={selectedAccount || selectableAccounts[0]!} onSubmissionCompleted={props.onClose}>
+  return selectableAccounts.length > 0 ? (
+    <TransactionSender account={selectedAccount || selectableAccounts[0]} onSubmissionCompleted={props.onClose}>
       {({ horizon, sendTransaction }) => (
         <TransactionRequestReviewDialog
           {...props}
@@ -240,6 +272,8 @@ function ConnectedTransferRequestReviewDialog(props: ConnectedTransactionRequest
         />
       )}
     </TransactionSender>
+  ) : (
+    <NoAccountsDialog onClose={props.onClose} testnet={testnet} />
   )
 }
 
