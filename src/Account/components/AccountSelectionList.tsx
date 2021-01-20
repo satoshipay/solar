@@ -15,6 +15,7 @@ const isMobileDevice = process.env.PLATFORM === "android" || process.env.PLATFOR
 interface AccountSelectionListProps {
   accounts: Account[]
   disabled?: boolean
+  selectedAccount?: Account
   testnet: boolean
   onChange?: (account: Account) => void
 }
@@ -38,7 +39,7 @@ function AccountSelectionList(props: AccountSelectionListProps) {
           index={index}
           key={account.id}
           onClick={handleListItemClick}
-          selected={index === selectedIndex}
+          selected={props.selectedAccount ? account === props.selectedAccount : index === selectedIndex}
         />
       ))}
       {props.accounts.length === 0 ? (
