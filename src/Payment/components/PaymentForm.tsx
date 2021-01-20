@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
+import CloseIcon from "@material-ui/icons/Close"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "~App/contexts/accounts"
 import { AccountRecord, useWellKnownAccounts } from "~Generic/hooks/stellar-ecosystem"
@@ -53,6 +54,7 @@ function createMemo(memoType: MemoType, memoValue: string) {
 interface PaymentFormProps {
   accountData: AccountData
   actionsRef: RefStateObject
+  onCancel?: () => void
   onSubmit: (
     formValues: ExtendedPaymentFormValues,
     spendableBalance: BigNumber,
@@ -326,6 +328,11 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const dialogActions = React.useMemo(
     () => (
       <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
+        {props.onCancel && (
+          <ActionButton icon={<CloseIcon style={{ fontSize: 16 }} />} onClick={props.onCancel}>
+            {t("payment.actions.dismiss")}
+          </ActionButton>
+        )}
         <ActionButton
           form={formID}
           icon={<SendIcon style={{ fontSize: 16 }} />}
@@ -337,7 +344,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         </ActionButton>
       </DialogActionsBox>
     ),
-    [formID, props.txCreationPending, t]
+    [formID, props.onCancel, props.txCreationPending, t]
   )
 
   return (
@@ -360,7 +367,7 @@ interface Props {
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  onCancel: () => void
+  onCancel?: () => void
   onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
 }
 

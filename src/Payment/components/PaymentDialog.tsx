@@ -81,7 +81,6 @@ function PaymentDialog(props: Props) {
       <PaymentForm
         accountData={props.accountData}
         actionsRef={dialogActionsRef}
-        onCancel={props.onClose}
         onSubmit={handleSubmit}
         openOrdersCount={props.openOrdersCount}
         preselectedParams={props.paymentParams}
