@@ -1,8 +1,3 @@
-import BigNumber from "big.js"
-import React from "react"
-import { Trans, useTranslation } from "react-i18next"
-import { Operation, Server, Transaction } from "stellar-sdk"
-import TransactionSender, { SendTransaction } from "../../Transaction/components/TransactionSender"
 import Box from "@material-ui/core/Box"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import Typography from "@material-ui/core/Typography"
@@ -10,56 +5,20 @@ import CancelIcon from "@material-ui/icons/Cancel"
 import SelectIcon from "@material-ui/icons/Check"
 import WarningIcon from "@material-ui/icons/Warning"
 import { TransactionStellarUri } from "@stellarguard/stellar-uri"
+import BigNumber from "big.js"
+import React from "react"
+import { Trans, useTranslation } from "react-i18next"
+import { Server } from "stellar-sdk"
 import AccountSelectionList from "~Account/components/AccountSelectionList"
 import { Account, AccountsContext } from "~App/contexts/accounts"
 import { breakpoints, warningColor } from "~App/theme"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import MainTitle from "~Generic/components/MainTitle"
 import TestnetBadge from "~Generic/components/TestnetBadge"
-import { useLiveAccountDataSet } from "~Generic/hooks/stellar-subscriptions"
-import { AccountData } from "~Generic/lib/account"
 import DialogBody from "~Layout/components/DialogBody"
 import { useTransactionTitle } from "~TransactionReview/components/TransactionReviewDialog"
 import TransactionSummary from "~TransactionReview/components/TransactionSummary"
-import { findMatchingBalanceLine } from "~Generic/lib/stellar"
-
-function getSelectableAccounts(transaction: Transaction, accounts: Account[], accountsData: AccountData[]) {
-  return accounts.filter(acc => {
-    const accountData = accountsData.find(data => data.account_id === acc.publicKey)
-    if (!accountData) return false
-
-    const paymentOperations = transaction.operations.filter(
-      operations => operations.type === "payment"
-    ) as Operation.Payment[]
-    for (const operation of paymentOperations) {
-      const asset = operation.asset
-      // check if account holds trustline for every asset used in payment operations
-      if (!asset.isNative() && !findMatchingBalanceLine(accountData.balances, asset)) {
-        return false
-      }
-    }
-
-    const changeTrustOperations = transaction.operations.filter(
-      operation => operation.type === "changeTrust"
-    ) as Operation.ChangeTrust[]
-    for (const operation of changeTrustOperations) {
-      const asset = operation.line
-      if (BigNumber(operation.limit).eq(0)) {
-        // check if account has the specified trustline to remove
-        if (!findMatchingBalanceLine(accountData.balances, asset)) {
-          return false
-        }
-      } else {
-        // check if account does not already have a trustline for this asset
-        if (findMatchingBalanceLine(accountData.balances, asset)) {
-          return false
-        }
-      }
-    }
-
-    return true
-  })
-}
+import TransactionSender, { SendTransaction } from "../../Transaction/components/TransactionSender"
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -88,7 +47,6 @@ const useStyles = makeStyles(() => ({
 
 interface TransactionRequestReviewDialogProps {
   accounts: Account[]
-  accountsData: AccountData[]
   horizon: Server
   onClose: () => void
   onAccountChange: (account: Account) => void
@@ -98,7 +56,7 @@ interface TransactionRequestReviewDialogProps {
 }
 
 function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogProps) {
-  const { accounts, accountsData, horizon, onClose, onAccountChange, selectedAccount, sendTransaction } = props
+  const { accounts, horizon, onClose, onAccountChange, selectedAccount, sendTransaction } = props
   const { msg, originDomain, pubkey, signature, isTestNetwork: testnet } = props.txStellarUri
   const transaction = React.useMemo(() => props.txStellarUri.getTransaction(), [props.txStellarUri])
   const replacements = React.useMemo(() => props.txStellarUri.getReplacements(), [props.txStellarUri])
@@ -117,9 +75,9 @@ function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogPro
       const requiredAccount = accounts.find(acc => acc.publicKey === pubkey)
       return requiredAccount ? [requiredAccount] : []
     } else {
-      return getSelectableAccounts(transaction, accounts, accountsData)
+      return accounts
     }
-  }, [accounts, accountsData, transaction, pubkey])
+  }, [accounts, pubkey])
 
   const getNewSeqNumber = React.useCallback(
     async account => {
@@ -266,10 +224,6 @@ function ConnectedTransferRequestReviewDialog(props: ConnectedTransactionRequest
   const { accounts } = React.useContext(AccountsContext)
   const testnet = props.txStellarUri.isTestNetwork
   const selectableAccounts = React.useMemo(() => accounts.filter(acc => acc.testnet === testnet), [accounts, testnet])
-  const accountsData = useLiveAccountDataSet(
-    selectableAccounts.map(acc => acc.publicKey),
-    testnet
-  )
   const [selectedAccount, setSelectedAccount] = React.useState<Account | null>(null)
 
   return (
@@ -279,7 +233,6 @@ function ConnectedTransferRequestReviewDialog(props: ConnectedTransactionRequest
         <TransactionRequestReviewDialog
           {...props}
           accounts={accounts}
-          accountsData={accountsData}
           horizon={horizon}
           selectedAccount={selectedAccount}
           onAccountChange={setSelectedAccount}
