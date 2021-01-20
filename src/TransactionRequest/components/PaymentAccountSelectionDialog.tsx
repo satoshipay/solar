@@ -169,22 +169,20 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
   return (
     <DialogBody
       preventNotchSpacing
-      top={
-        <MainTitle hideBackButton onBack={onClose} title={t("transaction-request.payment-account-selection.title")} />
-      }
+      top={<MainTitle hideBackButton onBack={onClose} title={t("transaction-request.payment.title")} />}
       actions={dialogActionsRef}
     >
       <Box className={classes.root}>
         {signature ? (
           <Typography>
-            <Trans i18nKey="transaction-request.payment-account-selection.header.origin-domain">
+            <Trans i18nKey="transaction-request.payment.header.origin-domain">
               The following transaction has been proposed by <b>{{ originDomain }}</b>.
             </Trans>
           </Typography>
         ) : (
           <Box className={classes.warningContainer}>
             <WarningIcon />
-            <Typography style={{ padding: 8 }}>{t("transaction-request.payment-account-selection.warning")}</Typography>
+            <Typography style={{ padding: 8 }}>{t("transaction-request.payment.warning")}</Typography>
             <WarningIcon />
           </Box>
         )}
@@ -209,7 +207,7 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
           )}
         </React.Suspense>
         <Typography component="h6" variant="h6" style={{ marginTop: 8 }}>
-          {t("transaction-request.payment-account-selection.account-selector")}
+          {t("transaction-request.payment.account-selector")}
         </Typography>
         {props.accounts.length > 0 ? (
           <AccountSelectionList
@@ -221,8 +219,8 @@ function PaymentAccountSelectionDialog(props: PaymentAccountSelectionDialogProps
         ) : (
           <Typography align="center" color="error" variant="h6" style={{ paddingTop: 16 }}>
             {asset.code === "XLM"
-              ? t("transaction-request.payment-account-selection.error.no-activated-accounts")
-              : t("transaction-request.payment-account-selection.error.no-accounts-with-trustline")}
+              ? t("transaction-request.payment.error.no-activated-accounts")
+              : t("transaction-request.payment.error.no-accounts-with-trustline")}
           </Typography>
         )}
       </Box>

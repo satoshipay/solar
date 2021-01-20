@@ -1,5 +1,15 @@
 {
-  "payment-account-selection": {
+  "no-accounts": {
+    "action": {
+      "dismiss": "Dismiss"
+    },
+    "info": {
+      "1": "No accounts found for the specified network.",
+      "2": "You must import an account before you can sign transaction requests."
+    },
+    "title": "Transaction proposed"
+  },
+  "payment": {
     "account-selector": "Select the account to use",
     "action": {
       "dismiss": "Dismiss",
@@ -14,10 +24,6 @@
       "no-origin-domain": "You opened the following payment request from an unknown origin."
     },
     "uri-content": {
-      "any": "Any",
-      "pay": "Pay",
-      "to": "To",
-      "memo": "Memo",
       "message": "Message"
     },
     "title": "Transaction proposed",
@@ -34,15 +40,5 @@
       "2": "If you trust this domain you can add this service to your list of trusted services.",
       "3": "You can view and edit your list of trusted services anytime in the application settings."
     }
-  },
-  "no-accounts": {
-    "action": {
-      "dismiss": "Dismiss"
-    },
-    "info": {
-      "1": "No accounts found for the specified network.",
-      "2": "You must import an account before you can sign transaction requests."
-    },
-    "title": "Transaction proposed"
   }
 }
