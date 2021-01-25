@@ -132,7 +132,7 @@ function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogPro
           onBack={onClose}
           title={
             <span>
-              {t("transaction-request.payment-account-selection.title")}
+              {t("transaction-request.transaction.title")}
               {testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
             </span>
           }
@@ -141,10 +141,10 @@ function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogPro
       actions={
         <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
           <ActionButton icon={<CancelIcon />} onClick={onClose} type="secondary">
-            {t("transaction-request.payment-account-selection.action.dismiss")}
+            {t("transaction-request.transaction.action.dismiss")}
           </ActionButton>
           <ActionButton disabled={!selectedAccount} icon={<SelectIcon />} onClick={onSelect} type="primary">
-            {t("transaction-request.payment-account-selection.action.select")}
+            {t("transaction-request.transaction.action.select")}
           </ActionButton>
         </DialogActionsBox>
       }
@@ -152,14 +152,14 @@ function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogPro
       <Box className={classes.root}>
         {signature ? (
           <Typography>
-            <Trans i18nKey="transaction-request.payment-account-selection.header.origin-domain">
+            <Trans i18nKey="transaction-request.payment.header.origin-domain">
               The following transaction has been proposed by <b>{{ originDomain }}</b>.
             </Trans>
           </Typography>
         ) : (
           <Box className={classes.warningContainer}>
             <WarningIcon />
-            <Typography style={{ padding: 8 }}>{t("transaction-request.payment-account-selection.warning")}</Typography>
+            <Typography style={{ padding: 8 }}>{t("transaction-request.payment.warning")}</Typography>
             <WarningIcon />
           </Box>
         )}
@@ -184,28 +184,28 @@ function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogPro
           selectableAccounts.length > 0 ? (
             <>
               <Typography variant="h6">
-                Select the source account <br />
+                {t("transaction-request.transaction.account-selector.source-account")} <br />
               </Typography>
               {sourceAccountReplacement.hint && (
                 <Typography variant="body1">
-                  <b>Hint:</b> {sourceAccountReplacement.hint}
+                  <b>{t("transaction-request.transaction.hint")}:</b> {sourceAccountReplacement.hint}
                 </Typography>
               )}
               <AccountSelectionList accounts={selectableAccounts} onChange={onAccountChange} testnet={testnet} />
             </>
           ) : pubkey ? (
             <Typography align="center" color="error" variant="h6" style={{ paddingTop: 16 }}>
-              The transaction request specified '{pubkey}' as the target signer but this account is not imported.
+              {t("transaction-request.transaction.error.signer-not-imported", { signer: pubkey })}
             </Typography>
           ) : (
             <Typography align="center" color="error" variant="h6" style={{ paddingTop: 16 }}>
-              No eligible account found.
+              {t("transaction-request.transaction.error.no-eligible-account")}
             </Typography>
           )
         ) : (
           <>
             <Typography variant="h6">
-              Select the account that will sign the transaction <br />
+              {t("transaction-request.transaction.account-selector.signing-account")} <br />
             </Typography>
             <AccountSelectionList accounts={selectableAccounts} onChange={onAccountChange} testnet={testnet} />
           </>
@@ -264,7 +264,7 @@ function ConnectedTransferRequestReviewDialog(props: ConnectedTransactionRequest
       {({ horizon, sendTransaction }) => (
         <TransactionRequestReviewDialog
           {...props}
-          accounts={accounts}
+          accounts={selectableAccounts}
           horizon={horizon}
           selectedAccount={selectedAccount}
           onAccountChange={setSelectedAccount}

@@ -29,6 +29,30 @@
     "title": "Transaction proposed",
     "warning": "The origin of this request cannot be verified! Decline when in doubt."
   },
+  "transaction": {
+    "account-selector": {
+      "source-account": "Select the source account",
+      "signing-account": "Select the account that will sign the transaction"
+    },
+    "hint": "Hint",
+    "action": {
+      "dismiss": "Dismiss",
+      "select": "Select"
+    },
+    "error": {
+      "signer-not-imported": "The transaction request specified '{{signer}}' as the target signer but this account is not imported.",
+      "no-eligible-accounts": "No eligible account found."
+    },
+    "header": {
+      "origin-domain": "The following transaction has been proposed by <1>{{originDomain}}<3>",
+      "no-origin-domain": "You opened the following payment request from an unknown origin."
+    },
+    "uri-content": {
+      "message": "Message"
+    },
+    "title": "Transaction proposed",
+    "warning": "The origin of this request cannot be verified! Decline when in doubt."
+  },
   "verify-trusted-service": {
     "action": {
       "trust": "Trust",
