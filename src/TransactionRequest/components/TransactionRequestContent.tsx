@@ -117,7 +117,7 @@ function TransactionRequestContent(props: TransactionRequestContentProps) {
     () => (
       <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
         <ActionButton icon={<CloseIcon style={{ fontSize: 16 }} />} onClick={onClose}>
-          {t("payment.actions.dismiss")}
+          {t("transaction-request.transaction.action.dismiss")}
         </ActionButton>
         <ActionButton
           icon={<SendIcon style={{ fontSize: 16 }} />}
@@ -126,7 +126,7 @@ function TransactionRequestContent(props: TransactionRequestContentProps) {
           onClick={onSelect}
           type="primary"
         >
-          {t("payment.actions.submit")}
+          {t("transaction-request.transaction.action.select")}
         </ActionButton>
       </DialogActionsBox>
     ),
@@ -137,7 +137,7 @@ function TransactionRequestContent(props: TransactionRequestContentProps) {
     <Box>
       {msg && (
         <Typography>
-          <b>Message:</b>
+          <b>{t("transaciton-request.transaction.uri-content.message")}:</b>
           {msg}
         </Typography>
       )}

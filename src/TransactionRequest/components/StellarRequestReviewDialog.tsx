@@ -52,20 +52,20 @@ function StellarRequestReviewDialog(props: StellarRequestReviewDialogProps) {
   return (
     <DialogBody
       preventNotchSpacing
-      top={<MainTitle hideBackButton onBack={onClose} title={t("transaction-request.payment.title")} />}
+      top={<MainTitle hideBackButton onBack={onClose} title={t("transaction-request.stellar-uri.title")} />}
       actions={props.actionsRef}
     >
       <Box className={classes.root}>
         {props.stellarUri.signature ? (
           <Typography>
-            <Trans i18nKey="transaction-request.payment.header.origin-domain">
+            <Trans i18nKey="transaction-request.stellar-uri.header.origin-domain">
               The following transaction has been proposed by <b>{{ originDomain: props.stellarUri.originDomain }}</b>.
             </Trans>
           </Typography>
         ) : (
           <Box className={classes.warningContainer}>
             <WarningIcon />
-            <Typography style={{ padding: 8 }}>{t("transaction-request.payment.warning")}</Typography>
+            <Typography style={{ padding: 8 }}>{t("transaction-request.stellar-uri.header.warning")}</Typography>
             <WarningIcon />
           </Box>
         )}
