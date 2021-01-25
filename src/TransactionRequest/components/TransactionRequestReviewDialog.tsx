@@ -19,6 +19,7 @@ import DialogBody from "~Layout/components/DialogBody"
 import { useTransactionTitle } from "~TransactionReview/components/TransactionReviewDialog"
 import TransactionSummary from "~TransactionReview/components/TransactionSummary"
 import TransactionSender, { SendTransaction } from "../../Transaction/components/TransactionSender"
+import NoAccountsDialog from "./NoAccountsDialog"
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -210,39 +211,6 @@ function TransactionRequestReviewDialog(props: TransactionRequestReviewDialogPro
             <AccountSelectionList accounts={selectableAccounts} onChange={onAccountChange} testnet={testnet} />
           </>
         )}
-      </Box>
-    </DialogBody>
-  )
-}
-
-function NoAccountsDialog(props: { onClose: () => void; testnet: boolean }) {
-  const { t } = useTranslation()
-  return (
-    <DialogBody
-      preventNotchSpacing
-      top={
-        <MainTitle
-          hideBackButton
-          onBack={props.onClose}
-          title={
-            <span>
-              {t("transaction-request.payment-account-selection.title")}
-              {props.testnet ? <TestnetBadge style={{ marginLeft: 8 }} /> : null}
-            </span>
-          }
-        />
-      }
-      actions={
-        <DialogActionsBox desktopStyle={{ marginTop: 32 }} smallDialog>
-          <ActionButton icon={<CancelIcon />} onClick={props.onClose} type="secondary">
-            {t("transaction-request.payment-account-selection.action.dismiss")}
-          </ActionButton>
-        </DialogActionsBox>
-      }
-    >
-      <Box>
-        <Typography>No accounts found for network.</Typography>
-        <Typography>You must import an account before you can sign transaction requests.</Typography>
       </Box>
     </DialogBody>
   )

@@ -20,7 +20,7 @@ import DialogBody from "~Layout/components/DialogBody"
 import { PaymentParams } from "~Payment/components/PaymentDialog"
 import PaymentForm from "~Payment/components/PaymentForm"
 import TransactionSender, { SendTransaction } from "../../Transaction/components/TransactionSender"
-import NoAccountsDialog from "./ NoAccountsDialog"
+import NoAccountsDialog from "./NoAccountsDialog"
 
 interface ConnectedPaymentFormProps {
   accountData: AccountData
