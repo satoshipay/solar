@@ -12,7 +12,7 @@ import { useLiveAccountDataSet, useLiveAccountOffers } from "~Generic/hooks/stel
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { getAssetsFromBalances } from "~Generic/lib/stellar"
-import { PaymentParams } from "~Payment/components/PaymentDialog"
+import { PaymentParams } from "~Payment/components/PaymentForm"
 import PaymentForm from "~Payment/components/PaymentForm"
 import { SendTransaction } from "../../Transaction/components/TransactionSender"
 

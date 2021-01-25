@@ -23,7 +23,14 @@ import { PriceInput, QRReader } from "~Generic/components/FormFields"
 import { formatBalance } from "~Generic/lib/balances"
 import { HorizontalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
-import { PaymentParams } from "./PaymentDialog"
+
+export interface PaymentParams {
+  amount?: string
+  asset?: Asset
+  destination?: string
+  memo?: string
+  memoType?: MemoType
+}
 
 export interface PaymentFormValues {
   amount: string

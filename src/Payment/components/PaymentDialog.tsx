@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, MemoType, Server, Transaction } from "stellar-sdk"
+import { Asset, Server, Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
 import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
@@ -15,21 +15,12 @@ import MainTitle from "~Generic/components/MainTitle"
 import TransactionSender from "~Transaction/components/TransactionSender"
 import PaymentForm from "./PaymentForm"
 
-export interface PaymentParams {
-  amount?: string
-  asset?: Asset
-  destination?: string
-  memo?: string
-  memoType?: MemoType
-}
-
 interface Props {
   account: Account
   accountData: AccountData
   horizon: Server
   onClose: () => void
   openOrdersCount: number
-  paymentParams?: PaymentParams
   sendTransaction: (transaction: Transaction) => Promise<any>
 }
 
@@ -83,7 +74,6 @@ function PaymentDialog(props: Props) {
         actionsRef={dialogActionsRef}
         onSubmit={handleSubmit}
         openOrdersCount={props.openOrdersCount}
-        preselectedParams={props.paymentParams}
         testnet={props.account.testnet}
         trustedAssets={trustedAssets}
         txCreationPending={txCreationPending}
@@ -92,9 +82,7 @@ function PaymentDialog(props: Props) {
   )
 }
 
-function ConnectedPaymentDialog(
-  props: Pick<Props, "account" | "onClose" | "paymentParams"> & { onSubmissionCompleted?: () => void }
-) {
+function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose"> & { onSubmissionCompleted?: () => void }) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const { offers: openOrders } = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
