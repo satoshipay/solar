@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { Server } from "stellar-sdk"
 import AccountSelectionList from "~Account/components/AccountSelectionList"
 import { Account } from "~App/contexts/accounts"
+import { trackError } from "~App/contexts/notifications"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import Portal from "~Generic/components/Portal"
 import { RefStateObject } from "~Generic/hooks/userinterface"
@@ -77,32 +78,37 @@ function TransactionRequestContent(props: TransactionRequestContentProps) {
   )
 
   const onSelect = React.useCallback(async () => {
-    setTxCreationPending(true)
-    const filledReplacements: { [key: string]: any } = {}
-    const seqNumReplacement = replacements.find(replacement => replacement.id === "seqNum")
-    if (seqNumReplacement) {
-      const sourceAccount =
-        sourceAccountReplacement && props.selectedAccount ? props.selectedAccount.publicKey : transaction.source
-      const newSeqNum = await getNewSeqNumber(sourceAccount)
-      filledReplacements[seqNumReplacement.id] = newSeqNum
-    }
-    if (sourceAccountReplacement && props.selectedAccount) {
-      const sourceAccount =
-        sourceAccountReplacement && props.selectedAccount ? props.selectedAccount.publicKey : transaction.source
-      filledReplacements[sourceAccountReplacement.id] = props.selectedAccount.publicKey
-
-      if (!seqNumReplacement) {
-        // artificially add seqNum replacement to facilitate replacing seq number for new source account
-        const artificialSeqNumReplacement = { id: "SEQ", path: "seqNum", hint: "sequence number" }
-        props.txStellarUri.addReplacement(artificialSeqNumReplacement)
+    try {
+      setTxCreationPending(true)
+      const filledReplacements: { [key: string]: any } = {}
+      const seqNumReplacement = replacements.find(replacement => replacement.id === "seqNum")
+      if (seqNumReplacement) {
+        const sourceAccount =
+          sourceAccountReplacement && props.selectedAccount ? props.selectedAccount.publicKey : transaction.source
         const newSeqNum = await getNewSeqNumber(sourceAccount)
-        filledReplacements[artificialSeqNumReplacement.id] = newSeqNum
+        filledReplacements[seqNumReplacement.id] = newSeqNum
       }
-    }
+      if (sourceAccountReplacement && props.selectedAccount) {
+        const sourceAccount =
+          sourceAccountReplacement && props.selectedAccount ? props.selectedAccount.publicKey : transaction.source
+        filledReplacements[sourceAccountReplacement.id] = props.selectedAccount.publicKey
 
-    const newTx = props.txStellarUri.replace(filledReplacements).getTransaction()
-    sendTransaction(newTx)
-    setTxCreationPending(false)
+        if (!seqNumReplacement) {
+          // artificially add seqNum replacement to facilitate replacing seq number for new source account
+          const artificialSeqNumReplacement = { id: "SEQ", path: "seqNum", hint: "sequence number" }
+          props.txStellarUri.addReplacement(artificialSeqNumReplacement)
+          const newSeqNum = await getNewSeqNumber(sourceAccount)
+          filledReplacements[artificialSeqNumReplacement.id] = newSeqNum
+        }
+      }
+
+      const newTx = props.txStellarUri.replace(filledReplacements).getTransaction()
+      sendTransaction(newTx)
+    } catch (error) {
+      trackError(error)
+    } finally {
+      setTxCreationPending(false)
+    }
   }, [
     getNewSeqNumber,
     props.txStellarUri,
