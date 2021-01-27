@@ -56,6 +56,7 @@
     "lodash.pick": "^4.4.0",
     "nanoid": "^2.1.1",
     "react-hook-form": "^5.0.3",
+    "simple-peer": "^9.9.3",
     "stellar-sdk": "^7.0.0"
   },
   "devDependencies": {
@@ -88,6 +89,7 @@
     "@types/react-router": "^4.4.5",
     "@types/react-router-dom": "^4.3.5",
     "@types/react-window": "^1.8.1",
+    "@types/simple-peer": "^9.6.1",
     "@types/smoothscroll-polyfill": "^0.3.1",
     "@types/stellar-base": "^0.10.2",
     "@types/storybook__addon-actions": "^3.4.3",
