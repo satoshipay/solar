@@ -49,6 +49,7 @@
     "phonegap-plugin-barcodescanner": "^8.0.1"
   },
   "devDependencies": {
+    "compare-func": "^2.0.0",
     "cordova-android": "^9.0.0",
     "cordova-ios": "^6.1.1",
     "cordova-plugin-customurlscheme": "git+https://github.com/bytelabsco/Custom-URL-scheme.git",
