@@ -146,7 +146,13 @@ function createSearchResultRow(
           {item.type === "issuer" ? (
             <ListItem key={item.issuer} className={classes.issuerItem}>
               <ListItemText
-                primary={<AccountName publicKey={item.issuer} testnet={account.testnet} />}
+                primary={
+                  item.issuer === "native" ? (
+                    "stellar.org"
+                  ) : (
+                    <AccountName publicKey={item.issuer} testnet={account.testnet} />
+                  )
+                }
                 secondary={
                   assetsByIssuer[item.issuer].length === 1
                     ? t("account.add-asset.item.issuer.secondary.one-asset")
