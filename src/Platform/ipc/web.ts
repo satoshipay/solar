@@ -123,6 +123,7 @@ function initKeyStore() {
   callHandlers[Messages.GetKeyIDs] = keyStore.getKeyIDs
   callHandlers[Messages.GetPublicKeyData] = keyStore.getPublicKeyData
   callHandlers[Messages.GetPrivateKeyData] = keyStore.getPrivateKeyData
+  callHandlers[Messages.GetRawKeyData] = keyStore.getRawKeyData
   callHandlers[Messages.RemoveKey] = keyStore.removeKey
   callHandlers[Messages.SaveKey] = keyStore.saveKey
   callHandlers[Messages.SavePublicKeyData] = keyStore.savePublicKeyData

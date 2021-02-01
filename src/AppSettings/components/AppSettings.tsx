@@ -14,15 +14,28 @@ import {
   HideMemoSetting,
   LanguageSetting,
   MultiSigSetting,
+  SyncAccountsSetting,
   TestnetSetting,
   TrustedServicesSetting
 } from "./Settings"
+import SyncAccountsDialog from "./SyncAccountsDialog"
 
 const SettingsDialogs = React.memo(function SettingsDialogs() {
   const router = useRouter()
   const showManageTrustedServices = matchesRoute(router.location.pathname, routes.manageTrustedServices())
+  const showSyncAccounts = matchesRoute(router.location.pathname, routes.syncAccounts())
 
-  return showManageTrustedServices ? <ManageTrustedServicesDialog /> : <></>
+  const onClose = () => {
+    router.history.push(routes.settings())
+  }
+
+  if (showManageTrustedServices) {
+    return <ManageTrustedServicesDialog />
+  } else if (showSyncAccounts) {
+    return <SyncAccountsDialog />
+  } else {
+    return <></>
+  }
 })
 
 function AppSettings() {
@@ -44,6 +57,7 @@ function AppSettings() {
   const navigateToTrustedServices = React.useCallback(() => router.history.push(routes.manageTrustedServices()), [
     router.history
   ])
+  const navigateToSyncAccounts = React.useCallback(() => router.history.push(routes.syncAccounts()), [router.history])
 
   const switchLanguage = React.useCallback(
     (lang: string) => {
@@ -73,6 +87,7 @@ function AppSettings() {
         />
         <HideMemoSetting onToggle={settings.toggleHideMemos} value={settings.hideMemos} />
         <MultiSigSetting onToggle={settings.toggleMultiSignature} value={settings.multiSignature} />
+        <SyncAccountsSetting onClick={navigateToSyncAccounts} />
         {trustedServicesEnabled ? <TrustedServicesSetting onClick={navigateToTrustedServices} /> : undefined}
       </List>
       <SettingsDialogs />

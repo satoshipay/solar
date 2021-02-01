@@ -36,6 +36,7 @@ declare namespace IPC {
     GetKeyIDs: "GetKeyIDs"
     GetPublicKeyData: "GetPublicKeyData"
     GetPrivateKeyData: "GetPrivateKeyData"
+    GetRawKeyData: "GetRawKeyData"
     SaveKey: "SaveKey"
     SavePublicKeyData: "SavePublicKeyData"
     SignTransaction: "SignTransaction"
@@ -74,6 +75,7 @@ declare namespace IPC {
     [Messages.GetKeyIDs]: () => string[]
     [Messages.GetPublicKeyData]: (keyID: string) => PublicKeyData
     [Messages.GetPrivateKeyData]: (keyID: string, password: string) => PrivateKeyData
+    [Messages.GetRawKeyData]: (keyID: string) => RawKeyData
     [Messages.SaveKey]: (
       keyID: string,
       password: string,

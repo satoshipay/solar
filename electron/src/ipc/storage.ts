@@ -49,6 +49,10 @@ expose(Messages.GetPrivateKeyData, function getPrivateKeyData(keyID, password) {
   return keystore.getPrivateKeyData(keyID, password)
 })
 
+expose(Messages.GetRawKeyData, function getRawKeyData(keyID) {
+  return keystore.getRawKeyData(keyID)
+})
+
 expose(Messages.SaveKey, function saveKey(keyID, password, privateData, publicData?) {
   return keystore.saveKey(keyID, password, privateData, publicData)
 })

@@ -10,6 +10,7 @@ import FingerprintIcon from "@material-ui/icons/Fingerprint"
 import GroupIcon from "@material-ui/icons/Group"
 import LanguageIcon from "@material-ui/icons/Language"
 import MessageIcon from "@material-ui/icons/Message"
+import SyncIcon from "@material-ui/icons/SyncAlt"
 import TestnetIcon from "@material-ui/icons/MoneyOff"
 import TrustIcon from "@material-ui/icons/VerifiedUser"
 import { availableLanguages, languageNames } from "../../../i18n/index"
@@ -185,6 +186,28 @@ export const TestnetSetting = React.memo(function TestnetSetting(props: TestnetS
           ? t("app-settings.settings.testnet.text.secondary.shown")
           : t("app-settings.settings.testnet.text.secondary.hidden")
       }
+    />
+  )
+})
+
+interface SyncAccountsSettingProps {
+  onClick: () => void
+}
+
+export const SyncAccountsSetting = React.memo(function SyncAccountsSetting(props: SyncAccountsSettingProps) {
+  const classes = useSettingsStyles(props)
+  const { t } = useTranslation()
+  return (
+    <AppSettingsItem
+      actions={
+        <ListItemIcon className={classes.caret}>
+          <ArrowRightIcon className={classes.caret} />
+        </ListItemIcon>
+      }
+      icon={<SyncIcon className={classes.icon} />}
+      onClick={props.onClick}
+      primaryText="Sync Accounts"
+      secondaryText="Sync your Accounts between two devices"
     />
   )
 })

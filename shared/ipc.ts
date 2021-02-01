@@ -28,6 +28,7 @@ export const Messages: IPC.MessageType = {
   GetKeyIDs: "GetKeyIDs",
   GetPublicKeyData: "GetPublicKeyData",
   GetPrivateKeyData: "GetPrivateKeyData",
+  GetRawKeyData: "GetRawKeyData",
   SaveKey: "SaveKey",
   SavePublicKeyData: "SavePublicKeyData",
   SignTransaction: "SignTransaction",

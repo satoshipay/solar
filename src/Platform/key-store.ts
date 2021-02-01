@@ -6,6 +6,7 @@ export interface KeyStoreAPI {
   getKeyIDs(): Promise<string[]>
   getPublicKeyData(keyID: string): Promise<PublicKeyData>
   getPrivateKeyData(keyID: string, password: string): Promise<PrivateKeyData>
+  getRawKeyData(keyID: string): Promise<RawKeyData>
   saveKey(keyID: string, password: string, privateData: PrivateKeyData, publicData?: PublicKeyData): Promise<void>
   savePublicKeyData(keyID: string, publicData: PublicKeyData): Promise<void>
   signTransaction(internalAccountID: string, transaction: Transaction, password: string): Promise<Transaction>
@@ -16,6 +17,7 @@ const keyStore: KeyStoreAPI = {
   getKeyIDs: () => call(Messages.GetKeyIDs),
   getPublicKeyData: keyID => call(Messages.GetPublicKeyData, keyID),
   getPrivateKeyData: (keyID, password) => call(Messages.GetPrivateKeyData, keyID, password),
+  getRawKeyData: keyID => call(Messages.GetRawKeyData, keyID),
   signTransaction: async (accountID, transaction, password) => {
     const txXDR = transaction.toEnvelope().toXDR("base64")
     const signedXDR = await call(Messages.SignTransaction, accountID, txXDR, password)

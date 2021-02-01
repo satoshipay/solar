@@ -11,6 +11,7 @@ export interface Account {
   requiresPassword: boolean
   testnet: boolean
   getPrivateKey(password: string | null): Promise<string>
+  getRawKeyData(): Promise<RawKeyData>
   signTransaction(transaction: Transaction, password: string | null): Promise<Transaction>
 }
 
@@ -66,6 +67,11 @@ async function createAccountInstance(keyStore: KeyStoreAPI, keyID: string) {
         console.debug("Decrypting private key data failed. Assuming wrong password:", error)
         throw WrongPasswordError()
       }
+    },
+
+    async getRawKeyData() {
+      const rawKeyData = await keyStore.getRawKeyData(keyID)
+      return rawKeyData
     },
 
     async signTransaction(transaction: Transaction, password: string | null) {
