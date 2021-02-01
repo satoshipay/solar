@@ -58,14 +58,15 @@ export function useTransferInfos(
     domain => {
       return (transferInfosCache.get(domain) ||
         transferInfosCache.suspend(domain, async () => {
-          try {
-            const transferServer = await initTransferServer(domain, testnet)
-            if (!transferServer) return []
+          const transferServer = await initTransferServer(domain, testnet)
+          if (!transferServer) return []
 
+          try {
             const transferInfo = await fetchTransferInfos(transferServer)
             return (transferInfo ? [transferInfo] : []) as [TransferServerInfo] | []
           } catch (error) {
-            // catch network error if no transfer server is available for domain
+            // tslint:disable-next-line no-console
+            console.error(`Failed to fetch transfer infos for transfer server ${transferServer.domain}:`, error)
             return []
           }
         }))[0]
