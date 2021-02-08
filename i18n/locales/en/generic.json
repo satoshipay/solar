@@ -78,6 +78,10 @@
       "cancel": "Cancel"
     }
   },
+  "memo-selector": {
+    "placeholder": "Select a memo",
+    "select": "Select"
+  },
   "submission-progress": {
     "pending": "Submitting to network ...",
     "success": {
