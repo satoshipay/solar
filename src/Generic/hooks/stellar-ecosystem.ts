@@ -1,9 +1,7 @@
 import React from "react"
-import { trackError } from "~App/contexts/notifications"
-import { AccountRecord, fetchWellknownAccounts } from "../lib/stellar-expert"
+import { AccountRecord, fetchWellKnownAccount } from "../lib/stellar-expert"
 import { AssetRecord, fetchAllAssets } from "../lib/stellar-ticker"
-import { tickerAssetsCache, wellKnownAccountsCache } from "./_caches"
-import { useForceRerender } from "./util"
+import { tickerAssetsCache } from "./_caches"
 
 export { AccountRecord, AssetRecord }
 
@@ -12,33 +10,14 @@ export function useTickerAssets(testnet: boolean) {
   return tickerAssetsCache.get(testnet) || tickerAssetsCache.suspend(testnet, fetchAssets)
 }
 
-export function useWellKnownAccounts(testnet: boolean) {
-  let accounts: AccountRecord[]
-
-  const forceRerender = useForceRerender()
-  const fetchAccounts = () => fetchWellknownAccounts(testnet)
-
-  try {
-    accounts = wellKnownAccountsCache.get(testnet) || wellKnownAccountsCache.suspend(testnet, fetchAccounts)
-  } catch (thrown) {
-    if (thrown && typeof thrown.then === "function") {
-      // Promise thrown to suspend component – prevent suspension
-      accounts = []
-      thrown.then(forceRerender, trackError)
-    } else {
-      // It's an error – re-throw
-      throw thrown
-    }
-  }
-
+export function useWellKnownAccounts() {
   const wellknownAccounts = React.useMemo(() => {
     return {
-      accounts,
-      lookup(publicKey: string): AccountRecord | undefined {
-        return accounts.find(account => account.address === publicKey)
+      lookup(publicKey: string): Promise<AccountRecord | undefined> {
+        return fetchWellKnownAccount(publicKey)
       }
     }
-  }, [accounts])
+  }, [])
 
   return wellknownAccounts
 }

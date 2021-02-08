@@ -69,7 +69,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const isSmallScreen = useIsMobile()
   const formID = React.useMemo(() => nanoid(), [])
   const { t } = useTranslation()
-  const wellknownAccounts = useWellKnownAccounts(props.testnet)
+  const wellknownAccounts = useWellKnownAccounts()
 
   const [matchingWellknownAccount, setMatchingWellknownAccount] = React.useState<AccountRecord | undefined>(undefined)
   const [memoMetadata, setMemoMetadata] = React.useState<MemoMetadata>({
@@ -96,31 +96,25 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   )
 
   React.useEffect(() => {
-    if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
-      if (matchingWellknownAccount) {
-        setMatchingWellknownAccount(undefined)
-      }
-      return
+    if (isPublicKey(formValues.destination) || isStellarAddress(formValues.destination)) {
+      wellknownAccounts.lookup(formValues.destination).then(setMatchingWellknownAccount)
+    } else {
+      setMatchingWellknownAccount(undefined)
     }
+  }, [formValues.destination, wellknownAccounts])
 
-    const knownAccount = wellknownAccounts.lookup(formValues.destination)
-    setMatchingWellknownAccount(knownAccount)
-
-    if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
-      const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
-      const required = false
+  React.useEffect(() => {
+    if (matchingWellknownAccount && matchingWellknownAccount.tags.indexOf("memo-required") !== -1) {
       setMemoMetadata({
-        label:
-          acceptedMemoType === "MEMO_ID" ? t("payment.memo-metadata.label.id") : t("payment.memo-metadata.label.text"),
+        label: t("payment.memo-metadata.label.required"),
         placeholder: t("payment.memo-metadata.placeholder.mandatory"),
-        required
+        required: true
       })
     } else {
-      const required = false
       setMemoMetadata({
         label: t("payment.memo-metadata.label.default"),
         placeholder: t("payment.memo-metadata.placeholder.optional"),
-        required
+        required: false
       })
     }
   }, [formValues.destination, formValues.memoValue, matchingWellknownAccount, t, wellknownAccounts])
