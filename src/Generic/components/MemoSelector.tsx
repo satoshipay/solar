@@ -13,13 +13,17 @@ interface MemoItemProps {
   value: string
 }
 
+function capitalizeFirstLetter(word: string) {
+  return word.charAt(0).toUpperCase() + word.slice(1)
+}
+
 const MemoItem = React.memo(
   React.forwardRef(function MemoItem(props: MemoItemProps, ref: React.Ref<HTMLLIElement>) {
     const { memoType, ...reducedProps } = props
 
     return (
       <MenuItem {...reducedProps} key={props.key} ref={ref} value={props.value}>
-        <ListItemText>{memoType}</ListItemText>
+        <ListItemText>{capitalizeFirstLetter(memoType)}</ListItemText>
       </MenuItem>
     )
   })
@@ -115,7 +119,7 @@ function MemoSelector(props: MemoSelectorProps) {
         },
         displayEmpty: !props.value,
         disableUnderline: props.disableUnderline,
-        renderValue: () => props.value || t("generic.memo-selector.select")
+        renderValue: () => (props.value ? capitalizeFirstLetter(props.value) : t("generic.memo-selector.select"))
       }}
     >
       {props.value ? null : (
