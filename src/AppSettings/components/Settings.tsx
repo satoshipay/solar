@@ -9,9 +9,11 @@ import ArrowRightIcon from "@material-ui/icons/KeyboardArrowRight"
 import FingerprintIcon from "@material-ui/icons/Fingerprint"
 import GroupIcon from "@material-ui/icons/Group"
 import LanguageIcon from "@material-ui/icons/Language"
+import CurrencyIcon from "@material-ui/icons/Euro"
 import MessageIcon from "@material-ui/icons/Message"
 import TestnetIcon from "@material-ui/icons/MoneyOff"
 import TrustIcon from "@material-ui/icons/VerifiedUser"
+import { CurrencyCode, CurrencyCodes } from "~Generic/lib/currency-conversion"
 import { availableLanguages, languageNames } from "../../../i18n/index"
 import AppSettingsItem from "./AppSettingsItem"
 
@@ -163,6 +165,45 @@ export const MultiSigSetting = React.memo(function MultiSigSetting(props: Settin
   )
 })
 
+interface PreferredCurrencySettingProps {
+  onSelect: (currency: CurrencyCode) => void
+  value: CurrencyCode
+}
+
+export const PreferredCurrencySetting = React.memo(function PreferredCurrencySetting(
+  props: PreferredCurrencySettingProps
+) {
+  const { onSelect } = props
+  const classes = useSettingsStyles(props)
+  const { t } = useTranslation()
+
+  const handleChange = React.useCallback(
+    (event: React.ChangeEvent<{ value: unknown }>) => {
+      onSelect(event.target.value as CurrencyCode)
+    },
+    [onSelect]
+  )
+
+  return (
+    <AppSettingsItem
+      actions={
+        <Select onChange={handleChange} value={props.value}>
+          {Object.keys(CurrencyCodes)
+            .filter((key: any) => !isNaN(Number(CurrencyCodes[key])))
+            .sort()
+            .map(currencyCode => (
+              <MenuItem key={currencyCode} value={currencyCode}>
+                {currencyCode}
+              </MenuItem>
+            ))}
+        </Select>
+      }
+      icon={<CurrencyIcon className={classes.icon} />}
+      primaryText={t("app-settings.settings.preferred-currency.text.primary")}
+      secondaryText={t("app-settings.settings.preferred-currency.text.secondary")}
+    />
+  )
+})
 interface TestnetSettingProps {
   hasTestnetAccount: boolean
   onToggle: () => void

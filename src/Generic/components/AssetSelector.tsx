@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Asset, Horizon } from "stellar-sdk"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -25,7 +26,7 @@ const useAssetItemStyles = makeStyles(theme => ({
   }
 }))
 
-interface AssetItemProps {
+export interface AssetItemProps {
   asset: Asset
   disabled?: boolean
   testnet: boolean
@@ -34,7 +35,7 @@ interface AssetItemProps {
   value: string
 }
 
-const AssetItem = React.memo(
+export const AssetItem = React.memo(
   React.forwardRef(function AssetItem(props: AssetItemProps, ref: React.Ref<HTMLLIElement>) {
     const classes = useAssetItemStyles()
     const { testnet, ...reducedProps } = props
@@ -59,7 +60,6 @@ const useAssetSelectorStyles = makeStyles({
     minWidth: 72
   },
   select: {
-    fontSize: 18,
     fontWeight: 400
   },
   unselected: {
@@ -82,6 +82,7 @@ interface AssetSelectorProps {
   name?: string
   onChange?: (asset: Asset) => void
   showXLM?: boolean
+  inputStyle?: React.CSSProperties
   style?: React.CSSProperties
   testnet: boolean
   value?: Asset
@@ -90,6 +91,7 @@ interface AssetSelectorProps {
 function AssetSelector(props: AssetSelectorProps) {
   const { onChange } = props
   const classes = useAssetSelectorStyles()
+  const { t } = useTranslation()
 
   const assets = React.useMemo(
     () => [
@@ -129,7 +131,7 @@ function AssetSelector(props: AssetSelectorProps) {
       margin={props.margin}
       onChange={handleChange as any}
       name={props.name}
-      placeholder="Select an asset"
+      placeholder={t("generic.asset-selector.placeholder")}
       select
       style={{ flexShrink: 0, ...props.style }}
       value={props.value ? props.value.getCode() : ""}
@@ -149,14 +151,15 @@ function AssetSelector(props: AssetSelectorProps) {
           root: props.value ? undefined : classes.unselected,
           select: classes.select
         },
+        style: props.inputStyle,
         displayEmpty: !props.value,
         disableUnderline: props.disableUnderline,
-        renderValue: () => (props.value ? props.value.getCode() : "Select")
+        renderValue: () => (props.value ? props.value.getCode() : t("generic.asset-selector.render-value"))
       }}
     >
       {props.value ? null : (
         <MenuItem disabled value="">
-          Select an asset
+          {t("generic.asset-selector.placeholder")}
         </MenuItem>
       )}
       {props.showXLM ? (

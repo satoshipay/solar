@@ -44,6 +44,12 @@
         }
       }
     },
+    "preferred-currency": {
+      "text": {
+        "primary": "Preferred Currency",
+        "secondary": "Preferred currency used for showing fiat estimates"
+      }
+    },
     "testnet": {
       "text": {
         "primary": "Show Testnet Accounts",

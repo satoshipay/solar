@@ -21,6 +21,9 @@
     "price": {
       "label": "Amount",
       "placeholder": "Max. {{amount}}"
+    },
+    "eventual-price": {
+      "helper": "The amount you will pay with the selected asset"
     }
   },
   "title": { "send": "Send funds", "receive": "Receive Funds" },

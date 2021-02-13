@@ -45,13 +45,13 @@ export const QRReader = React.memo(function QRReader(props: Props) {
 })
 
 type PriceInputProps = TextFieldProps & {
-  assetCode: React.ReactNode
+  selector: React.ReactNode
   assetStyle?: React.CSSProperties
   readOnly?: boolean
 }
 
 export const PriceInput = React.memo(function PriceInput(props: PriceInputProps) {
-  const { assetCode, assetStyle, readOnly, ...textfieldProps } = props
+  const { selector, assetStyle, readOnly, ...textfieldProps } = props
   const InputField = readOnly ? ReadOnlyTextfield : TextField
   return (
     <InputField
@@ -66,11 +66,11 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
             disableTypography
             position="end"
             style={{
-              pointerEvents: typeof assetCode === "string" ? "none" : undefined,
+              pointerEvents: typeof selector === "string" ? "none" : undefined,
               ...assetStyle
             }}
           >
-            {assetCode}
+            {selector}
           </InputAdornment>
         ),
         ...textfieldProps.InputProps

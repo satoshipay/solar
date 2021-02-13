@@ -6,11 +6,13 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
+import { SettingsContext } from "~App/contexts/settings"
 import { useAssetMetadata } from "~Generic/hooks/stellar"
 import { balancelineToAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
 import { SingleBalance } from "~Account/components/AccountBalances"
 import { AccountName } from "~Generic/components/Fetchers"
+import { useFiatEstimate } from "~Generic/hooks/stellar-ecosystem"
 import AssetLogo from "./AssetLogo"
 
 export const actionsSize = 36
@@ -98,8 +100,11 @@ function BalanceListItem(props: BalanceListItemProps) {
   const classes = useBalanceItemStyles()
   const className = `${props.className || ""} ${props.onClick ? classes.clickable : ""}`
 
+  const settings = React.useContext(SettingsContext)
+
   const asset = React.useMemo(() => balancelineToAsset(props.balance), [props.balance])
   const assetMetadata = useAssetMetadata(asset, props.testnet)
+  const fiatEstimate = useFiatEstimate(asset, settings.preferredCurrency, props.testnet)
   const { t } = useTranslation()
 
   const balance = React.useMemo(
@@ -108,6 +113,9 @@ function BalanceListItem(props: BalanceListItemProps) {
   )
 
   if (props.balance.asset_type === "native") {
+    const amountInPreferredCurrency = fiatEstimate.convertAmount(Number(props.balance.balance))
+    const amountInPreferredCurrencyString = `${amountInPreferredCurrency.toFixed(2)} ${settings.preferredCurrency}`
+
     return (
       <ListItem
         button={Boolean(props.onClick) as any}
@@ -141,6 +149,7 @@ function BalanceListItem(props: BalanceListItemProps) {
             primary: classes.balanceText
           }}
           primary={balance}
+          secondary={amountInPreferredCurrencyString}
         />
       </ListItem>
     )
@@ -149,6 +158,9 @@ function BalanceListItem(props: BalanceListItemProps) {
   const assetName = (assetMetadata && assetMetadata.name) || props.balance.asset_code
   const title =
     assetName !== props.balance.asset_code ? `${assetName} (${props.balance.asset_code})` : props.balance.asset_code
+
+  const estimatedAmountInPreferredCurrency = fiatEstimate.convertAmount(Number(props.balance.balance))
+  const estimatedAmountString = `${estimatedAmountInPreferredCurrency.toFixed(2)} ${settings.preferredCurrency}`
 
   return (
     <ListItem button={Boolean(props.onClick) as any} className={className} onClick={props.onClick} style={props.style}>
@@ -175,6 +187,7 @@ function BalanceListItem(props: BalanceListItemProps) {
         className={classes.balanceListItemText}
         primary={balance}
         primaryTypographyProps={{ className: classes.balanceText }}
+        secondary={estimatedAmountString}
       />
     </ListItem>
   )
