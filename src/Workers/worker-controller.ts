@@ -15,7 +15,7 @@ function spawnNetWorker() {
     }
   })
 
-  return spawn<NetWorker>(netWorker)
+  return spawn<NetWorkerInterface>(netWorker)
 }
 
 async function spawnWorkers() {
