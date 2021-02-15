@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next"
 import Async from "react-promise"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
-import { CloseButton, DialogActionsBox } from "~Generic/components/DialogActions"
+import { ActionButton, CloseButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import ErrorIcon from "~Icons/components/Error"
+import RetryIcon from "@material-ui/icons/Replay"
 import SuccessIcon from "~Icons/components/Success"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
@@ -41,6 +42,7 @@ const successMessages: { [type: number]: string } = {
 
 interface SubmissionProgressProps {
   onClose?: () => void
+  onRetry?: () => void
   promise: Promise<any>
   type: SubmissionType
 }
@@ -67,6 +69,11 @@ function SubmissionProgress(props: SubmissionProgressProps) {
           <ErrorIcon size={100} />
           <Heading>{explainSubmissionErrorResponse(error.response, t).message || JSON.stringify(error)}</Heading>
           <DialogActionsBox>
+            {props.onRetry && (
+              <ActionButton icon={<RetryIcon />} onClick={props.onRetry} type="primary">
+                {t("generic.dialog-actions.retry.label")}
+              </ActionButton>
+            )}
             <CloseButton onClick={props.onClose} />
           </DialogActionsBox>
         </Container>
