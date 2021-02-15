@@ -33,6 +33,7 @@ type Timer = any
 
 function ConditionalSubmissionProgress(props: {
   onClose: () => void
+  onRetry: () => void
   promise: Promise<any> | null
   type: SubmissionType
 }) {
@@ -62,7 +63,12 @@ function ConditionalSubmissionProgress(props: {
       <Zoom in={Boolean(props.promise)}>
         <div style={innerStyle}>
           {props.promise ? (
-            <SubmissionProgress onClose={props.onClose} promise={props.promise} type={props.type} />
+            <SubmissionProgress
+              onClose={props.onClose}
+              onRetry={props.onRetry}
+              promise={props.promise}
+              type={props.type}
+            />
           ) : null}
         </div>
       </Zoom>
@@ -99,18 +105,20 @@ interface State {
   submissionPromise: Promise<any> | null
   submissionSuccessCallbacks: Array<() => void>
   transaction: Transaction | null
+  signedTransaction: Transaction | null
 }
 
 class TransactionSender extends React.Component<Props, State> {
   state: State = {
     confirmationDialogOpen: false,
-    passwordError: name,
+    passwordError: null,
     signatureRequest: null,
     submissionStatus: "before",
     submissionType: SubmissionType.default,
     submissionPromise: null,
     submissionSuccessCallbacks: [],
-    transaction: null
+    transaction: null,
+    signedTransaction: null
   }
 
   submissionTimeouts: Timer[] = []
@@ -125,7 +133,7 @@ class TransactionSender extends React.Component<Props, State> {
     this.setState({ confirmationDialogOpen: true, signatureRequest, transaction })
     return new Promise(resolve => {
       this.setState(state => ({
-        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve]
+        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve as () => void]
       }))
     })
   }
@@ -176,17 +184,11 @@ class TransactionSender extends React.Component<Props, State> {
 
   submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
     let signedTx: Transaction
-    const {
-      account,
-      completionCallbackDelay = 1000,
-      horizon,
-      onSubmissionCompleted = () => undefined,
-      onSubmissionFailure
-    } = this.props
 
     try {
       signedTx = await signTransaction(transaction, this.props.account, formValues.password)
-      this.setState({ passwordError: null })
+      this.setState({ passwordError: null, signedTransaction: signedTx })
+      this.submitSignedTransaction(signedTx)
     } catch (error) {
       if (isWrongPasswordError(error)) {
         this.setState({ passwordError: error })
@@ -195,7 +197,16 @@ class TransactionSender extends React.Component<Props, State> {
         throw error
       }
     }
+  }
 
+  submitSignedTransaction = async (signedTx: Transaction) => {
+    const {
+      account,
+      completionCallbackDelay = 1000,
+      horizon,
+      onSubmissionCompleted = () => undefined,
+      onSubmissionFailure
+    } = this.props
     try {
       const thirdPartySecurityService = await isThirdPartyProtected(horizon, account.publicKey)
       if (thirdPartySecurityService) {
@@ -210,11 +221,12 @@ class TransactionSender extends React.Component<Props, State> {
       }, 1000)
 
       setTimeout(() => {
+        this.setState({ signedTransaction: null })
         onSubmissionCompleted(signedTx)
       }, completionCallbackDelay)
     } catch (error) {
       if (onSubmissionFailure) {
-        onSubmissionFailure(error, transaction)
+        onSubmissionFailure(error, signedTx)
       }
     }
   }
@@ -278,6 +290,12 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
+  retrySubmission = () => {
+    if (this.state.signedTransaction) {
+      this.submitSignedTransaction(this.state.signedTransaction)
+    }
+  }
+
   render() {
     const { confirmationDialogOpen, passwordError, signatureRequest, submissionPromise, transaction } = this.state
 
@@ -304,6 +322,7 @@ class TransactionSender extends React.Component<Props, State> {
           submissionProgress={
             <ConditionalSubmissionProgress
               onClose={this.onConfirmationDrawerCloseRequest}
+              onRetry={this.retrySubmission}
               promise={submissionPromise}
               type={this.state.submissionType}
             />
