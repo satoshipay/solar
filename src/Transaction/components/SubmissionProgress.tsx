@@ -9,6 +9,7 @@ import RetryIcon from "@material-ui/icons/Replay"
 import SuccessIcon from "~Icons/components/Success"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
+import { getErrorTranslation } from "~Generic/lib/errors"
 
 function Container(props: { children: React.ReactNode }) {
   return (
@@ -67,7 +68,11 @@ function SubmissionProgress(props: SubmissionProgressProps) {
       catch={error => (
         <Container>
           <ErrorIcon size={100} />
-          <Heading>{explainSubmissionErrorResponse(error.response, t).message || JSON.stringify(error)}</Heading>
+          <Heading>
+            {error.response
+              ? explainSubmissionErrorResponse(error.response, t).message || JSON.stringify(error)
+              : getErrorTranslation(error, t)}
+          </Heading>
           <DialogActionsBox>
             {props.onRetry && (
               <ActionButton icon={<RetryIcon />} onClick={props.onRetry} type="primary">
