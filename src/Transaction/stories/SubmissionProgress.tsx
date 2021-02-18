@@ -14,3 +14,10 @@ storiesOf("SubmissionProgress", module)
   .add("failed", () => (
     <SubmissionProgress type={SubmissionType.default} promise={Promise.reject(new Error("Test error"))} />
   ))
+  .add("failed with retry", () => (
+    <SubmissionProgress
+      type={SubmissionType.default}
+      promise={Promise.reject(new Error("Test error"))}
+      onRetry={() => undefined}
+    />
+  ))
