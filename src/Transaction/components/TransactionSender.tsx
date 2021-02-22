@@ -102,7 +102,7 @@ interface State {
   submissionType: SubmissionType
   submissionPromise: Promise<any> | null
   submissionSuccessCallbacks: Array<() => void>
-  transaction: Transaction | null
+  unsignedTransaction: Transaction | null
   signedTransaction: Transaction | null
 }
 
@@ -115,7 +115,7 @@ class TransactionSender extends React.Component<Props, State> {
     submissionType: SubmissionType.default,
     submissionPromise: null,
     submissionSuccessCallbacks: [],
-    transaction: null,
+    unsignedTransaction: null,
     signedTransaction: null
   }
 
@@ -128,7 +128,7 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   setTransaction = (transaction: Transaction, signatureRequest: MultisigTransactionResponse | null = null) => {
-    this.setState({ confirmationDialogOpen: true, signatureRequest, transaction })
+    this.setState({ confirmationDialogOpen: true, signatureRequest, unsignedTransaction: transaction })
     return new Promise(resolve => {
       this.setState(state => ({
         submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve as () => void]
@@ -181,15 +181,13 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   submitTransaction = async (transaction: Transaction, formValues: { password: string | null }) => {
+    const unsignedTx = transaction
     let signedTx: Transaction
-
-    const network = this.props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
-    const unsignedTx = new Transaction(transaction.toEnvelope().toXDR("base64"), network)
 
     try {
       signedTx = await signTransaction(transaction, this.props.account, formValues.password)
-      this.setState({ passwordError: null, signedTransaction: signedTx })
-      this.submitSignedTransaction(signedTx)
+      this.setState({ passwordError: null, signedTransaction: signedTx, unsignedTransaction: unsignedTx })
+      this.submitSignedTransaction(signedTx, unsignedTx)
     } catch (error) {
       if (isWrongPasswordError(error)) {
         this.setState({ passwordError: error })
@@ -200,7 +198,7 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  submitSignedTransaction = async (signedTx: Transaction) => {
+  submitSignedTransaction = async (signedTx: Transaction, unsignedTx: Transaction) => {
     const {
       account,
       completionCallbackDelay = 1000,
@@ -332,13 +330,19 @@ class TransactionSender extends React.Component<Props, State> {
   }
 
   retrySubmission = () => {
-    if (this.state.signedTransaction) {
-      this.submitSignedTransaction(this.state.signedTransaction)
+    if (this.state.signedTransaction && this.state.unsignedTransaction) {
+      this.submitSignedTransaction(this.state.signedTransaction, this.state.unsignedTransaction)
     }
   }
 
   render() {
-    const { confirmationDialogOpen, passwordError, signatureRequest, submissionPromise, transaction } = this.state
+    const {
+      confirmationDialogOpen,
+      passwordError,
+      signatureRequest,
+      submissionPromise,
+      unsignedTransaction: transaction
+    } = this.state
 
     const content = this.props.children({
       horizon: this.props.horizon,
