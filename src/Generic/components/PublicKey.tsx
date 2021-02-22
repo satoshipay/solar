@@ -41,6 +41,7 @@ interface PublicKeyProps {
   publicKey: string
   variant?: Variant
   style?: React.CSSProperties
+  showRaw?: boolean
   testnet: boolean
 }
 
@@ -66,7 +67,7 @@ export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
 
   if (props.publicKey.length !== 56) {
     return <>{props.publicKey}</>
-  } else if (matchingLocalAccount) {
+  } else if (!props.showRaw && matchingLocalAccount) {
     // Note: We don't check for mainnet/testnet here...
     return (
       <Typography component="span" style={style}>
@@ -75,14 +76,15 @@ export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
           : shortenName(matchingLocalAccount.name, digits.leading + digits.trailing + 6)}
       </Typography>
     )
+  } else {
+    return (
+      <Typography component="span" style={style}>
+        {props.variant === "full" || !props.variant
+          ? props.publicKey
+          : props.publicKey.substr(0, digits.leading) + "…" + props.publicKey.substr(-digits.trailing)}
+      </Typography>
+    )
   }
-  return (
-    <Typography component="span" style={style}>
-      {props.variant === "full" || !props.variant
-        ? props.publicKey
-        : props.publicKey.substr(0, digits.leading) + "…" + props.publicKey.substr(-digits.trailing)}
-    </Typography>
-  )
 })
 
 interface AddressProps {
