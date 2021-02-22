@@ -1,0 +1,64 @@
+{
+  "no-accounts": {
+    "action": {
+      "dismiss": "Dismiss"
+    },
+    "info": {
+      "1": "No accounts found for the specified network.",
+      "2": "You must import an account before you can sign transaction requests."
+    },
+    "title": "Transaction proposed"
+  },
+  "payment": {
+    "account-selector": "Select the account to use",
+    "action": {
+      "dismiss": "Dismiss",
+      "select": "Select"
+    },
+    "error": {
+      "no-activated-accounts": "No activated accounts found.",
+      "no-accounts-with-trustline": "No accounts with matching trustline found."
+    },
+    "uri-content": {
+      "message": "Message"
+    }
+  },
+  "transaction": {
+    "account-selector": {
+      "source-account": "Select the source account",
+      "signing-account": "Select the account that will sign the transaction"
+    },
+    "action": {
+      "dismiss": "Dismiss",
+      "select": "Select"
+    },
+    "error": {
+      "signer-not-imported": "The transaction request specified '{{signer}}' as the target signer but this account is not imported.",
+      "no-eligible-accounts": "No eligible account found."
+    },
+    "hint": "Hint",
+    "uri-content": {
+      "message": "Message"
+    },
+    "warning": "The origin of this request cannot be verified! Decline when in doubt."
+  },
+  "stellar-uri": {
+    "header": {
+      "origin-domain": "The following transaction has been proposed by <1>{{originDomain}}<3>",
+      "warning": "The origin of this request cannot be verified! Decline when in doubt."
+    },
+    "title": "Transaction proposed"
+  },
+  "verify-trusted-service": {
+    "action": {
+      "trust": "Trust",
+      "cancel": "Cancel"
+    },
+    "info": {
+      "1": "You opened a Stellar URI originating from an unknown origin",
+      "2": "If you trust this domain you can add this service to your list of trusted services.",
+      "3": "You can view and edit your list of trusted services anytime in the application settings."
+    },
+    "title": "Verify Trusted Service"
+  }
+}

@@ -54,6 +54,7 @@ interface DefaultTransactionSummaryProps {
   accountData: AccountData
   canSubmit: boolean
   isDangerousSignatureRequest?: boolean
+  fullWidth?: boolean
   showHash?: boolean
   showSigners?: boolean
   showSource?: boolean
@@ -90,7 +91,9 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
   const isAccountCreation = props.transaction.operations.some(op => op.type === "createAccount")
 
   const isWideScreen = useMediaQuery("(min-width:900px)")
-  const widthStyling = isWideScreen ? { maxWidth: 700, minWidth: 400 } : { minWidth: "66vw" }
+  const widthStyling = isWideScreen
+    ? { maxWidth: props.fullWidth ? "unset" : 700, minWidth: 400 }
+    : { minWidth: "66vw" }
 
   const transaction = props.transaction as TransactionWithUndocumentedProps
   const transactionHash = React.useMemo(() => {
@@ -213,6 +216,7 @@ function WebAuthTransactionSummary(props: WebAuthTransactionSummaryProps) {
 interface TransactionSummaryProps {
   account: Account | null
   canSubmit: boolean
+  fullWidth?: boolean
   showHash?: boolean
   showSource?: boolean
   signatureRequest?: SignatureRequest

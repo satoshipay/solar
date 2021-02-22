@@ -7,6 +7,7 @@ import { VerticalLayout } from "~Layout/components/Box"
 import { appIsLoaded } from "~SplashScreen/splash-screen"
 import ConnectionErrorListener from "~Toasts/components/ConnectionErrorListener"
 import NotificationContainer from "~Toasts/components/NotificationContainer"
+import StellarUriHandler from "~TransactionRequest/components/StellarUriHandler"
 import AllAccountsPage from "../components/AccountListView"
 import AndroidBackButton from "../components/AndroidBackButton"
 import DesktopNotifications from "../components/DesktopNotifications"
@@ -72,6 +73,7 @@ function Stage2() {
       <React.Suspense fallback={null}>
         {/* Notifications need to come after the -webkit-overflow-scrolling element on iOS */}
         <DesktopNotifications />
+        <StellarUriHandler />
       </React.Suspense>
       {process.env.PLATFORM === "android" ? <AndroidBackButton /> : null}
       {process.env.PLATFORM === "android" || process.env.PLATFORM === "ios" ? <LinkHandler /> : null}

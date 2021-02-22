@@ -34,7 +34,6 @@ function AppSettings() {
 
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
-  const trustedServicesEnabled = process.env.TRUSTED_SERVICES && process.env.TRUSTED_SERVICES === "enabled"
 
   const getEffectiveLanguage = <L extends string | undefined, F extends any>(lang: L, fallback: F) => {
     return availableLanguages.indexOf(lang as any) > -1 ? lang : fallback
@@ -73,7 +72,7 @@ function AppSettings() {
         />
         <HideMemoSetting onToggle={settings.toggleHideMemos} value={settings.hideMemos} />
         <MultiSigSetting onToggle={settings.toggleMultiSignature} value={settings.multiSignature} />
-        {trustedServicesEnabled ? <TrustedServicesSetting onClick={navigateToTrustedServices} /> : undefined}
+        <TrustedServicesSetting onClick={navigateToTrustedServices} />
       </List>
       <SettingsDialogs />
     </Carousel>

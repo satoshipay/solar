@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
+import CloseIcon from "@material-ui/icons/Close"
 import SendIcon from "@material-ui/icons/Send"
 import { Account } from "~App/contexts/accounts"
 import { AccountRecord, useWellKnownAccounts } from "~Generic/hooks/stellar-ecosystem"
@@ -22,6 +23,14 @@ import { PriceInput, QRReader } from "~Generic/components/FormFields"
 import { formatBalance } from "~Generic/lib/balances"
 import { HorizontalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
+
+export interface PaymentParams {
+  amount?: string
+  asset?: Asset
+  destination?: string
+  memo?: string
+  memoType?: MemoType
+}
 
 export interface PaymentFormValues {
   amount: string
@@ -52,12 +61,14 @@ function createMemo(memoType: MemoType, memoValue: string) {
 interface PaymentFormProps {
   accountData: AccountData
   actionsRef: RefStateObject
+  onCancel?: () => void
   onSubmit: (
     formValues: ExtendedPaymentFormValues,
     spendableBalance: BigNumber,
     wellknownAccount?: AccountRecord
   ) => void
   openOrdersCount: number
+  preselectedParams?: PaymentParams
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
@@ -86,12 +97,22 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   })
 
   const formValues = form.watch()
+  const { preselectedParams } = props
   const { setValue } = form
 
   const spendableBalance = getSpendableBalance(
     getAccountMinimumBalance(props.accountData, props.openOrdersCount),
     findMatchingBalanceLine(props.accountData.balances, formValues.asset)
   )
+
+  React.useEffect(() => {
+    if (!preselectedParams) return
+
+    if (preselectedParams.amount) setValue("amount", preselectedParams.amount)
+    if (preselectedParams.asset) setValue("asset", preselectedParams.asset)
+    if (preselectedParams.destination) setValue("destination", preselectedParams.destination)
+    if (preselectedParams.memo) setValue("memoValue", preselectedParams.memo)
+  }, [preselectedParams, setValue])
 
   React.useEffect(() => {
     if (!isPublicKey(formValues.destination) && !isStellarAddress(formValues.destination)) {
@@ -104,7 +125,17 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     const knownAccount = wellknownAccounts.lookup(formValues.destination)
     setMatchingWellknownAccount(knownAccount)
 
-    if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
+    if (preselectedParams && preselectedParams.memo && preselectedParams.memoType) {
+      setMemoType(preselectedParams.memoType)
+      setMemoMetadata({
+        label:
+          preselectedParams.memoType === "id"
+            ? t("payment.memo-metadata.label.id")
+            : t("payment.memo-metadata.label.text"),
+        placeholder: t("payment.memo-metadata.placeholder.mandatory"),
+        requiredType: preselectedParams.memoType
+      })
+    } else if (knownAccount && knownAccount.tags.indexOf("exchange") !== -1) {
       const acceptedMemoType = knownAccount.accepts && knownAccount.accepts.memo
       const requiredType = acceptedMemoType === "MEMO_ID" ? "id" : "text"
       setMemoType(requiredType)
@@ -122,7 +153,15 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         requiredType: undefined
       })
     }
-  }, [formValues.destination, formValues.memoValue, matchingWellknownAccount, memoType, t, wellknownAccounts])
+  }, [
+    formValues.destination,
+    formValues.memoValue,
+    matchingWellknownAccount,
+    memoType,
+    preselectedParams,
+    t,
+    wellknownAccounts
+  ])
 
   const handleFormSubmission = () => {
     props.onSubmit({ memoType, ...form.getValues() }, spendableBalance, matchingWellknownAccount)
@@ -161,13 +200,14 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
     () => (
       <TextField
         autoFocus={process.env.PLATFORM !== "ios"}
+        disabled={Boolean(preselectedParams?.destination)}
         error={Boolean(form.errors.destination)}
         fullWidth
         inputProps={{
           style: { textOverflow: "ellipsis" }
         }}
         InputProps={{
-          endAdornment: qrReaderAdornment
+          endAdornment: !Boolean(preselectedParams?.destination) ? qrReaderAdornment : undefined
         }}
         inputRef={form.register({
           required: t<string>("payment.validation.no-destination"),
@@ -181,7 +221,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         placeholder={t("payment.inputs.destination.placeholder")}
       />
     ),
-    [form, qrReaderAdornment, setValue, t]
+    [form, qrReaderAdornment, preselectedParams, setValue, t]
   )
 
   const assetSelector = React.useMemo(
@@ -191,6 +231,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
           <AssetSelector
             assets={props.accountData.balances}
             disableUnderline
+            disabled={Boolean(preselectedParams?.asset)}
             showXLM
             style={{ alignSelf: "center" }}
             testnet={props.testnet}
@@ -201,13 +242,14 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         name="asset"
       />
     ),
-    [form, formValues.asset, props.accountData.balances, props.testnet]
+    [form, formValues.asset, preselectedParams, props.accountData.balances, props.testnet]
   )
 
   const priceInput = React.useMemo(
     () => (
       <PriceInput
         assetCode={assetSelector}
+        disabled={Boolean(preselectedParams?.amount)}
         error={Boolean(form.errors.amount)}
         inputRef={form.register({
           required: t<string>("payment.validation.no-price"),
@@ -229,12 +271,13 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         }}
       />
     ),
-    [assetSelector, form, isSmallScreen, spendableBalance, t]
+    [assetSelector, form, isSmallScreen, preselectedParams, spendableBalance, t]
   )
 
   const memoInput = React.useMemo(
     () => (
       <TextField
+        disabled={Boolean(preselectedParams?.memo)}
         error={Boolean(form.errors.memoValue)}
         inputProps={{ maxLength: 28 }}
         label={form.errors.memoValue ? form.errors.memoValue.message : memoMetadata.label}
@@ -283,6 +326,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
       memoMetadata.label,
       memoMetadata.placeholder,
       memoMetadata.requiredType,
+      preselectedParams,
       setValue,
       t
     ]
@@ -291,6 +335,11 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const dialogActions = React.useMemo(
     () => (
       <DialogActionsBox desktopStyle={{ marginTop: 64 }}>
+        {props.onCancel && (
+          <ActionButton icon={<CloseIcon style={{ fontSize: 16 }} />} onClick={props.onCancel}>
+            {t("payment.actions.dismiss")}
+          </ActionButton>
+        )}
         <ActionButton
           form={formID}
           icon={<SendIcon style={{ fontSize: 16 }} />}
@@ -302,7 +351,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         </ActionButton>
       </DialogActionsBox>
     ),
-    [formID, props.txCreationPending, t]
+    [formID, props.onCancel, props.txCreationPending, t]
   )
 
   return (
@@ -321,10 +370,11 @@ interface Props {
   accountData: AccountData
   actionsRef: RefStateObject
   openOrdersCount: number
+  preselectedParams?: PaymentParams
   testnet: boolean
   trustedAssets: Asset[]
   txCreationPending?: boolean
-  onCancel: () => void
+  onCancel?: () => void
   onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
 }
 

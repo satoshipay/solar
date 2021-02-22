@@ -72,7 +72,6 @@ function PaymentDialog(props: Props) {
       <PaymentForm
         accountData={props.accountData}
         actionsRef={dialogActionsRef}
-        onCancel={props.onClose}
         onSubmit={handleSubmit}
         openOrdersCount={props.openOrdersCount}
         testnet={props.account.testnet}
@@ -83,12 +82,12 @@ function PaymentDialog(props: Props) {
   )
 }
 
-function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
+function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose"> & { onSubmissionCompleted?: () => void }) {
   const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const { offers: openOrders } = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
   return (
-    <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>
+    <TransactionSender account={props.account} onSubmissionCompleted={props.onSubmissionCompleted || props.onClose}>
       {({ horizon, sendTransaction }) => (
         <PaymentDialog
           {...props}
