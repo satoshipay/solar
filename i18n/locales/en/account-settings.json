@@ -212,6 +212,7 @@
       "text": {
         "primary": "Multi-Signature",
         "secondary": {
+          "cosigner-of": "This account is cosigner of",
           "short": "Manage co-signers",
           "long": "Make account multi-signature and manage co-signers"
         }
