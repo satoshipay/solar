@@ -169,7 +169,7 @@ export function subscribeToTransactions(serviceURL: string, accountIDs: string[]
 
 export async function shareTransaction(
   serviceURL: string,
-  accountID: string,
+  publicKey: string,
   testnet: boolean,
   transactionXdr: string,
   signatureXdr: string
@@ -183,7 +183,7 @@ export async function shareTransaction(
 
   const response = await fetch(url, {
     body: JSON.stringify({
-      pubkey: accountID,
+      pubkey: publicKey,
       req,
       signature: signatureXdr
     }),

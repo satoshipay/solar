@@ -294,7 +294,7 @@ class TransactionSender extends React.Component<Props, State> {
         const signatureXDR = signedTransaction.signatures[0].signature().toString("base64")
         promise = netWorker.shareTransaction(
           multiSignatureServiceURL,
-          this.props.account.accountID,
+          this.props.account.publicKey,
           this.props.account.testnet,
           unsignedTransaction.toEnvelope().toXDR("base64"),
           signatureXDR
