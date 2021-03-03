@@ -88,10 +88,7 @@ function DefaultTransactionSummary(props: DefaultTransactionSummaryProps) {
           : [...trusted, account.accountID],
       []
     )
-    return (
-      props.signatureRequest &&
-      isPotentiallyDangerousTransaction(props.transaction, props.signatureRequest.signed_by, trustedKeys)
-    )
+    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, trustedKeys)
   }, [accounts, props.signatureRequest, props.transaction])
 
   const isAccountCreation = props.transaction.operations.some(op => op.type === "createAccount")
@@ -253,10 +250,7 @@ function TransactionSummary(props: TransactionSummaryProps) {
           : [...trusted, account.accountID],
       []
     )
-    return (
-      props.signatureRequest &&
-      isPotentiallyDangerousTransaction(props.transaction, props.signatureRequest.signed_by, trustedKeys)
-    )
+    return props.signatureRequest && isPotentiallyDangerousTransaction(props.transaction, trustedKeys)
   }, [accounts, props.signatureRequest, props.transaction])
 
   const wideScreen = useMediaQuery("(min-width:900px)")

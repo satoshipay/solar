@@ -201,14 +201,10 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
  * by our local wallet, but containing operations that affect a locally
  * managed account (like sending funds from that local account).
  */
-export function isPotentiallyDangerousTransaction(
-  transaction: Transaction,
-  signedBy: string[],
-  trustedPublicKeys: string[]
-) {
-  // We only check the `signedBy` here, we do not actually verify signatures
-  const trustedTxSources = getAllSources(transaction).filter(key => trustedPublicKeys.indexOf(key) > -1)
-  return !trustedTxSources.some(trustedSourceAccountID => signedBy.indexOf(trustedSourceAccountID) > -1)
+export function isPotentiallyDangerousTransaction(transaction: Transaction, trustedPublicKeys: string[]) {
+  // check if there is a source account that is not trusted
+  const dangerous = getAllSources(transaction).some(source => trustedPublicKeys.indexOf(source) === -1)
+  return dangerous
 }
 
 export function isStellarWebAuthTransaction(transaction: Transaction) {
