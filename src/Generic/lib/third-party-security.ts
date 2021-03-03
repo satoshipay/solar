@@ -82,10 +82,15 @@ export async function submitTransactionToThirdPartyService(
 
   if (!response.ok) {
     const contentType = response.headers.get("Content-Type")
-    const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
+    const responseBodyObject = contentType?.startsWith("application/json")
+      ? await response.json()
+      : await response.text()
 
     const message =
-      responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
+      typeof responseBodyObject === "string"
+        ? responseBodyObject
+        : responseBodyObject.detail || responseBodyObject.message || responseBodyObject.error
+
     throw CustomError(
       "SubmissionFailedError",
       `Submitting transaction to ${service.name} failed with status ${response.status}: ${message}`,

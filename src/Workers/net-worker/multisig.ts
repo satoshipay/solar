@@ -193,26 +193,14 @@ export async function shareTransaction(
     method: "POST"
   })
 
+  const contentType = response.headers.get("Content-Type")
+  const responseData = contentType?.startsWith("application/json") ? await response.json() : await response.text()
+
   if (!response.ok) {
-    const contentType = response.headers.get("Content-Type")
-    const responseBodyObject = contentType && contentType.startsWith("application/json") ? await response.json() : null
-
-    const message = responseBodyObject
-      ? responseBodyObject.message || JSON.stringify(responseBodyObject)
-      : await response.text()
-
-    throw CustomError(
-      "SubmissionFailedError",
-      `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
-      {
-        endpoint: "multi-signature service",
-        message,
-        status: String(response.status)
-      }
-    )
+    await handleServerError(response, responseData)
   }
 
-  return response.json()
+  return responseData
 }
 
 export async function submitSignature(multisigTx: MultisigTransactionResponse, signedTxXdr: string) {
@@ -236,7 +224,7 @@ export async function submitSignature(multisigTx: MultisigTransactionResponse, s
   })
 
   const contentType = response.headers.get("Content-Type")
-  const responseData = contentType?.startsWith("application/json") ? await response.json() : null
+  const responseData = contentType?.startsWith("application/json") ? await response.json() : await response.text()
 
   if (response.ok) {
     returnedMultisigTxUpdates.next({
@@ -276,7 +264,7 @@ export async function submitMultisigTransactionToStellarNetwork(multisigTx: Mult
   })
 
   const contentType = response.headers.get("Content-Type")
-  const responseData = contentType?.startsWith("application/json") ? await response.json() : null
+  const responseData = contentType?.startsWith("application/json") ? await response.json() : await response.text()
 
   if (!response.ok) {
     await handleServerError(response, responseData)
@@ -289,14 +277,18 @@ export async function submitMultisigTransactionToStellarNetwork(multisigTx: Mult
 }
 
 async function handleServerError(response: Response, responseBodyObject: any) {
-  const horizonResponse = responseBodyObject && responseBodyObject.data ? responseBodyObject.data.response : null
+  const horizonResponse =
+    responseBodyObject && responseBodyObject.type === "https://stellar.org/horizon-errors/transaction_failed"
+      ? responseBodyObject
+      : null
 
-  if (horizonResponse && horizonResponse.type === "https://stellar.org/horizon-errors/transaction_failed") {
+  const message =
+    typeof responseBodyObject === "string"
+      ? responseBodyObject
+      : responseBodyObject.detail || responseBodyObject.message || responseBodyObject.error
+
+  if (horizonResponse) {
     // Throw something that can be handled by explainSubmissionError()
-
-    const message =
-      responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
-
     throw Object.assign(
       CustomError(
         "SubmissionFailedError",
@@ -315,12 +307,9 @@ async function handleServerError(response: Response, responseBodyObject: any) {
       }
     )
   } else {
-    const message =
-      responseBodyObject && responseBodyObject.message ? responseBodyObject.message : await response.text()
-
     throw CustomError(
       "SubmissionFailedError",
-      `Submitting transaction to multi-signature service failed with status ${response.status}: ${message}`,
+      `Submitting transaction to multi-signature service failed  ${response.status}: ${message}`,
       {
         endpoint: "multi-signature service",
         message,
