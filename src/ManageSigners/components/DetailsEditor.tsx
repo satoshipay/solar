@@ -24,7 +24,7 @@ const PresetDescription = React.memo(function PresetDescription(props: { preset:
     description = t("account-settings.manage-signers.preset-description.one-out-of-n")
   } else if (props.preset.type === MultisigPresets.Type.MOutOfN) {
     description = t("account-settings.manage-signers.preset-description.m-out-of-n", {
-      count: props.preset.requiredKeyWeight
+      count: props.preset.requiredKeyWeight || 0
     })
   }
 
@@ -33,6 +33,7 @@ const PresetDescription = React.memo(function PresetDescription(props: { preset:
 
 interface DetailsEditorProps {
   actionsRef: RefStateObject | undefined
+  disabled?: boolean
   onSubmit: () => Promise<any>
   signers: Horizon.AccountSigner[]
   showKeyWeights?: boolean
@@ -82,7 +83,7 @@ function DetailsEditor(props: DetailsEditorProps) {
       </Box>
       <Portal target={props.actionsRef?.element}>
         <DialogActionsBox desktopStyle={{ margin: 0 }}>
-          <ActionButton icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
+          <ActionButton disabled={props.disabled} icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
             {isSmallScreen
               ? t("account-settings.manage-signers.action.apply.short")
               : t("account-settings.manage-signers.action.apply.long")}

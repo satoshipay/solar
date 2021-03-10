@@ -70,6 +70,9 @@ function ManageSignersDialogContent(props: Props) {
   const isSmallScreen = useIsMobile()
   const dialogActionsRef = useDialogActions()
 
+  // store value of initial editorState to detect if changes were made
+  const baseStateRef = React.useRef(editorState)
+
   const updatedSigners = getUpdatedSigners(accountData, editorState.signersToAdd, editorState.signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
 
@@ -98,6 +101,25 @@ function ManageSignersDialogContent(props: Props) {
     }
   }
 
+  // disable submit if no changes were made
+  const disabled = React.useMemo(() => {
+    const baseState = baseStateRef.current
+    const samePreset =
+      editorState.preset.type === "Custom" && baseState.preset.type === "Custom"
+        ? editorState.preset.thresholds.high_threshold === baseState.preset.thresholds.high_threshold &&
+          editorState.preset.thresholds.med_threshold === baseState.preset.thresholds.med_threshold &&
+          editorState.preset.thresholds.low_threshold === baseState.preset.thresholds.low_threshold
+        : editorState.preset.type === "MOutOfN" && baseState.preset.type === "MOutOfN"
+        ? editorState.preset.requiredKeyWeight === baseState.preset.requiredKeyWeight
+        : editorState.preset.type === baseState.preset.type
+
+    return (
+      baseState.signersToAdd.length === editorState.signersToAdd.length &&
+      baseState.signersToRemove.length === editorState.signersToRemove.length &&
+      samePreset
+    )
+  }, [editorState])
+
   const title = React.useMemo(
     () => (
       <MainTitle
@@ -123,6 +145,7 @@ function ManageSignersDialogContent(props: Props) {
         />
         <DetailsEditor
           actionsRef={currentStep === Step.Signers ? dialogActionsRef : undefined}
+          disabled={disabled}
           onSubmit={submit}
           signers={updatedSigners}
           showKeyWeights={!allDefaultKeyweights}
