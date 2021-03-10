@@ -64,7 +64,9 @@ function useSignatureRequestSubscription(multiSignatureCoordinator: string, acco
           setPendingTransactions(prevPending => {
             // Hacky: Also mutate existing multisig tx to make double sure everyone gets the update
             const prev = prevPending.find(request => request.hash !== event.transaction.hash)
-            Object.assign(prev, event.transaction)
+            if (prev) {
+              Object.assign(prev, event.transaction)
+            }
 
             return prevPending.map(request => (request.hash === event.transaction.hash ? event.transaction : request))
           })
