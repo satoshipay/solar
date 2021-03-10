@@ -14,7 +14,7 @@ export async function resolveMultiSignatureCoordinator(domain: string): Promise<
     const { netWorker } = await workers
     const allowHttp = domain.startsWith("localhost:") && process.env.NODE_ENV !== "production"
 
-    const pending = netWorker.fetchStellarToml(domain, { allowHttp }).then(
+    const pending = netWorker.fetchStellarToml(domain, { allowHttp, timeout: 10000 }).then(
       (toml: StellarToml | undefined) => {
         const resolved = toml?.MULTISIG_ENDPOINT
         if (!resolved) {

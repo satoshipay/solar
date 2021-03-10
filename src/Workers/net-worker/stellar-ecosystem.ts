@@ -59,7 +59,10 @@ export async function fetchAllAssets(tickerURL: string): Promise<AssetRecord[]> 
   return abbreviatedAssets
 }
 
-export async function fetchStellarToml(domain: string, options: { allowHttp?: boolean } = {}): Promise<any> {
+export async function fetchStellarToml(
+  domain: string,
+  options: StellarTomlResolver.StellarTomlResolveOptions = {}
+): Promise<any> {
   try {
     return await StellarTomlResolver.resolve(domain, options)
   } catch (error) {
