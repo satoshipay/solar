@@ -63,6 +63,8 @@ function DetailsEditor(props: DetailsEditorProps) {
     [accountData, setEditorState]
   )
 
+  const disabled = props.disabled || (showSignerSelection && !selectedSigner)
+
   return (
     <VerticalLayout>
       {showSignerSelection ? (
@@ -83,7 +85,7 @@ function DetailsEditor(props: DetailsEditorProps) {
       </Box>
       <Portal target={props.actionsRef?.element}>
         <DialogActionsBox desktopStyle={{ margin: 0 }}>
-          <ActionButton disabled={props.disabled} icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
+          <ActionButton disabled={disabled} icon={<CheckIcon />} onClick={props.onSubmit} type="submit">
             {isSmallScreen
               ? t("account-settings.manage-signers.action.apply.short")
               : t("account-settings.manage-signers.action.apply.long")}
