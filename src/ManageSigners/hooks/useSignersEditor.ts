@@ -27,11 +27,17 @@ function createTxOperations(
 ): xdr.Operation[] {
   const operations: xdr.Operation[] = [
     // signer removals before adding, so you can remove and immediately re-add signer
-    ...update.signersToRemove.map(signer =>
-      Operation.setOptions({
-        signer: { ed25519PublicKey: signer.key, weight: 0 }
-      })
-    ),
+    ...update.signersToRemove.map(signer => {
+      if (signer.key === accountData.account_id) {
+        return Operation.setOptions({
+          masterWeight: 0
+        })
+      } else {
+        return Operation.setOptions({
+          signer: { ed25519PublicKey: signer.key, weight: 0 }
+        })
+      }
+    }),
     ...update.signersToAdd.map(signer =>
       Operation.setOptions({
         signer: { ed25519PublicKey: signer.key, weight: signer.weight }
