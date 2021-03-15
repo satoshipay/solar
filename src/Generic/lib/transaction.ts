@@ -190,7 +190,9 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
     const thisWalletSigner = account.signers.find(signer => signer.key === walletPublicKey)
 
     // requires another signature?
-    return thisWalletSigner ? thisWalletSigner.weight < account.thresholds.high_threshold : true
+    return thisWalletSigner
+      ? thisWalletSigner.weight === 0 || thisWalletSigner.weight < account.thresholds.high_threshold
+      : true
   })
 }
 

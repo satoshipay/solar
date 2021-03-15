@@ -215,7 +215,13 @@ class TransactionSender extends React.Component<Props, State> {
         (this.state.signatureRequest.status === "ready" || this.state.signatureRequest.status === "failed")
       ) {
         await this.submitMultisigTransactionToStellarNetwork(this.state.signatureRequest)
-      } else if (await requiresRemoteSignatures(horizon, signedTx, account.publicKey)) {
+      } else if (
+        // handle edge case where a signature request was created from a source account
+        // with master weight set to 0 --> request should be submitted to multisig service
+        // although it does not require remote signatures
+        this.state.signatureRequest?.status === "pending" ||
+        (await requiresRemoteSignatures(horizon, signedTx, account.publicKey))
+      ) {
         await this.submitTransactionToMultisigService(signedTx, unsignedTx)
       } else {
         await this.submitTransactionToHorizon(signedTx)
