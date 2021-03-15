@@ -29,7 +29,7 @@ function SignerSelector(props: SignerSelectorProps) {
               <Radio edge="start" value={signer.key} />
             </ListItemIcon>
             <ListItemText
-              primary={<Address address={signer.key} variant="full" />}
+              primary={<Address address={signer.key} variant="full" testnet={props.testnet} />}
               secondary={
                 props.accounts.some(
                   account => account.publicKey === signer.key && account.testnet === props.testnet
