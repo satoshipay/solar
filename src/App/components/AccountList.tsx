@@ -121,7 +121,10 @@ function AccountCard(props: AccountCardProps) {
             </HorizontalLayout>
             <Box fontSize="120%">
               <React.Suspense fallback={<InlineLoader />}>
-                <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+                <AccountBalances
+                  publicKey={props.account.cosignerOf || props.account.publicKey}
+                  testnet={props.account.testnet}
+                />
               </React.Suspense>
             </Box>
           </InlineErrorBoundary>
