@@ -65,9 +65,13 @@ interface SuspendedItemProps {
 }
 
 function MultiSigItem(props: SuspendedItemProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const { t } = useTranslation()
+
+  const disabled = Boolean(
+    !accountData.balances.length || !accountData.signers.some(signer => signer.key === props.account.publicKey)
+  )
 
   const ListItemSecondaryContent = props.account.cosignerOf ? (
     <>
@@ -83,7 +87,7 @@ function MultiSigItem(props: SuspendedItemProps) {
   return (
     <AccountSettingsItem
       caret="right"
-      disabled={accountData.balances.length === 0}
+      disabled={disabled}
       icon={<GroupIcon style={{ fontSize: "100%" }} />}
       onClick={props.onClick}
     >
