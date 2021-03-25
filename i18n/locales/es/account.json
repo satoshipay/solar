@@ -315,21 +315,21 @@
       "label": "{{type}} Memo"
     },
     "validation": {
-      "no-account-data": "Violación invariante: Imposible encontrar i dati dell'account di origine della transazione nel set di sottoscrizioni dei dati dell'account.",
-      "no-manage-data-operation": "Violazione invariante: la transazione di autenticazione web stellare deve contenere un'operazione di manage_data.",
+      "no-account-data": "Violación invariante: Imposible encontrar los datos de la cuenta de originen de la  transacción en el conjunto suscripciones de datos de cuenta.",
+      "no-manage-data-operation": "Violazione invariante: La transacción de autenticación web Stellar debe contener una operación manage_data.",
       "password-required": "Password requerido"
     }
   },
   "title": {
     "password-status": {
-      "protected": "Protetto da password",
-      "unprotected": "No Password"
+      "protected": "Protegido con contraseña",
+      "unprotected": "Sin contraseña"
     },
     "tooltip": {
-      "multi-sig-account": "Account multi-firma",
-      "security-service": "{{service}} Protezione"
+      "multi-sig-account": "Cuenta multifirma",
+      "security-service": "{{service}} Protección"
     },
-    "placeholder": "Nome utente…",
+    "placeholder": "Nombre de cuenta",
     "testnet": "Testnet"
   }
 }
