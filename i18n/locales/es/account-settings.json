@@ -39,68 +39,68 @@
   },
   "custom-trustline": {
     "action": {
-      "cancel": "Annulla",
+      "cancel": "Anular",
       "trust": {
-        "long": "Fidati della moneta",
-        "short": "Fiducia"
+        "long": "Confiar en el Token",
+        "short": "Confiar"
       }
     },
     "textfield": {
       "code": {
-        "label": "Codice"
+        "label": "Codigo"
       },
       "issuer": {
-        "label": "Emittente",
-        "placeholder": "Rilascio della chiave pubblica dell'account"
+        "label": "Emisor",
+        "placeholder": "Clave publica del emisor"
       },
       "limit": {
-        "label": "Limite (opzionale)",
-        "placeholder": "Limita la fiducia in questa risorsa / saldo massimo da mantenere"
+        "label": "Limite (opcional)",
+        "placeholder": "Limita la confianza en este activo / saldo maximo a mantener"
       }
     },
-    "title": "Aggiungi risorsa personalizzata"
+    "title": "Agregar activo personalizado"
   },
   "export-key": {
     "action": {
-      "confirm": "Fatto",
+      "confirm": "Hecho",
       "reveal": {
-        "long": "Rivela la chiave",
-        "short": "Fai clic per rivelare la chiave segreta"
+        "long": "Revela la clave",
+        "short": "Presionar para revelar clave privada"
       }
     },
     "info": {
       "backup": {
-        "title": "Esegui il backup della tua chiave segreta ora",
-        "paragraph-1": "Il backup della chiave segreta è l'unico modo per recuperare i tuoi fondi se dimentichi la password o non riesci più ad accedere al tuo dispositivo.",
-        "paragraph-2": "Annota la chiave o stampala. Conservala in un luogo sicuro e non condividerla con nessuno."
+        "title": "Resguarde la clave secreta ahora",
+        "paragraph-1": "La clave secreta es el unico modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
+        "paragraph-2": "Escriba o imprima la clave secreta, Guardela en un lugar seguro y no la comparta con nadie."
       },
       "export": {
-        "paragraph-1": "Il backup della chiave segreta è l'unico modo per recuperare i tuoi fondi se dimentichi la password o non riesci più ad accedere al tuo dispositivo.",
-        "paragraph-2": "Annota la chiave o stampala. Conservala in un luogo sicuro e non condividerla con nessuno."
+        "paragraph-1": "La clave secreta es el unico modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
+        "paragraph-2": "Escriba o imprima la clave secreta, Guardela en un lugar seguro y no la comparta con nadie."
       },
-      "secret-key": "Annota la chiave su carta e conservala in un luogo sicuro.",
-      "tap-to-copy": "Tocca per copiare"
+      "secret-key": "Escriba la clave en papel y guardela en un lugar seguro",
+      "tap-to-copy": "Presionar para copiar"
     },
     "textfield": {
       "password": {
-        "label": "Password"
+        "label": "Contraseña"
       }
     },
     "title": {
-      "default": "Esporta la chiave segreta",
-      "initial-backup": "Backup della chiave segreta"
+      "default": "Exporta la clave secreta",
+      "initial-backup": "Respaldo de la clave secreta"
     }
   },
   "manage-signers": {
     "action": {
       "add-co-signer": {
-        "long": "Aggiungi co-firmatario",
-        "short": "Firmatario"
+        "long": "Añadir co-firmante",
+        "short": "Firmante"
       },
-      "cancel": "Annulla",
+      "cancel": "Annular",
       "apply": {
-        "long": "Applica i cambiamenti",
-        "short": "Applica"
+        "long": "Aplicar el cambio",
+        "short": "Aplicar"
       }
     },
     "signers-editor": {
