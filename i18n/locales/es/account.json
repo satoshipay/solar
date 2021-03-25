@@ -271,53 +271,53 @@
     },
     "signer-status": {
       "tooltip": {
-        "has-signed": "Ha firmado la transaccion",
-        "has-not-signed": "In attesa della loro firma"
+        "has-signed": "Haz firmado la transacción",
+        "has-not-signed": "Esperando otras firmas"
       }
     },
     "summary": {
       "item": {
         "account": {
-          "label": "Account"
+          "label": "Cuenta"
         },
         "authenticating-account": {
-          "label": "Account di autenticazione"
+          "label": "Autenticando cuenta"
         },
         "expiry": {
-          "label": "Scadenza"
+          "label": "Vencimiento"
         },
         "max-fee": {
-          "label": "Canone massimo"
+          "label": "Costo máximo"
         },
         "service": {
-          "label": "Servizio"
+          "label": "Servicio"
         },
         "submission": {
-          "label": "Sottomissione"
+          "label": "Envío"
         },
         "tx-hash": {
-          "label": "Hash di transazione"
+          "label": "Hash de transacción"
         }
       }
     },
     "textfield": {
       "password": {
-        "label": "Parola d'ordine"
+        "label": "Contraseña"
       }
     },
     "title": {
-      "transaction": "Transazione",
-      "payment": "Pagamento",
-      "delete-orders-operation": "Elimina ordini di trading",
-      "web-auth": "Autenticazione Web"
+      "transaction": "Transacción",
+      "payment": "Pago",
+      "delete-orders-operation": "Eliminar ordenes de intercambio",
+      "web-auth": "Autenticación Web"
     },
     "transaction-memo": {
-      "label": "{{type}} Promemoria"
+      "label": "{{type}} Memo"
     },
     "validation": {
-      "no-account-data": "Violazione invariante: impossibile trovare i dati dell'account di origine della transazione nel set di sottoscrizioni dei dati dell'account.",
+      "no-account-data": "Violación invariante: Imposible encontrar i dati dell'account di origine della transazione nel set di sottoscrizioni dei dati dell'account.",
       "no-manage-data-operation": "Violazione invariante: la transazione di autenticazione web stellare deve contenere un'operazione di manage_data.",
-      "password-required": "Password richiesta"
+      "password-required": "Password requerido"
     }
   },
   "title": {
