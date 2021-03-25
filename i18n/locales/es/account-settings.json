@@ -1,39 +1,39 @@
 {
   "account-deletion": {
     "action": {
-      "cancel": "Annulla",
-      "confirm": "Conferma",
-      "delete": "Elimina",
+      "cancel": "Annular",
+      "confirm": "Confirmar",
+      "delete": "Eliminar",
       "merge": {
-        "long": "Unisciti a",
-        "short": "Unisci"
+        "long": "Unir dentro de",
+        "short": "Unir"
       }
     },
     "confirm": {
-      "title": "Conferma la cancellazione",
+      "title": "Confirmar para eliminar",
       "text": {
-        "confirm": "Sei sicuro?",
-        "delete": "L'account verrà eliminato",
-        "merge": "e i fondi rimanenti trasferiti"
+        "confirm": "¿Esta seguro?",
+        "delete": "La cuenta será eliminada",
+        "merge": "y los fondos restantes transferidos"
       }
     },
     "remaining-funds": {
-      "text": "Invia i fondi rimanenti a"
+      "text": "Enviar fondos restantes a"
     },
     "text": {
-      "1": "Sei sicuro di voler eliminare l'account \"{{accountName}}\"?",
-      "2": "Assicurati di eseguire il backup della tua chiave privata o di unire i fondi in un altro tuo account, poiché ci sono ancora fondi rimasti!"
+      "1": "¿Esta seguro de querer borrar la cuenta \"{{accountName}}\"?",
+      "2": "Asegurese de tener copia de la clave privada o de unirla a otra cuenta, ¡Aún quedan fondos en esta cuenta!"
     },
-    "title": "Conferma l'eliminazione dell'account",
+    "title": "Confirmar para borrar la cuenta",
     "warning-dialog": {
       "close": {
-        "label": "ok"
+        "label": "OK"
       }
     },
     "warnings": {
       "cannot-merge": {
-        "text": "Non è ancora possibile unire l'account. Per prima cosa devi annullare tutti gli ordini di trading aperti e rimuovere tutte le risorse.",
-        "title": "Azione manuale richiesta"
+        "text": "Aún no es posible unir a otra cuenta.  Primero debe cancelar todas las ordenes de intercambio abiertas y remover todos los activos.",
+        "title": "Accion manual requerida"
       }
     }
   },
