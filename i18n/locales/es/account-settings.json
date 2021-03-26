@@ -107,113 +107,113 @@
       "list": {
         "item": {
           "weight": "Peso",
-          "local-key": "Chiave locale"
+          "local-key": "Clave local"
         }
       },
       "new-signer": {
-        "label": "Chiave Pubblica o indirizzo Stellar",
+        "label": "Clave publica o dirección Stellar",
         "placeholder": {
-          "long": "GABCDEFGHIJK… o alice*example.org",
-          "short": "GABC… o indirizzo"
+          "long": "GABC… o dirección",
+          "short": "GABCDEFGHIJK… o alice*example.org"
         }
       },
       "validation": {
-        "existing-signer": "Impossibile aggiungere un firmatario esistente.",
-        "integer-required": "Deve essere un numero intero.",
-        "invalid-stellar-address": "Attesa una chiave pubblica o un indirizzo stellare."
+        "existing-signer": "No puede agregar firmante existente.",
+        "integer-required": "Debe ser un número entero.",
+        "invalid-stellar-address": "Se espera un clave publica o dirección Stellar"
       }
     },
     "textfield": {
       "weight-threshold": {
         "explanation": {
-          "required-signatures": "Ogni transazione deve essere firmata da {{amount}} firmatari",
-          "required-weight": "Ogni transazione deve essere firmata dai firmatari con un peso chiave combinato di {{amount}}"
+          "required-signatures": "Toda transacción necesita ser firmada por {{amount}} firmantes",
         },
+          "required-weight": "Toda transaccion debe ser firmada por firmantes con un peso de claves combinado de {{amount}}"
         "label": {
-          "required-signatures": "Firme richieste",
-          "required-weight": "Peso chiave richiesto"
+          "required-signatures": "Se requieren firmas",
+          "required-weight": "Se requiere peso de claves"
         }
       }
     },
     "title": {
-      "long": "Gestisci firmatari",
-      "short": "Gestisci i firmatari dell'account"
+      "long": "Administrar Firmantes",
+      "short": "Administrar firmantes de cuenta"
     },
     "validation": {
-      "no-signers": "Nessun firmatario rimasto. Non chiuderti fuori!",
-      "invalid-weight-type": "Il peso deve essere un numero intero",
+      "no-signers": "No queda ningun firmante. Non bloquees al salir!",
       "threshold-higher-than-weights": "Soglia superiore ai pesi chiave combinati",
-      "no-threshold": "Si prega di impostare una soglia"
+      "invalid-weight-type": "Peso debe ser numero entero",
+      "no-threshold": "Por favor establezca un umbral"
     }
   },
   "set-password": {
     "action": {
       "change-password": {
-        "long": "Cambia la password",
-        "short": "Modifica"
+        "long": "Cambiar contraseña",
+        "short": "Modificar"
       },
       "remove-password": {
-        "long": "Rimuovi la password",
-        "short": "Rimuovi"
+        "long": "Remover contraseña",
+        "short": "Remover"
       }
     },
     "notification": {
-      "password-changed": "Password cambiata.",
-      "password-set": "Password impostata.",
-      "password-removed": "Password rimossa."
+      "password-changed": "Contraseña cambiada.",
+      "password-set": "Contraseña establecida.",
+      "password-removed": "Contraseña removida."
     },
     "textfield": {
       "prev-password": {
-        "label": "Password attuale"
+        "label": "Contraseña actual"
       },
       "next-password": {
-        "label": "Nuova password"
+        "label": "Nueva contraseña"
       },
       "next-password-repeat": {
-        "label": "Ripetere la nuova password"
+        "label": "Repetir nueva contraseña"
       }
     },
     "title": {
-      "change-password": "Cambia la password",
-      "set-password": "Impostare la password"
+      "change-password": "Cambiar contraseña",
+      "set-password": "Establecer contraseña"
     },
     "validation": {
-      "next-password-missing": "Immettere una password o impostare \"Rimuovi password\".",
-      "next-password-repeat-missing": "Ripeti la password.",
-      "passwords-no-match": "La password non corrisponde",
-      "previous-password-missing": "Manca la password attuale."
+      "next-password-missing": "Entrar una contraseña o  establecer \"Remover contraseña\".",
+      "next-password-repeat-missing": "Por favor repetir la contraseña.",
+      "passwords-no-match": "La contraseña no coincide",
+      "previous-password-missing": "Falta la contraseña actual."
     }
   },
   "settings": {
     "delete-account": {
       "text": {
-        "primary": "Unisci o elimina account"
+        "primary": "Unir o borrar cuenta"
       }
     },
     "export-secret-key": {
       "text": {
-        "primary": "Esporta chiave segreta",
-        "secondary": "Decifra e mostra la chiave privata"
+        "primary": "Exporta clave secreta",
+        "secondary": "Decifra y muestra la clave privada"
       }
     },
     "multi-sig": {
       "text": {
         "primary": "Multi-firma",
         "secondary": {
-          "short": "Gestisci i cofirmatari",
-          "long": "Crea account con firma multipla e gestisci i co-firmatari"
+          "short": "Administrar cofirmantes",
+          "long": "Crea cuenta con multi-firma y administra co-firmantes"
         }
       }
     },
     "set-password": {
       "text": {
         "primary": {
-          "account-protected": "Cambia la password",
-          "account-not-protected": "Impostar la password"
+          "account-protected": "Cambiar contraseña",
+          "account-not-protected": "Establecer contraseña"
         },
         "secondary": {
-          "account-protected": "Il tuo account è sicuro, protetto da una password",
-          "account-not-protected": "Il tuo account non è protetto"
+          "account-protected": "Tu cuenta es segura, protegida por una contraseña",
+          "account-not-protected": "Tu cuenta no está protegida"
         }
       }
     }
