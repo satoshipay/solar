@@ -87,8 +87,8 @@
       }
     },
     "title": {
-      "default": "Exporta la clave secreta",
-      "initial-backup": "Respaldo de la clave secreta"
+      "default": "Exportar la clave secreta",
+      "initial-backup": "Respaldr la clave secreta"
     }
   },
   "manage-signers": {

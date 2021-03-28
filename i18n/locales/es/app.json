@@ -1,12 +1,12 @@
 {
   "account-list": {
     "add-account-card": {
-      "label": "Aggiungi account"
+      "label": "Agregar cuenta"
     },
     "badges": {
       "tooltip": {
-        "multi-sig": "Account multi-firma",
-        "security-service": "{{service}} Protezione"
+        "multi-sig": "Cuenta multi-firma",
+        "security-service": "{{service}} seguridad"
       }
     }
   },
@@ -16,14 +16,14 @@
     },
     "update": {
       "notification": {
-        "start": "Avvio del download dell'aggiornamento ...",
-        "success": "Il download è pronto e verrà installato al prossimo riavvio!"
+        "start": "Iniciando descarga de actualización...",
+        "success": "La descarga está completa y se instalará en el proximo reinicio!"
       },
-      "tooltip": "Aggiornamento disponibile"
+      "tooltip": "Actualización disponible"
     },
     "title": {
-      "testnet": "Account Testnet",
-      "mainnet": "I miei account"
+      "testnet": "Cuenta Testnet",
+      "mainnet": "Mis Cuentas"
     }
   },
   "notification": {
@@ -33,11 +33,11 @@
         "body": "Da {{signersHavingSigned}}"
       },
       "received-payment": {
-        "title": "Pagamento ricevuto | {{account}}",
-        "body": "Ricevuto {{amount}} {{assetCode}}"
+        "title": "pago recibido | {{account}}",
+        "body": "Recibido {{amount}} {{assetCode}}"
       },
-      "trade-completed": {
-        "title": "Scambio completato | {{account}}"
+      "Intercambio-completado": {
+        "title": "Intercambio completado | {{account}}"
       }
     },
     "details": {
