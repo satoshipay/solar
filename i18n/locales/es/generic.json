@@ -52,44 +52,47 @@
         "op_has_sub_entries": "La cuenta aún tiene lineas de confianza (activos) o ordenes de intercambio abiertas.",
         "op_immutable_set": "La cuenta no es modificable (se estableció la señal AUTH_IMMUTABLE).",
         "op_line_full": "El saldo de la cuenta destino excesoria la confianza del destino en el activo.",
-        "op_low_reserve": "Transacción rechazada por la red rete. Il saldo del conto di origine o di destinazione sarebbe inferiore al saldo minimo.",
-        "op_no_account": "L'account di destinazione non esiste.",
-        "op_no_issuer": "La risorsa non è valida. Emittente di risorsa errato.",
-        "op_no_trust": "L'account di destinazione non considera attendibile la risorsa che stai tentando di inviare.",
-        "op_offer_not_found": "L'offerta non esiste.",
-        "op_self_not_allowed": "L'account non può fidarsi delle risorse emesse da solo.",
-        "op_underfunded": "Fondi insufficienti per eseguire questa operazione."
+        "op_low_reserve": "Transacción rechazada por la red rete. El saldo de la cuenta de origen o de destino quedaría por debájo del saldo mínimo.",
+        "op_no_account": "La cuenta de destino no existe.",
+        "op_no_issuer": "Activo invalido.  Emisor de activo incorrecto.",
+        "op_no_trust": "La cuenta destino confía en el activo que estas tratando de enviar.",
+        "op_offer_not_found": "La oferta no existe.",
+        "op_self_not_allowed": "La cuenta no puede confiar en activos emitidos por ella misma.",
+        "op_underfunded": "Fondos insuficientes para desarrollar esta operación."
       },
+	   "prefix": {
+        "server-error": "Error de servidor"
+      },	  
       "tx-result-code": {
-        "insufficient_fee": "La rete richiede tariffe più elevate rispetto a quelle stabilite nella transazione.",
-        "internal_error": "Si è verificato un errore sconosciuto sul server Stellar.",
-        "no_account": "Account di origine non trovato.",
-        "tx_bad_auth": "Troppe poche firme valide o rete sbagliata.",
-        "tx_bad_auth_extra": "Firme inutilizzate allegate alla transazione.",
-        "tx_bad_seq": "Mancata corrispondenza del numero di sequenza. Ricrea la transazione.",
-        "tx_insufficient_balance": "Saldo insufficiente. Il saldo scenderebbe al di sotto della riserva minima.",
-        "tx_too_late": "La bozza della transazione è scaduta. Riprova."
+        "insufficient_fee": "la red demanda pago mayor que el establecido para esta transacción.",
+        "internal_error": "Un error desconocido ha ocurrido en el servidor Stellar.",
+        "no_account": "Cuenta de origen no encontrada.",
+        "tx_bad_auth": "Muy pocas firmas válidas o red equivocada.",
+        "tx_bad_auth_extra": "Firmas no usadas se anexaron a la transacción.",
+        "tx_bad_seq": "Numero de secuencia equivocado, Por favor vuelva a crear la transacción.",
+        "tx_insufficient_balance": "Saldo insuficiente. El saldo quedaría por debajo del a reserva mínima.",
+        "tx_too_late": "El borrador de la transacción ha expirado, por favor intente de nuevo."
       },
-      "timeout": "Il server non ha risposto. Per favore riprova."
+      "timeout": "El servidor respondió. Por favor reintentar."
     }
   },
   "qr-reader": {
     "action": {
-      "cancel": "Annulla"
+      "cancel": "Anular"
     }
   },
   "submission-progress": {
-    "pending": "Invio alla rete ...",
+    "pending": "Enviando a la red...",
     "success": {
-      "default": "Successo",
-      "multisig": "Attesa per le firme mancanti",
-      "third-party": "Attesa per l'autorizzazione del servizio di terze-parti"
+      "default": "Exito",
+      "multisig": "Esperando por firmas faltantes",
+      "third-party": "Esperando por autorización de un servicio de terceros"
     }
   },
   "testnet-badge": {
     "label": "Testnet"
   },
   "user-interface": {
-    "copied-to-clipboard": "Copiato negli appunti."
+    "copied-to-clipboard": "Copiado a Portapapeles."
   }
 }
