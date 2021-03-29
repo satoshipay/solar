@@ -6,6 +6,9 @@ import { AccountData } from "./account"
 
 const MAX_INT64 = "9223372036854775807"
 
+// Used as a fallback if fetching the friendbot href from horizon fails
+const SDF_FRIENDBOT_HREF = "https://friendbot.stellar.org/{?addr}"
+
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
 // FIXME: Needs to be queried from horizon
@@ -59,7 +62,8 @@ export function stringifyAsset(assetOrTrustline: Asset | Horizon.BalanceLine) {
 
 export async function friendbotTopup(horizonURL: string, publicKey: string) {
   const horizonMetadata = await (await fetch(horizonURL)).json()
-  const friendBotHref = horizonMetadata._links.friendbot.href.replace(/\{\?.*/, "")
+  const templatedFriendbotHref = horizonMetadata._links.friendbot.href || SDF_FRIENDBOT_HREF
+  const friendBotHref = templatedFriendbotHref.replace(/\{\?.*/, "")
 
   const response = await fetch(friendBotHref + `?addr=${publicKey}`)
   return response.json()
