@@ -24,7 +24,7 @@ const eurt = new Asset("EURT", "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMO
 const demoAssets = [eurt]
 
 const account: Account = {
-  accountID: "1",
+  accountID: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",
   id: "1",
   name: "Mainnet account",
   publicKey: "GDOOMATUOJPLIQMQ4WWXBEWR5UMKJW65CFKJJW3LV7XZYIEQHZPDQCBI",

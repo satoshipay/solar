@@ -5,7 +5,7 @@ import { Account } from "~App/contexts/accounts"
 
 const accounts: Account[] = [
   {
-    accountID: "testid1",
+    accountID: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
     id: "testid1",
     name: "My Testnet Account #1",
     publicKey: "GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W",
@@ -15,7 +15,7 @@ const accounts: Account[] = [
     signTransaction: () => Promise.reject(Error("Just a mock."))
   },
   {
-    accountID: "testid2",
+    accountID: "GDNVDG37WMKPEIXSJRBAQAVPO5WGOPKZRZZBPLWXULSX6NQNLNQP6CFF",
     id: "testid2",
     name: "My Testnet Account #2",
     publicKey: "GDNVDG37WMKPEIXSJRBAQAVPO5WGOPKZRZZBPLWXULSX6NQNLNQP6CFF",
