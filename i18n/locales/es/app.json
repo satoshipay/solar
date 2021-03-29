@@ -29,8 +29,8 @@
   "notification": {
     "desktop": {
       "new-signature-request": {
-        "title": "Nuova transazione da co-firmare",
-        "body": "Da {{signersHavingSigned}}"
+        "title": "Nueva transsacción para co-firmar",
+        "body": "De {{signersHavingSigned}}"
       },
       "received-payment": {
         "title": "pago recibido | {{account}}",
@@ -42,34 +42,34 @@
     },
     "details": {
       "action": {
-        "dismiss": "Respingi"
+        "dismiss": "Desechar"
       },
-      "support": "Hai un problema con l'app? <1 /> Contattaci tramite",
-      "title": "Errore",
-      "offline": "Disconnesso"
+      "support": "Tiene problemas con la aplicación? <1 /> Contactenos por",
+      "title": "Error",
+      "offline": "Desconectado"
     },
     "permission": {
       "app-notification": {
-        "error": "Abilita nelle impostazioni del sistema operativo",
+        "error": "Habilitar en ajustes del sistema operativo",
         "granted": {
-          "title": "Notifiche abilitate",
-          "text": "Solar ora mostrerà le notifiche"
+          "title": "Notificaciones habilitadas",
+          "text": "Solar ahora mostrará notificaciones"
         },
-        "message": "Abilita le notifiche dell'app"
+        "message": "Habilitar notificaciones de aplicación"
       }
     }
   },
   "terms-and-conditions": {
     "action": {
-      "confirm": "Conferma"
+      "confirm": "Confirmar"
     },
-    "header": "Benvenuto in Solar",
+    "header": "Bienvenido a Solar",
     "checkbox": {
       "1": {
-        "label": "Sono consapevole di essere responsabile della sicurezza dei miei fondi e che Solar non è in grado di recuperare i miei fondi in caso di perdita di dati o se perdo le mie credenziali."
+        "label": "Yo comprendo que soy responsable por la seguridad de mis fondos y que Solar no puede recuperar mis fondos en caso de perdida de datos o si yo pierdo mis credenciales."
       },
       "2": {
-        "label": "I have read, understood and agree to the <1>Terms and Conditions</1> <2>&amp;</2> <3>Privacy policy</3> of Solar."
+        "label": "Yo he leido, comprendo y estoy de acuerdo con los <1>Terminos y Condiciones</1> <2>&amp;</2> <3>Politica de Privacidad</3> de Solar."
       }
     }
   }
