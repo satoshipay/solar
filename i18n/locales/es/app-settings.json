@@ -3,18 +3,18 @@
     "biometric-lock": {
       "text": {
         "primary": {
-          "default": "Blocco delle impronte digitali",
+          "default": "Bloquear la huella digital",
           "ios": "Face ID / Touch ID"
         },
         "secondary": {
-          "disabled": "L'autenticazione biometrica è disabilitata",
-          "enabled": "L'autenticazione biometrica è abilitata",
-          "not-enrolled": "Configurare l'autenticazione biometrica nelle impostazioni del sistema operativo"
+          "disabled": "La autenticación biométrica está deshabilitada",
+          "enabled": "La autenticación biométrica está habilitada",
+          "not-enrolled": "Configurar la autenticación biométrica en los ajustes del sistema operativo."
         }
       },
       "prompt": {
-        "enable": "Sblocca il dispositivo una volta per abilitare la funzione.",
-        "disable": "Sblocca il dispositivo per disabilitare il blocco automatico."
+        "enable": "Desbloquear el dispositivo una vez para habilitar la función.",
+        "disable": "Desbloquear el dispositivo una vez para deshabilitar la función."
       }
     },
     "language": {
@@ -22,58 +22,58 @@
         "label": "auto"
       },
       "text": {
-        "primary": "Lingua",
-        "secondary": "Cambia la lingua dell'interfaccia utente qui"
+        "primary": "Lenguaje",
+        "secondary": "Cambiar el lenguaje de interfaz aquí"
       }
     },
     "memo": {
       "text": {
-        "primary": "Mostra memo",
+        "primary": "Mostrar memo",
         "secondary": {
-          "hidden": "I promemoria sono nascosti nella panoramica delle transazioni",
-          "shown": "I promemoria vengono visualizzati nella panoramica delle transazioni"
+          "hidden": "Los Memos se esconden en la vista general de trasacciones",
+          "shown": "Los Memos son mostrados en la vista general de transacciones"
         }
       }
     },
     "multi-sig": {
       "text": {
-        "primary": "Abilita firma multipla",
+        "primary": "Habilitar firmas multiples",
         "secondary": {
-          "enabled": "Le funzionalità multi-firma sono abilitate",
-          "disabled": "Le funzionalità multi-firma sono disabilitate"
+          "enabled": "Las funciones multi-firma están habilitadas",
+          "disabled": "Las funcionales multi-firma están deshabilitadas"
         }
       }
     },
     "testnet": {
       "text": {
-        "primary": "Mostra account Testnet",
+        "primary": "Mostrar cuenta Testnet",
         "secondary": {
-          "cannot-disable": "Non può essere disabilitato perché hai già aggiunto account testnet",
-          "hidden": "Gli account Testnet sono nascosti",
-          "shown": "Vengono visualizzati gli account Testnet"
+          "cannot-disable": "No puede ser deshabiliado porque ya agregaste cuentas Testnet",
+          "hidden": "Las cuentas Testnet están ocultas",
+          "shown": "Las cuentas Testnet están ocultas"
         }
       }
     },
     "title": "Impostazioni",
     "trusted-services": {
       "text": {
-        "primary": "Gestisci servizi attendibili",
-        "secondary": "Rimuovi servizi attendibili"
+        "primary": "Administrar Trusted Services",
+        "secondary": "Remover Trusted Services"
       }
     }
   },
   "trusted-services": {
-    "info": "I servizi attendibili sono servizi Web che possono interagire con il portafoglio solare richiedendo i dati dell'account o proponendo transazioni. È possibile aggiungere un nuovo servizio una volta che tenta di interagire con Solar.",
+    "info": "Trusted Services o servicios de confianza, son servicios en la web a los que se permite interactuar con el monedero Solar solicitando datos de cuenta o proponiendo transacciones.  Tu puedes agregar un nuevo servicio una vez que trata de interactuar con Solar.",
     "service-selection": {
       "action": {
-        "cancel": "Annulla",
-        "confirm": "Conferma"
+        "cancel": "Anular",
+        "confirm": "Confirmar"
       },
       "confirm": {
-        "title": "Conferma la rimozione",
-        "text": "Il servizio verrà rimosso dal tuo elenco di fiducia. Sei sicuro?"
+        "title": "Confirmar remover",
+        "text": "El servicio será eliminado de su lista de confianza. ¿Está seguro?"
       },
-      "no-services": "Nessun servizio affidabile"
+      "no-services": "No confía en ningún servicio."
     }
   }
 }

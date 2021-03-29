@@ -1,27 +1,30 @@
 {
   "dialog-actions": {
     "close": {
-      "label": "Vicino"
-    }
+      "label": "Cerrar"
+    },
+	"retry": {
+	  "label": "Reintentar"
+	}
   },
   "error": {
-    "asset-not-depositable-error": "La risorsa {{asset}} sembra non essere depositabile tramite {{domain}}",
-    "asset-not-withdrawable-error": "La risorsa {{asset}} sembra non essere ritirabile tramite {{domain}}",
+    "asset-not-depositable-error": "El activo {{asset}} parece no ser depositable en {{domain}}",
+    "asset-not-withdrawable-error": "El activo {{asset}} parece no se puede cobrar en {{domain}}",
     "boundary": {
-      "header": "Oops! Qualcosa è andato storto...",
-      "contact-us": "Contattaci tramite"
+      "header": "¡Huy! Algo salió mal...",
+      "contact-us": "Contactenos por"
     },
-    "bad-response-error": "Risposta errata ({{status}}) dal server {{server}}",
-    "bad-transaction-error": "Cattiva transazione data. Era prevista una transazione o TransactionRecord, ma ottenuto: {{transaction}}",
-    "bio-auth-test-canceled": "Autenticazione biometrica annullata",
-    "expected-json-response-error": "Previsto che {{url}} restituisse una risposta JSON. Il tipo di contenuto era invece {{contentType}}.",
-    "existing-account-error": "Esiste già un account con quel nome.",
-    "fetch-account-data-error": "Impossibile recuperare i dati dell'account di {{account}} da {{horizon}}",
-    "fetch-signature-requests-error": "Recupero delle richieste di firma non riuscito: {{response}} \nService: {{service}}",
-    "invariant-violation-error": "Violazione invariante: {{message}}",
-    "low-reserve-order-error": "Impossibile effettuare l'ordine perché il saldo XLM spendibile è troppo basso.",
-    "memo-already-specified-error": "Impossibile impostare un promemoria personalizzato. Il record della federazione di {{destination}} specifica già il memo.",
-    "missing-info-error": "Impossibile effettuare la transazione, perché {{transferServer}} non sono state inviate tutte le informazioni richieste.",
+    "bad-response-error": "Mala respuesta ({{status}}) del servidor {{server}}",
+    "bad-transaction-error": "Mala transaccion dada. Se esperaba Transacción o Registro de Transacción, pero se obtuvo: {{transaction}}",
+    "bio-auth-test-canceled": "Autenticación biométrica anulada",
+    "expected-json-response-error": "Se esperaba que {{url}} responda con JSON. El tipo de contenido fué {{contentType}}.",
+    "existing-account-error": "Ya existe otra cuenta con el mismo nombre.",
+    "fetch-account-data-error": "Imposible recuperar los datos de la cuenta de {{account}} desde {{horizon}}",
+    "fetch-signature-requests-error": "Fallaron las solicitudes de recuperar firmas: {{response}} \nServicio: {{service}}",
+    "invariant-violation-error": "Violación invariante: {{message}}",
+    "low-reserve-order-error": "No se puede colocar ordenes porque el saldo XLM gastable es muy bajo.",
+    "memo-already-specified-error": "No se puede establecer un MEMO personalizado. El registro de la Federación de {{destination}} ya especificó el MEMO.",
+    "missing-info-error": "Imposible crear la transacción, porque {{transferServer}} no ha enviado la información solicitada.",
     "multi-sig-event-stream-double-errored-error": "Multi-signature update event stream double-errored: {{url}}",
     "no-callback-url-error": "Impossibile inviare di nuovo al servizio multi-firma. Per la richiesta di firma non è stato impostato alcun URL di richiamata.",
     "non-existent-destination-error": "Non posso pagare {{assetCode}}, poiché l'account di destinazione non esiste ancora. Le creazioni dell'account devono sempre essere eseguite tramite XLM.",
