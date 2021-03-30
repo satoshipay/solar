@@ -84,6 +84,7 @@ function TradingForm(props: Props) {
 
   const [expanded, setExpanded] = React.useState(false)
   const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
+  const [pending, setPending] = React.useState(false)
 
   const form = useForm<TradingFormValues>({
     defaultValues: {
@@ -142,6 +143,8 @@ function TradingForm(props: Props) {
 
   const submitForm = React.useCallback(async () => {
     try {
+      setPending(true)
+
       if (!primaryAsset) {
         throw CustomError(
           "InvariantViolationError",
@@ -185,6 +188,8 @@ function TradingForm(props: Props) {
       sendTransaction(tx)
     } catch (error) {
       trackError(error)
+    } finally {
+      setPending(false)
     }
   }, [
     effectivePrice,
@@ -391,7 +396,13 @@ function TradingForm(props: Props) {
         ) : null}
         <Portal target={props.dialogActionsRef?.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
-            <ActionButton icon={<GavelIcon />} onClick={form.handleSubmit(submitForm)} type="primary">
+            <ActionButton
+              disabled={pending}
+              loading={pending}
+              icon={<GavelIcon />}
+              onClick={form.handleSubmit(submitForm)}
+              type="primary"
+            >
               {t("trading.action.submit")}
             </ActionButton>
           </DialogActionsBox>
