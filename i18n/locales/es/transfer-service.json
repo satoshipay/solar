@@ -1,163 +1,166 @@
 {
   "authentication": {
     "sidebar": {
-      "headline": "Autenticazione",
+      "headline": "Autenticación",
       "info": {
-        "1": "L'emittente della risorsa richiede che tu acceda al suo servizio utilizzando il tuo account.",
-        "2": "Verrà firmata una transazione di autenticazione per dimostrare la proprietà di tale account."
+        "1": "El emisor del activo requiere que te conectes a su servicio usando tu cuenta.",
+        "2": "Una trasacción de verificación se firmará para probar la propiedad de la cuenta."
       }
     }
   },
   "deposit-success": {
     "action": {
-      "close": "Chiuso"
+      "close": "Cerrar"
     },
     "body": {
-      "deposit-pending": "Deposito in attesa",
+      "deposit-pending": "Depósito pendiente",
       "info": {
-        "1": "{{domain}} sta aspettando il tuo deposito.",
-        "2": "I fondi verranno accreditati sul tuo account Stellar quando il deposito viene accreditato all'emittente della risorsa."
+        "1": "{{domain}} esta esperando por tu depósito.",
+        "2": "Los fondos serán acreditados a tu cuenta Stellar cuando el depósito sea acreditado al emisor del activo."
       }
     },
     "sidebar": {
-      "headline": "Fatto",
-      "info": "Il tuo deposito è stato accettato e verrà elaborato dall'emittente della risorsa quando il tuo pagamento arriverà."
+      "headline": "Hecho",
+      "info": "El depósito fué aceptado y será procesado por el emisor del activo cuando reciba el pago."
     }
   },
   "form-builder": {
     "placeholder": {
-      "optional": "(Facoltativo) {{name}}"
+      "optional": "(Opcional) {{name}}"
     }
   },
   "initial": {
     "action": {
-      "proceed": "Procedi"
+      "proceed": "Proceder"
     },
     "body": {
       "asset-selector": {
         "label": {
-          "deposit": "Risorsa",
-          "short": "Risorsa",
-          "withdrawal": "Attività da ritirare"
+          "deposit": "Activo",
+          "short": "Activo",
+          "withdrawal": "Activo para retiro"
         },
-        "no-assets": "Nessun patrimonio prelevabile"
+        "no-assets": "Ningun activo retirable"
       },
       "method-selector": {
         "info-item": {
-          "asset": "Seleziona un tipo",
-          "no-asset": "Seleziona prima una risorsa"
+          "asset": "Favor seleccionar un tipo",
+          "no-asset": "Seleccionar un activo primero"
         },
         "label": {
-          "deposit": "Tipo di deposito",
-          "withdrawal": "Tipo di ritiro"
+          "deposit": "Tipo de deposito",
+          "withdrawal": "Tipo de retiro"
         }
       }
     },
     "sidebar": {
       "deposit": {
-        "headline": "Finanzia il tuo account",
+        "headline": "Agregar fondos a tu cuenta",
         "info": {
-          "1": "Acquista Stellar lumen (XLM) o deposita risorse per finanziare il tuo account. Invia EURO dal tuo conto bancario, ETH dal tuo portafoglio Ethereum, ecc",
-          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente della risorsa."
+          "1": "Compra Lumenes Stellar (XLM) o deposita recursos en tu cuenta. Envia dinero desde tu cuenta bancaria, ETH de tu monedero Ethereum, etc",
+          "2": "Solar actua como un cliente para el servicio ofrecido exclusivamente por el emisor del activo."
         }
       },
       "withdrawal": {
-        "headline": "Cosa ritirare",
+        "headline": "Que retirar",
         "info": {
-          "1": "Preleva risorse dal tuo account, come EURO sul tuo conto bancario o ETH sul tuo portafoglio Ethereum.",
-          "2": "Solar agisce solo come cliente del servizio offerto dall'emittente della risorsa."
+          "1": "Retirar activos de tu cuenta, como USD a tu banco o ETH a tu monedero Ethereum.",
+          "2": "Solar actua como un cliente para el servicio ofrecido exclusivamente por el emisor del activo."
         }
       }
     }
   },
   "kyc-denied": {
     "sidebar": {
-      "headline": "Conosci il tuo cliente",
-      "info": "Sei stato rifiutato: il servizio è disabilitato per te. Si prega di contattare l'emittente della risorsa."
+      "headline": "Conoce tu cliente",
+      "info": "Tu haz sido rechazado: El servicio fué deshabilitado para ti.  por favor contacta al emisor del activo."
     }
   },
   "kyc-pending": {
     "action": {
       "continue": "Continua",
-      "open-again": "Apri di nuovo"
+      "open-again": "Abrir de nuevo"
     },
     "body": {
-      "additional-info-needed": "Sono necessarie ulteriori informazioni"
+      "additional-info-needed": "Se necesita información adicional."
     },
     "sidebar": {
-      "headline": "Conosci il tuo cliente",
+      "headline": "Conoce tu Cliente",
       "info": {
-        "1": "Il servizio funzionerà solo se fornisci informazioni personali su di te.",
-        "2": "Questo di solito accade per motivi legali."
+        "1": "El servicio solo funcionará si proporcionas información personal sobre ti.",
+        "2": "This usualmente pasa por motivos legales."
       }
     }
   },
   "no-withdrawable-assets": {
     "action": {
-      "add-asset": "Aggiungi risorsa"
+      "add-asset": "Agregar activo"
     },
     "body": {
-      "no-withdrawable-assets": "Questo conto non contiene risorse prelevabili."
+      "no-withdrawable-assets": "Esta cuenta no contiene activos para retirar."
     }
   },
   "purchase-lumens": {
     "sidebar": {
-      "headline": "Acquista Stellar lumen",
+      "headline": "Comprar Lumenes Stellar",
       "info": {
-        "1": "Offriamo opzioni per acquistare lumen che non coinvolgono un emittente di risorse Stellar.",
-        "2": "I lumen stellari (XLM) sono i token nativi sulla rete Stellar. Vengono utilizzati per pagare le commissioni di transazione, tra le altre cose"
+        "1": "Ofrecemos opciones para comrpar Lumenes Stellar que no involucran a un emisor de activos Stellar.",
+        "2": "Los Lumenes Stellar (XLM) son las moneda nativa de la red Stellar. Se usan para pagar los costos de transacción, entre otras cosas."
       }
     }
   },
   "title": {
-    "deposit": "Aggiungi fondi",
-    "withdrawal": "Preleva fondi"
+    "deposit": "Agregar fondos",
+    "withdrawal": "Retirar fondos"
   },
   "transaction-details": {
     "action": {
-      "done": "Fatto",
-      "withdraw": "Ritira"
+      "done": "Hecho",
+      "withdraw": "Retirar"
     },
     "body": {
       "amount": {
+	    "error": {
+		  "amount-greater-than-balance": "Monto especificado es mayor que el saldo" 
+		},
         "label": {
-          "deposit": "Ammontare da depositare",
-          "withdrawal": "Importo da prelevare"
+          "deposit": "Monto a depositar",
+          "withdrawal": "Monto a retirar"
         }
       },
       "amount-to-receive": {
-        "label": "Importo da ricevere"
+        "label": "Monto a recibir"
       },
       "deposit-instructions": {
-        "label": "Istruzioni di deposito"
+        "label": "Instruccions de depósito"
       },
       "eta": {
         "label": "ETA",
         "not-available": "N / A"
       },
       "fees": {
-        "label": "Commissioni",
+        "label": "Gastos",
         "value": {
-          "unknown": "sconosciuto"
+          "unknown": "Desconocido"
         }
       },
       "information": {
-        "label": "Informazione"
+        "label": "Información"
       }
     },
     "sidebar": {
       "deposit": {
-        "headline": "Riepilogo del deposito",
+        "headline": "Sumario del depósito",
         "info": {
-          "1": "Assicurati di inviare i fondi alla destinazione giusta.",
-          "2": "L'emittente della risorsa accrediterà i token una volta che il tuo deposito è stato accreditato."
+          "1": "Asegurate de enviar los fondos a la dirección correcta.",
+          "2": "El emisor del activo acreditará los tokens ina vez que tu depósito sea acreditado."
         }
       },
       "withdrawal": {
-        "headline": "Quasi fatto",
+        "headline": "Casi hecho",
         "info": {
-          "1": "Controllare il modulo e fornire un importo da prelevare se necessario.",
-          "2": "Il ritiro è quasi pronto."
+          "1": "Verifica el formulario y provee un monto para retirar si es necesario.",
+          "2": "El retiro está casi listo."
         }
       }
     }
@@ -165,82 +168,82 @@
   "transaction-status": {
     "error": {
       "rejected": {
-        "deposit": "Deposito rifiutato",
-        "withdrawal": "Ritiro rifiutato"
+        "deposit": "Deposito rechazado",
+        "withdrawal": "Retiro rechazado"
       },
-      "contact": "Contatta {{domain}}."
+      "contact": "Contacta a {{domain}}."
     },
     "incomplete": {
       "already-redirected": {
         "info": {
-          "1": "{{domain}} sta controllando le tue informazioni personali. Per favore riprova più tardi.",
-          "2": "Tempo stimato per il completamento: {{eta}}"
+          "1": "{{domain}} está verificando tu información personal. Por favor intenta mas tarde.",
+          "2": "Tiempo estimado para terminar: {{eta}}"
         }
       },
       "not-redirected": {
-        "info": "{{domain}} richiede di fornire informazioni aggiuntive."
+        "info": "{{domain}} solicita que proveas información adicional."
       }
     },
     "more-info-url": {
-      "info": "Per maggiori informazioni visita"
+      "info": "Para mas información visita"
     },
     "pending-user-transfer-start": {
-      "info": "{{domain}} richiede ulteriori informazioni da parte tua."
+      "info": "{{domain}} te solicita mas información."
     }
   },
   "withdrawal-success": {
     "action": {
-      "close": "Chiuso"
+      "close": "Cerrar"
     },
     "body": {
-      "withdrawal-in-progress": "Ritiro in corso",
+      "withdrawal-in-progress": "Retiro en proceso",
       "info": {
-        "1": "{{domain}} sta conducendo il ritiro.",
-        "2": "I fondi sono stati detratti dal tuo account Stellar e dovrebbero essere accreditati a breve sulla destinazione del prelievo."
+        "1": "{{domain}} esta procesando el retiro.",
+        "2": "Los fondos serán deducidos de la tu cuenta Stellar y deberían ser acreditados a tu cuenta de retiro prontamente."
       }
     },
     "sidebar": {
-      "headline": "Fatto",
-      "info": "Il tuo prelievo è stato accettato e verrà elaborato dall'emittente della risorsa."
+      "headline": "Hecho",
+      "info": "Tu retiro ha sido aceptado y será procesado por el emisor del activo."
     }
   },
   "transfer-details": {
     "action": {
-      "proceed": "Procedi"
+      "proceed": "Proceder"
     },
     "body": {
       "destination": {
-        "name": "Account di destinazione"
+        "name": "Cuenta de destino"
       },
       "dest_extra": {
-        "name": "Dati di destinazione extra (nessuna descrizione)"
+        "name": "Datos adicionales de destino (ninguna descripción)"
       },
       "min-max-amount": {
-        "label": "Quantità",
+        "label": "Monto",
         "max-amount": "Max. {{amount}} {{assetCode}}",
         "min-amount": "Min. {{amount}} {{assetCode}}"
       },
       "fee": {
-        "helper-text": "Come addebitato da {{domain}}",
+        "helper-text": "Como debitado por {{domain}}",
         "label": {
-          "deposit": "Commissione di deposito",
-          "withdrawal": "Commissione di prelievo"
+          "deposit": "Comisión de depósito",
+          "withdrawal": "Comisión de retiro"
         }
       }
     },
     "sidebar": {
       "deposit": {
-        "headline": "Dettagli del deposito",
+        "headline": "Detalles del deposito",
         "info": {
-          "1": "Ulteriori dettagli sul deposito previsto.",
-          "2": "A seconda di ciò che l'emittente della risorsa richiede, potresti dover inserire ulteriori informazioni qui."
+          "1": "Detalles adicionales sobre tu depósito.",
+          "2": "Dependiendo de lo que el emisor del activo requiera, tu podrías tener que entrar información adicional acá."
         }
       },
       "withdrawal": {
-        "headline": "Dettagli sul ritiro",
+        "headline": "Detalles del retiro",
         "info": {
-          "1": "Ulteriori dettagli sul deposito previsto.",
-          "2": "A seconda di ciò che l'emittente della risorsa richiede, potresti dover inserire ulteriori informazioni qui."
+          "1": "Detalles adicionales sobre tu deposito.",
+          "2": "Dependiendo de lo que solicite el emisor del activo, Tu puedes tener que introducir información adicional aquí."
         }
       }
     }
