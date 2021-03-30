@@ -1,40 +1,40 @@
 {
   "actions": {
-    "submit": "Spedisci ora"
+    "submit": "Enviar ahora"
   },
   "memo-metadata": {
     "label": {
       "default": "Memo",
       "id": "Memo (ID)",
-      "text": "Memo (testo)"
+      "text": "Memo (Texto)"
     },
     "placeholder": {
-      "optional": "Descrizione (facoltativa)",
-      "mandatory": "Descrizione (obbligatoria)"
+      "optional": "Descripción (opcional)",
+      "mandatory": "Descripción (obligatoria)"
     }
   },
   "inputs": {
     "destination": {
-      "label": "Indirizzo di destinazione",
-      "placeholder": "GABCDEFGHIJK ... o alice * example.org"
+      "label": "Dirección de destino",
+      "placeholder": "GABCDEFGHIJK ... o alice*example.org"
     },
     "price": {
-      "label": "Quantità",
+      "label": "Monto",
       "placeholder": "Max. {{amount}}"
     }
   },
   "title": {
-    "send": "Invia fondi",
-    "receive": "Ricevi fondi"
+    "send": "Envia fondos",
+    "receive": "Recibe fondos"
   },
   "validation": {
-    "memo-required": "Imposta un promemoria quando invii fondi a {{destination}}",
-    "memo-too-long": "Memo troppo lungo.",
-    "no-destination": "Nessuna destinazione specificata.",
-    "no-price": "Nessun importo specificato.",
-    "not-enough-funds": "Fondi insufficienti.",
-    "invalid-destination": "Attesa una chiave pubblica o un indirizzo stellare.",
-    "invalid-price": "Importo non valido.",
-    "integer-memo-required": "Il memo deve essere un numero intero."
+    "memo-required": "Establecer un Memo cuando envía fondos a {{destination}}",
+    "memo-too-long": "Memo muy largo.",
+    "no-destination": "Ninguna dirección especificada.",
+    "no-price": "Ningún monto especificado.",
+    "not-enough-funds": "Fondos insuficientes.",
+    "invalid-destination": "Se esperaba una llave pública o una dirección Stellar.",
+    "invalid-price": "Monto no valido.",
+    "integer-memo-required": "El Memo debe ser un número entero"
   }
 }
