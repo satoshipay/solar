@@ -1,114 +1,114 @@
 {
   "account-merge": {
     "summary": {
-      "account": "account",
-      "merge-into": "Unisciti a"
+      "account": "Cuenta",
+      "merge-into": "Unir en"
     },
-    "title": "Unisci account"
+    "title": "Unir cuenta"
   },
   "change-trust": {
     "summary": {
-      "asset": "Risorsa",
-      "issued-by": "Rilasciato da",
+      "asset": "Activo",
+      "issued-by": "Emitido por",
       "limit": {
         "label": "Limite",
         "value": {
-          "unlimited": "Illimitato",
-          "limited-to": "Limitato a {{limit}} {{code}}"
+          "unlimited": "Ilimitado",
+          "limited-to": "Limitado a {{limit}} {{code}}"
         }
       }
     },
     "title": {
-      "add-asset": "Aggiungi risorsa",
-      "remove-asset": "Rimuovi risorsa"
+      "add-asset": "Añadir activo",
+      "remove-asset": "Remover activo"
     }
   },
   "create-account": {
     "summary": {
-      "account": "Account da creare",
-      "funding-account": "Conto di finanziamento",
-      "funding-amount": "Importo del finanziamento"
+      "account": "Cuenta a crear",
+      "funding-account": "Cuenta fundadora",
+      "funding-amount": "Monto para fundar"
     },
-    "title": "Crea un profilo"
+    "title": "Crear una cuenta"
   },
   "manage-buy-offer": {
     "title": {
-      "create": "Crea ordine di acquisto",
-      "delete": "Cancella l'ordine",
-      "update": "Aggiorna ordine di acquisto"
+      "create": "Crear orden de compra",
+      "delete": "Cancelar orden",
+      "update": "Actualizar orden de compra"
     }
   },
   "manage-data": {
-    "title": "Imposta i dati dell'account"
+    "title": "Establecer datos de la cuenta"
   },
   "manage-offer": {
     "summary": {
-      "buy": "Acquistare",
-      "sell": "Vendere"
+      "buy": "Comprar",
+      "sell": "Vender"
     }
   },
   "manage-sell-offer": {
     "title": {
-      "create": "Crea ordine di vendita",
-      "delete": "Cancella l'ordine",
-      "update": "Aggiorna ordine di vendita"
+      "create": "Crea orden de venta",
+      "delete": "Cancela orden de venta",
+      "update": "Actualizar orden de venta"
     }
   },
   "offer-details": {
-    "string": "Acquista {{price}} {{buyingCode}} per {{amount}} {{sellingCode}}"
+    "string": "Comprar {{price}} {{buyingCode}} por {{amount}} {{sellingCode}}"
   },
   "payment": {
     "summary": {
-      "amount": "Quantità",
-      "destination": "Destinazione",
-      "source": "Fonte"
+      "amount": "Cantidad",
+      "destination": "Destino",
+      "source": "Origen"
     },
-    "title": "Pagamento"
+    "title": "Pago"
   },
   "set-options": {
     "add-signer": {
       "summary": {
-        "account": "Account a cui aggiungere il firmatario",
-        "key-weight": "Peso chiave",
-        "new-signer": "Nuovo firmatario"
+        "account": Cuenta para añadir firmante",
+        "key-weight": "Peso de clave",
+        "new-signer": "Nuevo firmante"
       },
-      "title": "Aggiungi firmatario"
+      "title": "Añadir firmante"
     },
     "change-signature-setup": {
       "summary": {
         "key-thresholds": {
-          "label": "Nuove soglie chiave",
+          "label": "Nuevos umbrales de clave",
           "value": {
-            "low": "Soglia bassa:    {{threshold}}",
-            "medium": "Soglia media: {{threshold}}",
-            "high": "Soglia alta:   {{threshold}}"
+            "low": "Umbral bajo:    {{threshold}}",
+            "medium": "Umbral medio: {{threshold}}",
+            "high": "Umbral alto:   {{threshold}}"
           }
         },
-        "required-signatures": "Firme richieste"
+        "required-signatures": "Firmas requeridas"
       },
-      "title": "Modifica la configurazione della firma"
+      "title": "Cambiar ajustes de firma"
     },
     "remove-signer": {
       "summary": {
-        "account": "Account da cui rimuovere il firmatario",
-        "signer": "Firmatario"
+        "account": "Cuenta de la cual retirar firmante",
+        "signer": "Firmante"
       },
-      "title": "Rimuovi firmatario"
+      "title": "Remover firmante"
     },
     "set-account-options": {
-      "title": "Imposta le opzioni dell'account"
+      "title": "Establecer opciones de cuenta"
     },
     "set-home-domain": {
-      "title": "Imposta il dominio di casa"
+      "title": "Establecer dominio"
     },
     "set-inflation-destination": {
       "summary": {
-        "new-destination": "Nuova destinazione"
+        "new-destination": "Nuevo destino"
       },
-      "title": "Imposta la destinazione dell'inflazione"
+      "title": "Establecer destino de la inflación"
     },
     "set-master-key-weight": {
-      "title": "Imposta il peso della chiave master"
+      "title": "Establecer el peso de la llave master"
     }
   }
 }
