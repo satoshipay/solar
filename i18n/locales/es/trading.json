@@ -1,32 +1,32 @@
 {
   "action": {
-    "add-asset": "Aggiungi risorsa",
-    "submit": "Invia ordine"
+    "add-asset": "Añadir activo",
+    "submit": "Enviar orden"
   },
   "action-selection": {
     "buy": {
-      "description": "Acquista una certa quantità di un bene sullo scambio distribuito",
-      "label": "Acquista risorsa"
+      "description": "Adquirir alguna cantidad de un activo en el Intercambio distribuido",
+      "label": "Adquirir activo"
     },
     "sell": {
-      "description": "Scambia una certa quantità di una risorsa con un altra",
-      "label": "Vendi risorsa"
+      "description": "Negociar algún monto de un activo a cambio de otro",
+      "label": "Vender activo"
     }
   },
   "advanced": {
-    "header": "Avanzate"
+    "header": "Avanzado"
   },
   "inputs": {
     "estimated-costs": {
       "label": {
-        "buy": "Costi stimati",
-        "sell": "Rendimento stimato"
+        "buy": "Costos estimados",
+        "sell": "Retorno estimado"
       }
     },
     "primary-amount": {
       "label": {
-        "buy": "Importo da acquistare",
-        "sell": "Importo da vendere"
+        "buy": "Monto a comprar",
+        "sell": "Monto a vender"
       },
       "max-button": {
         "label": "Max"
@@ -35,32 +35,32 @@
     },
     "primary-asset-selector": {
       "label": {
-        "buy": "Tu compri",
-        "sell": "Tu vendi"
+        "buy": "Tu compras",
+        "sell": "Tu vendes"
       }
     },
     "secondary-asset-selector": {
       "label": {
-        "buy": "Trascorrere",
-        "sell": "Ricevere"
+        "buy": "Gastas",
+        "sell": "Recibes"
       }
     }
   },
-  "no-assets-info": "Questo account non utilizza ancora risorse diverse da Stellar Lumens.",
-  "title": "Negozia",
+  "no-assets-info": "Esta cuenta aún no usa activos diferentes a Lumens Stellar.",
+  "title": "Negociar",
   "trading-price": {
-    "default-label": "Prezzo (limite)",
-    "label": "Prezzo per {{unit}} (limite)"
+    "default-label": "Precio (limite)",
+    "label": "Precio por {{unit}} (limite)"
   },
   "validation": {
-    "primary-amount-missing": "Nessun importo specificato.",
-    "primary-asset-missing": "Nessuna risorsa selezionata.",
-    "secondary-asset-missing": "Nessuna risorsa selezionata.",
-    "invalid-amount": "Importo specificato non valido.",
-    "invalid-price": "Prezzo non valido"
+    "primary-amount-missing": "Ningun valor especificado.",
+    "primary-asset-missing": "Ningún activo seleccionado.",
+    "secondary-asset-missing": "Ningun activo seleccionado.",
+    "invalid-amount": "Valor especificado no válido.",
+    "invalid-price": "Precio no válido"
   },
   "warning": {
-    "title": "Avvertimento",
-    "message": "La differenza tra prezzo di acquisto e prezzo di vendita è circa {{spread}}%."
+    "title": "Advertencia",
+    "message": "La diferencia entre precio de compra y precio de venta es cercana a {{spread}}%."
   }
 }
