@@ -89,7 +89,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
   const { setValue } = form
 
   const spendableBalance = getSpendableBalance(
-    getAccountMinimumBalance(props.accountData, props.openOrdersCount),
+    getAccountMinimumBalance(props.accountData),
     findMatchingBalanceLine(props.accountData.balances, formValues.asset)
   )
 

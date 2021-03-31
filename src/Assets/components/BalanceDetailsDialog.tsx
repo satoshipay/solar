@@ -79,7 +79,6 @@ interface NativeBalanceItemsProps {
   hmargin: string | number
   hpadding: string | number
   onOpenAssetDetails: (asset: Asset) => void
-  openOffers: ServerApi.OfferRecord[]
 }
 
 const NativeBalanceItems = React.memo(function NativeBalanceItems(props: NativeBalanceItemsProps) {
@@ -103,10 +102,7 @@ const NativeBalanceItems = React.memo(function NativeBalanceItems(props: NativeB
           ...props.balance,
           balance: BigNumber(props.balance.balance).eq(0)
             ? "0"
-            : getSpendableBalance(
-                getAccountMinimumBalance(props.accountData, props.openOffers.length),
-                props.balance
-              ).toString()
+            : getSpendableBalance(getAccountMinimumBalance(props.accountData), props.balance).toString()
         }}
         hideLogo
         onClick={() => props.onOpenAssetDetails(Asset.native())}
@@ -204,7 +200,6 @@ function BalanceDetailsDialog(props: BalanceDetailsProps) {
             hmargin={itemHMargin}
             hpadding={itemHPadding}
             onOpenAssetDetails={openAssetDetails}
-            openOffers={openOrders}
           />
         ) : null}
       </List>
