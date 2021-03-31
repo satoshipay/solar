@@ -34,7 +34,6 @@ export interface TradingFormValues {
 
 interface CalculationParameters {
   accountData: AccountData
-  openOrdersCount: number
   priceMode: "primary" | "secondary"
   primaryAction: "buy" | "sell"
   tradePair: FixedOrderbookRecord
@@ -56,7 +55,7 @@ interface CalculationResults {
 }
 
 export function useCalculation(parameters: CalculationParameters): CalculationResults {
-  const { accountData, openOrdersCount, priceMode, primaryAction, tradePair } = parameters
+  const { accountData, priceMode, primaryAction, tradePair } = parameters
   const { manualPrice, primaryAmountString, primaryAsset, secondaryAsset } = parameters.values
 
   const price =
@@ -89,7 +88,7 @@ export function useCalculation(parameters: CalculationParameters): CalculationRe
   const inversePrice = effectivePrice.eq(0) ? BigNumber(0) : BigNumber(1).div(effectivePrice)
   const defaultPrice = bigNumberToInputValue(priceMode === "secondary" ? effectivePrice : inversePrice)
 
-  const minAccountBalance = getAccountMinimumBalance(accountData, openOrdersCount)
+  const minAccountBalance = getAccountMinimumBalance(accountData)
 
   const spendablePrimaryBalance = primaryBalance
     ? primaryAction === "sell"
