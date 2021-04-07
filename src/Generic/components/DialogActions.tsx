@@ -130,7 +130,7 @@ export function ActionButton(props: ActionButtonProps) {
       autoFocus={props.autoFocus}
       color={type === "primary" || type === "submit" ? "primary" : undefined}
       className={`${classes.actionButton} ${props.className || ""}`}
-      disabled={props.disabled}
+      disabled={props.disabled || props.loading}
       form={props.form}
       onClick={props.onClick}
       style={props.style}
