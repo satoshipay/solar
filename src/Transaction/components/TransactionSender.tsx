@@ -7,7 +7,7 @@ import { Account } from "~App/contexts/accounts"
 import { SettingsContext, SettingsContextType } from "~App/contexts/settings"
 import { useHorizon } from "~Generic/hooks/stellar"
 import { useIsMobile } from "~Generic/hooks/userinterface"
-import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
+import { isWrongPasswordError, getErrorTranslation, CustomError } from "~Generic/lib/errors"
 import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
 import {
   collateSignature,
@@ -104,6 +104,7 @@ interface State {
   submissionType: SubmissionType
   submissionPromise: Promise<any> | null
   submissionSuccessCallbacks: Array<() => void>
+  submissionFailedCallbacks: Array<(reason?: any) => void>
   transaction: Transaction | null
   signedTransaction: Transaction | null
 }
@@ -117,6 +118,7 @@ class TransactionSender extends React.Component<Props, State> {
     submissionType: SubmissionType.default,
     submissionPromise: null,
     submissionSuccessCallbacks: [],
+    submissionFailedCallbacks: [],
     transaction: null,
     signedTransaction: null
   }
@@ -131,9 +133,10 @@ class TransactionSender extends React.Component<Props, State> {
 
   setTransaction = (transaction: Transaction, signatureRequest: SignatureRequest | null = null) => {
     this.setState({ confirmationDialogOpen: true, signatureRequest, transaction })
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       this.setState(state => ({
-        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve as () => void]
+        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve as () => void],
+        submissionFailedCallbacks: [...state.submissionFailedCallbacks, reject as () => void]
       }))
     })
   }
@@ -147,6 +150,15 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
+  triggerSubmissionFailedCallbacks = (error?: Error) => {
+    const callbacks = this.state.submissionFailedCallbacks
+    this.setState({ submissionFailedCallbacks: [] })
+
+    for (const callback of callbacks) {
+      callback(error)
+    }
+  }
+
   onConfirmationDrawerCloseRequest = () => {
     if (!this.state.submissionPromise || this.state.submissionStatus !== "pending") {
       // Prevent manually closing the submission progress if tx submission is pending
@@ -155,6 +167,7 @@ class TransactionSender extends React.Component<Props, State> {
     if (this.props.onCloseTransactionDialog) {
       this.props.onCloseTransactionDialog()
     }
+    this.triggerSubmissionFailedCallbacks(CustomError("CanceledByUser", "Submission canceled by user"))
   }
 
   clearSubmissionPromise = () => {
@@ -177,7 +190,8 @@ class TransactionSender extends React.Component<Props, State> {
         }, 1200)
       )
     })
-    submissionPromise.catch(() => {
+    submissionPromise.catch(error => {
+      this.triggerSubmissionFailedCallbacks(error)
       this.setState({ submissionStatus: "rejected" })
     })
   }
@@ -225,6 +239,7 @@ class TransactionSender extends React.Component<Props, State> {
         onSubmissionCompleted(signedTx)
       }, completionCallbackDelay)
     } catch (error) {
+      this.triggerSubmissionFailedCallbacks(error)
       if (onSubmissionFailure) {
         onSubmissionFailure(error, signedTx)
       }
