@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, shell } from "electron"
+import { BrowserWindow, Menu, nativeImage, shell } from "electron"
 import isDev from "electron-is-dev"
 import path from "path"
 import URL from "url"
@@ -22,7 +22,7 @@ export function createMainWindow() {
     minWidth: 400,
     minHeight: 300,
     title: "Solar Wallet",
-    icon: path.join(__dirname, "../build/icon.png"),
+    icon: nativeImage.createFromPath(path.join(__dirname, "../build/icon.png")),
     backgroundColor: "#0196E8",
     titleBarStyle: process.platform === "darwin" ? "hidden" : "default",
     webPreferences: {
