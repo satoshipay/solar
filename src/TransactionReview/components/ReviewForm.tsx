@@ -123,7 +123,11 @@ function TxConfirmationForm(props: Props) {
   )
 
   const showLoadingIndicator = React.useCallback(() => {
-    setLoading(true)
+    setTimeout(() => {
+      // wrap in timeout because setLoading(true) will cause the submit button to be disabled
+      // which prevents the form onSubmit() function from being called if handled synchronously
+      setLoading(true)
+    }, 0)
   }, [])
 
   return (
