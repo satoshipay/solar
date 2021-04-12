@@ -10,7 +10,7 @@ import { useIsSmallMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { formatBalance } from "~Generic/lib/balances"
 import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "~Generic/lib/stellar"
-import { CopyableAddress } from "~Generic/components/PublicKey"
+import Address from "~Generic/components/Address"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
 
 const isUTF8 = (buffer: Buffer) => !buffer.toString("utf8").match(/[\x00-\x1F]/)
@@ -128,12 +128,12 @@ function PaymentOperation(props: OperationProps<Operation.Payment>) {
       />
       <SummaryDetailsField
         label={t("operations.payment.summary.destination")}
-        value={<CopyableAddress address={destination} testnet={props.testnet} variant="short" />}
+        value={<Address address={destination} copy testnet={props.testnet} />}
       />
       {source ? (
         <SummaryDetailsField
           label={t("operations.payment.summary.source")}
-          value={<CopyableAddress address={source} testnet={props.testnet} variant="short" />}
+          value={<Address address={source} copy testnet={props.testnet} />}
         />
       ) : null}
     </SummaryItem>
@@ -147,7 +147,7 @@ function CreateAccountOperation(props: OperationProps<Operation.CreateAccount>) 
     <SummaryItem heading={props.hideHeading ? undefined : t("operations.create-account.title")}>
       <SummaryDetailsField
         label={t("operations.create-account.summary.account")}
-        value={<CopyableAddress address={destination} testnet={props.testnet} variant="short" />}
+        value={<Address address={destination} copy testnet={props.testnet} />}
       />
       <SummaryDetailsField
         label={t("operations.create-account.summary.funding-amount")}
@@ -156,7 +156,7 @@ function CreateAccountOperation(props: OperationProps<Operation.CreateAccount>) 
       {source ? (
         <SummaryDetailsField
           label={t("operations.create-account.summary.funding-account")}
-          value={<CopyableAddress address={source} testnet={props.testnet} variant="short" />}
+          value={<Address address={source} copy testnet={props.testnet} />}
         />
       ) : null}
     </SummaryItem>
@@ -173,13 +173,7 @@ function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust> & { t
         <SummaryDetailsField label={t("operations.change-trust.summary.asset")} value={props.operation.line.code} />
         <SummaryDetailsField
           label={t("operations.change-trust.summary.issued-by")}
-          value={
-            <CopyableAddress
-              address={homeDomain || props.operation.line.issuer}
-              testnet={props.testnet}
-              variant="short"
-            />
-          }
+          value={<Address address={homeDomain || props.operation.line.issuer} copy testnet={props.testnet} />}
         />
       </SummaryItem>
     )
@@ -189,13 +183,7 @@ function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust> & { t
         <SummaryDetailsField label="Asset" value={props.operation.line.code} />
         <SummaryDetailsField
           label={t("operations.change-trust.summary.issued-by")}
-          value={
-            <CopyableAddress
-              address={homeDomain || props.operation.line.issuer}
-              testnet={props.testnet}
-              variant="short"
-            />
-          }
+          value={<Address address={homeDomain || props.operation.line.issuer} copy testnet={props.testnet} />}
         />
         {BigNumber(props.operation.limit).gt(900000000000) ? null : (
           <SummaryDetailsField
@@ -402,7 +390,7 @@ function SetOptionsOperation(props: SetOptionsOperationProps) {
         <SummaryItem heading={props.hideHeading ? undefined : t("operations.set-options.add-signer.title")}>
           <SummaryDetailsField
             label={t("operations.set-options.add-signer.summary.new-signer")}
-            value={<CopyableAddress address={signerPublicKey} testnet={testnet} variant="short" />}
+            value={<Address address={signerPublicKey} copy testnet={testnet} />}
           />
           <SummaryDetailsField
             label={t("operations.set-options.add-signer.summary.key-weight")}
@@ -410,13 +398,7 @@ function SetOptionsOperation(props: SetOptionsOperationProps) {
           />
           <SummaryDetailsField
             label={t("operations.set-options.add-signer.summary.account")}
-            value={
-              <CopyableAddress
-                address={props.operation.source || props.transaction.source}
-                testnet={testnet}
-                variant="short"
-              />
-            }
+            value={<Address address={props.operation.source || props.transaction.source} copy testnet={testnet} />}
           />
         </SummaryItem>
       )
@@ -425,17 +407,11 @@ function SetOptionsOperation(props: SetOptionsOperationProps) {
         <SummaryItem heading={props.hideHeading ? undefined : t("operations.set-options.remove-signer.title")}>
           <SummaryDetailsField
             label={t("operations.set-options.remove-signer.summary.signer")}
-            value={<CopyableAddress address={signerPublicKey} testnet={testnet} variant="short" />}
+            value={<Address address={signerPublicKey} copy testnet={testnet} />}
           />
           <SummaryDetailsField
             label={t("operations.set-options.remove-signer.summary.account")}
-            value={
-              <CopyableAddress
-                address={props.operation.source || props.transaction.source}
-                testnet={testnet}
-                variant="short"
-              />
-            }
+            value={<Address address={props.operation.source || props.transaction.source} copy testnet={testnet} />}
           />
         </SummaryItem>
       )
@@ -482,7 +458,7 @@ function SetOptionsOperation(props: SetOptionsOperationProps) {
         <SummaryDetailsField
           fullWidth
           label={t("operations.set-options.set-inflation-destination.summary.new-destination")}
-          value={<CopyableAddress address={props.operation.inflationDest} testnet={testnet} variant="short" />}
+          value={<Address address={props.operation.inflationDest} copy testnet={testnet} />}
         />
       </SummaryItem>
     )
@@ -507,12 +483,12 @@ function AccountMergeOperation(props: OperationProps<Operation.AccountMerge>) {
       {source ? (
         <SummaryDetailsField
           label={t("operations.account-merge.summary.account")}
-          value={<CopyableAddress address={source} testnet={props.testnet} variant="short" />}
+          value={<Address address={source} copy testnet={props.testnet} />}
         />
       ) : null}
       <SummaryDetailsField
         label={t("operations.account-merge.summary.merge-into")}
-        value={<CopyableAddress address={destination} testnet={props.testnet} variant="short" />}
+        value={<Address address={destination} copy testnet={props.testnet} />}
       />
     </SummaryItem>
   )

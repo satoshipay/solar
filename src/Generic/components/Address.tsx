@@ -5,6 +5,8 @@ import { AccountsContext } from "~App/contexts/accounts"
 import { useFederationLookup } from "../hooks/stellar"
 import { useClipboard } from "../hooks/userinterface"
 import { isPublicKey } from "../lib/stellar-address"
+import { useAccountHomeDomainSafe } from "../hooks/stellar"
+import { useWellKnownAccounts } from "../hooks/stellar-ecosystem"
 
 type Variant = "full" | "short" | "shorter"
 
@@ -45,7 +47,7 @@ interface PublicKeyProps {
 }
 
 // tslint:disable-next-line no-shadowed-variable
-export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
+const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   const { variant = "full" } = props
   const digits = getDigitCounts(props.variant)
   const { accounts } = React.useContext(AccountsContext)
@@ -85,7 +87,7 @@ export const PublicKey = React.memo(function PublicKey(props: PublicKeyProps) {
   )
 })
 
-interface AddressProps {
+interface AddressContentProps {
   /** Account ID (public key) or stellar address (alice*example.com) */
   address: string
   variant?: Variant
@@ -94,7 +96,7 @@ interface AddressProps {
 }
 
 // tslint:disable-next-line no-shadowed-variable
-export const Address = React.memo(function Address(props: AddressProps) {
+const AddressContent = React.memo(function AddressContent(props: AddressContentProps) {
   const { lookupStellarAddress } = useFederationLookup()
 
   const style: React.CSSProperties = {
@@ -137,16 +139,16 @@ export const Address = React.memo(function Address(props: AddressProps) {
   }
 })
 
-interface ClickableAddressProps extends AddressProps {
+interface ClickableAddressProps extends AddressContentProps {
   icon?: React.ReactNode
   onClick?: () => void
 }
 
 // tslint:disable-next-line no-shadowed-variable
-export const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAddressProps) {
+const ClickableAddress = React.memo(function ClickableAddress(props: ClickableAddressProps) {
   return (
     <ButtonBase onClick={props.onClick} style={{ fontSize: "inherit", fontWeight: "inherit", textAlign: "inherit" }}>
-      <Address {...props} />
+      <AddressContent {...props} />
       {props.icon ? (
         <>
           &nbsp;
@@ -157,12 +159,12 @@ export const ClickableAddress = React.memo(function ClickableAddress(props: Clic
   )
 })
 
-interface CopyableAddressProps extends AddressProps {
+interface CopyableAddressProps extends AddressContentProps {
   onClick?: () => void
 }
 
 // tslint:disable-next-line no-shadowed-variable
-export const CopyableAddress = React.memo(function CopyableAddress(props: CopyableAddressProps) {
+const CopyableAddress = React.memo(function CopyableAddress(props: CopyableAddressProps) {
   const { onClick } = props
   const clipboard = useClipboard()
 
@@ -175,3 +177,37 @@ export const CopyableAddress = React.memo(function CopyableAddress(props: Copyab
 
   return <ClickableAddress {...props} onClick={handleClick} />
 })
+
+interface AddressProps {
+  address: string
+  copy?: boolean
+  icon?: React.ReactNode
+  onClick?: () => void
+  style?: React.CSSProperties
+  testnet: boolean
+  variant?: Variant
+}
+
+const Address = React.memo(function Address(props: AddressProps) {
+  const { address, copy, icon, onClick, style, testnet, variant = "short" } = props
+
+  const accountID = isPublicKey(address) ? address : undefined
+  const homeDomain = useAccountHomeDomainSafe(accountID, testnet, true)
+
+  const wellknownAccounts = useWellKnownAccounts(testnet)
+  const record = wellknownAccounts.lookup(address)
+
+  if (copy) {
+    return <CopyableAddress address={address} onClick={onClick} style={style} testnet={testnet} variant={variant} />
+  } else if (onClick) {
+    return <ClickableAddress address={address} icon={icon} onClick={onClick} testnet={testnet} variant={variant} />
+  } else if (record && record.domain) {
+    return <span style={{ userSelect: "text", ...style }}>{record.domain}</span>
+  } else if (homeDomain) {
+    return <span style={{ userSelect: "text", ...style }}>{homeDomain}</span>
+  } else {
+    return <AddressContent address={address} style={style} testnet={testnet} variant={variant} />
+  }
+})
+
+export default Address

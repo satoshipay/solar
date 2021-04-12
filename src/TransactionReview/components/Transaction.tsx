@@ -13,7 +13,7 @@ import { Account } from "~App/contexts/accounts"
 import { AccountData } from "~Generic/lib/account"
 import { signatureMatchesPublicKey } from "~Generic/lib/stellar"
 import { warningColor } from "~App/theme"
-import { Address } from "~Generic/components/PublicKey"
+import Address from "~Generic/components/Address"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
 
