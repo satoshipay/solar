@@ -1,7 +1,7 @@
 {
   "account-deletion": {
     "action": {
-      "cancel": "Annular",
+      "cancel": "Anular",
       "confirm": "Confirmar",
       "delete": "Eliminar",
       "merge": {
