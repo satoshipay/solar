@@ -348,7 +348,7 @@ function TradingForm(props: Props) {
         <ExpansionPanel
           className={classes.expansionPanel}
           elevation={0}
-          expanded={expanded || Boolean(form.errors.manualPrice)}
+          expanded={expanded}
           onChange={() => setExpanded(!expanded)}
         >
           <ExpansionPanelSummary
@@ -377,8 +377,14 @@ function TradingForm(props: Props) {
               control={form.control}
               name="manualPrice"
               rules={{
-                validate: value =>
-                  (isValidAmount(value) && !BigNumber(value).eq(0)) || t<string>("trading.validation.invalid-price")
+                validate: value => {
+                  const valid = isValidAmount(value) && !BigNumber(value).eq(0)
+                  if (!valid && !expanded) {
+                    setExpanded(true)
+                  }
+
+                  return valid || t<string>("trading.validation.invalid-price")
+                }
               }}
               valueName="manualPrice"
             />
