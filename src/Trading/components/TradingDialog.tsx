@@ -5,22 +5,23 @@ import Box from "@material-ui/core/Box"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "~App/contexts/accounts"
 import * as routes from "~App/routes"
-import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
-import { useDialogActions, useRouter } from "~Generic/hooks/userinterface"
-import { getLastArgumentFromURL } from "~Generic/lib/url"
-import { matchesRoute } from "~Generic/lib/routes"
-import { parseAssetID, stringifyAsset } from "~Generic/lib/stellar"
-import DialogBody from "~Layout/components/DialogBody"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
-import Carousel from "~Layout/components/Carousel"
-import ScrollableBalances from "~Generic/components/ScrollableBalances"
+import { InlineErrorBoundary } from "~Generic/components/ErrorBoundaries"
 import MainTitle from "~Generic/components/MainTitle"
 import Portal from "~Generic/components/Portal"
-import TransactionSender from "~Transaction/components/TransactionSender"
+import ScrollableBalances from "~Generic/components/ScrollableBalances"
+import TestnetBadge from "~Generic/components/TestnetBadge"
 import ViewLoading from "~Generic/components/ViewLoading"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
+import { useDialogActions, useRouter } from "~Generic/hooks/userinterface"
+import { matchesRoute } from "~Generic/lib/routes"
+import { parseAssetID, stringifyAsset } from "~Generic/lib/stellar"
+import { getLastArgumentFromURL } from "~Generic/lib/url"
+import Carousel from "~Layout/components/Carousel"
+import DialogBody from "~Layout/components/DialogBody"
+import TransactionSender from "~Transaction/components/TransactionSender"
 import MainActionSelection from "./MainActionSelection"
 import TradingForm from "./TradingForm"
-import TestnetBadge from "~Generic/components/TestnetBadge"
 
 interface TradingDialogProps {
   account: Account
@@ -151,7 +152,7 @@ function TradingDialog(props: TradingDialogProps) {
       }
       actions={dialogActionsRef}
     >
-      {trustlines.length > 0 ? MainContent : LinkToManageAssets}
+      <InlineErrorBoundary>{trustlines.length > 0 ? MainContent : LinkToManageAssets}</InlineErrorBoundary>
     </DialogBody>
   )
 }
