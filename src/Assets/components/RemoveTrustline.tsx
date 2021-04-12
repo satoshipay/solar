@@ -25,18 +25,22 @@ interface Props {
 // tslint:disable-next-line no-shadowed-variable
 const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: Props) {
   const { t } = useTranslation()
+  const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const removeAsset = async () => {
     try {
+      setTxCreationPending(true)
       const operations = [Operation.changeTrust({ asset: props.asset, limit: "0" })]
       const transaction = await createTransaction(operations, {
         accountData: props.accountData,
         horizon: props.horizon,
         walletAccount: props.account
       })
+      setTxCreationPending(false)
       await props.sendTransaction(transaction)
       props.onRemoved()
     } catch (error) {
+      setTxCreationPending(false)
       trackError(error)
     }
   }
@@ -69,6 +73,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
             <ActionButton
               autoFocus
               disabled={stillOwnsTokens}
+              loading={txCreationPending}
               icon={<CloseIcon />}
               onClick={removeAsset}
               style={{ maxWidth: "none" }}
