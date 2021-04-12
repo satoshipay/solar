@@ -17,7 +17,6 @@
     "bad-response-error": "Bad response ({{status}}) from {{server}} server",
     "bad-transaction-error": "Bad transaction given. Expected a Transaction or TransactionRecord, but got: {{transaction}}",
     "bio-auth-test-canceled": "Biometric authentication canceled",
-    "canceled-by-user": "Submission canceled by user",
     "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
     "existing-account-error": "An account with that name does already exist.",
     "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",

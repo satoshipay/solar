@@ -66,10 +66,12 @@ export function NotificationsProvider(props: Props) {
   }
 
   const showError = (error: any) => {
-    showNotification("error", getErrorTranslation(error, t))
+    if (error) {
+      showNotification("error", getErrorTranslation(error, t))
 
-    // tslint:disable-next-line:no-console
-    console.error(error)
+      // tslint:disable-next-line:no-console
+      console.error(error)
+    }
   }
 
   trackConnectionErrorImplementation = showConnectionError
