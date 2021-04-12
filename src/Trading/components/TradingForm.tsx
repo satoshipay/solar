@@ -183,7 +183,7 @@ function TradingForm(props: Props) {
           walletAccount: props.account
         }
       )
-      sendTransaction(tx)
+      await sendTransaction(tx)
     } catch (error) {
       trackError(error)
     } finally {
