@@ -23,11 +23,11 @@
       },
       "no-result": {
         "primary": "Ningún activo coincide",
-        "secondary": "Ningun activo o emisor coincide con la busqueda"
+        "secondary": "Ningún activo o emisor coincide con la búsqueda"
       }
     },
     "search-field": {
-      "placeholder": "Busca activo por codigo o nombre"
+      "placeholder": "Busca activo por código o nombre"
     },
     "title": "Agregar activo"
   },
@@ -35,7 +35,7 @@
     "lumen": {
       "description": {
         "label": "Descripción",
-        "text": "El token nativo de la red Stellar.\n\n Toda cuenta de la red tiene un balance de lumenes. Lumenes son usados para pagar el costo de transaccion."
+        "text": "El token nativo de la red Stellar.\n\n Toda cuenta de la red tiene un balance de lúmenes. Estos son usados para pagar el costo de transacción."
       }
     },
     "general": {
@@ -45,7 +45,7 @@
         "auth-revocable": "Autorización revocable",
         "auth-not-revocable": "Autorización no revocable",
         "auth-immutable": "Estas marcas son inmutables",
-        "auth-mutable": "Emisor puede cambiar estas marcas.",
+        "auth-mutable": "El emisor puede cambiar estas marcas.",
         "label": "Marcas de la cuenta"
       },
       "anchor-asset": {
@@ -71,13 +71,13 @@
           "label": "Descripción"
         },
         "email": {
-          "label": "Dirección correo electrónico"
+          "label": "Correo electrónico"
         },
         "name": {
           "label": "Organización"
         },
         "phone-number": {
-          "label": "Telefono"
+          "label": "Teléfono"
         },
         "website": {
           "label": "Sito web"
@@ -110,18 +110,18 @@
       },
       "headline": "Valor en XLM",
       "open-orders-reserve": {
-        "primary": "Reserva ordenes abiertas",
+        "primary": "Reserva órdenes abiertas",
         "secondary": "Reserva por orden"
       },
       "selling-liabilities": {
         "primary": "Monto a vender",
-        "secondary": "Comprometido ordenes abierta"
+        "secondary": "Comprometido a abrir órdenes"
       },
       "signers-reserve": {
-        "primary": "Reserva firmadores cuenta",
+        "primary": "Reserva de firmantes",
         "secondary": {
-          "single-key": "Reserva clave unica",
-          "multiple-keys": "Clave principal + Cofirmantes"
+          "single-key": "Reserva de clave única",
+          "multiple-keys": "Clave principal + co-firmantes"
         }
       },
       "spendable-balance": {
@@ -130,11 +130,11 @@
       },
       "total-balance": {
         "primary": "Saldo total",
-        "secondary": "Tu saldo, incl. inutilizable"
+        "secondary": "Tu saldo, incluido el no utilizable"
       },
       "trustline-reserve": {
-        "primary": "Reserva lineas de confianza",
-        "secondary": "Por cada saldo no XLM"
+        "primary": "Reserva de líneas de confianza",
+        "secondary": "Por cada saldo (no XLM)"
       }
     }
   },
@@ -167,11 +167,11 @@
     "moonpay": {
       "text": {
         "primary": "MoonPay",
-        "secondary": "Comprar inmediatamente Lumenes Stellar usando tu tarjeta de debito / credito o Apple Pay"
+        "secondary": "Comprar inmediatamente Lúmenes Stellar usando tu tarjeta de débito / crédito o Apple Pay"
       },
-      "legal-confirmation": " Tu serás redirigido a moonpay.io, un servicio de un tercero. El proceso de depósito es operado por Moon Pay Ltd, no por Solar o SatoshiPay Ltd. <1 /> <2 /> Por favor contacte a moonpay.io para consultas relativas con tu depósito."
+      "legal-confirmation": " Serás redirigido a moonpay.io, un servicio externo. El proceso de depósito es operado por Moon Pay Ltd, no por Solar o SatoshiPay Ltd. <1 /> <2 /> Por favor contacte a moonpay.io para consultas sobre tu depósito."
     },
-    "title": "Compra lumenes Stellar"
+    "title": "Compra lúmenes Stellar"
   },
   "remove-trustline": {
     "action": {
@@ -179,7 +179,7 @@
       "remove": "Remover"
     },
     "text": {
-      "Advertencia": "Tu no puedes remover este activo a menos que el saldo del balance sea cero.",
+      "Advertencia": "No puedes remover este activo a menos que el saldo del balance sea cero.",
       "info": "Estás por remover <1> {{asset}} </1> de la cuenta \"{{accountName}}\"."
     },
     "title": "Confirma remover el activo"
@@ -187,11 +187,11 @@
   "transactions": {
     "action": {
       "friendbot": {
-        "description": "Obtener algunos lumenes gratuitos test",
-        "label": "Pedir al friendbot"
+        "description": "Obtener algunos lúmenes gratuitos test",
+        "label": "Pedir a friendbot"
       },
       "navigate-to-deposit": {
-        "description": "Via tarjeta de crédito, transfencia bancaria, etc",
+        "description": "Con tarjeta de crédito, transferencia bancaria, etc.",
         "label": "Depositar fondos"
       }
     },
@@ -201,7 +201,7 @@
         "sell": "Vender <1 /> por <3 />",
         "for": "por"
       },
-      "title": "Ordenes abiertas"
+      "title": "Órdenes abiertas"
     },
     "transaction-list": {
       "offer-description": {
@@ -211,14 +211,14 @@
           "update": "Actualizar orden"
         },
         "buy": "Comprar {{buyingAmount}} {{buyingCode}} por {{sellingAmount}} {{sellingCode}}",
-        "sell": "Vendi {{sellingAmount}} {{sellingCode}} per {{buyingAmount}} {{buyingCode}}"
+        "sell": "Vender {{sellingAmount}} {{sellingCode}} por {{buyingAmount}} {{buyingCode}}"
       },
       "item": {
         "from": "Desde",
         "to": "Hasta",
         "memo": "Memo",
         "remote-public-keys": {
-          "more": "mas"
+          "more": "más"
         },
         "trust": {
           "add-trust": "Confiar en el activo {{asset}}",
@@ -226,7 +226,7 @@
         }
       },
       "load-more": {
-        "label": "Cargar mas"
+        "label": "Cargar más"
       },
       "title": "Transacciones recientes"
     },
@@ -243,11 +243,11 @@
       "cancel-order": "Anular orden",
       "dismiss": "Ignorar",
       "inspect": "Inspeccionar",
-      "show-more": "Mostrar mas detalles"
+      "show-more": "Mostrar más detalles"
     },
     "account-creation-warning": {
-      "primary": "Agregar fondos a cuenta nueva",
-      "secondary": "Agregar fondos a cuenta sin fondos. Asegurate de que el destino sea correcto."
+      "primary": "Agregando fondos a una cuenta nueva",
+      "secondary": "Agregando fondos a una cuenta sin fondos. Asegúrate de que el destino sea correcto."
     },
     "dangerous-transaction-warning": {
       "primary": "Transacción iniciada por una cuenta desconocida",
@@ -271,7 +271,7 @@
     },
     "signer-status": {
       "tooltip": {
-        "has-signed": "Haz firmado la transacción",
+        "has-signed": "Has firmado la transacción",
         "has-not-signed": "Esperando otras firmas"
       }
     },
@@ -308,16 +308,16 @@
     "title": {
       "transaction": "Transacción",
       "payment": "Pago",
-      "delete-orders-operation": "Eliminar ordenes de intercambio",
+      "delete-orders-operation": "Eliminar órdenes de intercambio",
       "web-auth": "Autenticación Web"
     },
     "transaction-memo": {
       "label": "{{type}} Memo"
     },
     "validation": {
-      "no-account-data": "Violación invariante: Imposible encontrar los datos de la cuenta de originen de la  transacción en el conjunto suscripciones de datos de cuenta.",
-      "no-manage-data-operation": "Violazione invariante: La transacción de autenticación web Stellar debe contener una operación manage_data.",
-      "password-required": "Password requerido"
+      "no-account-data": "Violación invariante: Imposible encontrar los datos de la cuenta de origen en el conjunto de suscripciones de datos de cuenta.",
+      "no-manage-data-operation": "Violación invariante: La transacción de autenticación web de Stellar debe contener una operación manage_data.",
+      "password-required": "Contraseña requerida"
     }
   },
   "title": {

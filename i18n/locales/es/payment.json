@@ -24,7 +24,7 @@
     }
   },
   "title": {
-    "send": "Envia fondos",
+    "send": "Envía fondos",
     "receive": "Recibe fondos"
   },
   "validation": {
@@ -34,7 +34,7 @@
     "no-price": "Ningún monto especificado.",
     "not-enough-funds": "Fondos insuficientes.",
     "invalid-destination": "Se esperaba una llave pública o una dirección Stellar.",
-    "invalid-price": "Monto no valido.",
+    "invalid-price": "Monto no válido.",
     "integer-memo-required": "El Memo debe ser un número entero"
   }
 }

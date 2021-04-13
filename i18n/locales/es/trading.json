@@ -5,7 +5,7 @@
   },
   "action-selection": {
     "buy": {
-      "description": "Adquirir alguna cantidad de un activo en el Intercambio distribuido",
+      "description": "Adquirir alguna cantidad de un activo en el intercambio distribuido",
       "label": "Adquirir activo"
     },
     "sell": {
@@ -35,8 +35,8 @@
     },
     "primary-asset-selector": {
       "label": {
-        "buy": "Tu compras",
-        "sell": "Tu vendes"
+        "buy": "Compras",
+        "sell": "Vendes"
       }
     },
     "secondary-asset-selector": {
@@ -49,13 +49,13 @@
   "no-assets-info": "Esta cuenta aún no usa activos diferentes a Lumens Stellar.",
   "title": "Negociar",
   "trading-price": {
-    "default-label": "Precio (limite)",
-    "label": "Precio por {{unit}} (limite)"
+    "default-label": "Precio (límite)",
+    "label": "Precio por {{unit}} (límite)"
   },
   "validation": {
-    "primary-amount-missing": "Ningun valor especificado.",
+    "primary-amount-missing": "Ningún valor especificado.",
     "primary-asset-missing": "Ningún activo seleccionado.",
-    "secondary-asset-missing": "Ningun activo seleccionado.",
+    "secondary-asset-missing": "Ningún activo seleccionado.",
     "invalid-amount": "Valor especificado no válido.",
     "invalid-price": "Precio no válido"
   },

@@ -4,7 +4,7 @@
       "headline": "Autenticación",
       "info": {
         "1": "El emisor del activo requiere que te conectes a su servicio usando tu cuenta.",
-        "2": "Una trasacción de verificación se firmará para probar la propiedad de la cuenta."
+        "2": "Una transacción de verificación se firmará para probar la propiedad de la cuenta."
       }
     }
   },
@@ -15,13 +15,13 @@
     "body": {
       "deposit-pending": "Depósito pendiente",
       "info": {
-        "1": "{{domain}} esta esperando por tu depósito.",
+        "1": "{{domain}} está esperando por tu depósito.",
         "2": "Los fondos serán acreditados a tu cuenta Stellar cuando el depósito sea acreditado al emisor del activo."
       }
     },
     "sidebar": {
       "headline": "Hecho",
-      "info": "El depósito fué aceptado y será procesado por el emisor del activo cuando reciba el pago."
+      "info": "El depósito fue aceptado y será procesado por el emisor del activo cuando reciba el pago."
     }
   },
   "form-builder": {
@@ -40,7 +40,7 @@
           "short": "Activo",
           "withdrawal": "Activo para retiro"
         },
-        "no-assets": "Ningun activo retirable"
+        "no-assets": "Ningún activo a retirar"
       },
       "method-selector": {
         "info-item": {
@@ -48,7 +48,7 @@
           "no-asset": "Seleccionar un activo primero"
         },
         "label": {
-          "deposit": "Tipo de deposito",
+          "deposit": "Tipo de depósito",
           "withdrawal": "Tipo de retiro"
         }
       }
@@ -57,15 +57,15 @@
       "deposit": {
         "headline": "Agregar fondos a tu cuenta",
         "info": {
-          "1": "Compra Lumenes Stellar (XLM) o deposita recursos en tu cuenta. Envia dinero desde tu cuenta bancaria, ETH de tu monedero Ethereum, etc",
-          "2": "Solar actua como un cliente para el servicio ofrecido exclusivamente por el emisor del activo."
+          "1": "Compra Lúmenes Stellar (XLM) o deposita recursos en tu cuenta. Envía dinero desde tu cuenta bancaria, ETH de tu monedero Ethereum, etc.",
+          "2": "Solar actúa como un cliente para el servicio ofrecido exclusivamente por el emisor del activo."
         }
       },
       "withdrawal": {
-        "headline": "Que retirar",
+        "headline": "Qué retirar?",
         "info": {
           "1": "Retirar activos de tu cuenta, como USD a tu banco o ETH a tu monedero Ethereum.",
-          "2": "Solar actua como un cliente para el servicio ofrecido exclusivamente por el emisor del activo."
+          "2": "Solar actúa como un cliente para el servicio ofrecido exclusivamente por el emisor del activo."
         }
       }
     }
@@ -73,7 +73,7 @@
   "kyc-denied": {
     "sidebar": {
       "headline": "Conoce tu cliente",
-      "info": "Tu haz sido rechazado: El servicio fué deshabilitado para ti.  por favor contacta al emisor del activo."
+      "info": "Haz sido rechazado: El servicio fue deshabilitado para ti. Por favor contacta al emisor del activo."
     }
   },
   "kyc-pending": {
@@ -88,7 +88,7 @@
       "headline": "Conoce tu Cliente",
       "info": {
         "1": "El servicio solo funcionará si proporcionas información personal sobre ti.",
-        "2": "This usualmente pasa por motivos legales."
+        "2": "Esto usualmente pasa por motivos legales."
       }
     }
   },
@@ -102,10 +102,10 @@
   },
   "purchase-lumens": {
     "sidebar": {
-      "headline": "Comprar Lumenes Stellar",
+      "headline": "Comprar Lúmenes Stellar",
       "info": {
         "1": "Ofrecemos opciones para comrpar Lumenes Stellar que no involucran a un emisor de activos Stellar.",
-        "2": "Los Lumenes Stellar (XLM) son las moneda nativa de la red Stellar. Se usan para pagar los costos de transacción, entre otras cosas."
+        "2": "Los Lúmenes Stellar (XLM) son las moneda nativa de la red Stellar. Se usan para pagar los costos de transacción, entre otras cosas."
       }
     }
   },
@@ -120,9 +120,9 @@
     },
     "body": {
       "amount": {
-	    "error": {
-		  "amount-greater-than-balance": "Monto especificado es mayor que el saldo" 
-		},
+        "error": {
+          "amount-greater-than-balance": "Monto especificado es mayor que el saldo"
+        },
         "label": {
           "deposit": "Monto a depositar",
           "withdrawal": "Monto a retirar"
@@ -132,7 +132,7 @@
         "label": "Monto a recibir"
       },
       "deposit-instructions": {
-        "label": "Instruccions de depósito"
+        "label": "Instrucciones de depósito"
       },
       "eta": {
         "label": "ETA",
@@ -152,8 +152,8 @@
       "deposit": {
         "headline": "Sumario del depósito",
         "info": {
-          "1": "Asegurate de enviar los fondos a la dirección correcta.",
-          "2": "El emisor del activo acreditará los tokens ina vez que tu depósito sea acreditado."
+          "1": "Asegúrate de enviar los fondos a la dirección correcta.",
+          "2": "El emisor del activo acreditará los tokens una vez que tu depósito sea acreditado."
         }
       },
       "withdrawal": {
@@ -168,7 +168,7 @@
   "transaction-status": {
     "error": {
       "rejected": {
-        "deposit": "Deposito rechazado",
+        "deposit": "Depósito rechazado",
         "withdrawal": "Retiro rechazado"
       },
       "contact": "Contacta a {{domain}}."
@@ -176,7 +176,7 @@
     "incomplete": {
       "already-redirected": {
         "info": {
-          "1": "{{domain}} está verificando tu información personal. Por favor intenta mas tarde.",
+          "1": "{{domain}} está verificando tu información personal. Por favor intenta más tarde.",
           "2": "Tiempo estimado para terminar: {{eta}}"
         }
       },
@@ -185,10 +185,10 @@
       }
     },
     "more-info-url": {
-      "info": "Para mas información visita"
+      "info": "Para más información visita"
     },
     "pending-user-transfer-start": {
-      "info": "{{domain}} te solicita mas información."
+      "info": "{{domain}} te solicita más información."
     }
   },
   "withdrawal-success": {
@@ -233,17 +233,17 @@
     },
     "sidebar": {
       "deposit": {
-        "headline": "Detalles del deposito",
+        "headline": "Detalles del depósito",
         "info": {
           "1": "Detalles adicionales sobre tu depósito.",
-          "2": "Dependiendo de lo que el emisor del activo requiera, tu podrías tener que entrar información adicional acá."
+          "2": "Dependiendo de lo que el emisor del activo requiera, podrías tener que entrar información adicional aquí."
         }
       },
       "withdrawal": {
         "headline": "Detalles del retiro",
         "info": {
-          "1": "Detalles adicionales sobre tu deposito.",
-          "2": "Dependiendo de lo que solicite el emisor del activo, Tu puedes tener que introducir información adicional aquí."
+          "1": "Detalles adicionales sobre tu depósito.",
+          "2": "Dependiendo de lo que el emisor del activo requiera, podrías tener que entrar información adicional aquí."
         }
       }
     }

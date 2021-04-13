@@ -3,39 +3,39 @@
     "close": {
       "label": "Cerrar"
     },
-	"retry": {
-	  "label": "Reintentar"
-	}
+    "retry": {
+      "label": "Reintentar"
+    }
   },
   "error": {
     "asset-not-depositable-error": "El activo {{asset}} parece no ser depositable en {{domain}}",
     "asset-not-withdrawable-error": "El activo {{asset}} parece no se puede cobrar en {{domain}}",
     "boundary": {
-      "header": "¡Huy! Algo salió mal...",
-      "contact-us": "Contactenos por"
+      "header": "¡Ups! Algo salió mal...",
+      "contact-us": "Contáctenos por"
     },
-    "bad-response-error": "Mala respuesta ({{status}}) del servidor {{server}}",
-    "bad-transaction-error": "Mala transaccion dada. Se esperaba Transacción o Registro de Transacción, pero se obtuvo: {{transaction}}",
+    "bad-response-error": "Respuesta inválida ({{status}}) del servidor {{server}}",
+    "bad-transaction-error": "Transacción inválida. Se esperaba Transaction o TransactionRecord, pero se obtuvo: {{transaction}}",
     "bio-auth-test-canceled": "Autenticación biométrica anulada",
-    "expected-json-response-error": "Se esperaba que {{url}} responda con JSON. El tipo de contenido fué {{contentType}}.",
+    "expected-json-response-error": "Se esperaba que {{url}} responda en formato JSON. El tipo de contenido fue {{contentType}}.",
     "existing-account-error": "Ya existe otra cuenta con el mismo nombre.",
     "fetch-account-data-error": "Imposible recuperar los datos de la cuenta de {{account}} desde {{horizon}}",
     "fetch-signature-requests-error": "Fallaron las solicitudes de recuperar firmas: {{response}} \nServicio: {{service}}",
     "invariant-violation-error": "Violación invariante: {{message}}",
-    "low-reserve-order-error": "No se puede colocar ordenes porque el saldo XLM gastable es muy bajo.",
+    "low-reserve-order-error": "No se pueden agregar órdenes porque el saldo de XLM utilizable es muy bajo.",
     "memo-already-specified-error": "No se puede establecer un MEMO personalizado. El registro de la Federación de {{destination}} ya especificó el MEMO.",
     "missing-info-error": "Imposible crear la transacción, porque {{transferServer}} no ha enviado la información solicitada.",
     "multi-sig-event-stream-double-errored-error": "Doble Error en la actualización Multi-firma: {{url}}",
-    "no-callback-url-error": "No se pudo responder al servicio  ulti-firma. La solicitud de firma no tiene ningún URL para respuesta.",
+    "no-callback-url-error": "No se pudo responder al servicio multi-firma. La solicitud de firma no especifica ninguna URL de respuesta.",
     "non-existent-destination-error": "No se puede pagar en {{assetCode}}, porque la cuenta de destino ya no existe. Las creaciones de cuentas siempre deben hacerse con XLM.",
     "only-interactive-kyc-supported-error": "Se soportan solo KYC interactivos.",
     "password-required-error": "Cuenta {{accountName}} está protegida por contraseña, pero no se pasó contraseña.",
-    "promise-timeout-error": "Promesa caduca despues de  {{timeout}} ms",
+    "promise-timeout-error": "Promesa caduca después de {{timeout}} ms",
     "request-failed-error": "Solicitud a {{target}} ha fallado con estado {{status}}: {{message}}",
     "stellar-address-not-found-error": "Dirección Stellar no encontrada: {{address}}",
     "stellar-address-request-failed-error": "Falló la resolución de la dirección Stellar {{address}}",
-    "submission-failed-error": "Envío de transacción a {{endpoint}} falló con estadp {{status}}: {{message}}",
-    "testnet-endpoint-not-available-error": "{{service}} no provee un punto de conexion Testnet.",
+    "submission-failed-error": "Envío de transacción a {{endpoint}} falló con estado {{status}}: {{message}}",
+    "testnet-endpoint-not-available-error": "{{service}} no provee un punto de conexión Testnet.",
     "timeout-error": "Solicitud ha caducado",
     "unexpected-action-error": "Acción imprevista: {{action}}",
     "unexpected-state-error": "Se encontró un estado inesperado: {{state}}",
@@ -45,24 +45,24 @@
     "wrong-password-error": "Contraseña equivocada.",
     "wrong-request-start-error": "Se esperaba solicitud para iniciar 'web+stellar:'",
     "submission-error": {
-      "default": "Transacción rechazada por la red. Codigo(s) de Error: {{codes}}",
-      "internal-server-error": "El servidor tuvo problemas procesando su solicitud.  Por favor reintentar.",
+      "default": "Transacción rechazada por la red. Código(s) de Error: {{codes}}",
+      "internal-server-error": "El servidor tuvo problemas procesando su solicitud. Por favor reintentar.",
       "op-result-code": {
-        "op_cross_self": "La orden va a cerrar ejecutar una de tus ordenes anteriores.",
-        "op_has_sub_entries": "La cuenta aún tiene lineas de confianza (activos) o ordenes de intercambio abiertas.",
+        "op_cross_self": "La orden va a cerrar ejecutar una de tus órdenes anteriores.",
+        "op_has_sub_entries": "La cuenta aún tiene líneas de confianza (activos) órdenes de intercambio abiertas.",
         "op_immutable_set": "La cuenta no es modificable (se estableció la señal AUTH_IMMUTABLE).",
-        "op_line_full": "El saldo de la cuenta destino excesoria la confianza del destino en el activo.",
-        "op_low_reserve": "Transacción rechazada por la red rete. El saldo de la cuenta de origen o de destino quedaría por debájo del saldo mínimo.",
+        "op_line_full": "El saldo de la cuenta destino excedería la confianza del destino en el activo.",
+        "op_low_reserve": "Transacción rechazada por la red. El saldo de la cuenta de origen o de destino quedaría por debajo del saldo mínimo.",
         "op_no_account": "La cuenta de destino no existe.",
-        "op_no_issuer": "Activo invalido.  Emisor de activo incorrecto.",
-        "op_no_trust": "La cuenta destino confía en el activo que estas tratando de enviar.",
+        "op_no_issuer": "Activo inválido. Emisor de activo incorrecto.",
+        "op_no_trust": "La cuenta destino confía en el activo que estás tratando de enviar.",
         "op_offer_not_found": "La oferta no existe.",
         "op_self_not_allowed": "La cuenta no puede confiar en activos emitidos por ella misma.",
         "op_underfunded": "Fondos insuficientes para desarrollar esta operación."
       },
-	   "prefix": {
+      "prefix": {
         "server-error": "Error de servidor"
-      },	  
+      },
       "tx-result-code": {
         "insufficient_fee": "la red demanda pago mayor que el establecido para esta transacción.",
         "internal_error": "Un error desconocido ha ocurrido en el servidor Stellar.",

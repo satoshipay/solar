@@ -2,7 +2,7 @@
   "account-merge": {
     "summary": {
       "account": "Cuenta",
-      "merge-into": "Unir en"
+      "merge-into": "Unir con"
     },
     "title": "Unir cuenta"
   },
@@ -11,7 +11,7 @@
       "asset": "Activo",
       "issued-by": "Emitido por",
       "limit": {
-        "label": "Limite",
+        "label": "Límite",
         "value": {
           "unlimited": "Ilimitado",
           "limited-to": "Limitado a {{limit}} {{code}}"
@@ -68,7 +68,7 @@
   "set-options": {
     "add-signer": {
       "summary": {
-        "account": Cuenta para añadir firmante",
+        "account": "Cuenta para añadir firmante",
         "key-weight": "Peso de clave",
         "new-signer": "Nuevo firmante"
       },
@@ -79,9 +79,9 @@
         "key-thresholds": {
           "label": "Nuevos umbrales de clave",
           "value": {
-            "low": "Umbral bajo:    {{threshold}}",
+            "low": "Umbral bajo: {{threshold}}",
             "medium": "Umbral medio: {{threshold}}",
-            "high": "Umbral alto:   {{threshold}}"
+            "high": "Umbral alto: {{threshold}}"
           }
         },
         "required-signatures": "Firmas requeridas"

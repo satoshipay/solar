@@ -1,7 +1,7 @@
 {
   "account-deletion": {
     "action": {
-      "cancel": "Anular",
+      "cancel": "Cancelar",
       "confirm": "Confirmar",
       "delete": "Eliminar",
       "merge": {
@@ -12,7 +12,7 @@
     "confirm": {
       "title": "Confirmar para eliminar",
       "text": {
-        "confirm": "¿Esta seguro?",
+        "confirm": "¿Está seguro?",
         "delete": "La cuenta será eliminada",
         "merge": "y los fondos restantes transferidos"
       }
@@ -21,8 +21,8 @@
       "text": "Enviar fondos restantes a"
     },
     "text": {
-      "1": "¿Esta seguro de querer borrar la cuenta \"{{accountName}}\"?",
-      "2": "Asegurese de tener copia de la clave privada o de unirla a otra cuenta, ¡Aún quedan fondos en esta cuenta!"
+      "1": "¿Está seguro de querer borrar la cuenta \"{{accountName}}\"?",
+      "2": "Asegúrese de tener copia de la clave privada o de unirla a otra cuenta, ¡Aún quedan fondos en esta cuenta!"
     },
     "title": "Confirmar para borrar la cuenta",
     "warning-dialog": {
@@ -32,8 +32,8 @@
     },
     "warnings": {
       "cannot-merge": {
-        "text": "Aún no es posible unir a otra cuenta.  Primero debe cancelar todas las ordenes de intercambio abiertas y remover todos los activos.",
-        "title": "Accion manual requerida"
+        "text": "Aún no es posible unir a otra cuenta. Primero debe cancelar todas las órdenes de intercambio abiertas y remover todos los activos.",
+        "title": "Acción manual requerida"
       }
     }
   },
@@ -47,15 +47,15 @@
     },
     "textfield": {
       "code": {
-        "label": "Codigo"
+        "label": "Código"
       },
       "issuer": {
         "label": "Emisor",
-        "placeholder": "Clave publica del emisor"
+        "placeholder": "Clave pública del emisor"
       },
       "limit": {
-        "label": "Limite (opcional)",
-        "placeholder": "Limita la confianza en este activo / saldo maximo a mantener"
+        "label": "Límite (opcional)",
+        "placeholder": "Limita la confianza en este activo / saldo máximo a mantener"
       }
     },
     "title": "Agregar activo personalizado"
@@ -71,14 +71,14 @@
     "info": {
       "backup": {
         "title": "Resguarde la clave secreta ahora",
-        "paragraph-1": "La clave secreta es el unico modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
-        "paragraph-2": "Escriba o imprima la clave secreta, Guardela en un lugar seguro y no la comparta con nadie."
+        "paragraph-1": "La clave secreta es el único modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
+        "paragraph-2": "Escriba o imprima la clave secreta, guárdela en un lugar seguro y no la comparta con nadie."
       },
       "export": {
-        "paragraph-1": "La clave secreta es el unico modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
-        "paragraph-2": "Escriba o imprima la clave secreta, Guardela en un lugar seguro y no la comparta con nadie."
+        "paragraph-1": "La clave secreta es el único modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
+        "paragraph-2": "Escriba o imprima la clave secreta, guárdela en un lugar seguro y no la comparta con nadie."
       },
-      "secret-key": "Escriba la clave en papel y guardela en un lugar seguro",
+      "secret-key": "Escriba la clave en papel y guárdela en un lugar seguro",
       "tap-to-copy": "Presionar para copiar"
     },
     "textfield": {
@@ -88,7 +88,7 @@
     },
     "title": {
       "default": "Exportar la clave secreta",
-      "initial-backup": "Respaldr la clave secreta"
+      "initial-backup": "Respaldar la clave secreta"
     }
   },
   "manage-signers": {
@@ -97,7 +97,7 @@
         "long": "Añadir co-firmante",
         "short": "Firmante"
       },
-      "cancel": "Annular",
+      "cancel": "Cancelar",
       "apply": {
         "long": "Aplicar el cambio",
         "short": "Aplicar"
@@ -111,7 +111,7 @@
         }
       },
       "new-signer": {
-        "label": "Clave publica o dirección Stellar",
+        "label": "Clave pública o dirección Stellar",
         "placeholder": {
           "long": "GABC… o dirección",
           "short": "GABCDEFGHIJK… o alice*example.org"
@@ -120,15 +120,15 @@
       "validation": {
         "existing-signer": "No puede agregar firmante existente.",
         "integer-required": "Debe ser un número entero.",
-        "invalid-stellar-address": "Se espera un clave publica o dirección Stellar"
+        "invalid-stellar-address": "Se espera un clave pública o dirección Stellar"
       }
     },
     "textfield": {
       "weight-threshold": {
         "explanation": {
-          "required-signatures": "Toda transacción necesita ser firmada por {{amount}} firmantes",
+          "required-signatures": "Toda transacción necesita ser firmada por {{amount}} firmantes"
         },
-          "required-weight": "Toda transaccion debe ser firmada por firmantes con un peso de claves combinado de {{amount}}"
+        "required-weight": "Toda transacción debe ser firmada por firmantes con un peso de claves combinado de {{amount}}",
         "label": {
           "required-signatures": "Se requieren firmas",
           "required-weight": "Se requiere peso de claves"
@@ -140,9 +140,9 @@
       "short": "Administrar firmantes de cuenta"
     },
     "validation": {
-      "no-signers": "No queda ningun firmante. Non bloquees al salir!",
-      "threshold-higher-than-weights": "Soglia superiore ai pesi chiave combinati",
-      "invalid-weight-type": "Peso debe ser numero entero",
+      "no-signers": "No queda ningún firmante. No te quedes encerrado!",
+      "threshold-higher-than-weights": "El umbral es más alto que los pesos de las claves combinados",
+      "invalid-weight-type": "El peso debe ser un número entero",
       "no-threshold": "Por favor establezca un umbral"
     }
   },
@@ -178,7 +178,7 @@
       "set-password": "Establecer contraseña"
     },
     "validation": {
-      "next-password-missing": "Entrar una contraseña o  establecer \"Remover contraseña\".",
+      "next-password-missing": "Entrar una contraseña o establecer \"Remover contraseña\".",
       "next-password-repeat-missing": "Por favor repetir la contraseña.",
       "passwords-no-match": "La contraseña no coincide",
       "previous-password-missing": "Falta la contraseña actual."
@@ -193,7 +193,7 @@
     "export-secret-key": {
       "text": {
         "primary": "Exporta clave secreta",
-        "secondary": "Decifra y muestra la clave privada"
+        "secondary": "Desencripta y muestra la clave privada"
       }
     },
     "multi-sig": {

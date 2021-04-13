@@ -17,7 +17,7 @@
     "update": {
       "notification": {
         "start": "Iniciando descarga de actualización...",
-        "success": "La descarga está completa y se instalará en el proximo reinicio!"
+        "success": "La descarga está completa y se instalará en el próximo reinicio!"
       },
       "tooltip": "Actualización disponible"
     },
@@ -29,11 +29,11 @@
   "notification": {
     "desktop": {
       "new-signature-request": {
-        "title": "Nueva transsacción para co-firmar",
+        "title": "Nueva transacción para co-firmar",
         "body": "De {{signersHavingSigned}}"
       },
       "received-payment": {
-        "title": "pago recibido | {{account}}",
+        "title": "Pago recibido | {{account}}",
         "body": "Recibido {{amount}} {{assetCode}}"
       },
       "Intercambio-completado": {
@@ -44,18 +44,18 @@
       "action": {
         "dismiss": "Desechar"
       },
-      "support": "Tiene problemas con la aplicación? <1 /> Contactenos por",
+      "support": "Tiene problemas con la aplicación? <1 /> Contáctenos por",
       "title": "Error",
       "offline": "Desconectado"
     },
     "permission": {
       "app-notification": {
-        "error": "Habilitar en ajustes del sistema operativo",
+        "error": "Habilitar en ajustes del dispositivo",
         "granted": {
           "title": "Notificaciones habilitadas",
-          "text": "Solar ahora mostrará notificaciones"
+          "text": "A partir de ahora Solar mostrará notificaciones"
         },
-        "message": "Habilitar notificaciones de aplicación"
+        "message": "Habilitar notificaciones"
       }
     }
   },
@@ -66,10 +66,10 @@
     "header": "Bienvenido a Solar",
     "checkbox": {
       "1": {
-        "label": "Yo comprendo que soy responsable por la seguridad de mis fondos y que Solar no puede recuperar mis fondos en caso de perdida de datos o si yo pierdo mis credenciales."
+        "label": "Comprendo que soy responsable por la seguridad de mis fondos y que Solar no puede recuperar mis fondos en caso de pérdida de datos o si pierdo mis credenciales."
       },
       "2": {
-        "label": "Yo he leido, comprendo y estoy de acuerdo con los <1>Terminos y Condiciones</1> <2>&amp;</2> <3>Politica de Privacidad</3> de Solar."
+        "label": "He leído, comprendo y estoy de acuerdo con los <1>Términos y Condiciones</1> <2>y la</2> <3>Política de Privacidad</3> de Solar."
       }
     }
   }
