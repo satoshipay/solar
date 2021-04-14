@@ -14,6 +14,7 @@ import { useStellarToml } from "~Generic/hooks/stellar"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
+import { CustomError } from "~Generic/lib/errors"
 import { findMatchingBalanceLine } from "~Generic/lib/stellar"
 import { VerticalLayout } from "~Layout/components/Box"
 import { formatDescriptionText } from "../util/formatters"
@@ -191,7 +192,13 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
               account: account.publicKey
             }
           })
-          .catch(error => trackError(error))
+          .catch(error => {
+            if (error.message?.includes("Cannot fetch web auth challenge")) {
+              trackError(CustomError("FetchWebAuthChallengeError", "Cannot fetch web auth challenge"))
+            } else {
+              trackError(error)
+            }
+          })
       )
     },
     [account.publicKey, actions, formValues, handleSubmission, props.state]
