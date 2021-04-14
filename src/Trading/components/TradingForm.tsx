@@ -21,7 +21,7 @@ import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import Portal from "~Generic/components/Portal"
 import { useHorizon } from "~Generic/hooks/stellar"
-import { useLiveOrderbook, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
+import { useLiveOrderbook } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
@@ -84,6 +84,7 @@ function TradingForm(props: Props) {
 
   const [expanded, setExpanded] = React.useState(false)
   const [priceMode, setPriceMode] = React.useState<"primary" | "secondary">("secondary")
+  const [pending, setPending] = React.useState(false)
 
   const form = useForm<TradingFormValues>({
     defaultValues: {
@@ -105,13 +106,11 @@ function TradingForm(props: Props) {
 
   const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
-  const { offers: openOrders } = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
 
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
 
   const calculation = useCalculation({
     accountData: props.accountData,
-    openOrdersCount: openOrders.length,
     priceMode,
     primaryAction: props.primaryAction,
     tradePair,
@@ -142,6 +141,8 @@ function TradingForm(props: Props) {
 
   const submitForm = React.useCallback(async () => {
     try {
+      setPending(true)
+
       if (!primaryAsset) {
         throw CustomError(
           "InvariantViolationError",
@@ -151,7 +152,7 @@ function TradingForm(props: Props) {
       }
 
       const spendableXLMBalance = getSpendableBalance(
-        getAccountMinimumBalance(props.accountData, openOrders.length),
+        getAccountMinimumBalance(props.accountData),
         findMatchingBalanceLine(props.accountData.balances, Asset.native())
       )
       if (spendableXLMBalance.minus(0.5).cmp(0) <= 0) {
@@ -185,11 +186,12 @@ function TradingForm(props: Props) {
       sendTransaction(tx)
     } catch (error) {
       trackError(error)
+    } finally {
+      setPending(false)
     }
   }, [
     effectivePrice,
     horizon,
-    openOrders.length,
     primaryAsset,
     props.account,
     props.accountData,
@@ -391,7 +393,13 @@ function TradingForm(props: Props) {
         ) : null}
         <Portal target={props.dialogActionsRef?.element}>
           <DialogActionsBox desktopStyle={{ marginTop: 32 }}>
-            <ActionButton icon={<GavelIcon />} onClick={form.handleSubmit(submitForm)} type="primary">
+            <ActionButton
+              disabled={pending}
+              loading={pending}
+              icon={<GavelIcon />}
+              onClick={form.handleSubmit(submitForm)}
+              type="primary"
+            >
               {t("trading.action.submit")}
             </ActionButton>
           </DialogActionsBox>

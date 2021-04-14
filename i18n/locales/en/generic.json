@@ -22,6 +22,7 @@
     "existing-account-error": "An account with that name does already exist.",
     "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",
     "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
+    "fetch-web-auth-challenge-error": "Cannot fetch web auth challenge",
     "http-request-error": "HTTP fetch failed: {{response}} \nService: {{service}}",
     "invariant-violation-error": "Invariant violation: {{message}}",
     "low-reserve-order-error": "Cannot place order because spendable XLM balance is too low.",

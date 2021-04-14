@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
 import Typography from "@material-ui/core/Typography"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
+import { trackError } from "~App/contexts/notifications"
 import theme from "~App/theme"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { ReadOnlyTextfield } from "~Generic/components/FormFields"
@@ -13,6 +14,7 @@ import { useStellarToml } from "~Generic/hooks/stellar"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { useLoadingState } from "~Generic/hooks/util"
+import { CustomError } from "~Generic/lib/errors"
 import { findMatchingBalanceLine } from "~Generic/lib/stellar"
 import { VerticalLayout } from "~Layout/components/Box"
 import { formatDescriptionText } from "../util/formatters"
@@ -181,14 +183,22 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
       event.preventDefault()
 
       handleSubmission(
-        actions.submitTransferFieldValues({
-          ...props.state,
-          formValues: {
-            ...props.state.formValues,
-            ...postprocessFormValues(formValues, props.state.method),
-            account: account.accountID
-          }
-        })
+        actions
+          .submitTransferFieldValues({
+            ...props.state,
+            formValues: {
+              ...props.state.formValues,
+              ...postprocessFormValues(formValues, props.state.method),
+              account: account.accountID
+            }
+          })
+          .catch(error => {
+            if (error.message?.includes("Cannot fetch web auth challenge")) {
+              trackError(CustomError("FetchWebAuthChallengeError", "Cannot fetch web auth challenge"))
+            } else {
+              trackError(error)
+            }
+          })
       )
     },
     [account.accountID, actions, formValues, handleSubmission, props.state]

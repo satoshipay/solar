@@ -6,6 +6,9 @@ import { AccountData } from "./account"
 
 const MAX_INT64 = "9223372036854775807"
 
+// Used as a fallback if fetching the friendbot href from horizon fails
+const SDF_FRIENDBOT_HREF = "https://friendbot.stellar.org/{?addr}"
+
 const dedupe = <T>(array: T[]) => Array.from(new Set(array))
 
 // FIXME: Needs to be queried from horizon
@@ -59,23 +62,16 @@ export function stringifyAsset(assetOrTrustline: Asset | Horizon.BalanceLine) {
 
 export async function friendbotTopup(horizonURL: string, publicKey: string) {
   const horizonMetadata = await (await fetch(horizonURL)).json()
-  const friendBotHref = horizonMetadata._links.friendbot.href.replace(/\{\?.*/, "")
+  const templatedFriendbotHref = horizonMetadata._links.friendbot.href || SDF_FRIENDBOT_HREF
+  const friendBotHref = templatedFriendbotHref.replace(/\{\?.*/, "")
 
   const response = await fetch(friendBotHref + `?addr=${publicKey}`)
   return response.json()
 }
 
-export function getAccountMinimumBalance(
-  accountData: Pick<AccountData, "balances" | "data_attr" | "signers">,
-  openOfferCount: number = 0
-) {
-  const trustlineCount = accountData.balances.filter(balance => balance.asset_type !== "native").length
-
-  return BigNumber(1)
-    .add(accountData.signers.length)
-    .add(Object.keys(accountData.data_attr).length)
-    .add(openOfferCount)
-    .add(trustlineCount)
+export function getAccountMinimumBalance(accountData: Pick<AccountData, "subentry_count">) {
+  return BigNumber(2) // 2 accounts for base reserve and signer reserve from own account
+    .add(accountData.subentry_count)
     .mul(BASE_RESERVE)
 }
 

@@ -6,7 +6,6 @@ import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import { makeStyles } from "@material-ui/core/styles"
 import { Account } from "~App/contexts/accounts"
-import { useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
 import { AccountData } from "~Generic/lib/account"
 import { breakpoints } from "~App/theme"
 import { SingleBalance } from "~Account/components/AccountBalances"
@@ -136,17 +135,21 @@ interface Props {
 }
 
 function SpendableBalanceBreakdown(props: Props) {
-  const { offers: openOrders } = useLiveAccountOffers(props.account.accountID, props.account.testnet)
   const { t } = useTranslation()
 
   const nativeBalance = props.accountData.balances.find(balance => balance.asset_type === "native")
   const trustedAssetBalances = props.accountData.balances.filter(balance => balance.asset_type !== "native")
 
   const dataReserve = props.baseReserve * Object.keys(props.accountData.data_attr).length
-  const openOrdersReserve = props.baseReserve * openOrders.length
   const signersReserve = props.baseReserve * props.accountData.signers.length
   const trustlinesReserve = props.baseReserve * trustedAssetBalances.length
   const sellingLiabilities = nativeBalance ? BigNumber(nativeBalance.selling_liabilities) : BigNumber(0)
+
+  // calculate open orders reserve based on subentry count to circumvent fetching all orders
+  const openOrdersReserve = BigNumber(props.accountData.subentry_count * props.baseReserve)
+    .minus(props.baseReserve * (props.accountData.signers.length - 1))
+    .minus(dataReserve)
+    .minus(trustlinesReserve)
 
   const rawBalance = nativeBalance ? BigNumber(nativeBalance.balance) : BigNumber(0)
   const spendableBalance = rawBalance
@@ -195,7 +198,7 @@ function SpendableBalanceBreakdown(props: Props) {
       />
       <BreakdownItem
         amount={openOrdersReserve.toFixed(1)}
-        hide={openOrdersReserve === 0}
+        hide={openOrdersReserve.cmp(0) === 0}
         indent
         primary={t("account.balance-details.spendable-balances.open-orders-reserve.primary")}
         secondary={t("account.balance-details.spendable-balances.open-orders-reserve.secondary")}
