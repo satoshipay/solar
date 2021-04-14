@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
 import Typography from "@material-ui/core/Typography"
 import { AssetTransferInfo } from "@satoshipay/stellar-transfer"
+import { trackError } from "~App/contexts/notifications"
 import theme from "~App/theme"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { ReadOnlyTextfield } from "~Generic/components/FormFields"
@@ -181,14 +182,16 @@ function TransferDetailsForm(props: TransferDetailsFormProps) {
       event.preventDefault()
 
       handleSubmission(
-        actions.submitTransferFieldValues({
-          ...props.state,
-          formValues: {
-            ...props.state.formValues,
-            ...postprocessFormValues(formValues, props.state.method),
-            account: account.publicKey
-          }
-        })
+        actions
+          .submitTransferFieldValues({
+            ...props.state,
+            formValues: {
+              ...props.state.formValues,
+              ...postprocessFormValues(formValues, props.state.method),
+              account: account.publicKey
+            }
+          })
+          .catch(error => trackError(error))
       )
     },
     [account.publicKey, actions, formValues, handleSubmission, props.state]
