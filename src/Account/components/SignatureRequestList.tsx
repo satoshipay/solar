@@ -127,9 +127,6 @@ export const InteractiveSignatureRequestList = React.memo(
       router.history.push(routes.routeUp(router.location.pathname))
     }, [router])
 
-    if (props.signatureRequests.length === 0) {
-      return null
-    }
     return (
       <TransactionSender account={props.account} forceClose={forceClose} onCloseTransactionDialog={onCloseDialog}>
         {({ sendTransaction }) => (
