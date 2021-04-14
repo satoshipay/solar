@@ -3,18 +3,20 @@ import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
+import * as routes from "~App/routes"
 import MainTitle from "~Generic/components/MainTitle"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
-import { useDialogActions, useIsMobile } from "~Generic/hooks/userinterface"
+import { useDialogActions, useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
+import { matchesRoute } from "~Generic/lib/routes"
 import Carousel from "~Layout/components/Carousel"
 import DialogBody from "~Layout/components/DialogBody"
-import { MultisigPresets, MultisigPreset } from "~ManageSigners/lib/editor"
+import { MultisigPreset, MultisigPresets } from "~ManageSigners/lib/editor"
 import TransactionSender from "~Transaction/components/TransactionSender"
+import DetailsEditor from "./DetailsEditor"
 import { MultisigEditorContext, MultisigEditorProvider, Step } from "./MultisigEditorContext"
 import PresetSelector from "./PresetSelector"
-import DetailsEditor from "./DetailsEditor"
 
 function getUpdatedSigners(
   accountData: AccountData,
@@ -58,6 +60,7 @@ function validate(updatedSigners: Horizon.AccountSigner[], weightThreshold: numb
 }
 
 interface Props {
+  account: Account
   onCancel: () => void
 }
 
@@ -69,6 +72,7 @@ function ManageSignersDialogContent(props: Props) {
   const accountData = useLiveAccountData(accountID, testnet)
   const isSmallScreen = useIsMobile()
   const dialogActionsRef = useDialogActions()
+  const router = useRouter()
 
   // store value of initial editorState to detect if changes were made
   const baseStateRef = React.useRef(editorState)
@@ -76,12 +80,22 @@ function ManageSignersDialogContent(props: Props) {
   const updatedSigners = getUpdatedSigners(accountData, editorState.signersToAdd, editorState.signersToRemove)
   const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
 
-  const proceedToSigners = React.useCallback(() => switchToStep(Step.Signers), [switchToStep])
+  const proceedToSigners = React.useCallback(() => {
+    router.history.push(routes.manageAccountSignersDetails(props.account.id))
+    switchToStep(Step.Signers)
+  }, [props.account.id, router.history, switchToStep])
+
   const switchBackToPresets = React.useCallback(() => {
     // reset editor state
     setEditorState(prev => ({ ...prev, signersToRemove: [], signersToAdd: [] }))
     switchToStep(Step.Presets)
   }, [switchToStep, setEditorState])
+
+  React.useEffect(() => {
+    if (matchesRoute(router.location.pathname, routes.manageAccountSigners(props.account.id), true)) {
+      switchBackToPresets()
+    }
+  }, [router.location.pathname, props.account.id, switchBackToPresets])
 
   const submit = async () => {
     try {
@@ -127,13 +141,14 @@ function ManageSignersDialogContent(props: Props) {
   const title = React.useMemo(
     () => (
       <MainTitle
+        hideBackButton
+        onBack={currentStep === Step.Presets ? props.onCancel : switchBackToPresets}
+        style={{ marginBottom: 24 }}
         title={
           isSmallScreen
             ? t("account-settings.manage-signers.title.short")
             : t("account-settings.manage-signers.title.long")
         }
-        onBack={currentStep === Step.Presets ? props.onCancel : switchBackToPresets}
-        style={{ marginBottom: 24 }}
       />
     ),
     [currentStep, isSmallScreen, props.onCancel, switchBackToPresets, t]
@@ -170,7 +185,7 @@ function ManageSignersDialog(props: ManageSignersDialogProps) {
     <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (
         <MultisigEditorProvider account={props.account} horizon={horizon} sendTransaction={sendTransaction}>
-          <ManageSignersDialogContent onCancel={props.onClose} />
+          <ManageSignersDialogContent account={props.account} onCancel={props.onClose} />
         </MultisigEditorProvider>
       )}
     </TransactionSender>

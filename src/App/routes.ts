@@ -15,6 +15,7 @@ export const importAccount = (testnet: boolean) => `/account/import/${testnet ? 
 export const joinSharedAccount = (testnet: boolean) => `/account/join/${testnet ? "testnet" : "mainnet"}`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/balances/manage`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
+export const manageAccountSignersDetails = (accountID: string) => `/account/${accountID}/settings/signers/details`
 export const manageTrustedServices = () => "/settings/trusted-services"
 export const newAccount = (testnet: boolean) => `/account/new/${testnet ? "testnet" : "mainnet"}`
 export const purchaseLumens = (accountID: string) => `/account/${accountID}/purchase`
