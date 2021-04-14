@@ -18,7 +18,7 @@ export async function resolveMultiSignatureCoordinator(domain: string): Promise<
       (toml: StellarToml | undefined) => {
         const resolved = toml?.MULTISIG_ENDPOINT
         if (!resolved) {
-          throw CustomError("MultisigServiceNotLocatable", `Multi-signature service cannot be located: ${domain}`, {
+          throw CustomError("MultiSigServiceNotLocatable", `Multi-signature service cannot be located: ${domain}`, {
             domain
           })
         }

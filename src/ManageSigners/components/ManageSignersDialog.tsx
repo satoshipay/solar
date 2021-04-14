@@ -51,9 +51,9 @@ function validate(updatedSigners: Horizon.AccountSigner[], weightThreshold: numb
   const totalKeyWeight = updatedSigners.reduce((total, signer) => total + signer.weight, 0)
 
   if (weightThreshold < 0 || (weightThreshold < 1 && updatedSigners.length > 1)) {
-    throw CustomError("MultisigConfigThresholdTooLowError", `Signature threshold too low.`)
+    throw CustomError("MultiSigConfigThresholdTooLowError", `Signature threshold too low.`)
   } else if (weightThreshold > totalKeyWeight) {
-    throw CustomError("MultisigConfigThresholdLockError", `Signature threshold too high. You would lock your account.`)
+    throw CustomError("MultiSigConfigThresholdLockError", `Signature threshold too high. You would lock your account.`)
   }
 }
 
