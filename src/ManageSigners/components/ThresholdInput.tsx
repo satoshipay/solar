@@ -3,7 +3,11 @@ import TextField from "@material-ui/core/TextField"
 import { getSignatureThreshold } from "../lib/editor"
 import { MultisigEditorContext } from "./MultisigEditorContext"
 
-function ThresholdInput() {
+interface ThresholdInputProps {
+  inputRef?: React.Ref<any>
+}
+
+function ThresholdInput(props: ThresholdInputProps) {
   const { editorState, setEditorState } = React.useContext(MultisigEditorContext)
   const { preset } = editorState
 
@@ -54,6 +58,7 @@ function ThresholdInput() {
           textAlign: "center"
         }
       }}
+      inputRef={props.inputRef}
       onChange={setThreshold}
       type="number"
       value={value}

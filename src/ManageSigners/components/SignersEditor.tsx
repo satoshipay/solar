@@ -73,6 +73,7 @@ function SignersEditor(props: SignersEditorProps) {
   const { lookupFederationRecord } = useFederationLookup()
   const isSmallScreen = useIsMobile()
   const validateNewSignerValues = useFormValidation()
+  const thresholdInputRef = React.createRef<HTMLInputElement>()
 
   const { t } = useTranslation()
   const { preset } = editorState
@@ -92,12 +93,14 @@ function SignersEditor(props: SignersEditorProps) {
       signersToAdd: [...prev.signersToAdd, signer]
     }))
 
-  const removeSigner = (signer: Horizon.AccountSigner) =>
+  const removeSigner = (signer: Horizon.AccountSigner) => {
     setEditorState(prev => ({
       ...prev,
       signersToAdd: prev.signersToAdd.filter(someSignerToBeAddd => someSignerToBeAddd.key !== signer.key),
       signersToRemove: [...prev.signersToRemove, signer]
     }))
+    thresholdInputRef.current?.focus()
+  }
 
   const createCosigner = async () => {
     try {
@@ -123,6 +126,8 @@ function SignersEditor(props: SignersEditorProps) {
         publicKey: "",
         weight: "1"
       })
+
+      thresholdInputRef.current?.focus()
     } catch (error) {
       trackError(error)
     }
@@ -192,7 +197,7 @@ function SignersEditor(props: SignersEditorProps) {
               style={{ flexGrow: 0, marginRight: 32 }}
             />
             <ListItemText>
-              <ThresholdInput />
+              <ThresholdInput inputRef={thresholdInputRef} />
             </ListItemText>
           </ListItem>
           <Divider />

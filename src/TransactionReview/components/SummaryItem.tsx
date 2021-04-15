@@ -24,7 +24,7 @@ export const SummaryDetailsField = React.memo(function SummaryDetailsField(props
       disableUnderline
       helperText={props.helperText}
       label={props.label}
-      style={{ flex: props.fullWidth ? "0 0 100%" : "0 0 48%" }}
+      style={{ flex: props.fullWidth ? "0 0 100%" : "0 0 48%", marginBottom: "10px" }}
       InputProps={{
         inputComponent: InputComponent,
         style: {
