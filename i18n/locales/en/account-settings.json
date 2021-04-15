@@ -107,6 +107,10 @@
       "one-out-of-n": "Add or remove signers from the account. Any single signer can authorize transactions.",
       "single-signature": "Choose the key that should be the account's single signer."
     },
+    "preset-description-extra": {
+      "m-out-of-n": "Go to 'Add Account' > 'Join Account' in the co-signing Solar wallet to create a new co-signer's key.",
+      "one-out-of-n": "Go to 'Add Account' > 'Join Account' in the co-signing Solar wallet to create a new co-signer's key."
+    },
     "preset-selector": {
       "options": {
         "m-out-of-n": {
@@ -114,7 +118,7 @@
           "secondary": "Multiple signers have to sign a transaction."
         },
         "one-out-of-n": {
-          "primary": "Multiple master keys",
+          "primary": "Backup keys",
           "secondary": "Every signer can sign transactions by themself."
         },
         "single-signature": {

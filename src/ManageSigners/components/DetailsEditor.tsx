@@ -17,6 +17,7 @@ import SignerSelector from "./SignerSelector"
 const PresetDescription = React.memo(function PresetDescription(props: { preset: MultisigPreset }) {
   const { t } = useTranslation()
   let description = ""
+  let extraDescription = ""
 
   if (props.preset.type === MultisigPresets.Type.SingleSignature) {
     description = t("account-settings.manage-signers.preset-description.single-signature")
@@ -28,7 +29,26 @@ const PresetDescription = React.memo(function PresetDescription(props: { preset:
     })
   }
 
-  return <>{description}</>
+  if (props.preset.type === MultisigPresets.Type.SingleSignature) {
+    // Nothing to show
+  } else if (props.preset.type === MultisigPresets.Type.OneOutOfN) {
+    extraDescription = t("account-settings.manage-signers.preset-description-extra.one-out-of-n")
+  } else if (props.preset.type === MultisigPresets.Type.MOutOfN) {
+    extraDescription = t("account-settings.manage-signers.preset-description-extra.m-out-of-n")
+  }
+
+  return (
+    <>
+      <Typography align="center" color="textSecondary" gutterBottom>
+        {description}
+      </Typography>
+      {extraDescription ? (
+        <Typography align="center" color="textSecondary">
+          {extraDescription}
+        </Typography>
+      ) : null}
+    </>
+  )
 })
 
 interface DetailsEditorProps {
@@ -79,9 +99,7 @@ function DetailsEditor(props: DetailsEditorProps) {
         <SignersEditor {...props} />
       )}
       <Box margin="32px 0 0">
-        <Typography align="center" color="textSecondary">
-          <PresetDescription preset={editorState.preset} />
-        </Typography>
+        <PresetDescription preset={editorState.preset} />
       </Box>
       <Portal target={props.actionsRef?.element}>
         <DialogActionsBox desktopStyle={{ margin: 0 }}>
