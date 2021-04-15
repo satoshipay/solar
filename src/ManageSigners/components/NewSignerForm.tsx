@@ -10,6 +10,7 @@ import CloseIcon from "@material-ui/icons/Close"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { useIsSmallMobile, useIsMobile } from "~Generic/hooks/userinterface"
 import { HorizontalLayout } from "~Layout/components/Box"
+import theme from "~App/theme"
 
 interface FormValues {
   publicKey: string
@@ -63,7 +64,11 @@ function NewSignerForm(props: Props) {
         </HorizontalLayout>
       </ListItemText>
       <ListItemIcon style={{ marginLeft: 8, minWidth: 0 }}>
-        <IconButton onClick={props.onSubmit}>
+        <IconButton
+          color="primary"
+          onClick={props.onSubmit}
+          style={{ borderColor: theme.palette.primary.main, borderStyle: "solid", borderWidth: 3, padding: 8 }}
+        >
           <CheckIcon />
         </IconButton>
       </ListItemIcon>
