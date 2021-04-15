@@ -125,7 +125,8 @@
           "primary": "Single signature",
           "secondary": "No co-signers. Just one key pair."
         }
-      }
+      },
+      "title": "Choose how your account should work"
     },
     "signers-editor": {
       "list": {

@@ -1,12 +1,10 @@
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { Horizon } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
 import * as routes from "~App/routes"
-import MainTitle from "~Generic/components/MainTitle"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
-import { useDialogActions, useIsMobile, useRouter } from "~Generic/hooks/userinterface"
+import { useDialogActions, useRouter } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
 import { matchesRoute } from "~Generic/lib/routes"
@@ -68,9 +66,7 @@ function ManageSignersDialogContent(props: Props) {
   const { accountID, applyUpdate, currentStep, editorState, setEditorState, switchToStep, testnet } = React.useContext(
     MultisigEditorContext
   )
-  const { t } = useTranslation()
   const accountData = useLiveAccountData(accountID, testnet)
-  const isSmallScreen = useIsMobile()
   const dialogActionsRef = useDialogActions()
   const router = useRouter()
 
@@ -138,24 +134,8 @@ function ManageSignersDialogContent(props: Props) {
     )
   }, [editorState])
 
-  const title = React.useMemo(
-    () => (
-      <MainTitle
-        hideBackButton
-        onBack={currentStep === Step.Presets ? props.onCancel : switchBackToPresets}
-        style={{ marginBottom: 24 }}
-        title={
-          isSmallScreen
-            ? t("account-settings.manage-signers.title.short")
-            : t("account-settings.manage-signers.title.long")
-        }
-      />
-    ),
-    [currentStep, isSmallScreen, props.onCancel, switchBackToPresets, t]
-  )
-
   return (
-    <DialogBody top={title} actions={dialogActionsRef}>
+    <DialogBody actions={dialogActionsRef}>
       <Carousel current={currentStep === Step.Signers ? 1 : 0}>
         <PresetSelector
           actionsRef={currentStep === Step.Presets ? dialogActionsRef : undefined}

@@ -4,6 +4,7 @@ import List from "@material-ui/core/List"
 import ListItemText from "@material-ui/core/ListItemText"
 import Radio from "@material-ui/core/Radio"
 import RadioGroup from "@material-ui/core/RadioGroup"
+import Typography from "@material-ui/core/Typography"
 import RightIcon from "@material-ui/icons/KeyboardArrowRight"
 import AccountSettingsItem from "~AccountSettings/components/AccountSettingsItem"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
@@ -55,6 +56,9 @@ function PresetSelector(props: PresetSelectorProps) {
 
   return (
     <VerticalLayout>
+      <Typography gutterBottom style={{ marginLeft: 8, marginRight: 8 }} variant="h6">
+        {t("account-settings.manage-signers.preset-selector.title")}
+      </Typography>
       <RadioGroup>
         <List style={props.style}>
           <PresetSelectorItem
