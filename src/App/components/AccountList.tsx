@@ -86,7 +86,7 @@ function Badges(props: { account: Account }) {
       <GroupIcon style={{ marginTop: 6 }} />
     </Tooltip>
   )
-  return <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
+  return <Box>{accountData.signers.length > 1 || props.account.cosignerOf ? multiSigIcon : null}</Box>
 }
 
 interface AccountCardProps {
