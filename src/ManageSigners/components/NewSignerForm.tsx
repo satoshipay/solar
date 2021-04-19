@@ -67,7 +67,7 @@ function NewSignerForm(props: Props) {
         <IconButton
           color="primary"
           onClick={props.onSubmit}
-          style={{ borderColor: theme.palette.primary.main, borderStyle: "solid", borderWidth: 3, padding: 8 }}
+          style={{ borderColor: theme.palette.primary.main, borderStyle: "solid", borderWidth: 1.5, padding: 8 }}
         >
           <CheckIcon />
         </IconButton>

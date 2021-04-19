@@ -105,6 +105,8 @@ function ManageSignersDialogContent(props: Props) {
         weightThreshold
       })
 
+      baseStateRef.current = editorState
+
       setEditorState(prev => ({
         ...prev,
         signersToAdd: [],
@@ -127,12 +129,15 @@ function ManageSignersDialogContent(props: Props) {
         ? editorState.preset.requiredKeyWeight === baseState.preset.requiredKeyWeight
         : editorState.preset.type === baseState.preset.type
 
-    return (
-      baseState.signersToAdd.length === editorState.signersToAdd.length &&
-      baseState.signersToRemove.length === editorState.signersToRemove.length &&
-      samePreset
-    )
-  }, [editorState])
+    if (
+      (editorState.preset.type === "Custom" || editorState.preset.type === "MOutOfN") &&
+      accountData.signers.length + editorState.signersToAdd.length < 2
+    ) {
+      return true
+    }
+
+    return editorState.signersToAdd.length === 0 && editorState.signersToRemove.length === 0 && samePreset
+  }, [accountData, editorState])
 
   return (
     <DialogBody actions={dialogActionsRef}>
