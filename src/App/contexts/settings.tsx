@@ -54,7 +54,7 @@ const initialSettings: SettingsState = {
 
 const initialIgnoredSignatureRequests: string[] = []
 
-const multiSignatureCoordinator = process.env.MULTISIG_SERVICE || "multisig.satoshipay.io"
+const multiSignatureCoordinator = process.env.MULTISIG_SERVICE || "v1.multisig.satoshipay.io"
 
 const SettingsContext = React.createContext<ContextType>({
   agreedToTermsAt: initialSettings.agreedToTermsAt,
