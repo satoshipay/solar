@@ -69,17 +69,9 @@ export async function friendbotTopup(horizonURL: string, publicKey: string) {
   return response.json()
 }
 
-export function getAccountMinimumBalance(
-  accountData: Pick<AccountData, "balances" | "data_attr" | "signers">,
-  openOfferCount: number = 0
-) {
-  const trustlineCount = accountData.balances.filter(balance => balance.asset_type !== "native").length
-
-  return BigNumber(1)
-    .add(accountData.signers.length)
-    .add(Object.keys(accountData.data_attr).length)
-    .add(openOfferCount)
-    .add(trustlineCount)
+export function getAccountMinimumBalance(accountData: Pick<AccountData, "subentry_count">) {
+  return BigNumber(2) // 2 accounts for base reserve and signer reserve from own account
+    .add(accountData.subentry_count)
     .mul(BASE_RESERVE)
 }
 

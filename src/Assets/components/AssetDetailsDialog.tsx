@@ -22,6 +22,7 @@ import MainTitle from "~Generic/components/MainTitle"
 import AssetDetailsActions from "./AssetDetailsActions"
 import AssetLogo from "./AssetLogo"
 import SpendableBalanceBreakdown from "./SpendableBalanceBreakdown"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 
 const capitalize = (text: string) => text[0].toUpperCase() + text.substr(1)
 
@@ -61,7 +62,7 @@ interface LumenDetailProps {
 }
 
 const LumenDetails = React.memo(function LumenDetails(props: LumenDetailProps) {
-  const accountData = useAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
   const classes = useDetailContentStyles()
   const { t } = useTranslation()
 
