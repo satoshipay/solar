@@ -102,8 +102,9 @@ interface State {
   submissionType: SubmissionType
   submissionPromise: Promise<any> | null
   submissionSuccessCallbacks: Array<() => void>
-  unsignedTransaction: Transaction | null
+  submissionClosedCallbacks: Array<() => void>
   signedTransaction: Transaction | null
+  unsignedTransaction: Transaction | null
 }
 
 class TransactionSender extends React.Component<Props, State> {
@@ -115,8 +116,9 @@ class TransactionSender extends React.Component<Props, State> {
     submissionType: SubmissionType.default,
     submissionPromise: null,
     submissionSuccessCallbacks: [],
-    unsignedTransaction: null,
-    signedTransaction: null
+    submissionClosedCallbacks: [],
+    signedTransaction: null,
+    unsignedTransaction: null
   }
 
   submissionTimeouts: Timer[] = []
@@ -129,9 +131,10 @@ class TransactionSender extends React.Component<Props, State> {
 
   setTransaction = (transaction: Transaction, signatureRequest: MultisigTransactionResponse | null = null) => {
     this.setState({ confirmationDialogOpen: true, signatureRequest, unsignedTransaction: transaction })
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       this.setState(state => ({
-        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve as () => void]
+        submissionSuccessCallbacks: [...state.submissionSuccessCallbacks, resolve as () => void],
+        submissionClosedCallbacks: [...state.submissionClosedCallbacks, reject as () => void]
       }))
     })
   }
@@ -139,6 +142,15 @@ class TransactionSender extends React.Component<Props, State> {
   triggerSubmissionSuccessCallbacks = () => {
     const callbacks = this.state.submissionSuccessCallbacks
     this.setState({ submissionSuccessCallbacks: [] })
+
+    for (const callback of callbacks) {
+      callback()
+    }
+  }
+
+  triggerSubmissionClosedCallbacks = () => {
+    const callbacks = this.state.submissionClosedCallbacks
+    this.setState({ submissionClosedCallbacks: [] })
 
     for (const callback of callbacks) {
       callback()
@@ -153,6 +165,7 @@ class TransactionSender extends React.Component<Props, State> {
     if (this.props.onCloseTransactionDialog) {
       this.props.onCloseTransactionDialog()
     }
+    this.triggerSubmissionClosedCallbacks()
   }
 
   clearSubmissionPromise = () => {
