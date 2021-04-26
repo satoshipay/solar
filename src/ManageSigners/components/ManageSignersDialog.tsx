@@ -1,139 +1,180 @@
 import React from "react"
-import { useTranslation } from "react-i18next"
-import { Operation, Server, Transaction } from "stellar-sdk"
-import useMediaQuery from "@material-ui/core/useMediaQuery"
-import Button from "@material-ui/core/Button"
-import PersonAddIcon from "@material-ui/icons/PersonAdd"
+import { Horizon } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
+import * as routes from "~App/routes"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
-import { useIsMobile } from "~Generic/hooks/userinterface"
+import { useDialogActions, useRouter } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
-import { createTransaction } from "~Generic/lib/transaction"
+import { CustomError } from "~Generic/lib/errors"
+import { matchesRoute } from "~Generic/lib/routes"
+import Carousel from "~Layout/components/Carousel"
+import DialogBody from "~Layout/components/DialogBody"
+import { MultisigPreset, MultisigPresets } from "~ManageSigners/lib/editor"
 import TransactionSender from "~Transaction/components/TransactionSender"
-import ButtonIconLabel from "~Generic/components/ButtonIconLabel"
-import MainTitle from "~Generic/components/MainTitle"
-import ManageSignersDialogContent, { SignerUpdate } from "./ManageSignersDialogContent"
+import DetailsEditor from "./DetailsEditor"
+import { MultisigEditorContext, MultisigEditorProvider, Step } from "./MultisigEditorContext"
+import PresetSelector from "./PresetSelector"
 
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
+function getUpdatedSigners(
+  accountData: AccountData,
+  signersToAdd: Horizon.AccountSigner[],
+  signersToRemove: Horizon.AccountSigner[]
+) {
+  const signersPubKeysToAdd = signersToAdd.map(signer => signer.key)
+  const signersPubKeysToRemove = signersToRemove.map(signer => signer.key)
+
+  const isNotToBeAdded = (signer: Horizon.AccountSigner) => signersPubKeysToAdd.indexOf(signer.key) === -1
+  const isNotToBeRemoved = (signer: Horizon.AccountSigner) => signersPubKeysToRemove.indexOf(signer.key) === -1
+
+  const updatedSigners = [...accountData.signers.filter(isNotToBeAdded).filter(isNotToBeRemoved), ...signersToAdd]
+
+  return [
+    ...updatedSigners.filter(signer => signer.key !== accountData.id).reverse(),
+    ...updatedSigners.filter(signer => signer.key === accountData.id)
+  ]
+}
+
+function getWeightThreshold(preset: MultisigPreset, signers: Horizon.AccountSigner[]): number {
+  if (preset.type === MultisigPresets.Type.SingleSignature) {
+    return 0
+  } else if (preset.type === MultisigPresets.Type.OneOutOfN) {
+    return Math.min(...signers.map(signer => signer.weight))
+  } else if (preset.type === MultisigPresets.Type.MOutOfN) {
+    return preset.requiredKeyWeight
+  } else {
+    return preset.thresholds.high_threshold
+  }
+}
+
+function validate(updatedSigners: Horizon.AccountSigner[], weightThreshold: number) {
+  const totalKeyWeight = updatedSigners.reduce((total, signer) => total + signer.weight, 0)
+
+  if (weightThreshold < 0 || (weightThreshold < 1 && updatedSigners.length > 1)) {
+    throw CustomError("MultiSigConfigThresholdTooLowError", `Signature threshold too low.`)
+  } else if (weightThreshold > totalKeyWeight) {
+    throw CustomError("MultiSigConfigThresholdLockError", `Signature threshold too high. You would lock your account.`)
+  }
+}
 
 interface Props {
   account: Account
-  accountData: AccountData
-  horizon: Server
-  onClose: () => void
-  sendTransaction: (tx: Transaction) => void
+  onCancel: () => void
 }
 
-function ManageSignersDialog(props: Props) {
-  const [isEditingNewSigner, setIsEditingNewSigner] = React.useState(false)
-  const [, setTxCreationPending] = React.useState(false)
+function ManageSignersDialogContent(props: Props) {
+  const { accountID, applyUpdate, currentStep, editorState, setEditorState, switchToStep, testnet } = React.useContext(
+    MultisigEditorContext
+  )
+  const accountData = useLiveAccountData(accountID, testnet)
+  const dialogActionsRef = useDialogActions()
+  const router = useRouter()
 
-  const isSmallScreen = useIsMobile()
-  const isWidthMax450 = useMediaQuery("(max-width:450px)")
-  const { t } = useTranslation()
+  // store value of initial editorState to detect if changes were made
+  const baseStateRef = React.useRef(editorState)
 
-  const submitTransaction = async (update: SignerUpdate) => {
+  const updatedSigners = getUpdatedSigners(accountData, editorState.signersToAdd, editorState.signersToRemove)
+  const allDefaultKeyweights = updatedSigners.every(signer => signer.weight === 1)
+
+  const proceedToSigners = React.useCallback(() => {
+    router.history.push(routes.manageAccountSignersDetails(props.account.id))
+    switchToStep(Step.Signers)
+  }, [props.account.id, router.history, switchToStep])
+
+  const switchBackToPresets = React.useCallback(() => {
+    // reset editor state
+    setEditorState(prev => ({ ...prev, signersToRemove: [], signersToAdd: [] }))
+    switchToStep(Step.Presets)
+  }, [switchToStep, setEditorState])
+
+  React.useEffect(() => {
+    if (matchesRoute(router.location.pathname, routes.manageAccountSigners(props.account.id), true)) {
+      switchBackToPresets()
+    }
+  }, [router.location.pathname, props.account.id, switchBackToPresets])
+
+  const submit = async () => {
     try {
-      setTxCreationPending(true)
+      const weightThreshold = getWeightThreshold(editorState.preset, updatedSigners)
 
-      const operations = [
-        // signer removals before adding, so you can remove and immediately re-add signer
-        ...update.signersToRemove.map(signer =>
-          Operation.setOptions({
-            signer: { ed25519PublicKey: signer.key, weight: 0 }
-          })
-        ),
-        ...update.signersToAdd.map(signer =>
-          Operation.setOptions({
-            signer: { ed25519PublicKey: signer.key, weight: signer.weight }
-          })
-        )
-      ]
+      validate(updatedSigners, weightThreshold)
 
-      if (
-        update.weightThreshold !== props.accountData.thresholds.low_threshold &&
-        update.weightThreshold !== props.accountData.thresholds.med_threshold &&
-        update.weightThreshold !== props.accountData.thresholds.high_threshold
-      ) {
-        operations.push(
-          Operation.setOptions({
-            lowThreshold: update.weightThreshold,
-            medThreshold: update.weightThreshold,
-            highThreshold: update.weightThreshold
-          })
-        )
-      }
-
-      const tx = await createTransaction(operations, {
-        accountData: props.accountData,
-        horizon: props.horizon,
-        walletAccount: props.account
+      await applyUpdate({
+        signersToAdd: editorState.signersToAdd,
+        signersToRemove: editorState.signersToRemove,
+        weightThreshold
       })
 
-      const submissionPromise = props.sendTransaction(tx)
-      setTxCreationPending(false)
+      baseStateRef.current = editorState
 
-      await submissionPromise
+      setEditorState(prev => ({
+        ...prev,
+        signersToAdd: [],
+        signersToRemove: []
+      }))
     } catch (error) {
       trackError(error)
-      setTxCreationPending(false)
     }
   }
 
-  const titleContent = React.useMemo(
-    () => (
-      <MainTitle
-        hideBackButton
-        title={
-          isSmallScreen
-            ? t("account-settings.manage-signers.title.short")
-            : t("account-settings.manage-signers.title.long")
-        }
-        actions={
-          <>
-            <Button color="primary" onClick={() => setIsEditingNewSigner(true)} variant="contained">
-              <ButtonIconLabel
-                label={
-                  isWidthMax450
-                    ? t("account-settings.manage-signers.action.add-co-signer.short")
-                    : t("account-settings.manage-signers.action.add-co-signer.long")
-                }
-              >
-                <PersonAddIcon />
-              </ButtonIconLabel>
-            </Button>
-          </>
-        }
-        onBack={props.onClose}
-        style={{ marginBottom: 24 }}
-      />
-    ),
-    [isSmallScreen, t, isWidthMax450, props.onClose]
-  )
+  // disable submit if no changes were made
+  const disabled = React.useMemo(() => {
+    const baseState = baseStateRef.current
+    const samePreset =
+      editorState.preset.type === "Custom" && baseState.preset.type === "Custom"
+        ? editorState.preset.thresholds.high_threshold === baseState.preset.thresholds.high_threshold &&
+          editorState.preset.thresholds.med_threshold === baseState.preset.thresholds.med_threshold &&
+          editorState.preset.thresholds.low_threshold === baseState.preset.thresholds.low_threshold
+        : editorState.preset.type === "MOutOfN" && baseState.preset.type === "MOutOfN"
+        ? editorState.preset.requiredKeyWeight === baseState.preset.requiredKeyWeight
+        : editorState.preset.type === baseState.preset.type
+
+    if (
+      (editorState.preset.type === "Custom" || editorState.preset.type === "MOutOfN") &&
+      accountData.signers.length + editorState.signersToAdd.length < 2
+    ) {
+      return true
+    }
+
+    return editorState.signersToAdd.length === 0 && editorState.signersToRemove.length === 0 && samePreset
+  }, [accountData, editorState])
 
   return (
-    <ManageSignersDialogContent
-      accountData={props.accountData}
-      isEditingNewSigner={isEditingNewSigner}
-      onCancel={props.onClose}
-      onSubmit={submitTransaction}
-      setIsEditingNewSigner={setIsEditingNewSigner}
-      testnet={props.account.testnet}
-      title={titleContent}
-    />
+    <DialogBody actions={dialogActionsRef}>
+      <Carousel current={currentStep === Step.Signers ? 1 : 0}>
+        <PresetSelector
+          actionsRef={currentStep === Step.Presets ? dialogActionsRef : undefined}
+          onProceed={proceedToSigners}
+          style={{ marginBottom: 24 }}
+        />
+        <DetailsEditor
+          actionsRef={currentStep === Step.Signers ? dialogActionsRef : undefined}
+          disabled={disabled}
+          onSubmit={submit}
+          signers={updatedSigners}
+          showKeyWeights={!allDefaultKeyweights}
+          testnet={testnet}
+        />
+      </Carousel>
+    </DialogBody>
   )
 }
 
-function ManageSignersDialogContainer(props: Omit<Props, "accountData" | "horizon" | "sendTransaction">) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+interface ManageSignersDialogProps {
+  account: Account
+  onClose: () => void
+}
+
+function ManageSignersDialog(props: ManageSignersDialogProps) {
   return (
     <TransactionSender account={props.account}>
       {({ horizon, sendTransaction }) => (
-        <ManageSignersDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
+        <MultisigEditorProvider account={props.account} horizon={horizon} sendTransaction={sendTransaction}>
+          <ManageSignersDialogContent account={props.account} onCancel={props.onClose} />
+        </MultisigEditorProvider>
       )}
     </TransactionSender>
   )
 }
 
-export default React.memo(ManageSignersDialogContainer)
+export default React.memo(ManageSignersDialog)

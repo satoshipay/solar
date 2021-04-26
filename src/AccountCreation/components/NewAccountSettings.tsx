@@ -1,9 +1,10 @@
 import React from "react"
 import List from "@material-ui/core/List"
 import { useIsMobile } from "~Generic/hooks/userinterface"
+import { AccountCreation, AccountCreationErrors } from "../types/types"
+import MultisigAccountPubKey from "./MultisigAccountPubKey"
 import PasswordSetting from "./PasswordSetting"
 import SecretKeyImport from "./SecretKeyImport"
-import { AccountCreation, AccountCreationErrors } from "../types/types"
 
 interface NewAccountSettingsProps {
   accountCreation: AccountCreation
@@ -15,9 +16,20 @@ function NewAccountSettings(props: NewAccountSettingsProps) {
   const { onUpdateAccountCreation } = props
   const isSmallScreen = useIsMobile()
 
+  const toggleMultisigImport = React.useCallback(() => {
+    onUpdateAccountCreation({ cosigner: !props.accountCreation.cosigner })
+  }, [props.accountCreation.cosigner, onUpdateAccountCreation])
+
   const togglePasswordProtection = React.useCallback(() => {
     onUpdateAccountCreation({ requiresPassword: !props.accountCreation.requiresPassword })
   }, [props.accountCreation.requiresPassword, onUpdateAccountCreation])
+
+  const updateMultisigAccount = React.useCallback(
+    (accountPubKey: string) => {
+      onUpdateAccountCreation({ cosignerOf: accountPubKey })
+    },
+    [onUpdateAccountCreation]
+  )
 
   const updatePassword = React.useCallback(
     (password: string) => {
@@ -43,11 +55,23 @@ function NewAccountSettings(props: NewAccountSettingsProps) {
   return (
     <List style={{ padding: isSmallScreen ? 0 : "24px 16px" }}>
       {props.accountCreation.import ? (
-        <SecretKeyImport
-          error={props.errors.secretKey}
-          onEnterSecretKey={updateSecretKey}
-          secretKey={props.accountCreation.secretKey || ""}
-        />
+        <>
+          <SecretKeyImport
+            error={props.errors.secretKey}
+            onEnterSecretKey={updateSecretKey}
+            secretKey={props.accountCreation.secretKey || ""}
+          />
+          <MultisigAccountPubKey
+            enabled={props.accountCreation.cosigner}
+            import
+            onEnter={updateMultisigAccount}
+            onToggle={toggleMultisigImport}
+            value={props.accountCreation.cosignerOf || ""}
+          />
+        </>
+      ) : null}
+      {props.accountCreation.cosigner && !props.accountCreation.import ? (
+        <MultisigAccountPubKey enabled onEnter={updateMultisigAccount} value={props.accountCreation.cosignerOf || ""} />
       ) : null}
       <PasswordSetting
         error={props.errors.password}

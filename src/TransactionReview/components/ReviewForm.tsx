@@ -10,7 +10,7 @@ import { Account } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import { RefStateObject } from "~Generic/hooks/userinterface"
 import { renderFormFieldError } from "~Generic/lib/errors"
-import { SignatureRequest } from "~Generic/lib/multisig-service"
+import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
 import { openLink } from "~Platform/links"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { VerticalLayout } from "~Layout/components/Box"
@@ -33,7 +33,7 @@ interface Props {
   passwordError?: Error | null
   showHash?: boolean
   showSource?: boolean
-  signatureRequest?: SignatureRequest
+  signatureRequest?: MultisigTransactionResponse
   transaction: Transaction
   onClose?: () => void
   onConfirm?: (formValues: FormValues) => any

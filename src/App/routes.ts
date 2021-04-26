@@ -12,12 +12,14 @@ export const deleteAccount = (accountID: string) => `/account/${accountID}/setti
 export const depositAsset = (accountID: string) => `/account/${accountID}/deposit`
 export const exportSecretKey = (accountID: string) => `/account/${accountID}/settings/export`
 export const importAccount = (testnet: boolean) => `/account/import/${testnet ? "testnet" : "mainnet"}`
-export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
+export const joinSharedAccount = (testnet: boolean) => `/account/join/${testnet ? "testnet" : "mainnet"}`
 export const manageAccountAssets = (accountID: string) => `/account/${accountID}/balances/manage`
 export const manageAccountSigners = (accountID: string) => `/account/${accountID}/settings/signers`
+export const manageAccountSignersDetails = (accountID: string) => `/account/${accountID}/settings/signers/details`
 export const manageTrustedServices = () => "/settings/trusted-services"
 export const newAccount = (testnet: boolean) => `/account/new/${testnet ? "testnet" : "mainnet"}`
 export const purchaseLumens = (accountID: string) => `/account/${accountID}/purchase`
+export const receivePayment = (accountID: string) => `/account/${accountID}/receive`
 export const settings = () => "/settings"
 export const withdrawAsset = (accountID: string) => `/account/${accountID}/withdraw`
 export const showTransaction = (accountID: string, transactionHash: string) =>
@@ -35,7 +37,7 @@ export function routeUp(currentPath: string) {
     return "/"
   } else if (currentPath.match(/^\/account\/new\//)) {
     return "/"
-  } else if (currentPath.match(/^\/account\/(create|import)\//)) {
+  } else if (currentPath.match(/^\/account\/(create|import|join)\//)) {
     const testnet = Boolean(currentPath.match(/\/testnet/))
     return newAccount(testnet)
   } else if (accountID && matchesRoute(currentPath, "/account/*/settings/*", false)) {

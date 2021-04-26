@@ -1,3 +1,4 @@
+import CircularProgress from "@material-ui/core/CircularProgress"
 import React from "react"
 import ContentLoader from "react-content-loader"
 import { VerticalLayout } from "~Layout/components/Box"
@@ -45,7 +46,7 @@ function TransactionListPlaceholder() {
       <VerticalLayout
         width="100%"
         overflow="hidden"
-        style={{ background: "white", boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)" }}
+        style={{ background: "white", boxShadow: "0 8px 16px 0 rgba(0, 0, 0, 0.1)", position: "relative" }}
       >
         <TransactionLoadingPlaceholder />
         <TransactionLoadingPlaceholder />
@@ -57,6 +58,10 @@ function TransactionListPlaceholder() {
         <TransactionLoadingPlaceholder />
         <TransactionLoadingPlaceholder />
       </VerticalLayout>
+      <CircularProgress
+        size={32}
+        style={{ position: "absolute", top: "50%", left: "50%", marginLeft: -16, marginTop: -26 }}
+      />
     </VerticalLayout>
   )
 }

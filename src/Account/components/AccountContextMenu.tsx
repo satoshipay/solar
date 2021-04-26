@@ -76,8 +76,10 @@ function LiveAccountContextMenuItems(
 ) {
   const { closeAndCall } = props
 
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-  const activated = accountData.balances.length > 0
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
+  const isFunded = accountData.balances.length > 0
+  const isSigner = accountData.signers.some(signer => signer.key === props.account.publicKey)
+  const activated = isFunded && isSigner
   const { t } = useTranslation()
 
   return (
@@ -89,7 +91,7 @@ function LiveAccountContextMenuItems(
         onClick={closeAndCall(props.onTrade)}
       />
       <AccountContextMenuItem
-        disabled={!props.onDeposit}
+        disabled={!isSigner || !props.onDeposit}
         icon={<CallReceivedIcon />}
         label={t("account.context-menu.deposit.label")}
         onClick={closeAndCall(accountData.balances.length > 1 ? props.onDeposit : props.onPurchaseLumens)}

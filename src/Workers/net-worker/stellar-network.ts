@@ -1,4 +1,5 @@
 import "eventsource"
+import DebugLogger from "debug"
 import throttle from "lodash.throttle"
 import { filter, flatMap, map, merge, multicast, Observable } from "observable-fns"
 import PromiseQueue from "p-queue"
@@ -88,6 +89,9 @@ const createAccountCacheKey = (horizonURL: string, accountID: string) => `${hori
 const createOrderbookCacheKey = (horizonURL: string, sellingAsset: string, buyingAsset: string) =>
   `${horizonURL}:${sellingAsset}:${buyingAsset}`
 
+const debugHorizonSelection = DebugLogger("net-worker:select-horizon")
+const debugSubscriptionReset = DebugLogger("net-worker:reset-subscriptions")
+
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -131,6 +135,7 @@ function cachify<T, Args extends any[]>(
 }
 
 export async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
+  const debug = debugHorizonSelection
   // Account ID of friendbot (account exists on pubnet, too)
   const testAccountID = "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
 
@@ -145,6 +150,7 @@ export async function checkHorizonOrFailover(primaryHorizonURL: string, secondar
 
     if (primaryResponse.status < 300 || primaryResponse.status === 404) {
       // consider request successful on 404 as well (account might be missing but horizon is working)
+      debug(`Primary horizon server seems fine:`, primaryHorizonURL)
       return primaryHorizonURL
     }
   } catch (error) {
@@ -153,10 +159,16 @@ export async function checkHorizonOrFailover(primaryHorizonURL: string, secondar
   }
 
   const secondaryResponse = await fetch(new URL(`/accounts/${testAccountID}`, secondaryHorizonURL).href)
-  return secondaryResponse.status < 300 || secondaryResponse.status === 404 ? secondaryHorizonURL : primaryHorizonURL
+  const serverToUse =
+    secondaryResponse.status < 300 || secondaryResponse.status === 404 ? secondaryHorizonURL : primaryHorizonURL
+
+  debug(`Primary horizon server check failed. Using ${serverToUse}`)
+  return serverToUse
 }
 
 export function resetAllSubscriptions() {
+  debugSubscriptionReset(`Resetting all active subscriptions…`)
+
   accountSubscriptionCache.clear()
   effectsSubscriptionCache.clear()
   orderbookSubscriptionCache.clear()
@@ -187,12 +199,14 @@ export async function submitTransaction(horizonURL: string, txEnvelopeXdr: strin
 
 async function waitForAccountDataUncached(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
   const fetchQueue = getFetchQueue(horizonURL)
+  const debug = DebugLogger(`net-worker:wait-for-account:${accountID}`)
 
   let accountData = null
   let initialFetchFailed = false
 
-  for (let interval = 2500; ; interval = Math.min(interval * 1.05, 8000)) {
+  for (let interval = 2500; ; interval = Math.min(interval * 1.05, 5000)) {
     if (shouldCancel && shouldCancel()) {
+      debug(`Received signal to cancel waiting for account to be created`)
       throw Cancellation("Stopping to wait for account to become present in network.")
     }
 
@@ -212,6 +226,8 @@ async function waitForAccountDataUncached(horizonURL: string, accountID: string,
       })
     }
   }
+
+  debug(`Successfully fetched account meta data. ${initialFetchFailed ? "Had to wait." : ""}`)
 
   return {
     accountData,
@@ -239,6 +255,7 @@ async function waitForAccountData(horizonURL: string, accountID: string, shouldC
 
 function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string) {
   const fetchQueue = getFetchQueue(horizonURL)
+  const debug = DebugLogger(`net-worker:subscriptions:account-effects:${accountID}`)
   const serviceID = getServiceID(horizonURL)
 
   let latestCursor: string | undefined
@@ -247,6 +264,7 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
   return subscribeToUpdatesAndPoll<ServerApi.EffectRecord>(
     {
       async applyUpdate(update) {
+        debug(`Received new effect:`, update)
         latestCursor = update.paging_token
         latestEffectCreatedAt = update.created_at
         return update
@@ -260,9 +278,11 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
         }
       },
       async init() {
+        debug(`Subscribing to account effects…`)
         let effect = await fetchLatestAccountEffect(horizonURL, accountID)
 
         if (!effect) {
+          debug(`Waiting for account to be created on the network…`)
           await waitForAccountData(horizonURL, accountID)
           effect = await fetchLatestAccountEffect(horizonURL, accountID)
         }
@@ -300,10 +320,12 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
                     observer.next(effect)
 
                     if (effect.type === "account_removed" && effect.account === accountID) {
+                      debug(`Closing subscription as account has been merged.`)
                       observer.complete()
                     }
                   },
                   onUnexpectedError(error) {
+                    debug(`Unexpected error:`, error)
                     observer.error(error)
                   }
                 },
@@ -328,7 +350,9 @@ export const subscribeToAccountEffects = cachify(
 )
 
 function subscribeToAccountUncached(horizonURL: string, accountID: string) {
+  const debug = DebugLogger(`net-worker:subscriptions:account:${accountID}`)
   const serviceID = getServiceID(horizonURL)
+
   let latestSnapshot: string | undefined
 
   const cacheKey = createAccountCacheKey(horizonURL, accountID)
@@ -339,16 +363,19 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
     {
       async applyUpdate(update) {
         if (update) {
+          debug(`Received account meta data update:`, update)
           accountDataCache.set(cacheKey, update)
           latestSnapshot = createSnapshot(update)
         }
         return update
       },
       async fetchUpdate() {
+        debug(`Fetching update…`)
         const accountData = await fetchAccountData(horizonURL, accountID)
         return accountData || undefined
       },
       async init() {
+        debug(`Subscribing to account meta data updates…`)
         const lastKnownAccountData = accountDataCache.get(cacheKey)
 
         if (lastKnownAccountData) {
@@ -401,6 +428,8 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
 export const subscribeToAccount = cachify(accountSubscriptionCache, subscribeToAccountUncached, createAccountCacheKey)
 
 function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: string) {
+  const debug = DebugLogger(`net-worker:subscriptions:account-transactions:${accountID}`)
+
   let latestCursor: string | undefined
 
   const fetchInitial = async () => {
@@ -417,6 +446,8 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
 
   const fetchLatestTxs = throttle(
     async () => {
+      debug(`Fetching latest transactions…`)
+
       if (latestCursor) {
         const page = await fetchAccountTransactions(horizonURL, accountID, { cursor: latestCursor, limit: 10 })
         return [page, "asc"] as const
@@ -428,6 +459,8 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
     200,
     { leading: true, trailing: true }
   )
+
+  debug(`Subscribing to account's transactions…`)
 
   fetchInitial().catch(error => {
     // tslint:disable-next-line no-console
@@ -444,6 +477,8 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
           yield* newTxs
 
           if (newTxs.length > 0) {
+            debug(`Received new transactions:`, newTxs)
+
             const latestTx = newTxs[newTxs.length - 1]
             latestCursor = latestTx.paging_token
           }
@@ -464,12 +499,15 @@ export const subscribeToAccountTransactions = cachify(
 )
 
 function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
+  const debug = DebugLogger(`net-worker:subscriptions:account-orders:${accountID}`)
   const serviceID = getServiceID(horizonURL)
 
   let latestCursor: string | undefined
   let latestSet: ServerApi.OfferRecord[] = []
 
   const fetchUpdate = async () => {
+    debug(`Fetching account's open orders…`)
+
     // Don't use latest cursor as we want to fetch all open orders
     // (otherwise we could not handle order deletions)
     const page = await fetchAccountOpenOrders(horizonURL, accountID, { order: "desc" })
@@ -479,6 +517,8 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
   return subscribeToUpdatesAndPoll<ServerApi.OfferRecord[]>(
     {
       async applyUpdate(update) {
+        debug(`Received updated open orders:`, update)
+
         if (update.length > 0) {
           const latestID = max(
             update.map(offer => String(offer.id)),
@@ -492,6 +532,7 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
       },
       fetchUpdate,
       async init() {
+        debug(`Subscribing to open orders…`)
         const records = await fetchUpdate()
 
         if (records.length > 0) {
@@ -571,6 +612,8 @@ function createEmptyOrderbookRecord(base: Asset, counter: Asset): ServerApi.Orde
 }
 
 function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, buyingAsset: string) {
+  const debug = DebugLogger(`net-worker:subscriptions:orderbook:${buyingAsset}-${sellingAsset}`)
+
   const buying = parseAssetID(buyingAsset)
   const selling = parseAssetID(sellingAsset)
   const query = createOrderbookQuery(selling, buying)
@@ -591,11 +634,13 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
   return subscribeToUpdatesAndPoll(
     {
       async applyUpdate(update) {
+        debug(`Received order book update:`, update)
         latestKnownSnapshot = JSON.stringify(update)
         return update
       },
       fetchUpdate,
       async init() {
+        debug(`Subscribing to order book…`)
         const record = await fetchUpdate()
         latestKnownSnapshot = JSON.stringify(record)
         return record
@@ -615,6 +660,7 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
                   observer.next(record)
                 },
                 onUnexpectedError(error) {
+                  debug(`Unexpected error:`, error)
                   observer.error(error)
                 }
               },

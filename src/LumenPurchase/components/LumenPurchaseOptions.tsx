@@ -14,7 +14,7 @@ function createMoonPayURLForAccount(account: Account) {
   const apiKEY = account.testnet ? "pk_test_RPUOOEJ7ZiAWlLFG6lbohDF9d2SqICX" : "pk_live_Xly1jO3hHE46AyMJO50lwoAk2VUCon"
   const currencyCode = "XLM"
   const colorCode = "1c8fea"
-  return `${baseURL}?apiKey=${apiKEY}&currencyCode=${currencyCode}&enabledPaymentMethods=credit_debit_card,sepa_bank_transfer&walletAddress=${account.publicKey}&colorCode=%23${colorCode}`
+  return `${baseURL}?apiKey=${apiKEY}&currencyCode=${currencyCode}&enabledPaymentMethods=credit_debit_card,sepa_bank_transfer&walletAddress=${account.accountID}&colorCode=%23${colorCode}`
 }
 
 interface LumenDepositOptionsProps {

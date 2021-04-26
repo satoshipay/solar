@@ -1,6 +1,8 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import ButtonBase from "@material-ui/core/ButtonBase"
 import Dialog from "@material-ui/core/Dialog"
+import Typography from "@material-ui/core/Typography"
 import AccountActions from "~Account/components/AccountActions"
 import AccountCreationActions from "~AccountCreation/components/AccountCreationActions"
 import NoPasswordConfirmation from "~AccountCreation/components/NoPasswordConfirmation"
@@ -12,17 +14,19 @@ import InlineLoader from "~Generic/components/InlineLoader"
 import { VerticalLayout } from "~Layout/components/Box"
 import { Section } from "~Layout/components/Page"
 import ScrollableBalances from "~Generic/components/ScrollableBalances"
+import { PublicKey } from "~Generic/components/PublicKey"
 import withFallback from "~Generic/hocs/withFallback"
 import PaymentDialog from "~Payment/components/PaymentDialog"
 import ReceivePaymentDialog from "~Payment/components/ReceivePaymentDialog"
 import ViewLoading from "~Generic/components/ViewLoading"
-import { Account, AccountsContext } from "../../App/contexts/accounts"
-import { trackError } from "../../App/contexts/notifications"
-import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
+import { Account, AccountsContext } from "~App/contexts/accounts"
+import { trackError } from "~App/contexts/notifications"
+import * as routes from "~App/routes"
+import { warningColor, FullscreenDialogTransition } from "~App/theme"
+import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
+import { useClipboard, useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { getLastArgumentFromURL } from "~Generic/lib/url"
 import { matchesRoute } from "~Generic/lib/routes"
-import * as routes from "~App/routes"
-import { FullscreenDialogTransition } from "../../App/theme"
 import { InlineErrorBoundary, HideOnError } from "~Generic/components/ErrorBoundaries"
 
 const modules = {
@@ -70,6 +74,38 @@ const TransferDialog = withFallback(
   <ViewLoading />
 )
 
+const NotCosignerOnLedgerWarning = React.memo(function NotCosignerOnLedgerWarning(props: { account: Account }) {
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
+  const clipboard = useClipboard()
+  const { t } = useTranslation()
+
+  const handleClick = React.useCallback(() => {
+    clipboard.copyToClipboard(props.account.publicKey)
+  }, [clipboard, props.account.publicKey])
+
+  if (!props.account || !accountData || accountData.signers.some(signer => signer.key === props.account?.publicKey)) {
+    // We are still waiting for the data or this key is in fact co-signer of the account
+    return null
+  }
+
+  return (
+    <VerticalLayout padding="16px" style={{ backgroundColor: warningColor, textAlign: "center" }}>
+      <Typography gutterBottom>{t("account.cosigner.not-cosigner-yet.note")}</Typography>
+      <Typography gutterBottom>{t("account.cosigner.not-cosigner-yet.label")}</Typography>
+      <ButtonBase onClick={handleClick} style={{ alignSelf: "center", width: "fit-content" }}>
+        <Typography align="center" style={{ textDecoration: "underline" }}>
+          <PublicKey
+            publicKey={props.account.publicKey}
+            showRaw
+            style={{ wordBreak: "break-word" }}
+            testnet={props.account.testnet}
+          />
+        </Typography>
+      </ButtonBase>
+    </VerticalLayout>
+  )
+})
+
 interface AccountPageContentProps {
   account: Account | undefined
   testnet: boolean
@@ -86,6 +122,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
   const showAccountCreation =
     matchesRoute(router.location.pathname, routes.createAccount(props.testnet), false) ||
     matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false) ||
+    matchesRoute(router.location.pathname, routes.joinSharedAccount(props.testnet), false) ||
     matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
 
   const showAccountCreationOptions = matchesRoute(router.location.pathname, routes.newAccount(props.testnet), false)
@@ -111,6 +148,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
     setAccountCreation,
     validateAccountCreation
   } = useAccountCreation({
+    cosigner: matchesRoute(router.location.pathname, routes.joinSharedAccount(props.testnet), false),
     import: matchesRoute(router.location.pathname, routes.importAccount(props.testnet), false),
     testnet: props.testnet
   })
@@ -213,7 +251,9 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
 
   const handleBackNavigation = React.useCallback(() => {
     if (props.account && matchesRoute(router.location.pathname, routes.accountSettings(props.account.id))) {
-      if (matchesRoute(router.location.pathname, routes.accountSettings(props.account.id) + "/*")) {
+      if (matchesRoute(router.location.pathname, routes.manageAccountSigners(props.account.id) + "/*")) {
+        router.history.push(routes.manageAccountSigners(props.account.id))
+      } else if (matchesRoute(router.location.pathname, routes.accountSettings(props.account.id) + "/*")) {
         router.history.push(routes.accountSettings(props.account.id))
       } else {
         router.history.push(routes.account(props.account.id))
@@ -291,6 +331,7 @@ const AccountPageContent = React.memo(function AccountPageContent(props: Account
       <Section top brandColored grow={0} minHeight={headerHeight} shrink={0}>
         <React.Suspense fallback={<ViewLoading />}>{headerCard}</React.Suspense>
       </Section>
+      {props.account?.cosignerOf ? <NotCosignerOnLedgerWarning account={props.account} /> : null}
       <Section
         bottom={!isSmallScreen}
         style={{

@@ -10,6 +10,7 @@ import CloseIcon from "@material-ui/icons/Close"
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import { useIsSmallMobile, useIsMobile } from "~Generic/hooks/userinterface"
 import { HorizontalLayout } from "~Layout/components/Box"
+import theme from "~App/theme"
 
 interface FormValues {
   publicKey: string
@@ -27,6 +28,7 @@ interface Props {
   onCancel: () => void
   onSubmit: () => void
   onUpdate: (values: Partial<FormValues>) => void
+  style?: React.CSSProperties
 }
 
 function NewSignerForm(props: Props) {
@@ -35,7 +37,7 @@ function NewSignerForm(props: Props) {
   const { t } = useTranslation()
 
   return (
-    <ListItem>
+    <ListItem style={props.style}>
       <ListItemIcon>
         <PersonAddIcon style={{ fontSize: "2rem" }} />
       </ListItemIcon>
@@ -61,16 +63,17 @@ function NewSignerForm(props: Props) {
           />
         </HorizontalLayout>
       </ListItemText>
-      <ListItemIcon style={isTinyScreen ? { padding: 0, margin: 0 } : { marginRight: 8 }}>
-        <IconButton onClick={props.onSubmit}>
+      <ListItemIcon style={{ marginLeft: 8, minWidth: 0 }}>
+        <IconButton
+          color="primary"
+          onClick={props.onSubmit}
+          style={{ borderColor: theme.palette.primary.main, borderStyle: "solid", borderWidth: 1.5, padding: 8 }}
+        >
           <CheckIcon />
         </IconButton>
       </ListItemIcon>
-      <ListItemIcon>
-        <IconButton
-          onClick={props.onCancel}
-          style={isTinyScreen ? { padding: 0, marginRight: -24 } : { marginRight: -24 }}
-        >
+      <ListItemIcon style={{ minWidth: 0 }}>
+        <IconButton onClick={props.onCancel}>
           <CloseIcon />
         </IconButton>
       </ListItemIcon>

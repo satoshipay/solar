@@ -1,16 +1,17 @@
 import React from "react"
-import { SignatureRequest, deserializeSignatureRequest } from "~Generic/lib/multisig-service"
+import { resolveMultiSignatureCoordinator } from "~Generic/lib/multisig-discovery"
+import { MultisigTransactionResponse, MultisigTransactionStatus } from "~Generic/lib/multisig-service"
 import { workers } from "~Workers/worker-controller"
 import { Account, AccountsContext } from "./accounts"
 import { trackError } from "./notifications"
 import { SettingsContext } from "./settings"
 
 interface ContextValue {
-  pendingSignatureRequests: SignatureRequest[]
-  subscribeToNewSignatureRequests: (subscriber: (signatureRequest: SignatureRequest) => void) => () => void
+  pendingSignatureRequests: MultisigTransactionResponse[]
+  subscribeToNewSignatureRequests: (subscriber: (signatureRequest: MultisigTransactionResponse) => void) => () => void
 }
 
-type SignatureRequestCallback = (signatureRequest: SignatureRequest) => void
+type SignatureRequestCallback = (signatureRequest: MultisigTransactionResponse) => void
 
 interface SubscribersState {
   newRequestSubscribers: SignatureRequestCallback[]
@@ -21,12 +22,12 @@ const SignatureDelegationContext = React.createContext<ContextValue>({
   subscribeToNewSignatureRequests: () => () => undefined
 })
 
-function useSignatureRequestSubscription(multiSignatureServiceURL: string, accounts: Account[]) {
-  const accountIDs = React.useMemo(() => accounts.map(account => account.publicKey), [accounts])
+function useSignatureRequestSubscription(multiSignatureCoordinator: string, accounts: Account[]) {
+  const accountPubKeys = React.useMemo(() => accounts.map(account => account.publicKey), [accounts])
 
   const { ignoredSignatureRequests } = React.useContext(SettingsContext)
   const subscribersRef = React.useRef<SubscribersState>({ newRequestSubscribers: [] })
-  const [pendingSignatureRequests, setPendingSignatureRequests] = React.useState<SignatureRequest[]>([])
+  const [pendingTransactions, setPendingTransactions] = React.useState<MultisigTransactionResponse[]>([])
 
   React.useEffect(() => {
     if (accounts.length === 0) {
@@ -41,32 +42,34 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 
     const setup = async () => {
       const { netWorker } = await workers
+      const multiSignatureServiceURL = await resolveMultiSignatureCoordinator(multiSignatureCoordinator)
 
       netWorker
-        .fetchSignatureRequests(multiSignatureServiceURL, accountIDs)
-        .then(requests => setPendingSignatureRequests(requests.reverse().map(deserializeSignatureRequest)))
+        .fetchTransactions(multiSignatureServiceURL, accountPubKeys)
+        .then(requests => setPendingTransactions(requests.reverse()))
         .catch(trackError)
 
       if (cancelled) {
         return
       }
 
-      const signatureRequests = netWorker.subscribeToSignatureRequests(multiSignatureServiceURL, accountIDs)
+      const signatureRequests = netWorker.subscribeToTransactions(multiSignatureServiceURL, accountPubKeys)
 
       const subscription = signatureRequests.subscribe(event => {
-        if (event.type === "NewSignatureRequest") {
-          setPendingSignatureRequests(prevPending => [
-            deserializeSignatureRequest(event.signatureRequest),
-            ...prevPending
-          ])
-          subscribersRef.current.newRequestSubscribers.forEach(subscriber =>
-            subscriber(deserializeSignatureRequest(event.signatureRequest))
-          )
+        if (event.type === "transaction:added") {
+          setPendingTransactions(prevPending => [event.transaction, ...prevPending])
+          subscribersRef.current.newRequestSubscribers.forEach(subscriber => subscriber(event.transaction))
         }
-        if (event.type === "SignatureRequestSubmitted") {
-          setPendingSignatureRequests(prevPending =>
-            prevPending.filter(request => request.hash !== event.signatureRequest.hash)
-          )
+        if (event.type === "transaction:updated" && event.transaction.status === MultisigTransactionStatus.submitted) {
+          setPendingTransactions(prevPending => {
+            // Hacky: Also mutate existing multisig tx to make double sure everyone gets the update
+            const prev = prevPending.find(request => request.hash !== event.transaction.hash)
+            if (prev) {
+              Object.assign(prev, event.transaction)
+            }
+
+            return prevPending.map(request => (request.hash === event.transaction.hash ? event.transaction : request))
+          })
         }
       })
 
@@ -77,7 +80,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
 
     // Do not shorten to `return unsubscribe`, as we always want to call the current `unsubscribe`
     return () => unsubscribe()
-  }, [accountIDs, accounts.length, multiSignatureServiceURL])
+  }, [accountPubKeys, accounts.length, multiSignatureCoordinator])
 
   const subscribeToNewSignatureRequests = (callback: SignatureRequestCallback) => {
     subscribersRef.current.newRequestSubscribers.push(callback)
@@ -90,7 +93,7 @@ function useSignatureRequestSubscription(multiSignatureServiceURL: string, accou
     return unsubscribe
   }
 
-  const filteredPendingSignatureRequests = pendingSignatureRequests.filter(
+  const filteredPendingSignatureRequests = pendingTransactions.filter(
     signatureRequest => ignoredSignatureRequests.indexOf(signatureRequest.hash) === -1
   )
 
@@ -107,7 +110,7 @@ interface Props {
 function SignatureDelegationProvider(props: Props) {
   const { accounts } = React.useContext(AccountsContext)
   const settings = React.useContext(SettingsContext)
-  const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureServiceURL, accounts)
+  const contextValue: ContextValue = useSignatureRequestSubscription(settings.multiSignatureCoordinator, accounts)
 
   return (
     <SignatureDelegationContext.Provider value={contextValue}>{props.children}</SignatureDelegationContext.Provider>

@@ -9,6 +9,7 @@ import KeyIcon from "@material-ui/icons/VpnKey"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import * as routes from "~App/routes"
+import { Address } from "~Generic/components/PublicKey"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
 import { matchesRoute } from "~Generic/lib/routes"
@@ -64,24 +65,35 @@ interface SuspendedItemProps {
 }
 
 function MultiSigItem(props: SuspendedItemProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const isSmallScreen = useIsMobile()
   const { t } = useTranslation()
+
+  const disabled = Boolean(
+    !accountData.balances.length || !accountData.signers.some(signer => signer.key === props.account.publicKey)
+  )
+
+  const ListItemSecondaryContent = props.account.cosignerOf ? (
+    <>
+      {t("account-settings.settings.multi-sig.text.secondary.cosigner-of")}{" "}
+      <Address address={props.account.cosignerOf} testnet={props.account.testnet} />
+    </>
+  ) : isSmallScreen ? (
+    t("account-settings.settings.multi-sig.text.secondary.short")
+  ) : (
+    t("account-settings.settings.multi-sig.text.secondary.long")
+  )
 
   return (
     <AccountSettingsItem
       caret="right"
-      disabled={accountData.balances.length === 0}
+      disabled={disabled}
       icon={<GroupIcon style={{ fontSize: "100%" }} />}
       onClick={props.onClick}
     >
       <ListItemText
         primary={t("account-settings.settings.multi-sig.text.primary")}
-        secondary={
-          isSmallScreen
-            ? t("account-settings.settings.multi-sig.text.secondary.short")
-            : t("account-settings.settings.multi-sig.text.secondary.long")
-        }
+        secondary={ListItemSecondaryContent}
         style={props.listItemTextStyle}
       />
     </AccountSettingsItem>

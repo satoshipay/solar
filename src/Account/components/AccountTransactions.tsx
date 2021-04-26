@@ -6,7 +6,6 @@ import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import { SignatureDelegationContext } from "~App/contexts/signatureDelegation"
-import { hasSigned } from "~Generic/lib/transaction"
 import { useHorizonURL } from "~Generic/hooks/stellar"
 import {
   useLiveRecentTransactions,
@@ -33,16 +32,18 @@ function PendingMultisigTransactions(props: { account: Account }) {
   const pendingRequestsToCosign = React.useMemo(() => {
     return pendingSignatureRequests.filter(
       request =>
-        request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-        !hasSigned(request.meta.transaction, props.account.publicKey)
+        request.status !== "submitted" &&
+        request.signers.some(signer => signer === props.account.publicKey) &&
+        request.signed_by.indexOf(props.account.publicKey) === -1
     )
   }, [props.account, pendingSignatureRequests])
 
   const pendingRequestsWaitingForOthers = React.useMemo(() => {
     return pendingSignatureRequests.filter(
       request =>
-        request._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-        hasSigned(request.meta.transaction, props.account.publicKey)
+        request.status !== "submitted" &&
+        request.signers.some(signer => signer === props.account.publicKey) &&
+        request.signed_by.indexOf(props.account.publicKey) > -1
     )
   }, [props.account, pendingSignatureRequests])
 
@@ -67,12 +68,12 @@ function PendingMultisigTransactions(props: { account: Account }) {
 function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const { t } = useTranslation()
-  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const accountData = useLiveAccountData(account.accountID, account.testnet)
   const horizonURL = useHorizonURL(account.testnet)
   const isSmallScreen = useIsMobile()
   const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
-  const recentTxs = useLiveRecentTransactions(account.publicKey, account.testnet)
-  const fetchMoreTransactions = useOlderTransactions(account.publicKey, account.testnet)
+  const recentTxs = useLiveRecentTransactions(account.accountID, account.testnet)
+  const fetchMoreTransactions = useOlderTransactions(account.accountID, account.testnet)
   const router = useRouter()
   const settings = React.useContext(SettingsContext)
 

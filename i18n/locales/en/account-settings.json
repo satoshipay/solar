@@ -93,15 +93,40 @@
   },
   "manage-signers": {
     "action": {
-      "add-co-signer": {
-        "long": "Add Co-Signer",
-        "short": "Signer"
-      },
-      "cancel": "Cancel",
+      "add-signer": "Add Signer",
       "apply": {
         "long": "Apply changes",
         "short": "Apply"
-      }
+      },
+      "cancel": "Cancel",
+      "proceed": "Proceed"
+    },
+    "preset-description": {
+      "m-out-of-n": "Add or remove signers from the account. Any single signature will authorize transactions.",
+      "m-out-of-n_plural": "Add or remove signers from the account. {{ count }} signatures will authorize transactions.",
+      "one-out-of-n": "Add or remove signers from the account. Any single signer can authorize transactions.",
+      "single-signature": "Choose the key that should be the account's single signer."
+    },
+    "preset-description-extra": {
+      "m-out-of-n": "Go to 'Add Account' > 'Join Account' in the co-signing Solar wallet to create a new co-signer's key.",
+      "one-out-of-n": "Go to 'Add Account' > 'Join Account' in the co-signing Solar wallet to create a new co-signer's key."
+    },
+    "preset-selector": {
+      "options": {
+        "m-out-of-n": {
+          "primary": "Collective signing",
+          "secondary": "Multiple signers have to sign a transaction."
+        },
+        "one-out-of-n": {
+          "primary": "Backup keys",
+          "secondary": "Every signer can sign transactions by themself."
+        },
+        "single-signature": {
+          "primary": "Single signature",
+          "secondary": "No co-signers. Just one key pair."
+        }
+      },
+      "title": "Choose how your account should work"
     },
     "signers-editor": {
       "list": {
@@ -117,22 +142,14 @@
           "short": "GABCDEFGHIJK… or alice*example.org"
         }
       },
+      "threshold": {
+        "primary": "Required signatures",
+        "secondary": "No. of signatures to authorize transactions"
+      },
       "validation": {
         "existing-signer": "Cannot add existing signer.",
         "integer-required": "Must be an integer.",
         "invalid-stellar-address": "Expected a public key or stellar address."
-      }
-    },
-    "textfield": {
-      "weight-threshold": {
-        "explanation": {
-          "required-signatures": "Every transaction needs to be signed by {{amount}} signers",
-          "required-weight": "Every transaction needs to be signed by signers with a combined key weight of {{amount}}"
-        },
-        "label": {
-          "required-signatures": "Required signatures",
-          "required-weight": "Required key weight"
-        }
       }
     },
     "title": {
@@ -200,6 +217,7 @@
       "text": {
         "primary": "Multi-Signature",
         "secondary": {
+          "cosigner-of": "This account is cosigner of",
           "short": "Manage co-signers",
           "long": "Make account multi-signature and manage co-signers"
         }

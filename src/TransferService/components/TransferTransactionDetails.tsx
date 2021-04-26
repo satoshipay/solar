@@ -46,7 +46,7 @@ function TransferTransactionDetails(props: TransferTransactionDetailsProps) {
   const { t } = useTranslation()
 
   const formID = React.useMemo(() => nanoid(), [])
-  const accountData = useLiveAccountData(account.publicKey, account.testnet)
+  const accountData = useLiveAccountData(account.accountID, account.testnet)
   const amountIn = props.state.transfer ? props.state.transfer.amount_in : ""
 
   const [amountString, setAmountString] = React.useState(amountIn || "")
