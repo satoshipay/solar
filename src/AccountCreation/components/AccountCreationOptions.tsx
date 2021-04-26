@@ -1,5 +1,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import Divider from "@material-ui/core/Divider"
+import GroupIcon from "@material-ui/icons/Group"
 import RestoreIcon from "@material-ui/icons/SettingsBackupRestore"
 import WalletIcon from "@material-ui/icons/AccountBalanceWallet"
 import { Account } from "~App/contexts/accounts"
@@ -25,13 +27,18 @@ const InitialSelection = React.memo(
     const { t } = useTranslation()
 
     const createAccount = React.useCallback(() => {
-      onUpdateAccountCreation({ import: false })
+      onUpdateAccountCreation({ cosigner: false, import: false })
       router.history.push(routes.createAccount(props.testnet))
     }, [onUpdateAccountCreation, props.testnet, router.history])
 
     const importAccount = React.useCallback(() => {
       onUpdateAccountCreation({ import: true })
       router.history.push(routes.importAccount(props.testnet))
+    }, [onUpdateAccountCreation, props.testnet, router.history])
+
+    const joinSharedAccount = React.useCallback(() => {
+      onUpdateAccountCreation({ cosigner: true, import: false })
+      router.history.push(routes.joinSharedAccount(props.testnet))
     }, [onUpdateAccountCreation, props.testnet, router.history])
 
     return (
@@ -53,6 +60,15 @@ const InitialSelection = React.memo(
             gutterBottom
             onClick={importAccount}
             Icon={RestoreIcon}
+          />
+          <Divider style={{ marginBottom: 16 }} />
+          <MainSelectionButton
+            dense
+            label={t("create-account.action-selection.join-shared.label")}
+            description={t("create-account.action-selection.join-shared.description")}
+            gutterBottom
+            onClick={joinSharedAccount}
+            Icon={GroupIcon}
           />
         </VerticalLayout>
       </VerticalLayout>

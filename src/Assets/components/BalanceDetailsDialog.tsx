@@ -9,18 +9,18 @@ import AddIcon from "@material-ui/icons/Add"
 import { Account } from "~App/contexts/accounts"
 import * as routes from "~App/routes"
 import { FullscreenDialogTransition } from "~App/theme"
-import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
-import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
-import { AccountData } from "~Generic/lib/account"
-import { matchesRoute } from "~Generic/lib/routes"
-import { stringifyAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
-import { sortBalances } from "~Generic/lib/balances"
+import ButtonListItem from "~Generic/components/ButtonListItem"
 import MainTitle from "~Generic/components/MainTitle"
 import ViewLoading from "~Generic/components/ViewLoading"
+import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
+import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
+import { AccountData } from "~Generic/lib/account"
+import { sortBalances } from "~Generic/lib/balances"
+import { matchesRoute } from "~Generic/lib/routes"
+import { getAccountMinimumBalance, getSpendableBalance, stringifyAsset } from "~Generic/lib/stellar"
 import DialogBody from "~Layout/components/DialogBody"
 import AddAssetDialog from "./AddAssetDialog"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
-import ButtonListItem from "./ButtonListItem"
 
 function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
   if (balance.asset_type === "native") {
@@ -126,9 +126,9 @@ interface BalanceDetailsProps {
 }
 
 function BalanceDetailsDialog(props: BalanceDetailsProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const { offers: openOrders, olderOffersAvailable } = useLiveAccountOffers(
-    props.account.publicKey,
+    props.account.accountID,
     props.account.testnet
   )
   const isSmallScreen = useIsMobile()

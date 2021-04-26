@@ -3,7 +3,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "create": "Create Account",
-    "import": "Import Account"
+    "import": "Import Account",
+    "join-shared": "Add Account"
   },
   "action-selection": {
     "create": {
@@ -13,6 +14,10 @@
     "import": {
       "description": "Restore account from backup",
       "label": "Import Account"
+    },
+    "join-shared": {
+      "description": "Co-sign a shared account",
+      "label": "Join Account"
     }
   },
   "base-name": {
@@ -36,6 +41,13 @@
       "label": "Secret key",
       "title": "Import Existing"
     },
+    "multisig-account": {
+      "explanation-long": "Make sure the account to join has at least 2 XLM on it, so they can add you as a co-signer.",
+      "explanation-short": "Make sure the account to join has been funded.",
+      "helper-text": "The multi-signature account's address (public key)",
+      "placeholder": "GABCDEFGH…",
+      "label": "Multi-signature account"
+    },
     "password": {
       "label": "Password",
       "placeholder": "Enter a password"
@@ -46,6 +58,14 @@
     }
   },
   "options": {
+    "cosigner": {
+      "label": "Join shared account",
+      "description": "Co-sign a multi-signature account"
+    },
+    "cosigner-import": {
+      "label": "Co-signs shared account",
+      "description": "Key is signer of another account"
+    },
     "import": {
       "label": "Import secret key",
       "description": "Restore account from backup"

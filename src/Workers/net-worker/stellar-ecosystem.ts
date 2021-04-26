@@ -59,9 +59,12 @@ export async function fetchAllAssets(tickerURL: string): Promise<AssetRecord[]> 
   return abbreviatedAssets
 }
 
-export async function fetchStellarToml(domain: string): Promise<any> {
+export async function fetchStellarToml(
+  domain: string,
+  options: StellarTomlResolver.StellarTomlResolveOptions = {}
+): Promise<any> {
   try {
-    return await StellarTomlResolver.resolve(domain)
+    return await StellarTomlResolver.resolve(domain, options)
   } catch (error) {
     // tslint:disable-next-line no-console
     console.warn(`Could not resolve stellar.toml data for domain ${domain}:`, error)

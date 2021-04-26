@@ -1,58 +1,17 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Horizon, Memo, Transaction, Networks } from "stellar-sdk"
-import ListItem from "@material-ui/core/ListItem"
-import ListItemIcon from "@material-ui/core/ListItemIcon"
-import ListItemText from "@material-ui/core/ListItemText"
 import Tooltip from "@material-ui/core/Tooltip"
 import CheckIcon from "@material-ui/icons/Check"
 import UpdateIcon from "@material-ui/icons/Update"
-import WarningIcon from "@material-ui/icons/Warning"
-import { useIsMobile } from "~Generic/hooks/userinterface"
 import { Account } from "~App/contexts/accounts"
+import { useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
-import { signatureMatchesPublicKey } from "~Generic/lib/stellar"
-import { warningColor } from "~App/theme"
+import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
+import { hasSigned } from "~Generic/lib/transaction"
 import { Address } from "~Generic/components/PublicKey"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import { SummaryDetailsField, SummaryItem } from "./SummaryItem"
-
-interface WarningProps {
-  primary: React.ReactNode
-  secondary?: React.ReactNode
-  style?: React.CSSProperties
-}
-
-const Warning = React.memo(function Warning(props: WarningProps) {
-  return (
-    <ListItem component="div" style={{ background: warningColor, marginBottom: 16, ...props.style }}>
-      <ListItemIcon style={{ minWidth: 40 }}>
-        <WarningIcon />
-      </ListItemIcon>
-      <ListItemText primary={props.primary} secondary={props.secondary} />
-    </ListItem>
-  )
-})
-
-export function DangerousTransactionWarning() {
-  const { t } = useTranslation()
-  return (
-    <Warning
-      primary={t("account.transaction-review.dangerous-transaction-warning.primary")}
-      secondary={t("account.transaction-review.dangerous-transaction-warning.secondary")}
-    />
-  )
-}
-
-export function AccountCreationWarning() {
-  const { t } = useTranslation()
-  return (
-    <Warning
-      primary={t("account.transaction-review.account-creation-warning.primary")}
-      secondary={t("account.transaction-review.account-creation-warning.secondary")}
-    />
-  )
-}
 
 function SignerStatus(props: { hasSigned: boolean; style?: React.CSSProperties }) {
   const { t } = useTranslation()
@@ -98,6 +57,7 @@ const Signer = React.memo(function Signer(props: {
 export function Signers(props: {
   accounts: Account[]
   accountData: AccountData
+  signatureRequest?: MultisigTransactionResponse
   transaction: Transaction
   style?: React.CSSProperties
 }) {
@@ -120,27 +80,24 @@ export function Signers(props: {
 
   return (
     <SummaryItem>
-      {props.accountData.signers.map((signer, index) => (
-        <SummaryDetailsField
-          key={signer.key}
-          label={
-            index === 0
-              ? t("account.transaction-review.signers.label", `Signers (${headingDetails})`, {
-                  details: headingDetails
-                })
-              : undefined
-          }
-          value={
-            <Signer
-              hasSigned={props.transaction.signatures.some(signature =>
-                signatureMatchesPublicKey(signature, signer.key)
-              )}
-              signer={signer}
-              transaction={props.transaction}
-            />
-          }
-        />
-      ))}
+      <SummaryDetailsField
+        label={t("account.transaction-review.signers.label", `Signers (${headingDetails})`, {
+          details: headingDetails
+        })}
+        style={{
+          alignItems: "flex-start",
+          display: "flex",
+          flexDirection: "column"
+        }}
+        value={props.accountData.signers.map((signer, index) => (
+          <Signer
+            hasSigned={hasSigned(props.transaction, signer.key, props.signatureRequest)}
+            key={index}
+            signer={signer}
+            transaction={props.transaction}
+          />
+        ))}
+      />
     </SummaryItem>
   )
 }

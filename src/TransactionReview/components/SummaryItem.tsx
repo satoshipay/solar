@@ -12,6 +12,7 @@ interface SummaryDetailsFieldProps {
   fullWidth?: boolean
   helperText?: React.ReactNode
   label: React.ReactNode
+  style?: React.CSSProperties
   value: React.ReactNode
 }
 
@@ -23,13 +24,14 @@ export const SummaryDetailsField = React.memo(function SummaryDetailsField(props
       disableUnderline
       helperText={props.helperText}
       label={props.label}
-      style={{ flex: props.fullWidth ? "0 0 100%" : "0 0 48%" }}
+      style={{ flex: props.fullWidth ? "0 0 100%" : "0 0 48%", marginBottom: "10px" }}
       InputProps={{
         inputComponent: InputComponent,
         style: {
           maxWidth: "100%",
           overflow: "hidden",
-          wordBreak: "break-word"
+          wordBreak: "break-word",
+          ...props.style
         }
       }}
       InputLabelProps={{
@@ -44,7 +46,7 @@ export const SummaryDetailsField = React.memo(function SummaryDetailsField(props
 const summaryDetailsLineStyle: React.CSSProperties = {
   flexWrap: "wrap",
   justifyContent: "space-between",
-  marginTop: 12,
+  marginBottom: 8,
   width: "100%"
 }
 

@@ -158,6 +158,12 @@
       "label": "Withdraw"
     }
   },
+  "cosigner": {
+    "not-cosigner-yet": {
+      "label": "Your public key:",
+      "note": "Your key is not yet a signer of the account. Please ask the account owner to add you."
+    }
+  },
   "purchase-lumens": {
     "legal-confirmation": {
       "action": {
@@ -248,6 +254,10 @@
     "account-creation-warning": {
       "primary": "Funding a new account",
       "secondary": "Funding an empty account. Make sure that the destination is correct."
+    },
+    "add-signer-warning": {
+      "primary": "Adding another signer",
+      "secondary": "Make sure you are adding the right co-signer. Adding an unknown key might lock your account forever."
     },
     "dangerous-transaction-warning": {
       "primary": "Transaction initiated by unrecognized account",

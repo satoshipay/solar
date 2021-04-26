@@ -10,10 +10,12 @@ import SuccessIcon from "~Icons/components/Success"
 import { Box, VerticalLayout } from "~Layout/components/Box"
 import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
 import { getErrorTranslation } from "~Generic/lib/errors"
+import { useIsMobile } from "~Generic/hooks/userinterface"
 
 function Container(props: { children: React.ReactNode }) {
+  const isSmallScreen = useIsMobile()
   return (
-    <Box width="250px" maxWidth="40vw" height="100%">
+    <Box width="100%" maxWidth={isSmallScreen ? undefined : "40vw"} height="100%">
       <VerticalLayout padding={10} height="100%" alignItems="center" justifyContent="center">
         {props.children}
       </VerticalLayout>
@@ -23,7 +25,7 @@ function Container(props: { children: React.ReactNode }) {
 
 function Heading(props: { children: React.ReactNode }) {
   return (
-    <Typography align="center" variant="subtitle1">
+    <Typography align="center" variant="subtitle1" style={{ wordBreak: "break-word" }}>
       {props.children}
     </Typography>
   )

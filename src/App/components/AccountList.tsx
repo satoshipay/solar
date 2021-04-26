@@ -17,7 +17,7 @@ import InlineLoader from "~Generic/components/InlineLoader"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { containsThirdPartySigner } from "~Generic/lib/third-party-security"
-import { SignatureRequest } from "~Generic/lib/multisig-service"
+import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 import * as routes from "../routes"
 
@@ -70,8 +70,7 @@ const StyledBadge = (props: BadgeProps) => {
 
 function Badges(props: { account: Account }) {
   const { t } = useTranslation()
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
-
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const securityService = containsThirdPartySigner(accountData.signers)
 
   const multiSigIcon = securityService ? (
@@ -87,12 +86,12 @@ function Badges(props: { account: Account }) {
       <GroupIcon style={{ marginTop: 6 }} />
     </Tooltip>
   )
-  return <Box>{accountData.signers.length > 1 ? multiSigIcon : null}</Box>
+  return <Box>{accountData.signers.length > 1 || props.account.cosignerOf ? multiSigIcon : null}</Box>
 }
 
 interface AccountCardProps {
   account: Account
-  pendingSignatureRequests: SignatureRequest[]
+  pendingSignatureRequests: MultisigTransactionResponse[]
   style?: React.CSSProperties
 }
 
@@ -102,8 +101,8 @@ function AccountCard(props: AccountCardProps) {
   const onClick = () => router.history.push(routes.account(props.account.id))
   const pendingSignatureRequests = props.pendingSignatureRequests.filter(
     req =>
-      req._embedded.signers.some(signer => signer.account_id === props.account.publicKey) &&
-      !req._embedded.signers.find(signer => signer.account_id === props.account.publicKey)!.has_signed
+      req.signers.some(signer => signer === props.account.publicKey) &&
+      !req.signed_by.find(signer => signer === props.account.publicKey)
   )
   const badgeContent = pendingSignatureRequests.length > 0 ? pendingSignatureRequests.length : null
 
@@ -122,7 +121,10 @@ function AccountCard(props: AccountCardProps) {
             </HorizontalLayout>
             <Box fontSize="120%">
               <React.Suspense fallback={<InlineLoader />}>
-                <AccountBalances publicKey={props.account.publicKey} testnet={props.account.testnet} />
+                <AccountBalances
+                  publicKey={props.account.cosignerOf || props.account.publicKey}
+                  testnet={props.account.testnet}
+                />
               </React.Suspense>
             </Box>
           </InlineErrorBoundary>

@@ -48,9 +48,11 @@ interface AccountActionsProps {
 }
 
 function AccountActions(props: AccountActionsProps) {
-  const accountData = useLiveAccountData(props.account.publicKey, props.account.testnet)
+  const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const classes = useButtonStyles()
   const className = `${props.bottomOfScreen ? classes.mobile : classes.desktop} ${props.hidden ? classes.hidden : ""}`
+  const isDisabled =
+    accountData.balances.length === 0 || !accountData.signers.some(signer => signer.key === props.account.publicKey)
   const { t } = useTranslation()
   return (
     <DialogActionsBox className={className} hidden={props.hidden}>
@@ -64,7 +66,7 @@ function AccountActions(props: AccountActionsProps) {
       </ActionButton>
       <ActionButton
         className={classes.button}
-        disabled={accountData.balances.length === 0}
+        disabled={isDisabled}
         icon={<SendIcon style={{ fontSize: "110%" }} />}
         onClick={props.onCreatePayment}
         type="primary"
