@@ -179,10 +179,10 @@ export function resetAllSubscriptions() {
 
 export async function submitTransaction(horizonURL: string, txEnvelopeXdr: string, network: Networks) {
   const fetchQueue = getFetchQueue(horizonURL)
-  const url = new URL(`/transactions`, horizonURL)
+  const url = new URL(`/transactions?${qs.stringify({ tx: txEnvelopeXdr })}`, horizonURL)
 
   const response = await fetchQueue.add(() => {
-    return fetch(String(url) + "?" + qs.stringify({ tx: txEnvelopeXdr }), {
+    return fetch(String(url), {
       method: "POST"
     })
   })
@@ -210,8 +210,8 @@ async function waitForAccountDataUncached(horizonURL: string, accountID: string,
       throw Cancellation("Stopping to wait for account to become present in network.")
     }
 
-    const url = new URL(`/accounts/${accountID}`, horizonURL)
-    const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)))
+    const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
+    const response = await fetchQueue.add(() => fetch(String(url)))
 
     if (response.status === 200) {
       accountData = await parseJSONResponse<Horizon.AccountResponse>(response)
@@ -692,7 +692,7 @@ export async function fetchAccountData(
 ): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
-  const response = await fetchQueue.add(() => fetch(String(url) + "?" + qs.stringify(identification)), { priority: 2 })
+  const response = await fetchQueue.add(() => fetch(String(url)), { priority: 2 })
 
   if (response.status === 404) {
     return null
@@ -704,21 +704,16 @@ export async function fetchAccountData(
 
 export async function fetchLatestAccountEffect(horizonURL: string, accountID: string) {
   const fetchQueue = getFetchQueue(horizonURL)
-  const url = new URL(`/accounts/${accountID}/effects?${qs.stringify(identification)}`, horizonURL)
-
-  const response = await fetchQueue.add(
-    () =>
-      fetch(
-        String(url) +
-          "?" +
-          qs.stringify({
-            ...identification,
-            limit: 1,
-            order: "desc"
-          })
-      ),
-    { priority: 2 }
+  const url = new URL(
+    `/accounts/${accountID}/effects?${qs.stringify({
+      ...identification,
+      limit: 1,
+      order: "desc"
+    })}`,
+    horizonURL
   )
+
+  const response = await fetchQueue.add(() => fetch(String(url)), { priority: 2 })
 
   if (response.status === 404) {
     return null
@@ -737,17 +732,16 @@ export async function fetchAccountTransactions(
   options: FetchTransactionsOptions = {}
 ): Promise<CollectionPage<Horizon.TransactionResponse>> {
   const fetchQueue = getFetchQueue(horizonURL)
-  const url = new URL(`/accounts/${accountID}/transactions?${qs.stringify(identification)}`, horizonURL)
-
   const pagination = {
     cursor: options.cursor,
     limit: options.limit,
     order: options.order
   }
-  const response = await fetchQueue.add(
-    () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...pagination })),
-    { priority: 1 }
+  const url = new URL(
+    `/accounts/${accountID}/transactions?${qs.stringify({ ...identification, ...pagination })}`,
+    horizonURL
   )
+  const response = await fetchQueue.add(() => fetch(String(url)), { priority: 1 })
 
   if (response.status === 404 && options.emptyOn404) {
     return {
@@ -773,12 +767,9 @@ export async function fetchAccountTransactions(
 
 export async function fetchAccountOpenOrders(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
   const fetchQueue = getFetchQueue(horizonURL)
-  const url = new URL(`/accounts/${accountID}/offers?${qs.stringify(identification)}`, horizonURL)
+  const url = new URL(`/accounts/${accountID}/offers?${qs.stringify({ ...identification, ...options })}`, horizonURL)
 
-  const response = await fetchQueue.add(
-    () => fetch(String(url) + "?" + qs.stringify({ ...identification, ...options })),
-    { priority: 1 }
-  )
+  const response = await fetchQueue.add(() => fetch(String(url)), { priority: 1 })
 
   return parseJSONResponse<CollectionPage<ServerApi.OfferRecord>>(response)
 }
