@@ -1,7 +1,8 @@
+import BigNumber from "big.js"
 import React from "react"
+import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { useForm, Controller } from "react-hook-form"
-import { Asset, Horizon, Transaction, Operation } from "stellar-sdk"
+import { Asset, Horizon, Operation, Transaction } from "stellar-sdk"
 import Button from "@material-ui/core/Button"
 import ExpansionPanel from "@material-ui/core/ExpansionPanel"
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
@@ -17,23 +18,23 @@ import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
 import { warningColor } from "~App/theme"
 import AssetSelector from "~Generic/components/AssetSelector"
-import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
+import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 import Portal from "~Generic/components/Portal"
 import { useHorizon } from "~Generic/hooks/stellar"
 import { useLiveOrderbook } from "~Generic/hooks/stellar-subscriptions"
-import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
+import { RefStateObject, useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
 import {
   balancelineToAsset,
-  getSpendableBalance,
+  findMatchingBalanceLine,
   getAccountMinimumBalance,
-  findMatchingBalanceLine
+  getSpendableBalance
 } from "~Generic/lib/stellar"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
-import { bigNumberToInputValue, isValidAmount, useCalculation, TradingFormValues } from "../hooks/form"
+import { bigNumberToInputValue, isValidAmount, TradingFormValues, useCalculation } from "../hooks/form"
 import TradingPrice from "./TradingPrice"
 
 const useStyles = makeStyles({
@@ -375,7 +376,16 @@ function TradingForm(props: Props) {
               }
               control={form.control}
               name="manualPrice"
-              rules={{ validate: value => isValidAmount(value) || t<string>("trading.validation.invalid-price") }}
+              rules={{
+                validate: value => {
+                  const valid = isValidAmount(value) && BigNumber(value).gt(0)
+                  if (!valid && !expanded) {
+                    setExpanded(true)
+                  }
+
+                  return valid || t<string>("trading.validation.invalid-price")
+                }
+              }}
               valueName="manualPrice"
             />
           </ExpansionPanelDetails>
