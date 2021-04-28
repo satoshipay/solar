@@ -378,7 +378,7 @@ function TradingForm(props: Props) {
               name="manualPrice"
               rules={{
                 validate: value => {
-                  const valid = isValidAmount(value) && !BigNumber(value).eq(0)
+                  const valid = isValidAmount(value) && BigNumber(value).gt(0)
                   if (!valid && !expanded) {
                     setExpanded(true)
                   }
