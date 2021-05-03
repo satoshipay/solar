@@ -1,0 +1,79 @@
+{
+  "settings": {
+    "biometric-lock": {
+      "text": {
+        "primary": {
+          "default": "Bloqueo con huella digital",
+          "ios": "Face ID / Touch ID"
+        },
+        "secondary": {
+          "disabled": "La autenticación biométrica está deshabilitada",
+          "enabled": "La autenticación biométrica está habilitada",
+          "not-enrolled": "Configurar la autenticación biométrica en los ajustes del dispositivo."
+        }
+      },
+      "prompt": {
+        "enable": "Desbloquear el dispositivo para habilitar la función.",
+        "disable": "Desbloquear el dispositivo para deshabilitar la función."
+      }
+    },
+    "language": {
+      "auto-detect": {
+        "label": "auto"
+      },
+      "text": {
+        "primary": "Idioma",
+        "secondary": "Cambiar el idioma de interfaz"
+      }
+    },
+    "memo": {
+      "text": {
+        "primary": "Mostrar memo",
+        "secondary": {
+          "hidden": "Los Memos no se muestran en la vista transacciones",
+          "shown": "Los Memos se muestran en la vista de transacciones"
+        }
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Habilitar firmas múltiples",
+        "secondary": {
+          "enabled": "Las funciones multi-firma están habilitadas",
+          "disabled": "Las funcionales multi-firma están deshabilitadas"
+        }
+      }
+    },
+    "testnet": {
+      "text": {
+        "primary": "Mostrar cuentas de Testnet",
+        "secondary": {
+          "cannot-disable": "No puede ser deshabilitado porque ya agregaste cuentas de testnet",
+          "hidden": "Las cuentas de Testnet están ocultas",
+          "shown": "Las cuentas de Testnet están visibles"
+        }
+      }
+    },
+    "title": "Ajustes",
+    "trusted-services": {
+      "text": {
+        "primary": "Administrar Trusted Services",
+        "secondary": "Remover Trusted Services"
+      }
+    }
+  },
+  "trusted-services": {
+    "info": "Trusted Services o servicios de confianza, son servicios en la web a los que se permite interactuar con Solar solicitando datos de cuenta o proponiendo transacciones. Puedes agregar un nuevo servicio una vez que el mismo trata de interactuar con Solar.",
+    "service-selection": {
+      "action": {
+        "cancel": "Cancelar",
+        "confirm": "Confirmar"
+      },
+      "confirm": {
+        "title": "Confirmar remover",
+        "text": "El servicio será eliminado de tu lista de confianza. Estás seguro?"
+      },
+      "no-services": "No hay servicios de confianza."
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "account-list": {
+    "add-account-card": {
+      "label": "Agregar cuenta"
+    },
+    "badges": {
+      "tooltip": {
+        "multi-sig": "Cuenta multi-firma",
+        "security-service": "{{service}} seguridad"
+      }
+    }
+  },
+  "all-accounts": {
+    "switch": {
+      "label": "Testnet"
+    },
+    "update": {
+      "notification": {
+        "start": "Iniciando descarga de actualización...",
+        "success": "La descarga está completa y se instalará en el próximo reinicio!"
+      },
+      "tooltip": "Actualización disponible"
+    },
+    "title": {
+      "testnet": "Cuenta Testnet",
+      "mainnet": "Mis Cuentas"
+    }
+  },
+  "notification": {
+    "desktop": {
+      "new-signature-request": {
+        "title": "Nueva transacción para co-firmar",
+        "body": "De {{signersHavingSigned}}"
+      },
+      "received-payment": {
+        "title": "Pago recibido | {{account}}",
+        "body": "Recibido {{amount}} {{assetCode}}"
+      },
+      "Intercambio-completado": {
+        "title": "Intercambio completado | {{account}}"
+      }
+    },
+    "details": {
+      "action": {
+        "dismiss": "Desechar"
+      },
+      "support": "Tiene problemas con la aplicación? <1 /> Contáctenos por",
+      "title": "Error",
+      "offline": "Desconectado"
+    },
+    "permission": {
+      "app-notification": {
+        "error": "Habilitar en ajustes del dispositivo",
+        "granted": {
+          "title": "Notificaciones habilitadas",
+          "text": "A partir de ahora Solar mostrará notificaciones"
+        },
+        "message": "Habilitar notificaciones"
+      }
+    }
+  },
+  "terms-and-conditions": {
+    "action": {
+      "confirm": "Confirmar"
+    },
+    "header": "Bienvenido a Solar",
+    "checkbox": {
+      "1": {
+        "label": "Comprendo que soy responsable por la seguridad de mis fondos y que Solar no puede recuperar mis fondos en caso de pérdida de datos o si pierdo mis credenciales."
+      },
+      "2": {
+        "label": "He leído, comprendo y estoy de acuerdo con los <1>Términos y Condiciones</1> <2>y la</2> <3>Política de Privacidad</3> de Solar."
+      }
+    }
+  }
+}

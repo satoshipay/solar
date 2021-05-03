@@ -1,0 +1,114 @@
+{
+  "account-merge": {
+    "summary": {
+      "account": "Cuenta",
+      "merge-into": "Unir con"
+    },
+    "title": "Unir cuenta"
+  },
+  "change-trust": {
+    "summary": {
+      "asset": "Activo",
+      "issued-by": "Emitido por",
+      "limit": {
+        "label": "Límite",
+        "value": {
+          "unlimited": "Ilimitado",
+          "limited-to": "Limitado a {{limit}} {{code}}"
+        }
+      }
+    },
+    "title": {
+      "add-asset": "Añadir activo",
+      "remove-asset": "Remover activo"
+    }
+  },
+  "create-account": {
+    "summary": {
+      "account": "Cuenta a crear",
+      "funding-account": "Cuenta fundadora",
+      "funding-amount": "Monto para fundar"
+    },
+    "title": "Crear una cuenta"
+  },
+  "manage-buy-offer": {
+    "title": {
+      "create": "Crear orden de compra",
+      "delete": "Cancelar orden",
+      "update": "Actualizar orden de compra"
+    }
+  },
+  "manage-data": {
+    "title": "Establecer datos de la cuenta"
+  },
+  "manage-offer": {
+    "summary": {
+      "buy": "Comprar",
+      "sell": "Vender"
+    }
+  },
+  "manage-sell-offer": {
+    "title": {
+      "create": "Crea orden de venta",
+      "delete": "Cancela orden de venta",
+      "update": "Actualizar orden de venta"
+    }
+  },
+  "offer-details": {
+    "string": "Comprar {{price}} {{buyingCode}} por {{amount}} {{sellingCode}}"
+  },
+  "payment": {
+    "summary": {
+      "amount": "Cantidad",
+      "destination": "Destino",
+      "source": "Origen"
+    },
+    "title": "Pago"
+  },
+  "set-options": {
+    "add-signer": {
+      "summary": {
+        "account": "Cuenta para añadir firmante",
+        "key-weight": "Peso de clave",
+        "new-signer": "Nuevo firmante"
+      },
+      "title": "Añadir firmante"
+    },
+    "change-signature-setup": {
+      "summary": {
+        "key-thresholds": {
+          "label": "Nuevos umbrales de clave",
+          "value": {
+            "low": "Umbral bajo: {{threshold}}",
+            "medium": "Umbral medio: {{threshold}}",
+            "high": "Umbral alto: {{threshold}}"
+          }
+        },
+        "required-signatures": "Firmas requeridas"
+      },
+      "title": "Cambiar ajustes de firma"
+    },
+    "remove-signer": {
+      "summary": {
+        "account": "Cuenta de la cual retirar firmante",
+        "signer": "Firmante"
+      },
+      "title": "Remover firmante"
+    },
+    "set-account-options": {
+      "title": "Establecer opciones de cuenta"
+    },
+    "set-home-domain": {
+      "title": "Establecer dominio"
+    },
+    "set-inflation-destination": {
+      "summary": {
+        "new-destination": "Nuevo destino"
+      },
+      "title": "Establecer destino de la inflación"
+    },
+    "set-master-key-weight": {
+      "title": "Establecer el peso de la llave master"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "actions": {
+    "submit": "Enviar ahora"
+  },
+  "memo-metadata": {
+    "label": {
+      "default": "Memo",
+      "id": "Memo (ID)",
+      "text": "Memo (Texto)"
+    },
+    "placeholder": {
+      "optional": "Descripción (opcional)",
+      "mandatory": "Descripción (obligatoria)"
+    }
+  },
+  "inputs": {
+    "destination": {
+      "label": "Dirección de destino",
+      "placeholder": "GABCDEFGHIJK ... o alice*example.org"
+    },
+    "price": {
+      "label": "Monto",
+      "placeholder": "Max. {{amount}}"
+    }
+  },
+  "title": {
+    "send": "Envía fondos",
+    "receive": "Recibe fondos"
+  },
+  "validation": {
+    "memo-required": "Establecer un Memo cuando envía fondos a {{destination}}",
+    "memo-too-long": "Memo muy largo.",
+    "no-destination": "Ninguna dirección especificada.",
+    "no-price": "Ningún monto especificado.",
+    "not-enough-funds": "Fondos insuficientes.",
+    "invalid-destination": "Se esperaba una llave pública o una dirección Stellar.",
+    "invalid-price": "Monto no válido.",
+    "integer-memo-required": "El Memo debe ser un número entero"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "action": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "create": "Crear una cuenta",
+    "import": "Importar cuenta"
+  },
+  "action-selection": {
+    "create": {
+      "description": "Crear una cuenta nueva",
+      "label": "Crea una cuenta"
+    },
+    "import": {
+      "description": "Restaurar cuenta desde copia de seguridad",
+      "label": "Importar cuenta"
+    }
+  },
+  "base-name": {
+    "mainnet": "Mi cuenta",
+    "testnet": "Mi cuenta Testnet"
+  },
+  "confirm": {
+    "text": "Está a punto de crear una cuenta sin protección de contraseña. Cualquiera con acceso a este dispositivo tendrá acceso a los fondos. <1 /> <3 /> ¿Estás seguro de querer continuar sin establecer una contraseña?",
+    "title": "Continuar sin contraseña"
+  },
+  "header": {
+    "placeholder": {
+      "mainnet": "Nueva cuenta",
+      "testnet": "Nueva cuenta Testnet"
+    }
+  },
+  "inputs": {
+    "import": {
+      "helper-text": "La clave secreta Stellar tiene 56 caracteres alfanuméricos y empieza con una S.",
+      "placeholder": "SABCDEFGH ...",
+      "label": "Clave secreta",
+      "title": "Importar existente"
+    },
+    "password": {
+      "label": "Contraseña",
+      "placeholder": "Ingresa una contraseña"
+    },
+    "password-repeat": {
+      "label": "Repetir contraseña",
+      "placeholder": "Repita su contraseña"
+    }
+  },
+  "options": {
+    "import": {
+      "label": "Importar clave secreta",
+      "description": "Restaurar cuenta desde copia de seguridad"
+    },
+    "password": {
+      "label": "Protección con contraseña",
+      "protected": "Tu clave privada será encriptada",
+      "unprotected": "Tu clave secreta no será protegida"
+    }
+  },
+  "validation": {
+    "invalid-key": "Clave privada Stellar no es válida.",
+    "no-account-name": "No se ha introducido nombre de cuenta.",
+    "no-password": "No se ha introducido contraseña.",
+    "password-no-match": "Las contraseñas no coinciden.",
+    "same-account": "Ya se había agregado esta cuenta."
+  }
+}

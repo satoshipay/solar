@@ -1,0 +1,221 @@
+{
+  "account-deletion": {
+    "action": {
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "delete": "Eliminar",
+      "merge": {
+        "long": "Unir dentro de",
+        "short": "Unir"
+      }
+    },
+    "confirm": {
+      "title": "Confirmar para eliminar",
+      "text": {
+        "confirm": "¿Está seguro?",
+        "delete": "La cuenta será eliminada",
+        "merge": "y los fondos restantes transferidos"
+      }
+    },
+    "remaining-funds": {
+      "text": "Enviar fondos restantes a"
+    },
+    "text": {
+      "1": "¿Está seguro de querer borrar la cuenta \"{{accountName}}\"?",
+      "2": "Asegúrese de tener copia de la clave privada o de unirla a otra cuenta, ¡Aún quedan fondos en esta cuenta!"
+    },
+    "title": "Confirmar para borrar la cuenta",
+    "warning-dialog": {
+      "close": {
+        "label": "OK"
+      }
+    },
+    "warnings": {
+      "cannot-merge": {
+        "text": "Aún no es posible unir a otra cuenta. Primero debe cancelar todas las órdenes de intercambio abiertas y remover todos los activos.",
+        "title": "Acción manual requerida"
+      }
+    }
+  },
+  "custom-trustline": {
+    "action": {
+      "cancel": "Anular",
+      "trust": {
+        "long": "Confiar en el Token",
+        "short": "Confiar"
+      }
+    },
+    "textfield": {
+      "code": {
+        "label": "Código"
+      },
+      "issuer": {
+        "label": "Emisor",
+        "placeholder": "Clave pública del emisor"
+      },
+      "limit": {
+        "label": "Límite (opcional)",
+        "placeholder": "Limita la confianza en este activo / saldo máximo a mantener"
+      }
+    },
+    "title": "Agregar activo personalizado"
+  },
+  "export-key": {
+    "action": {
+      "confirm": "Hecho",
+      "reveal": {
+        "long": "Revela la clave",
+        "short": "Presionar para revelar clave privada"
+      }
+    },
+    "info": {
+      "backup": {
+        "title": "Resguarde la clave secreta ahora",
+        "paragraph-1": "La clave secreta es el único modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
+        "paragraph-2": "Escriba o imprima la clave secreta, guárdela en un lugar seguro y no la comparta con nadie."
+      },
+      "export": {
+        "paragraph-1": "La clave secreta es el único modo de recuperar sus fondos si olvida la contraseña o pierde el acceso a su dispositivo.",
+        "paragraph-2": "Escriba o imprima la clave secreta, guárdela en un lugar seguro y no la comparta con nadie."
+      },
+      "secret-key": "Escriba la clave en papel y guárdela en un lugar seguro",
+      "tap-to-copy": "Presionar para copiar"
+    },
+    "textfield": {
+      "password": {
+        "label": "Contraseña"
+      }
+    },
+    "title": {
+      "default": "Exportar la clave secreta",
+      "initial-backup": "Respaldar la clave secreta"
+    }
+  },
+  "manage-signers": {
+    "action": {
+      "add-co-signer": {
+        "long": "Añadir co-firmante",
+        "short": "Firmante"
+      },
+      "cancel": "Cancelar",
+      "apply": {
+        "long": "Aplicar el cambio",
+        "short": "Aplicar"
+      }
+    },
+    "signers-editor": {
+      "list": {
+        "item": {
+          "weight": "Peso",
+          "local-key": "Clave local"
+        }
+      },
+      "new-signer": {
+        "label": "Clave pública o dirección Stellar",
+        "placeholder": {
+          "long": "GABC… o dirección",
+          "short": "GABCDEFGHIJK… o alice*example.org"
+        }
+      },
+      "validation": {
+        "existing-signer": "No puede agregar firmante existente.",
+        "integer-required": "Debe ser un número entero.",
+        "invalid-stellar-address": "Se espera un clave pública o dirección Stellar"
+      }
+    },
+    "textfield": {
+      "weight-threshold": {
+        "explanation": {
+          "required-signatures": "Toda transacción necesita ser firmada por {{amount}} firmantes"
+        },
+        "required-weight": "Toda transacción debe ser firmada por firmantes con un peso de claves combinado de {{amount}}",
+        "label": {
+          "required-signatures": "Se requieren firmas",
+          "required-weight": "Se requiere peso de claves"
+        }
+      }
+    },
+    "title": {
+      "long": "Administrar Firmantes",
+      "short": "Administrar firmantes de cuenta"
+    },
+    "validation": {
+      "no-signers": "No queda ningún firmante. No te quedes encerrado!",
+      "threshold-higher-than-weights": "El umbral es más alto que los pesos de las claves combinados",
+      "invalid-weight-type": "El peso debe ser un número entero",
+      "no-threshold": "Por favor establezca un umbral"
+    }
+  },
+  "set-password": {
+    "action": {
+      "change-password": {
+        "long": "Cambiar contraseña",
+        "short": "Modificar"
+      },
+      "remove-password": {
+        "long": "Remover contraseña",
+        "short": "Remover"
+      }
+    },
+    "notification": {
+      "password-changed": "Contraseña cambiada.",
+      "password-set": "Contraseña establecida.",
+      "password-removed": "Contraseña removida."
+    },
+    "textfield": {
+      "prev-password": {
+        "label": "Contraseña actual"
+      },
+      "next-password": {
+        "label": "Nueva contraseña"
+      },
+      "next-password-repeat": {
+        "label": "Repetir nueva contraseña"
+      }
+    },
+    "title": {
+      "change-password": "Cambiar contraseña",
+      "set-password": "Establecer contraseña"
+    },
+    "validation": {
+      "next-password-missing": "Entrar una contraseña o establecer \"Remover contraseña\".",
+      "next-password-repeat-missing": "Por favor repetir la contraseña.",
+      "passwords-no-match": "La contraseña no coincide",
+      "previous-password-missing": "Falta la contraseña actual."
+    }
+  },
+  "settings": {
+    "delete-account": {
+      "text": {
+        "primary": "Unir o borrar cuenta"
+      }
+    },
+    "export-secret-key": {
+      "text": {
+        "primary": "Exporta clave secreta",
+        "secondary": "Desencripta y muestra la clave privada"
+      }
+    },
+    "multi-sig": {
+      "text": {
+        "primary": "Multi-firma",
+        "secondary": {
+          "short": "Administrar cofirmantes",
+          "long": "Crea cuenta con multi-firma y administra co-firmantes"
+        }
+      }
+    },
+    "set-password": {
+      "text": {
+        "primary": {
+          "account-protected": "Cambiar contraseña",
+          "account-not-protected": "Establecer contraseña"
+        },
+        "secondary": {
+          "account-protected": "Tu cuenta es segura, protegida por una contraseña",
+          "account-not-protected": "Tu cuenta no está protegida"
+        }
+      }
+    }
+  }
+}

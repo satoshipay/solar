@@ -1,0 +1,66 @@
+{
+  "action": {
+    "add-asset": "Añadir activo",
+    "submit": "Enviar orden"
+  },
+  "action-selection": {
+    "buy": {
+      "description": "Adquirir alguna cantidad de un activo en el intercambio distribuido",
+      "label": "Adquirir activo"
+    },
+    "sell": {
+      "description": "Negociar algún monto de un activo a cambio de otro",
+      "label": "Vender activo"
+    }
+  },
+  "advanced": {
+    "header": "Avanzado"
+  },
+  "inputs": {
+    "estimated-costs": {
+      "label": {
+        "buy": "Costos estimados",
+        "sell": "Retorno estimado"
+      }
+    },
+    "primary-amount": {
+      "label": {
+        "buy": "Monto a comprar",
+        "sell": "Monto a vender"
+      },
+      "max-button": {
+        "label": "Max"
+      },
+      "placeholder": "Max. {{amount}}"
+    },
+    "primary-asset-selector": {
+      "label": {
+        "buy": "Compras",
+        "sell": "Vendes"
+      }
+    },
+    "secondary-asset-selector": {
+      "label": {
+        "buy": "Gastas",
+        "sell": "Recibes"
+      }
+    }
+  },
+  "no-assets-info": "Esta cuenta aún no usa activos diferentes a Lumens Stellar.",
+  "title": "Negociar",
+  "trading-price": {
+    "default-label": "Precio (límite)",
+    "label": "Precio por {{unit}} (límite)"
+  },
+  "validation": {
+    "primary-amount-missing": "Ningún valor especificado.",
+    "primary-asset-missing": "Ningún activo seleccionado.",
+    "secondary-asset-missing": "Ningún activo seleccionado.",
+    "invalid-amount": "Valor especificado no válido.",
+    "invalid-price": "Precio no válido"
+  },
+  "warning": {
+    "title": "Advertencia",
+    "message": "La diferencia entre precio de compra y precio de venta es cercana a {{spread}}%."
+  }
+}
