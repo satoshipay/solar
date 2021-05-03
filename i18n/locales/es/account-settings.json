@@ -99,34 +99,34 @@
         "short": "Aplicar"
       },
       "cancel": "Cancelar",
-      "proceed": "TODO"
+      "proceed": "Continuar"
     },
     "preset-description": {
-      "m-out-of-n": "TODO",
-      "m-out-of-n_plural": "TODO",
-      "one-out-of-n": "TODO",
-      "single-signature": "TODO"
+      "m-out-of-n": "Agregar o quitar firmantes de la cuenta. Cualquier firma autorizará las transacciones. ",
+      "m-out-of-n_plural": "Agregar o quitar firmantes de la cuenta. {{ count }} firmas autorizarán las transacciones",
+      "one-out-of-n": "Agregar o quitar firmantes de la cuenta. Cualquier firmante puede autorizar transacciones.",
+      "single-signature": "Escoge la clave que será la firma única de la cuenta."
     },
     "preset-description-extra": {
-      "m-out-of-n": "TODO",
-      "one-out-of-n": "TODO"
+      "m-out-of-n": "Ve a 'Agregar cuenta' > 'Unirse a la cuenta' en Solar para crear una nueva clave de co-firmante.",
+      "one-out-of-n": "Ve a 'Agregar cuenta' > 'Unirse a la cuenta' en Solar para crear una nueva clave de co-firmante."
     },
     "preset-selector": {
       "options": {
         "m-out-of-n": {
-          "primary": "TODO",
-          "secondary": "TODO"
+          "primary": "Firma colectiva",
+          "secondary": "Múltiples firmantes tienen que firmar una transacción."
         },
         "one-out-of-n": {
-          "primary": "TODO",
-          "secondary": "TODO"
+          "primary": "Claves de respaldo",
+          "secondary": "Cada firmante puede firmar transacciones por él mismo."
         },
         "single-signature": {
-          "primary": "TODO",
-          "secondary": "TODO"
+          "primary": "Firma única",
+          "secondary": "No hay co-firmantes. Solo un par de claves."
         }
       },
-      "title": "TODO"
+      "title": "Elige como quieres que funcione tu cuenta"
     },
     "signers-editor": {
       "list": {
@@ -143,8 +143,8 @@
         }
       },
       "threshold": {
-        "primary": "TODO",
-        "secondary": "TODO"
+        "primary": "Firmas requeridas",
+        "secondary": "Número de firmas requeridas para autorizar transacciones"
       },
       "validation": {
         "existing-signer": "No puede agregar firmante existente.",

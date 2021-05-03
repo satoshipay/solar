@@ -4,7 +4,7 @@
     "confirm": "Confirmar",
     "create": "Crear una cuenta",
     "import": "Importar cuenta",
-    "join-shared": "TODO"
+    "join-shared": "Agregar cuenta compartida"
   },
   "action-selection": {
     "create": {
@@ -16,8 +16,8 @@
       "label": "Importar cuenta"
     },
     "join-shared": {
-      "description": "TODO",
-      "label": "TODO"
+      "description": "Co-firmar una cuenta compartida",
+      "label": "Unirse a la cuenta"
     }
   },
   "base-name": {
@@ -42,11 +42,11 @@
       "title": "Importar existente"
     },
     "multisig-account": {
-      "explanation-long": "TODO",
-      "explanation-short": "TODO",
-      "helper-text": "TODO",
+      "explanation-long": "Asegúrate de que la cuenta a agregar tenga al menos 2 XLM, así puedes ser agregado como co-firmante.",
+      "explanation-short": "Asegúrate de que la cuenta tiene fondos.",
+      "helper-text": "La dirección de la cuenta Multisig (clave pública)",
       "placeholder": "GABCDEFGH…",
-      "label": "TODO"
+      "label": "Cuenta Multisig (firmas múltiples)"
     },
     "password": {
       "label": "Contraseña",
@@ -59,12 +59,12 @@
   },
   "options": {
     "cosigner": {
-      "label": "TODO",
-      "description": "TODO"
+      "label": "Unirse a cuenta compartida",
+      "description": "Co-firmar una cuenta Multisig (de múltiples firmas)"
     },
     "cosigner-import": {
-      "label": "TODO",
-      "description": "TODO"
+      "label": "Co-firma una cuenta compartida",
+      "description": "La clave es firmante de otra cuenta"
     },
     "import": {
       "label": "Importar clave secreta",
