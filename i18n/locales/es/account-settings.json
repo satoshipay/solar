@@ -93,15 +93,40 @@
   },
   "manage-signers": {
     "action": {
-      "add-co-signer": {
-        "long": "Añadir co-firmante",
-        "short": "Firmante"
-      },
-      "cancel": "Cancelar",
+      "add-signer": "Añadir firmante",
       "apply": {
         "long": "Aplicar el cambio",
         "short": "Aplicar"
-      }
+      },
+      "cancel": "Cancelar",
+      "proceed": "TODO"
+    },
+    "preset-description": {
+      "m-out-of-n": "TODO",
+      "m-out-of-n_plural": "TODO",
+      "one-out-of-n": "TODO",
+      "single-signature": "TODO"
+    },
+    "preset-description-extra": {
+      "m-out-of-n": "TODO",
+      "one-out-of-n": "TODO"
+    },
+    "preset-selector": {
+      "options": {
+        "m-out-of-n": {
+          "primary": "TODO",
+          "secondary": "TODO"
+        },
+        "one-out-of-n": {
+          "primary": "TODO",
+          "secondary": "TODO"
+        },
+        "single-signature": {
+          "primary": "TODO",
+          "secondary": "TODO"
+        }
+      },
+      "title": "TODO"
     },
     "signers-editor": {
       "list": {
@@ -117,22 +142,14 @@
           "short": "GABCDEFGHIJK… o alice*example.org"
         }
       },
+      "threshold": {
+        "primary": "TODO",
+        "secondary": "TODO"
+      },
       "validation": {
         "existing-signer": "No puede agregar firmante existente.",
         "integer-required": "Debe ser un número entero.",
         "invalid-stellar-address": "Se espera un clave pública o dirección Stellar"
-      }
-    },
-    "textfield": {
-      "weight-threshold": {
-        "explanation": {
-          "required-signatures": "Toda transacción necesita ser firmada por {{amount}} firmantes"
-        },
-        "required-weight": "Toda transacción debe ser firmada por firmantes con un peso de claves combinado de {{amount}}",
-        "label": {
-          "required-signatures": "Se requieren firmas",
-          "required-weight": "Se requiere peso de claves"
-        }
       }
     },
     "title": {

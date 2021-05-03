@@ -3,7 +3,8 @@
     "cancel": "Cancelar",
     "confirm": "Confirmar",
     "create": "Crear una cuenta",
-    "import": "Importar cuenta"
+    "import": "Importar cuenta",
+    "join-shared": "TODO"
   },
   "action-selection": {
     "create": {
@@ -13,6 +14,10 @@
     "import": {
       "description": "Restaurar cuenta desde copia de seguridad",
       "label": "Importar cuenta"
+    },
+    "join-shared": {
+      "description": "TODO",
+      "label": "TODO"
     }
   },
   "base-name": {
@@ -36,6 +41,13 @@
       "label": "Clave secreta",
       "title": "Importar existente"
     },
+    "multisig-account": {
+      "explanation-long": "TODO",
+      "explanation-short": "TODO",
+      "helper-text": "TODO",
+      "placeholder": "GABCDEFGH…",
+      "label": "TODO"
+    },
     "password": {
       "label": "Contraseña",
       "placeholder": "Ingresa una contraseña"
@@ -46,6 +58,14 @@
     }
   },
   "options": {
+    "cosigner": {
+      "label": "TODO",
+      "description": "TODO"
+    },
+    "cosigner-import": {
+      "label": "TODO",
+      "description": "TODO"
+    },
     "import": {
       "label": "Importar clave secreta",
       "description": "Restaurar cuenta desde copia de seguridad"
