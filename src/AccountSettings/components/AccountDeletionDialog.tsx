@@ -239,7 +239,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
       }
     >
       <DialogContent style={{ padding: 0 }}>
-        <DialogContentText style={{ marginTop: 24 }}>
+        <DialogContentText style={{ marginTop: 8 }}>
           {t("account-settings.account-deletion.text.1", { accountName: props.account.name })}
         </DialogContentText>
         <DialogContentText style={{ display: accountData.balances.length > 0 ? undefined : "none", marginTop: 16 }}>
