@@ -3,7 +3,8 @@
     "cancel": "Cancelar",
     "confirm": "Confirmar",
     "create": "Crear una cuenta",
-    "import": "Importar cuenta"
+    "import": "Importar cuenta",
+    "join-shared": "Agregar cuenta compartida"
   },
   "action-selection": {
     "create": {
@@ -13,6 +14,10 @@
     "import": {
       "description": "Restaurar cuenta desde copia de seguridad",
       "label": "Importar cuenta"
+    },
+    "join-shared": {
+      "description": "Co-firmar una cuenta compartida",
+      "label": "Unirse a la cuenta"
     }
   },
   "base-name": {
@@ -36,6 +41,13 @@
       "label": "Clave secreta",
       "title": "Importar existente"
     },
+    "multisig-account": {
+      "explanation-long": "Asegúrate de que la cuenta a agregar tenga al menos 2 XLM, así puedes ser agregado como co-firmante.",
+      "explanation-short": "Asegúrate de que la cuenta tiene fondos.",
+      "helper-text": "La dirección de la cuenta Multisig (clave pública)",
+      "placeholder": "GABCDEFGH…",
+      "label": "Cuenta Multisig (firmas múltiples)"
+    },
     "password": {
       "label": "Contraseña",
       "placeholder": "Ingresa una contraseña"
@@ -46,6 +58,14 @@
     }
   },
   "options": {
+    "cosigner": {
+      "label": "Unirse a cuenta compartida",
+      "description": "Co-firmar una cuenta Multisig (de múltiples firmas)"
+    },
+    "cosigner-import": {
+      "label": "Co-firma una cuenta compartida",
+      "description": "La clave es firmante de otra cuenta"
+    },
     "import": {
       "label": "Importar clave secreta",
       "description": "Restaurar cuenta desde copia de seguridad"

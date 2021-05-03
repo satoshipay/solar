@@ -93,15 +93,40 @@
   },
   "manage-signers": {
     "action": {
-      "add-co-signer": {
-        "long": "Añadir co-firmante",
-        "short": "Firmante"
-      },
-      "cancel": "Cancelar",
+      "add-signer": "Añadir firmante",
       "apply": {
         "long": "Aplicar el cambio",
         "short": "Aplicar"
-      }
+      },
+      "cancel": "Cancelar",
+      "proceed": "Continuar"
+    },
+    "preset-description": {
+      "m-out-of-n": "Agregar o quitar firmantes de la cuenta. Cualquier firma autorizará las transacciones. ",
+      "m-out-of-n_plural": "Agregar o quitar firmantes de la cuenta. {{ count }} firmas autorizarán las transacciones",
+      "one-out-of-n": "Agregar o quitar firmantes de la cuenta. Cualquier firmante puede autorizar transacciones.",
+      "single-signature": "Escoge la clave que será la firma única de la cuenta."
+    },
+    "preset-description-extra": {
+      "m-out-of-n": "Ve a 'Agregar cuenta' > 'Unirse a la cuenta' en Solar para crear una nueva clave de co-firmante.",
+      "one-out-of-n": "Ve a 'Agregar cuenta' > 'Unirse a la cuenta' en Solar para crear una nueva clave de co-firmante."
+    },
+    "preset-selector": {
+      "options": {
+        "m-out-of-n": {
+          "primary": "Firma colectiva",
+          "secondary": "Múltiples firmantes tienen que firmar una transacción."
+        },
+        "one-out-of-n": {
+          "primary": "Claves de respaldo",
+          "secondary": "Cada firmante puede firmar transacciones por él mismo."
+        },
+        "single-signature": {
+          "primary": "Firma única",
+          "secondary": "No hay co-firmantes. Solo un par de claves."
+        }
+      },
+      "title": "Elige como quieres que funcione tu cuenta"
     },
     "signers-editor": {
       "list": {
@@ -117,22 +142,14 @@
           "short": "GABCDEFGHIJK… o alice*example.org"
         }
       },
+      "threshold": {
+        "primary": "Firmas requeridas",
+        "secondary": "Número de firmas requeridas para autorizar transacciones"
+      },
       "validation": {
         "existing-signer": "No puede agregar firmante existente.",
         "integer-required": "Debe ser un número entero.",
         "invalid-stellar-address": "Se espera un clave pública o dirección Stellar"
-      }
-    },
-    "textfield": {
-      "weight-threshold": {
-        "explanation": {
-          "required-signatures": "Toda transacción necesita ser firmada por {{amount}} firmantes"
-        },
-        "required-weight": "Toda transacción debe ser firmada por firmantes con un peso de claves combinado de {{amount}}",
-        "label": {
-          "required-signatures": "Se requieren firmas",
-          "required-weight": "Se requiere peso de claves"
-        }
       }
     },
     "title": {
