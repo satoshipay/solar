@@ -77,7 +77,7 @@
     }
   },
   "validation": {
-    "invalid-key": "Invalid stellar private key.",
+    "invalid-key": "Invalid Stellar secret key.",
     "no-account-name": "No account name has been entered.",
     "no-password": "No password has been entered.",
     "password-no-match": "Password does not match.",
