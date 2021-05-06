@@ -18,11 +18,8 @@ const initialHorizonSelection = (async () => {
   const { netWorker } = await workers
 
   return Promise.all([
-    netWorker.checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
-    netWorker.checkHorizonOrFailover(
-      "https://stellar-horizon-testnet.satoshipay.io/",
-      "https://horizon-testnet.stellar.org"
-    )
+    netWorker.checkHorizonOrFailover("https://horizon.stellar.org", "https://horizon.stellar.org"),
+    netWorker.checkHorizonOrFailover("https://horizon-testnet.stellar.org", "https://horizon-testnet.stellar.org")
   ])
 })()
 
