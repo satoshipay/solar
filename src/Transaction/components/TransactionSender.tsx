@@ -28,7 +28,7 @@ type Timer = any
 
 function ConditionalSubmissionProgress(props: {
   onClose: () => void
-  onRetry: () => void
+  onRetry: () => Promise<void>
   promise: Promise<any> | null
   type: SubmissionType
 }) {
@@ -348,9 +348,9 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  retrySubmission = () => {
+  retrySubmission = async () => {
     if (this.state.signedTransaction && this.state.unsignedTransaction) {
-      this.submitSignedTransaction(this.state.signedTransaction, this.state.unsignedTransaction)
+      return this.submitSignedTransaction(this.state.signedTransaction, this.state.unsignedTransaction)
     }
   }
 

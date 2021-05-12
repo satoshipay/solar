@@ -45,13 +45,23 @@ const successMessages: { [type: number]: string } = {
 
 interface SubmissionProgressProps {
   onClose?: () => void
-  onRetry?: () => void
+  onRetry?: () => Promise<void>
   promise: Promise<any>
   type: SubmissionType
 }
 
 function SubmissionProgress(props: SubmissionProgressProps) {
   const { t } = useTranslation()
+
+  const [loading, setLoading] = React.useState(false)
+
+  const onRetry = () => {
+    if (props.onRetry) {
+      setLoading(true)
+      props.onRetry().finally(() => setLoading(false))
+    }
+  }
+
   return (
     <Async
       promise={props.promise}
@@ -77,7 +87,7 @@ function SubmissionProgress(props: SubmissionProgressProps) {
           </Heading>
           <DialogActionsBox>
             {props.onRetry && (
-              <ActionButton icon={<RetryIcon />} onClick={props.onRetry} type="primary">
+              <ActionButton icon={<RetryIcon />} loading={loading} onClick={onRetry} type="primary">
                 {t("generic.dialog-actions.retry.label")}
               </ActionButton>
             )}
