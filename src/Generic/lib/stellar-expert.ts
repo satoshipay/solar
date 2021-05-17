@@ -6,26 +6,32 @@ export interface AccountRecord {
   paging_token: string
   name: string
   tags: string[]
-  domain: string
-  accepts?: {
-    memo: "MEMO_TEXT" | "MEMO_ID"
-  }
+  domain?: string
 }
 
 const wellKnownAccountsCache = createPersistentCache<AccountRecord[]>("known-accounts", { expiresIn: 24 * 60 * 60_000 })
 
-export async function fetchWellknownAccounts(testnet: boolean): Promise<AccountRecord[]> {
-  const cacheKey = testnet ? "testnet" : "pubnet"
+export async function fetchWellKnownAccount(accountID: string): Promise<AccountRecord | undefined> {
+  const cacheKey = "all"
   const cachedAccounts = wellKnownAccountsCache.read(cacheKey)
 
   const { netWorker } = await workers
 
-  if (cachedAccounts) {
-    return cachedAccounts
-  } else {
-    const knownAccounts = await netWorker.fetchWellknownAccounts(testnet)
+  const cachedAccount = cachedAccounts && cachedAccounts.find(account => account.address === accountID)
 
-    wellKnownAccountsCache.save(cacheKey, knownAccounts)
-    return knownAccounts
+  if (cachedAccount) {
+    return cachedAccount
+  } else {
+    const fetchedAccount = await netWorker.fetchWellknownAccount(accountID)
+
+    if (fetchedAccount) {
+      const newKnownAccounts: AccountRecord[] = cachedAccounts
+        ? cachedAccounts.concat(fetchedAccount)
+        : [fetchedAccount]
+
+      wellKnownAccountsCache.save(cacheKey, newKnownAccounts)
+    }
+
+    return fetchedAccount || undefined
   }
 }

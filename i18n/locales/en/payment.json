@@ -5,8 +5,7 @@
   "memo-metadata": {
     "label": {
       "default": "Memo",
-      "id": "Memo (ID)",
-      "text": "Memo (Text)"
+      "required": "Memo (Required)"
     },
     "placeholder": {
       "optional": "Description (optional)",

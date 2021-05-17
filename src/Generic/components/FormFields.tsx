@@ -87,6 +87,41 @@ export const PriceInput = React.memo(function PriceInput(props: PriceInputProps)
   )
 })
 
+type MemoInputProps = TextFieldProps & {
+  memoSelector: React.ReactNode
+  memoStyle?: React.CSSProperties
+  readOnly?: boolean
+}
+
+export const MemoInput = React.memo(function MemoInput(props: MemoInputProps) {
+  const { memoSelector, memoStyle, readOnly, ...textfieldProps } = props
+  const InputField = readOnly ? ReadOnlyTextfield : TextField
+  return (
+    <InputField
+      {...textfieldProps}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment
+            disableTypography
+            position="start"
+            style={{
+              pointerEvents: typeof memoSelector === "string" ? "none" : undefined,
+              ...memoStyle
+            }}
+          >
+            {memoSelector}
+          </InputAdornment>
+        ),
+        ...textfieldProps.InputProps
+      }}
+      style={{
+        pointerEvents: props.readOnly ? "none" : undefined,
+        ...textfieldProps.style
+      }}
+    />
+  )
+})
+
 const useReadOnlyTextfieldStyles = makeStyles({
   root: {
     "&:focus": {

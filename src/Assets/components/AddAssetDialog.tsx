@@ -242,7 +242,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const allAssets = useTickerAssets(props.account.testnet)
   const router = useRouter()
   const { t } = useTranslation()
-  const wellKnownAccounts = useWellKnownAccounts(props.account.testnet)
+  const wellKnownAccounts = useWellKnownAccounts()
   const [customTrustlineDialogOpen, setCustomTrustlineDialogOpen] = React.useState(false)
   const [searchFieldValue, setSearchFieldValue] = React.useState("")
   const [txCreationPending, setTxCreationPending] = React.useState(false)
@@ -283,15 +283,15 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   }
 
   const wellknownAccountMatches = React.useCallback(
-    (accountID: string, search: string) => {
+    async (accountID: string, search: string) => {
       const lowerCasedSearch = search.toLowerCase()
-      const record = wellKnownAccounts.lookup(accountID)
+      const record = await wellKnownAccounts.lookup(accountID)
 
       if (!record) {
         return false
       }
       return (
-        record.domain.toLowerCase().includes(lowerCasedSearch) || record.name.toLowerCase().includes(lowerCasedSearch)
+        record.domain?.toLowerCase().includes(lowerCasedSearch) || record.name.toLowerCase().includes(lowerCasedSearch)
       )
     },
     [wellKnownAccounts]

@@ -1,4 +1,8 @@
 {
+  "asset-selector": {
+    "placeholder": "Select an asset",
+    "select": "Select"
+  },
   "dialog-actions": {
     "close": {
       "label": "Close"
@@ -86,6 +90,10 @@
     "action": {
       "cancel": "Cancel"
     }
+  },
+  "memo-selector": {
+    "placeholder": "Select a memo",
+    "select": "Select"
   },
   "submission-progress": {
     "pending": "Submitting to network ...",

@@ -1,6 +1,6 @@
 import React from "react"
 import { useAccountHomeDomainSafe } from "../hooks/stellar"
-import { useWellKnownAccounts } from "../hooks/stellar-ecosystem"
+import { AccountRecord, useWellKnownAccounts } from "../hooks/stellar-ecosystem"
 import { Address } from "./PublicKey"
 
 interface AccountNameProps {
@@ -9,9 +9,13 @@ interface AccountNameProps {
 }
 
 export const AccountName = React.memo(function AccountName(props: AccountNameProps) {
-  const wellknownAccounts = useWellKnownAccounts(props.testnet)
+  const wellknownAccounts = useWellKnownAccounts()
   const homeDomain = useAccountHomeDomainSafe(props.publicKey, props.testnet, true)
-  const record = wellknownAccounts.lookup(props.publicKey)
+  const [record, setRecord] = React.useState<AccountRecord | undefined>(undefined)
+
+  React.useEffect(() => {
+    wellknownAccounts.lookup(props.publicKey).then(setRecord)
+  }, [props.publicKey, wellknownAccounts])
 
   if (record && record.domain) {
     return <span style={{ userSelect: "text" }}>{record.domain}</span>
