@@ -310,7 +310,7 @@ function AccountTitle(props: AccountTitleProps) {
   return (
     <MainTitle
       actions={props.actions}
-      badges={props.editable && !isSmallScreen ? null : props.badges}
+      badges={props.editable && isSmallScreen ? null : props.badges}
       onBack={props.onNavigateBack}
       style={{ marginTop: -12, marginLeft: 0 }}
       title={
