@@ -181,11 +181,14 @@ export async function submitTransaction(horizonURL: string, txEnvelopeXdr: strin
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/transactions?${qs.stringify({ tx: txEnvelopeXdr })}`, horizonURL)
 
-  const response = await fetchQueue.add(() => {
-    return fetch(String(url), {
-      method: "POST"
-    })
-  })
+  const response = await fetchQueue.add(
+    () => {
+      return fetch(String(url), {
+        method: "POST"
+      })
+    },
+    { priority: 20 }
+  )
 
   if (response.status === 200) {
     handleSubmittedTransaction(horizonURL, new Transaction(txEnvelopeXdr, network))
