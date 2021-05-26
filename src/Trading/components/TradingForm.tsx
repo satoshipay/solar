@@ -97,7 +97,7 @@ function TradingForm(props: Props) {
   })
 
   const sendTransaction = props.sendTransaction
-  const { primaryAsset, secondaryAsset } = form.watch()
+  const { primaryAsset, secondaryAsset, manualPrice } = form.watch()
 
   React.useEffect(() => {
     if (!primaryAsset && props.initialPrimaryAsset) {
@@ -140,9 +140,26 @@ function TradingForm(props: Props) {
     form.setValue("primaryAmountString", maxPrimaryAmount.toFixed(7))
   }
 
+  const validateManualPrice = React.useCallback(() => {
+    const value = BigNumber(manualPrice).gt(0) ? manualPrice : defaultPrice
+    const valid = isValidAmount(value) && BigNumber(value).gt(0)
+    if (!valid) {
+      if (!expanded) {
+        setExpanded(true)
+      }
+      return t<string>("trading.validation.invalid-price")
+    }
+  }, [defaultPrice, expanded, manualPrice, t])
+
   const submitForm = React.useCallback(async () => {
     try {
       setPending(true)
+
+      const error = validateManualPrice()
+      if (error) {
+        form.setError("manualPrice", "invalid-amount", error)
+        return
+      }
 
       if (!primaryAsset) {
         throw CustomError(
@@ -191,6 +208,7 @@ function TradingForm(props: Props) {
       setPending(false)
     }
   }, [
+    form,
     effectivePrice,
     horizon,
     primaryAsset,
@@ -199,7 +217,8 @@ function TradingForm(props: Props) {
     props.primaryAction,
     primaryAmount,
     secondaryAsset,
-    sendTransaction
+    sendTransaction,
+    validateManualPrice
   ])
 
   return (
@@ -366,7 +385,6 @@ function TradingForm(props: Props) {
                   defaultPrice={!form.formState.touched.manualPrice ? defaultPrice : undefined}
                   inputError={form.errors.manualPrice && form.errors.manualPrice.message}
                   onSetPriceDenotedIn={setPriceMode}
-                  price={effectivePrice}
                   priceDenotedIn={priceMode}
                   primaryAsset={primaryAsset}
                   secondaryAsset={secondaryAsset}
@@ -376,16 +394,6 @@ function TradingForm(props: Props) {
               }
               control={form.control}
               name="manualPrice"
-              rules={{
-                validate: value => {
-                  const valid = isValidAmount(value) && BigNumber(value).gt(0)
-                  if (!valid && !expanded) {
-                    setExpanded(true)
-                  }
-
-                  return valid || t<string>("trading.validation.invalid-price")
-                }
-              }}
               valueName="manualPrice"
             />
           </ExpansionPanelDetails>

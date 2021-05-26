@@ -1,4 +1,3 @@
-import BigNumber from "big.js"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
@@ -14,7 +13,6 @@ interface TradingPriceProps {
   onBlur?: () => void
   onChange?: (event: React.ChangeEvent) => void
   onSetPriceDenotedIn: (denotedIn: "primary" | "secondary") => void
-  price: BigNumber
   priceDenotedIn: "primary" | "secondary"
   primaryAsset: Asset | undefined
   secondaryAsset: Asset | undefined
