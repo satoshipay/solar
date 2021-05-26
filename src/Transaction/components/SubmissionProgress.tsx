@@ -51,16 +51,17 @@ interface SubmissionProgressProps {
 }
 
 function SubmissionProgress(props: SubmissionProgressProps) {
+  const { onRetry } = props
   const { t } = useTranslation()
 
   const [loading, setLoading] = React.useState(false)
 
-  const onRetry = React.useCallback(() => {
-    if (props.onRetry) {
+  const retry = React.useCallback(() => {
+    if (onRetry) {
       setLoading(true)
-      props.onRetry().finally(() => setLoading(false))
+      onRetry().finally(() => setLoading(false))
     }
-  }, [props.onRetry, setLoading])
+  }, [onRetry, setLoading])
 
   return (
     <Async
@@ -87,7 +88,7 @@ function SubmissionProgress(props: SubmissionProgressProps) {
           </Heading>
           <DialogActionsBox>
             {props.onRetry && (
-              <ActionButton icon={<RetryIcon />} loading={loading} onClick={onRetry} type="primary">
+              <ActionButton icon={<RetryIcon />} loading={loading} onClick={retry} type="primary">
                 {t("generic.dialog-actions.retry.label")}
               </ActionButton>
             )}
