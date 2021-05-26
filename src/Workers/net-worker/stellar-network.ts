@@ -181,11 +181,14 @@ export async function submitTransaction(horizonURL: string, txEnvelopeXdr: strin
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/transactions?${qs.stringify({ tx: txEnvelopeXdr })}`, horizonURL)
 
-  const response = await fetchQueue.add(() => {
-    return fetch(String(url), {
-      method: "POST"
-    })
-  })
+  const response = await fetchQueue.add(
+    () => {
+      return fetch(String(url), {
+        method: "POST"
+      })
+    },
+    { priority: 20 }
+  )
 
   if (response.status === 200) {
     handleSubmittedTransaction(horizonURL, new Transaction(txEnvelopeXdr, network))
@@ -688,11 +691,12 @@ export interface PaginationOptions {
 
 export async function fetchAccountData(
   horizonURL: string,
-  accountID: string
+  accountID: string,
+  priority: number = 2
 ): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
-  const response = await fetchQueue.add(() => fetch(String(url)), { priority: 2 })
+  const response = await fetchQueue.add(() => fetch(String(url)), { priority })
 
   if (response.status === 404) {
     return null
