@@ -55,12 +55,12 @@ function SubmissionProgress(props: SubmissionProgressProps) {
 
   const [loading, setLoading] = React.useState(false)
 
-  const onRetry = () => {
+  const onRetry = React.useCallback(() => {
     if (props.onRetry) {
       setLoading(true)
       props.onRetry().finally(() => setLoading(false))
     }
-  }
+  }, [props.onRetry, setLoading])
 
   return (
     <Async
