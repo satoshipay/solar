@@ -28,7 +28,7 @@ type Timer = any
 
 function ConditionalSubmissionProgress(props: {
   onClose: () => void
-  onRetry: () => void
+  onRetry: () => Promise<void>
   promise: Promise<any> | null
   type: SubmissionType
 }) {
@@ -200,7 +200,7 @@ class TransactionSender extends React.Component<Props, State> {
     try {
       signedTx = await signTransaction(transaction, this.props.account, formValues.password)
       this.setState({ passwordError: null, signedTransaction: signedTx, unsignedTransaction: unsignedTx })
-      this.submitSignedTransaction(signedTx, unsignedTx)
+      return this.submitSignedTransaction(signedTx, unsignedTx)
     } catch (error) {
       if (isWrongPasswordError(error)) {
         this.setState({ passwordError: error })
@@ -348,9 +348,9 @@ class TransactionSender extends React.Component<Props, State> {
     }
   }
 
-  retrySubmission = () => {
+  retrySubmission = async () => {
     if (this.state.signedTransaction && this.state.unsignedTransaction) {
-      this.submitSignedTransaction(this.state.signedTransaction, this.state.unsignedTransaction)
+      return this.submitSignedTransaction(this.state.signedTransaction, this.state.unsignedTransaction)
     }
   }
 
