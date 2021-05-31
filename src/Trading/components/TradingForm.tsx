@@ -34,14 +34,9 @@ import {
 } from "~Generic/lib/stellar"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
-import {
-  bigNumberToInputValue,
-  replaceCommaWithDot,
-  isValidAmount,
-  TradingFormValues,
-  useCalculation
-} from "../hooks/form"
+import { bigNumberToInputValue, TradingFormValues, useCalculation } from "../hooks/form"
 import TradingPrice from "./TradingPrice"
+import { isValidAmount, replaceCommaWithDot } from "~Generic/lib/strings"
 
 const useStyles = makeStyles({
   expansionPanel: {

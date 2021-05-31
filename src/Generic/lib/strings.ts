@@ -8,3 +8,11 @@ export function max(strings: string[], leftpad?: string): string | undefined {
     return maxValue === undefined || thisValue > maxValue ? thisValue : maxValue
   }, undefined)
 }
+
+// replaces ',' with '.' in a string
+// this can be used with strings that represent a number before passing them to Big()
+export function replaceCommaWithDot(input: string) {
+  return input.replace(/,/g, ".")
+}
+
+export const isValidAmount = (amount: string) => /^[0-9]+([\.,][0-9]+)?$/.test(amount)

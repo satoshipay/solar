@@ -4,12 +4,11 @@ import { AccountData } from "~Generic/lib/account"
 import { formatBalance, BalanceFormattingOptions } from "~Generic/lib/balances"
 import { calculateSpread, FixedOrderbookRecord } from "~Generic/lib/orderbook"
 import { BASE_RESERVE, balancelineToAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
+import { isValidAmount, replaceCommaWithDot } from "~Generic/lib/strings"
 import { useConversionOffers } from "./conversion"
 
 export const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
   formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, ...overrides })
-
-export const isValidAmount = (amount: string) => /^[0-9]+([\.,][0-9]+)?$/.test(amount)
 
 function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
@@ -23,12 +22,6 @@ function getSpendableBalanceWithoutBaseReserve(accountMinimumBalance: BigNumber,
 
   // return 0 if calculated balance is negative
   return spendableBalance.cmp(BigNumber(0)) < 0 ? BigNumber(0) : spendableBalance
-}
-
-// replaces ',' with '.' in a string
-// this can be used with strings that represent a number before passing them to Big()
-export function replaceCommaWithDot(input: string) {
-  return input.replace(/,/g, ".")
 }
 
 export interface TradingFormValues {
