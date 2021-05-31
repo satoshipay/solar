@@ -25,6 +25,12 @@ function getSpendableBalanceWithoutBaseReserve(accountMinimumBalance: BigNumber,
   return spendableBalance.cmp(BigNumber(0)) < 0 ? BigNumber(0) : spendableBalance
 }
 
+// replaces ',' with '.' in a string
+// this can be used with strings that represent a number before passing them to Big()
+export function replaceCommaWithDot(input: string) {
+  return input.replace(/,/g, ".")
+}
+
 export interface TradingFormValues {
   primaryAsset: Asset | undefined
   primaryAmountString: string
@@ -58,17 +64,22 @@ export function useCalculation(parameters: CalculationParameters): CalculationRe
   const { accountData, priceMode, primaryAction, tradePair } = parameters
   const { manualPrice, primaryAmountString, primaryAsset, secondaryAsset } = parameters.values
 
+  const dottedManualPrice = replaceCommaWithDot(manualPrice)
+  const dottedPrimaryAmountString = replaceCommaWithDot(primaryAmountString)
+
   const price =
-    manualPrice && isValidAmount(manualPrice)
+    dottedManualPrice && isValidAmount(dottedManualPrice)
       ? priceMode === "secondary"
-        ? BigNumber(manualPrice)
-        : BigNumber(manualPrice).eq(0) // prevent division by zero
+        ? BigNumber(dottedManualPrice)
+        : BigNumber(dottedManualPrice).eq(0) // prevent division by zero
         ? BigNumber(0)
-        : BigNumber(1).div(manualPrice)
+        : BigNumber(1).div(dottedManualPrice)
       : BigNumber(0)
 
   const primaryAmount =
-    primaryAmountString && isValidAmount(primaryAmountString) ? BigNumber(primaryAmountString) : BigNumber(0)
+    dottedPrimaryAmountString && isValidAmount(dottedPrimaryAmountString)
+      ? BigNumber(dottedPrimaryAmountString)
+      : BigNumber(0)
 
   const primaryBalance = primaryAsset ? findMatchingBalance(accountData.balances, primaryAsset) : undefined
   const secondaryBalance = secondaryAsset ? findMatchingBalance(accountData.balances, secondaryAsset) : undefined
