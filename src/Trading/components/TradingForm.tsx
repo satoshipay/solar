@@ -34,7 +34,13 @@ import {
 } from "~Generic/lib/stellar"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
-import { bigNumberToInputValue, isValidAmount, TradingFormValues, useCalculation } from "../hooks/form"
+import {
+  bigNumberToInputValue,
+  replaceCommaWithDot,
+  isValidAmount,
+  TradingFormValues,
+  useCalculation
+} from "../hooks/form"
 import TradingPrice from "./TradingPrice"
 
 const useStyles = makeStyles({
@@ -141,7 +147,8 @@ function TradingForm(props: Props) {
   }
 
   const validateManualPrice = React.useCallback(() => {
-    const value = BigNumber(manualPrice).gt(0) ? manualPrice : defaultPrice
+    const dottedManualPrice = replaceCommaWithDot(manualPrice)
+    const value = BigNumber(dottedManualPrice).gt(0) ? dottedManualPrice : defaultPrice
     const valid = isValidAmount(value) && BigNumber(value).gt(0)
     if (!valid) {
       if (!expanded) {
@@ -320,7 +327,6 @@ function TradingForm(props: Props) {
             )}
             required
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
-            type="number"
           />
         </HorizontalLayout>
         <HorizontalLayout margin="8px 0 32px">
@@ -394,6 +400,12 @@ function TradingForm(props: Props) {
               }
               control={form.control}
               name="manualPrice"
+              rules={{
+                validate: value => {
+                  const valid = isValidAmount(value)
+                  return valid || t<string>("trading.validation.invalid-price")
+                }
+              }}
               valueName="manualPrice"
             />
           </ExpansionPanelDetails>
