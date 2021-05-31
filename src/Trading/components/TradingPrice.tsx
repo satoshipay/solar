@@ -64,7 +64,6 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
       onChange={props.onChange}
       onFocus={props.selectOnFocus ? event => event.target.select() : undefined}
       style={props.style}
-      type="number"
       value={props.defaultPrice ? props.defaultPrice : props.manualPrice}
     />
   )
