@@ -18,6 +18,6 @@ storiesOf("SubmissionProgress", module)
     <SubmissionProgress
       type={SubmissionType.default}
       promise={Promise.reject(new Error("Test error"))}
-      onRetry={() => undefined}
+      onRetry={() => Promise.resolve()}
     />
   ))
