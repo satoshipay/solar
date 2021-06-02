@@ -15,4 +15,4 @@ export function replaceCommaWithDot(input: string) {
   return input.replace(/,/g, ".")
 }
 
-export const isValidAmount = (amount: string) => /^[0-9]+([\.,][0-9]+)?$/.test(amount)
+export const isValidAmount = (amount: string) => /^[0-9]*([\.,][0-9]+)?$/.test(amount)
