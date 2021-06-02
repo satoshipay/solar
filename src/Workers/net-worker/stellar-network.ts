@@ -85,9 +85,15 @@ const identification = {
   "X-Client-Version": pkg.version
 }
 
-const createAccountCacheKey = (horizonURL: string, accountID: string) => `${horizonURL}:${accountID}`
-const createOrderbookCacheKey = (horizonURL: string, sellingAsset: string, buyingAsset: string) =>
-  `${horizonURL}:${sellingAsset}:${buyingAsset}`
+function chooseRandomURL(urls: string[]) {
+  return urls[Math.floor(Math.random() * urls.length)]
+}
+
+const createAccountCacheKey = (horizonURLs: string[], accountID: string) =>
+  `${horizonURLs.map(url => `${url}:`)}${accountID}`
+// const createAccountCacheKey = (horizonURL: string, accountID: string) => `${horizonURL}:${accountID}`
+const createOrderbookCacheKey = (horizonURLs: string[], sellingAsset: string, buyingAsset: string) =>
+  `${horizonURLs.map(url => `${url}:`)}${sellingAsset}:${buyingAsset}`
 
 const debugHorizonSelection = DebugLogger("net-worker:select-horizon")
 const debugSubscriptionReset = DebugLogger("net-worker:reset-subscriptions")
@@ -238,10 +244,11 @@ async function waitForAccountDataUncached(horizonURL: string, accountID: string,
   }
 }
 
-async function waitForAccountData(horizonURL: string, accountID: string, shouldCancel?: () => boolean) {
+async function waitForAccountData(horizonURLs: string[], accountID: string, shouldCancel?: () => boolean) {
   // Cache promise to make sure we don't poll the same account twice simultaneously
-  const cacheKey = createAccountCacheKey(horizonURL, accountID)
+  const cacheKey = createAccountCacheKey(horizonURLs, accountID)
   const pending = accountDataWaitingCache.get(cacheKey)
+  const horizonURL = chooseRandomURL(horizonURLs)
 
   if (pending) {
     return pending
@@ -256,7 +263,8 @@ async function waitForAccountData(horizonURL: string, accountID: string, shouldC
   }
 }
 
-function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string) {
+function subscribeToAccountEffectsUncached(horizonURLs: string[], accountID: string) {
+  const horizonURL = chooseRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const debug = DebugLogger(`net-worker:subscriptions:account-effects:${accountID}`)
   const serviceID = getServiceID(horizonURL)
@@ -286,7 +294,7 @@ function subscribeToAccountEffectsUncached(horizonURL: string, accountID: string
 
         if (!effect) {
           debug(`Waiting for account to be created on the network…`)
-          await waitForAccountData(horizonURL, accountID)
+          await waitForAccountData(horizonURLs, accountID)
           effect = await fetchLatestAccountEffect(horizonURL, accountID)
         }
 
@@ -352,13 +360,14 @@ export const subscribeToAccountEffects = cachify(
   createAccountCacheKey
 )
 
-function subscribeToAccountUncached(horizonURL: string, accountID: string) {
+function subscribeToAccountUncached(horizonURLs: string[], accountID: string) {
   const debug = DebugLogger(`net-worker:subscriptions:account:${accountID}`)
+  const horizonURL = chooseRandomURL(horizonURLs)
   const serviceID = getServiceID(horizonURL)
 
   let latestSnapshot: string | undefined
 
-  const cacheKey = createAccountCacheKey(horizonURL, accountID)
+  const cacheKey = createAccountCacheKey(horizonURLs, accountID)
   const createSnapshot = (accountData: Horizon.AccountResponse) =>
     JSON.stringify([accountData.sequence, accountData.balances])
 
@@ -374,7 +383,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
       },
       async fetchUpdate() {
         debug(`Fetching update…`)
-        const accountData = await fetchAccountData(horizonURL, accountID)
+        const accountData = await fetchAccountData(horizonURLs, accountID)
         return accountData || undefined
       },
       async init() {
@@ -385,7 +394,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
           latestSnapshot = createSnapshot(lastKnownAccountData)
           return lastKnownAccountData
         } else {
-          const { accountData: initialAccountData } = await waitForAccountData(horizonURL, accountID)
+          const { accountData: initialAccountData } = await waitForAccountData(horizonURLs, accountID)
 
           accountDataCache.set(cacheKey, initialAccountData)
           // Don't set `latestSnapshot` yet or the value will initially not be emitted
@@ -408,7 +417,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
         }
         return merge(
           // Update whenever we receive an account effect push notification
-          subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchAccountData(horizonURL, accountID))),
+          subscribeToAccountEffects(horizonURLs, accountID).pipe(map(() => fetchAccountData(horizonURLs, accountID))),
           // Update on new optimistic updates
           accountDataUpdates.observe().pipe(
             map(handleNewOptimisticUpdate),
@@ -418,7 +427,7 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
           Observable.from([0]).pipe(
             map(async () => {
               await delay(1000)
-              return fetchAccountData(horizonURL, accountID)
+              return fetchAccountData(horizonURLs, accountID)
             })
           )
         )
@@ -430,13 +439,13 @@ function subscribeToAccountUncached(horizonURL: string, accountID: string) {
 
 export const subscribeToAccount = cachify(accountSubscriptionCache, subscribeToAccountUncached, createAccountCacheKey)
 
-function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: string) {
+function subscribeToAccountTransactionsUncached(horizonURLs: string[], accountID: string) {
   const debug = DebugLogger(`net-worker:subscriptions:account-transactions:${accountID}`)
 
   let latestCursor: string | undefined
 
   const fetchInitial = async () => {
-    const page = await fetchAccountTransactions(horizonURL, accountID, {
+    const page = await fetchAccountTransactions(horizonURLs, accountID, {
       limit: 1,
       order: "desc"
     })
@@ -452,10 +461,10 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
       debug(`Fetching latest transactions…`)
 
       if (latestCursor) {
-        const page = await fetchAccountTransactions(horizonURL, accountID, { cursor: latestCursor, limit: 10 })
+        const page = await fetchAccountTransactions(horizonURLs, accountID, { cursor: latestCursor, limit: 10 })
         return [page, "asc"] as const
       } else {
-        const page = await fetchAccountTransactions(horizonURL, accountID, { limit: 10, order: "desc" })
+        const page = await fetchAccountTransactions(horizonURLs, accountID, { limit: 10, order: "desc" })
         return [page, "desc"] as const
       }
     },
@@ -471,7 +480,7 @@ function subscribeToAccountTransactionsUncached(horizonURL: string, accountID: s
   })
 
   return multicast(
-    subscribeToAccountEffects(horizonURL, accountID).pipe(
+    subscribeToAccountEffects(horizonURLs, accountID).pipe(
       flatMap(async function*(): AsyncIterableIterator<Horizon.TransactionResponse> {
         for (let i = 0; i < 3; i++) {
           const [page, order] = await fetchLatestTxs()
@@ -501,8 +510,9 @@ export const subscribeToAccountTransactions = cachify(
   createAccountCacheKey
 )
 
-function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
+function subscribeToOpenOrdersUncached(horizonURLs: string[], accountID: string) {
   const debug = DebugLogger(`net-worker:subscriptions:account-orders:${accountID}`)
+  const horizonURL = chooseRandomURL(horizonURLs)
   const serviceID = getServiceID(horizonURL)
 
   let latestCursor: string | undefined
@@ -513,7 +523,7 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
 
     // Don't use latest cursor as we want to fetch all open orders
     // (otherwise we could not handle order deletions)
-    const page = await fetchAccountOpenOrders(horizonURL, accountID, { order: "desc" })
+    const page = await fetchAccountOpenOrders(horizonURLs, accountID, { order: "desc" })
     return page._embedded.records
   }
 
@@ -567,7 +577,7 @@ function subscribeToOpenOrdersUncached(horizonURL: string, accountID: string) {
         // unreliable and the account effects stream only indicates a trade
         // happening, not the creation/cancellation of one
         return merge(
-          subscribeToAccountEffects(horizonURL, accountID).pipe(map(() => fetchUpdate())),
+          subscribeToAccountEffects(horizonURLs, accountID).pipe(map(() => fetchUpdate())),
           offerUpdates.observe().pipe(map(handleNewOptimisticUpdate))
         )
       }
@@ -614,7 +624,7 @@ function createEmptyOrderbookRecord(base: Asset, counter: Asset): ServerApi.Orde
   }
 }
 
-function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, buyingAsset: string) {
+function subscribeToOrderbookUncached(horizonURLs: string[], sellingAsset: string, buyingAsset: string) {
   const debug = DebugLogger(`net-worker:subscriptions:orderbook:${buyingAsset}-${sellingAsset}`)
 
   const buying = parseAssetID(buyingAsset)
@@ -625,8 +635,9 @@ function subscribeToOrderbookUncached(horizonURL: string, sellingAsset: string, 
     return Observable.from<ServerApi.OrderbookRecord>([createEmptyOrderbookRecord(buying, buying)])
   }
 
+  const horizonURL = chooseRandomURL(horizonURLs)
   const createURL = () => String(new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL))
-  const fetchUpdate = () => fetchOrderbookRecord(horizonURL, sellingAsset, buyingAsset)
+  const fetchUpdate = () => fetchOrderbookRecord(horizonURLs, sellingAsset, buyingAsset)
 
   let latestKnownSnapshot = ""
   const fetchQueue = getFetchQueue(horizonURL)
@@ -690,10 +701,11 @@ export interface PaginationOptions {
 }
 
 export async function fetchAccountData(
-  horizonURL: string,
+  horizonURLs: string | string[],
   accountID: string,
   priority: number = 2
 ): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
+  const horizonURL = Array.isArray(horizonURLs) ? chooseRandomURL(horizonURLs) : horizonURLs
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(() => fetch(String(url)), { priority })
@@ -731,10 +743,11 @@ export interface FetchTransactionsOptions extends PaginationOptions {
 }
 
 export async function fetchAccountTransactions(
-  horizonURL: string,
+  horizonURLs: string[],
   accountID: string,
   options: FetchTransactionsOptions = {}
 ): Promise<CollectionPage<Horizon.TransactionResponse>> {
+  const horizonURL = chooseRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const pagination = {
     cursor: options.cursor,
@@ -769,7 +782,12 @@ export async function fetchAccountTransactions(
   return collection
 }
 
-export async function fetchAccountOpenOrders(horizonURL: string, accountID: string, options: PaginationOptions = {}) {
+export async function fetchAccountOpenOrders(
+  horizonURLs: string[],
+  accountID: string,
+  options: PaginationOptions = {}
+) {
+  const horizonURL = chooseRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}/offers?${qs.stringify({ ...identification, ...options })}`, horizonURL)
 
@@ -795,11 +813,11 @@ export async function fetchFeeStats(horizonURL: string): Promise<FeeStats> {
   return response.json()
 }
 
-export async function fetchOrderbookRecord(horizonURL: string, sellingAsset: string, buyingAsset: string) {
+export async function fetchOrderbookRecord(horizonURLs: string[], sellingAsset: string, buyingAsset: string) {
   if (buyingAsset === sellingAsset) {
     return createEmptyOrderbookRecord(parseAssetID(buyingAsset), parseAssetID(buyingAsset))
   }
-
+  const horizonURL = chooseRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const query = createOrderbookQuery(parseAssetID(sellingAsset), parseAssetID(buyingAsset))
   const url = new URL(`/order_book?${qs.stringify({ ...identification, ...query })}`, horizonURL)
