@@ -213,7 +213,7 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         inputRef={form.register({
           required: t<string>("payment.validation.no-price"),
           validate: value => {
-            if (!isValidAmount(value)) {
+            if (!isValidAmount(value) || BigNumber(replaceCommaWithDot(value)).eq(0)) {
               return t<string>("payment.validation.invalid-price")
             } else if (BigNumber(replaceCommaWithDot(value)).gt(spendableBalance)) {
               return t<string>("payment.validation.not-enough-funds")
