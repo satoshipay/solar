@@ -11,7 +11,7 @@ import {
   WithdrawalTransaction
 } from "@satoshipay/stellar-transfer"
 import { Account } from "~App/contexts/accounts"
-import { useHorizonURL, useWebAuth } from "~Generic/hooks/stellar"
+import { useHorizonURLs, useWebAuth } from "~Generic/hooks/stellar"
 import { CustomError } from "~Generic/lib/errors"
 import { useNetWorker } from "~Generic/hooks/workers"
 import { createTransaction } from "~Generic/lib/transaction"
@@ -63,7 +63,7 @@ async function createWithdrawalTransaction(
 
 export function useWithdrawalState(account: Account, closeDialog: () => void) {
   const netWorker = useNetWorker()
-  const horizonURL = useHorizonURL(account.testnet)
+  const horizonURLs = useHorizonURLs(account.testnet)
   const WebAuth = useWebAuth()
 
   const { dispatch, machineState, transfer } = useTransferState(account, closeDialog)
@@ -156,7 +156,8 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     instructions: WithdrawalInstructionsSuccess,
     amount: BigNumber
   ) => {
-    const accountData = await netWorker.fetchAccountData(horizonURL, account.accountID)
+    const accountData = await netWorker.fetchAccountData(horizonURLs, account.accountID)
+    const horizonURL = horizonURLs[0]
 
     if (!accountData) {
       throw CustomError(

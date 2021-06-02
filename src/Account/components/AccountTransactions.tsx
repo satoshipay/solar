@@ -6,7 +6,7 @@ import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import { SignatureDelegationContext } from "~App/contexts/signatureDelegation"
-import { useHorizonURL } from "~Generic/hooks/stellar"
+import { useHorizonURLs } from "~Generic/hooks/stellar"
 import {
   useLiveRecentTransactions,
   useLiveAccountData,
@@ -69,7 +69,7 @@ function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const { t } = useTranslation()
   const accountData = useLiveAccountData(account.accountID, account.testnet)
-  const horizonURL = useHorizonURL(account.testnet)
+  const horizonURLs = useHorizonURLs(account.testnet)
   const isSmallScreen = useIsMobile()
   const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
   const recentTxs = useLiveRecentTransactions(account.accountID, account.testnet)
@@ -113,7 +113,7 @@ function AccountTransactions(props: { account: Account }) {
           >
             {account.testnet ? (
               <FriendbotButton
-                horizonURL={horizonURL}
+                horizonURL={horizonURLs[0]}
                 publicKey={account.publicKey}
                 style={{ marginBottom: isSmallScreen ? 16 : 32 }}
               />

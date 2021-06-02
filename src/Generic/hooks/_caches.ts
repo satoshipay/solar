@@ -90,12 +90,12 @@ function createCache<SelectorT, DataT, UpdateT>(
   return cache
 }
 
-function createAccountCacheKey([horizonURL, accountID]: readonly [string, string]) {
-  return `${horizonURL}:${accountID}`
+function createAccountCacheKey([horizonURLs, accountID]: readonly [string[], string]) {
+  return `${horizonURLs.map(url => `${url}:`)}${accountID}`
 }
 
-function createAssetPairCacheKey([horizonURL, selling, buying]: readonly [string, Asset, Asset]) {
-  return `${horizonURL}:${stringifyAsset(selling)}:${stringifyAsset(buying)}`
+function createAssetPairCacheKey([horizonURLs, selling, buying]: readonly [string[], Asset, Asset]) {
+  return `${horizonURLs.map(url => `${url}:`)}${stringifyAsset(selling)}:${stringifyAsset(buying)}`
 }
 
 export interface TransactionHistory {
@@ -142,26 +142,32 @@ function areOffersNewer(prev: OfferHistory, next: OfferHistory) {
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
 
-export const accountDataCache = createCache<readonly [string, string], AccountData, AccountData>(createAccountCacheKey)
-
-export const accountHomeDomainCache = createCache<readonly [string, string], [string] | [], AccountData["home_domain"]>(
+export const accountDataCache = createCache<readonly [string[], string], AccountData, AccountData>(
   createAccountCacheKey
 )
 
-export const accountOpenOrdersCache = createCache<readonly [string, string], OfferHistory, ServerApi.OfferRecord[]>(
+export const accountHomeDomainCache = createCache<
+  readonly [string[], string],
+  [string] | [],
+  AccountData["home_domain"]
+>(createAccountCacheKey)
+
+export const accountOpenOrdersCache = createCache<readonly [string[], string], OfferHistory, ServerApi.OfferRecord[]>(
   createAccountCacheKey,
   areOffersNewer
 )
 
 export const accountTransactionsCache = createCache<
-  readonly [string, string],
+  readonly [string[], string],
   TransactionHistory,
   Horizon.TransactionResponse
 >(createAccountCacheKey, areTransactionsNewer)
 
-export const orderbookCache = createCache<readonly [string, Asset, Asset], FixedOrderbookRecord, FixedOrderbookRecord>(
-  createAssetPairCacheKey
-)
+export const orderbookCache = createCache<
+  readonly [string[], Asset, Asset],
+  FixedOrderbookRecord,
+  FixedOrderbookRecord
+>(createAssetPairCacheKey)
 
 // Storing the array [isPresent, stellarTomlData] is important for distinguishing between
 // "the data has not yet been fetched" and "we fetched, but the site doesn't provide any data"
