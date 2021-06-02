@@ -1,6 +1,6 @@
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
-import { Asset, Horizon, Operation, Server } from "stellar-sdk"
+import { Asset, Horizon, Operation } from "stellar-sdk"
 import CloseIcon from "@material-ui/icons/Close"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
@@ -16,7 +16,6 @@ interface Props {
   account: Account
   accountData: AccountData
   asset: Asset
-  horizon: Server
   onClose: () => void
   onRemoved: () => void
   sendTransaction: SendTransaction
@@ -33,7 +32,6 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
       const operations = [Operation.changeTrust({ asset: props.asset, limit: "0" })]
       const transaction = await createTransaction(operations, {
         accountData: props.accountData,
-        horizon: props.horizon,
         walletAccount: props.account
       })
       setTxCreationPending(false)
@@ -91,13 +89,8 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
 function ConnectedRemoveTrustlineDialog(props: Omit<Props, "balances" | "horizon" | "sendTransaction">) {
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>
-      {({ horizon, sendTransaction }) => (
-        <RemoveTrustlineDialog
-          {...props}
-          accountData={props.accountData}
-          horizon={horizon}
-          sendTransaction={sendTransaction}
-        />
+      {({ sendTransaction }) => (
+        <RemoveTrustlineDialog {...props} accountData={props.accountData} sendTransaction={sendTransaction} />
       )}
     </TransactionSender>
   )

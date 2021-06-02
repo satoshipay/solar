@@ -30,7 +30,6 @@ function DialogContainer(props: DialogContainerProps) {
         ],
         {
           accountData,
-          horizon: new Server("https://horizon-testnet.stellar.org"),
           walletAccount: props.account
         }
       )

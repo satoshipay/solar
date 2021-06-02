@@ -371,7 +371,6 @@ function PaymentFormContainer(props: Props) {
       accountData: props.accountData,
       memo: federationMemo.type !== "none" ? federationMemo : userMemo,
       minTransactionFee: isMultisigTx ? multisigMinimumFee : 0,
-      horizon,
       walletAccount: account
     })
     return tx
