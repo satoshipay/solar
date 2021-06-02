@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
-import { Operation, Server, ServerApi, Transaction } from "stellar-sdk"
+import { Operation, ServerApi, Transaction } from "stellar-sdk"
 import ExpansionPanel from "@material-ui/core/ExpansionPanel"
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails"
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary"
@@ -17,7 +17,6 @@ import { Account } from "~App/contexts/accounts"
 import { breakpoints } from "~App/theme"
 import { trackError } from "~App/contexts/notifications"
 import { ActionButton } from "~Generic/components/DialogActions"
-import { useHorizon } from "~Generic/hooks/stellar"
 import { useLoadingState } from "~Generic/hooks/util"
 import { useLiveAccountData, useLiveAccountOffers, useOlderOffers } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile } from "~Generic/hooks/userinterface"
@@ -30,7 +29,6 @@ import TransactionSender from "~Transaction/components/TransactionSender"
 import { SingleBalance } from "./AccountBalances"
 
 function createDismissalTransaction(
-  horizon: Server,
   account: Account,
   accountData: AccountData,
   offer: ServerApi.OfferRecord
@@ -49,7 +47,7 @@ function createDismissalTransaction(
           selling
         })
       ],
-      { accountData, horizon, walletAccount: account }
+      { accountData, walletAccount: account }
     )
   } else {
     return createTransaction(
@@ -62,7 +60,7 @@ function createDismissalTransaction(
           selling
         })
       ],
-      { accountData, horizon, walletAccount: account }
+      { accountData, walletAccount: account }
     )
   }
 }
@@ -216,7 +214,6 @@ const useStyles = makeStyles({
 function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promise<void> }) {
   const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
   const classes = useStyles()
-  const horizon = useHorizon(props.account.testnet)
   const offerHistory = useLiveAccountOffers(props.account.publicKey, props.account.testnet)
   const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
   const fetchMoreOffers = useOlderOffers(props.account.publicKey, props.account.testnet)
@@ -230,7 +227,7 @@ function OfferList(props: Props & { sendTransaction: (tx: Transaction) => Promis
 
   const onCancel = async (offer: ServerApi.OfferRecord) => {
     try {
-      const tx = await createDismissalTransaction(horizon, props.account, accountData, offer)
+      const tx = await createDismissalTransaction(props.account, accountData, offer)
       await props.sendTransaction(tx)
     } catch (error) {
       trackError(error)

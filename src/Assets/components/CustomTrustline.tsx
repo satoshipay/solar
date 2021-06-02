@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, Server, Transaction } from "stellar-sdk"
+import { Asset, Transaction } from "stellar-sdk"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import TextField from "@material-ui/core/TextField"
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser"
@@ -14,7 +14,6 @@ interface Props {
   account: Account
   accountData: AccountData
   createAddAssetTransaction: (asset: Asset, options: { limit?: string }) => any
-  horizon: Server
   onClose: () => void
   sendTransaction: (createTransactionToSend: () => Promise<Transaction>) => any
   txCreationPending: boolean

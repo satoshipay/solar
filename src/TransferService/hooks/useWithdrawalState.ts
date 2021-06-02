@@ -1,5 +1,5 @@
 import BigNumber from "big.js"
-import { Horizon, Networks, Operation, Server, Transaction, xdr } from "stellar-sdk"
+import { Horizon, Operation, Transaction, xdr } from "stellar-sdk"
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
   fetchTransferInfos,
@@ -11,13 +11,14 @@ import {
   WithdrawalTransaction
 } from "@satoshipay/stellar-transfer"
 import { Account } from "~App/contexts/accounts"
-import { useHorizonURLs, useWebAuth } from "~Generic/hooks/stellar"
+import { useWebAuth } from "~Generic/hooks/stellar"
 import { CustomError } from "~Generic/lib/errors"
 import { useNetWorker } from "~Generic/hooks/workers"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Action, TransferStates } from "../util/statemachine"
 import { useTransferState } from "./useTransferState"
 import { createMemo, parseAmount } from "../util/util"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 
 function createWithdrawal(state: Omit<TransferStates.EnterBasics, "step">): Withdrawal {
   const fields = {
@@ -31,7 +32,6 @@ async function createWithdrawalTransaction(
   account: Account,
   accountData: Horizon.AccountResponse,
   amount: BigNumber,
-  horizon: Server,
   instructions: WithdrawalInstructionsSuccess,
   withdrawal: Withdrawal
 ): Promise<Transaction> {
@@ -55,7 +55,6 @@ async function createWithdrawalTransaction(
 
   return createTransaction(operations, {
     accountData,
-    horizon,
     memo,
     walletAccount: account
   })
@@ -63,7 +62,7 @@ async function createWithdrawalTransaction(
 
 export function useWithdrawalState(account: Account, closeDialog: () => void) {
   const netWorker = useNetWorker()
-  const horizonURLs = useHorizonURLs(account.testnet)
+  const network = getNetwork(account.testnet)
   const WebAuth = useWebAuth()
 
   const { dispatch, machineState, transfer } = useTransferState(account, closeDialog)
@@ -140,7 +139,6 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     } else if (cachedAuthToken) {
       await requestWithdrawal(withdrawal, cachedAuthToken)
     } else {
-      const network = account.testnet ? Networks.TESTNET : Networks.PUBLIC
       const authChallenge = await WebAuth.fetchChallenge(
         webauth.endpointURL,
         webauth.signingKey,
@@ -156,18 +154,16 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
     instructions: WithdrawalInstructionsSuccess,
     amount: BigNumber
   ) => {
-    const accountData = await netWorker.fetchAccountData(horizonURLs, account.accountID)
-    const horizonURL = horizonURLs[0]
+    const accountData = await netWorker.fetchAccountData(account.accountID, network)
 
     if (!accountData) {
-      throw CustomError(
-        "FetchAccountDataError",
-        `Cannot fetch account data of ${account.accountID} from ${horizonURL}`,
-        { account: account.accountID, horizon: horizonURL }
-      )
+      throw CustomError("FetchAccountDataError", `Cannot fetch account data of ${account.accountID}`, {
+        account: account.accountID,
+        horizon: ""
+      })
     }
 
-    return createWithdrawalTransaction(account, accountData, amount, new Server(horizonURL), instructions, withdrawal)
+    return createWithdrawalTransaction(account, accountData, amount, instructions, withdrawal)
   }
 
   const pollKYCStatus = async (withdrawal: Withdrawal, transferTxId: string, authToken?: string) => {

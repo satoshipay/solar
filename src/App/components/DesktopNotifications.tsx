@@ -3,7 +3,6 @@ import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
-import { useHorizonURLs } from "~Generic/hooks/stellar"
 import { useLiveAccountEffects } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { useSingleton } from "~Generic/hooks/util"
@@ -17,6 +16,7 @@ import { Account, AccountsContext } from "../contexts/accounts"
 import { trackError } from "../contexts/notifications"
 import { SignatureDelegationContext } from "../contexts/signatureDelegation"
 import * as routes from "../routes"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 
 type TradeEffect = ServerApi.EffectRecord & {
   id: string
@@ -39,13 +39,7 @@ const isTradeEffect = (effect: ServerApi.EffectRecord): effect is TradeEffect =>
 const isPaymentEffect = (effect: ServerApi.EffectRecord) =>
   effect.type === "account_credited" || effect.type === "account_debited"
 
-function createEffectHandlers(
-  router: ReturnType<typeof useRouter>,
-  netWorker: NetWorker,
-  mainnetHorizonURLs: string[],
-  testnetHorizonURLs: string[],
-  t: TFunction
-) {
+function createEffectHandlers(router: ReturnType<typeof useRouter>, netWorker: NetWorker, t: TFunction) {
   return {
     async handleTradeEffect(account: Account, effect: TradeEffect) {
       const buying =
@@ -57,8 +51,8 @@ function createEffectHandlers(
           ? new Asset(effect.sold_asset_code, effect.sold_asset_issuer)
           : Asset.native()
 
-      const horizonURL = account.testnet ? testnetHorizonURLs : mainnetHorizonURLs
-      const openOffers = await netWorker.fetchAccountOpenOrders(horizonURL, account.accountID)
+      const network = getNetwork(account.testnet)
+      const openOffers = await netWorker.fetchAccountOpenOrders(account.accountID, network)
 
       const orderOnlyPartiallyExecuted = openOffers._embedded.records.find(
         offer => String(offer.id) === String(effect.offer_id)
@@ -107,15 +101,11 @@ function DesktopNotifications() {
   const { accounts } = React.useContext(AccountsContext)
   const { subscribeToNewSignatureRequests } = React.useContext(SignatureDelegationContext)
 
-  const mainnetHorizonURLs = useHorizonURLs(false)
-  const testnetHorizonURLs = useHorizonURLs(true)
   const netWorker = useNetWorker()
   const router = useRouter()
   const { t } = useTranslation()
 
-  const effectHandlers = useSingleton(() =>
-    createEffectHandlers(router, netWorker, mainnetHorizonURLs, testnetHorizonURLs, t)
-  )
+  const effectHandlers = useSingleton(() => createEffectHandlers(router, netWorker, t))
 
   const handleNewSignatureRequest = React.useCallback(
     (signatureRequest: MultisigTransactionResponse) => {
