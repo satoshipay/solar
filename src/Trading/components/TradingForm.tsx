@@ -21,6 +21,7 @@ import AssetSelector from "~Generic/components/AssetSelector"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import { ReadOnlyTextfield } from "~Generic/components/FormFields"
 import Portal from "~Generic/components/Portal"
+import { useHorizon } from "~Generic/hooks/stellar"
 import { useLiveOrderbook } from "~Generic/hooks/stellar-subscriptions"
 import { RefStateObject, useIsMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
@@ -104,6 +105,7 @@ function TradingForm(props: Props) {
     }
   }, [form, primaryAsset, props.initialPrimaryAsset])
 
+  const horizon = useHorizon(props.account.testnet)
   const tradePair = useLiveOrderbook(primaryAsset || Asset.native(), secondaryAsset, props.account.testnet)
 
   const assets = React.useMemo(() => props.trustlines.map(balancelineToAsset), [props.trustlines])
@@ -195,6 +197,7 @@ function TradingForm(props: Props) {
         ],
         {
           accountData: props.accountData,
+          horizon,
           walletAccount: props.account
         }
       )
@@ -207,6 +210,7 @@ function TradingForm(props: Props) {
   }, [
     form,
     effectivePrice,
+    horizon,
     primaryAsset,
     props.account,
     props.accountData,

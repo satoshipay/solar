@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Operation, Transaction } from "stellar-sdk"
+import { Operation, Transaction, Server } from "stellar-sdk"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import Switch from "@material-ui/core/Switch"
@@ -90,6 +90,7 @@ interface Warning {
 
 interface AccountDeletionDialogProps {
   account: Account
+  horizon: Server
   onClose: () => void
   onDelete: () => void
   sendTransaction: (transaction: Transaction) => void
@@ -97,6 +98,7 @@ interface AccountDeletionDialogProps {
 
 function AccountDeletionDialog(props: AccountDeletionDialogProps) {
   const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
+  const horizon = props.horizon
 
   const { accounts } = React.useContext(AccountsContext)
   const [mergeAccountEnabled, setMergeAccountEnabled] = React.useState(false)
@@ -124,7 +126,7 @@ function AccountDeletionDialog(props: AccountDeletionDialogProps) {
             destination: selectedMergeAccount.publicKey
           })
         ],
-        { accountData, walletAccount: props.account }
+        { accountData, horizon, walletAccount: props.account }
       )
 
       await props.sendTransaction(transaction)

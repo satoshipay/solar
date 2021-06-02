@@ -1,10 +1,11 @@
 import { TFunction } from "i18next"
 import React from "react"
 import { Translation } from "react-i18next"
-import { Server, Transaction } from "stellar-sdk"
+import { Networks, Server, Transaction } from "stellar-sdk"
 import Zoom from "@material-ui/core/Zoom"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext, SettingsContextType } from "~App/contexts/settings"
+import { useHorizon } from "~Generic/hooks/stellar"
 import { useIsMobile } from "~Generic/hooks/userinterface"
 import { isWrongPasswordError, getErrorTranslation } from "~Generic/lib/errors"
 import { explainSubmissionErrorResponse } from "~Generic/lib/horizonErrors"
@@ -19,7 +20,6 @@ import {
 import { workers } from "~Workers/worker-controller"
 import TransactionReviewDialog from "~TransactionReview/components/TransactionReviewDialog"
 import SubmissionProgress, { SubmissionType } from "./SubmissionProgress"
-import { getHorizon, getNetwork } from "~Workers/net-worker/stellar-network"
 
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
@@ -215,12 +215,12 @@ class TransactionSender extends React.Component<Props, State> {
     const {
       account,
       completionCallbackDelay = 1000,
+      horizon,
       onSubmissionCompleted = () => undefined,
       onSubmissionFailure
     } = this.props
     try {
-      const network = getNetwork(this.props.account.testnet)
-      const thirdPartySecurityService = await isThirdPartyProtected(account.accountID, network)
+      const thirdPartySecurityService = await isThirdPartyProtected(horizon, account.accountID)
       if (thirdPartySecurityService) {
         await this.submitTransactionToThirdPartyService(signedTx, thirdPartySecurityService)
       } else if (
@@ -233,7 +233,7 @@ class TransactionSender extends React.Component<Props, State> {
         // with master weight set to 0 --> request should be submitted to multisig service
         // although it does not require remote signatures
         this.state.signatureRequest?.status === "pending" ||
-        (await requiresRemoteSignatures(network, signedTx, account.publicKey))
+        (await requiresRemoteSignatures(horizon, signedTx, account.publicKey))
       ) {
         await this.submitTransactionToMultisigService(signedTx, unsignedTx)
       } else {
@@ -272,18 +272,20 @@ class TransactionSender extends React.Component<Props, State> {
   submitTransactionToHorizon = async (signedTransaction: Transaction) => {
     const { netWorker } = await workers
 
-    const network = getNetwork(this.props.account.testnet)
+    const network = this.props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
     const txEnvelopeXdr = signedTransaction
       .toEnvelope()
       .toXDR()
       .toString("base64")
 
-    const promise = netWorker.submitTransaction(txEnvelopeXdr, network).then(response => {
-      if (response.status !== 200) {
-        throw explainSubmissionErrorResponse(response, this.props.t)
-      }
-      return response
-    })
+    const promise = netWorker
+      .submitTransaction(String(this.props.horizon.serverURL), txEnvelopeXdr, network)
+      .then(response => {
+        if (response.status !== 200) {
+          throw explainSubmissionErrorResponse(response, this.props.t)
+        }
+        return response
+      })
 
     this.setSubmissionPromise(promise)
     this.setState({ submissionType: SubmissionType.default })
@@ -401,7 +403,7 @@ class TransactionSender extends React.Component<Props, State> {
 }
 
 function TransactionSenderWithHorizon(props: Omit<Props, "horizon" | "settings" | "t">) {
-  const horizon = getHorizon(props.account.testnet)
+  const horizon = useHorizon(props.account.testnet)
   const settings = React.useContext(SettingsContext)
   return <Translation>{t => <TransactionSender {...props} horizon={horizon} settings={settings} t={t} />}</Translation>
 }

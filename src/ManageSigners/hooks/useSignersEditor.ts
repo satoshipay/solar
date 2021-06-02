@@ -99,6 +99,7 @@ export function useSignersEditor(options: SignersEditorOptions) {
 
       const tx = await createTransaction(operations, {
         accountData,
+        horizon: options.horizon,
         walletAccount: options.account
       })
 

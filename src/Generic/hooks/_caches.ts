@@ -1,6 +1,6 @@
 import { TransferServerInfo } from "@satoshipay/stellar-transfer"
 import { multicast, Observable, ObservableLike } from "observable-fns"
-import { Asset, Horizon, Networks, ServerApi } from "stellar-sdk"
+import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { trackError } from "~App/contexts/notifications"
 import { AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
@@ -90,12 +90,12 @@ function createCache<SelectorT, DataT, UpdateT>(
   return cache
 }
 
-function createAccountCacheKey([network, accountID]: readonly [Networks, string]) {
-  return `${network.toString()}${accountID}`
+function createAccountCacheKey([horizonURLs, accountID]: readonly [string[], string]) {
+  return `${horizonURLs.map(url => `${url}:`)}${accountID}`
 }
 
-function createAssetPairCacheKey([network, selling, buying]: readonly [Networks, Asset, Asset]) {
-  return `${network.toString()}${stringifyAsset(selling)}:${stringifyAsset(buying)}`
+function createAssetPairCacheKey([horizonURLs, selling, buying]: readonly [string[], Asset, Asset]) {
+  return `${horizonURLs.map(url => `${url}:`)}${stringifyAsset(selling)}:${stringifyAsset(buying)}`
 }
 
 export interface TransactionHistory {
@@ -142,29 +142,29 @@ function areOffersNewer(prev: OfferHistory, next: OfferHistory) {
   return !prev || nextMaxTimestamp > prevMaxTimestamp
 }
 
-export const accountDataCache = createCache<readonly [Networks, string], AccountData, AccountData>(
+export const accountDataCache = createCache<readonly [string[], string], AccountData, AccountData>(
   createAccountCacheKey
 )
 
 export const accountHomeDomainCache = createCache<
-  readonly [Networks, string],
+  readonly [string[], string],
   [string] | [],
   AccountData["home_domain"]
 >(createAccountCacheKey)
 
-export const accountOpenOrdersCache = createCache<readonly [Networks, string], OfferHistory, ServerApi.OfferRecord[]>(
+export const accountOpenOrdersCache = createCache<readonly [string[], string], OfferHistory, ServerApi.OfferRecord[]>(
   createAccountCacheKey,
   areOffersNewer
 )
 
 export const accountTransactionsCache = createCache<
-  readonly [Networks, string],
+  readonly [string[], string],
   TransactionHistory,
   Horizon.TransactionResponse
 >(createAccountCacheKey, areTransactionsNewer)
 
 export const orderbookCache = createCache<
-  readonly [Networks, Asset, Asset],
+  readonly [string[], Asset, Asset],
   FixedOrderbookRecord,
   FixedOrderbookRecord
 >(createAssetPairCacheKey)

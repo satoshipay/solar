@@ -6,6 +6,7 @@ import UpdateIcon from "@material-ui/icons/Update"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext } from "~App/contexts/settings"
 import { SignatureDelegationContext } from "~App/contexts/signatureDelegation"
+import { useHorizonURLs } from "~Generic/hooks/stellar"
 import {
   useLiveRecentTransactions,
   useLiveAccountData,
@@ -16,7 +17,6 @@ import { useLoadingState } from "~Generic/hooks/util"
 import * as routes from "~App/routes"
 import MainSelectionButton from "~Generic/components/MainSelectionButton"
 import { VerticalLayout } from "~Layout/components/Box"
-import { getHorizonURLs } from "~Workers/net-worker/stellar-network"
 import FriendbotButton from "./FriendbotButton"
 import OfferList from "./OfferList"
 import { InteractiveSignatureRequestList } from "./SignatureRequestList"
@@ -69,7 +69,7 @@ function AccountTransactions(props: { account: Account }) {
   const { account } = props
   const { t } = useTranslation()
   const accountData = useLiveAccountData(account.accountID, account.testnet)
-  const horizonURLs = getHorizonURLs(account.testnet)
+  const horizonURLs = useHorizonURLs(account.testnet)
   const isSmallScreen = useIsMobile()
   const [moreTxsLoadingState, handleMoreTxsFetch] = useLoadingState()
   const recentTxs = useLiveRecentTransactions(account.accountID, account.testnet)

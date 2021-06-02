@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, Operation, Transaction } from "stellar-sdk"
+import { Asset, Operation, Server, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import ClearIcon from "@material-ui/icons/Clear"
 import SwapHorizIcon from "@material-ui/icons/SwapHoriz"
@@ -23,6 +23,7 @@ const dialogActionsBoxStyle: React.CSSProperties = {
 interface Props {
   account: Account
   asset: Asset
+  horizon: Server
   sendTransaction: SendTransaction
 }
 
@@ -43,6 +44,7 @@ function AssetDetailsActions(props: Props) {
     const operations = [Operation.changeTrust({ asset, limit: options.limit })]
     return createTransaction(operations, {
       accountData,
+      horizon: props.horizon,
       walletAccount: props.account
     })
   }
@@ -108,7 +110,9 @@ function AssetDetailsActions(props: Props) {
 function ConnectedAssetDetailsActions(props: Omit<Props, "horizon" | "sendTransaction">) {
   return (
     <TransactionSender account={props.account}>
-      {({ sendTransaction }) => <AssetDetailsActions {...props} sendTransaction={sendTransaction} />}
+      {({ horizon, sendTransaction }) => (
+        <AssetDetailsActions {...props} horizon={horizon} sendTransaction={sendTransaction} />
+      )}
     </TransactionSender>
   )
 }

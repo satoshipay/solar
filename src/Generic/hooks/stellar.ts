@@ -1,13 +1,14 @@
 /* tslint:disable:no-string-literal */
 
 import React from "react"
-import { Asset, Networks, Transaction, Horizon } from "stellar-sdk"
+import { Asset, Networks, Server, Transaction, Horizon } from "stellar-sdk"
 import {
   SigningKeyCacheContext,
   StellarAddressCacheContext,
   StellarAddressReverseCacheContext,
   WebAuthTokenCacheContext
 } from "~App/contexts/caches"
+import { StellarContext } from "~App/contexts/stellar"
 import { workers } from "~Workers/worker-controller"
 import { StellarToml, StellarTomlCurrency } from "~shared/types/stellar-toml"
 import { createEmptyAccountData, AccountData } from "../lib/account"
@@ -16,7 +17,25 @@ import * as StellarAddresses from "../lib/stellar-address"
 import { mapSuspendables } from "../lib/suspense"
 import { accountDataCache, accountHomeDomainCache, stellarTomlCache } from "./_caches"
 import { useNetWorker } from "./workers"
-import { getNetwork } from "~Workers/net-worker/stellar-network"
+
+/** @deprecated */
+export function useHorizon(testnet: boolean = false) {
+  const horizonURLs = useHorizonURLs(testnet)
+  const horizonURL = horizonURLs[0]
+
+  return testnet ? new Server(horizonURL) : new Server(horizonURL)
+}
+
+export function useHorizonURLs(testnet: boolean = false) {
+  const stellar = React.useContext(StellarContext)
+
+  if (stellar.isSelectionPending) {
+    throw stellar.pendingSelection
+  }
+
+  const horizonURLs = testnet ? stellar.testnetHorizonURLs : stellar.pubnetHorizonURLs
+  return horizonURLs
+}
 
 export function useFederationLookup() {
   const lookup = React.useContext(StellarAddressCacheContext)
@@ -69,7 +88,7 @@ export function useWebAuth() {
       const manageDataOperation = transaction.operations.find(operation => operation.type === "manageData")
       const localPublicKey = manageDataOperation ? manageDataOperation.source : undefined
 
-      const network = getNetwork(testnet)
+      const network = testnet ? Networks.TESTNET : Networks.PUBLIC
       const txXdr = transaction
         .toEnvelope()
         .toXDR()
@@ -114,17 +133,17 @@ export function useStellarToml(domain: string | undefined): StellarToml | undefi
 }
 
 export function useAccountData(accountID: string, testnet: boolean) {
+  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
-  const network = getNetwork(testnet)
 
-  const selector = [network, accountID] as const
+  const selector = [horizonURLs, accountID] as const
   const cached = accountDataCache.get(selector)
 
   const prepare = (account: Horizon.AccountResponse | null): AccountData =>
     account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
 
   if (!cached) {
-    accountDataCache.suspend(selector, () => netWorker.fetchAccountData(accountID, network).then(prepare))
+    accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURLs, accountID).then(prepare))
   }
   return cached || createEmptyAccountData(accountID)
 }
@@ -137,15 +156,14 @@ export function useAccountHomeDomains(
   testnet: boolean,
   allowIncompleteResult?: boolean
 ): Array<string | undefined> {
+  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
   const [, setRerenderCounter] = React.useState(0)
-
-  const network = getNetwork(testnet)
 
   const forceRerender = () => setRerenderCounter(counter => counter + 1)
 
   const fetchHomeDomain = async (accountID: string): Promise<[string] | []> => {
-    const accountData = await netWorker.fetchAccountData(accountID, network)
+    const accountData = await netWorker.fetchAccountData(horizonURLs, accountID)
     const homeDomain = accountData ? (accountData as any).home_domain : undefined
     if (homeDomain) {
       ;(testnet ? homeDomainCacheTestnet : homeDomainCachePubnet).save(accountID, homeDomain || null)
@@ -158,7 +176,7 @@ export function useAccountHomeDomains(
 
   try {
     return mapSuspendables(accountIDs, accountID => {
-      const selector = [network, accountID] as const
+      const selector = [horizonURLs, accountID] as const
       return (accountHomeDomainCache.get(selector) ||
         accountHomeDomainCache.suspend(selector, () => fetchHomeDomain(accountID)))[0]
     })
