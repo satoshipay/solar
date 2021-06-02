@@ -1,4 +1,3 @@
-import BigNumber from "big.js"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -32,11 +31,11 @@ import {
   getAccountMinimumBalance,
   getSpendableBalance
 } from "~Generic/lib/stellar"
+import { FormBigNumber, isValidAmount } from "~Generic/lib/form"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
 import { bigNumberToInputValue, TradingFormValues, useCalculation } from "../hooks/form"
 import TradingPrice from "./TradingPrice"
-import { isValidAmount, replaceCommaWithDot } from "~Generic/lib/strings"
 
 const useStyles = makeStyles({
   expansionPanel: {
@@ -142,9 +141,8 @@ function TradingForm(props: Props) {
   }
 
   const validateManualPrice = React.useCallback(() => {
-    const dottedManualPrice = replaceCommaWithDot(manualPrice)
-    const value = BigNumber(dottedManualPrice).gt(0) ? dottedManualPrice : defaultPrice
-    const valid = isValidAmount(value) && BigNumber(value).gt(0)
+    const value = FormBigNumber(manualPrice).gt(0) ? manualPrice : defaultPrice
+    const valid = isValidAmount(value) && FormBigNumber(value).gt(0)
     if (!valid) {
       if (!expanded) {
         setExpanded(true)

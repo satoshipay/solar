@@ -22,7 +22,7 @@ import { PriceInput, QRReader } from "~Generic/components/FormFields"
 import { formatBalance } from "~Generic/lib/balances"
 import { HorizontalLayout } from "~Layout/components/Box"
 import Portal from "~Generic/components/Portal"
-import { isValidAmount, replaceCommaWithDot } from "~Generic/lib/strings"
+import { FormBigNumber, isValidAmount, replaceCommaWithDot } from "~Generic/lib/form"
 
 export interface PaymentFormValues {
   amount: string
@@ -213,9 +213,9 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         inputRef={form.register({
           required: t<string>("payment.validation.no-price"),
           validate: value => {
-            if (!isValidAmount(value) || BigNumber(replaceCommaWithDot(value)).eq(0)) {
+            if (!isValidAmount(value) || FormBigNumber(value).eq(0)) {
               return t<string>("payment.validation.invalid-price")
-            } else if (BigNumber(replaceCommaWithDot(value)).gt(spendableBalance)) {
+            } else if (FormBigNumber(value).gt(spendableBalance)) {
               return t<string>("payment.validation.not-enough-funds")
             } else {
               return undefined
