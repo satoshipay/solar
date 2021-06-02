@@ -85,10 +85,6 @@ const identification = {
   "X-Client-Version": pkg.version
 }
 
-function chooseRandomURL(urls: string[]) {
-  return urls[Math.floor(Math.random() * urls.length)]
-}
-
 const createAccountCacheKey = (horizonURLs: string[], accountID: string) =>
   `${horizonURLs.map(url => `${url}:`)}${accountID}`
 // const createAccountCacheKey = (horizonURL: string, accountID: string) => `${horizonURL}:${accountID}`
@@ -100,6 +96,13 @@ const debugSubscriptionReset = DebugLogger("net-worker:reset-subscriptions")
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+let roundRobinIndex = 0
+function getRandomURL(horizonURLs: string[]) {
+  const url = horizonURLs[roundRobinIndex % horizonURLs.length]
+  roundRobinIndex += 1
+  return url
 }
 
 function getFetchQueue(horizonURL: string): PromiseQueue {
@@ -248,7 +251,7 @@ async function waitForAccountData(horizonURLs: string[], accountID: string, shou
   // Cache promise to make sure we don't poll the same account twice simultaneously
   const cacheKey = createAccountCacheKey(horizonURLs, accountID)
   const pending = accountDataWaitingCache.get(cacheKey)
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
 
   if (pending) {
     return pending
@@ -264,7 +267,7 @@ async function waitForAccountData(horizonURLs: string[], accountID: string, shou
 }
 
 function subscribeToAccountEffectsUncached(horizonURLs: string[], accountID: string) {
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const debug = DebugLogger(`net-worker:subscriptions:account-effects:${accountID}`)
   const serviceID = getServiceID(horizonURL)
@@ -362,7 +365,7 @@ export const subscribeToAccountEffects = cachify(
 
 function subscribeToAccountUncached(horizonURLs: string[], accountID: string) {
   const debug = DebugLogger(`net-worker:subscriptions:account:${accountID}`)
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
   const serviceID = getServiceID(horizonURL)
 
   let latestSnapshot: string | undefined
@@ -512,7 +515,7 @@ export const subscribeToAccountTransactions = cachify(
 
 function subscribeToOpenOrdersUncached(horizonURLs: string[], accountID: string) {
   const debug = DebugLogger(`net-worker:subscriptions:account-orders:${accountID}`)
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
   const serviceID = getServiceID(horizonURL)
 
   let latestCursor: string | undefined
@@ -635,7 +638,7 @@ function subscribeToOrderbookUncached(horizonURLs: string[], sellingAsset: strin
     return Observable.from<ServerApi.OrderbookRecord>([createEmptyOrderbookRecord(buying, buying)])
   }
 
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
   const createURL = () => String(new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL))
   const fetchUpdate = () => fetchOrderbookRecord(horizonURLs, sellingAsset, buyingAsset)
 
@@ -705,7 +708,7 @@ export async function fetchAccountData(
   accountID: string,
   priority: number = 2
 ): Promise<(Horizon.AccountResponse & { home_domain?: string | undefined }) | null> {
-  const horizonURL = Array.isArray(horizonURLs) ? chooseRandomURL(horizonURLs) : horizonURLs
+  const horizonURL = Array.isArray(horizonURLs) ? getRandomURL(horizonURLs) : horizonURLs
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}?${qs.stringify(identification)}`, horizonURL)
   const response = await fetchQueue.add(() => fetch(String(url)), { priority })
@@ -747,7 +750,7 @@ export async function fetchAccountTransactions(
   accountID: string,
   options: FetchTransactionsOptions = {}
 ): Promise<CollectionPage<Horizon.TransactionResponse>> {
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const pagination = {
     cursor: options.cursor,
@@ -787,7 +790,7 @@ export async function fetchAccountOpenOrders(
   accountID: string,
   options: PaginationOptions = {}
 ) {
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const url = new URL(`/accounts/${accountID}/offers?${qs.stringify({ ...identification, ...options })}`, horizonURL)
 
@@ -817,7 +820,7 @@ export async function fetchOrderbookRecord(horizonURLs: string[], sellingAsset: 
   if (buyingAsset === sellingAsset) {
     return createEmptyOrderbookRecord(parseAssetID(buyingAsset), parseAssetID(buyingAsset))
   }
-  const horizonURL = chooseRandomURL(horizonURLs)
+  const horizonURL = getRandomURL(horizonURLs)
   const fetchQueue = getFetchQueue(horizonURL)
   const query = createOrderbookQuery(parseAssetID(sellingAsset), parseAssetID(buyingAsset))
   const url = new URL(`/order_book?${qs.stringify({ ...identification, ...query })}`, horizonURL)
