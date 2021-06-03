@@ -1,4 +1,3 @@
-import BigNumber from "big.js"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -32,9 +31,10 @@ import {
   getAccountMinimumBalance,
   getSpendableBalance
 } from "~Generic/lib/stellar"
+import { FormBigNumber, isValidAmount } from "~Generic/lib/form"
 import { createTransaction } from "~Generic/lib/transaction"
 import { Box, HorizontalLayout, VerticalLayout } from "~Layout/components/Box"
-import { bigNumberToInputValue, isValidAmount, TradingFormValues, useCalculation } from "../hooks/form"
+import { bigNumberToInputValue, TradingFormValues, useCalculation } from "../hooks/form"
 import TradingPrice from "./TradingPrice"
 
 const useStyles = makeStyles({
@@ -141,8 +141,8 @@ function TradingForm(props: Props) {
   }
 
   const validateManualPrice = React.useCallback(() => {
-    const value = BigNumber(manualPrice).gt(0) ? manualPrice : defaultPrice
-    const valid = isValidAmount(value) && BigNumber(value).gt(0)
+    const value = FormBigNumber(manualPrice).gt(0) ? manualPrice : defaultPrice
+    const valid = isValidAmount(value) && FormBigNumber(value).gt(0)
     if (!valid) {
       if (!expanded) {
         setExpanded(true)
@@ -272,17 +272,23 @@ function TradingForm(props: Props) {
             inputRef={form.register({
               required: t<string>("trading.validation.primary-amount-missing"),
               validate: value => {
-                const amountInvalid =
-                  primaryAmount.lt(0) ||
-                  (value.length > 0 && primaryAmount.eq(0)) ||
+                const amountInvalid = primaryAmount.lt(0) || (value.length > 0 && primaryAmount.eq(0))
+                const exceedsBalance =
                   (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(spendablePrimaryBalance)) ||
                   (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(spendableSecondaryBalance))
-                return !amountInvalid || t<string>("trading.validation.invalid-amount")
+
+                if (amountInvalid) {
+                  return t<string>("trading.validation.invalid-amount")
+                } else if (exceedsBalance) {
+                  return t<string>("trading.validation.not-enough-balance")
+                } else {
+                  return true
+                }
               }
             })}
             error={Boolean(form.errors.primaryAmountString)}
             inputProps={{
-              pattern: "[0-9]*",
+              pattern: "^[0-9]*(.[0-9]+)?$",
               inputMode: "decimal",
               min: "0.0000001",
               max: maxPrimaryAmount.toFixed(7),
@@ -320,7 +326,6 @@ function TradingForm(props: Props) {
             )}
             required
             style={{ flexGrow: 1, flexShrink: 1, width: "55%" }}
-            type="number"
           />
         </HorizontalLayout>
         <HorizontalLayout margin="8px 0 32px">
@@ -394,6 +399,12 @@ function TradingForm(props: Props) {
               }
               control={form.control}
               name="manualPrice"
+              rules={{
+                validate: value => {
+                  const valid = isValidAmount(value)
+                  return valid || t<string>("trading.validation.invalid-price")
+                }
+              }}
               valueName="manualPrice"
             />
           </ExpansionPanelDetails>

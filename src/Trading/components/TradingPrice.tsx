@@ -52,7 +52,7 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
   return (
     <TextField
       inputProps={{
-        pattern: "[0-9]*",
+        pattern: "^[0-9]*(.[0-9]+)?$",
         inputMode: "decimal",
         min: "0.0000001"
       }}
@@ -64,7 +64,6 @@ const TradingPrice = React.forwardRef(function TradingPrice(props: TradingPriceP
       onChange={props.onChange}
       onFocus={props.selectOnFocus ? event => event.target.select() : undefined}
       style={props.style}
-      type="number"
       value={props.defaultPrice ? props.defaultPrice : props.manualPrice}
     />
   )

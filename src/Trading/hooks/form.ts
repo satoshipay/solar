@@ -2,14 +2,13 @@ import BigNumber from "big.js"
 import { Asset, Horizon } from "stellar-sdk"
 import { AccountData } from "~Generic/lib/account"
 import { formatBalance, BalanceFormattingOptions } from "~Generic/lib/balances"
+import { FormBigNumber, isValidAmount } from "~Generic/lib/form"
 import { calculateSpread, FixedOrderbookRecord } from "~Generic/lib/orderbook"
 import { BASE_RESERVE, balancelineToAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
 import { useConversionOffers } from "./conversion"
 
 export const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
-  formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, ...overrides })
-
-export const isValidAmount = (amount: string) => /^[0-9]+([\.,][0-9]+)?$/.test(amount)
+  formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, groupThousands: false, ...overrides })
 
 function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))
@@ -61,14 +60,14 @@ export function useCalculation(parameters: CalculationParameters): CalculationRe
   const price =
     manualPrice && isValidAmount(manualPrice)
       ? priceMode === "secondary"
-        ? BigNumber(manualPrice)
-        : BigNumber(manualPrice).eq(0) // prevent division by zero
+        ? FormBigNumber(manualPrice)
+        : FormBigNumber(manualPrice).eq(0) // prevent division by zero
         ? BigNumber(0)
-        : BigNumber(1).div(manualPrice)
+        : BigNumber(1).div(FormBigNumber(manualPrice))
       : BigNumber(0)
 
   const primaryAmount =
-    primaryAmountString && isValidAmount(primaryAmountString) ? BigNumber(primaryAmountString) : BigNumber(0)
+    primaryAmountString && isValidAmount(primaryAmountString) ? FormBigNumber(primaryAmountString) : BigNumber(0)
 
   const primaryBalance = primaryAsset ? findMatchingBalance(accountData.balances, primaryAsset) : undefined
   const secondaryBalance = secondaryAsset ? findMatchingBalance(accountData.balances, secondaryAsset) : undefined
