@@ -8,7 +8,7 @@ import { BASE_RESERVE, balancelineToAsset, getAccountMinimumBalance, getSpendabl
 import { useConversionOffers } from "./conversion"
 
 export const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
-  formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, ...overrides })
+  formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, groupThousands: false, ...overrides })
 
 function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
   return balances.find(balance => balancelineToAsset(balance).equals(asset))

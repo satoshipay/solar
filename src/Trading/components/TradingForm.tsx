@@ -282,7 +282,7 @@ function TradingForm(props: Props) {
             })}
             error={Boolean(form.errors.primaryAmountString)}
             inputProps={{
-              pattern: "[0-9]*",
+              pattern: "^[0-9]*(.[0-9]+)?$",
               inputMode: "decimal",
               min: "0.0000001",
               max: maxPrimaryAmount.toFixed(7),
