@@ -55,9 +55,10 @@
   "validation": {
     "primary-amount-missing": "No amount specified.",
     "primary-asset-missing": "No asset selected.",
-    "secondary-asset-missing": "No asset selected.",
     "invalid-amount": "Invalid amount specified.",
-    "invalid-price": "Invalid price"
+    "invalid-price": "Invalid price",
+    "not-enough-balance": "Exceeds your spendable balance",
+    "secondary-asset-missing": "No asset selected."
   },
   "warning": {
     "title": "Warning",

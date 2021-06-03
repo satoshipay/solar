@@ -272,12 +272,18 @@ function TradingForm(props: Props) {
             inputRef={form.register({
               required: t<string>("trading.validation.primary-amount-missing"),
               validate: value => {
-                const amountInvalid =
-                  primaryAmount.lt(0) ||
-                  (value.length > 0 && primaryAmount.eq(0)) ||
+                const amountInvalid = primaryAmount.lt(0) || (value.length > 0 && primaryAmount.eq(0))
+                const exceedsBalance =
                   (props.primaryAction === "sell" && primaryBalance && primaryAmount.gt(spendablePrimaryBalance)) ||
                   (props.primaryAction === "buy" && secondaryBalance && secondaryAmount.gt(spendableSecondaryBalance))
-                return !amountInvalid || t<string>("trading.validation.invalid-amount")
+
+                if (amountInvalid) {
+                  return t<string>("trading.validation.invalid-amount")
+                } else if (exceedsBalance) {
+                  return t<string>("trading.validation.not-enough-balance")
+                } else {
+                  return true
+                }
               }
             })}
             error={Boolean(form.errors.primaryAmountString)}
