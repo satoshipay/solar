@@ -10,20 +10,31 @@ interface Props {
 interface ContextType {
   isSelectionPending: boolean
   pendingSelection: Promise<any>
-  pubnetHorizonURL: string
-  testnetHorizonURL: string
+  pubnetHorizonURLs: string[]
+  testnetHorizonURLs: string[]
 }
 
-const initialHorizonSelection = (async () => {
+const initialHorizonSelection: Promise<[string[], string[]]> = (async () => {
   const { netWorker } = await workers
 
-  return Promise.all([
-    netWorker.checkHorizonOrFailover("https://stellar-horizon.satoshipay.io/", "https://horizon.stellar.org"),
-    netWorker.checkHorizonOrFailover(
+  const pubnetHorizonURLs: string[] = Array.from(
+    new Set(
+      await Promise.all([
+        "https://horizon.stellar.org",
+        netWorker.checkHorizonOrFailover("https://horizon.stellarx.com", "https://horizon.stellar.org"),
+        netWorker.checkHorizonOrFailover("https://horizon.stellar.lobstr.co", "https://horizon.stellar.org")
+      ])
+    )
+  )
+
+  const testnetHorizonURLs: string[] = [
+    await netWorker.checkHorizonOrFailover(
       "https://stellar-horizon-testnet.satoshipay.io/",
       "https://horizon-testnet.stellar.org"
     )
-  ])
+  ]
+
+  return Promise.all([pubnetHorizonURLs, testnetHorizonURLs])
 })()
 
 initialHorizonSelection.catch(trackError)
@@ -31,8 +42,8 @@ initialHorizonSelection.catch(trackError)
 const initialValues: ContextType = {
   isSelectionPending: true,
   pendingSelection: initialHorizonSelection,
-  pubnetHorizonURL: "https://stellar-horizon.satoshipay.io/",
-  testnetHorizonURL: "https://stellar-horizon-testnet.satoshipay.io/"
+  pubnetHorizonURLs: ["https://horizon.stellar.org"],
+  testnetHorizonURLs: ["https://stellar-horizon-testnet.satoshipay.io/"]
 }
 
 const StellarContext = React.createContext<ContextType>(initialValues)
@@ -48,28 +59,28 @@ export function StellarProvider(props: Props) {
       const { netWorker } = await workers
 
       setContextValue(prevState => ({ ...prevState, pendingSelection: initialHorizonSelection }))
-      const [pubnetHorizonURL, testnetHorizonURL] = await initialHorizonSelection
+      const [pubnetHorizonURLs, testnetHorizonURLs] = await initialHorizonSelection
 
       if (!cancelled) {
         setContextValue(prevState => ({
           isSelectionPending: false,
           pendingSelection: prevState.pendingSelection,
-          pubnetHorizonURL:
-            pubnetHorizonURL !== prevState.pubnetHorizonURL ? pubnetHorizonURL : prevState.pubnetHorizonURL,
-          testnetHorizonURL:
-            testnetHorizonURL !== prevState.testnetHorizonURL ? testnetHorizonURL : prevState.testnetHorizonURL
+          pubnetHorizonURLs:
+            pubnetHorizonURLs !== prevState.pubnetHorizonURLs ? pubnetHorizonURLs : prevState.pubnetHorizonURLs,
+          testnetHorizonURLs:
+            testnetHorizonURLs !== prevState.testnetHorizonURLs ? testnetHorizonURLs : prevState.testnetHorizonURLs
         }))
 
         if (
-          pubnetHorizonURL !== initialValues.pubnetHorizonURL ||
-          testnetHorizonURL !== initialValues.testnetHorizonURL
+          pubnetHorizonURLs !== initialValues.pubnetHorizonURLs ||
+          testnetHorizonURLs !== initialValues.testnetHorizonURLs
         ) {
           await netWorker.resetAllSubscriptions()
           resetNetworkCaches()
         }
 
         // tslint:disable-next-line no-console
-        console.debug(`Selected horizon servers:`, { pubnetHorizonURL, testnetHorizonURL })
+        console.debug(`Selected horizon servers:`, { pubnetHorizonURLs, testnetHorizonURLs })
       }
     }
 

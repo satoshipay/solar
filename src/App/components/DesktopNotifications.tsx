@@ -3,7 +3,7 @@ import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
-import { useHorizonURL } from "~Generic/hooks/stellar"
+import { useHorizonURLs } from "~Generic/hooks/stellar"
 import { useLiveAccountEffects } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
 import { useSingleton } from "~Generic/hooks/util"
@@ -42,8 +42,8 @@ const isPaymentEffect = (effect: ServerApi.EffectRecord) =>
 function createEffectHandlers(
   router: ReturnType<typeof useRouter>,
   netWorker: NetWorker,
-  mainnetHorizonURL: string,
-  testnetHorizonURL: string,
+  mainnetHorizonURLs: string[],
+  testnetHorizonURLs: string[],
   t: TFunction
 ) {
   return {
@@ -57,7 +57,7 @@ function createEffectHandlers(
           ? new Asset(effect.sold_asset_code, effect.sold_asset_issuer)
           : Asset.native()
 
-      const horizonURL = account.testnet ? testnetHorizonURL : mainnetHorizonURL
+      const horizonURL = account.testnet ? testnetHorizonURLs : mainnetHorizonURLs
       const openOffers = await netWorker.fetchAccountOpenOrders(horizonURL, account.accountID)
 
       const orderOnlyPartiallyExecuted = openOffers._embedded.records.find(
@@ -107,14 +107,14 @@ function DesktopNotifications() {
   const { accounts } = React.useContext(AccountsContext)
   const { subscribeToNewSignatureRequests } = React.useContext(SignatureDelegationContext)
 
-  const mainnetHorizonURL = useHorizonURL(false)
-  const testnetHorizonURL = useHorizonURL(true)
+  const mainnetHorizonURLs = useHorizonURLs(false)
+  const testnetHorizonURLs = useHorizonURLs(true)
   const netWorker = useNetWorker()
   const router = useRouter()
   const { t } = useTranslation()
 
   const effectHandlers = useSingleton(() =>
-    createEffectHandlers(router, netWorker, mainnetHorizonURL, testnetHorizonURL, t)
+    createEffectHandlers(router, netWorker, mainnetHorizonURLs, testnetHorizonURLs, t)
   )
 
   const handleNewSignatureRequest = React.useCallback(
