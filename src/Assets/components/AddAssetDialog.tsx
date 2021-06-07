@@ -382,7 +382,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
 function ConnectedAddAssetDialog(props: Omit<AddAssetDialogProps, "horizon" | "sendTransaction">) {
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>
-      {({ horizon, sendTransaction }) => <AddAssetDialog {...props} sendTransaction={sendTransaction} />}
+      {({ sendTransaction }) => <AddAssetDialog {...props} sendTransaction={sendTransaction} />}
     </TransactionSender>
   )
 }

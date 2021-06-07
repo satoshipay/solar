@@ -1,5 +1,5 @@
 import BigNumber from "big.js"
-import { Networks, Transaction } from "stellar-sdk"
+import { Transaction } from "stellar-sdk"
 import { WebauthData } from "@satoshipay/stellar-sep-10"
 import {
   fetchTransferInfos,
@@ -13,6 +13,7 @@ import {
 import { Account } from "~App/contexts/accounts"
 import { CustomError } from "~Generic/lib/errors"
 import { useWebAuth } from "~Generic/hooks/stellar"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 import { Action, TransferStates } from "../util/statemachine"
 import { useTransferState } from "./useTransferState"
 import { parseAmount } from "../util/util"
@@ -107,7 +108,7 @@ export function useDepositState(account: Account, closeDialog: () => void) {
     } else if (cachedAuthToken) {
       await requestDeposit(deposit, cachedAuthToken)
     } else {
-      const network = account.testnet ? Networks.TESTNET : Networks.PUBLIC
+      const network = getNetwork(account.testnet)
       const authChallenge = await WebAuth.fetchChallenge(
         webauth.endpointURL,
         webauth.signingKey,

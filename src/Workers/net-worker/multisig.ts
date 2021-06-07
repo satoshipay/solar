@@ -10,6 +10,7 @@ import {
 import { manageStreamConnection, whenBackOnline } from "~Generic/lib/stream"
 import { joinURL } from "~Generic/lib/url"
 import { raiseConnectionError, ServiceID } from "./errors"
+import { getNetwork } from "./stellar-network"
 
 interface ServerSentEvent {
   data: string | string[]
@@ -174,7 +175,7 @@ export async function shareTransaction(
   transactionXdr: string,
   signatureXdr: string
 ) {
-  const transaction = new Transaction(transactionXdr, testnet ? Networks.TESTNET : Networks.PUBLIC)
+  const transaction = new Transaction(transactionXdr, getNetwork(testnet))
   const url = joinURL(serviceURL, "/transactions")
 
   const req = createSignatureRequestURI(transaction, {

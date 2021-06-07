@@ -11,12 +11,12 @@ import { MultisigTransactionResponse } from "~Generic/lib/multisig-service"
 import { showNotification } from "~Platform/notifications"
 import { formatBalance } from "~Generic/lib/balances"
 import { OfferDetailsString } from "~TransactionReview/components/Operations"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 import { NetWorker } from "~Workers/worker-controller"
 import { Account, AccountsContext } from "../contexts/accounts"
 import { trackError } from "../contexts/notifications"
 import { SignatureDelegationContext } from "../contexts/signatureDelegation"
 import * as routes from "../routes"
-import { getNetwork } from "~Workers/net-worker/stellar-network"
 
 type TradeEffect = ServerApi.EffectRecord & {
   id: string

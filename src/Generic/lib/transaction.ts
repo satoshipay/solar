@@ -12,12 +12,12 @@ import {
   Networks
 } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 import { workers } from "~Workers/worker-controller"
 import { WrongPasswordError, CustomError } from "./errors"
 import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError } from "./stellar"
 import { MultisigTransactionResponse } from "./multisig-service"
-import { getNetwork } from "~Workers/net-worker/stellar-network"
 
 /** in stroops */
 const maximumFeeToSpend = 1_000_000
@@ -114,7 +114,7 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   }
 
   const account = new StellarAccount(accountMetadata.id, accountMetadata.sequence)
-  const networkPassphrase = walletAccount.testnet ? Networks.TESTNET : Networks.PUBLIC
+  const networkPassphrase = getNetwork(walletAccount.testnet)
   const txFee = Math.max(options.minTransactionFee || 0, maximumFeeToSpend)
 
   const builder = new TransactionBuilder(account, {

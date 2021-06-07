@@ -30,6 +30,7 @@ import { matchesRoute } from "~Generic/lib/routes"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import TransactionReviewDialog from "~TransactionReview/components/TransactionReviewDialog"
 import { useOperationTitle } from "~TransactionReview/components/Operations"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 import { SingleBalance } from "./AccountBalances"
 
 const dedupe = <T extends any>(array: T[]): T[] => Array.from(new Set(array))
@@ -405,7 +406,7 @@ export const TransactionListItem = React.memo(function TransactionListItem(props
 
   const { onOpenTransaction } = props
   const restoredTransaction = React.useMemo(
-    () => TransactionBuilder.fromXDR(props.transactionEnvelopeXdr, props.testnet ? Networks.TESTNET : Networks.PUBLIC),
+    () => TransactionBuilder.fromXDR(props.transactionEnvelopeXdr, getNetwork(props.testnet)),
     [props.testnet, props.transactionEnvelopeXdr]
   )
 
@@ -506,7 +507,7 @@ function TransactionList(props: TransactionListProps) {
       return null
     }
 
-    const network = props.account.testnet ? Networks.TESTNET : Networks.PUBLIC
+    const network = getNetwork(props.account.testnet)
     const txResponse = props.transactions.find(recentTx => recentTx.hash === openedTxHash)
 
     let tx = txResponse ? TransactionBuilder.fromXDR(txResponse.envelope_xdr, network) : null
