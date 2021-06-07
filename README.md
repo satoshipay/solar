@@ -101,14 +101,9 @@ docker run --rm -ti \
  -v ${PWD##*/}-node-modules:/project/node_modules \
  -v ~/.cache/electron:/root/.cache/electron \
  -v ~/.cache/electron-builder:/root/.cache/electron-builder \
- electronuserland/builder:wine-mono
-```
-
-Afterwards, install the npm dependencies and build the windows binaries:
-
-```
-npm install && npm run build:win
-```
+ -v /Volumes/Certificates/solar:/root/Certs \
+ electronuserland/builder:wine-mono bash -c 'npm config set script-shell bash && npm install && npm run build:win:signed'
+ ```
 
 ### Signed binaries
 
