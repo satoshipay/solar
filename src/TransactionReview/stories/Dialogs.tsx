@@ -1,11 +1,12 @@
 import React from "react"
 import Button from "@material-ui/core/Button"
 import { storiesOf } from "@storybook/react"
-import { Asset, Server, Transaction } from "stellar-sdk"
-import TransactionReviewDialog from "../components/TransactionReviewDialog"
+import { Asset, Transaction } from "stellar-sdk"
 import { Account, AccountsContext, AccountsProvider } from "~App/contexts/accounts"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { createPaymentOperation, createTransaction } from "~Generic/lib/transaction"
+import { useNetWorker } from "~Generic/hooks/workers"
+import TransactionReviewDialog from "../components/TransactionReviewDialog"
 
 interface DialogContainerProps {
   account: Account
@@ -16,17 +17,21 @@ function DialogContainer(props: DialogContainerProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [transaction, setTransaction] = React.useState<Transaction | null>(null)
   const accountData = useLiveAccountData(props.account.accountID, props.account.testnet)
+  const networker = useNetWorker()
 
   React.useEffect(() => {
     const createDemoTx = async () => {
       return createTransaction(
         [
-          await createPaymentOperation({
-            amount: "1",
-            asset: Asset.native(),
-            destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
-            horizon: new Server("https://horizon-testnet.stellar.org")
-          })
+          await createPaymentOperation(
+            {
+              amount: "1",
+              asset: Asset.native(),
+              destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
+              testnet: props.account.testnet
+            },
+            networker
+          )
         ],
         {
           accountData,
@@ -35,7 +40,7 @@ function DialogContainer(props: DialogContainerProps) {
       )
     }
     createDemoTx().then(tx => setTransaction(tx))
-  }, [accountData, props.account])
+  }, [accountData, networker, props.account])
 
   return (
     <>

@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, Server, Transaction } from "stellar-sdk"
+import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { trackError } from "~App/contexts/notifications"
 import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
@@ -18,7 +18,6 @@ import PaymentForm from "./PaymentForm"
 interface Props {
   account: Account
   accountData: AccountData
-  horizon: Server
   onClose: () => void
   openOrdersCount: number
   sendTransaction: (transaction: Transaction) => Promise<any>
@@ -31,10 +30,10 @@ function PaymentDialog(props: Props) {
   const [txCreationPending, setTxCreationPending] = React.useState(false)
 
   const handleSubmit = React.useCallback(
-    async (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => {
+    async (createTx: (account: Account) => Promise<Transaction>) => {
       try {
         setTxCreationPending(true)
-        const tx = await createTx(props.horizon, props.account)
+        const tx = await createTx(props.account)
         setTxCreationPending(false)
         await sendTransaction(tx)
       } catch (error) {
@@ -43,7 +42,7 @@ function PaymentDialog(props: Props) {
         setTxCreationPending(false)
       }
     },
-    [props.account, props.horizon, sendTransaction]
+    [props.account, sendTransaction]
   )
 
   const trustedAssets = React.useMemo(() => getAssetsFromBalances(props.accountData.balances) || [Asset.native()], [
@@ -89,11 +88,10 @@ function ConnectedPaymentDialog(props: Pick<Props, "account" | "onClose">) {
 
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>
-      {({ horizon, sendTransaction }) => (
+      {({ sendTransaction }) => (
         <PaymentDialog
           {...props}
           accountData={accountData}
-          horizon={horizon}
           openOrdersCount={openOrders.length}
           sendTransaction={sendTransaction}
         />

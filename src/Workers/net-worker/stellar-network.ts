@@ -188,14 +188,6 @@ export function getHorizonURLs(testnet: boolean = false) {
   return testnet ? testnetURLs : mainnetURLs
 }
 
-/** @deprecated */
-export function getHorizon(testnet: boolean = false) {
-  const horizonURLs = getHorizonURLs(testnet)
-  const horizonURL = horizonURLs[0]
-
-  return testnet ? new Server(horizonURL) : new Server(horizonURL)
-}
-
 export async function checkHorizonOrFailover(primaryHorizonURL: string, secondaryHorizonURL: string) {
   const debug = debugHorizonSelection
   // Account ID of friendbot (account exists on pubnet, too)

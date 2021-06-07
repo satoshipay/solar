@@ -3,7 +3,7 @@ import nanoid from "nanoid"
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { Asset, Memo, MemoType, Server, Transaction } from "stellar-sdk"
+import { Asset, Memo, MemoType, Transaction } from "stellar-sdk"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import TextField from "@material-ui/core/TextField"
 import SendIcon from "@material-ui/icons/Send"
@@ -11,6 +11,7 @@ import { Account } from "~App/contexts/accounts"
 import { AccountRecord, useWellKnownAccounts } from "~Generic/hooks/stellar-ecosystem"
 import { useFederationLookup } from "~Generic/hooks/stellar"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
+import { useNetWorker } from "~Generic/hooks/workers"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
 import { findMatchingBalanceLine, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
@@ -333,13 +334,14 @@ interface Props {
   trustedAssets: Asset[]
   txCreationPending?: boolean
   onCancel: () => void
-  onSubmit: (createTx: (horizon: Server, account: Account) => Promise<Transaction>) => any
+  onSubmit: (createTx: (account: Account) => Promise<Transaction>) => any
 }
 
 function PaymentFormContainer(props: Props) {
   const { lookupFederationRecord } = useFederationLookup()
+  const networker = useNetWorker()
 
-  const createPaymentTx = async (horizon: Server, account: Account, formValues: ExtendedPaymentFormValues) => {
+  const createPaymentTx = async (account: Account, formValues: ExtendedPaymentFormValues) => {
     const asset = props.trustedAssets.find(trustedAsset => trustedAsset.equals(formValues.asset))
     const federationRecord =
       formValues.destination.indexOf("*") > -1 ? await lookupFederationRecord(formValues.destination) : null
@@ -361,12 +363,15 @@ function PaymentFormContainer(props: Props) {
 
     const isMultisigTx = props.accountData.signers.length > 1
 
-    const payment = await createPaymentOperation({
-      asset: asset || Asset.native(),
-      amount: replaceCommaWithDot(formValues.amount),
-      destination,
-      horizon
-    })
+    const payment = await createPaymentOperation(
+      {
+        asset: asset || Asset.native(),
+        amount: replaceCommaWithDot(formValues.amount),
+        destination,
+        testnet: props.testnet
+      },
+      networker
+    )
     const tx = await createTransaction([payment], {
       accountData: props.accountData,
       memo: federationMemo.type !== "none" ? federationMemo : userMemo,
@@ -377,7 +382,7 @@ function PaymentFormContainer(props: Props) {
   }
 
   const submitForm = (formValues: ExtendedPaymentFormValues) => {
-    props.onSubmit((horizon, account) => createPaymentTx(horizon, account, formValues))
+    props.onSubmit(account => createPaymentTx(account, formValues))
   }
 
   return <PaymentForm {...props} onSubmit={submitForm} />

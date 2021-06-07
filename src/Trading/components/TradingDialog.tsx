@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, Horizon, Server, Transaction } from "stellar-sdk"
+import { Asset, Horizon, Transaction } from "stellar-sdk"
 import Box from "@material-ui/core/Box"
 import Typography from "@material-ui/core/Typography"
 import { Account } from "~App/contexts/accounts"
@@ -25,7 +25,6 @@ import TradingForm from "./TradingForm"
 
 interface TradingDialogProps {
   account: Account
-  horizon: Server
   onClose: () => void
   sendTransaction: (transaction: Transaction) => void
 }

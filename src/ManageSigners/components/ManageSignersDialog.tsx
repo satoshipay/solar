@@ -168,8 +168,8 @@ interface ManageSignersDialogProps {
 function ManageSignersDialog(props: ManageSignersDialogProps) {
   return (
     <TransactionSender account={props.account}>
-      {({ horizon, sendTransaction }) => (
-        <MultisigEditorProvider account={props.account} horizon={horizon} sendTransaction={sendTransaction}>
+      {({ sendTransaction }) => (
+        <MultisigEditorProvider account={props.account} sendTransaction={sendTransaction}>
           <ManageSignersDialogContent account={props.account} onCancel={props.onClose} />
         </MultisigEditorProvider>
       )}

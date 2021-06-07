@@ -4,7 +4,6 @@ import {
   Keypair,
   Memo,
   Operation,
-  Server,
   ServerApi,
   TransactionBuilder,
   Transaction,
@@ -13,7 +12,7 @@ import {
 } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { getNetwork } from "~Workers/net-worker/stellar-network"
-import { workers } from "~Workers/worker-controller"
+import { workers, NetWorker } from "~Workers/worker-controller"
 import { WrongPasswordError, CustomError } from "./errors"
 import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError } from "./stellar"
@@ -63,15 +62,10 @@ export function hasSigned(
   )
 }
 
-async function accountExists(horizon: Server, publicKey: string) {
+async function accountExists(publicKey: string, networker: NetWorker, network: Networks) {
   try {
-    const account = await horizon
-      .accounts()
-      .accountId(publicKey)
-      .call()
-
-    // Hack to fix SatoshiPay horizons responding with status 200 and an empty object on non-existent accounts
-    return Object.keys(account).length > 0
+    const account = await networker.fetchAccountData(publicKey, network)
+    return Boolean(account)
   } catch (error) {
     if (isNotFoundError(error)) {
       return false
@@ -136,12 +130,13 @@ interface PaymentOperationBlueprint {
   amount: string
   asset: Asset
   destination: string
-  horizon: Server
+  testnet: boolean
 }
 
-export async function createPaymentOperation(options: PaymentOperationBlueprint) {
-  const { amount, asset, destination, horizon } = options
-  const destinationAccountExists = await accountExists(horizon, destination)
+export async function createPaymentOperation(options: PaymentOperationBlueprint, networker: NetWorker) {
+  const { amount, asset, destination, testnet } = options
+  const network = getNetwork(testnet)
+  const destinationAccountExists = await accountExists(destination, networker, network)
 
   if (!destinationAccountExists && !Asset.native().equals(options.asset)) {
     throw CustomError(
