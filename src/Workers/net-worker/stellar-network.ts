@@ -99,8 +99,8 @@ function delay(ms: number) {
 
 let roundRobinIndex = 0
 async function getRandomURL(network: Networks) {
-  const [mainnetURLs, testnetURLs] = await initialHorizonSelection
-  const horizonURLs = network === Networks.PUBLIC ? mainnetURLs : testnetURLs
+  const [mainnet, testnet] = await initialHorizonSelection
+  const horizonURLs = network === Networks.PUBLIC ? mainnet : testnet
   const url = horizonURLs[roundRobinIndex % horizonURLs.length]
   roundRobinIndex += 1
   return url
@@ -179,6 +179,7 @@ initialHorizonSelection
     testnetURLs = result[1]
     selectionPending = false
   })
+  // tslint:disable-next-line no-console
   .catch(console.error)
 
 export function getHorizonURLs(testnet: boolean = false) {
