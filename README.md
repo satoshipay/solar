@@ -86,6 +86,30 @@ npm run build:win
 npm run build:linux
 ```
 
+#### Building windows binaries on macOS
+
+Starting with macOS Catalina 32-bit executables are not supported. This means that the windows binaries cannot be build natively. One can circumvent this issue by using docker for building the windows binaries. Details are documented [here](https://www.electron.build/multi-platform-build#build-electron-app-using-docker-on-a-local-machine). Since Solar is using Squirrel.Windows the `electronuserland/builder:wine-mono` image should be used.
+
+To run the docker container use:
+
+```
+docker run --rm -ti \
+ --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|TRAVIS_BRANCH|TRAVIS_PULL_REQUEST_|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|STRIP|BUILD_') \
+ --env ELECTRON_CACHE="/root/.cache/electron" \
+ --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
+ -v ${PWD}:/project \
+ -v ${PWD##*/}-node-modules:/project/node_modules \
+ -v ~/.cache/electron:/root/.cache/electron \
+ -v ~/.cache/electron-builder:/root/.cache/electron-builder \
+ electronuserland/builder:wine-mono
+```
+
+Afterwards, install the npm dependencies and build the windows binaries:
+
+```
+npm install && npm run build:win
+```
+
 ### Signed binaries
 
 To sign the binaries, make sure you have the code signing certificates on your local filesystem as a `.p12` file and have the password for them. Make sure not to save the certificates in the Solar directory in order to not accidentally bundling them into the app installer!
