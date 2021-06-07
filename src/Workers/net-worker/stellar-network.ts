@@ -177,6 +177,7 @@ initialHorizonSelection
   .then(result => {
     mainnetURLs = result[0]
     testnetURLs = result[1]
+    selectionPending = false
   })
   .catch(console.error)
 
@@ -320,7 +321,7 @@ async function waitForAccountData(accountID: string, network: Networks, shouldCa
 }
 
 function subscribeToAccountEffectsUncached(accountID: string, network: Networks) {
-  const horizonURL = await getRandomURL(network)
+  let horizonURL = ""
   const fetchQueue = getFetchQueue(horizonURL)
   const debug = DebugLogger(`net-worker:subscriptions:account-effects:${accountID}`)
   const serviceID = getServiceID(network)
@@ -346,6 +347,7 @@ function subscribeToAccountEffectsUncached(accountID: string, network: Networks)
       },
       async init() {
         debug(`Subscribing to account effects…`)
+        horizonURL = await getRandomURL(network)
         let effect = await fetchLatestAccountEffect(accountID, network)
 
         if (!effect) {
@@ -418,7 +420,7 @@ export const subscribeToAccountEffects = cachify(
 
 function subscribeToAccountUncached(accountID: string, network: Networks) {
   const debug = DebugLogger(`net-worker:subscriptions:account:${accountID}`)
-  const horizonURL = await getRandomURL(network)
+  let horizonURL = ""
   const serviceID = getServiceID(network)
 
   let latestSnapshot: string | undefined
@@ -445,6 +447,8 @@ function subscribeToAccountUncached(accountID: string, network: Networks) {
       async init() {
         debug(`Subscribing to account meta data updates…`)
         const lastKnownAccountData = accountDataCache.get(cacheKey)
+
+        horizonURL = await getRandomURL(network)
 
         if (lastKnownAccountData) {
           latestSnapshot = createSnapshot(lastKnownAccountData)
@@ -568,7 +572,7 @@ export const subscribeToAccountTransactions = cachify(
 
 function subscribeToOpenOrdersUncached(accountID: string, network: Networks) {
   const debug = DebugLogger(`net-worker:subscriptions:account-orders:${accountID}`)
-  const horizonURL = await getRandomURL(network)
+  let horizonURL = ""
   const serviceID = getServiceID(network)
 
   let latestCursor: string | undefined
@@ -602,6 +606,7 @@ function subscribeToOpenOrdersUncached(accountID: string, network: Networks) {
       fetchUpdate,
       async init() {
         debug(`Subscribing to open orders…`)
+        horizonURL = await getRandomURL(network)
         const records = await fetchUpdate()
 
         if (records.length > 0) {
@@ -691,7 +696,7 @@ function subscribeToOrderbookUncached(network: Networks, sellingAsset: string, b
     return Observable.from<ServerApi.OrderbookRecord>([createEmptyOrderbookRecord(buying, buying)])
   }
 
-  const horizonURL = await getRandomURL(network)
+  let horizonURL = ""
   const createURL = () => String(new URL(`/order_book?${qs.stringify({ ...query, cursor: "now" })}`, horizonURL))
   const fetchUpdate = () => fetchOrderbookRecord(network, sellingAsset, buyingAsset)
 
@@ -711,6 +716,7 @@ function subscribeToOrderbookUncached(network: Networks, sellingAsset: string, b
       fetchUpdate,
       async init() {
         debug(`Subscribing to order book…`)
+        horizonURL = await getRandomURL(network)
         const record = await fetchUpdate()
         latestKnownSnapshot = JSON.stringify(record)
         return record
