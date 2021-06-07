@@ -158,8 +158,7 @@ export function useWithdrawalState(account: Account, closeDialog: () => void) {
 
     if (!accountData) {
       throw CustomError("FetchAccountDataError", `Cannot fetch account data of ${account.accountID}`, {
-        account: account.accountID,
-        horizon: ""
+        account: account.accountID
       })
     }
 

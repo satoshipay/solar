@@ -20,7 +20,7 @@
     "cosigner-lacking-key": "Cannot add key pair as co-signer of an account, since no public key for the account to co-sign has been provided",
     "expected-json-response-error": "Expected {{url}} to return a JSON response. Content type was {{contentType}} instead.",
     "existing-account-error": "An account with that name does already exist.",
-    "fetch-account-data-error": "Cannot fetch account data of {{account}} from {{horizon}}",
+    "fetch-account-data-error": "Cannot fetch account data of {{account}}",
     "fetch-signature-requests-error": "Fetching signature requests failed: {{response}} \nService: {{service}}",
     "fetch-web-auth-challenge-error": "Cannot fetch web auth challenge",
     "http-request-error": "HTTP fetch failed: {{response}} \nService: {{service}}",

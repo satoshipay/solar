@@ -19,7 +19,7 @@
     "bio-auth-test-canceled": "Autenticación biométrica anulada",
     "expected-json-response-error": "Se esperaba que {{url}} responda en formato JSON. El tipo de contenido fue {{contentType}}.",
     "existing-account-error": "Ya existe otra cuenta con el mismo nombre.",
-    "fetch-account-data-error": "Imposible recuperar los datos de la cuenta de {{account}} desde {{horizon}}",
+    "fetch-account-data-error": "Imposible recuperar los datos de la cuenta de {{account}}",
     "fetch-web-auth-challenge-error": "Error al obtener el desafío de autenticación",
     "fetch-signature-requests-error": "Fallaron las solicitudes de recuperar firmas: {{response}} \nServicio: {{service}}",
     "invariant-violation-error": "Violación invariante: {{message}}",
