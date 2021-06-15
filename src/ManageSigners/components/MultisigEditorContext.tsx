@@ -1,5 +1,5 @@
 import React from "react"
-import { Server, Transaction } from "stellar-sdk"
+import { Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { useSignersEditor, SignersUpdate } from "../hooks/useSignersEditor"
 import { MultisigPresets, SignersEditorState } from "../lib/editor"
@@ -46,7 +46,6 @@ export const MultisigEditorContext = React.createContext<MultisigEditorContextTy
 interface MultisigEditorProviderProps {
   account: Account
   children: React.ReactNode
-  horizon: Server
   sendTransaction: (tx: Transaction) => void
 }
 

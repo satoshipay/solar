@@ -1,5 +1,5 @@
 import React from "react"
-import { Asset, Server, Transaction } from "stellar-sdk"
+import { Asset, Transaction } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { useTransferInfos } from "~Generic/hooks/transfer-server"
 import { useIsMobile, useDialogActions } from "~Generic/hooks/userinterface"
@@ -39,7 +39,6 @@ const TransferContent = withFallback(PureTransferContent, <ViewLoading />)
 export interface TransferDialogProps {
   account: Account
   accountData: AccountData
-  horizon: Server
   onClose: () => void
   sendTransaction: (transaction: Transaction) => Promise<any>
   type: "deposit" | "withdrawal"

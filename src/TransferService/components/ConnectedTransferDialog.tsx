@@ -21,7 +21,7 @@ function ConnectedTransferDialog(props: Pick<TransferDialogProps, "account" | "o
 
   return (
     <TransactionSender account={props.account}>
-      {({ horizon, sendTransaction }) => (
+      {({ sendTransaction }) => (
         <React.Suspense
           fallback={
             <TransferDialogLayout
@@ -34,7 +34,7 @@ function ConnectedTransferDialog(props: Pick<TransferDialogProps, "account" | "o
             </TransferDialogLayout>
           }
         >
-          <TransferDialog {...props} accountData={accountData} horizon={horizon} sendTransaction={sendTransaction} />
+          <TransferDialog {...props} accountData={accountData} sendTransaction={sendTransaction} />
         </React.Suspense>
       )}
     </TransactionSender>

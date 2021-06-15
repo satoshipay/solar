@@ -4,7 +4,8 @@ import {
   TransferServer,
   TransferServerInfo
 } from "@satoshipay/stellar-transfer"
-import { Asset, Networks } from "stellar-sdk"
+import { Asset } from "stellar-sdk"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 import { mapSuspendables } from "../lib/suspense"
 import { transferInfosCache } from "./_caches"
 import { useAccountHomeDomains } from "./stellar"
@@ -21,7 +22,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promi
 }
 
 async function initTransferServer(domain: string, testnet: boolean): Promise<TransferServer | undefined> {
-  const network = testnet ? Networks.TESTNET : Networks.PUBLIC
+  const network = getNetwork(testnet)
 
   try {
     const transferServer = await withTimeout(

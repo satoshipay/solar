@@ -16,7 +16,7 @@
     "bio-auth-test-canceled": "Autenticazione biometrica annullata",
     "expected-json-response-error": "Previsto che {{url}} restituisse una risposta JSON. Il tipo di contenuto era invece {{contentType}}.",
     "existing-account-error": "Esiste già un account con quel nome.",
-    "fetch-account-data-error": "Impossibile recuperare i dati dell'account di {{account}} da {{horizon}}",
+    "fetch-account-data-error": "Impossibile recuperare i dati dell'account di {{account}}",
     "fetch-signature-requests-error": "Recupero delle richieste di firma non riuscito: {{response}} \nService: {{service}}",
     "invariant-violation-error": "Violazione invariante: {{message}}",
     "low-reserve-order-error": "Impossibile effettuare l'ordine perché il saldo XLM spendibile è troppo basso.",

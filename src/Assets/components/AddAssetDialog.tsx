@@ -1,6 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, AssetType, Horizon, Operation, Server, Transaction } from "stellar-sdk"
+import { Asset, AssetType, Horizon, Operation, Transaction } from "stellar-sdk"
 import Dialog from "@material-ui/core/Dialog"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
@@ -228,7 +228,6 @@ const useAddAssetStyles = makeStyles({
 interface AddAssetDialogProps {
   account: Account
   accountData: AccountData
-  horizon: Server
   hpadding: number
   itemHPadding: number
   onClose: () => void
@@ -259,7 +258,6 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
     const operations = [Operation.changeTrust({ asset, limit: options.limit })]
     return createTransaction(operations, {
       accountData: props.accountData,
-      horizon: props.horizon,
       walletAccount: props.account
     })
   }
@@ -371,7 +369,6 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
             account={props.account}
             accountData={props.accountData}
             createAddAssetTransaction={createAddAssetTransaction}
-            horizon={props.horizon}
             onClose={closeCustomTrustlineDialog}
             sendTransaction={sendTransaction}
             txCreationPending={txCreationPending}
@@ -385,9 +382,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
 function ConnectedAddAssetDialog(props: Omit<AddAssetDialogProps, "horizon" | "sendTransaction">) {
   return (
     <TransactionSender account={props.account} onSubmissionCompleted={props.onClose}>
-      {({ horizon, sendTransaction }) => (
-        <AddAssetDialog {...props} horizon={horizon} sendTransaction={sendTransaction} />
-      )}
+      {({ sendTransaction }) => <AddAssetDialog {...props} sendTransaction={sendTransaction} />}
     </TransactionSender>
   )
 }

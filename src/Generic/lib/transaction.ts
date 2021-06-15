@@ -4,7 +4,6 @@ import {
   Keypair,
   Memo,
   Operation,
-  Server,
   ServerApi,
   TransactionBuilder,
   Transaction,
@@ -12,7 +11,8 @@ import {
   Networks
 } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
-import { workers } from "~Workers/worker-controller"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
+import { workers, NetWorker } from "~Workers/worker-controller"
 import { WrongPasswordError, CustomError } from "./errors"
 import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError } from "./stellar"
@@ -62,15 +62,10 @@ export function hasSigned(
   )
 }
 
-async function accountExists(horizon: Server, publicKey: string) {
+async function accountExists(publicKey: string, networker: NetWorker, network: Networks) {
   try {
-    const account = await horizon
-      .accounts()
-      .accountId(publicKey)
-      .call()
-
-    // Hack to fix SatoshiPay horizons responding with status 200 and an empty object on non-existent accounts
-    return Object.keys(account).length > 0
+    const account = await networker.fetchAccountData(publicKey, network)
+    return Boolean(account)
   } catch (error) {
     if (isNotFoundError(error)) {
       return false
@@ -87,24 +82,23 @@ function selectTransactionTimeout(accountData: Pick<ServerApi.AccountRecord, "si
 
 interface TxBlueprint {
   accountData: Pick<ServerApi.AccountRecord, "id" | "signers">
-  horizon: Server
   memo?: Memo | null
   minTransactionFee?: number
   walletAccount: Account
 }
 
 export async function createTransaction(operations: Array<xdr.Operation<any>>, options: TxBlueprint) {
-  const { horizon, walletAccount } = options
+  const { walletAccount } = options
   const { netWorker } = await workers
+  const network = getNetwork(walletAccount.testnet)
 
-  const horizonURL = horizon.serverURL.toString()
   const timeout = selectTransactionTimeout(options.accountData)
 
   const [accountMetadata, timebounds] = await Promise.all([
-    applyTimeout(netWorker.fetchAccountData(horizonURL, walletAccount.accountID, 10), 10000, () =>
+    applyTimeout(netWorker.fetchAccountData(walletAccount.accountID, network, 10), 10000, () =>
       fail(`Fetching source account data timed out`)
     ),
-    applyTimeout(netWorker.fetchTimebounds(horizonURL, timeout), 10000, () =>
+    applyTimeout(netWorker.fetchTimebounds(timeout, network), 10000, () =>
       fail(`Syncing time bounds with horizon timed out`)
     )
   ] as const)
@@ -114,7 +108,7 @@ export async function createTransaction(operations: Array<xdr.Operation<any>>, o
   }
 
   const account = new StellarAccount(accountMetadata.id, accountMetadata.sequence)
-  const networkPassphrase = walletAccount.testnet ? Networks.TESTNET : Networks.PUBLIC
+  const networkPassphrase = getNetwork(walletAccount.testnet)
   const txFee = Math.max(options.minTransactionFee || 0, maximumFeeToSpend)
 
   const builder = new TransactionBuilder(account, {
@@ -136,12 +130,13 @@ interface PaymentOperationBlueprint {
   amount: string
   asset: Asset
   destination: string
-  horizon: Server
+  testnet: boolean
 }
 
-export async function createPaymentOperation(options: PaymentOperationBlueprint) {
-  const { amount, asset, destination, horizon } = options
-  const destinationAccountExists = await accountExists(horizon, destination)
+export async function createPaymentOperation(options: PaymentOperationBlueprint, networker: NetWorker) {
+  const { amount, asset, destination, testnet } = options
+  const network = getNetwork(testnet)
+  const destinationAccountExists = await accountExists(destination, networker, network)
 
   if (!destinationAccountExists && !Asset.native().equals(options.asset)) {
     throw CustomError(
@@ -167,9 +162,8 @@ export async function signTransaction(transaction: Transaction, walletAccount: A
   return signedTransaction
 }
 
-export async function requiresRemoteSignatures(horizon: Server, transaction: Transaction, walletPublicKey: string) {
+export async function requiresRemoteSignatures(network: Networks, transaction: Transaction, walletPublicKey: string) {
   const { netWorker } = await workers
-  const horizonURL = horizon.serverURL.toString()
   const sources = getAllSources(transaction)
 
   if (sources.length > 1) {
@@ -178,7 +172,7 @@ export async function requiresRemoteSignatures(horizon: Server, transaction: Tra
 
   const accounts = await Promise.all(
     sources.map(async sourcePublicKey => {
-      const account = await netWorker.fetchAccountData(horizonURL, sourcePublicKey)
+      const account = await netWorker.fetchAccountData(sourcePublicKey, network)
       if (!account) {
         throw Error(`Could not fetch account metadata from horizon server: ${sourcePublicKey}`)
       }

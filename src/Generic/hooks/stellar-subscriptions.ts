@@ -8,7 +8,7 @@ import { createEmptyAccountData, AccountData } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { mapSuspendables } from "../lib/suspense"
-import { CollectionPage } from "~Workers/net-worker/stellar-network"
+import { CollectionPage, getNetwork } from "~Workers/net-worker/stellar-network"
 import {
   accountDataCache,
   accountOpenOrdersCache,
@@ -18,7 +18,6 @@ import {
   OfferHistory,
   TransactionHistory
 } from "./_caches"
-import { useHorizonURLs } from "./stellar"
 import { useDebouncedState, useForceRerender } from "./util"
 import { useNetWorker } from "./workers"
 
@@ -74,13 +73,13 @@ function applyAccountDataUpdate(prev: AccountData, next: AccountData): AccountDa
 }
 
 export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): AccountData[] {
-  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
+  const network = getNetwork(testnet)
 
   const items = React.useMemo(
     () =>
       accountIDs.map(accountID => {
-        const selector = [horizonURLs, accountID] as const
+        const selector = [network, accountID] as const
         const prepare = (account: Horizon.AccountResponse | null) => {
           return account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
         }
@@ -89,7 +88,7 @@ export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): A
           get() {
             return (
               accountDataCache.get(selector) ||
-              accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURLs, accountID).then(prepare))
+              accountDataCache.suspend(selector, () => netWorker.fetchAccountData(accountID, network).then(prepare))
             )
           },
           set(updated: AccountData) {
@@ -97,12 +96,12 @@ export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): A
           },
           observe() {
             return accountDataCache.observe(selector, () =>
-              netWorker.subscribeToAccount(horizonURLs, accountID).map(prepare)
+              netWorker.subscribeToAccount(accountID, network).map(prepare)
             )
           }
         }
       }),
-    [accountIDs, horizonURLs, netWorker]
+    [accountIDs, network, netWorker]
   )
 
   return useDataSubscriptions(applyAccountDataUpdate, items)
@@ -118,18 +117,18 @@ function applyAccountOffersUpdate(prev: OfferHistory, next: ServerApi.OfferRecor
 }
 
 export function useLiveAccountOffers(accountID: string, testnet: boolean): OfferHistory {
-  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
+  const network = getNetwork(testnet)
 
   const { get, set, observe } = React.useMemo(() => {
-    const selector = [horizonURLs, accountID] as const
+    const selector = [network, accountID] as const
     const limit = 10
     return {
       get() {
         return (
           accountOpenOrdersCache.get(selector) ||
           accountOpenOrdersCache.suspend(selector, async () => {
-            const page = await netWorker.fetchAccountOpenOrders(horizonURLs, accountID, { limit, order: "desc" })
+            const page = await netWorker.fetchAccountOpenOrders(accountID, network, { limit, order: "desc" })
             const offers = page._embedded.records
             return {
               olderOffersAvailable: offers.length === limit,
@@ -144,37 +143,37 @@ export function useLiveAccountOffers(accountID: string, testnet: boolean): Offer
         accountOpenOrdersCache.set(selector, { ...updated, olderOffersAvailable })
       },
       observe() {
-        return netWorker.subscribeToOpenOrders(horizonURLs, accountID)
+        return netWorker.subscribeToOpenOrders(accountID, network)
       }
     }
-  }, [accountID, horizonURLs, netWorker])
+  }, [accountID, network, netWorker])
 
   return useDataSubscription(applyAccountOffersUpdate, get, set, observe)
 }
 
 export function useOlderOffers(accountID: string, testnet: boolean) {
   const forceRerender = useForceRerender()
-  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
+  const network = getNetwork(testnet)
 
   const fetchMoreOffers = React.useCallback(
     async function fetchMoreOffers() {
       let fetched: CollectionPage<ServerApi.OfferRecord>
 
-      const selector = [horizonURLs, accountID] as const
+      const selector = [network, accountID] as const
       const history = accountOpenOrdersCache.get(selector)
 
       const limit = 10
       const prevOffers = history?.offers || []
 
       if (prevOffers.length > 0) {
-        fetched = await netWorker.fetchAccountOpenOrders(horizonURLs, accountID, {
+        fetched = await netWorker.fetchAccountOpenOrders(accountID, network, {
           cursor: prevOffers[prevOffers.length - 1].paging_token,
           limit,
           order: "desc"
         })
       } else {
-        fetched = await netWorker.fetchAccountOpenOrders(horizonURLs, accountID, {
+        fetched = await netWorker.fetchAccountOpenOrders(accountID, network, {
           limit,
           order: "desc"
         })
@@ -195,7 +194,7 @@ export function useOlderOffers(accountID: string, testnet: boolean) {
       // hacky…
       forceRerender()
     },
-    [accountID, forceRerender, horizonURLs, netWorker]
+    [accountID, forceRerender, network, netWorker]
   )
 
   return fetchMoreOffers
@@ -205,19 +204,17 @@ type EffectHandler = (account: Account, effect: ServerApi.EffectRecord) => void
 
 export function useLiveAccountEffects(accounts: Account[], handler: EffectHandler) {
   const netWorker = useNetWorker()
-  const mainnetHorizonURLs = useHorizonURLs(false)
-  const testnetHorizonURLs = useHorizonURLs(true)
 
   React.useEffect(() => {
     const subscriptions = accounts.map(account => {
-      const horizonURLs = account.testnet ? testnetHorizonURLs : mainnetHorizonURLs
-      const observable = netWorker.subscribeToAccountEffects(horizonURLs, account.accountID)
+      const network = getNetwork(account.testnet)
+      const observable = netWorker.subscribeToAccountEffects(account.accountID, network)
       const subscription = observable.subscribe(effect => effect && handler(account, effect))
       return subscription
     })
 
     return () => subscriptions.forEach(subscription => subscription.unsubscribe())
-  }, [accounts, handler, mainnetHorizonURLs, netWorker, testnetHorizonURLs])
+  }, [accounts, handler, netWorker])
 }
 
 function applyOrderbookUpdate(prev: FixedOrderbookRecord, next: FixedOrderbookRecord) {
@@ -226,17 +223,17 @@ function applyOrderbookUpdate(prev: FixedOrderbookRecord, next: FixedOrderbookRe
 }
 
 export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean): FixedOrderbookRecord {
-  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
+  const network = getNetwork(testnet)
 
   const { get, set, observe } = React.useMemo(() => {
-    const selector = [horizonURLs, selling, buying] as const
+    const selector = [network, selling, buying] as const
     return {
       get() {
         return (
           orderbookCache.get(selector) ||
           orderbookCache.suspend(selector, () =>
-            netWorker.fetchOrderbookRecord(horizonURLs, stringifyAsset(selling), stringifyAsset(buying))
+            netWorker.fetchOrderbookRecord(network, stringifyAsset(selling), stringifyAsset(buying))
           )
         )
       },
@@ -244,11 +241,11 @@ export function useLiveOrderbook(selling: Asset, buying: Asset, testnet: boolean
         orderbookCache.set(selector, updated)
       },
       observe() {
-        return netWorker.subscribeToOrderbook(horizonURLs, stringifyAsset(selling), stringifyAsset(buying))
+        return netWorker.subscribeToOrderbook(network, stringifyAsset(selling), stringifyAsset(buying))
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stringifyAsset(buying), horizonURLs, netWorker, stringifyAsset(selling)])
+  }, [stringifyAsset(buying), network, netWorker, stringifyAsset(selling)])
 
   return useDataSubscription(applyOrderbookUpdate, get, set, observe)
 }
@@ -272,19 +269,19 @@ function applyAccountTransactionsUpdate(
 }
 
 export function useLiveRecentTransactions(accountID: string, testnet: boolean): TransactionHistory {
-  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
+  const network = getNetwork(testnet)
 
   const { get, set, observe } = React.useMemo(() => {
     const limit = 15
-    const selector = [horizonURLs, accountID] as const
+    const selector = [network, accountID] as const
 
     return {
       get() {
         return (
           accountTransactionsCache.get(selector) ||
           accountTransactionsCache.suspend(selector, async () => {
-            const page = await netWorker.fetchAccountTransactions(horizonURLs, accountID, {
+            const page = await netWorker.fetchAccountTransactions(accountID, network, {
               emptyOn404: true,
               limit,
               order: "desc"
@@ -303,38 +300,38 @@ export function useLiveRecentTransactions(accountID: string, testnet: boolean): 
         accountTransactionsCache.set(selector, updated)
       },
       observe() {
-        return netWorker.subscribeToAccountTransactions(horizonURLs, accountID)
+        return netWorker.subscribeToAccountTransactions(accountID, network)
       }
     }
-  }, [accountID, horizonURLs, netWorker])
+  }, [accountID, network, netWorker])
 
   return useDataSubscription(applyAccountTransactionsUpdate, get, set, observe)
 }
 
 export function useOlderTransactions(accountID: string, testnet: boolean) {
   const forceRerender = useForceRerender()
-  const horizonURLs = useHorizonURLs(testnet)
   const netWorker = useNetWorker()
+  const network = getNetwork(testnet)
 
   const fetchMoreTransactions = React.useCallback(
     async function fetchMoreTransactions() {
       let fetched: CollectionPage<Horizon.TransactionResponse>
 
-      const selector = [horizonURLs, accountID] as const
+      const selector = [network, accountID] as const
       const history = accountTransactionsCache.get(selector)
 
       const limit = 15
       const prevTransactions = history?.transactions || []
 
       if (prevTransactions.length > 0) {
-        fetched = await netWorker.fetchAccountTransactions(horizonURLs, accountID, {
+        fetched = await netWorker.fetchAccountTransactions(accountID, network, {
           emptyOn404: true,
           cursor: prevTransactions[prevTransactions.length - 1].paging_token,
           limit: 15,
           order: "desc"
         })
       } else {
-        fetched = await netWorker.fetchAccountTransactions(horizonURLs, accountID, {
+        fetched = await netWorker.fetchAccountTransactions(accountID, network, {
           emptyOn404: true,
           limit,
           order: "desc"
@@ -359,7 +356,7 @@ export function useOlderTransactions(accountID: string, testnet: boolean) {
       // hacky…
       forceRerender()
     },
-    [accountID, forceRerender, horizonURLs, netWorker]
+    [accountID, forceRerender, network, netWorker]
   )
 
   return fetchMoreTransactions

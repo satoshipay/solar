@@ -1,5 +1,6 @@
 import { createStore, KeysData } from "key-store"
-import { Networks, Keypair, Transaction } from "stellar-sdk"
+import { Keypair, Transaction } from "stellar-sdk"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 import { Messages } from "../../shared/ipc"
 import { WrongPasswordError } from "../../Generic/lib/errors"
 
@@ -130,7 +131,7 @@ function initKeyStore() {
   function signTransaction(internalAccountID: string, transactionXDR: string, password: string) {
     try {
       const account = keyStore.getPublicKeyData(internalAccountID)
-      const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
+      const networkPassphrase = getNetwork(account.testnet)
       const transaction = new Transaction(transactionXDR, networkPassphrase)
 
       const privateKey = keyStore.getPrivateKeyData(internalAccountID, password).privateKey

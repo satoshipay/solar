@@ -1,6 +1,7 @@
 import { KeyStore } from "key-store"
-import { Transaction, Keypair, Networks } from "stellar-sdk"
+import { Transaction, Keypair } from "stellar-sdk"
 import { Messages } from "~shared/ipc"
+import { getNetwork } from "~Workers/net-worker/stellar-network"
 import { WrongPasswordError } from "~Generic/lib/errors"
 import { CommandHandlers, expose } from "./ipc"
 
@@ -88,7 +89,7 @@ async function respondWithSignedTransaction(
 ) {
   try {
     const account = keyStore.getPublicKeyData(internalAccountID)
-    const networkPassphrase = account.testnet ? Networks.TESTNET : Networks.PUBLIC
+    const networkPassphrase = getNetwork(account.testnet)
     const transaction = new Transaction(transactionXDR, networkPassphrase)
 
     const privateKey = keyStore.getPrivateKeyData(internalAccountID, password).privateKey

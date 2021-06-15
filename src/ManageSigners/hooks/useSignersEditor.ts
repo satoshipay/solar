@@ -1,5 +1,5 @@
 import React from "react"
-import { Horizon, Operation, Server, Transaction, xdr } from "stellar-sdk"
+import { Horizon, Operation, Transaction, xdr } from "stellar-sdk"
 import { trackError } from "~App/contexts/notifications"
 import { Account } from "~App/contexts/accounts"
 import { SettingsContext, SettingsContextType } from "~App/contexts/settings"
@@ -10,7 +10,6 @@ import { initializeEditorState, SignersEditorState } from "../lib/editor"
 
 export interface SignersEditorOptions {
   account: Account
-  horizon: Server
   sendTransaction: (tx: Transaction) => void
 }
 
@@ -99,7 +98,6 @@ export function useSignersEditor(options: SignersEditorOptions) {
 
       const tx = await createTransaction(operations, {
         accountData,
-        horizon: options.horizon,
         walletAccount: options.account
       })
 
