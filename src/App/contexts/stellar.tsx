@@ -27,12 +27,7 @@ const initialHorizonSelection: Promise<[string[], string[]]> = (async () => {
     )
   )
 
-  const testnetHorizonURLs: string[] = [
-    await netWorker.checkHorizonOrFailover(
-      "https://stellar-horizon-testnet.satoshipay.io/",
-      "https://horizon-testnet.stellar.org"
-    )
-  ]
+  const testnetHorizonURLs: string[] = ["https://horizon-testnet.stellar.org"]
 
   return Promise.all([pubnetHorizonURLs, testnetHorizonURLs])
 })()
