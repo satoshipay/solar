@@ -98,3 +98,24 @@ npm run build:android:signed
 ```
 
 Enter the passwords for keystore and key when prompted. The location of the generated .apk file will appear in the output log once the build process succeeds.
+
+## Troubleshooting
+
+### General build issues
+
+If the build fails, try pruning and re-installing all platform-specific code first.
+
+```sh
+cd cordova/
+rm -rf plugins/
+npm run remove:android && npm run remove:ios
+npm run install:ios    # or `install:android`
+```
+
+Now try building the app again.
+
+### Xcode does not support iOS version
+
+You can hack your way around a local Xcode version that does not support your attached iPhone's OS version. Patch your Xcode using the device support files from here:
+
+<https://github.com/iGhibli/iOS-DeviceSupport>
