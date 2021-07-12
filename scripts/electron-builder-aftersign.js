@@ -27,7 +27,8 @@ module.exports = async function(params) {
     throw new Error(`Cannot find application at: ${appPath}`)
   }
 
-  console.log(`Starting notarization of ${appId} at ${appPath}...`)
+  console.log(`Starting notarization of ${appId} at ${appPath}`)
+  console.log(`This will likely take a while…`)
 
   await notarize.notarize({
     appBundleId: appId,
