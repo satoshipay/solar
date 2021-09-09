@@ -38,6 +38,7 @@
     "not-enough-funds": "Not enough funds.",
     "invalid-destination": "Expected a public key or stellar address.",
     "invalid-price": "Invalid amount.",
-    "integer-memo-required": "Memo must be an integer."
+    "integer-memo-required": "Memo must be an integer.",
+    "stellar-address-not-found": "Stellar Address does not exist."
   }
 }
