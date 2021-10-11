@@ -5,6 +5,7 @@ import { CustomError } from "./errors"
 import { isNotFoundError } from "./stellar"
 
 export const isPublicKey = (str: string) => Boolean(str.match(/^G[A-Z0-9]{55}$/))
+export const isMuxedAddress = (str: string) => Boolean(str.match(/^M[A-Z0-9]{68}$/))
 export const isStellarAddress = (str: string) =>
   Boolean(str.match(/^[^\*> \t\n\r]+\*[^\*\.> \t\n\r]+\.[^\*> \t\n\r]+$/))
 

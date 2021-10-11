@@ -13,8 +13,8 @@ import { useFederationLookup } from "~Generic/hooks/stellar"
 import { useIsMobile, RefStateObject } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { CustomError } from "~Generic/lib/errors"
-import { isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
 import { findMatchingBalanceLine, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
+import { isMuxedAddress, isPublicKey, isStellarAddress } from "~Generic/lib/stellar-address"
 import { createPaymentOperation, createTransaction, multisigMinimumFee } from "~Generic/lib/transaction"
 import { ActionButton, DialogActionsBox } from "~Generic/components/DialogActions"
 import AssetSelector from "~Generic/components/AssetSelector"
@@ -173,7 +173,10 @@ const PaymentForm = React.memo(function PaymentForm(props: PaymentFormProps) {
         inputRef={form.register({
           required: t<string>("payment.validation.no-destination"),
           validate: value =>
-            isPublicKey(value) || isStellarAddress(value) || t<string>("payment.validation.invalid-destination")
+            isPublicKey(value) ||
+            isMuxedAddress(value) ||
+            isStellarAddress(value) ||
+            t<string>("payment.validation.invalid-destination")
         })}
         label={form.errors.destination ? form.errors.destination.message : t("payment.inputs.destination.label")}
         margin="normal"
