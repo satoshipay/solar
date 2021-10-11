@@ -16,7 +16,7 @@
   "inputs": {
     "destination": {
       "label": "Indirizzo di destinazione",
-      "placeholder": "GABCDEFGHIJK ... o alice * example.org"
+      "placeholder": "GABCD..., MABCD... o alice*example.org"
     },
     "price": {
       "label": "Quantità",

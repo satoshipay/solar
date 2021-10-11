@@ -16,7 +16,7 @@
   "inputs": {
     "destination": {
       "label": "Destination address",
-      "placeholder": "GABCDEFGHIJK... or alice*example.org"
+      "placeholder": "GABCD..., MABCD... or alice*example.org"
     },
     "price": {
       "label": "Amount",
