@@ -152,8 +152,8 @@ export async function createPaymentOperation(options: PaymentOperationBlueprint)
   }
 
   const operation = destinationAccountExists
-    ? Operation.payment({ destination, amount, asset })
-    : Operation.createAccount({ destination, startingBalance: amount })
+    ? Operation.payment({ destination, amount, asset, withMuxing: true })
+    : Operation.createAccount({ destination, startingBalance: amount, withMuxing: true })
 
   return operation as xdr.Operation<Operation.CreateAccount | Operation.Payment>
 }

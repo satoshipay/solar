@@ -257,7 +257,7 @@ const AddAssetDialog = React.memo(function AddAssetDialog(props: AddAssetDialogP
   const closeCustomTrustlineDialog = () => setCustomTrustlineDialogOpen(false)
 
   const createAddAssetTransaction = async (asset: Asset, options: { limit?: string } = {}) => {
-    const operations = [Operation.changeTrust({ asset, limit: options.limit })]
+    const operations = [Operation.changeTrust({ asset, limit: options.limit, withMuxing: true })]
     return createTransaction(operations, {
       accountData: props.accountData,
       horizon: props.horizon,

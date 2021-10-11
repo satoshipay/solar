@@ -30,7 +30,7 @@ const RemoveTrustlineDialog = React.memo(function RemoveTrustlineDialog(props: P
   const removeAsset = async () => {
     try {
       setTxCreationPending(true)
-      const operations = [Operation.changeTrust({ asset: props.asset, limit: "0" })]
+      const operations = [Operation.changeTrust({ asset: props.asset, limit: "0", withMuxing: true })]
       const transaction = await createTransaction(operations, {
         accountData: props.accountData,
         horizon: props.horizon,
