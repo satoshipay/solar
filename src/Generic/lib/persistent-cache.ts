@@ -89,8 +89,14 @@ export function createPersistentCache<Value>(
         index = index.slice(-options.maxItems)
       }
 
-      localStorage.setItem(LocalStorageItemKey(key), JSON.stringify(value))
-      localStorage.setItem(LocalStorageIndexKey(), JSON.stringify(index))
+      try {
+        // Might fail if item is too large
+        localStorage.setItem(LocalStorageItemKey(key), JSON.stringify(value))
+        localStorage.setItem(LocalStorageIndexKey(), JSON.stringify(index))
+      } catch (error) {
+        // tslint:disable-next-line:no-console
+        console.error("Could not save item in local storage: ", value, error)
+      }
     }
   }
 }
