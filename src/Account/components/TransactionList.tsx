@@ -27,6 +27,7 @@ import { InlineErrorBoundary } from "~Generic/components/ErrorBoundaries"
 import { PublicKey } from "~Generic/components/PublicKey"
 import { formatBalance } from "~Generic/lib/balances"
 import { matchesRoute } from "~Generic/lib/routes"
+import { stringifyAssetToReadableString } from "~Generic/lib/stellar"
 import MemoMessage from "~Transaction/components/MemoMessage"
 import TransactionReviewDialog from "~TransactionReview/components/TransactionReviewDialog"
 import { useOperationTitle } from "~TransactionReview/components/Operations"
@@ -237,8 +238,8 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
           <span>
             {t(
               "account.transactions.transaction-list.item.trust.remove-trust",
-              `Remove trust in asset ${operation.line.code}`,
-              { asset: operation.line.code }
+              `Remove trust in asset ${stringifyAssetToReadableString(operation.line)}`,
+              { asset: stringifyAssetToReadableString(operation.line) }
             )}
             {props.alwaysShowSource ? (
               <>
@@ -256,9 +257,13 @@ const TransactionItemText = React.memo(function TransactionItemText(props: Title
       <ListItemText
         primary={
           <span>
-            {t("account.transactions.transaction-list.item.trust.add-trust", `Trust asset ${operation.line.code}`, {
-              asset: operation.line.code
-            })}
+            {t(
+              "account.transactions.transaction-list.item.trust.add-trust",
+              `Trust asset ${stringifyAssetToReadableString(operation.line)}`,
+              {
+                asset: stringifyAssetToReadableString(operation.line)
+              }
+            )}
             {props.alwaysShowSource ? (
               <>
                 {" "}
