@@ -11,10 +11,11 @@ import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
 import { stringifyAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
 import InlineLoader from "~Generic/components/InlineLoader"
+import { BalanceLine } from "~Generic/lib/account"
 import { sortBalances } from "~Generic/lib/balances"
 import ScrollableBalanceItem, { getBalanceItemMinMaxWidth } from "./ScrollableBalanceItem"
 
-function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
+function isAssetMatchingBalance(asset: Asset, balance: BalanceLine): boolean {
   if (balance.asset_type === "native") {
     return asset.isNative()
   } else {

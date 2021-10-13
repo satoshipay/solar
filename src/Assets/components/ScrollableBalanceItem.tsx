@@ -1,9 +1,9 @@
-import { Horizon } from "stellar-sdk"
 import React from "react"
 import makeStyles from "@material-ui/core/styles/makeStyles"
 import { balancelineToAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
 import { SingleBalance } from "~Account/components/AccountBalances"
+import { BalanceLine } from "~Generic/lib/account"
 import AssetLogo from "./AssetLogo"
 
 export function getBalanceItemMinMaxWidth() {
@@ -107,7 +107,7 @@ const useBalanceItemStyles = makeStyles({
 })
 
 interface BalanceItemProps {
-  balance: Horizon.BalanceLine
+  balance: BalanceLine
   compact?: boolean
   onClick?: () => void
   testnet: boolean

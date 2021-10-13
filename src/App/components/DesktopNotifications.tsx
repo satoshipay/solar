@@ -2,7 +2,8 @@ import BigNumber from "big.js"
 import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Asset, Horizon, ServerApi } from "stellar-sdk"
+import { Asset, ServerApi } from "stellar-sdk"
+import { Trade } from "stellar-sdk/lib/types/trade"
 import { useHorizonURLs } from "~Generic/hooks/stellar"
 import { useLiveAccountEffects } from "~Generic/hooks/stellar-subscriptions"
 import { useRouter } from "~Generic/hooks/userinterface"
@@ -17,25 +18,9 @@ import { Account, AccountsContext } from "../contexts/accounts"
 import { trackError } from "../contexts/notifications"
 import { SignatureDelegationContext } from "../contexts/signatureDelegation"
 import * as routes from "../routes"
+import { AccountCredited } from "stellar-sdk/lib/types/effects"
 
-type TradeEffect = ServerApi.EffectRecord & {
-  id: string
-  account: string
-  bought_amount: string
-  bought_asset_type: Horizon.BalanceLine["asset_type"]
-  bought_asset_code?: Horizon.BalanceLineAsset["asset_code"]
-  bought_asset_issuer?: Horizon.BalanceLineAsset["asset_issuer"]
-  offer_id: number
-  seller: string
-  sold_amount: string
-  sold_asset_type: Horizon.BalanceLine["asset_type"]
-  sold_asset_code?: Horizon.BalanceLineAsset["asset_code"]
-  sold_asset_issuer?: Horizon.BalanceLineAsset["asset_issuer"]
-  type: "trade"
-  type_i: 33
-}
-
-const isTradeEffect = (effect: ServerApi.EffectRecord): effect is TradeEffect => effect.type === "trade"
+const isTradeEffect = (effect: ServerApi.EffectRecord): effect is Trade => effect.type === "trade"
 const isPaymentEffect = (effect: ServerApi.EffectRecord) =>
   effect.type === "account_credited" || effect.type === "account_debited"
 
@@ -47,7 +32,7 @@ function createEffectHandlers(
   t: TFunction
 ) {
   return {
-    async handleTradeEffect(account: Account, effect: TradeEffect) {
+    async handleTradeEffect(account: Account, effect: Trade) {
       const buying =
         effect.bought_asset_code && effect.bought_asset_issuer
           ? new Asset(effect.bought_asset_code, effect.bought_asset_issuer)
@@ -85,15 +70,16 @@ function createEffectHandlers(
     },
     async handlePaymentEffect(account: Account, effect: ServerApi.EffectRecord) {
       if (effect.type === "account_credited" && effect.account === account.accountID) {
+        const paymentEffect = effect as AccountCredited
         const title = t("app.notification.desktop.received-payment.title", `Received payment | ${account.name}`, {
           account: account.name
         })
         const notificationBody = t(
           "app.notification.desktop.received-payment.body",
-          `Received ${formatBalance(effect.amount)} ${effect.asset_code || "XLM"}`,
+          `Received ${formatBalance(paymentEffect.amount)} ${paymentEffect.asset_code || "XLM"}`,
           {
-            amount: formatBalance(effect.amount),
-            assetCode: effect.asset_code || "XLM"
+            amount: formatBalance(paymentEffect.amount),
+            assetCode: paymentEffect.asset_code || "XLM"
           }
         )
 

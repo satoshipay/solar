@@ -1,12 +1,13 @@
 import React from "react"
-import { Asset, Horizon } from "stellar-sdk"
+import { Asset } from "stellar-sdk"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
 import MenuItem from "@material-ui/core/MenuItem"
 import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 import { makeStyles } from "@material-ui/core/styles"
-import { balancelineToAsset, stringifyAsset } from "../lib/stellar"
 import AssetLogo from "~Assets/components/AssetLogo"
+import { BalanceLine } from "~Generic/lib/account"
+import { balancelineToAsset, stringifyAsset } from "../lib/stellar"
 
 const useAssetItemStyles = makeStyles(theme => ({
   icon: {
@@ -69,7 +70,7 @@ const useAssetSelectorStyles = makeStyles({
 
 interface AssetSelectorProps {
   autoFocus?: TextFieldProps["autoFocus"]
-  assets: Array<Asset | Horizon.BalanceLine>
+  assets: Array<Asset | BalanceLine>
   children?: React.ReactNode
   className?: string
   disabledAssets?: Asset[]

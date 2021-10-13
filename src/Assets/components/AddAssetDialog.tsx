@@ -50,7 +50,8 @@ function assetToBalance(asset: Asset): Horizon.BalanceLineAsset {
     last_modified_ledger: 0,
     limit: "0",
     buying_liabilities: "0",
-    selling_liabilities: "0"
+    selling_liabilities: "0",
+    is_clawback_enabled: false
   }
 }
 

@@ -1,5 +1,6 @@
 import BigNumber from "big.js"
 import { Horizon } from "stellar-sdk"
+import { BalanceLine } from "./account"
 
 function addThousandsSeparators(digits: string, thousandsSeparator: string) {
   const digitGroups: string[] = []
@@ -68,7 +69,7 @@ export function formatBalance(input: BigNumber | string, options: BalanceFormatt
   )
 }
 
-export function sortBalances(balances: Horizon.BalanceLine[]) {
+export function sortBalances(balances: BalanceLine[]) {
   const sorter = (balance1: Horizon.BalanceLineAsset, balance2: Horizon.BalanceLineAsset) => {
     if (Number.parseFloat(balance1.balance) === 0 && Number.parseFloat(balance2.balance) !== 0) {
       return 1

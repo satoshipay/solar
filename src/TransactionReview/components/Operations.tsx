@@ -9,7 +9,7 @@ import { useAccountHomeDomainSafe } from "~Generic/hooks/stellar"
 import { useIsSmallMobile } from "~Generic/hooks/userinterface"
 import { AccountData } from "~Generic/lib/account"
 import { formatBalance } from "~Generic/lib/balances"
-import { offerAssetToAsset, trustlineLimitEqualsUnlimited } from "~Generic/lib/stellar"
+import { offerAssetToAsset, stringifyAssetToReadableString, trustlineLimitEqualsUnlimited } from "~Generic/lib/stellar"
 import { CopyableAddress } from "~Generic/components/PublicKey"
 import { SummaryItem, SummaryDetailsField } from "./SummaryItem"
 
@@ -165,38 +165,50 @@ function CreateAccountOperation(props: OperationProps<Operation.CreateAccount>) 
 
 function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust> & { testnet: boolean }) {
   const { t } = useTranslation()
-  const homeDomain = useAccountHomeDomainSafe(props.operation.line.issuer, props.testnet)
+  const homeDomain = useAccountHomeDomainSafe(
+    props.operation.line.getAssetType() !== "liquidity_pool_shares"
+      ? (props.operation.line as Asset).issuer
+      : undefined,
+    props.testnet
+  )
 
   if (BigNumber(props.operation.limit).eq(0)) {
     return (
       <SummaryItem heading={props.hideHeading ? undefined : t("operations.change-trust.title.remove-asset")}>
-        <SummaryDetailsField label={t("operations.change-trust.summary.asset")} value={props.operation.line.code} />
         <SummaryDetailsField
-          label={t("operations.change-trust.summary.issued-by")}
-          value={
-            <CopyableAddress
-              address={homeDomain || props.operation.line.issuer}
-              testnet={props.testnet}
-              variant="short"
-            />
-          }
+          label={t("operations.change-trust.summary.asset")}
+          value={stringifyAssetToReadableString(props.operation.line)}
         />
+        {props.operation.line instanceof Asset && (
+          <SummaryDetailsField
+            label={t("operations.change-trust.summary.issued-by")}
+            value={
+              <CopyableAddress
+                address={homeDomain || props.operation.line.issuer}
+                testnet={props.testnet}
+                variant="short"
+              />
+            }
+          />
+        )}
       </SummaryItem>
     )
   } else {
     return (
       <SummaryItem heading={props.hideHeading ? undefined : t("operations.change-trust.title.add-asset")}>
-        <SummaryDetailsField label="Asset" value={props.operation.line.code} />
-        <SummaryDetailsField
-          label={t("operations.change-trust.summary.issued-by")}
-          value={
-            <CopyableAddress
-              address={homeDomain || props.operation.line.issuer}
-              testnet={props.testnet}
-              variant="short"
-            />
-          }
-        />
+        <SummaryDetailsField label="Asset" value={stringifyAssetToReadableString(props.operation.line)} />
+        {props.operation.line instanceof Asset && (
+          <SummaryDetailsField
+            label={t("operations.change-trust.summary.issued-by")}
+            value={
+              <CopyableAddress
+                address={homeDomain || props.operation.line.issuer}
+                testnet={props.testnet}
+                variant="short"
+              />
+            }
+          />
+        )}
         {BigNumber(props.operation.limit).gt(900000000000) ? null : (
           <SummaryDetailsField
             label={t("operations.change-trust.summary.limit.label")}
@@ -205,7 +217,7 @@ function ChangeTrustOperation(props: OperationProps<Operation.ChangeTrust> & { t
                 ? t("operations.change-trust.summary.limit.value.unlimited")
                 : t("operations.change-trust.summary.limit.value.limited-to", {
                     limit: props.operation.limit,
-                    code: props.operation.line.code
+                    code: stringifyAssetToReadableString(props.operation.line)
                   })
             }
           />

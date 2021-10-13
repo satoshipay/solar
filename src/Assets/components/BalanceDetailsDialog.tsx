@@ -14,7 +14,7 @@ import MainTitle from "~Generic/components/MainTitle"
 import ViewLoading from "~Generic/components/ViewLoading"
 import { useLiveAccountData, useLiveAccountOffers } from "~Generic/hooks/stellar-subscriptions"
 import { useIsMobile, useRouter } from "~Generic/hooks/userinterface"
-import { AccountData } from "~Generic/lib/account"
+import { AccountData, BalanceLine } from "~Generic/lib/account"
 import { sortBalances } from "~Generic/lib/balances"
 import { matchesRoute } from "~Generic/lib/routes"
 import { getAccountMinimumBalance, getSpendableBalance, stringifyAsset } from "~Generic/lib/stellar"
@@ -22,7 +22,7 @@ import DialogBody from "~Layout/components/DialogBody"
 import AddAssetDialog from "./AddAssetDialog"
 import BalanceDetailsListItem from "./BalanceDetailsListItem"
 
-function isAssetMatchingBalance(asset: Asset, balance: Horizon.BalanceLine): boolean {
+function isAssetMatchingBalance(asset: Asset, balance: BalanceLine): boolean {
   if (balance.asset_type === "native") {
     return asset.isNative()
   } else {

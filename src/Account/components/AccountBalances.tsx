@@ -1,7 +1,7 @@
 import BigNumber from "big.js"
 import React from "react"
-import { Horizon } from "stellar-sdk"
 import { useLiveAccountData } from "~Generic/hooks/stellar-subscriptions"
+import { BalanceLine } from "~Generic/lib/account"
 import { formatBalance, sortBalances, BalanceFormattingOptions } from "~Generic/lib/balances"
 import { balancelineToAsset, stringifyAsset } from "~Generic/lib/stellar"
 
@@ -56,7 +56,7 @@ export const SingleBalance = React.memo(function SingleBalance(props: SingleBala
 })
 
 interface MultipleBalancesProps {
-  balances: Horizon.BalanceLine[]
+  balances: BalanceLine[]
   component?: React.ComponentType<SingleBalanceProps>
   inline?: boolean
   onClick?: () => void
@@ -73,7 +73,7 @@ export const MultipleBalances = React.memo(function MultipleBalances(props: Mult
 
   return (
     <span onClick={props.onClick} style={props.onClick ? { cursor: "pointer" } : undefined}>
-      {balances.map((balance: Horizon.BalanceLine, index) => (
+      {balances.map((balance: BalanceLine, index) => (
         <React.Fragment key={stringifyAsset(balancelineToAsset(balance))}>
           <Balance
             assetCode={balance.asset_type === "native" ? "XLM" : balance.asset_code}
@@ -99,6 +99,7 @@ function AccountBalances(props: {
   testnet: boolean
 }) {
   const accountData = useLiveAccountData(props.publicKey, props.testnet)
+
   return accountData.balances.length > 0 ? (
     <MultipleBalances balances={accountData.balances} component={props.component} onClick={props.onClick} />
   ) : (

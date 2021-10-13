@@ -1,20 +1,21 @@
 import BigNumber from "big.js"
 import { Asset, Horizon } from "stellar-sdk"
-import { AccountData } from "~Generic/lib/account"
+import { AccountData, BalanceLine } from "~Generic/lib/account"
 import { formatBalance, BalanceFormattingOptions } from "~Generic/lib/balances"
 import { FormBigNumber, isValidAmount } from "~Generic/lib/form"
 import { calculateSpread, FixedOrderbookRecord } from "~Generic/lib/orderbook"
-import { BASE_RESERVE, balancelineToAsset, getAccountMinimumBalance, getSpendableBalance } from "~Generic/lib/stellar"
+import {
+  BASE_RESERVE,
+  findMatchingBalanceLine,
+  getAccountMinimumBalance,
+  getSpendableBalance
+} from "~Generic/lib/stellar"
 import { useConversionOffers } from "./conversion"
 
 export const bigNumberToInputValue = (bignum: BigNumber, overrides?: BalanceFormattingOptions) =>
   formatBalance(bignum, { minimumSignificants: 3, maximumSignificants: 9, groupThousands: false, ...overrides })
 
-function findMatchingBalance(balances: AccountData["balances"], asset: Asset) {
-  return balances.find(balance => balancelineToAsset(balance).equals(asset))
-}
-
-function getSpendableBalanceWithoutBaseReserve(accountMinimumBalance: BigNumber, balanceLine: Horizon.BalanceLine) {
+function getSpendableBalanceWithoutBaseReserve(accountMinimumBalance: BigNumber, balanceLine: BalanceLine) {
   const spendableBalance = getSpendableBalance(accountMinimumBalance, balanceLine).minus(
     // subtract base-reserve when asset_type is native because placing a new order requires 1 * base-reserve XLM
     BigNumber(balanceLine.asset_type === "native" ? BASE_RESERVE : BigNumber(0))
@@ -69,8 +70,8 @@ export function useCalculation(parameters: CalculationParameters): CalculationRe
   const primaryAmount =
     primaryAmountString && isValidAmount(primaryAmountString) ? FormBigNumber(primaryAmountString) : BigNumber(0)
 
-  const primaryBalance = primaryAsset ? findMatchingBalance(accountData.balances, primaryAsset) : undefined
-  const secondaryBalance = secondaryAsset ? findMatchingBalance(accountData.balances, secondaryAsset) : undefined
+  const primaryBalance = primaryAsset ? findMatchingBalanceLine(accountData.balances, primaryAsset) : undefined
+  const secondaryBalance = secondaryAsset ? findMatchingBalanceLine(accountData.balances, secondaryAsset) : undefined
 
   const { worstPriceOfBestMatches } = useConversionOffers(
     primaryAction === "buy" ? tradePair.asks : tradePair.bids,

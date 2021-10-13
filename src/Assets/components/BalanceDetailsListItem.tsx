@@ -1,6 +1,5 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { Horizon } from "stellar-sdk"
 import Badge from "@material-ui/core/Badge"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
@@ -10,6 +9,7 @@ import { useAssetMetadata } from "~Generic/hooks/stellar"
 import { balancelineToAsset } from "~Generic/lib/stellar"
 import { breakpoints } from "~App/theme"
 import { SingleBalance } from "~Account/components/AccountBalances"
+import { BalanceLine } from "~Generic/lib/account"
 import { AccountName } from "~Generic/components/Fetchers"
 import AssetLogo from "./AssetLogo"
 
@@ -84,7 +84,7 @@ const useBalanceItemStyles = makeStyles({
 
 interface BalanceListItemProps {
   badgeCount?: number | string
-  balance: Horizon.BalanceLine
+  balance: BalanceLine
   className?: string
   hideBalance?: boolean
   hideLogo?: boolean
