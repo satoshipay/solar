@@ -49,7 +49,8 @@ async function createWithdrawalTransaction(
     Operation.payment({
       amount: String(amount),
       asset: withdrawal.asset,
-      destination: instructions.data.account_id
+      destination: instructions.data.account_id,
+      withMuxing: true
     })
   ]
 

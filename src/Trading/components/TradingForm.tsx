@@ -185,14 +185,16 @@ function TradingForm(props: Props) {
                 buying: primaryAsset,
                 offerId: 0,
                 price: effectivePrice.toFixed(7),
-                selling: secondaryAsset
+                selling: secondaryAsset,
+                withMuxing: true
               })
             : Operation.manageSellOffer({
                 amount: primaryAmount.toFixed(7),
                 buying: secondaryAsset,
                 offerId: 0,
                 price: effectivePrice.toFixed(7),
-                selling: primaryAsset
+                selling: primaryAsset,
+                withMuxing: true
               })
         ],
         {

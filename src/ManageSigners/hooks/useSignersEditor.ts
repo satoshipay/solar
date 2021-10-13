@@ -30,7 +30,8 @@ function createTxOperations(
     ...update.signersToRemove.map(signer => {
       if (signer.key === accountData.account_id) {
         return Operation.setOptions({
-          masterWeight: 0
+          masterWeight: 0,
+          withMuxing: true
         })
       } else {
         return Operation.setOptions({
@@ -40,7 +41,8 @@ function createTxOperations(
     }),
     ...update.signersToAdd.map(signer =>
       Operation.setOptions({
-        signer: { ed25519PublicKey: signer.key, weight: signer.weight }
+        signer: { ed25519PublicKey: signer.key, weight: signer.weight },
+        withMuxing: true
       })
     )
   ]
@@ -49,7 +51,8 @@ function createTxOperations(
     operations.push(
       Operation.manageData({
         name: "config.multisig.coordinator",
-        value: settings.multiSignatureCoordinator
+        value: settings.multiSignatureCoordinator,
+        withMuxing: true
       })
     )
   }
@@ -63,7 +66,8 @@ function createTxOperations(
       Operation.setOptions({
         lowThreshold: update.weightThreshold,
         medThreshold: update.weightThreshold,
-        highThreshold: update.weightThreshold
+        highThreshold: update.weightThreshold,
+        withMuxing: true
       })
     )
   }

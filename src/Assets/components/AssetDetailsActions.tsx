@@ -41,7 +41,7 @@ function AssetDetailsActions(props: Props) {
   )
 
   const createAddAssetTransaction = async (options: { limit?: string } = {}) => {
-    const operations = [Operation.changeTrust({ asset, limit: options.limit })]
+    const operations = [Operation.changeTrust({ asset, limit: options.limit, withMuxing: true })]
     return createTransaction(operations, {
       accountData,
       horizon: props.horizon,

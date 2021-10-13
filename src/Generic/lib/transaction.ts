@@ -9,13 +9,15 @@ import {
   TransactionBuilder,
   Transaction,
   xdr,
-  Networks
+  Networks,
+  MuxedAccount
 } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
 import { workers } from "~Workers/worker-controller"
 import { WrongPasswordError, CustomError } from "./errors"
 import { applyTimeout } from "./promise"
 import { getAllSources, isNotFoundError } from "./stellar"
+import { isMuxedAddress } from "./stellar-address"
 import { MultisigTransactionResponse } from "./multisig-service"
 
 /** in stroops */
@@ -62,11 +64,20 @@ export function hasSigned(
   )
 }
 
+function getBaseAccountId(key: string) {
+  return isMuxedAddress(key)
+    ? MuxedAccount.fromAddress(key, "0")
+        .baseAccount()
+        .accountId()
+    : key
+}
+
 async function accountExists(horizon: Server, publicKey: string) {
   try {
+    const accountId = getBaseAccountId(publicKey)
     const account = await horizon
       .accounts()
-      .accountId(publicKey)
+      .accountId(accountId)
       .call()
 
     // Hack to fix SatoshiPay horizons responding with status 200 and an empty object on non-existent accounts
@@ -152,8 +163,8 @@ export async function createPaymentOperation(options: PaymentOperationBlueprint)
   }
 
   const operation = destinationAccountExists
-    ? Operation.payment({ destination, amount, asset })
-    : Operation.createAccount({ destination, startingBalance: amount })
+    ? Operation.payment({ destination, amount, asset, withMuxing: true })
+    : Operation.createAccount({ destination: getBaseAccountId(destination), startingBalance: amount, withMuxing: true }) // CreateAccount operation cannot set destination to muxed account
 
   return operation as xdr.Operation<Operation.CreateAccount | Operation.Payment>
 }

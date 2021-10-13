@@ -46,7 +46,8 @@ function createDismissalTransaction(
           buyAmount: "0",
           buying,
           price: offer.price,
-          selling
+          selling,
+          withMuxing: true
         })
       ],
       { accountData, horizon, walletAccount: account }
@@ -59,7 +60,8 @@ function createDismissalTransaction(
           amount: "0",
           buying,
           price: offer.price,
-          selling
+          selling,
+          withMuxing: true
         })
       ],
       { accountData, horizon, walletAccount: account }

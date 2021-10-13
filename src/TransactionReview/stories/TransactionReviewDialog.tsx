@@ -80,7 +80,8 @@ storiesOf("TransactionReviewDialog", module)
         Operation.payment({
           amount: "1.5",
           asset: Asset.native(),
-          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
+          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
+          withMuxing: true
         })
       ])
     })()
@@ -110,7 +111,8 @@ storiesOf("TransactionReviewDialog", module)
           Operation.payment({
             amount: "20",
             asset: Asset.native(),
-            destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
+            destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
+            withMuxing: true
           })
         ],
         { memo: Memo.text("Demo transaction") }
@@ -139,10 +141,12 @@ storiesOf("TransactionReviewDialog", module)
       return buildTransaction(account, [
         Operation.createAccount({
           startingBalance: "1.0",
-          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
+          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
+          withMuxing: true
         }),
         Operation.setOptions({
-          inflationDest: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT"
+          inflationDest: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT",
+          withMuxing: true
         })
       ])
     })()
@@ -168,7 +172,8 @@ storiesOf("TransactionReviewDialog", module)
       const account = await testnetHorizon.loadAccount("GBPBFWVBADSESGADWEGC7SGTHE3535FWK4BS6UW3WMHX26PHGIH5NF4W")
       return buildTransaction(account, [
         Operation.changeTrust({
-          asset: eurt
+          asset: eurt,
+          withMuxing: true
         })
       ])
     })()
@@ -219,7 +224,8 @@ storiesOf("TransactionReviewDialog", module)
       return buildTransaction(account, [
         Operation.accountMerge({
           source: "GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT",
-          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT"
+          destination: "GA2CZKBI2C55WHALSTNPG54FOQCLC6Y4EIATZEIJOXWQPSEGN4CWAXFT",
+          withMuxing: true
         })
       ])
     })()
