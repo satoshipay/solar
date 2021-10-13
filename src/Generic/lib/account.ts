@@ -1,8 +1,11 @@
 import { AccountResponse, Horizon } from "stellar-sdk"
 
+// Horizon.BalanceLine without Horizon.BalanceLineLiquidityPool
+export type BalanceLine = Horizon.BalanceLineAsset | Horizon.BalanceLineNative
+
 export interface AccountData {
   account_id: AccountResponse["account_id"]
-  balances: Horizon.BalanceLine[]
+  balances: BalanceLine[]
   data_attr: AccountResponse["data_attr"]
   flags: AccountResponse["flags"]
   home_domain?: string
@@ -21,7 +24,8 @@ export const createEmptyAccountData = (accountID: string): AccountData => ({
   flags: {
     auth_immutable: false,
     auth_required: false,
-    auth_revocable: false
+    auth_revocable: false,
+    auth_clawback_enabled: false
   },
   id: accountID,
   paging_token: "",

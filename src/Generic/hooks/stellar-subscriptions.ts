@@ -4,7 +4,7 @@ import { ObservableLike } from "observable-fns"
 import React from "react"
 import { Asset, Horizon, ServerApi } from "stellar-sdk"
 import { Account } from "~App/contexts/accounts"
-import { createEmptyAccountData, AccountData } from "../lib/account"
+import { createEmptyAccountData, AccountData, BalanceLine } from "../lib/account"
 import { FixedOrderbookRecord } from "../lib/orderbook"
 import { stringifyAsset } from "../lib/stellar"
 import { mapSuspendables } from "../lib/suspense"
@@ -82,7 +82,15 @@ export function useLiveAccountDataSet(accountIDs: string[], testnet: boolean): A
       accountIDs.map(accountID => {
         const selector = [horizonURLs, accountID] as const
         const prepare = (account: Horizon.AccountResponse | null) => {
-          return account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
+          return account
+            ? {
+                ...account,
+                balances: account.balances.filter(
+                  (balance): balance is BalanceLine => balance.asset_type !== "liquidity_pool_shares"
+                ),
+                data_attr: account.data
+              }
+            : createEmptyAccountData(accountID)
         }
 
         return {

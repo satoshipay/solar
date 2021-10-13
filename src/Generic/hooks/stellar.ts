@@ -11,7 +11,7 @@ import {
 import { StellarContext } from "~App/contexts/stellar"
 import { workers } from "~Workers/worker-controller"
 import { StellarToml, StellarTomlCurrency } from "~shared/types/stellar-toml"
-import { createEmptyAccountData, AccountData } from "../lib/account"
+import { createEmptyAccountData, AccountData, BalanceLine } from "../lib/account"
 import { createPersistentCache } from "../lib/persistent-cache"
 import * as StellarAddresses from "../lib/stellar-address"
 import { mapSuspendables } from "../lib/suspense"
@@ -140,7 +140,15 @@ export function useAccountData(accountID: string, testnet: boolean) {
   const cached = accountDataCache.get(selector)
 
   const prepare = (account: Horizon.AccountResponse | null): AccountData =>
-    account ? { ...account, data_attr: account.data } : createEmptyAccountData(accountID)
+    account
+      ? {
+          ...account,
+          balances: account.balances.filter(
+            (balance): balance is BalanceLine => balance.asset_type !== "liquidity_pool_shares"
+          ),
+          data_attr: account.data
+        }
+      : createEmptyAccountData(accountID)
 
   if (!cached) {
     accountDataCache.suspend(selector, () => netWorker.fetchAccountData(horizonURLs, accountID).then(prepare))
