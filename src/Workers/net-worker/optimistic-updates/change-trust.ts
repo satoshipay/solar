@@ -12,7 +12,7 @@ function addTrustline(
     apply(prevAccountData) {
       const newBalance: Horizon.BalanceLineAsset | Horizon.BalanceLineLiquidityPool =
         operation.line.getAssetType() === "liquidity_pool_shares"
-          ? ({
+          ? {
               asset_type: "liquidity_pool_shares",
               balance: "0",
               is_authorized: false,
@@ -21,8 +21,8 @@ function addTrustline(
               last_modified_ledger: 0,
               limit: operation.limit,
               liquidity_pool_id: getLiquidityPoolIdFromAsset(operation.line as LiquidityPoolAsset)
-            } as Horizon.BalanceLineLiquidityPool)
-          : ({
+            }
+          : {
               asset_code: (operation.line as Asset).code,
               asset_issuer: (operation.line as Asset).issuer,
               asset_type: "credit_alphanum12",
@@ -34,7 +34,7 @@ function addTrustline(
               limit: operation.limit,
               selling_liabilities: "0",
               is_clawback_enabled: false
-            } as Horizon.BalanceLineAsset)
+            }
       return {
         ...prevAccountData,
         balances: prevAccountData.balances.some(balance => {
