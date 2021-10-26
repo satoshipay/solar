@@ -30,6 +30,7 @@ squirrelWindows:
 
 mac:
   hardenedRuntime: true
+  strictVerify: false
   entitlements: ./electron/build/entitlements.mac.inherit.plist
 
 linux:
