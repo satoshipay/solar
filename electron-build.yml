@@ -30,7 +30,6 @@ squirrelWindows:
 
 mac:
   hardenedRuntime: true
-  strictVerify: false
   entitlements: ./electron/build/entitlements.mac.inherit.plist
 
 linux:
@@ -38,4 +37,5 @@ linux:
   artifactName: Solar-Wallet-${version}.${ext}
   category: Utility
 
+afterPack: ./scripts/electron-builder-afterpack.js
 afterSign: ./scripts/electron-builder-aftersign.js
