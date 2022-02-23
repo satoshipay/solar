@@ -1,20 +1,34 @@
+import fetch from "isomorphic-fetch"
 import React from "react"
-import { useTranslation, Trans } from "react-i18next"
-import OpenInNewIcon from "@material-ui/icons/OpenInNew"
+import { Trans, useTranslation } from "react-i18next"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemIcon from "@material-ui/core/ListItemIcon"
 import ListItemText from "@material-ui/core/ListItemText"
+import OpenInNewIcon from "@material-ui/icons/OpenInNew"
 import { Account } from "~App/contexts/accounts"
+import { trackError } from "~App/contexts/notifications"
+import { CustomError } from "~Generic/lib/errors"
 import { openLink } from "~Platform/links"
 import LegalConfirmation from "./LegalConfirmation"
 
-function createMoonPayURLForAccount(account: Account) {
-  const baseURL = "https://buy.moonpay.io/"
-  const apiKEY = account.testnet ? "pk_test_RPUOOEJ7ZiAWlLFG6lbohDF9d2SqICX" : "pk_live_Xly1jO3hHE46AyMJO50lwoAk2VUCon"
-  const currencyCode = "XLM"
-  const colorCode = "1c8fea"
-  return `${baseURL}?apiKey=${apiKEY}&currencyCode=${currencyCode}&enabledPaymentMethods=credit_debit_card,sepa_bank_transfer&walletAddress=${account.accountID}&colorCode=%23${colorCode}`
+// Fetch a signed URL for redirecting to MoonPay with a walletaddress
+async function fetchSignedMoonpayURL(account: Account) {
+  const baseURL = "https://ncy9jaxgqh.execute-api.eu-central-1.amazonaws.com/moonpay"
+  const url = `${baseURL}?walletAddress=${account.accountID}&testnet=${account.testnet}`
+
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    const responseText = await response.text()
+    throw CustomError("HttpRequestError", `HTTP fetch failed: ${responseText} \nService: ${url}`, {
+      response: responseText,
+      service: url
+    })
+  }
+
+  const result = await response.json()
+  return result.url
 }
 
 interface LumenDepositOptionsProps {
@@ -30,9 +44,14 @@ function LumenDepositOptions(props: LumenDepositOptionsProps) {
   const closeLegalNote = React.useCallback(() => setIsLegalNoteOpen(false), [])
   const openLegalNote = React.useCallback(() => setIsLegalNoteOpen(true), [])
 
-  const navigateToMoonPay = React.useCallback(() => {
-    openLink(createMoonPayURLForAccount(account))
-    onCloseDialog()
+  const navigateToMoonPay = React.useCallback(async () => {
+    try {
+      const signedMoonpayURL = await fetchSignedMoonpayURL(account)
+      openLink(signedMoonpayURL)
+      onCloseDialog()
+    } catch (error) {
+      trackError(error)
+    }
   }, [account, onCloseDialog])
 
   return (
