@@ -2,7 +2,7 @@
  * THIS WILL RUN IN EMULATOR OUTSIDE OF SANDBOXED APP IFRAME!
  */
 
-import nanoid from "nanoid"
+import { nanoid } from "nanoid"
 import { createStore, KeysData, KeyStore } from "key-store"
 import { Messages } from "~shared/ipc"
 import { expose } from "./ipc"

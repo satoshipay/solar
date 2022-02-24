@@ -1,5 +1,5 @@
 import BigNumber from "big.js"
-import nanoid from "nanoid"
+import { nanoid } from "nanoid"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Asset } from "stellar-sdk"
