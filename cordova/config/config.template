@@ -25,6 +25,14 @@
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest">
             <manifest xmlns:tools="http://schemas.android.com/tools" />
         </edit-config>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <queries>
+                <intent>
+                    <action android:name=
+                        "android.support.customtabs.action.CustomTabsService" />
+                </intent>
+            </queries>
+        </config-file>
 
         <hook type="before_build" src="scripts/android/useFullScreenActivity.sh" />
 
@@ -97,7 +105,6 @@
             <string>The app needs access to the camera, to be able to read QR codes.</string>
         </edit-config>
     </platform>
-    <plugin name="cordova-plugin-whitelist" spec="1" />
     <plugin name="cordova-plugin-dialogs" spec="~2.0.1" />
     <plugin name="cordova-plugin-network-information" spec="~2.0.1" />
     <plugin name="cordova-plugin-secure-storage" spec="~3.0.1" />

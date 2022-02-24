@@ -2,7 +2,7 @@ import { app } from "electron"
 import isDev from "electron-is-dev"
 import Store from "electron-store"
 import { createStore } from "key-store"
-import generateID from "nanoid/generate"
+import { customAlphabet } from "nanoid"
 import * as path from "path"
 import { Keypair, Networks, Transaction } from "stellar-sdk"
 import { expose } from "./_ipc"
@@ -29,7 +29,8 @@ const keystore = createStore<PrivateKeyData, PublicKeyData>(updateKeys, readKeys
 
 export function readInstallationID() {
   if (!mainStore.has("installation-id")) {
-    mainStore.set("installation-id", generateID("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 8))
+    const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 8)
+    mainStore.set("installation-id", nanoid())
   }
   return mainStore.get("installation-id")
 }
