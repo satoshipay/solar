@@ -34,8 +34,9 @@
     }
   },
   "dependencies": {
-    "cordova": "^10.0.0",
+    "cordova": "^11.0.0",
     "cordova-clipboard": "^1.2.1",
+    "cordova-ios": "^6.2.0",
     "cordova-plugin-badge": "^0.8.8",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-dialogs": "^2.0.1",
@@ -50,9 +51,8 @@
   },
   "devDependencies": {
     "compare-func": "^2.0.0",
-    "cordova-android": "^9.0.0",
+    "cordova-android": "^10.1.1",
     "cordova-fetch": "^3.0.1",
-    "cordova-ios": "^6.1.1",
     "cordova-plugin-customurlscheme": "github:bytelabsco/Custom-URL-scheme",
     "cordova-plugin-secure-storage": "github:satoshipay/cordova-plugin-secure-storage",
     "dotenv-cli": "^2.0.0",
