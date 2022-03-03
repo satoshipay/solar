@@ -122,4 +122,6 @@
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="SplashScreenDelay" value="$SPLASH_SCREEN_DELAY" />
     <preference name="SwiftVersion" value="5.0" />
+    <preference name="scheme" value="app" />
+    <preference name="hostname" value="localhost" />
 </widget>
