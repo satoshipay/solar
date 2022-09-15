@@ -1,0 +1,345 @@
+{
+  "action": {
+    "receive": "รับ",
+    "send": "ส่ง"
+  },
+  "add-asset": {
+    "action": {
+      "add-asset": "เพิ่มสินทรัพย์เข้าบัญชี",
+      "remove": "ลบ",
+      "trade": "ซื้อขาย"
+    },
+    "button": {
+      "add-custom-asset": {
+        "label": "เพิ่มเนื้อหาที่กำหนดเอง"
+      }
+    },
+    "item": {
+      "issuer": {
+        "secondary": {
+          "one-asset": "หนึ่งเนื้อหาที่ตรงกัน",
+          "more-than-one-asset": "{{amount}} เนื้อหาที่ตรงกัน"
+        }
+      },
+      "no-result": {
+        "primary": "ไม่มีเนื้อหาที่ตรงกัน",
+        "secondary": "ไม่มีสินทรัพย์หรือผู้ออกที่ตรงกับการค้นหาของคุณ"
+      }
+    },
+    "search-field": {
+      "placeholder": "ค้นหาสินทรัพย์ด้วยรหัสหรือชื่อ…"
+    },
+    "title": "เพิ่มสินทรัพย์"
+  },
+  "asset-details": {
+    "lumen": {
+      "description": {
+        "label": "คำอธิบาย",
+        "text": "เหรียญดั้งเดิมของเครือข่ายสเตลล่า.\n\n ทุกบัญชีในเครือข่ายมียอดคงเหลือของลูเมน. ลูเมนใช้เพื่อชำระค่าธรรมเนียมในการทำธุรกรรม."
+      }
+    },
+    "general": {
+      "account-flags": {
+        "auth-required": "ต้องได้รับอนุญาติจากผู้ออกบัตร",
+        "auth-not-required": "ไม่ต้องขออนุญาติ",
+        "auth-revocable": "เพิกถอนใบอนุญาติได้",
+        "auth-not-revocable": "เพิกถอนใบอนุญาติไม่ได้",
+        "auth-immutable": "ธงเหล่านี้ไม่เปลี่ยนรูป",
+        "auth-mutable": "ผู้ออกบัตรสามารถเปลี่ยนธงเหล่านี้ได้",
+        "label": "บัญชีติดธง"
+      },
+      "anchor-asset": {
+        "label": "ทอดสมอ"
+      },
+      "conditions": {
+        "label": "เงื่อนไข"
+      },
+      "description": {
+        "label": "คำอธิบาย"
+      },
+      "issuing-account": {
+        "label": "ออกบัญชี"
+      },
+      "organisation": {
+        "address": {
+          "label": "ที่อยู่"
+        },
+        "dba": {
+          "label": "ทำธุรกิจเป็น"
+        },
+        "description": {
+          "label": "คำอธิบาย"
+        },
+        "email": {
+          "label": "ที่อยู่อีเมล"
+        },
+        "name": {
+          "label": "ชื่อองค์กร"
+        },
+        "phone-number": {
+          "label": "เบอร์โทรศัพท์"
+        },
+        "website": {
+          "label": "เว็บไซด์"
+        }
+      },
+      "redemption-instructions": {
+        "label": "คำแนะนำในการแลกของรางวัล"
+      }
+    }
+  },
+  "balance-details": {
+    "button": {
+      "add-asset": {
+        "label": "เพิ่มสินทรัพย์ในบัญชีของคุณ"
+      }
+    },
+    "item": {
+      "spendable-balance": {
+        "primary": "ยอดใช้จ่าย"
+      }
+    },
+    "spendable-balances": {
+      "base-reserve": {
+        "primary": "ฐานสำรอง",
+        "secondary": "ฐานสำรองคงที่"
+      },
+      "data-reserve": {
+        "primary": "เขตข้อมูลสำรอง",
+        "secondary": "ช่องข้อมูลบัญชี"
+      },
+      "headline": "จำนวนเงินในเอ๊กแอลเอ็ม",
+      "open-orders-reserve": {
+        "primary": "เปิดรับจองออเดอร์",
+        "secondary": "สำรองต่อออเดอร์"
+      },
+      "selling-liabilities": {
+        "primary": "จำนวนที่จะขาย",
+        "secondary": "ตั้งใจเปิดออเดอร์"
+      },
+      "signers-reserve": {
+        "primary": "สำรองผู้ลงนามบัญชี",
+        "secondary": {
+          "single-key": "กุญแจสำรอง",
+          "multiple-keys": "กุญแจหลัก + ผู้ลงนามร่วม"
+        }
+      },
+      "spendable-balance": {
+        "primary": "ยอดใช้จ่าย",
+        "secondary": "จำนวนเงินที่ใช้ได้อย่างอิสระ"
+      },
+      "total-balance": {
+        "primary": "ยอดรวม",
+        "secondary": "ยอดเงินของคุณ, รวม. ใช้ไม่ได้"
+      },
+      "trustline-reserve": {
+        "primary": "ทรัสลายสำรอง",
+        "secondary": "สำหรับยอดดุลที่ไม่ใช่เอ็กแอลเอ็ม"
+      }
+    }
+  },
+  "context-menu": {
+    "account-settings": {
+      "label": "การตั้งค่าบัญชี"
+    },
+    "assets-and-balances": {
+      "label": "สินทรัพย์ & ยอดคงเหลือ"
+    },
+    "deposit": {
+      "label": "เพิ่มทุน"
+    },
+    "trade": {
+      "label": "ซื้อขาย"
+    },
+    "transactions": {
+      "label": "ธุรกรรม"
+    },
+    "withdraw": {
+      "label": "ถอน"
+    }
+  },
+  "cosigner": {
+    "not-cosigner-yet": {
+      "label": "กุญแจสาธารณะของคุณ:",
+      "note": "กุญแจของคุณยังไม่ได้ลงนามในบัญชี. โปรดขอให้เจ้าของบัญชีเพิ่มคุณ."
+    }
+  },
+  "purchase-lumens": {
+    "legal-confirmation": {
+      "action": {
+        "confirm": "ฉันเข้าใจ"
+      }
+    },
+    "moonpay": {
+      "text": {
+        "primary": "มูนเพย์",
+        "secondary": "ซื้อสเตลล่าลูเมนทันทีโดยใช้เดบิตของคุณ/บัตรเครดิตหรือจ่ายทางแอ๊ปเปิ้ล"
+      },
+      "legal-confirmation": " คุณจะถูกเปลี่ยนเส้นทางไปที่มูนเพย์.ป้อนข้อมูล, บริการบุคคลที่สาม. กระบวนการฝากเงินดำเนินการโดยมูนเพย์บริษัทจำกัด, ไม่ใช่โซล่าหรือ satoshipay บริบัทจำกัด. <1 /> <2 /> กรุณาติดต่อมูนเพย์.ไอโอรองรับการสอบถามที่เกี่ยวข้องกับการฝากเงินของคุณ."
+    },
+    "title": "ซื้อสเตลล่าลูเมน"
+  },
+  "remove-trustline": {
+    "action": {
+      "cancel": "ยกเลิก",
+      "remove": "ลบ"
+    },
+    "text": {
+      "warning": "คุณไม่สามารถลบสินทรัพย์นี้ได้เว้นแต่ยอดคงเหลือชองสินทรัพย์จะเป็นศูนย์.",
+      "info": "คุณกำลังจะลบ <1>{{asset}}</1> จากบัญชี \"{{accountName}}\"."
+    },
+    "title": "ยืนยันการลบสินทรัพย์"
+  },
+  "transactions": {
+    "action": {
+      "friendbot": {
+        "description": "รับเทสเนตลูเมนฟรี",
+        "label": "ถามเพื่อน"
+      },
+      "navigate-to-deposit": {
+        "description": "ผ่านบัตรเครดิต, โอนเงินผ่านธนาคาร, ฯลฯ.",
+        "label": "กองทุนเงินฝาก"
+      }
+    },
+    "offer-list": {
+      "text": {
+        "buy": "ซื้อ <1 /> สำหรับ <3 />",
+        "sell": "ขาย <1 /> สำหรับ <3 />",
+        "for": "สำหรับ"
+      },
+      "title": "เปิดรับออร์เดอร์"
+    },
+    "transaction-list": {
+      "offer-description": {
+        "prefix": {
+          "default": "สั่ง",
+          "cancel": "ยกเลิกคำสั่งซื้อ",
+          "update": "ปรับปรุงคำสั่ง"
+        },
+        "buy": "ซื้อ {{buyingAmount}} {{buyingCode}} สำหรับ {{sellingAmount}} {{sellingCode}} ",
+        "sell": "ขาย {{sellingAmount}} {{sellingCode}} สำหรับ {{buyingAmount}} {{buyingCode}}"
+      },
+      "item": {
+        "from": "จาก",
+        "to": "ถึง",
+        "memo": "บันทึก",
+        "remote-public-keys": {
+          "more": "มากกว่า"
+        },
+        "trust": {
+          "add-trust": "สินเชื่อสินทรัพย์ {{asset}}",
+          "remove-trust": "ขจัดความเชื่อใจในสินทรัพย์ {{asset}}"
+        }
+      },
+      "load-more": {
+        "label": "โหลดเพิ่ม"
+      },
+      "title": "การทำธุรกรรมล่าสุด"
+    },
+    "signature-request-list": {
+      "title": {
+        "requests-to-cosign": "การทำธุกรรมเพื่อร่วมลงนาม",
+        "requests-waiting-for-others": "รอลงนามเพิ่มเติม"
+      }
+    }
+  },
+  "transaction-review": {
+    "action": {
+      "confirm": "ยืนยัน",
+      "cancel-order": "ยกเลิกคำสั่งซื้อ",
+      "dismiss": "อนุญาตให้ออกไป",
+      "inspect": "ตรวจสอบ",
+      "show-more": "แสดงรายละเอียดเพิ่มเติม"
+    },
+    "account-creation-warning": {
+      "primary": "ฝากเงินเข้าบัญชีใหม่",
+      "secondary": "ฝากเงินในบัญชีเปล่า. ตรวจสอบให้แน่ใจว่าปลายทางถูกต้อง."
+    },
+    "add-signer-warning": {
+      "primary": "เพิ่มผู้ลงนามอีกราย",
+      "secondary": "ตรวจสอบให้แน่ใจว่าคุณกำลังเพิ่มผู้ลงนามที่ถูกต้อง. เพิ่มรหัสที่คุณไม่รู้จักอาจล๊อคบัญชีของคุณตลอดไป."
+    },
+    "dangerous-transaction-warning": {
+      "primary": "ธุรกรรมที่เกิดจากบัญชีที่ไม่รู้จัก",
+      "secondary": "โปรดตรวจสอบอย่างละเอียด. ในกรณีที่มีข้อสงสัย, ชอบไล่ออก."
+    },
+    "dismissal": {
+      "action": {
+        "cancel": "ยกเลิก",
+        "confirm": "ยืนยัน"
+      },
+      "header": "ยกเลิกที่รอดำเนินการหลายลายเซ็น?",
+      "title": "ยืนยัน"
+    },
+    "signers": {
+      "heading-details": {
+        "single-signature": "ลายเซ็นเดียว",
+        "default-signatures": "{{threshold}} ของ {{length}} หลายลายเซ็น",
+        "custom-consensus": "ฉันทามติที่กำหนดเองหลายลายเซ็น"
+      },
+      "label": "ผู้ลงนาม {{details}}"
+    },
+    "signer-status": {
+      "tooltip": {
+        "has-signed": "ได้ลงนามในการทำธุรกรรม",
+        "has-not-signed": "รอลายเซ็น"
+      }
+    },
+    "summary": {
+      "item": {
+        "account": {
+          "label": "บัญชี"
+        },
+        "authenticating-account": {
+          "label": "ตรวจสอบบัญชี"
+        },
+        "expiry": {
+          "label": "หมดอายุ"
+        },
+        "max-fee": {
+          "label": "ค่าธรรมเนียมสูงสุด"
+        },
+        "service": {
+          "label": "บริการ"
+        },
+        "submission": {
+          "label": "ส่ง"
+        },
+        "tx-hash": {
+          "label": "แฮชธุรกรรม"
+        }
+      }
+    },
+    "textfield": {
+      "password": {
+        "label": "รหัสผ่าน"
+      }
+    },
+    "title": {
+      "transaction": "ธุรกรรม",
+      "payment": "ชำระเงิน",
+      "delete-orders-operation": "ลบคำสั่งซื้อขาย",
+      "web-auth": "การตรวจสอบเว็บ"
+    },
+    "transaction-memo": {
+      "label": "{{type}} บันทึก"
+    },
+    "validation": {
+      "no-account-data": "การละเมิดคงที่: ไม่พบข้อมูลบัญชีของบัญชีแหล่งที่มาของธุรกรรมในชุดการสมัครรับข้อมูลบัญชี.",
+      "no-manage-data-operation": "การละเมิดคงที่: การทำธุรกรรมรับรองความถูกต้องของสเตลล่าเว็บต้องมีการจัดการข้อมูล.",
+      "password-required": "ต้องใช้รหัสผ่าน"
+    }
+  },
+  "title": {
+    "password-status": {
+      "protected": "ป้องกันด้วยพาสเวิร์ด",
+      "unprotected": "ไม่มีรหัสผ่าน"
+    },
+    "tooltip": {
+      "multi-sig-account": "บัญชีหลายลายเซ็น",
+      "security-service": "{{service}} การป้องกัน"
+    },
+    "placeholder": "ชื่อบัญชี…",
+    "testnet": "เทสเนต"
+  }
+}

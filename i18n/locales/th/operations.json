@@ -1,0 +1,114 @@
+{
+  "account-merge": {
+    "summary": {
+      "account": "บัญชี",
+      "merge-into": "รวมเป็น"
+    },
+    "title": "รวมบัญชี"
+  },
+  "change-trust": {
+    "summary": {
+      "asset": "สินทรัพย์",
+      "issued-by": "ออกโดย",
+      "limit": {
+        "label": "ขีดจำกัด",
+        "value": {
+          "unlimited": "ไม่จำกัด",
+          "limited-to": "จำกัดไว้ที่ {{limit}} {{code}}"
+        }
+      }
+    },
+    "title": {
+      "add-asset": "เพิ่มสินทรัพย์",
+      "remove-asset": "ลบสินทรัพย์"
+    }
+  },
+  "create-account": {
+    "summary": {
+      "account": "บัญชีที่จะสร้าง",
+      "funding-account": "บัญชีเงินทุน",
+      "funding-amount": "จำนวนเงินทุน"
+    },
+    "title": "สร้างบัญชี"
+  },
+  "manage-buy-offer": {
+    "title": {
+      "create": "สร้างคำสั่งซื้อ",
+      "delete": "สั่งซื้อ",
+      "update": "อัพเดทการสั่งซื้อ"
+    }
+  },
+  "manage-data": {
+    "title": "ตั้งค่าข้อมูลบัญชี"
+  },
+  "manage-offer": {
+    "summary": {
+      "buy": "ซื้อ",
+      "sell": "ขาย"
+    }
+  },
+  "manage-sell-offer": {
+    "title": {
+      "create": "สร้างคำสั่งขาย",
+      "delete": "คำสั่งขาย",
+      "update": "อัพเดทคำสั่งขาย"
+    }
+  },
+  "offer-details": {
+    "string": "ซื้อ {{price}} {{buyingCode}} สำหรับ {{amount}} {{sellingCode}}"
+  },
+  "payment": {
+    "summary": {
+      "amount": "จำนวน",
+      "destination": "ปลายทาง",
+      "source": "แหล่งที่มา"
+    },
+    "title": "การชำระเงิน"
+  },
+  "set-options": {
+    "add-signer": {
+      "summary": {
+        "account": "บัญชีที่จะเพิ่มผู้ลงนามใน",
+        "key-weight": "น้ำหนักที่สำคัญ",
+        "new-signer": "ผู้ลงนามใหม่"
+      },
+      "title": "เพิ่มผู้ลงนาม"
+    },
+    "change-signature-setup": {
+      "summary": {
+        "key-thresholds": {
+          "label": "เกณฑ์คีย์ใหม่",
+          "value": {
+            "low": "เกณฑ์ต่ำ: {{threshold}}",
+            "medium": "เกณฑ์ปานกลาง: {{threshold}}",
+            "high": "เกณฑ์สูง: {{threshold}}"
+          }
+        },
+        "required-signatures": "เกณฑ์น้ำหนักคีย์ใหม่"
+      },
+      "title": "เปลี่ยนการตั้งค่าลายเซ็นต์"
+    },
+    "remove-signer": {
+      "summary": {
+        "account": "บัญชีที่จะลบผู้ลงนามจาก",
+        "signer": "ผู้ลงนาม"
+      },
+      "title": "ลบผู้ลงนาม"
+    },
+    "set-account-options": {
+      "title": "ตั้งค่าตัวเลือกบัญชี"
+    },
+    "set-home-domain": {
+      "title": "ตั้งโดเมนที่บ้าน"
+    },
+    "set-inflation-destination": {
+      "summary": {
+        "new-destination": "ปลายทางใหม่"
+      },
+      "title": "กำหนดปลายทางเงินเฟ้อ"
+    },
+    "set-master-key-weight": {
+      "title": "กำหนดน้ำหนักกุญแจหลัก"
+    }
+  }
+}

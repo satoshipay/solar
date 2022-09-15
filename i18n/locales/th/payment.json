@@ -1,0 +1,43 @@
+{
+  "actions": {
+    "submit": "ส่งเดี๋ยวนี้"
+  },
+  "memo-metadata": {
+    "label": {
+      "default": "บัญทึก",
+      "id": "บัญทึก (ัตัวตน)",
+      "text": "บัญทึก (้ข้อความ)"
+    },
+    "placeholder": {
+      "optional": "คำอธิบาย (ไม่จำเป็น)",
+      "mandatory": "คำอธิบาย (ับังคับ)"
+    }
+  },
+  "inputs": {
+    "destination": {
+      "label": "ที่อยู่ปลายทาง",
+      "placeholder": "GABCD..., MABCD... or alice*ตัวอย่าง.org"
+    },
+    "price": {
+      "label": "จำนวน",
+      "placeholder": "ขีดสุด. {{amount}}"
+    }
+  },
+  "note": {
+    "multisig-pubkey": "ที่อยู่ของบัญชีหลายลายเซ็นต์, ไม่ใช่รหัสลายเซ็นต์ร่วมในพื้นที่ของคุณ."
+  },
+  "title": {
+    "send": "ส่งเงิน",
+    "receive": "รับเงิน"
+  },
+  "validation": {
+    "memo-required": "ตั้งค่าบัญทึกเมื่อส่งเงินไปที่ {{destination}}",
+    "memo-too-long": "บันทึกยาวไป.",
+    "no-destination": "ไม่ระบุปลายทาง.",
+    "no-price": "ไม่ระบุจำนวนเงิน.",
+    "not-enough-funds": "ยอดเงินไม่เพียงพอ.",
+    "invalid-destination": "คาดว่าจะเป็นกุญแจสาธารณะหรือที่อยู่สเตลล่า.",
+    "invalid-price": "จำนวนเงินที่ไม่ถูกต้อง.",
+    "integer-memo-required": "บัญทึกจำต้องเป็นจำนวนเต็ม."
+  }
+}
