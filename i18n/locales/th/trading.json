@@ -1,0 +1,67 @@
+{
+  "action": {
+    "add-asset": "เพิ่มสินทรัพย์",
+    "submit": "สถานที่สั่งซื้อ"
+  },
+  "action-selection": {
+    "buy": {
+      "description": "ซื้อสินทรัพย์ในจำนวนเท่ากันในการแลกเปลี่ยนแบบกระจาย",
+      "label": "ซื้อสินทรัพย์"
+    },
+    "sell": {
+      "description": "แลกเปลี่ยนสินทรัพย์จำนวนหนึ่งเพื่ออีกอันหนึ่ง",
+      "label": "ขายสินทรัพย์"
+    }
+  },
+  "advanced": {
+    "header": "ขั้นสูง"
+  },
+  "inputs": {
+    "estimated-costs": {
+      "label": {
+        "buy": "ค่าใช้จ่ายโดยปริมาณ",
+        "sell": "ผลตอบแทนโดยประมาณ"
+      }
+    },
+    "primary-amount": {
+      "label": {
+        "buy": "จำนวนเงินที่จะซื้อ",
+        "sell": "จำนวนเงินที่จะขาย"
+      },
+      "max-button": {
+        "label": "ขีดสุด"
+      },
+      "placeholder": "ขีดสุด. {{amount}}"
+    },
+    "primary-asset-selector": {
+      "label": {
+        "buy": "คุณซื้อ",
+        "sell": "คุณขาย"
+      }
+    },
+    "secondary-asset-selector": {
+      "label": {
+        "buy": "ใช้",
+        "sell": "ได้รับ"
+      }
+    }
+  },
+  "no-assets-info": "บัญชีนี้ยังไม่ได้ใช้สินทรัพย์อื่นใดนอกจากสเตลล่า ลูเม้น.",
+  "title": "ซื้อขาย",
+  "trading-price": {
+    "default-label": "ราคา (ีขีดจำกัด)",
+    "label": "ราคาต่อ {{unit}} (ีขีดจำกัด)"
+  },
+  "validation": {
+    "primary-amount-missing": "ไม่ระบุจำนวนเงิน.",
+    "primary-asset-missing": "ไม่ได้เลือกสินทรัพย์.",
+    "invalid-amount": "ระบุจำนวนเงินไม่ถูกต้อง.",
+    "invalid-price": "ราคาไม่ถูกต้อง",
+    "not-enough-balance": "เกินยอดใช้จ่ายของคุณ",
+    "secondary-asset-missing": "ไม่ได้เลือกสินทรัพย์."
+  },
+  "warning": {
+    "title": "คำเตือน",
+    "message": "ไม่มีการแพร่กระจายระหว่างราคาซื้อและขายประมาณ {{spread}}%."
+  }
+}

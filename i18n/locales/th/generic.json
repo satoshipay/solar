@@ -1,0 +1,104 @@
+{
+  "dialog-actions": {
+    "close": {
+      "label": "ปิด"
+    },
+    "retry": {
+      "label": "ลองอีกครั้ง"
+    }
+  },
+  "error": {
+    "asset-not-depositable-error": "สินทรัพย์ {{asset}} ดูเหมือนจะไม่สามรถฝากได้ผ่าน {{domain}}",
+    "asset-not-withdrawable-error": "สินทรัพย์ {{asset}} ดูเหมือนจะถอนไม่ได้ผ่าน {{domain}}",
+    "boundary": {
+      "header": "อ๊ะ, บางอย่างผิดพลาด...",
+      "contact-us": "ติดต่อเราได้ทาง"
+    },
+    "bad-response-error": "ไม่มีการตอบสนอง ({{status}}) จาก {{server}} เซิร์ฟเวอร์",
+    "bad-transaction-error": "ธุรกรรมที่ไม่ดีที่ได้รับ. คาดว่าจะมีการทำธุรกรรมหรือบันทึกการทำธุรกรรม, แต่กลับ: {{transaction}}",
+    "bio-auth-test-canceled": "การตรวจสอบไบโอเมตริกซ์ถูกยกเลิก",
+    "cosigner-lacking-key": "ไม่สามารถเพิ่มคู่คีย์เป็นผู้ลงนามร่วมของบัญชีได้, เนื่องจากไม่มีรหัสสาธารณะสำหรับบัญชีเพื่อร่วมลงนาม",
+    "expected-json-response-error": "ที่คาดหวัง {{url}} เพื่อส่งคืนการตอบกลับเจสัน. ประเภทเนื้อหาคือ {{contentType}} แทนที่.",
+    "existing-account-error": "มีบัญชีซื่อนั้นอยู่แล้ว.",
+    "fetch-account-data-error": "ไม่สามารถดึงดูดข้อมูล {{account}} จาก {{horizon}}",
+    "fetch-signature-requests-error": "เรียกการขอลายเซ็นต์ล้มเหลว: {{response}} \nServ: {{service}}",
+    "fetch-web-auth-challenge-error": "ไม่สามารถเรียกคำท้าการตรวจสอบความถูกต้องของเว็บได้",
+    "http-request-error": "เว็บเรียกไม่สำเร็จ: {{response}} \nบริการ: {{service}}",
+    "invariant-violation-error": "การละเมิดคงที่: {{message}}",
+    "low-reserve-order-error": "ไม่สามารถสั่งซื้อได้เพราะยอดคงเหลือ XLM ที่ใช้ได้นั้นต่ำเกินไป",
+    "memo-already-specified-error": "ไม่สามารถตั้งค่าบันทึกลูกค้า. บันทึกสหพันธ์ของ {{destination}} บันทึกช่วยจำสิ่งที่กำหนดไว้แล้ว.",
+    "missing-info-error": "สร้างธุรกรรมไม่ได้, เพราะว่า {{transferServer}} ไม่ได้ส่งข้อมูลที่จำเป็นทั้งหมด.",
+    "multi-sig-config-threshold-lock": "เกณฑ์ลายเซ็นต์สูงเกินไป. คุณจะล๊อคบัญชีของคุณ.",
+    "multi-sig-config-threshold-too-low": "เกณฑ์ลายเซ็นต์ต่ำเกินไป",
+    "multi-sig-event-stream-double-errored-error": "สตรีมเหตุการณ์การอัปเดตหลายลายเซ็นผิดพลาดสองครั้ง: {{url}}",
+    "multi-sig-service-not-locatable": "ไม่สามารถระบุบริการหลายลายเซ็นต์ได้: {{domain}}",
+    "no-callback-url-error": "ไม่สามารถส่งกลับไปยังบริการหลายลายเซ็นได้. คำขอลายเซ็นไม่มีการติดตั้งค่า URL เรียกกลับ.",
+    "non-existent-destination-error": "ไม่สามารถจ่ายเงิน {{assetCode}}, เนื่องจากบัญชีปลายทางไม่มีอยู่. การสร้างบัญชีจะต้องดำเนินการผ่านXLM เสมอ.",
+    "only-interactive-kyc-supported-error": "คุณได้รับการยอมรับและการสนับสนุนและโต้ตอบเท่านั้น รู้จักกับลูกค้าของคุณคือกระบวนการยืนยันตัวตนของลูกค้า.",
+    "password-required-error": "บัญชี {{accountName}} มีการป้องกันด้วยรหัสผ่าน, แต่ไม่มีการผ่านรหัสผ่าน.",
+    "promise-timeout-error": "สัญญาหมดเวลาหลังจาก {{timeout}}ชื่อ หรือนามสกุล",
+    "request-failed-error": "ขอเข้าร่วม {{target}} ล้มเหลวด้วยสถานะ {{status}}: {{message}}",
+    "stellar-address-not-found-error": "ไม่พบที่อยู่ของสเตลล่า: {{address}}",
+    "stellar-address-request-failed-error": "ความละเอียดของที่อยู่สเตลล่า {{address}} ล้มเหลว.",
+    "submission-failed-error": "ส่งรายการมาที่ {{endpoint}} ล้มเหลวด้วยสถานะ {{status}}: {{message}}",
+    "testnet-endpoint-not-available-error": "{{service}} ไม่ได้จัดเตรียมจุดปลายเทสเน็ต.",
+    "timeout-error": "หมดเวลาการร้องขอ",
+    "unexpected-action-error": "การกระทำที่ไม่คาดคิด: {{action}}",
+    "unexpected-state-error": "เจอสภาพที่คาดไม่ถึง: {{state}}",
+    "unexpected-response-type-error": "ประเภทการตอบสนองที่ไม่คาดคิด: {{type}} / ${dataType}",
+    "unknown-error": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ.",
+    "update-already-running-error": "การอัปเดทกำลังทำงานอยู่!",
+    "wrong-password-error": "รหัสผ่านผิด.",
+    "wrong-request-start-error": "คำขอที่น่าจะเริ่มต้นด้วย 'เว็ปไซด์+สเตลล่า:'",
+    "submission-error": {
+      "default": "ธุรกรรมถูกปฏิเสธโดยเครือข่าย. รหัสข้อผิดพลาด(ส): {{codes}}",
+      "internal-server-error": "เซิร์ฟเวอร์มีปัญหาในการดำเนินการตามคำขอนี้. ได้โปรดลองอีกครั้ง.",
+      "op-result-code": {
+        "op_cross_self": "คำสั่งนั้นจะตอบโต้คำสั่งที่เปิดอยู่ของคุณ.",
+        "op_has_sub_entries": "บัญชียังมีความน่าเชื่อถือ (สินทรัพย์) หรือเปิดคำสั่งซื้อขาย.",
+        "op_immutable_set": "บัญชีไม่เปลี่ยนรูป (รับรองความถูกต้อง_ไม่เปลี่ยนรูป ชุดธง).",
+        "op_line_full": "ยอดเงินในบัญชีปลายทางจะเกินความเชื่อถือในสินทรัพย์ปลายทาง.",
+        "op_low_reserve": "ธุรกรรมถูกปฏิเสธโดยเครือข่าย. ยอดเงินในบัญชีต้นทางหรือปลายทางจะต่ำกว่ายอดขั้นต่ำ",
+        "op_no_account": "ไม่มีบัญชีปลายทาง.",
+        "op_no_issuer": "สินทรัพย์ไม่ถูกต้อง. ผู้ออกสินทรัพย์ไม่ถูกต้อง.",
+        "op_no_trust": "บัญชีปลายทางไม่เชื่อถือสินทรัพย์ที่คุณพยายามส่ง.",
+        "op_offer_not_found": "ไม่มีข้อเสนอ.",
+        "op_self_not_allowed": "บัญชีไม่สามารถเชื่อถือทรัพย์สินที่ออกเองได้.",
+        "op_underfunded": "เงินทุนไม่เพียงพอสำหรับการดำเนินการนี้."
+      },
+      "prefix": {
+        "server-error": "เซิร์ฟเวอร์ผิดพลาด"
+      },
+      "tx-result-code": {
+        "insufficient_fee": "เครือข่ายต้องการค่าธรรมเนียมที่สูงกว่าที่กำหนดไว้ในการทำธุรกรรม.",
+        "internal_error": "เกิดข้อผิดพลาดที่ไม่รู้จักบนสเตลล่าเซิร์ฟเวอร์.",
+        "no_account": "ไม่พบบัญชีต้นทาง.",
+        "tx_bad_auth": "ลายเซ็นต์ที่ไม่ถูกต้องน้อยเกินไปหรือเครือข่ายที่ไม่ถูกต้อง.",
+        "tx_bad_auth_extra": "ลายเซ็นต์ที่ไม่ได้ใช้ที่แนบมากับการทำรายการ.",
+        "tx_bad_seq": "หมายเลขลำดับไม่ตรงกัน. โปรดสร้างธุรกรรมใหม่อีกครั้ง.",
+        "tx_insufficient_balance": "สมดุลไม่เพียงพอ. ยอดคงเหลือต่ำกว่าทุนสำรองขั้นต่ำ",
+        "tx_too_late": "ร่างรายการหมดอายุ. ลองอีกครั้ง."
+      },
+      "timeout": "เซิร์ฟเวอร์ไม่ตอบสนอง. ได้โปรดลองอีกครั้ง."
+    }
+  },
+  "qr-reader": {
+    "action": {
+      "cancel": "ยกเลิก"
+    }
+  },
+  "submission-progress": {
+    "pending": "ส่งเข้าเครือข่าย ...",
+    "success": {
+      "default": "ประสบความสำเร็จ",
+      "multisig": "รอลายเซ็นต์หาย",
+      "third-party": "กำลังรอการอนุญาตบริการบุคคลที่สาม"
+    }
+  },
+  "testnet-badge": {
+    "label": "เทสเน็ต"
+  },
+  "user-interface": {
+    "copied-to-clipboard": "คัดลอกไปยังคลิปบอร์ดแล้ว."
+  }
+}
