@@ -24,6 +24,9 @@ declare namespace IPC {
     OpenLink: "OpenLink"
 
     DeepLinkURL: "DeepLinkURL"
+    IsDefaultProtocolClient: "IsDefaultProtocolClient"
+    IsDifferentHandlerInstalled: "IsDifferentHandlerInstalled"
+    SetAsDefaultProtocolClient: "SetAsDefaultProtocolClient"
 
     CheckUpdateAvailability: "CheckUpdateAvailability"
     StartUpdate: "StartUpdate"
@@ -62,6 +65,9 @@ declare namespace IPC {
     [Messages.OpenLink]: (href: string) => void
 
     [Messages.DeepLinkURL]: () => string
+    [Messages.IsDefaultProtocolClient]: () => boolean
+    [Messages.IsDifferentHandlerInstalled]: () => boolean
+    [Messages.SetAsDefaultProtocolClient]: () => boolean
 
     [Messages.CheckUpdateAvailability]: () => boolean
     [Messages.StartUpdate]: () => void
